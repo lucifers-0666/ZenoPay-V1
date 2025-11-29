@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Branch - Government Banking System</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen overflow-x-hidden font-sans"
+  >
+    <!-- Toast Notification Element -->
+    <%- include('partials/header') %>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
+      <!-- Header -->
+      <div
+        class="bg-white rounded-2xl shadow-xl p-8 mb-8 border-t-4 border-blue-600"
+      >
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4 shadow-lg"
+          >
+            <i class="fas fa-building text-white text-3xl"></i>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Register Bank Branch
+          </h1>
+          <p class="text-gray-600">
+            Reserve Bank of India - Branch Registration Portal
+          </p>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-white rounded-2xl shadow-xl p-8">
+        <form id="registerBranchForm" onsubmit="handleRegister(event)">
+          <!-- Bank Name & Generate Button -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">
+              <i class="fas fa-university text-blue-600 mr-2"></i>Bank Name *
+            </label>
+
+            <div class="flex flex-col md:flex-row gap-4">
+              <div class="flex-grow">
+                <select
+                  id="ddlBankName"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none bg-white"
+                  required
+                >
+                  <option value="">Select Bank</option>
+                  <option value="SBI">State Bank of India</option>
+                  <option value="PNB">Punjab National Bank</option>
+                  <option value="BOB">Bank of Baroda</option>
+                  <option value="UBI">Union Bank of India</option>
+                  <option value="CAN">Canara Bank</option>
+                  <option value="IND">Indian Bank</option>
+                  <option value="HDFC">HDFC Bank</option>
+                  <option value="ICICI">ICICI Bank</option>
+                  <option value="AXIS">Axis Bank</option>
+                </select>
+              </div>
+
+              <div class="md:w-auto">
+                <button
+                  type="button"
+                  onclick="generateIFSC(this)"
+                  class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md whitespace-nowrap cursor-pointer"
+                >
+                  Generate IFSC
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Branch Name & IFSC Display -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Branch Name -->
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-code-branch text-blue-600 mr-2"></i>Branch Name
+                *
+              </label>
+              <input
+                type="text"
+                id="txtBranchName"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+                placeholder="Enter branch name (e.g. Nariman Point)"
+                required
+              />
+            </div>
+
+            <!-- IFSC Result Label -->
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-barcode text-blue-600 mr-2"></i>IFSC Code
+                (Auto) *
+              </label>
+
+              <div
+                id="lblIFSC"
+                class="block w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-700 font-mono font-bold tracking-wider"
+              >
+                Waiting...
+              </div>
+              <input type="hidden" id="hiddenIFSC" name="hiddenIFSC" />
+
+              <p class="text-xs text-blue-500 mt-1">
+                <i class="fas fa-info-circle mr-1"></i>Select Bank & Click
+                Generate.
+              </p>
+            </div>
+          </div>
+
+          <!-- City, State, Pincode -->
+          <div class="grid md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-city text-blue-600 mr-2"></i>City *
+              </label>
+              <input
+                type="text"
+                id="txtCity"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-map text-blue-600 mr-2"></i>State *
+              </label>
+              <input
+                type="text"
+                id="txtState"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-map-pin text-blue-600 mr-2"></i>Pincode *
+              </label>
+              <input
+                type="number"
+                id="txtPincode"
+                maxlength="6"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Contacts -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-phone text-blue-600 mr-2"></i>Branch Phone *
+              </label>
+              <input
+                type="tel"
+                id="txtPhone"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-envelope text-blue-600 mr-2"></i>Branch Email *
+              </label>
+              <input
+                type="email"
+                id="txtEmail"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Manager Details -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-user-tie text-blue-600 mr-2"></i>Manager Name *
+              </label>
+              <input
+                type="text"
+                id="txtManagerName"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-mobile-alt text-blue-600 mr-2"></i>Manager
+                Mobile *
+              </label>
+              <input
+                type="tel"
+                id="txtManagerMobile"
+                maxlength="10"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 transition-all outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-col md:flex-row gap-4 mt-8">
+            <button
+              type="submit"
+              id="btnSubmit"
+              class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer"
+            >
+              Register Branch
+            </button>
+
+            <a
+              href="/"
+              class="flex-1 bg-gray-500 text-white py-4 rounded-lg font-semibold text-lg text-center hover:bg-gray-600 transition-all shadow-lg flex items-center justify-center"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // --- Core Functions ---
+
+      function generateIFSC(btn) {
+        const bankSelect = document.getElementById("ddlBankName");
+        const bankCode = bankSelect.value;
+        const ifscLabel = document.getElementById("lblIFSC");
+        const hiddenIfsc = document.getElementById("hiddenIFSC");
+
+        if (!bankCode) {
+          showToast("Please select a Bank Name first.", "error");
+          return;
+        }
+
+        // Loader State
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+
+        // Simulate server delay
+        setTimeout(() => {
+          // Simulate generating a unique IFSC
+          const randomDigits = Math.floor(100000 + Math.random() * 900000);
+          const newIfsc = `${bankCode}0${randomDigits}`; // e.g., SBIN0123456
+
+          ifscLabel.textContent = newIfsc;
+          ifscLabel.classList.remove("text-gray-700", "bg-gray-100");
+          ifscLabel.classList.add(
+            "text-blue-700",
+            "bg-blue-50",
+            "border-blue-300"
+          );
+          hiddenIfsc.value = newIfsc;
+
+          showToast(`IFSC Generated: ${newIfsc}`, "success");
+
+          // Restore Button
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }, 1000);
+      }
+
+      async function handleRegister(e) {
+        e.preventDefault();
+
+        const ifsc = document.getElementById("hiddenIFSC").value;
+        if (!ifsc) {
+          showToast(
+            "Please generate an IFSC Code before registering.",
+            "warning"
+          );
+          return;
+        }
+
+        const bankSelect = document.getElementById("ddlBankName");
+        const bankName = bankSelect.options[bankSelect.selectedIndex].text;
+
+        // Collect Form Data
+        const payload = {
+          ifsc: ifsc,
+          bankName: bankName,
+          branchName: document.getElementById("txtBranchName").value,
+          city: document.getElementById("txtCity").value,
+          state: document.getElementById("txtState").value,
+          pincode: document.getElementById("txtPincode").value,
+          branchPhone: document.getElementById("txtPhone").value,
+          branchEmail: document.getElementById("txtEmail").value,
+          managerName: document.getElementById("txtManagerName").value,
+          managerMobile: document.getElementById("txtManagerMobile").value,
+        };
+
+        const submitBtn = document.getElementById("btnSubmit");
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+          const response = await fetch("/bank-branches", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            showToast(data.message, "success");
+
+            // Clear Form
+            document.getElementById("registerBranchForm").reset();
+            document.getElementById("lblIFSC").textContent = "Waiting...";
+            document
+              .getElementById("lblIFSC")
+              .classList.add("text-gray-700", "bg-gray-100");
+            document
+              .getElementById("lblIFSC")
+              .classList.remove(
+                "text-blue-700",
+                "bg-blue-50",
+                "border-blue-300"
+              );
+            document.getElementById("hiddenIFSC").value = "";
+          } else {
+            showToast(data.message || "Registration Failed", "error");
+          }
+        } catch (error) {
+          console.error(error);
+          showToast("Network Error: Could not reach server", "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      }
+    </script>
+  </body>
+</html>

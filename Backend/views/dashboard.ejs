@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Government Banking System</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1e40af",
+              secondary: "#3b82f6",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen"
+  >
+    <%- include('partials/header') %>
+
+    <div class="container mx-auto px-4 py-8">
+      <!-- Hero Section -->
+      <div
+        class="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-white shadow-2xl overflow-hidden mb-12 flex items-center justify-center min-h-[540px] border-b-8 border-indigo-100"
+      >
+        <img
+          src="/Images/hero.png"
+          alt="Government Banking"
+          class="w-full h-[600px] object-cover object-center"
+          style="max-width: 100vw"
+          onerror="this.style.display='none';"
+        />
+        <div
+          class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white px-10 py-5 rounded-2xl shadow-xl flex items-center gap-10 border border-indigo-100"
+        >
+          <div class="flex flex-col items-center">
+            <span class="text-3xl font-bold text-indigo-900">1,245+</span>
+            <span class="text-xs font-semibold text-indigo-700">Banks</span>
+          </div>
+          <div class="w-1 h-10 bg-indigo-100 rounded-full"></div>
+          <div class="flex flex-col items-center">
+            <span class="text-3xl font-bold text-indigo-900">2.5M+</span>
+            <span class="text-xs font-semibold text-indigo-700">Accounts</span>
+          </div>
+          <div class="w-1 h-10 bg-indigo-100 rounded-full"></div>
+          <div class="flex flex-col items-center">
+            <span class="text-3xl font-bold text-indigo-900">₹50B+</span>
+            <span class="text-xs font-semibold text-indigo-700"
+              >Transactions</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Overview -->
+      <div
+        class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl shadow-xl p-10 mb-10 border-t-4 border-indigo-200"
+      >
+        <h2
+          class="text-3xl font-extrabold text-indigo-900 mb-8 text-center tracking-tight drop-shadow-sm"
+        >
+          System Overview
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div
+            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-indigo-400 text-sm mb-1">Registered Banks</p>
+                <h3 class="text-3xl font-extrabold">1,245</h3>
+              </div>
+              <i class="fas fa-building-columns text-5xl opacity-10"></i>
+            </div>
+          </div>
+          <div
+            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-indigo-400 text-sm mb-1">Bank Branches</p>
+                <h3 class="text-3xl font-extrabold">15,890</h3>
+              </div>
+              <i class="fas fa-code-branch text-5xl opacity-10"></i>
+            </div>
+          </div>
+          <div
+            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-indigo-400 text-sm mb-1">Active Accounts</p>
+                <h3 class="text-3xl font-extrabold">2.5M</h3>
+              </div>
+              <i class="fas fa-users text-5xl opacity-10"></i>
+            </div>
+          </div>
+          <div
+            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-indigo-400 text-sm mb-1">Total Transactions</p>
+                <h3 class="text-3xl font-extrabold">₹50.2B</h3>
+              </div>
+              <i class="fas fa-chart-line text-5xl opacity-10"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Grid -->
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Services & Operations
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Register Aadhaar -->
+        <a
+          href="/register-aadhar"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-green-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/dcfce7/166534?text=Aadhaar+ID"
+              alt="Aadhaar Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Register Aadhaar Card
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Register new Aadhaar card with personal details and biometric
+              information
+            </p>
+          </div>
+        </a>
+
+        <!-- Register PAN -->
+        <a
+          href="/register-pan"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-green-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/dcfce7/166534?text=PAN+Card"
+              alt="PAN Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Register PAN Card
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Register Permanent Account Number for taxation and financial
+              transactions
+            </p>
+          </div>
+        </a>
+
+        <!-- Register Branch -->
+        <a
+          href="/bank-branches"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-blue-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/dbeafe/1e40af?text=Bank+Branch"
+              alt="Branch Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Register Bank Branch
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Register new bank branch with RBI and assign IFSC code
+            </p>
+          </div>
+        </a>
+
+        <!-- Open Account -->
+        <a
+          href="/open-account"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-blue-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/dbeafe/1e40af?text=New+Account"
+              alt="Account Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Open Bank Account
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Open new bank account with Aadhaar and PAN verification
+            </p>
+          </div>
+        </a>
+
+        <!-- View Account (Redirects to Profile) -->
+        <a
+          href="/profile"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-cyan-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/cffafe/0e7490?text=View+Account"
+              alt="View Account Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              View Your Account
+            </h3>
+            <p class="text-gray-600 text-sm">
+              View complete banking information and account details
+            </p>
+          </div>
+        </a>
+
+        <!-- RBI Records (Placeholder) -->
+        <a
+          href="#"
+          onclick="showToast('Feature coming soon!', 'warning')"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-cyan-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/cffafe/0e7490?text=RBI+Records"
+              alt="RBI Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">RBI Records</h3>
+            <p class="text-gray-600 text-sm">
+              View all banking records registered with Reserve Bank of India
+            </p>
+          </div>
+        </a>
+
+        <!-- Make Transaction -->
+        <a
+          href="/transfer"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-orange-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/ffedd5/c2410c?text=Transfer"
+              alt="Transaction Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Make Transaction
+            </h3>
+            <p class="text-gray-600 text-sm">
+              Perform banking transactions between accounts
+            </p>
+          </div>
+        </a>
+
+        <!-- Transaction History (Redirects to Profile) -->
+        <a
+          href="/profile"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-orange-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/ffedd5/c2410c?text=History"
+              alt="History Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">
+              Transaction History
+            </h3>
+            <p class="text-gray-600 text-sm">
+              View complete transaction history and records
+            </p>
+          </div>
+        </a>
+
+        <!-- User Profile -->
+        <a
+          href="/profile"
+          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-red-500"
+        >
+          <div class="text-center">
+            <img
+              src="https://placehold.co/200x200/fee2e2/b91c1c?text=Profile"
+              alt="Profile Illustration"
+              class="w-32 h-32 mx-auto mb-4 object-contain"
+            />
+            <h3 class="text-xl font-bold text-gray-800 mb-2">User Profile</h3>
+            <p class="text-gray-600 text-sm">
+              View and manage user account information
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-12 text-gray-600">
+        <p class="mb-2">© 2025 Government of India - Reserve Bank of India</p>
+        <p class="text-sm">All Rights Reserved | Secure Banking Portal</p>
+      </div>
+    </div>
+
+    <script>
+      // Show welcome toast on load if parameter present (optional enhancement)
+      window.onload = function () {
+        showToast("Welcome to Government Banking System!", "success");
+      };
+
+     
+
+   </script>
+  </body>
+</html>

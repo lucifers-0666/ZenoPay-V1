@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Aadhaar - Government Banking System</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen overflow-x-hidden font-sans"
+  >
+    <!-- Partial Include Placeholder -->
+    <%- include ('partials/header') %>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl min-h-[80vh]">
+      <!-- Header Card -->
+      <div
+        class="bg-white rounded-2xl shadow-xl p-8 mb-8 border-t-4 border-green-600"
+      >
+        <div class="text-center">
+          <div
+            class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-4 shadow-lg"
+          >
+            <i class="fas fa-id-card text-white text-3xl"></i>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Register Aadhaar Card
+          </h1>
+          <p class="text-gray-600">
+            Government of India - UIDAI Registration Portal
+          </p>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-white rounded-2xl shadow-xl p-8">
+        <form
+          id="registerAadharForm"
+          onsubmit="handleRegister(event)"
+          enctype="multipart/form-data"
+        >
+          <!-- Full Name -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">
+              <i class="fas fa-user text-green-600 mr-2"></i>Full Name (as per
+              documents) *
+            </label>
+            <input
+              type="text"
+              id="txtFullName"
+              name="fullName"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none"
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+          <!-- Aadhaar Number (Auto Generated) -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">
+              <i class="fas fa-id-card text-green-600 mr-2"></i>Aadhaar Number *
+            </label>
+
+            <div class="flex flex-col md:flex-row gap-4">
+              <div class="flex-grow">
+                <input
+                  type="text"
+                  id="txtAadharNumber"
+                  name="aadharNumber"
+                  readonly
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 font-mono font-bold tracking-wider text-gray-700 focus:outline-none cursor-not-allowed"
+                  placeholder="Click Generate to create number"
+                  required
+                />
+              </div>
+              <div class="md:w-auto">
+                <button
+                  type="button"
+                  onclick="generateAadhaar()"
+                  class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md whitespace-nowrap cursor-pointer"
+                >
+                  Generate Number
+                </button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">
+              12-digit unique identification number (Auto-generated)
+            </p>
+          </div>
+
+          <!-- Date of Birth & Gender -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-calendar text-green-600 mr-2"></i>Date of Birth
+                *
+              </label>
+              <input
+                type="date"
+                id="txtDOB"
+                name="dob"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-venus-mars text-green-600 mr-2"></i>Gender *
+              </label>
+              <select
+                id="ddlGender"
+                name="gender"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none bg-white"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Mobile & Email -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-phone text-green-600 mr-2"></i>Mobile Number *
+              </label>
+              <input
+                type="tel"
+                id="txtMobile"
+                name="mobileNumber"
+                maxlength="10"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="10-digit mobile number"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-envelope text-green-600 mr-2"></i>Email Address
+                *
+              </label>
+              <input
+                type="email"
+                id="txtEmail"
+                name="email"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="email@example.com"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Password Field Removed Here -->
+
+          <!-- Father's Name & Mother's Name -->
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-male text-green-600 mr-2"></i>Father's Name *
+              </label>
+              <input
+                type="text"
+                id="txtFatherName"
+                name="fatherName"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="Enter father's name"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-female text-green-600 mr-2"></i>Mother's Name
+                (Optional)
+              </label>
+              <input
+                type="text"
+                id="txtMotherName"
+                name="motherName"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="Enter mother's name"
+              />
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">
+              <i class="fas fa-home text-green-600 mr-2"></i>Residential Address
+              *
+            </label>
+            <textarea
+              id="txtAddress"
+              name="address"
+              rows="3"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+              placeholder="Enter complete address"
+              required
+            ></textarea>
+          </div>
+
+          <!-- City, State, Pincode -->
+          <div class="grid md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-city text-green-600 mr-2"></i>City *
+              </label>
+              <input
+                type="text"
+                id="txtCity"
+                name="city"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="City"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-map text-green-600 mr-2"></i>State *
+              </label>
+              <input
+                type="text"
+                id="txtState"
+                name="state"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="State"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">
+                <i class="fas fa-map-pin text-green-600 mr-2"></i>Pincode *
+              </label>
+              <input
+                type="number"
+                id="txtPincode"
+                name="pincode"
+                maxlength="6"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none"
+                placeholder="6-digit pincode"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Document Upload -->
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">
+              <i class="fas fa-upload text-green-600 mr-2"></i>Upload Image *
+            </label>
+            <input
+              type="file"
+              id="fuImage"
+              name="userImage"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 transition-all outline-none bg-white"
+              required
+            />
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-col md:flex-row gap-4 mt-8">
+            <button
+              type="submit"
+              class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer"
+            >
+              Submit Registration
+            </button>
+
+            <a
+              href="index.html"
+              class="flex-1 bg-gray-500 text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-600 transition-all shadow-lg text-center flex items-center justify-center"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Info Section -->
+      <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+        <div class="flex">
+          <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-1"></i>
+          <div>
+            <h3 class="font-semibold text-blue-900 mb-1">
+              Important Information
+            </h3>
+            <ul class="text-sm text-blue-800 space-y-1 list-none">
+              <li>
+                • Aadhaar is a 12-digit unique identification number issued by
+                UIDAI
+              </li>
+              <li>• All fields marked with * are mandatory</li>
+              <li>• Ensure all details match your identity documents</li>
+              <li>• Registration process may take 3-5 business days</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+  
+      // --- Core Functions ---
+
+      function generateAadhaar() {
+        // Generate a random 12-digit number
+        const aadharNum = Math.floor(
+          100000000000 + Math.random() * 900000000000
+        );
+        const aadharString = aadharNum.toString();
+
+        // Format it nicely (XXXX XXXX XXXX)
+        const formatted = `${aadharString.substring(
+          0,
+          4
+        )} ${aadharString.substring(4, 8)} ${aadharString.substring(8, 12)}`;
+
+        document.getElementById("txtAadharNumber").value = formatted;
+
+        showToast("Aadhaar Number Generated!", "success");
+      }
+
+      // Updated handleRegister to post to /register-aadhar
+      async function handleRegister(e) {
+        e.preventDefault();
+
+        const aadhar = document.getElementById("txtAadharNumber").value;
+        const name = document.getElementById("txtFullName").value;
+
+        if (!aadhar) {
+          showToast(
+            "Please generate an Aadhaar Number before submitting.",
+            "warning"
+          );
+          return;
+        }
+
+        const submitBtn = e.submitter;
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Processing...";
+
+        // Create FormData to handle text inputs and file uploads automatically
+        const formData = new FormData(e.target);
+
+        try {
+          // Send data to the server
+          const response = await fetch("/register-aadhar", {
+            method: "POST",
+            body: formData,
+            // Note: Content-Type header is not set manually so browser can set boundary for multipart
+          });
+
+          if (response.ok) {
+            showToast(
+              `Application Submitted Successfully for: ${name}`,
+              "success"
+            );
+            e.target.reset(); // Clear form
+          } else {
+            const errorText = await response.text();
+            showToast("Submission failed. Please try again.", "error");
+            console.error("Server Error:", errorText);
+          }
+        } catch (error) {
+          console.error("Network Error:", error);
+          showToast("Connection error. Could not connect to server.", "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      }
+    </script>
+  </body>
+</html>
