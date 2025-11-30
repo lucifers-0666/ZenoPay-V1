@@ -2,6 +2,7 @@
 <div
   id="toast"
   class="fixed top-5 right-5 bg-white border-l-4 border-green-500 rounded-lg shadow-2xl p-4 transform translate-x-[400px] transition-transform duration-300 z-50 max-w-md flex items-center"
+  style="margin-top: 5rem"
 >
   <i
     id="toastIcon"
@@ -62,7 +63,7 @@
           <i class="fas fa-user mr-1"></i> Profile
         </a>
         <button
-          onclick="showToast('Logged out successfully', 'success')"
+          onclick="logout()"
           class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
         >
           <i class="fas fa-sign-out-alt mr-1"></i> Logout
@@ -101,7 +102,7 @@
         class="block py-2 text-gray-700 hover:text-blue-600 font-semibold"
         >Profile</a
       >
-      <a href="#" class="block py-2 text-red-500 font-semibold">Logout</a>
+      <a href="/logout" class="block py-2 text-red-500 font-semibold">Logout</a>
     </div>
   </div>
 </nav>
@@ -140,7 +141,7 @@
   function hideToast() {
     const toast = document.getElementById("toast");
     if (toast) {
-      toast.style.transform = "translateX(400px)";
+      toast.style.transform = "translateX(500px)";
     }
   }
 

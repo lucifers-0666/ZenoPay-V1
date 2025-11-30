@@ -74,6 +74,7 @@ const postLogin = async (req, res) => {
 };
 
 const logout = (req, res) => {
+  console.log("User logged out:", req.session.user ? req.session.user.name : "Unknown User");
     req.session.destroy((err) => {
         if (err) {
             console.log(err);

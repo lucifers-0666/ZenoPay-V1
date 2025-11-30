@@ -1,264 +1,409 @@
+const mongoose = require("mongoose");
 const AadharDetails = require("../Models/AadharDetails");
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
-const emailService = require("../Services/EmailService");
+const emailService = require("../Services/email");
 
-// 1. Create Order (Server-to-Server)
+// ------------------------
+// Transaction Helper (ACID)
+// ------------------------
+async function runInTransaction(work) {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const result = await work(session);
+    await session.commitTransaction();
+    return result;
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    session.endSession();
+  }
+}
+
+// 1. Create Order (Server-to-Server) - READ ONLY (no transaction needed)
 const createOrder = async (req, res) => {
-    const { key, secret, amount } = req.body;
-    try {
-        if (!key || !secret || !amount) {
-            return res.status(400).json({ success: false, message: "Missing Parameters" });
-        }
-
-        // 1. Verify Merchant Credentials in AadharDetails
-        const merchant = await AadharDetails.findOne({ api_key: key }).select('+api_secret');
-
-        if (!merchant) {
-            return res.status(401).json({ success: false, message: "Invalid API Key" });
-        }
-        if (merchant.api_secret !== secret) {
-            return res.status(401).json({ success: false, message: "Invalid API Secret" });
-        }
-
-        // 2. Generate Order ID
-        const orderId = "ORD_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-
-        res.status(200).json({
-            success: true,
-            order_id: orderId,
-            amount: amount,
-            currency: "INR",
-            merchant_name: merchant.BusinessName || merchant.FullName
-        });
-    } catch (err) {
-        console.error("Create Order Error:", err);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+  const { key, secret, amount } = req.body;
+  try {
+    if (!key || !secret || !amount) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing Parameters" });
     }
+
+    // Verify Merchant Credentials in AadharDetails
+    const merchant = await AadharDetails.findOne({ api_key: key }).select(
+      "+api_secret"
+    );
+
+    if (!merchant) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid API Key" });
+    }
+    if (merchant.api_secret !== secret) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid API Secret" });
+    }
+
+    // Generate Order ID
+    const orderId =
+      "ORD_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+    res.status(200).json({
+      success: true,
+      order_id: orderId,
+      amount: amount,
+      currency: "INR",
+      merchant_name: merchant.BusinessName || merchant.FullName,
+    });
+  } catch (err) {
+    console.error("Create Order Error:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 };
 
-// 2. Process Refund
+// 2. Process Refund (MONEY FLOW → ACID)
 const processRefund = async (req, res) => {
+  try {
     const { key, secret, transactionId, reason } = req.body;
 
-    try {
-        // 1. Authenticate Merchant via AadharDetails
-        const merchant = await AadharDetails.findOne({ api_key: key }).select('+api_secret');
-        if (!merchant || merchant.api_secret !== secret) {
-            return res.status(401).json({ success: false, message: "Unauthorized" });
-        }
+    const result = await runInTransaction(async (session) => {
+      // 1. Authenticate Merchant
+      const merchant = await AadharDetails.findOne({ api_key: key })
+        .select("+api_secret")
+        .session(session);
 
-        // 2. Find Transaction
-        const txn = await TransactionHistory.findOne({ TransactionID: transactionId });
-        if (!txn) return res.status(404).json({ success: false, message: "Transaction not found" });
+      if (!merchant || merchant.api_secret !== secret) {
+        const err = new Error("Unauthorized");
+        err.statusCode = 401;
+        throw err;
+      }
 
-        const refundAmount = parseFloat(txn.Amount.toString());
+      // 2. Find Original Transaction
+      const txn = await TransactionHistory.findOne({
+        TransactionID: transactionId,
+      }).session(session);
+      if (!txn) {
+        const err = new Error("Transaction not found");
+        err.statusCode = 404;
+        throw err;
+      }
 
-        // 3. Fetch Accounts
-        const sender = await BankAccount.findOne({ AccountNumber: txn.SenderAccountNumber }); // Original Payer
-        const receiver = await BankAccount.findOne({ AccountNumber: txn.ReceiverAccountNumber }); // Merchant Account
+      const refundAmount = parseFloat(txn.Amount.toString());
 
-        if (!receiver) return res.status(404).json({ success: false, message: "Merchant account not found" });
+      // 3. Fetch Accounts
+      const sender = await BankAccount.findOne({
+        AccountNumber: txn.SenderAccountNumber,
+      }).session(session); // Original payer
+      const receiver = await BankAccount.findOne({
+        AccountNumber: txn.ReceiverAccountNumber,
+      }).session(session); // Merchant
 
-        if (parseFloat(receiver.OpeningBalance) < refundAmount) {
-             return res.status(400).json({ success: false, message: "Insufficient Merchant Balance" });
-        }
+      if (!receiver) {
+        const err = new Error("Merchant account not found");
+        err.statusCode = 404;
+        throw err;
+      }
+      if (!sender) {
+        const err = new Error("Payer account not found");
+        err.statusCode = 404;
+        throw err;
+      }
 
-        // 4. Reverse Transfer
-        receiver.OpeningBalance = parseFloat(receiver.OpeningBalance) - refundAmount;
-        sender.OpeningBalance = parseFloat(sender.OpeningBalance) + refundAmount;
+      const receiverBalanceBefore = parseFloat(
+        receiver.OpeningBalance.toString()
+      );
+      const senderBalanceBefore = parseFloat(sender.OpeningBalance.toString());
 
-        await receiver.save();
-        await sender.save();
+      if (receiverBalanceBefore < refundAmount) {
+        const err = new Error("Insufficient Merchant Balance");
+        err.statusCode = 400;
+        throw err;
+      }
 
-        // 5. Record Refund
-        const refundTxnId = Math.floor(1000000000 + Math.random() * 9000000000);
-        const refundHistory = new TransactionHistory({
+      // 4. Reverse Transfer
+      receiver.OpeningBalance = receiverBalanceBefore - refundAmount;
+      sender.OpeningBalance = senderBalanceBefore + refundAmount;
+
+      await receiver.save({ session });
+      await sender.save({ session });
+
+      // 5. Record Refund
+      const refundTxnId = Math.floor(1000000000 + Math.random() * 9000000000);
+
+      await TransactionHistory.create(
+        [
+          {
             TransactionID: refundTxnId,
             TransactionTime: new Date(),
             SenderBank: receiver.BankName,
             SenderAccountNumber: receiver.AccountNumber,
             SenderHolderName: receiver.BusinessName || receiver.FullName,
-            SenderBalanceBefore: parseFloat(receiver.OpeningBalance) + refundAmount,
+            SenderBalanceBefore: receiverBalanceBefore,
             SenderBalanceAfter: receiver.OpeningBalance,
             ReceiverBank: sender.BankName,
             ReceiverAccountNumber: sender.AccountNumber,
             ReceiverHolderName: sender.FullName,
-            ReceiverBalanceBefore: parseFloat(sender.OpeningBalance) - refundAmount,
+            ReceiverBalanceBefore: senderBalanceBefore,
             ReceiverBalanceAfter: sender.OpeningBalance,
             Amount: refundAmount,
-            Description: `REFUND: ${txn.Description} (${reason})`
-        });
-        
-        await refundHistory.save();
+            Description: `REFUND: ${txn.Description} (${reason})`,
+          },
+        ],
+        { session }
+      );
 
-        res.status(200).json({ success: true, message: "Refund Processed", refundId: refundTxnId });
+      return { refundTxnId };
+    });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: "Refund Failed" });
-    }
+    return res.status(200).json({
+      success: true,
+      message: "Refund Processed",
+      refundId: result.refundTxnId,
+    });
+  } catch (err) {
+    console.error("Refund Error:", err);
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Refund Failed",
+    });
+  }
 };
 
-// 3. Fetch Payer Accounts (SDK)
+// 3. Fetch Payer Accounts (READ ONLY)
 const fetchPayerAccounts = async (req, res) => {
-    const { aadharNumber } = req.body;
-    try {
-        const cleanAadhar = aadharNumber.replace(/\s/g, "");
-        const accounts = await BankAccount.find({ AadharNumber: cleanAadhar });
-        
-        if (accounts.length > 0) {
-            const mappedAccounts = accounts.map(acc => ({
-                bankName: acc.BankName,
-                accountNumber: acc.AccountNumber,
-                maskedNumber: "****" + acc.AccountNumber.slice(-4)
-            }));
-            return res.status(200).json({ success: true, accounts: mappedAccounts });
-        }
-        return res.status(404).json({ success: false, message: "No linked accounts found." });
-    } catch (err) { res.status(500).json({ success: false }); }
-};
-
-// 4. Send OTP
-const sendAadhaarOtp = async (req, res) => {
-    const { aadharNumber } = req.body;
-    try {
-        const cleanAadhar = aadharNumber.replace(/\s/g, "");
-        const user = await AadharDetails.findOne({ AadharNumber: cleanAadhar });
-        if (!user) return res.status(404).json({ success: false, message: "Aadhaar not linked." });
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        req.session.gatewayOtp = { code: otp, aadhar: cleanAadhar, expires: Date.now() + 5 * 60 * 1000 };
-        
-        await emailService.sendPaymentOtp(user.Email, user.FullName, otp);
-        res.status(200).json({ success: true, message: "OTP Sent" });
-    } catch (err) { res.status(500).json({ success: false }); }
-};
-
-// 5. Verify OTP
-const verifyOtpAndFetchAccounts = async (req, res) => {
-    const { otp, aadharNumber } = req.body;
+  const { aadharNumber } = req.body;
+  try {
     const cleanAadhar = aadharNumber.replace(/\s/g, "");
-    
-    if (!req.session.gatewayOtp || req.session.gatewayOtp.code !== otp || req.session.gatewayOtp.aadhar !== cleanAadhar) {
-        return res.status(400).json({ success: false, message: "Invalid OTP" });
+    const accounts = await BankAccount.find({ AadharNumber: cleanAadhar });
+
+    if (accounts.length > 0) {
+      const mappedAccounts = accounts.map((acc) => ({
+        bankName: acc.BankName,
+        accountNumber: acc.AccountNumber,
+        maskedNumber: "****" + acc.AccountNumber.slice(-4),
+      }));
+      return res.status(200).json({ success: true, accounts: mappedAccounts });
     }
-    
+    return res
+      .status(404)
+      .json({ success: false, message: "No linked accounts found." });
+  } catch (err) {
+    console.error("fetchPayerAccounts Error:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 4. Send OTP (no DB writes except session + email)
+const sendAadhaarOtp = async (req, res) => {
+  const { aadharNumber } = req.body;
+  try {
+    const cleanAadhar = aadharNumber.replace(/\s/g, "");
+    const user = await AadharDetails.findOne({ AadharNumber: cleanAadhar });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "Aadhaar not linked." });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    req.session.gatewayOtp = {
+      code: otp,
+      aadhar: cleanAadhar,
+      expires: Date.now() + 5 * 60 * 1000,
+    };
+
+    await emailService.sendPaymentOtp(user.Email, user.FullName, otp);
+    res.status(200).json({ success: true, message: "OTP Sent" });
+  } catch (err) {
+    console.error("sendAadhaarOtp Error:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 5. Verify OTP & Fetch Accounts (READ ONLY)
+const verifyOtpAndFetchAccounts = async (req, res) => {
+  const { otp, aadharNumber } = req.body;
+  const cleanAadhar = aadharNumber.replace(/\s/g, "");
+
+  try {
+    const sessionOtp = req.session.gatewayOtp;
+
+    if (
+      !sessionOtp ||
+      sessionOtp.code !== otp ||
+      sessionOtp.aadhar !== cleanAadhar ||
+      sessionOtp.expires < Date.now()
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or Expired OTP" });
+    }
+
     delete req.session.gatewayOtp;
-    
+
     const accounts = await BankAccount.find({ AadharNumber: cleanAadhar });
     if (accounts.length > 0) {
-        const mappedAccounts = accounts.map(acc => ({
-            bankName: acc.BankName,
-            accountNumber: acc.AccountNumber,
-            maskedNumber: "****" + acc.AccountNumber.slice(-4)
-        }));
-        return res.status(200).json({ success: true, accounts: mappedAccounts });
+      const mappedAccounts = accounts.map((acc) => ({
+        bankName: acc.BankName,
+        accountNumber: acc.AccountNumber,
+        maskedNumber: "****" + acc.AccountNumber.slice(-4),
+      }));
+      return res.status(200).json({ success: true, accounts: mappedAccounts });
     }
     return res.status(404).json({ success: false, message: "No Accounts" });
+  } catch (err) {
+    console.error("verifyOtp Error:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
 };
 
-// 6. Process Payment
+// 6. Process Payment (MONEY FLOW → ACID)
 const processPayment = async (req, res) => {
-    const { apiKey, amount, customerId, pin, orderId } = req.body; 
+  try {
+    const { apiKey, amount, customerId, pin, orderId } = req.body;
 
-    try {
-        // A. Validate Key Format
-        if (!apiKey || apiKey.length < 11) {
-            return res.status(400).json({ success: false, message: "Invalid API Key Format" });
-        }
+    if (!apiKey || apiKey.length < 11) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid API Key Format" });
+    }
 
-        // B. Find Merchant in AadharDetails (User Schema)
-        const merchantUser = await AadharDetails.findOne({ api_key: apiKey });
-        if (!merchantUser) {
-            return res.status(400).json({ success: false, message: "Invalid Merchant Key" });
-        }
+    const result = await runInTransaction(async (session) => {
+      // A. Find Merchant User
+      const merchantUser = await AadharDetails.findOne({
+        api_key: apiKey,
+      }).session(session);
+      if (!merchantUser) {
+        const err = new Error("Invalid Merchant Key");
+        err.statusCode = 400;
+        throw err;
+      }
 
-        // C. Identify Settlement Account using IFSC Prefix
-        // FIXED: Extract 11 characters for IFSC (Standard IFSC length)
-        const targetIFSC = apiKey.substring(0, 10); 
-        
-        const merchantAccount = await BankAccount.findOne({ 
-            AadharNumber: merchantUser.AadharNumber,
-            IFSC: targetIFSC
-        });
+      // B. Identify settlement account via IFSC prefix
+      // IFSC is usually 11 chars, adjust if your apiKey design is different
+      const targetIFSC = apiKey.substring(0, 11);
 
-        if (!merchantAccount) {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Settlement Error: No account found for IFSC ${targetIFSC}` 
-            });
-        }
+      const merchantAccount = await BankAccount.findOne({
+        AadharNumber: merchantUser.AadharNumber,
+        IFSC: targetIFSC,
+      }).session(session);
 
-        // D. Find Payer Account
-        const payerAccount = await BankAccount.findOne({ AccountNumber: customerId });
-        if (!payerAccount) {
-            return res.status(404).json({ success: false, message: "Payer account not found" });
-        }
+      if (!merchantAccount) {
+        const err = new Error(
+          `Settlement Error: No account found for IFSC ${targetIFSC}`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
 
-        // Checks
-        if (payerAccount.AccountNumber === merchantAccount.AccountNumber) {
-            return res.status(400).json({ success: false, message: "Cannot pay to self" });
-        }
-        if (payerAccount.CardPIN !== pin) {
-            return res.status(401).json({ success: false, message: "Invalid PIN" });
-        }
+      // C. Find Payer Account
+      const payerAccount = await BankAccount.findOne({
+        AccountNumber: customerId,
+      }).session(session);
 
-        // E. Transfer Funds
-        const transferAmount = parseFloat(amount);
-        const payerBalance = parseFloat(payerAccount.OpeningBalance.toString());
+      if (!payerAccount) {
+        const err = new Error("Payer account not found");
+        err.statusCode = 404;
+        throw err;
+      }
 
-        if (payerBalance < transferAmount) {
-            return res.status(400).json({ success: false, message: "Insufficient Funds" });
-        }
+      if (payerAccount.AccountNumber === merchantAccount.AccountNumber) {
+        const err = new Error("Cannot pay to self");
+        err.statusCode = 400;
+        throw err;
+      }
 
-        payerAccount.OpeningBalance = payerBalance - transferAmount;
-        merchantAccount.OpeningBalance = parseFloat(merchantAccount.OpeningBalance.toString()) + transferAmount;
+      if (payerAccount.CardPIN !== pin) {
+        const err = new Error("Invalid PIN");
+        err.statusCode = 401;
+        throw err;
+      }
 
-        await payerAccount.save();
-        await merchantAccount.save();
+      // D. Transfer Funds
+      const transferAmount = parseFloat(amount);
+      if (isNaN(transferAmount) || transferAmount <= 0) {
+        const err = new Error("Invalid Amount");
+        err.statusCode = 400;
+        throw err;
+      }
 
-        // F. Record Transaction
-        const transactionID = Math.floor(1000000000 + Math.random() * 9000000000);
-        const history = new TransactionHistory({
+      const payerBalanceBefore = parseFloat(
+        payerAccount.OpeningBalance.toString()
+      );
+      const merchantBalanceBefore = parseFloat(
+        merchantAccount.OpeningBalance.toString()
+      );
+
+      if (payerBalanceBefore < transferAmount) {
+        const err = new Error("Insufficient Funds");
+        err.statusCode = 400;
+        throw err;
+      }
+
+      payerAccount.OpeningBalance = payerBalanceBefore - transferAmount;
+      merchantAccount.OpeningBalance = merchantBalanceBefore + transferAmount;
+
+      await payerAccount.save({ session });
+      await merchantAccount.save({ session });
+
+      // E. Record Transaction
+      const transactionID = Math.floor(1000000000 + Math.random() * 9000000000);
+
+      await TransactionHistory.create(
+        [
+          {
             TransactionID: transactionID,
             TransactionTime: new Date(),
             SenderBank: payerAccount.BankName,
             SenderAccountNumber: payerAccount.AccountNumber,
             SenderHolderName: payerAccount.FullName,
-            SenderBalanceBefore: payerBalance,
+            SenderBalanceBefore: payerBalanceBefore,
             SenderBalanceAfter: payerAccount.OpeningBalance,
             ReceiverBank: merchantAccount.BankName,
             ReceiverAccountNumber: merchantAccount.AccountNumber,
-            ReceiverHolderName: merchantAccount.BusinessName || merchantAccount.FullName,
-            ReceiverBalanceBefore: parseFloat(merchantAccount.OpeningBalance) - transferAmount,
+            ReceiverHolderName:
+              merchantAccount.BusinessName || merchantAccount.FullName,
+            ReceiverBalanceBefore: merchantBalanceBefore,
             ReceiverBalanceAfter: merchantAccount.OpeningBalance,
             Amount: transferAmount,
-            Description: `Order ${orderId || 'Direct'} - ${merchantUser.BusinessName}`
-        });
+            Description: `Order ${orderId || "Direct"} - ${
+              merchantUser.BusinessName || merchantUser.FullName
+            }`,
+          },
+        ],
+        { session }
+      );
 
-        await history.save();
+      return { transactionID };
+    });
 
-        res.status(200).json({
-            success: true,
-            message: "Payment Successful!",
-            transactionId: transactionID
-        });
-
-    } catch (err) {
-        console.error("Payment Process Error:", err);
-        res.status(500).json({ success: false, message: "Transaction Failed due to Server Error" });
-    }
+    return res.status(200).json({
+      success: true,
+      message: "Payment Successful!",
+      transactionId: result.transactionID,
+    });
+  } catch (err) {
+    console.error("Payment Process Error:", err);
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || "Transaction Failed due to Server Error",
+    });
+  }
 };
 
-const renderCheckout = async (req, res) => { res.status(200).send("Use JS SDK"); };
+const renderCheckout = async (req, res) => {
+  res.status(200).send("Use JS SDK");
+};
 
 module.exports = {
-    createOrder,
-    fetchPayerAccounts,
-    processPayment,
-    renderCheckout,
-    sendAadhaarOtp,
-    verifyOtpAndFetchAccounts,
-    processRefund
+  createOrder,
+  fetchPayerAccounts,
+  processPayment,
+  renderCheckout,
+  sendAadhaarOtp,
+  verifyOtpAndFetchAccounts,
+  processRefund,
 };

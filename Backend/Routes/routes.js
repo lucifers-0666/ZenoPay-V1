@@ -36,7 +36,7 @@ const upload = multer({ storage });
 router.get("/", DashboardController.getDashboard);
 router.get("/login", LoginController.getLogin);
 router.post("/login", LoginController.postLogin);
-router.post("/logout", LoginController.logout);
+router.get("/logout", LoginController.logout);
 router.get("/profile", ProfileController.getProfile);
 router.get("/shop", ShopController.getShop);
 
