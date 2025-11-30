@@ -15,7 +15,7 @@ const getProfile = async (req, res) => {
     // 2. Fetch User Details (Aadhaar)
     const user = await AadharDetails.findOne({ AadharNumber: aadharNumber });
     if (!user) {
-        return res.redirect("/login"); // Should not happen if session is valid
+      return res.redirect("/login"); // Should not happen if session is valid
     }
 
     // 3. Fetch PAN Details
@@ -26,32 +26,33 @@ const getProfile = async (req, res) => {
 
     // 5. Fetch Transactions (for all user accounts)
     // Get array of user's account numbers
-    const accountNumbers = bankAccounts.map(acc => acc.AccountNumber);
-    
+    const accountNumbers = bankAccounts.map((acc) => acc.AccountNumber);
+
     // Find transactions where user is either sender or receiver
     const transactions = await TransactionHistory.find({
-        $or: [
-            { SenderAccountNumber: { $in: accountNumbers } },
-            { ReceiverAccountNumber: { $in: accountNumbers } }
-        ]
-    }).sort({ TransactionTime: -1 }).limit(20); // Last 20 transactions
+      $or: [
+        { SenderAccountNumber: { $in: accountNumbers } },
+        { ReceiverAccountNumber: { $in: accountNumbers } },
+      ],
+    })
+      .sort({ TransactionTime: -1 })
+      .limit(20); // Last 20 transactions
 
     // 6. Calculate Total Balance
     let totalBalance = 0;
-    bankAccounts.forEach(acc => {
-        totalBalance += parseFloat(acc.OpeningBalance.toString());
+    bankAccounts.forEach((acc) => {
+      totalBalance += parseFloat(acc.OpeningBalance.toString());
     });
 
     // 7. Render View
-    res.render("profile", {
+    res.render("Profile", {
       pageTitle: "User Profile",
       user: user,
       pan: pan,
       bankAccounts: bankAccounts,
       transactions: transactions,
-      totalBalance: totalBalance
+      totalBalance: totalBalance,
     });
-
   } catch (err) {
     console.error("Profile Fetch Error:", err);
     res.redirect("/");
