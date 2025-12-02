@@ -1,62 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= pageTitle %> - Government Banking System</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
-
-    <style>
-      /* Custom scrollbar */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #f1f1f1; }
-      ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #555; }
-    </style>
-  </head>
-
-  <body
-    class="bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 min-h-screen font-sans text-gray-100"
-  >
-    <!-- Toast Notification -->
-    <div
-      id="toast"
-      class="fixed top-5 right-5 bg-white border-l-4 border-green-500 rounded-lg shadow-2xl p-4 transform translate-x-[400px] transition-transform duration-300 z-50 max-w-md flex items-center text-gray-800"
-    >
-      <i id="toastIcon" class="fas fa-check-circle text-green-500 text-2xl mr-3"></i>
-      <div class="flex-1">
-        <p id="toastMessage" class="font-semibold"></p>
-      </div>
-      <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-gray-600">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-40">
-      <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between py-4">
-          <div class="flex items-center cursor-pointer" onclick="window.location.href='/'">
-            <i class="fas fa-landmark text-blue-400 text-2xl mr-3"></i>
-            <div>
-              <h1 class="text-xl font-bold text-white">GovBank <span class="text-xs bg-yellow-500 text-black px-1.5 py-0.5 rounded ml-1">MERCHANT</span></h1>
-            </div>
-          </div>
-          <div class="flex items-center space-x-6">
-            <a href="/" class="text-gray-300 hover:text-white transition-colors"><i class="fas fa-home mr-1"></i> Dashboard</a>
-            <a href="/logout" class="bg-red-500/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">Logout</a>
-          </div>
-        </div>
-      </div>
-    </nav>
+<%-include ('partials/header')%>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-12 max-w-3xl">
@@ -259,31 +201,7 @@
             showToast("Copied!", "success");
         }
 
-        function showToast(message, type = "success") {
-            const toast = document.getElementById("toast");
-            const toastIcon = document.getElementById("toastIcon");
-            const toastMessage = document.getElementById("toastMessage");
-
-            toastMessage.textContent = message;
-
-            if (type === "success") {
-                toastIcon.className = "fas fa-check-circle text-green-500 text-2xl mr-3";
-                toast.classList.remove("border-red-500");
-                toast.classList.add("border-green-500");
-            } else {
-                toastIcon.className = "fas fa-exclamation-circle text-red-500 text-2xl mr-3";
-                toast.classList.remove("border-green-500");
-                toast.classList.add("border-red-500");
-            }
-
-            toast.style.transform = "translateX(0)";
-            setTimeout(hideToast, 3000);
-        }
-
-        function hideToast() {
-            const toast = document.getElementById("toast");
-            toast.style.transform = "translateX(400px)";
-        }
+     
     </script>
   </body>
 </html>

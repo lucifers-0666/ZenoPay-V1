@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
+    "build:css": "npx tailwindcss -i ./input.css -o ./public/css/output.css",
     "start": "node app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
@@ -20,5 +20,9 @@
     "multer": "^2.0.2",
     "nodemailer": "^7.0.11",
     "path": "^0.12.7"
-  }
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.18"
+  },
+  "description": ""
 }
