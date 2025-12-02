@@ -14,6 +14,7 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 app.use(cors());
+
 app.use(
   session({
     secret: "I like to code in NodeJS",
@@ -40,7 +41,6 @@ app.use(express.json());
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(routes);
-
 mongoose
   .connect(DB_PATH)
   .then(() => {
