@@ -7,36 +7,33 @@ const path = require("path");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 
-app.enable("trust proxy");
-
-// ------------------------
-// CONFIG
-// ------------------------
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
 
-// ------------------------
-// SESSION STORE
-// ------------------------
+
+app.enable("trust proxy");
+
+
 const store = new MongoDBStore({
   uri: DB_PATH,
   collection: "sessions",
 });
 
-// ------------------------
-// MIDDLEWARES
-// ------------------------
-app.use(cors());
+
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "default_secret_key",
+    secret: process.env.SESSION_SECRET || "Hey are you a developer?",
     resave: false,
     saveUninitialized: false,
     store,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      secure: true, // always false in local development; set to true on hosting 
       sameSite: "lax",
     },
   })
@@ -48,21 +45,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static + Body Parsing
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// EJS Views
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Routes
+
 app.use(require("./Routes/routes"));
 
-// ------------------------
-// DATABASE CONNECT + SERVER START
-// ------------------------
+
 mongoose
   .connect(DB_PATH)
   .then(() => {

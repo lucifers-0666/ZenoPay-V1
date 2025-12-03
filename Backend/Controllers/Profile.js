@@ -4,6 +4,7 @@ const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 
 const getProfile = async (req, res) => {
+  console.log("Fetching profile for user session:", req.session.user);
   try {
     // 1. Check Session
     if (!req.session.isLoggedIn || !req.session.user) {

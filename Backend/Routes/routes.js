@@ -11,6 +11,7 @@ const DashboardController = require("../Controllers/Dashboard");
 const MerchantController = require("../Controllers/Merchant");
 const GatewayController = require("../Controllers/Gateway");
 const ShopController = require("../Controllers/Shop");
+const NotificationController = require("../Controllers/Notifications");
 const multer = require("multer");
 const path = require("path");
 
@@ -85,4 +86,7 @@ router.get("/transfer", TransferController.getTransferMoney);
 router.post("/transfer/verify-receiver", TransferController.verifyReceiver);
 router.post("/transfer", TransferController.postTransferMoney);
 
+
+// Notifications
+router.get("/notifications", NotificationController.getNotifications);
 module.exports = router;

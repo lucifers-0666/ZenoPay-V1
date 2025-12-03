@@ -48,6 +48,7 @@ const postLogin = async (req, res) => {
         role: user.Role
     };
 
+    console.log("User logged in:", req.session.user);
     // 5. Save Session and Respond
     req.session.save((err) => {
         if (err) {
