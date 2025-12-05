@@ -25,8 +25,8 @@ const store = new MongoDBStore({
 // CORS setup (works for local & Azure)
 app.use(
   cors({
-    origin: true, // Automatically allows the requesting origin
-    credentials: true, // Allows cookies to be sent
+    origin: true, 
+    credentials: true, 
   })
 );
 
