@@ -7,7 +7,7 @@ const path = require("path");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;``
 const DB_PATH = process.env.MONGO_URI;
 
 
