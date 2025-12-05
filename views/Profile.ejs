@@ -1,806 +1,1182 @@
-
- <%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay Profile</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <%- include('partials/header') %>
 
     <!-- Main Content -->
-    <div class="container mx-auto px-4 py-8 max-w-7xl min-h-[85vh]">
-      <!-- Profile Header (Common Area) -->
-      <div
-        class="border-[3px] border-orange-500 rounded-2xl p-1.5 bg-white shadow-xl mb-6"
-      >
-        <div class="border-[3px] border-green-700 rounded-xl p-6 bg-white">
+    <main class="main-content">
+      <!-- Navigation Bar -->
+      <%- include('partials/navbar') %>
+
+      <div class="container mx-auto px-4 py-8 max-w-7xl min-h-[85vh]">
+        <!-- Profile Header (Common Area) -->
+        <div
+          class="border-[3px] border-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-2xl p-1.5 bg-gradient-to-br from-purple-50 to-pink-50 shadow-2xl mb-6 hover:shadow-3xl transition-all duration-300"
+        >
           <div
-            class="flex flex-col md:flex-row items-center gap-6 text-center md:text-left"
+            class="border-[3px] border-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 bg-white backdrop-blur-sm"
           >
-            <!-- Avatar + Balance -->
-            <div class="flex flex-col items-center gap-4 flex-shrink-0">
-              <div
-                class="rounded-full border-[3px] border-orange-500 p-1 bg-white shadow-lg"
-              >
-                <div class="rounded-full border-[3px] border-green-700 p-1">
-                  <div
-                    class="w-28 h-28 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden flex items-center justify-center"
-                  >
-                    <img
-                      id="imgProfileHeader"
-                      class="w-full h-full object-cover"
-                      src="<%= user.ImagePath ? user.ImagePath : 'https://placehold.co/110x140?text=User' %>"
-                      alt="Profile"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Total Balance Container (Visible only if accounts exist) -->
-              <% if (bankAccounts && bankAccounts.length > 0) { %>
-              <div
-                class="bg-blue-50 px-5 py-2 rounded-lg border border-blue-100 shadow-sm w-full text-center"
-              >
-                <p
-                  class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-1"
-                >
-                  Total Balance
-                </p>
-                <div class="flex items-center justify-center gap-3">
-                  <span
-                    id="headerBalance"
-                    class="text-lg font-bold text-gray-800 font-mono tracking-tight"
-                    data-balance="₹ <%= totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>"
-                    >₹ XX,XX,XXX.XX</span
-                  >
-                  <button
-                    type="button"
-                    onclick="toggleHeaderBalance()"
-                    class="text-gray-400 hover:text-blue-600 focus:outline-none transition-colors"
-                  >
-                    <i id="headerBalanceIcon" class="fas fa-eye"></i>
-                  </button>
-                </div>
-              </div>
-              <% } %>
-
-            </div>
-
-            <!-- Basic Details -->
-            <div class="flex-1 w-full">
-              <h2 class="text-3xl font-bold text-gray-800" id="lblHeaderName">
-                <%= user.FullName %>
-              </h2>
-              <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                <p
-                  class="text-gray-600 flex items-center justify-center md:justify-start"
-                >
-                  <i class="fas fa-envelope text-blue-600 mr-2"></i>
-                  <span id="lblHeaderEmail" class="truncate"><%= user.Email %></span>
-                </p>
-                <p
-                  class="text-gray-600 flex items-center justify-center md:justify-start"
-                >
-                  <i class="fas fa-phone text-blue-600 mr-2"></i>
-                  <span id="lblHeaderMobile"><%= user.Mobile %></span>
-                </p>
-                <p
-                  class="text-gray-600 flex items-center justify-center md:justify-start"
-                >
-                  <i class="fas fa-calendar text-blue-600 mr-2"></i>DOB:
-                  <span id="lblHeaderDob"><%= new Date(user.DOB).toLocaleDateString('en-IN') %></span>
-                </p>
-                <p
-                  class="text-gray-600 flex items-center justify-center md:justify-start"
-                >
-                  <i class="fas fa-venus text-blue-600 mr-2"></i>Gender:
-                  <span id="lblHeaderGender"><%= user.Gender %></span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="bg-white rounded-2xl shadow-xl mb-6 overflow-hidden">
-        <div class="flex border-b overflow-x-auto">
-          <button
-            onclick="switchTab('personal')"
-            id="tab-personal"
-            class="tab-btn flex-1 px-6 py-4 font-semibold text-blue-600 border-b-4 border-blue-600 bg-blue-50 transition-all whitespace-nowrap"
-          >
-            <i class="fas fa-user-circle mr-2"></i>Personal Information
-          </button>
-          <button
-            onclick="switchTab('docs')"
-            id="tab-docs"
-            class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap"
-          >
-            <i class="fas fa-id-card mr-2"></i>Identity Documents
-          </button>
-          <button
-            onclick="switchTab('banks')"
-            id="tab-banks"
-            class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap"
-          >
-            <i class="fas fa-university mr-2"></i>Bank Accounts
-          </button>
-          <button
-            onclick="switchTab('cards')"
-            id="tab-cards"
-            class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap"
-          >
-            <i class="fas fa-credit-card mr-2"></i>Debit Cards
-          </button>
-          <button
-            onclick="switchTab('transactions')"
-            id="tab-transactions"
-            class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap"
-          >
-            <i class="fas fa-exchange-alt mr-2"></i>Transactions
-          </button>
-        </div>
-      </div>
-
-      <!-- Views Container -->
-      <div id="views-container">
-        <!-- View 1: Personal Information -->
-        <div id="view-personal" class="view-section">
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-              <i class="fas fa-info-circle text-blue-600 mr-3"></i>Complete
-              Profile Details
-            </h3>
-
-            <div class="grid md:grid-cols-2 gap-8">
-              <div class="space-y-6">
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Full Name
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.FullName %></p>
-                </div>
-                <div class="border-l-4 border-green-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Aadhaar Number
-                  </p>
-                  <p class="text-lg font-bold text-gray-800 tracking-wider"><%= user.AadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, "$1 $2 $3") %></p>
-                </div>
-                <div class="border-l-4 border-purple-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Date of Birth
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= new Date(user.DOB).toLocaleDateString('en-IN') %></p>
-                </div>
-                <div class="border-l-4 border-pink-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">Gender</p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.Gender %></p>
-                </div>
-                <div class="border-l-4 border-orange-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Father's Name
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.FatherName %></p>
-                </div>
-                <div class="border-l-4 border-cyan-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Mother's Name
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.MotherName ? user.MotherName : 'N/A' %></p>
-                </div>
-              </div>
-              <div class="space-y-6">
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Email Address
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.Email %></p>
-                </div>
-                <div class="border-l-4 border-green-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Mobile Number
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.Mobile %></p>
-                </div>
-                <div class="border-l-4 border-purple-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Residential Address
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.Address %></p>
-                </div>
-                <div class="border-l-4 border-pink-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">City</p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.City %></p>
-                </div>
-                <div class="border-l-4 border-orange-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">State</p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.State %></p>
-                </div>
-                <div class="border-l-4 border-cyan-500 pl-4">
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Pincode
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= user.Pincode %></p>
-                </div>
-              </div>
-            </div>
-            <div class="mt-8 pt-6 border-t-2 border-gray-200">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm text-gray-500 font-semibold mb-1">
-                    Registration Date
-                  </p>
-                  <p class="text-lg font-bold text-gray-800"><%= new Date(user.RegistrationDate).toLocaleDateString('en-IN') %></p>
-                </div>
-                <div class="text-right">
-                  <span
-                    class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold"
-                  >
-                    <i class="fas fa-check-circle mr-2"></i>Verified Profile
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- View 2: Identity Documents -->
-        <div id="view-docs" class="view-section hidden">
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6">
-              <i class="fas fa-id-card text-blue-600 mr-2"></i>Identity
-              Documents
-            </h3>
-
             <div
-              class="flex flex-col xl:flex-row gap-8 justify-center items-start"
+              class="flex flex-col md:flex-row items-center gap-6 text-center md:text-left"
             >
-              <!-- Aadhaar Card -->
-              <div
-                class="border-[2px] border-orange-500 rounded-lg p-1 bg-white relative flex-1 w-full max-w-[500px] shadow-md transition-transform hover:scale-[1.01]"
-              >
+              <!-- Avatar + Balance -->
+              <div class="flex flex-col items-center gap-4 flex-shrink-0">
                 <div
-                  class="border-[2px] border-green-700 rounded-lg overflow-hidden bg-white relative flex flex-col h-[300px]"
+                  class="rounded-full border-[4px] border-gradient-to-r from-purple-500 to-pink-500 p-2 bg-white shadow-xl hover:scale-105 transition-transform duration-300"
                 >
-                  <!-- Ashoka Chakra Watermark -->
                   <div
-                    class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-                  >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Ashoka_Chakra.svg/512px-Ashoka_Chakra.svg.png"
-                      class="w-48 opacity-20"
-                      alt="Watermark"
-                    />
-                  </div>
-
-                  <!-- Header -->
-                  <div
-                    class="bg-white p-3 flex justify-between items-start relative z-10"
-                  >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
-                      class="h-10 w-auto object-contain"
-                      alt="Emblem"
-                    />
-                    <div class="text-right">
-                      <p class="text-sm font-bold text-gray-900">
-                        Govt. of India
-                      </p>
-                      <p class="text-[10px] text-gray-600">
-                        Unique Identification Authority
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Body -->
-                  <div
-                    class="px-5 py-2 relative z-10 flex gap-5 items-center flex-1"
+                    class="rounded-full border-[4px] border-gradient-to-r from-blue-500 to-indigo-600 p-2"
                   >
                     <div
-                      class="w-[110px] h-[130px] bg-gray-200 border border-gray-300 flex-shrink-0"
+                      class="w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 overflow-hidden flex items-center justify-center shadow-inner"
                     >
                       <img
-                        src="<%= user.ImagePath %>"
+                        id="imgProfileHeader"
                         class="w-full h-full object-cover"
-                        alt="Photo"
+                        src="<%= user.ImagePath ? user.ImagePath : 'https://placehold.co/110x140?text=User' %>"
+                        alt="Profile"
                       />
                     </div>
-                    <div class="flex-1 space-y-1">
-                      <p class="text-lg font-bold uppercase text-gray-800">
-                        <%= user.FullName %>
-                      </p>
-                      <p class="text-sm text-gray-700">
-                        DOB:
-                        <span class="font-bold"><%= new Date(user.DOB).toLocaleDateString('en-IN') %></span>
-                      </p>
-                      <p class="text-sm text-gray-700">
-                        Gender:
-                        <span class="font-bold"><%= user.Gender %></span>
-                      </p>
-
-                      <!-- Address Field -->
-                      <div
-                        class="pt-2 text-[11px] text-gray-600 leading-tight flex items-start"
-                      >
-                        <i
-                          class="fas fa-flag text-red-500 text-[10px] mt-0.5 mr-1.5"
-                        ></i>
-                        <span><%= user.Address %>, <%= user.City %>, <%= user.State %> - <%= user.Pincode %></span>
-                      </div>
-                    </div>
                   </div>
+                </div>
 
-                  <!-- Footer -->
+                <!-- Total Balance Container (Visible only if accounts exist) -->
+                <% if (bankAccounts && bankAccounts.length > 0) { %>
+                <div
+                  class="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-6 py-3 rounded-xl border-2 border-blue-200 shadow-lg w-full text-center hover:shadow-xl transition-all duration-300"
+                >
+                  <p
+                    class="text-xs text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold uppercase tracking-wider mb-1 flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-wallet"></i>
+                    Total Balance
+                  </p>
+                  <div class="flex items-center justify-center gap-3">
+                    <span
+                      id="headerBalance"
+                      class="text-xl font-bold text-gray-800 font-mono tracking-tight"
+                      data-balance="₹ <%= totalBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>"
+                      >₹ XX,XX,XXX.XX</span
+                    >
+                    <button
+                      type="button"
+                      onclick="toggleHeaderBalance()"
+                      class="text-gray-400 hover:text-purple-600 focus:outline-none transition-colors transform hover:scale-110"
+                    >
+                      <i id="headerBalanceIcon" class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <% } %>
+              </div>
+
+              <!-- Basic Details -->
+              <div class="flex-1 w-full">
+                <h2
+                  class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 mb-2"
+                  id="lblHeaderName"
+                >
+                  <i class="fas fa-user-circle text-purple-600 mr-2"></i><%=
+                  user.FullName %>
+                </h2>
+                <div
+                  class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left"
+                >
+                  <p
+                    class="text-gray-700 flex items-center justify-center md:justify-start bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-lg hover:shadow-md transition-all"
+                  >
+                    <i class="fas fa-envelope text-blue-600 mr-3 text-lg"></i>
+                    <span id="lblHeaderEmail" class="truncate font-medium"
+                      ><%= user.Email %></span
+                    >
+                  </p>
+                  <p
+                    class="text-gray-700 flex items-center justify-center md:justify-start bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-lg hover:shadow-md transition-all"
+                  >
+                    <i class="fas fa-phone text-green-600 mr-3 text-lg"></i>
+                    <span id="lblHeaderMobile" class="font-medium"
+                      ><%= user.Mobile %></span
+                    >
+                  </p>
+                  <p
+                    class="text-gray-700 flex items-center justify-center md:justify-start bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-lg hover:shadow-md transition-all"
+                  >
+                    <i class="fas fa-calendar text-purple-600 mr-3 text-lg"></i>
+                    <span class="font-semibold mr-2">DOB:</span>
+                    <span id="lblHeaderDob" class="font-medium"
+                      ><%= new Date(user.DOB).toLocaleDateString('en-IN')
+                      %></span
+                    >
+                  </p>
+                  <p
+                    class="text-gray-700 flex items-center justify-center md:justify-start bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-2 rounded-lg hover:shadow-md transition-all"
+                  >
+                    <i class="fas fa-venus-mars text-pink-600 mr-3 text-lg"></i>
+                    <span class="font-semibold mr-2">Gender:</span>
+                    <span id="lblHeaderGender" class="font-medium"
+                      ><%= user.Gender %></span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div
+          class="bg-gradient-to-r from-white via-purple-50 to-pink-50 rounded-2xl shadow-2xl mb-6 overflow-hidden border-2 border-purple-200"
+        >
+          <div
+            class="flex border-b-2 border-purple-200 overflow-x-auto bg-white"
+          >
+            <button
+              onclick="switchTab('personal')"
+              id="tab-personal"
+              class="tab-btn flex-1 px-6 py-4 font-semibold text-white border-b-4 border-purple-600 bg-gradient-to-r from-purple-600 to-pink-600 transition-all whitespace-nowrap hover:shadow-lg"
+            >
+              <i class="fas fa-user-circle mr-2 text-lg"></i>Personal
+              Information
+            </button>
+            <button
+              onclick="switchTab('docs')"
+              id="tab-docs"
+              class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all whitespace-nowrap"
+            >
+              <i class="fas fa-id-card mr-2 text-lg text-blue-600"></i>Identity
+              Documents
+            </button>
+            <button
+              onclick="switchTab('banks')"
+              id="tab-banks"
+              class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all whitespace-nowrap"
+            >
+              <i class="fas fa-university mr-2 text-lg text-green-600"></i>Bank
+              Accounts
+            </button>
+            <button
+              onclick="switchTab('cards')"
+              id="tab-cards"
+              class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 transition-all whitespace-nowrap"
+            >
+              <i class="fas fa-credit-card mr-2 text-lg text-orange-600"></i
+              >Debit Cards
+            </button>
+            <button
+              onclick="switchTab('transactions')"
+              id="tab-transactions"
+              class="tab-btn flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all whitespace-nowrap"
+            >
+              <i class="fas fa-exchange-alt mr-2 text-lg text-purple-600"></i
+              >Transactions
+            </button>
+          </div>
+        </div>
+
+        <!-- Views Container -->
+        <div id="views-container">
+          <!-- View 1: Personal Information -->
+          <div id="view-personal" class="view-section">
+            <div
+              class="bg-gradient-to-br from-white via-purple-50 to-pink-50 rounded-2xl shadow-2xl p-8 border-2 border-purple-200"
+            >
+              <h3
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-8 flex items-center"
+              >
+                <i class="fas fa-info-circle text-purple-600 mr-3 text-4xl"></i
+                >Complete Profile Details
+              </h3>
+
+              <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-6">
                   <div
-                    class="bg-white border-t-2 border-red-500 p-3 text-center relative z-10 mt-auto"
+                    class="border-l-4 border-purple-500 pl-6 bg-gradient-to-r from-purple-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
                   >
                     <p
-                      class="text-2xl font-bold tracking-[4px] text-gray-900 font-mono"
+                      class="text-sm text-purple-600 font-bold mb-2 flex items-center"
                     >
-                        <%= user.AadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, "$1 $2 $3") %>
+                      <i class="fas fa-user mr-2"></i>Full Name
                     </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.FullName %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-green-500 pl-6 bg-gradient-to-r from-green-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
                     <p
-                      class="text-[10px] text-gray-500 mt-1 border-t border-gray-200 inline-block px-4 pt-0.5"
+                      class="text-sm text-green-600 font-bold mb-2 flex items-center"
                     >
-                      Aadhaar - Ordinary Right of Common Man
+                      <i class="fas fa-id-card mr-2"></i>Aadhaar Number
+                    </p>
+                    <p class="text-lg font-bold text-gray-800 tracking-wider">
+                      <%= user.AadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, "$1
+                      $2 $3") %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-blue-500 pl-6 bg-gradient-to-r from-blue-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-blue-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-calendar-alt mr-2"></i>Date of Birth
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= new Date(user.DOB).toLocaleDateString('en-IN') %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-pink-500 pl-6 bg-gradient-to-r from-pink-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-pink-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-venus-mars mr-2"></i>Gender
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.Gender %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-orange-500 pl-6 bg-gradient-to-r from-orange-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-orange-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-male mr-2"></i>Father's Name
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.FatherName %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-cyan-500 pl-6 bg-gradient-to-r from-cyan-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-cyan-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-female mr-2"></i>Mother's Name
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.MotherName ? user.MotherName : 'N/A' %>
+                    </p>
+                  </div>
+                </div>
+                <div class="space-y-6">
+                  <div
+                    class="border-l-4 border-indigo-500 pl-6 bg-gradient-to-r from-indigo-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-indigo-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-envelope mr-2"></i>Email Address
+                    </p>
+                    <p class="text-lg font-bold text-gray-800 break-all">
+                      <%= user.Email %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-emerald-500 pl-6 bg-gradient-to-r from-emerald-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-emerald-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-phone mr-2"></i>Mobile Number
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.Mobile %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-violet-500 pl-6 bg-gradient-to-r from-violet-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-violet-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-map-marker-alt mr-2"></i>Residential
+                      Address
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.Address %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-rose-500 pl-6 bg-gradient-to-r from-rose-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-rose-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-city mr-2"></i>City
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.City %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-amber-500 pl-6 bg-gradient-to-r from-amber-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-amber-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-map mr-2"></i>State
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.State %>
+                    </p>
+                  </div>
+                  <div
+                    class="border-l-4 border-teal-500 pl-6 bg-gradient-to-r from-teal-50 to-white p-4 rounded-r-lg hover:shadow-lg transition-all"
+                  >
+                    <p
+                      class="text-sm text-teal-600 font-bold mb-2 flex items-center"
+                    >
+                      <i class="fas fa-mailbox mr-2"></i>Pincode
+                    </p>
+                    <p class="text-lg font-bold text-gray-800">
+                      <%= user.Pincode %>
                     </p>
                   </div>
                 </div>
               </div>
-
-              <!-- PAN Card (Only show if PAN exists) -->
-              <% if(pan) { %>
               <div
-                class="border-[2px] border-blue-600 rounded-lg p-1 bg-white relative flex-1 w-full max-w-[500px] shadow-md transition-transform hover:scale-[1.01]"
+                class="mt-8 pt-6 border-t-2 border-gradient-to-r from-purple-300 to-pink-300"
               >
-                <div
-                  class="border-[2px] border-blue-600 rounded-lg overflow-hidden bg-blue-50 relative flex flex-col h-[300px]"
-                >
-                  <!-- Emblem Watermark -->
+                <div class="flex items-center justify-between flex-wrap gap-4">
                   <div
-                    class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                    class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 rounded-xl shadow-md"
                   >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
-                      class="w-32 opacity-10"
-                      alt="Watermark"
-                    />
-                  </div>
-
-                  <!-- Header -->
-                  <div
-                    class="bg-blue-600 p-3 flex justify-between items-center relative z-10"
-                  >
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
-                      class="h-8 w-auto object-contain brightness-0 invert"
-                      alt="Emblem"
-                    />
-                    <div class="text-right text-white">
-                      <p class="text-xs font-bold tracking-wider">
-                        INCOME TAX DEPARTMENT
-                      </p>
-                      <p class="text-[10px]">GOVT. OF INDIA</p>
-                    </div>
-                  </div>
-
-                  <!-- Body -->
-                  <div
-                    class="px-5 py-3 relative z-10 flex gap-5 flex-1 items-center"
-                  >
-                    <div
-                      class="w-[100px] h-[120px] bg-white border border-gray-300 flex-shrink-0"
+                    <p
+                      class="text-sm text-blue-600 font-bold mb-1 flex items-center"
                     >
-                      <img
-                        src="<%= pan.ImagePath ? pan.ImagePath : user.ImagePath %>"
-                        class="w-full h-full object-cover"
-                        alt="Photo"
-                      />
-                    </div>
-                    <div class="flex-1 space-y-2">
-                      <div class="grid grid-cols-[80px_1fr] gap-1 items-start">
-                        <p class="text-[9px] font-bold text-gray-500">NAME</p>
-                        <p class="text-sm font-bold text-gray-800 uppercase leading-none">
-                          <%= pan.FullName %>
-                        </p>
-                      </div>
-                      <div class="grid grid-cols-[80px_1fr] gap-1 items-start">
-                        <p class="text-[9px] font-bold text-gray-500">
-                          FATHER'S NAME
-                        </p>
-                        <p class="text-sm font-bold text-gray-800 uppercase leading-none">
-                          <%= pan.FatherName %>
-                        </p>
-                      </div>
-                      <div class="grid grid-cols-[80px_1fr] gap-1 items-start">
-                        <p class="text-[9px] font-bold text-gray-500">
-                          DATE OF BIRTH
-                        </p>
-                        <p class="text-sm font-bold text-gray-800 uppercase leading-none">
-                          <%= new Date(pan.DOB).toLocaleDateString('en-IN') %>
-                        </p>
-                      </div>
-
-                      <!-- Signature Area -->
-                      <div class="mt-4">
-                        <div
-                          class="text-base font-[cursive] text-gray-800 ml-6 transform -rotate-2"
-                        >
-                            <%= pan.FullName %>
-                        </div>
-                        <div
-                          class="bg-white px-2 py-0.5 inline-block text-[9px] text-gray-500 border-t border-gray-400 mt-0.5"
-                        >
-                          Signature
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Footer -->
-                  <div
-                    class="bg-blue-100 p-2 text-center relative z-10 mt-auto border-t border-blue-200"
-                  >
-                    <p class="text-[9px] font-bold text-blue-600 mb-0.5">
-                      PERMANENT ACCOUNT NUMBER
-                    </p>
-                    <p class="text-xl font-bold tracking-[2px] text-gray-800 font-mono">
-                      <%= pan.PanNumber %>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <% } else { %>
-                <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full max-w-[500px]">
-                    <div class="text-center">
-                        <i class="fas fa-exclamation-circle text-gray-400 text-3xl mb-2"></i>
-                        <p class="text-gray-500">PAN Card not registered or linked.</p>
-                        <a href="/register-pan" class="text-blue-600 text-sm font-bold mt-2 hover:underline">Register PAN</a>
-                    </div>
-                </div>
-              <% } %>
-            </div>
-          </div>
-        </div>
-
-        <!-- View 3: Bank Accounts -->
-        <div id="view-banks" class="view-section hidden">
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-2xl font-bold text-gray-800">
-                <i class="fas fa-university text-blue-600 mr-2"></i>Bank
-                Accounts
-              </h3>
-              <a
-                href="/open-account"
-                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all"
-              >
-                <i class="fas fa-plus mr-2"></i>Open New Account
-              </a>
-            </div>
-
-            <div id="banks-container" class="grid md:grid-cols-2 gap-6">
-              <% if (bankAccounts && bankAccounts.length > 0) { %>
-                <% bankAccounts.forEach((acc, index) => { %>
-                    <div class="border-[3px] border-orange-500 rounded-xl p-2.5 bg-white relative shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1">
-                        <div class="border-[3px] border-green-700 rounded-xl overflow-hidden bg-white relative p-6 h-full flex flex-col justify-between">
-                            <div class="relative z-10">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div>
-                                        <p class="text-blue-600 text-xs font-bold uppercase tracking-wider"><%= acc.AccountType %></p>
-                                        <h4 class="text-2xl font-bold mt-1 text-gray-800"><%= acc.BankName %></h4>
-                                    </div>
-                                    <div class="text-[10px] bg-green-50 text-green-600 px-2.5 py-1 rounded-full border border-green-100 flex items-center whitespace-nowrap">
-                                        <i class="fas fa-check-circle mr-1 text-[8px]"></i> Active
-                                    </div>
-                                </div>
-                                <div class="space-y-3 mt-4">
-                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-                                        <div>
-                                            <p class="text-gray-500 text-[10px] uppercase">Account Number</p>
-                                            <p class="text-lg font-bold tracking-wider text-gray-800">**** **** **** <%= acc.AccountNumber.slice(-4) %></p>
-                                        </div>
-                                        <button type="button" onclick="copyText('<%= acc.AccountNumber %>')" class="text-gray-400 hover:text-blue-600"><i class="fas fa-copy"></i></button>
-                                    </div>
-                                    <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-                                        <div>
-                                            <p class="text-gray-500 text-[10px] uppercase">IFSC Code</p>
-                                            <p class="text-base font-bold font-mono text-gray-800"><%= acc.IFSC %></p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-[10px] uppercase">Branch</p>
-                                        <p class="text-base font-semibold text-gray-800"><%= acc.BranchName %>, <%= acc.BranchCity %></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="relative z-10 mt-5 pt-3 border-t-2 border-green-100 bg-green-50 -mx-6 -mb-6 px-6 py-4">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-green-700 text-xs font-bold uppercase">Available Balance</p>
-                                    <div class="flex items-center gap-3">
-                                        <p id="balance-<%= index %>" class="text-xl font-bold text-gray-800 font-mono" 
-                                           data-balance="₹ <%= parseFloat(acc.OpeningBalance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2}) %>">
-                                           ₹ XX,XXX.XX
-                                        </p>
-                                        <button type="button" onclick="toggleBalance('balance-<%= index %>', 'icon-<%= index %>')" class="text-gray-400 hover:text-green-600 transition-colors">
-                                            <i id="icon-<%= index %>" class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% }); %>
-              <% } else { %>
-                <div class="col-span-2 text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                    <i class="fas fa-university text-gray-300 text-5xl mb-3"></i>
-                    <p class="text-gray-500 font-semibold">No bank accounts linked yet.</p>
-                    <p class="text-sm text-gray-400">Open a new account to see it here.</p>
-                </div>
-              <% } %>
-            </div>
-          </div>
-        </div>
-
-        <!-- View 4: Debit Cards -->
-        <div id="view-cards" class="view-section hidden">
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6">
-              <i class="fas fa-credit-card text-blue-600 mr-2"></i>My Debit Cards
-            </h3>
-
-            <div id="cards-container" class="grid lg:grid-cols-2 gap-8">
-              <% if (bankAccounts && bankAccounts.length > 0) { %>
-                <% bankAccounts.forEach((acc, index) => { %>
-                    <div class="border-[3px] border-orange-500 rounded-xl p-2.5 bg-white relative shadow-xl hover:scale-[1.02] transition-transform">
-                        <div class="border-[3px] border-green-700 rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 relative h-[250px] text-white p-6 flex flex-col justify-between">
-                            
-                            <!-- Watermark -->
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                                <i class="fas fa-university text-9xl text-white opacity-[0.05]"></i>
-                            </div>
-
-                            <!-- Header -->
-                            <div class="flex justify-between items-start relative z-10">
-                                <div class="flex items-start gap-4 flex-1">
-                                    <div>
-                                        <h4 class="text-xl font-bold uppercase tracking-wider"><%= acc.BankName %></h4>
-                                        <p class="text-[10px] text-gray-400">Debit Card</p>
-                                    </div>
-                                </div>
-                                <div class="text-2xl italic font-bold">
-                                    <%= acc.CardType %>
-                                </div>
-                            </div>
-
-                            <!-- Chip -->
-                            <div class="relative z-10 flex items-center gap-4 mt-2">
-                                <div class="w-12 h-10 bg-yellow-400 rounded-md border border-yellow-600 flex items-center justify-center overflow-hidden relative shadow-sm">
-                                    <div class="absolute w-full h-[1px] bg-yellow-600 top-1/3"></div>
-                                    <div class="absolute w-full h-[1px] bg-yellow-600 bottom-1/3"></div>
-                                    <div class="absolute h-full w-[1px] bg-yellow-600 left-1/3"></div>
-                                    <div class="absolute h-full w-[1px] bg-yellow-600 right-1/3"></div>
-                                </div>
-                                <i class="fas fa-wifi rotate-90 text-gray-400 text-xl"></i>
-                            </div>
-
-                            <!-- Number -->
-                            <div class="relative z-10 mt-2">
-                                <div class="flex items-center gap-3">
-                                    <p id="cardNo-<%= index %>" class="text-2xl font-mono tracking-widest text-shadow-md" 
-                                       data-value="<%= acc.DebitCardNumber.match(/.{1,4}/g).join(' ') %>">
-                                       **** **** **** <%= acc.DebitCardNumber.slice(-4) %>
-                                    </p>
-                                    <button type="button" onclick="toggleCardInfo('cardNo-<%= index %>', 'eyeCard-<%= index %>', true)" class="text-gray-400 hover:text-white transition-colors">
-                                        <i id="eyeCard-<%= index %>" class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Footer -->
-                            <div class="relative z-10 flex justify-between items-end mt-4">
-                                <div>
-                                    <p class="text-[9px] text-gray-400 uppercase">Card Holder</p>
-                                    <p class="text-sm font-bold tracking-wide uppercase"><%= acc.NameOnCard %></p>
-                                </div>
-                                <div class="flex gap-6">
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 uppercase text-center">Expires</p>
-                                        <p class="text-sm font-bold font-mono"><%= acc.CardExpiry %></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] text-gray-400 uppercase text-center">CVV</p>
-                                        <div class="flex items-center gap-2">
-                                            <p id="cvv-<%= index %>" class="text-sm font-bold font-mono" data-value="<%= acc.CardCVV %>">***</p>
-                                            <button type="button" onclick="toggleCardInfo('cvv-<%= index %>', 'eyeCvv-<%= index %>', false)" class="text-gray-400 hover:text-white transition-colors">
-                                                <i id="eyeCvv-<%= index %>" class="fas fa-eye text-xs"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% }); %>
-              <% } else { %>
-                <div class="col-span-2 text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                    <i class="fas fa-credit-card text-gray-300 text-5xl mb-3"></i>
-                    <p class="text-gray-500 font-semibold">No debit cards available.</p>
-                </div>
-              <% } %>
-            </div>
-          </div>
-        </div>
-
-        <!-- View 5: Transactions -->
-        <div id="view-transactions" class="view-section hidden">
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-2xl font-bold text-gray-800">
-                <i class="fas fa-history text-blue-600 mr-2"></i>Recent
-                Transactions
-              </h3>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full border-collapse">
-                <thead
-                  class="bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-                >
-                  <tr>
-                    <th class="px-6 py-4 text-left font-semibold rounded-tl-lg">
+                      <i class="fas fa-calendar-check mr-2"></i>Registration
                       Date
-                    </th>
-                    <th class="px-6 py-4 text-left font-semibold">Sender</th>
-                    <th class="px-6 py-4 text-left font-semibold">Receiver</th>
-                    <th class="px-6 py-4 text-left font-semibold">Amount</th>
-                    <th class="px-6 py-4 text-left font-semibold">
-                      Description
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="transactions-body" class="divide-y divide-gray-200">
-                  <% if (transactions && transactions.length > 0) { %>
-                    <% transactions.forEach(txn => { 
-                        // Determine if it is a debit or credit for the logged-in user
-                        // Since we fetch transactions for multiple accounts, logic is simple:
-                        // If one of user's account is Sender, it's Debit. Else Credit.
-                        // For simplicity in this view, let's just show details directly.
-                        
-                        // Check if current user is the sender (rough check by matching any account)
-                        let isSender = bankAccounts.some(acc => acc.AccountNumber === txn.SenderAccountNumber);
-                        let typeClass = isSender ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700";
-                        let sign = isSender ? "-" : "+";
-                        let amtClass = isSender ? "text-red-600" : "text-green-600";
-                        let typeLabel = isSender ? "Debit" : "Credit";
-                    %>
-                    <tr class="hover:bg-blue-50 transition-colors border-b last:border-0">
-                        <td class="px-6 py-4 whitespace-nowrap"><span class="font-semibold text-gray-800"><%= new Date(txn.TransactionTime).toLocaleDateString('en-IN') %></span></td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm">
-                                <p class="font-bold text-gray-700"><%= txn.SenderHolderName %></p>
-                                <p class="text-xs text-gray-500"><%= txn.SenderBank %></p>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm">
-                                <p class="font-bold text-gray-700"><%= txn.ReceiverHolderName %></p>
-                                <p class="text-xs text-gray-500"><%= txn.ReceiverBank %></p>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class='<%= amtClass %> font-bold text-lg'>
-                                <%= sign %>₹<%= parseFloat(txn.Amount.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2}) %>
-                            </span>
-                            <span class='<%= typeClass %> px-2 py-0.5 rounded text-xs ml-2 font-semibold'><%= typeLabel %></span>
-                        </td>
-                        <td class="px-6 py-4"><span class="text-gray-700 font-medium"><%= txn.Description %></span></td>
-                    </tr>
-                    <% }); %>
-                  <% } else { %>
+                    </p>
+                    <p class="text-xl font-bold text-gray-800">
+                      <%= new
+                      Date(user.RegistrationDate).toLocaleDateString('en-IN') %>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <span
+                      class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    >
+                      <i class="fas fa-check-circle mr-2 text-lg"></i>Verified
+                      Profile
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 2: Identity Documents -->
+          <div id="view-docs" class="view-section hidden">
+            <div
+              class="bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl shadow-2xl p-8 border-2 border-blue-200"
+            >
+              <h3
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-8 flex items-center"
+              >
+                <i class="fas fa-id-card text-blue-600 mr-3 text-4xl"></i
+                >Identity Documents
+              </h3>
+
+              <div
+                class="flex flex-col xl:flex-row gap-8 justify-center items-start"
+              >
+                <!-- Aadhaar Card -->
+                <div
+                  class="border-[2px] border-orange-500 rounded-lg p-1 bg-white relative flex-1 w-full max-w-[500px] shadow-md transition-transform hover:scale-[1.01]"
+                >
+                  <div
+                    class="border-[2px] border-green-700 rounded-lg overflow-hidden bg-white relative flex flex-col h-[300px]"
+                  >
+                    <!-- Ashoka Chakra Watermark -->
+                    <div
+                      class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Ashoka_Chakra.svg/512px-Ashoka_Chakra.svg.png"
+                        class="w-48 opacity-20"
+                        alt="Watermark"
+                      />
+                    </div>
+
+                    <!-- Header -->
+                    <div
+                      class="bg-white p-3 flex justify-between items-start relative z-10"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
+                        class="h-10 w-auto object-contain"
+                        alt="Emblem"
+                      />
+                      <div class="text-right">
+                        <p class="text-sm font-bold text-gray-900">
+                          Govt. of India
+                        </p>
+                        <p class="text-[10px] text-gray-600">
+                          Unique Identification Authority
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div
+                      class="px-5 py-2 relative z-10 flex gap-5 items-center flex-1"
+                    >
+                      <div
+                        class="w-[110px] h-[130px] bg-gray-200 border border-gray-300 flex-shrink-0"
+                      >
+                        <img
+                          src="<%= user.ImagePath %>"
+                          class="w-full h-full object-cover"
+                          alt="Photo"
+                        />
+                      </div>
+                      <div class="flex-1 space-y-1">
+                        <p class="text-lg font-bold uppercase text-gray-800">
+                          <%= user.FullName %>
+                        </p>
+                        <p class="text-sm text-gray-700">
+                          DOB:
+                          <span class="font-bold"
+                            ><%= new Date(user.DOB).toLocaleDateString('en-IN')
+                            %></span
+                          >
+                        </p>
+                        <p class="text-sm text-gray-700">
+                          Gender:
+                          <span class="font-bold"><%= user.Gender %></span>
+                        </p>
+
+                        <!-- Address Field -->
+                        <div
+                          class="pt-2 text-[11px] text-gray-600 leading-tight flex items-start"
+                        >
+                          <i
+                            class="fas fa-flag text-red-500 text-[10px] mt-0.5 mr-1.5"
+                          ></i>
+                          <span
+                            ><%= user.Address %>, <%= user.City %>, <%=
+                            user.State %> - <%= user.Pincode %></span
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                      class="bg-white border-t-2 border-red-500 p-3 text-center relative z-10 mt-auto"
+                    >
+                      <p
+                        class="text-2xl font-bold tracking-[4px] text-gray-900 font-mono"
+                      >
+                        <%= user.AadharNumber.replace(/(\d{4})(\d{4})(\d{4})/,
+                        "$1 $2 $3") %>
+                      </p>
+                      <p
+                        class="text-[10px] text-gray-500 mt-1 border-t border-gray-200 inline-block px-4 pt-0.5"
+                      >
+                        Aadhaar - Ordinary Right of Common Man
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PAN Card (Only show if PAN exists) -->
+                <% if(pan) { %>
+                <div
+                  class="border-[2px] border-blue-600 rounded-lg p-1 bg-white relative flex-1 w-full max-w-[500px] shadow-md transition-transform hover:scale-[1.01]"
+                >
+                  <div
+                    class="border-[2px] border-blue-600 rounded-lg overflow-hidden bg-blue-50 relative flex flex-col h-[300px]"
+                  >
+                    <!-- Emblem Watermark -->
+                    <div
+                      class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
+                        class="w-32 opacity-10"
+                        alt="Watermark"
+                      />
+                    </div>
+
+                    <!-- Header -->
+                    <div
+                      class="bg-blue-600 p-3 flex justify-between items-center relative z-10"
+                    >
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Emblem_of_India.svg/300px-Emblem_of_India.svg.png"
+                        class="h-8 w-auto object-contain brightness-0 invert"
+                        alt="Emblem"
+                      />
+                      <div class="text-right text-white">
+                        <p class="text-xs font-bold tracking-wider">
+                          INCOME TAX DEPARTMENT
+                        </p>
+                        <p class="text-[10px]">GOVT. OF INDIA</p>
+                      </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div
+                      class="px-5 py-3 relative z-10 flex gap-5 flex-1 items-center"
+                    >
+                      <div
+                        class="w-[100px] h-[120px] bg-white border border-gray-300 flex-shrink-0"
+                      >
+                        <img
+                          src="<%= pan.ImagePath ? pan.ImagePath : user.ImagePath %>"
+                          class="w-full h-full object-cover"
+                          alt="Photo"
+                        />
+                      </div>
+                      <div class="flex-1 space-y-2">
+                        <div
+                          class="grid grid-cols-[80px_1fr] gap-1 items-start"
+                        >
+                          <p class="text-[9px] font-bold text-gray-500">NAME</p>
+                          <p
+                            class="text-sm font-bold text-gray-800 uppercase leading-none"
+                          >
+                            <%= pan.FullName %>
+                          </p>
+                        </div>
+                        <div
+                          class="grid grid-cols-[80px_1fr] gap-1 items-start"
+                        >
+                          <p class="text-[9px] font-bold text-gray-500">
+                            FATHER'S NAME
+                          </p>
+                          <p
+                            class="text-sm font-bold text-gray-800 uppercase leading-none"
+                          >
+                            <%= pan.FatherName %>
+                          </p>
+                        </div>
+                        <div
+                          class="grid grid-cols-[80px_1fr] gap-1 items-start"
+                        >
+                          <p class="text-[9px] font-bold text-gray-500">
+                            DATE OF BIRTH
+                          </p>
+                          <p
+                            class="text-sm font-bold text-gray-800 uppercase leading-none"
+                          >
+                            <%= new Date(pan.DOB).toLocaleDateString('en-IN') %>
+                          </p>
+                        </div>
+
+                        <!-- Signature Area -->
+                        <div class="mt-4">
+                          <div
+                            class="text-base font-[cursive] text-gray-800 ml-6 transform -rotate-2"
+                          >
+                            <%= pan.FullName %>
+                          </div>
+                          <div
+                            class="bg-white px-2 py-0.5 inline-block text-[9px] text-gray-500 border-t border-gray-400 mt-0.5"
+                          >
+                            Signature
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                      class="bg-blue-100 p-2 text-center relative z-10 mt-auto border-t border-blue-200"
+                    >
+                      <p class="text-[9px] font-bold text-blue-600 mb-0.5">
+                        PERMANENT ACCOUNT NUMBER
+                      </p>
+                      <p
+                        class="text-xl font-bold tracking-[2px] text-gray-800 font-mono"
+                      >
+                        <%= pan.PanNumber %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <% } else { %>
+                <div
+                  class="flex items-center justify-center p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 w-full max-w-[500px]"
+                >
+                  <div class="text-center">
+                    <i
+                      class="fas fa-exclamation-circle text-gray-400 text-3xl mb-2"
+                    ></i>
+                    <p class="text-gray-500">
+                      PAN Card not registered or linked.
+                    </p>
+                    <a
+                      href="/register-pan"
+                      class="text-blue-600 text-sm font-bold mt-2 hover:underline"
+                      >Register PAN</a
+                    >
+                  </div>
+                </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 3: Bank Accounts -->
+          <div id="view-banks" class="view-section hidden">
+            <div
+              class="bg-gradient-to-br from-white via-green-50 to-emerald-50 rounded-2xl shadow-2xl p-8 border-2 border-green-200"
+            >
+              <div
+                class="flex items-center justify-between mb-8 flex-wrap gap-4"
+              >
+                <h3
+                  class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 flex items-center"
+                >
+                  <i class="fas fa-university text-green-600 mr-3 text-4xl"></i
+                  >Bank Accounts
+                </h3>
+                <a
+                  href="/open-account"
+                  class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-bold"
+                >
+                  <i class="fas fa-plus-circle mr-2 text-lg"></i>Open New
+                  Account
+                </a>
+              </div>
+
+              <div id="banks-container" class="grid md:grid-cols-2 gap-6">
+                <% if (bankAccounts && bankAccounts.length > 0) { %> <%
+                bankAccounts.forEach((acc, index) => { %>
+                <div
+                  class="border-[3px] border-orange-500 rounded-xl p-2.5 bg-white relative shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1"
+                >
+                  <div
+                    class="border-[3px] border-green-700 rounded-xl overflow-hidden bg-white relative p-6 h-full flex flex-col justify-between"
+                  >
+                    <div class="relative z-10">
+                      <div class="flex items-start justify-between mb-4">
+                        <div>
+                          <p
+                            class="text-blue-600 text-xs font-bold uppercase tracking-wider"
+                          >
+                            <%= acc.AccountType %>
+                          </p>
+                          <h4 class="text-2xl font-bold mt-1 text-gray-800">
+                            <%= acc.BankName %>
+                          </h4>
+                        </div>
+                        <div
+                          class="text-[10px] bg-green-50 text-green-600 px-2.5 py-1 rounded-full border border-green-100 flex items-center whitespace-nowrap"
+                        >
+                          <i class="fas fa-check-circle mr-1 text-[8px]"></i>
+                          Active
+                        </div>
+                      </div>
+                      <div class="space-y-3 mt-4">
+                        <div
+                          class="flex items-center justify-between border-b border-gray-100 pb-2"
+                        >
+                          <div>
+                            <p class="text-gray-500 text-[10px] uppercase">
+                              Account Number
+                            </p>
+                            <p
+                              class="text-lg font-bold tracking-wider text-gray-800"
+                            >
+                              **** **** **** <%= acc.AccountNumber.slice(-4) %>
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onclick="copyText('<%= acc.AccountNumber %>')"
+                            class="text-gray-400 hover:text-blue-600"
+                          >
+                            <i class="fas fa-copy"></i>
+                          </button>
+                        </div>
+                        <div
+                          class="flex items-center justify-between border-b border-gray-100 pb-2"
+                        >
+                          <div>
+                            <p class="text-gray-500 text-[10px] uppercase">
+                              IFSC Code
+                            </p>
+                            <p
+                              class="text-base font-bold font-mono text-gray-800"
+                            >
+                              <%= acc.IFSC %>
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p class="text-gray-500 text-[10px] uppercase">
+                            Branch
+                          </p>
+                          <p class="text-base font-semibold text-gray-800">
+                            <%= acc.BranchName %>, <%= acc.BranchCity %>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="relative z-10 mt-5 pt-3 border-t-2 border-green-100 bg-green-50 -mx-6 -mb-6 px-6 py-4"
+                    >
+                      <div class="flex items-center justify-between">
+                        <p class="text-green-700 text-xs font-bold uppercase">
+                          Available Balance
+                        </p>
+                        <div class="flex items-center gap-3">
+                          <p
+                            id="balance-<%= index %>"
+                            class="text-xl font-bold text-gray-800 font-mono"
+                            data-balance="₹ <%= parseFloat(acc.OpeningBalance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2}) %>"
+                          >
+                            ₹ XX,XXX.XX
+                          </p>
+                          <button
+                            type="button"
+                            onclick="toggleBalance('balance-<%= index %>', 'icon-<%= index %>')"
+                            class="text-gray-400 hover:text-green-600 transition-colors"
+                          >
+                            <i id="icon-<%= index %>" class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }); %> <% } else { %>
+                <div
+                  class="col-span-2 text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
+                >
+                  <i class="fas fa-university text-gray-300 text-5xl mb-3"></i>
+                  <p class="text-gray-500 font-semibold">
+                    No bank accounts linked yet.
+                  </p>
+                  <p class="text-sm text-gray-400">
+                    Open a new account to see it here.
+                  </p>
+                </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 4: Debit Cards -->
+          <div id="view-cards" class="view-section hidden">
+            <div
+              class="bg-gradient-to-br from-white via-orange-50 to-amber-50 rounded-2xl shadow-2xl p-8 border-2 border-orange-200"
+            >
+              <h3
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600 mb-8 flex items-center"
+              >
+                <i class="fas fa-credit-card text-orange-600 mr-3 text-4xl"></i
+                >My Debit Cards
+              </h3>
+
+              <div id="cards-container" class="grid lg:grid-cols-2 gap-8">
+                <% if (bankAccounts && bankAccounts.length > 0) { %> <%
+                bankAccounts.forEach((acc, index) => { %>
+                <div
+                  class="border-[3px] border-orange-500 rounded-xl p-2.5 bg-white relative shadow-xl hover:scale-[1.02] transition-transform"
+                >
+                  <div
+                    class="border-[3px] border-green-700 rounded-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 relative h-[250px] text-white p-6 flex flex-col justify-between"
+                  >
+                    <!-- Watermark -->
+                    <div
+                      class="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                    >
+                      <i
+                        class="fas fa-university text-9xl text-white opacity-[0.05]"
+                      ></i>
+                    </div>
+
+                    <!-- Header -->
+                    <div class="flex justify-between items-start relative z-10">
+                      <div class="flex items-start gap-4 flex-1">
+                        <div>
+                          <h4
+                            class="text-xl font-bold uppercase tracking-wider"
+                          >
+                            <%= acc.BankName %>
+                          </h4>
+                          <p class="text-[10px] text-gray-400">Debit Card</p>
+                        </div>
+                      </div>
+                      <div class="text-2xl italic font-bold">
+                        <%= acc.CardType %>
+                      </div>
+                    </div>
+
+                    <!-- Chip -->
+                    <div class="relative z-10 flex items-center gap-4 mt-2">
+                      <div
+                        class="w-12 h-10 bg-yellow-400 rounded-md border border-yellow-600 flex items-center justify-center overflow-hidden relative shadow-sm"
+                      >
+                        <div
+                          class="absolute w-full h-[1px] bg-yellow-600 top-1/3"
+                        ></div>
+                        <div
+                          class="absolute w-full h-[1px] bg-yellow-600 bottom-1/3"
+                        ></div>
+                        <div
+                          class="absolute h-full w-[1px] bg-yellow-600 left-1/3"
+                        ></div>
+                        <div
+                          class="absolute h-full w-[1px] bg-yellow-600 right-1/3"
+                        ></div>
+                      </div>
+                      <i
+                        class="fas fa-wifi rotate-90 text-gray-400 text-xl"
+                      ></i>
+                    </div>
+
+                    <!-- Number -->
+                    <div class="relative z-10 mt-2">
+                      <div class="flex items-center gap-3">
+                        <p
+                          id="cardNo-<%= index %>"
+                          class="text-2xl font-mono tracking-widest text-shadow-md"
+                          data-value="<%= acc.DebitCardNumber.match(/.{1,4}/g).join(' ') %>"
+                        >
+                          **** **** **** <%= acc.DebitCardNumber.slice(-4) %>
+                        </p>
+                        <button
+                          type="button"
+                          onclick="toggleCardInfo('cardNo-<%= index %>', 'eyeCard-<%= index %>', true)"
+                          class="text-gray-400 hover:text-white transition-colors"
+                        >
+                          <i id="eyeCard-<%= index %>" class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                      class="relative z-10 flex justify-between items-end mt-4"
+                    >
+                      <div>
+                        <p class="text-[9px] text-gray-400 uppercase">
+                          Card Holder
+                        </p>
+                        <p class="text-sm font-bold tracking-wide uppercase">
+                          <%= acc.NameOnCard %>
+                        </p>
+                      </div>
+                      <div class="flex gap-6">
+                        <div>
+                          <p
+                            class="text-[9px] text-gray-400 uppercase text-center"
+                          >
+                            Expires
+                          </p>
+                          <p class="text-sm font-bold font-mono">
+                            <%= acc.CardExpiry %>
+                          </p>
+                        </div>
+                        <div>
+                          <p
+                            class="text-[9px] text-gray-400 uppercase text-center"
+                          >
+                            CVV
+                          </p>
+                          <div class="flex items-center gap-2">
+                            <p
+                              id="cvv-<%= index %>"
+                              class="text-sm font-bold font-mono"
+                              data-value="<%= acc.CardCVV %>"
+                            >
+                              ***
+                            </p>
+                            <button
+                              type="button"
+                              onclick="toggleCardInfo('cvv-<%= index %>', 'eyeCvv-<%= index %>', false)"
+                              class="text-gray-400 hover:text-white transition-colors"
+                            >
+                              <i
+                                id="eyeCvv-<%= index %>"
+                                class="fas fa-eye text-xs"
+                              ></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }); %> <% } else { %>
+                <div
+                  class="col-span-2 text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
+                >
+                  <i class="fas fa-credit-card text-gray-300 text-5xl mb-3"></i>
+                  <p class="text-gray-500 font-semibold">
+                    No debit cards available.
+                  </p>
+                </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- View 5: Transactions -->
+          <div id="view-transactions" class="view-section hidden">
+            <div
+              class="bg-gradient-to-br from-white via-purple-50 to-pink-50 rounded-2xl shadow-2xl p-8 border-2 border-purple-200"
+            >
+              <div class="flex items-center justify-between mb-8">
+                <h3
+                  class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 flex items-center"
+                >
+                  <i class="fas fa-history text-purple-600 mr-3 text-4xl"></i
+                  >Recent Transactions
+                </h3>
+              </div>
+              <div class="overflow-x-auto rounded-xl shadow-lg">
+                <table class="w-full border-collapse">
+                  <thead
+                    class="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white"
+                  >
                     <tr>
-                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                            No transactions found.
-                        </td>
+                      <th class="px-6 py-4 text-left font-bold rounded-tl-lg">
+                        <i class="fas fa-calendar mr-2"></i>Date
+                      </th>
+                      <th class="px-6 py-4 text-left font-bold">
+                        <i class="fas fa-user mr-2"></i>Sender
+                      </th>
+                      <th class="px-6 py-4 text-left font-bold">
+                        <i class="fas fa-user-check mr-2"></i>Receiver
+                      </th>
+                      <th class="px-6 py-4 text-left font-bold">
+                        <i class="fas fa-rupee-sign mr-2"></i>Amount
+                      </th>
+                      <th class="px-6 py-4 text-left font-bold rounded-tr-lg">
+                        <i class="fas fa-comment mr-2"></i>Description
+                      </th>
                     </tr>
-                  <% } %>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody
+                    id="transactions-body"
+                    class="divide-y divide-gray-200"
+                  >
+                    <% if (transactions && transactions.length > 0) { %> <%
+                    transactions.forEach(txn => { // Determine if it is a debit
+                    or credit for the logged-in user // Since we fetch
+                    transactions for multiple accounts, logic is simple: // If
+                    one of user's account is Sender, it's Debit. Else Credit. //
+                    For simplicity in this view, let's just show details
+                    directly. // Check if current user is the sender (rough
+                    check by matching any account) let isSender =
+                    bankAccounts.some(acc => acc.AccountNumber ===
+                    txn.SenderAccountNumber); let typeClass = isSender ?
+                    "bg-red-100 text-red-700" : "bg-green-100 text-green-700";
+                    let sign = isSender ? "-" : "+"; let amtClass = isSender ?
+                    "text-red-600" : "text-green-600"; let typeLabel = isSender
+                    ? "Debit" : "Credit"; %>
+                    <tr
+                      class="hover:bg-blue-50 transition-colors border-b last:border-0"
+                    >
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-semibold text-gray-800"
+                          ><%= new
+                          Date(txn.TransactionTime).toLocaleDateString('en-IN')
+                          %></span
+                        >
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm">
+                          <p class="font-bold text-gray-700">
+                            <%= txn.SenderHolderName %>
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            <%= txn.SenderBank %>
+                          </p>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4">
+                        <div class="text-sm">
+                          <p class="font-bold text-gray-700">
+                            <%= txn.ReceiverHolderName %>
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            <%= txn.ReceiverBank %>
+                          </p>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="<%= amtClass %> font-bold text-lg">
+                          <%= sign %>₹<%=
+                          parseFloat(txn.Amount.toString()).toLocaleString('en-IN',
+                          {minimumFractionDigits: 2}) %>
+                        </span>
+                        <span
+                          class="<%= typeClass %> px-2 py-0.5 rounded text-xs ml-2 font-semibold"
+                          ><%= typeLabel %></span
+                        >
+                      </td>
+                      <td class="px-6 py-4">
+                        <span class="text-gray-700 font-medium"
+                          ><%= txn.Description %></span
+                        >
+                      </td>
+                    </tr>
+                    <% }); %> <% } else { %>
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="px-6 py-8 text-center text-gray-500"
+                      >
+                        No transactions found.
+                      </td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Scripts -->
-    <script>
-      function switchTab(tabName) {
-        // Hide all views
-        document
-          .querySelectorAll(".view-section")
-          .forEach((el) => el.classList.add("hidden"));
+      <!-- Scripts -->
+      <script>
+        function switchTab(tabName) {
+          // Hide all views
+          document
+            .querySelectorAll(".view-section")
+            .forEach((el) => el.classList.add("hidden"));
 
-        // Show selected view
-        document.getElementById(`view-${tabName}`).classList.remove("hidden");
+          // Show selected view
+          document.getElementById(`view-${tabName}`).classList.remove("hidden");
 
-        // Reset tab styles
-        const defaultStyle =
-          "flex-1 px-6 py-4 font-semibold text-gray-600 hover:bg-gray-50 transition-all whitespace-nowrap";
-        const activeStyle =
-          "flex-1 px-6 py-4 font-semibold text-blue-600 border-b-4 border-blue-600 bg-blue-50 transition-all whitespace-nowrap";
+          // Reset tab styles
+          const defaultStyle =
+            "flex-1 px-6 py-4 font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all whitespace-nowrap";
+          const activeStyle =
+            "flex-1 px-6 py-4 font-semibold text-white border-b-4 border-purple-600 bg-gradient-to-r from-purple-600 to-pink-600 transition-all whitespace-nowrap hover:shadow-lg";
 
-        document
-          .querySelectorAll(".tab-btn")
-          .forEach((btn) => (btn.className = defaultStyle + " tab-btn"));
-        document.getElementById(`tab-${tabName}`).className =
-          activeStyle + " tab-btn";
-      }
-
-      // Header Balance Toggle
-      let isHeaderBalanceVisible = false;
-      const maskedBalance = "₹ XX,XX,XXX.XX";
-
-      function toggleHeaderBalance() {
-        const balanceEl = document.getElementById("headerBalance");
-        const iconEl = document.getElementById("headerBalanceIcon");
-        const actual = balanceEl.getAttribute("data-balance");
-
-        isHeaderBalanceVisible = !isHeaderBalanceVisible;
-
-        if (isHeaderBalanceVisible) {
-          balanceEl.textContent = actual;
-          iconEl.classList.remove("fa-eye");
-          iconEl.classList.add("fa-eye-slash");
-        } else {
-          balanceEl.textContent = maskedBalance;
-          iconEl.classList.remove("fa-eye-slash");
-          iconEl.classList.add("fa-eye");
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((btn) => (btn.className = defaultStyle + " tab-btn"));
+          document.getElementById(`tab-${tabName}`).className =
+            activeStyle + " tab-btn";
         }
-      }
 
-      // Individual Bank Balance Toggle
-      function toggleBalance(elementId, iconId) {
-        const el = document.getElementById(elementId);
-        const icon = document.getElementById(iconId);
-        const actual = el.getAttribute("data-balance");
-        const masked = "₹ XX,XXX.XX";
+        // Header Balance Toggle
+        let isHeaderBalanceVisible = false;
+        const maskedBalance = "₹ XX,XX,XXX.XX";
 
-        if (el.textContent.includes("X")) {
-          el.textContent = actual;
-          icon.classList.remove("fa-eye");
-          icon.classList.add("fa-eye-slash");
-        } else {
-          el.textContent = masked;
-          icon.classList.remove("fa-eye-slash");
-          icon.classList.add("fa-eye");
-        }
-      }
+        function toggleHeaderBalance() {
+          const balanceEl = document.getElementById("headerBalance");
+          const iconEl = document.getElementById("headerBalanceIcon");
+          const actual = balanceEl.getAttribute("data-balance");
 
-      // Card Info Toggle (Number & CVV)
-      function toggleCardInfo(elementId, iconId, isCardNumber) {
-        const el = document.getElementById(elementId);
-        const icon = document.getElementById(iconId);
-        const actual = el.getAttribute("data-value");
+          isHeaderBalanceVisible = !isHeaderBalanceVisible;
 
-        if (el.textContent.includes("*")) {
-          // Show actual
-          el.textContent = actual;
-          icon.classList.remove("fa-eye");
-          icon.classList.add("fa-eye-slash");
-        } else {
-          // Mask again
-          if (isCardNumber) {
-            const last4 = actual.slice(-4);
-            el.textContent = "**** **** **** " + last4;
+          if (isHeaderBalanceVisible) {
+            balanceEl.textContent = actual;
+            iconEl.classList.remove("fa-eye");
+            iconEl.classList.add("fa-eye-slash");
           } else {
-            el.textContent = "***";
+            balanceEl.textContent = maskedBalance;
+            iconEl.classList.remove("fa-eye-slash");
+            iconEl.classList.add("fa-eye");
           }
-          icon.classList.remove("fa-eye-slash");
-          icon.classList.add("fa-eye");
         }
-      }
 
-      // Copy To Clipboard
-      function copyText(text) {
-        navigator.clipboard.writeText(text).then(() => {
-          showToast("Copied: " + text, "success");
-        });
-      }
+        // Individual Bank Balance Toggle
+        function toggleBalance(elementId, iconId) {
+          const el = document.getElementById(elementId);
+          const icon = document.getElementById(iconId);
+          const actual = el.getAttribute("data-balance");
+          const masked = "₹ XX,XXX.XX";
 
-</script>
+          if (el.textContent.includes("X")) {
+            el.textContent = actual;
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            el.textContent = masked;
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        }
+
+        // Card Info Toggle (Number & CVV)
+        function toggleCardInfo(elementId, iconId, isCardNumber) {
+          const el = document.getElementById(elementId);
+          const icon = document.getElementById(iconId);
+          const actual = el.getAttribute("data-value");
+
+          if (el.textContent.includes("*")) {
+            // Show actual
+            el.textContent = actual;
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+          } else {
+            // Mask again
+            if (isCardNumber) {
+              const last4 = actual.slice(-4);
+              el.textContent = "**** **** **** " + last4;
+            } else {
+              el.textContent = "***";
+            }
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+          }
+        }
+
+        // Copy To Clipboard
+        function copyText(text) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast("Copied: " + text, "success");
+          });
+        }
+      </script>
+
+      <!-- Mobile Footer Navigation -->
+      <footer class="mobile-footer">
+        <nav class="footer-nav">
+          <a href="/dashboard" class="footer-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="/transfer-money" class="footer-nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfer</span>
+          </a>
+          <a href="/profile" class="footer-nav-item active">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="/notifications" class="footer-nav-item">
+            <i class="fas fa-bell"></i>
+            <span>Alerts</span>
+          </a>
+          <a href="/shop" class="footer-nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Shop</span>
+          </a>
+        </nav>
+      </footer>
+
+      <script src="/js/header.js"></script>
+    </main>
   </body>
 </html>

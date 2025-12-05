@@ -1,289 +1,368 @@
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Sidebar -->
     <%- include('partials/header') %>
-<div  class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Hero Section -->
-      <div
-        class="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-white shadow-2xl overflow-hidden mb-12 flex items-center justify-center min-h-[540px] border-b-8 border-indigo-100"
-      >
-        <img
-          src="/Images/hero.png"
-          alt="Government Banking"
-          class="w-full h-[600px] object-cover object-center"
-          style="max-width: 100vw"
-          onerror="this.style.display='none';"
-        />
-        <div
-          class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white px-10 py-5 rounded-2xl shadow-xl flex items-center gap-10 border border-indigo-100"
-        >
-          <div class="flex flex-col items-center">
-            <span class="text-3xl font-bold text-indigo-900">1,245+</span>
-            <span class="text-xs font-semibold text-indigo-700">Banks</span>
-          </div>
-          <div class="w-1 h-10 bg-indigo-100 rounded-full"></div>
-          <div class="flex flex-col items-center">
-            <span class="text-3xl font-bold text-indigo-900">2.5M+</span>
-            <span class="text-xs font-semibold text-indigo-700">Accounts</span>
-          </div>
-          <div class="w-1 h-10 bg-indigo-100 rounded-full"></div>
-          <div class="flex flex-col items-center">
-            <span class="text-3xl font-bold text-indigo-900">₹50B+</span>
-            <span class="text-xs font-semibold text-indigo-700"
-              >Transactions</span
-            >
-          </div>
-        </div>
-      </div>
 
-      <!-- Stats Overview -->
-      <div
-        class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl shadow-xl p-10 mb-10 border-t-4 border-indigo-200"
-      >
-        <h2
-          class="text-3xl font-extrabold text-indigo-900 mb-8 text-center tracking-tight drop-shadow-sm"
-        >
-          System Overview
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div
-            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-indigo-400 text-sm mb-1">Registered Banks</p>
-                <h3 class="text-3xl font-extrabold">1,245</h3>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navigation Bar -->
+      <%- include('partials/navbar') %>
+
+      <!-- Hero Section with Video -->
+      <section class="hero-section">
+        <div class="video-container">
+          <video autoplay muted loop playsinline class="hero-video">
+            <source src="/Video/zeno1.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div class="video-overlay"></div>
+        </div>
+        <div class="hero-content">
+          <h1 class="hero-title">Your Financial Dashboard</h1>
+          <p class="hero-subtitle">
+            Manage your payments seamlessly with ZenoPay
+          </p>
+          <div class="hero-stats">
+            <div class="stat-card">
+              <i class="fas fa-dollar-sign"></i>
+              <div class="stat-info">
+                <h3>$45,231</h3>
+                <p>Total Balance</p>
               </div>
-              <i class="fas fa-building-columns text-5xl opacity-10"></i>
             </div>
-          </div>
-          <div
-            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-indigo-400 text-sm mb-1">Bank Branches</p>
-                <h3 class="text-3xl font-extrabold">15,890</h3>
+            <div class="stat-card">
+              <i class="fas fa-arrow-up"></i>
+              <div class="stat-info">
+                <h3>+23%</h3>
+                <p>This Month</p>
               </div>
-              <i class="fas fa-code-branch text-5xl opacity-10"></i>
             </div>
-          </div>
-          <div
-            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-indigo-400 text-sm mb-1">Active Accounts</p>
-                <h3 class="text-3xl font-extrabold">2.5M</h3>
+            <div class="stat-card">
+              <i class="fas fa-users"></i>
+              <div class="stat-info">
+                <h3>1,234</h3>
+                <p>Active Users</p>
               </div>
-              <i class="fas fa-users text-5xl opacity-10"></i>
-            </div>
-          </div>
-          <div
-            class="bg-white/90 border border-indigo-100 rounded-xl p-8 text-indigo-900 shadow-lg hover:shadow-2xl transition-all"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-indigo-400 text-sm mb-1">Total Transactions</p>
-                <h3 class="text-3xl font-extrabold">₹50.2B</h3>
-              </div>
-              <i class="fas fa-chart-line text-5xl opacity-10"></i>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Services Grid -->
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-        Services & Operations
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Register Aadhaar -->
-        <a
-          href="/register-aadhar"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-green-500"
-        >
-          <div class="text-center">
-            <img
-              src="/Images/RegisterAadhar.png"
-              alt="Aadhaar Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Register Aadhaar Card
-            </h3>
-            <p class="text-gray-600 text-sm">
-              Register new Aadhaar card with personal details and biometric
-              information
-            </p>
+      <!-- Dashboard Cards -->
+      <section class="dashboard-content">
+        <div class="content-header">
+          <h2>Overview</h2>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Transactions</h3>
+              <button class="btn-link">View All</button>
+            </div>
+            <div class="card-body">
+              <div class="transaction-item">
+                <div class="transaction-icon success">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Payment from Client A</p>
+                  <span class="transaction-id">ID: TXN2025120601</span>
+                  <span class="transaction-date">Dec 6, 2025</span>
+                </div>
+                <div class="transaction-amount success">+$1,200</div>
+              </div>
+              <div class="transaction-item">
+                <div class="transaction-icon danger">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Subscription Payment</p>
+                  <span class="transaction-id">ID: TXN2025120502</span>
+                  <span class="transaction-date">Dec 5, 2025</span>
+                </div>
+                <div class="transaction-amount danger">-$99</div>
+              </div>
+              <div class="transaction-item">
+                <div class="transaction-icon success">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Refund Received</p>
+                  <span class="transaction-id">ID: TXN2025120403</span>
+                  <span class="transaction-date">Dec 4, 2025</span>
+                </div>
+                <div class="transaction-amount success">+$450</div>
+              </div>
+              <div class="transaction-item">
+                <div class="transaction-icon danger">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Online Shopping</p>
+                  <span class="transaction-id">ID: TXN2025120304</span>
+                  <span class="transaction-date">Dec 3, 2025</span>
+                </div>
+                <div class="transaction-amount danger">-$250</div>
+              </div>
+              <div class="transaction-item">
+                <div class="transaction-icon success">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Freelance Payment</p>
+                  <span class="transaction-id">ID: TXN2025120205</span>
+                  <span class="transaction-date">Dec 2, 2025</span>
+                </div>
+                <div class="transaction-amount success">+$800</div>
+              </div>
+              <div class="transaction-item">
+                <div class="transaction-icon danger">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="transaction-details">
+                  <p class="transaction-name">Restaurant Bill</p>
+                  <span class="transaction-id">ID: TXN2025120106</span>
+                  <span class="transaction-date">Dec 1, 2025</span>
+                </div>
+                <div class="transaction-amount danger">-$75</div>
+              </div>
+            </div>
           </div>
-        </a>
 
-        <!-- Register PAN -->
-        <a
-          href="/register-pan"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-green-500"
-        >
-          <div class="text-center">
-            <img
-              src="/Images/RegisterPan.png"
-              alt="PAN Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Register PAN Card
-            </h3>
-            <p class="text-gray-600 text-sm">
-              Register Permanent Account Number for taxation and financial
-              transactions
-            </p>
+          <div class="card">
+            <div class="card-header">
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions">
+                <button class="action-btn">
+                  <i class="fas fa-paper-plane"></i>
+                  <span>Send Money</span>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-download"></i>
+                  <span>Request</span>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-file-invoice"></i>
+                  <span>Invoice</span>
+                </button>
+                <button class="action-btn">
+                  <i class="fas fa-history"></i>
+                  <span>History</span>
+                </button>
+              </div>
+            </div>
           </div>
-        </a>
+        </div>
 
-        <!-- Register Branch -->
-        <a
-          href="/bank-branches"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-blue-500"
-        >
-          <div class="text-center">
-            <img
-              src="/Images/RegisterBranch.png"
-              alt="Branch Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Register Bank Branch
-            </h3>
-            <p class="text-gray-600 text-sm">
-              Register new bank branch with RBI and assign IFSC code
-            </p>
+        <!-- Additional Banking Features -->
+        <div class="section-title">
+          <h2>Banking Services</h2>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Bill Payments</h3>
+              <button class="btn-link">Pay Now</button>
+            </div>
+            <div class="card-body">
+              <div class="service-grid">
+                <div class="service-item">
+                  <i class="fas fa-bolt"></i>
+                  <span>Electricity</span>
+                </div>
+                <div class="service-item">
+                  <i class="fas fa-mobile-alt"></i>
+                  <span>Mobile</span>
+                </div>
+                <div class="service-item">
+                  <i class="fas fa-wifi"></i>
+                  <span>Internet</span>
+                </div>
+                <div class="service-item">
+                  <i class="fas fa-tint"></i>
+                  <span>Water</span>
+                </div>
+                <div class="service-item">
+                  <i class="fas fa-tv"></i>
+                  <span>Cable TV</span>
+                </div>
+                <div class="service-item">
+                  <i class="fas fa-fire"></i>
+                  <span>Gas</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </a>
 
-        <!-- Open Account -->
-        <a
-          href="/open-account"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-blue-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/dbeafe/1e40af?text=New+Account"
-              alt="Account Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Open Bank Account
-            </h3>
-            <p class="text-gray-600 text-sm">
-              Open new bank account with Aadhaar and PAN verification
-            </p>
+          <div class="card">
+            <div class="card-header">
+              <h3>Rewards & Loyalty</h3>
+              <button class="btn-link">Redeem</button>
+            </div>
+            <div class="card-body">
+              <div class="rewards-summary">
+                <div class="rewards-circle">
+                  <div class="points-display">
+                    <h3>2,450</h3>
+                    <p>Points</p>
+                  </div>
+                </div>
+                <div class="rewards-info">
+                  <div class="reward-stat">
+                    <i class="fas fa-coins"></i>
+                    <div>
+                      <strong>$24.50</strong>
+                      <span>Cash Value</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </a>
+        </div>
 
-        <!-- View Account (Redirects to Profile) -->
-        <a
-          href="/profile"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-cyan-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/cffafe/0e7490?text=View+Account"
-              alt="View Account Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              View Your Account
-            </h3>
-            <p class="text-gray-600 text-sm">
-              View complete banking information and account details
-            </p>
+        <!-- Loans & Insurance Section -->
+        <div class="section-title">
+          <h2>Financial Products</h2>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Loan Options</h3>
+              <button class="btn-link">Apply</button>
+            </div>
+            <div class="card-body">
+              <div class="loan-item">
+                <i class="fas fa-home"></i>
+                <div class="loan-details">
+                  <h4>Home Loan</h4>
+                  <p>Starting from 6.5% p.a.</p>
+                </div>
+                <button class="btn-small">Apply</button>
+              </div>
+              <div class="loan-item">
+                <i class="fas fa-car"></i>
+                <div class="loan-details">
+                  <h4>Auto Loan</h4>
+                  <p>Starting from 7.2% p.a.</p>
+                </div>
+                <button class="btn-small">Apply</button>
+              </div>
+              <div class="loan-item">
+                <i class="fas fa-user-graduate"></i>
+                <div class="loan-details">
+                  <h4>Education Loan</h4>
+                  <p>Starting from 5.8% p.a.</p>
+                </div>
+                <button class="btn-small">Apply</button>
+              </div>
+            </div>
           </div>
-        </a>
 
-        <!-- RBI Records (Placeholder) -->
-        <a
-          href="#"
-          onclick="showToast('Feature coming soon!', 'warning')"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-cyan-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/cffafe/0e7490?text=RBI+Records"
-              alt="RBI Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">RBI Records</h3>
-            <p class="text-gray-600 text-sm">
-              View all banking records registered with Reserve Bank of India
-            </p>
+          <div class="card">
+            <div class="card-header">
+              <h3>Insurance Plans</h3>
+              <button class="btn-link">Get Quote</button>
+            </div>
+            <div class="card-body">
+              <div class="insurance-grid">
+                <div class="insurance-card">
+                  <i class="fas fa-heart"></i>
+                  <h4>Health</h4>
+                  <p>Coverage up to $100K</p>
+                </div>
+                <div class="insurance-card">
+                  <i class="fas fa-shield-alt"></i>
+                  <h4>Life</h4>
+                  <p>Secure your family</p>
+                </div>
+                <div class="insurance-card">
+                  <i class="fas fa-car-crash"></i>
+                  <h4>Vehicle</h4>
+                  <p>Comprehensive plans</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </a>
 
-        <!-- Make Transaction -->
-        <a
-          href="/transfer"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-orange-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/ffedd5/c2410c?text=Transfer"
-              alt="Transaction Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Make Transaction
-            </h3>
-            <p class="text-gray-600 text-sm">
-              Perform banking transactions between accounts
-            </p>
+          <div class="card">
+            <div class="card-header">
+              <h3>Money Transfer</h3>
+              <button class="btn-link">Send</button>
+            </div>
+            <div class="card-body">
+              <div class="transfer-options">
+                <div class="transfer-item">
+                  <i class="fas fa-university"></i>
+                  <div class="transfer-details">
+                    <h4>Bank Transfer</h4>
+                    <p>Free, within 24 hours</p>
+                  </div>
+                </div>
+                <div class="transfer-item">
+                  <i class="fas fa-globe"></i>
+                  <div class="transfer-details">
+                    <h4>International</h4>
+                    <p>150+ countries supported</p>
+                  </div>
+                </div>
+                <div class="transfer-item">
+                  <i class="fas fa-qrcode"></i>
+                  <div class="transfer-details">
+                    <h4>QR Payment</h4>
+                    <p>Instant transfer via QR</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </a>
+        </div>
+      </section>
+    </main>
 
-        <!-- Transaction History (Redirects to Profile) -->
-        <a
-          href="/profile"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-orange-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/ffedd5/c2410c?text=History"
-              alt="History Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">
-              Transaction History
-            </h3>
-            <p class="text-gray-600 text-sm">
-              View complete transaction history and records
-            </p>
-          </div>
+    <!-- Mobile Footer Navigation -->
+    <footer class="mobile-footer">
+      <nav class="footer-nav">
+        <a href="#dashboard" class="footer-nav-item active">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
         </a>
-
-        <!-- User Profile -->
-        <a
-          href="/profile"
-          class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 p-6 border-t-4 border-red-500"
-        >
-          <div class="text-center">
-            <img
-              src="https://placehold.co/200x200/fee2e2/b91c1c?text=Profile"
-              alt="Profile Illustration"
-              class="w-32 h-32 mx-auto mb-4 object-contain"
-            />
-            <h3 class="text-xl font-bold text-gray-800 mb-2">User Profile</h3>
-            <p class="text-gray-600 text-sm">
-              View and manage user account information
-            </p>
-          </div>
+        <a href="#transactions" class="footer-nav-item">
+          <i class="fas fa-exchange-alt"></i>
+          <span>Transactions</span>
         </a>
-      </div>
+        <a href="#payments" class="footer-nav-item">
+          <i class="fas fa-credit-card"></i>
+          <span>Payments</span>
+        </a>
+        <a href="#analytics" class="footer-nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="#settings" class="footer-nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </footer>
 
-      <!-- Footer -->
-      <div class="text-center mt-12 text-gray-600">
-        <p class="mb-2">© 2025 Government of India - Reserve Bank of India</p>
-        <p class="text-sm">All Rights Reserved | Secure Banking Portal</p>
-      </div>
-    </div>
-</div>
-   
+    <script src="/js/dashboard.js"></script>
   </body>
 </html>

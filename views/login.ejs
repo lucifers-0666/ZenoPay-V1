@@ -1,59 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay - Login</title>
+    <link rel="stylesheet" href="/css/login.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="login-body">
+    <!-- Sidebar -->
+    ><%- include('partials/header') %>
 
-    <!-- Toast Notification -->
-    <%- include('partials/header') %>
-    <div
-      class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-4"
-    >
-      <div class="w-full max-w-md">
+    <!-- Main Content Area -->
+    <div class="login-main-content">
+      <!-- Video Background -->
+      <div class="video-background">
+        <video autoplay muted loop playsinline class="bg-video">
+          <source src="/Video/zeno1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay-login"></div>
+      </div>
+
+      <!-- Login Container -->
+      <div class="login-container">
         <!-- Login Card -->
-        <div
-          class="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-blue-600"
-        >
-          <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Welcome Back
-          </h2>
-
-          <form onsubmit="handleLogin(event)" class="space-y-6">
+        <div class="login-card">
+          <!-- Login Form -->
+          <form onsubmit="handleLogin(event)" class="login-form">
             <!-- User ID -->
-            <div>
-              <label
-                for="userId"
-                class="block text-sm font-semibold text-gray-700 mb-2"
-              >
-                <i class="fas fa-user mr-2 text-blue-500"></i>User ID / Aadhaar
-                Number
+            <div class="form-group">
+              <label for="userId">
+                <i class="fas fa-user"></i> User ID / Aadhaar Number
               </label>
               <input
                 type="text"
                 id="userId"
                 name="userId"
+                class="form-control"
                 placeholder="Enter Aadhaar Number"
                 required
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               />
             </div>
 
             <!-- Password -->
-            <div>
-              <label
-                for="password"
-                class="block text-sm font-semibold text-gray-700 mb-2"
-              >
-                <i class="fas fa-lock mr-2 text-blue-500"></i>Password
+            <div class="form-group">
+              <label for="password">
+                <i class="fas fa-lock"></i> Password
               </label>
-              <div class="relative">
+              <div class="input-wrapper">
                 <input
                   type="password"
                   id="password"
                   name="password"
+                  class="form-control"
                   placeholder="Enter your password"
                   required
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all pr-12"
                 />
                 <button
                   type="button"
                   onclick="togglePassword()"
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  class="password-toggle"
                 >
                   <i id="eyeIcon" class="fas fa-eye"></i>
                 </button>
@@ -61,61 +72,37 @@
             </div>
 
             <!-- Remember Me & Forgot Password -->
-            <div class="flex items-center justify-between">
-              <label class="flex items-center">
-                <input
-                  type="checkbox"
-                  class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span class="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <a
-                href="#"
-                class="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-                >Forgot Password?</a
-              >
+            <div class="form-options">
+              <div class="remember-me">
+                <input type="checkbox" id="remember" />
+                <label for="remember">Remember me</label>
+              </div>
+              <a href="#" class="forgot-link">Forgot Password?</a>
             </div>
 
             <!-- Login Button -->
-            <button
-              type="submit"
-              id="btnLogin"
-              class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
-            >
+            <button type="submit" id="btnLogin" class="btn-login">
               <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
           </form>
 
           <!-- Divider -->
-          <div class="relative my-6">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-gray-300"></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-              <span class="px-4 bg-white text-gray-500"
-                >Don't have an account?</span
-              >
-            </div>
+          <div class="divider">
+            <span>Don't have an account?</span>
           </div>
 
           <!-- Register Button -->
-          <a
-            href="/register-aadhar"
-            class="w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-lg font-semibold text-lg shadow-md hover:shadow-lg hover:bg-blue-50 transition-all flex items-center justify-center"
-          >
-            <i class="fas fa-user-plus mr-2"></i> Register New Account
+          <a href="/register-aadhar" class="btn-register">
+            <i class="fas fa-user-plus"></i> Register New Account
           </a>
         </div>
 
         <!-- Footer -->
-        <div class="text-center mt-6 text-sm text-gray-600">
-          <p>© 2025 Government of India - Reserve Bank of India</p>
-          <p class="mt-2">
-            <a href="#" class="text-blue-600 hover:text-blue-800 mr-4">Terms</a>
-            <a href="#" class="text-blue-600 hover:text-blue-800"
-              >Privacy Policy</a
-            >
-          </p>
+        <div class="login-footer">
+          <div class="footer-links">
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </div>
@@ -135,6 +122,34 @@
         }
       }
 
+      function showToast(message, type) {
+        // Remove existing toasts
+        const existingToast = document.querySelector(".toast");
+        if (existingToast) {
+          existingToast.remove();
+        }
+
+        // Create toast element
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+          <i class="fas ${
+            type === "success" ? "fa-check-circle" : "fa-exclamation-circle"
+          }"></i>
+          <div class="toast-content">
+            <p>${message}</p>
+          </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          toast.style.animation = "slideOutRight 0.4s ease";
+          setTimeout(() => toast.remove(), 400);
+        }, 3000);
+      }
+
       async function handleLogin(event) {
         event.preventDefault();
 
@@ -145,8 +160,7 @@
 
         // Loading State
         btn.disabled = true;
-        btn.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        btn.innerHTML = '<span class="spinner"></span> Authenticating...';
 
         try {
           const response = await fetch("/login", {
