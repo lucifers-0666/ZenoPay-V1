@@ -1,4 +1,4 @@
-const AadharDetails = require("../Models/AadharDetails");
+// const AadharDetails = require("../Models/AadharDetails");
 const BankAccount = require("../Models/BankAccount");
 const crypto = require("crypto");
 

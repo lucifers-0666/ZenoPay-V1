@@ -1,103 +1,105 @@
-const AadharDetails = require("../Models/AadharDetails");
+const ZenoPayUser = require("../Models/ZenoPayUser");
 
+// Show login page
 const getLogin = (req, res) => {
-  // If user is already logged in, redirect to dashboard (or home)
   if (req.session.isLoggedIn) {
-    return res.redirect("/");
+    return res.redirect("/dashboard");
   }
+
   res.render("login", {
     pageTitle: "Login",
   });
 };
 
+// Handle login
 const postLogin = async (req, res) => {
   const { userId, password } = req.body;
 
-  try {
-    // 1. Sanitize Input (Remove spaces from Aadhaar Number if entered)
-    const cleanUserId = userId.trim().replace(/\s/g, "");
+  console.log("Login attempt for userId:", userId);
+  console.log("Password received:", password);
 
-    // 2. Find User (Check against AadharNumber or AadharID)
-    const user = await AadharDetails.findOne({
-        $or: [
-            { AadharNumber: cleanUserId }, 
-            { AadharID: cleanUserId }
-        ]
+  try {
+    const cleanUserId = userId.trim();
+
+    // Find by Email OR ZenoPayID
+    const user = await ZenoPayUser.findOne({
+      $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
     });
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found. Please check your ID.",
-      });
-    }
-    
-    if (user.Password !== password) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials. Please try again.",
+      console.log("User not found!");
+      return res.status(401).render("login", {
+        pageTitle: "Login",
+        error: "User not found. Please try again.",
       });
     }
 
-    // 4. Initialize Session
-    req.session.isLoggedIn = true;
+    // Password check (later replace with bcrypt)
+    if (user.Password !== password) {
+      console.log("Incorrect password!");
+      return res.status(401).render("login", {
+        pageTitle: "Login",
+        error: "Invalid password.",
+      });
+    }
+
+    // Store session
     req.session.user = {
-        _id: user._id.toString(), 
-        name: user.FullName,
-        aadharNumber: user.AadharNumber,
-        role: user.Role
+      _id: user._id.toString(),
+      name: user.FullName,
+      ZenoPayId: user.ZenoPayID,
+      role: user.Role,
     };
 
-    console.log("User logged in:", req.session.user);
-    // 5. Save Session and Respond
-    req.session.save((err) => {
-        if (err) {
-            console.error("Session creation failed:", err);
-            return res.status(500).json({ 
-                success: false, 
-                message: "Login failed due to server error." 
-            });
-        }
-        
-        return res.status(200).json({
-            success: true,
-            message: "Login successful!",
-        });
-    });
+    req.session.isLoggedIn = true;
 
+    console.log("User logged in successfully:", req.session.user);
+
+    // Save session before redirect
+    req.session.save((err) => {
+      if (err) {
+        console.error("Session creation failed:", err);
+        return res.render("login", {
+          pageTitle: "Login",
+          error: "Session error. Please try again.",
+        });
+      }
+
+      return res.redirect("/dashboard");
+    });
   } catch (err) {
     console.error("Login Controller Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error.",
+
+    return res.status(500).render("login", {
+      pageTitle: "Login",
+      error: "Internal Server Error. Please try again.",
     });
   }
 };
 
+// Logout
 const logout = (req, res) => {
-  console.log("User logged out:", req.session.user ? req.session.user.name : "Unknown User");
-    req.session.destroy((err) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({
-                success: false,
-                message: "Logout failed. Please try again."
-            });
-        }
+  console.log(
+    "User logged out:",
+    req.session.user ? req.session.user.name : "Unknown User"
+  );
 
-        res.clearCookie("connect.sid");
+  req.session.destroy((err) => {
+    if (err) {
+      console.log("Logout error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Logout failed. Please try again.",
+      });
+    }
 
-        return res.status(200).json({
-            success: true,
-            message: "Logged out successfully."
-        });
-    });
+    res.clearCookie("connect.sid");
+    return res.redirect("/login");
+  });
 };
-
-
 
 module.exports = {
   getLogin,
   postLogin,
-  logout
+  logout,
 };

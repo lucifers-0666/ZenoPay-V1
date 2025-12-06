@@ -1,93 +1,91 @@
 const BankAccount = require("../Models/BankAccount");
-const BankBranch = require("../Models/BankBranch"); // Assuming you saved the provided schema as BankBranch.js
+const BankBranch = require("../Models/Banks");
+const ZenoPayDetails = require("../Models/ZenoPayUser");
 
-const getOpenAccount = (req, res) => {
+const getOpenAccount = async (req, res) => {
   res.render("OpenAccount", {
     pageTitle: "Open Bank Account",
   });
 };
 
-const verifyIFSC = async (req, res) => {
-  const { ifsc } = req.body;
-  console.log("Verifying IFSC:", ifsc);
-
-  try {
-    const branch = await BankBranch.findOne({ IFSC: ifsc.toUpperCase() });
-
-    if (branch) {
-      return res.status(200).json({
-        success: true,
-        message: "Branch Details Found!",
-        branch: {
-          BankName: branch.BankName,
-          BranchName: branch.BranchName,
-          City: branch.City,
-          State: branch.State,
-          BranchEmail: branch.BranchEmail,
-        },
-      });
-    } else {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid IFSC Code. Branch not found.",
-      });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error during verification." });
-  }
-};
-
 const postOpenAccount = async (req, res) => {
   try {
     const data = req.body;
-    const file = req.file;
- console.log("Opening Account with data:", data);
-    // 1. Check if Account Number already exists
-    const existingAccount = await BankAccount.findOne({ AccountNumber: data.accountNumber });
-    if (existingAccount) {
+
+    // Verify ZenoPay ID exists
+    const zenoPayUser = await ZenoPayDetails.findOne({
+      ZenoPayID: data.ZenoPayId,
+    });
+    if (!zenoPayUser) {
       return res.status(400).json({
         success: false,
-        message: "Account Number collision! Please regenerate.",
+        message: "Invalid ZenoPay ID",
+      });
+    }
+
+    // Generate Account Number (16 digits)
+    const accountNumber =
+      "AC" + Date.now().toString() + Math.floor(Math.random() * 1000);
+
+    // Generate Debit Card Number (16 digits)
+    const cardNumber =
+      "4" +
+      Math.floor(Math.random() * 1000000000000000)
+        .toString()
+        .padStart(15, "0");
+
+    // Generate Card Expiry (5 years from now)
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 5);
+    const cardExpiry = `${String(expiryDate.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${expiryDate.getFullYear().toString().substr(-2)}`;
+
+    // Generate CVV (3 digits)
+    const cardCVV = Math.floor(100 + Math.random() * 900).toString();
+
+    // Generate PIN (4 digits)
+    const cardPIN = Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Get Bank Name from BankId
+    const bank = await BankBranch.findOne({ BankId: data.BankId });
+    if (!bank) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Bank ID",
       });
     }
 
     const newAccount = new BankAccount({
-      AccountNumber: data.accountNumber,
-      BankName: data.bankName,
-      BranchName: data.branchName,
-      IFSC: data.ifsc,
-      BranchCity: data.branchCity,
-      BranchState: data.branchState,
-      BranchEmail: data.branchEmail,
-      AccountType: data.accountType,
-      OpeningBalance: data.openingBalance,
-      TransactionLimit: data.txnLimit,
-      
-      // Personal Details
-      AadharNumber: data.aadharNumber.replace(/\s/g, ""),
-      FullName: data.fullName,
-      DOB: data.dob,
-      Gender: data.gender,
-      Profession: data.profession,
-      AnnualIncome: data.annualIncome,
-      PanNumber: data.panNumber,
-      Email: data.email,
-      Mobile: data.mobile,
-      City: data.city,
-      State: data.state,
-      Pincode: data.pincode,
-      
-      // Image
-      ProfileImagePath: file ? `/AccountProfileImages/${file.filename}` : null,
-      
-      // Debit Card Details
-      DebitCardNumber: data.debitCardNumber.replace(/\s/g, ""),
-      NameOnCard: data.nameOnCard,
-      CardExpiry: data.cardExpiry, // MM/YY
-      CardCVV: data.cardCVV,
-      CardPIN: data.cardPin, // Hashing recommended in production
-      CardType: "Visa Classic", // Defaulting for demo
+      AccountNumber: accountNumber,
+      BankName: data.BankName,
+      BankId: data.BankId,
+      BankCity: data.BankCity,
+      BankState: data.BankState,
+      BankEmail: data.BankEmail,
+      AccountType: data.AccountType,
+      OpeningBalance: data.OpeningBalance,
+      TransactionLimit: data.TransactionLimit,
+      ZenoPayId: data.ZenoPayId,
+      FullName: data.FullName,
+      DOB: data.DOB,
+      Gender: data.Gender,
+      Profession: data.Profession,
+      AnnualIncome: data.AnnualIncome,
+      Email: data.Email,
+      Mobile: data.Mobile,
+      City: data.City,
+      State: data.State,
+      Pincode: data.Pincode,
+      DebitCardNumber: cardNumber,
+      NameOnCard: data.FullName.toUpperCase(),
+      CardExpiry: cardExpiry,
+      CardCVV: cardCVV,
+      CardPIN: cardPIN,
+      CardType: data.CardType,
+      DebitCardStatus: "Active",
+      AccountStatus: "Active",
     });
 
     await newAccount.save();
@@ -95,14 +93,35 @@ const postOpenAccount = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Bank Account Opened Successfully!",
-      accountNumber: newAccount.AccountNumber
+      accountNumber: accountNumber,
+      cardNumber: cardNumber,
+      cardExpiry: cardExpiry,
+      cardCVV: cardCVV,
+      cardPIN: cardPIN,
     });
-
   } catch (err) {
-    console.error("Open Account Error:", err);
+    console.error("Account Opening Error:", err);
+
+    // Handle duplicate account number
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Account already exists. Please try again.",
+      });
+    }
+
+    // Handle validation errors
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return res.status(400).json({
+        success: false,
+        message: messages.join(", "),
+      });
+    }
+
     res.status(500).json({
       success: false,
-      message: "Server Error: Could not open account.",
+      message: "Internal Server Error. Please try again later.",
     });
   }
 };
@@ -110,5 +129,4 @@ const postOpenAccount = async (req, res) => {
 module.exports = {
   getOpenAccount,
   postOpenAccount,
-  verifyIFSC,
 };

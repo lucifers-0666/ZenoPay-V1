@@ -1,974 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Bank Account - ZenoPay</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .account-container {
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+      }
 
+      .account-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--primary-dark) 100%
+        );
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px var(--shadow-lg);
+        color: var(--white);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
 
-  
+      .account-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(234, 216, 192, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
 
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
 
-  
-  <%- include('partials/header') %>
+      .account-header h1 {
+        position: relative;
+        z-index: 2;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .account-header p {
+        position: relative;
+        z-index: 2;
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .account-form-section {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 25px var(--shadow);
+        margin-bottom: 2rem;
+      }
+
+      .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        position: relative;
+      }
+
+      .step-indicator::before {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--light-cream);
+        z-index: 0;
+      }
+
+      .step-progress {
+        position: absolute;
+        top: 20px;
+        left: 0;
+        height: 3px;
+        background: var(--primary-blue);
+        transition: width 0.3s ease;
+        z-index: 1;
+      }
+
+      .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 3px solid var(--light-cream);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+      }
+
+      .step.active .step-circle {
+        background: var(--primary-blue);
+        border-color: var(--primary-blue);
+        color: var(--white);
+      }
+
+      .step.completed .step-circle {
+        background: var(--success);
+        border-color: var(--success);
+        color: var(--white);
+      }
+
+      .step-label {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        font-weight: 600;
+      }
+
+      .step.active .step-label {
+        color: var(--primary-blue);
+      }
+
+      .form-step {
+        display: none;
+      }
+
+      .form-step.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .form-section-title {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .form-section-title i {
+        color: var(--primary-blue);
+      }
+
+      .form-section-subtitle {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .form-label i {
+        color: var(--primary-blue);
+        font-size: 0.85rem;
+      }
+
+      .required {
+        color: var(--danger);
+      }
+
+      .form-input,
+      .form-select {
+        padding: 0.9rem 1rem;
+        border: 2px solid var(--light-cream);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+        color: var(--text-dark);
+        font-family: inherit;
+      }
+
+      .form-input:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(69, 104, 130, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-light);
+        opacity: 0.7;
+      }
+
+      .form-input.error,
+      .form-select.error {
+        border-color: var(--danger);
+      }
+
+      .error-message {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        display: none;
+      }
+
+      .info-card {
+        background: linear-gradient(
+          135deg,
+          rgba(69, 104, 130, 0.1) 0%,
+          rgba(234, 216, 192, 0.1) 100%
+        );
+        border-left: 4px solid var(--primary-blue);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+      }
+
+      .info-card h4 {
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .info-card p {
+        color: var(--text-dark);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .form-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 0.9rem 2rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--primary-dark) 100%
+        );
+        color: var(--white);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(69, 104, 130, 0.3);
+      }
+
+      .btn-secondary {
+        background: var(--light-cream);
+        color: var(--text-dark);
+      }
+
+      .btn-secondary:hover {
+        background: var(--accent-beige);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .success-message {
+        background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+      }
+
+      .success-message.show {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .success-message i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .success-message h3 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .success-details {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1.5rem;
+        text-align: left;
+      }
+
+      .success-detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .success-detail-item:last-child {
+        border-bottom: none;
+      }
+
+      .verify-button {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+      }
+
+      .verify-button:hover {
+        background: var(--primary-dark);
+      }
+
+      .verified-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: var(--success);
+        color: white;
+        padding: 0.3rem 0.6rem;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .account-container {
+          padding: 1rem;
+        }
+
+        .account-header {
+          padding: 2rem 1.5rem;
+        }
+
+        .account-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .account-form-section {
+          padding: 1.5rem;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .step-indicator {
+          margin-bottom: 2rem;
+        }
+
+        .step-label {
+          font-size: 0.75rem;
+        }
+
+        .step-circle {
+          width: 35px;
+          height: 35px;
+        }
+
+        .form-buttons {
+          flex-direction: column-reverse;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <%- include('partials/header') %>
 
     <!-- Main Content -->
-    <div class="min-h-[80vh]">
-      <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <!-- Back Button -->
-        <a
-          href="/"
-          class="inline-flex items-center text-blue-700 hover:text-blue-900 font-semibold mb-6 transition-all hover:translate-x-[-4px]"
-        >
-          <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
-        </a>
+    <main class="main-content">
+      <!-- Navigation Bar -->
+      <%- include('partials/navbar') %>
 
-        <!-- Header Card -->
-        <div
-          class="bg-white rounded-2xl shadow-xl p-8 mb-8 border-t-4 border-blue-600"
-        >
-          <div class="text-center">
-            <div
-              class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full mb-4 shadow-lg"
-            >
-              <i class="fas fa-university text-white text-3xl"></i>
-            </div>
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">
-              Open Bank Account
-            </h1>
-            <p class="text-gray-600 text-lg">
-              KYC Verified Account Opening - Reserve Bank of India
-            </p>
-          </div>
+      <div class="account-container">
+        <!-- Account Header -->
+        <div class="account-header">
+          <h1>
+            <i class="fas fa-university"></i>
+            Open Bank Account
+          </h1>
+          <p>Open your account with ZenoPay partner banks</p>
         </div>
 
-        <!-- Main Form -->
-        <form
-          id="accountForm"
-          class="bg-white rounded-2xl shadow-xl p-8"
-          onsubmit="return handleFormSubmit(event)"
-          enctype="multipart/form-data"
-        >
-          <!-- Bank & Branch Details Section -->
-          <div>
-            <div class="flex items-center mb-6 pb-3 border-b-2 border-blue-100">
-              <i
-                class="fas fa-building-columns text-blue-600 text-2xl mr-3"
-              ></i>
-              <h3 class="text-2xl font-bold text-gray-800">
-                Bank & Branch Details
-              </h3>
+        <!-- Account Form -->
+        <div class="account-form-section">
+          <!-- Step Indicator -->
+          <div class="step-indicator">
+            <div class="step-progress" id="stepProgress"></div>
+            <div class="step active" data-step="1">
+              <div class="step-circle">1</div>
+              <div class="step-label">ZenoPay ID</div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <!-- Branch IFSC (Moved First) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-code-branch mr-2 text-blue-500"></i>IFSC Code
-                  *
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="txtIFSC"
-                    name="ifsc"
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all uppercase"
-                    placeholder="SBIN0001234"
-                    maxlength="11"
-                    required
-                  />
-                  <button
-                    type="button"
-                    id="btnVerifyIFSC"
-                    onclick="verifyIFSC()"
-                    class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors cursor-pointer whitespace-nowrap flex items-center gap-2"
-                  >
-                    Verify
-                  </button>
-                </div>
-              </div>
-
-              <!-- Bank Name (Replaced Dropdown with Readonly Input) -->
-              <div class="md:col-span-1">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-bank mr-2 text-blue-500"></i>Bank Name
-                </label>
-                <input
-                  type="text"
-                  id="txtBankName"
-                  name="bankName"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="Auto-filled via IFSC"
-                />
-              </div>
-
-              <!-- Branch Name (ReadOnly) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Branch
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="txtBranchName"
-                  name="branchName"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="Auto-filled via IFSC"
-                />
-              </div>
-
-              <!-- Branch City (ReadOnly) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-city mr-2 text-blue-500"></i>Branch City
-                </label>
-                <input
-                  type="text"
-                  id="txtBranchCity"
-                  name="branchCity"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="Auto-filled"
-                />
-              </div>
-
-              <!-- Branch State (ReadOnly) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-map mr-2 text-blue-500"></i>Branch State
-                </label>
-                <input
-                  type="text"
-                  id="txtBranchState"
-                  name="branchState"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="Auto-filled"
-                />
-              </div>
-
-              <!-- Branch Email (ReadOnly) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-envelope-open mr-2 text-blue-500"></i>Branch
-                  Email
-                </label>
-                <input
-                  type="text"
-                  id="txtBranchEmail"
-                  name="branchEmail"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="Auto-filled"
-                />
-              </div>
+            <div class="step" data-step="2">
+              <div class="step-circle">2</div>
+              <div class="step-label">Bank Selection</div>
+            </div>
+            <div class="step" data-step="3">
+              <div class="step-circle">3</div>
+              <div class="step-label">Account Details</div>
+            </div>
+            <div class="step" data-step="4">
+              <div class="step-circle">4</div>
+              <div class="step-label">Review</div>
             </div>
           </div>
 
-          <!-- Account Configuration Section -->
-          <div class="mt-8">
-            <div
-              class="flex items-center mb-6 pb-3 border-b-2 border-indigo-100"
-            >
-              <i class="fas fa-wallet text-indigo-600 text-2xl mr-3"></i>
-              <h3 class="text-2xl font-bold text-gray-800">
-                Account Configuration
-              </h3>
-            </div>
+          <form id="openAccountForm" data-loader-text="Opening Account...">
+            <!-- Step 1: ZenoPay ID Verification -->
+            <div class="form-step active" data-step="1">
+              <div class="form-section-title">
+                <i class="fas fa-id-card"></i>
+                Verify ZenoPay ID
+              </div>
+              <p class="form-section-subtitle">
+                Enter your ZenoPay ID to continue
+              </p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Account Number (Manual Generate) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-hashtag mr-2 text-indigo-500"></i>Account
-                  Number *
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="txtAccountNumber"
-                    name="accountNumber"
-                    readonly
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 font-mono focus:outline-none"
-                    placeholder="Click Generate"
-                  />
-                  <button
-                    type="button"
-                    onclick="generateAccountNumber()"
-                    class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md transition-colors cursor-pointer whitespace-nowrap"
-                  >
-                    Generate
-                  </button>
-                </div>
+              <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> Important</h4>
+                <p>
+                  You must have a registered ZenoPay account to open a bank
+                  account.
+                </p>
               </div>
 
-              <!-- Account Type -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-list mr-2 text-indigo-500"></i>Account Type *
-                </label>
-                <select
-                  id="ddlAccountType"
-                  name="accountType"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
-                  required
-                >
-                  <option value="">Select Type</option>
-                  <option value="Savings">Savings Account</option>
-                  <option value="Current">Current Account</option>
-                  <option value="Salary">Salary Account</option>
-                </select>
-              </div>
-
-              <!-- Opening Balance -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-rupee-sign mr-2 text-indigo-500"></i>Opening
-                  Balance *
-                </label>
-                <input
-                  type="number"
-                  id="txtOpeningBalance"
-                  name="openingBalance"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  placeholder="Min ₹1000"
-                  required
-                />
-              </div>
-
-              <!-- Transaction Limit -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-tachometer-alt mr-2 text-indigo-500"></i
-                  >Daily Limit (₹) *
-                </label>
-                <input
-                  type="number"
-                  id="txtTxnLimit"
-                  name="txnLimit"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  placeholder="e.g. 50000"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Personal Information Section -->
-          <div class="mt-8">
-            <div
-              class="flex items-center mb-6 pb-3 border-b-2 border-purple-100"
-            >
-              <i class="fas fa-user-circle text-purple-600 text-2xl mr-3"></i>
-              <h3 class="text-2xl font-bold text-gray-800">
-                Personal Information
-              </h3>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Aadhaar Number -->
-              <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-fingerprint mr-2 text-purple-500"></i>Aadhaar
-                  Number *
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="txtAadharNumber"
-                    name="aadharNumber"
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all font-mono tracking-wide"
-                    placeholder="1234 5678 9012"
-                    maxlength="14"
-                    oninput="formatAadhaar(this)"
-                    required
-                  />
-                  <button
-                    type="button"
-                    id="btnVerifyAadhaar"
-                    onclick="verifyAadhaar()"
-                    class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors cursor-pointer flex items-center gap-2"
-                  >
-                    Verify & Fetch
-                  </button>
-                </div>
-              </div>
-
-              <!-- Full Name (ReadOnly) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-user mr-2 text-purple-500"></i>Full Name
-                </label>
-                <input
-                  type="text"
-                  id="txtFullName"
-                  name="fullName"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:outline-none cursor-not-allowed"
-                  placeholder="As per Aadhaar"
-                />
-              </div>
-
-              <!-- Date of Birth -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-calendar-alt mr-2 text-purple-500"></i>Date
-                  of Birth *
-                </label>
-                <input
-                  type="date"
-                  id="txtDOB"
-                  name="dob"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  required
-                />
-              </div>
-
-              <!-- Gender -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-venus-mars mr-2 text-purple-500"></i>Gender *
-                </label>
-                <select
-                  id="ddlGender"
-                  name="gender"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white"
-                  required
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <!-- Profession -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-briefcase mr-2 text-purple-500"></i
-                  >Profession *
-                </label>
-                <select
-                  id="ddlProfession"
-                  name="profession"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white"
-                  required
-                >
-                  <option value="">Select Profession</option>
-                  <option value="Salaried">Salaried</option>
-                  <option value="Self-Employed">Self-Employed</option>
-                  <option value="Business">Business Owner</option>
-                  <option value="Student">Student</option>
-                  <option value="Retired">Retired</option>
-                </select>
-              </div>
-
-              <!-- Annual Income -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-money-bill-wave mr-2 text-purple-500"></i
-                  >Annual Income *
-                </label>
-                <select
-                  id="ddlIncome"
-                  name="annualIncome"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white"
-                  required
-                >
-                  <option value="">Select Income Range</option>
-                  <option value="<5L">Less than ₹5 Lakhs</option>
-                  <option value="5L-10L">₹5 Lakhs - ₹10 Lakhs</option>
-                  <option value="10L-20L">₹10 Lakhs - ₹20 Lakhs</option>
-                  <option value=">20L">Above ₹20 Lakhs</option>
-                </select>
-              </div>
-
-              <!-- PAN Number -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-id-card mr-2 text-purple-500"></i>PAN Number
-                  *
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="txtPanNumber"
-                    name="panNumber"
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all uppercase"
-                    placeholder="ABCDE1234F"
-                    maxlength="10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    id="btnVerifyPan"
-                    onclick="verifyPan()"
-                    class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors cursor-pointer flex items-center gap-2"
-                  >
-                    Verify
-                  </button>
-                </div>
-              </div>
-
-              <!-- Email -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-envelope mr-2 text-purple-500"></i>Personal
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  id="txtEmail"
-                  name="email"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  placeholder="email@example.com"
-                  required
-                />
-              </div>
-
-              <!-- Mobile -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-phone mr-2 text-purple-500"></i>Mobile Number
-                  *
-                </label>
-                <input
-                  type="tel"
-                  id="txtMobile"
-                  name="mobile"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  placeholder="10-digit mobile"
-                  required
-                />
-              </div>
-
-              <!-- City -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-city mr-2 text-purple-500"></i>City *
-                </label>
-                <input
-                  type="text"
-                  id="txtCity"
-                  name="city"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  required
-                />
-              </div>
-
-              <!-- State -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-map mr-2 text-purple-500"></i>State *
-                </label>
-                <input
-                  type="text"
-                  id="txtState"
-                  name="state"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  required
-                />
-              </div>
-
-              <!-- Pincode -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-map-pin mr-2 text-purple-500"></i>Pincode *
-                </label>
-                <input
-                  type="number"
-                  id="txtPincode"
-                  name="pincode"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  required
-                />
-              </div>
-
-              <!-- Profile Image -->
-              <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-image mr-2 text-purple-500"></i>Profile Image
-                  *
-                </label>
-                <div class="flex items-center space-x-4">
-                  <div class="flex-shrink-0">
-                    <img
-                      id="imagePreview"
-                      src="https://via.placeholder.com/100"
-                      alt="Preview"
-                      class="w-24 h-24 rounded-lg object-cover border-2 border-gray-300"
-                    />
-                  </div>
-                  <label class="flex-1 cursor-pointer">
-                    <span
-                      class="block border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-all"
-                    >
-                      <i
-                        class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"
-                      ></i>
-                      <span class="block text-sm text-gray-600">
-                        <span class="font-semibold text-purple-600"
-                          >Click to upload</span
-                        >
-                        or drag and drop
-                      </span>
-                    </span>
-                    <input
-                      type="file"
-                      id="fuProfileImage"
-                      name="userImage"
-                      class="hidden"
-                      onchange="previewImage(event)"
-                      accept="image/*"
-                    />
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-id-badge"></i>
+                    ZenoPay ID <span class="required">*</span>
                   </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Debit Card Configuration -->
-          <div class="mt-8 bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <div class="flex items-center mb-6 pb-3 border-b-2 border-gray-200">
-              <i class="fas fa-credit-card text-gray-700 text-2xl mr-3"></i>
-              <h3 class="text-2xl font-bold text-gray-800">
-                Debit Card Issuance
-              </h3>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Card Number (Auto) -->
-              <div class="md:col-span-1">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-hashtag mr-2 text-gray-500"></i>Debit Card
-                  Number
-                </label>
-                <div class="flex gap-2">
                   <input
                     type="text"
-                    id="txtDebitCardNumber"
-                    name="debitCardNumber"
-                    readonly
-                    class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-200 font-mono tracking-wider"
-                    placeholder="Generate Number"
+                    name="ZenoPayId"
+                    id="zenoPayId"
+                    class="form-input"
+                    placeholder="Enter your ZenoPay ID (e.g., ZENO-1234567890)"
+                    required
                   />
+                  <span class="error-message">ZenoPay ID is required</span>
                   <button
                     type="button"
-                    onclick="generateDebitCard()"
-                    class="px-4 py-3 bg-gray-700 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors cursor-pointer whitespace-nowrap"
+                    class="verify-button"
+                    onclick="verifyZenoPayId()"
                   >
-                    Generate
+                    <i class="fas fa-check-circle"></i> Verify ID
                   </button>
+                  <div
+                    id="verifiedBadge"
+                    style="display: none"
+                    class="verified-badge"
+                  >
+                    <i class="fas fa-check-circle"></i> Verified
+                  </div>
                 </div>
               </div>
 
-              <!-- Name on Card (Auto-filled from Aadhaar) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-font mr-2 text-gray-500"></i>Name on Card *
-                </label>
-                <input
-                  type="text"
-                  id="txtCardName"
-                  name="nameOnCard"
-                  readonly
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-gray-500 transition-all uppercase cursor-not-allowed"
-                  placeholder="AUTO-FILLED FROM AADHAAR"
-                  required
-                />
-              </div>
-
-              <!-- Expiry & CVV (Auto) -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Expiry &
-                  CVV
-                </label>
-                <div class="flex gap-2">
-                  <input
-                    type="text"
-                    id="txtExpiry"
-                    name="cardExpiry"
-                    readonly
-                    class="w-1/2 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-200"
-                    placeholder="MM/YY"
-                  />
-                  <input
-                    type="text"
-                    id="txtCVV"
-                    name="cardCVV"
-                    readonly
-                    class="w-1/2 px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-200 text-center"
-                    placeholder="XXX"
-                  />
-                </div>
-              </div>
-
-              <!-- PIN -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                  <i class="fas fa-key mr-2 text-gray-500"></i>Set PIN *
-                </label>
-                <input
-                  type="password"
-                  id="txtPin"
-                  name="cardPin"
-                  maxlength="4"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 transition-all text-center"
-                  placeholder="****"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Terms and Submit -->
-          <div class="mt-8 border-t-2 border-gray-100 pt-6">
-            <div class="flex items-start mb-6">
-              <input
-                type="checkbox"
-                id="chkTerms"
-                class="mt-1 mr-2 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                required
-              />
-              <label class="text-sm text-gray-700">
-                I agree to the
-                <span
-                  class="text-blue-600 font-semibold cursor-pointer hover:underline"
-                  >terms and conditions</span
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="window.history.back()"
                 >
-                and confirm that all information provided is accurate.
-                <span class="text-red-500">*</span>
-              </label>
+                  <i class="fas fa-times"></i>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="nextStep(1)"
+                  disabled
+                  id="step1NextBtn"
+                >
+                  <i class="fas fa-arrow-right"></i>
+                  Next
+                </button>
+              </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                type="submit"
-                id="btnSubmit"
-                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all flex items-center justify-center cursor-pointer"
-              >
-                Open Account
-              </button>
+            <!-- Step 2: Bank Selection -->
+            <div class="form-step" data-step="2">
+              <div class="form-section-title">
+                <i class="fas fa-university"></i>
+                Select Bank
+              </div>
+              <p class="form-section-subtitle">Choose your preferred bank</p>
 
-              <button
-                type="button"
-                onclick="clearForm()"
-                class="bg-gray-500 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:bg-gray-600 transition-all flex items-center justify-center cursor-pointer text-center w-full"
-              >
-                Clear Form
-              </button>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-building"></i>
+                    Bank Name <span class="required">*</span>
+                  </label>
+                  <select
+                    name="BankId"
+                    id="bankSelect"
+                    class="form-select"
+                    required
+                    onchange="updateBankDetails()"
+                  >
+                    <option value="">Select a bank</option>
+                  </select>
+                  <span class="error-message">Please select a bank</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-city"></i>
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="BankCity"
+                    id="bankCity"
+                    class="form-input"
+                    readonly
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-map-marked-alt"></i>
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    name="BankState"
+                    id="bankState"
+                    class="form-input"
+                    readonly
+                  />
+                </div>
+
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Bank Email
+                  </label>
+                  <input
+                    type="email"
+                    name="BankEmail"
+                    id="bankEmail"
+                    class="form-input"
+                    readonly
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-wallet"></i>
+                    Account Type <span class="required">*</span>
+                  </label>
+                  <select name="AccountType" class="form-select" required>
+                    <option value="">Select account type</option>
+                    <option value="Savings">Savings Account</option>
+                    <option value="Current">Current Account</option>
+                    <option value="Salary">Salary Account</option>
+                  </select>
+                  <span class="error-message">Account type is required</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-credit-card"></i>
+                    Card Type <span class="required">*</span>
+                  </label>
+                  <select name="CardType" class="form-select" required>
+                    <option value="">Select card type</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Credit Card">Credit Card</option>
+                  </select>
+                  <span class="error-message">Card type is required</span>
+                </div>
+              </div>
+
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="prevStep(2)"
+                >
+                  <i class="fas fa-arrow-left"></i>
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="nextStep(2)"
+                >
+                  <i class="fas fa-arrow-right"></i>
+                  Next
+                </button>
+              </div>
             </div>
+
+            <!-- Step 3: Personal & Financial Details -->
+            <div class="form-step" data-step="3">
+              <div class="form-section-title">
+                <i class="fas fa-user"></i>
+                Personal & Financial Details
+              </div>
+              <p class="form-section-subtitle">
+                These details will be auto-filled from your ZenoPay profile
+              </p>
+
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-user"></i>
+                    Full Name <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="FullName"
+                    id="fullName"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-calendar"></i>
+                    Date of Birth <span class="required">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="DOB"
+                    id="dob"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-venus-mars"></i>
+                    Gender <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="Gender"
+                    id="gender"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-briefcase"></i>
+                    Profession <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="Profession"
+                    class="form-input"
+                    placeholder="Enter profession"
+                    required
+                  />
+                  <span class="error-message">Profession is required</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-rupee-sign"></i>
+                    Annual Income <span class="required">*</span>
+                  </label>
+                  <select name="AnnualIncome" class="form-select" required>
+                    <option value="">Select income range</option>
+                    <option value="Below 2.5 Lakhs">Below ₹2.5 Lakhs</option>
+                    <option value="2.5 - 5 Lakhs">₹2.5 - 5 Lakhs</option>
+                    <option value="5 - 10 Lakhs">₹5 - 10 Lakhs</option>
+                    <option value="10 - 20 Lakhs">₹10 - 20 Lakhs</option>
+                    <option value="Above 20 Lakhs">Above ₹20 Lakhs</option>
+                  </select>
+                  <span class="error-message">Annual income is required</span>
+                </div>
+
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Email <span class="required">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="Email"
+                    id="email"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-phone"></i>
+                    Mobile <span class="required">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="Mobile"
+                    id="mobile"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-city"></i>
+                    City <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="City"
+                    id="city"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-map-marked-alt"></i>
+                    State <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="State"
+                    id="state"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-map-pin"></i>
+                    Pincode <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="Pincode"
+                    id="pincode"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-rupee-sign"></i>
+                    Opening Balance <span class="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="OpeningBalance"
+                    class="form-input"
+                    placeholder="Minimum ₹1000"
+                    min="1000"
+                    required
+                  />
+                  <span class="error-message"
+                    >Minimum balance ₹1000 required</span
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-exchange-alt"></i>
+                    Daily Transaction Limit <span class="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="TransactionLimit"
+                    class="form-input"
+                    placeholder="Enter limit"
+                    required
+                  />
+                  <span class="error-message"
+                    >Transaction limit is required</span
+                  >
+                </div>
+              </div>
+
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="prevStep(3)"
+                >
+                  <i class="fas fa-arrow-left"></i>
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="nextStep(3)"
+                >
+                  <i class="fas fa-arrow-right"></i>
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 4: Review & Submit -->
+            <div class="form-step" data-step="4">
+              <div class="form-section-title">
+                <i class="fas fa-check-circle"></i>
+                Review Details
+              </div>
+              <p class="form-section-subtitle">
+                Please review your information before submitting
+              </p>
+
+              <div class="info-card">
+                <h4>
+                  <i class="fas fa-info-circle"></i> Account & Card Generation
+                </h4>
+                <p>
+                  Your account number and debit card details will be
+                  automatically generated upon successful submission.
+                </p>
+              </div>
+
+              <div
+                id="reviewContent"
+                style="
+                  background: var(--light-cream);
+                  padding: 1.5rem;
+                  border-radius: 10px;
+                  margin-bottom: 1.5rem;
+                "
+              >
+                <!-- Review content will be populated by JavaScript -->
+              </div>
+
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="prevStep(4)"
+                >
+                  <i class="fas fa-arrow-left"></i>
+                  Previous
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-check"></i>
+                  Open Account
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <h3>Account Opened Successfully!</h3>
+            <p>Your bank account has been created with ZenoPay</p>
+            <div class="success-details" id="successDetails">
+              <!-- Success details will be populated by JavaScript -->
+            </div>
+            <p style="margin-top: 1.5rem">Redirecting to dashboard...</p>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
 
-    <!-- Logic Script -->
-    <script>
-   
+      <!-- Mobile Footer Navigation -->
+      <footer class="mobile-footer">
+        <nav class="footer-nav">
+          <a href="/" class="footer-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="/transfer" class="footer-nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfer</span>
+          </a>
+          <a href="/profile" class="footer-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="/notifications" class="footer-nav-item">
+            <i class="fas fa-bell"></i>
+            <span>Alerts</span>
+          </a>
+          <a href="/shop" class="footer-nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Shop</span>
+          </a>
+        </nav>
+      </footer>
 
-      // --- IMAGE PREVIEW ---
-      function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function () {
-          const preview = document.getElementById("imagePreview");
-          if (preview) preview.src = reader.result;
-        };
-        if (event.target.files.length > 0) {
-          reader.readAsDataURL(event.target.files[0]);
-        }
-      }
+      <script src="/js/header.js"></script>
+      <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let zenoPayData = null;
+        let banksData = [];
 
-      // --- AADHAAR FORMATTING ---
-      function formatAadhaar(input) {
-        let value = input.value.replace(/\D/g, "");
-        let formattedValue = "";
-        for (let i = 0; i < value.length; i++) {
-          if (i > 0 && i % 4 === 0) {
-            formattedValue += " ";
+        // Load banks on page load
+        window.addEventListener("DOMContentLoaded", async function () {
+          try {
+            const response = await fetch("/api/banks");
+            if (response.ok) {
+              banksData = await response.json();
+              populateBankDropdown();
+            }
+          } catch (error) {
+            console.error("Error loading banks:", error);
           }
-          formattedValue += value[i];
-        }
-        input.value = formattedValue;
-      }
+        });
 
-      // --- BACKEND API CALLS & VERIFICATION ---
-
-      // Lock helper: locks input and adds visual feedback
-      function lockField(id) {
-        const el = document.getElementById(id);
-        if (el) {
-          if (el.tagName === "SELECT") el.disabled = true;
-          else el.readOnly = true;
-          el.classList.add(
-            "bg-gray-100",
-            "cursor-not-allowed",
-            "text-gray-600"
-          );
-        }
-      }
-
-      async function verifyIFSC() {
-        const ifsc = document.getElementById("txtIFSC").value;
-        const btn = document.getElementById("btnVerifyIFSC");
-
-        if (ifsc.length < 5) {
-          showToast("Please enter a valid IFSC Code", "error");
-          return;
-        }
-
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-        btn.disabled = true;
-
-        try {
-          const response = await fetch("/verify-ifsc", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ifsc }),
+        function populateBankDropdown() {
+          const select = document.getElementById("bankSelect");
+          banksData.forEach((bank) => {
+            const option = document.createElement("option");
+            option.value = bank.BankId;
+            option.textContent = `${bank.BankName} (${bank.BankId})`;
+            option.dataset.bank = JSON.stringify(bank);
+            select.appendChild(option);
           });
-          const data = await response.json();
+        }
 
-          if (response.ok && data.success) {
-            // Populate Fields
-            document.getElementById("txtBankName").value = data.branch.BankName;
-            document.getElementById("txtBranchName").value =
-              data.branch.BranchName;
-            document.getElementById("txtBranchCity").value = data.branch.City;
-            document.getElementById("txtBranchState").value = data.branch.State;
-            document.getElementById("txtBranchEmail").value =
-              data.branch.BranchEmail;
+        function updateBankDetails() {
+          const select = document.getElementById("bankSelect");
+          const selectedOption = select.options[select.selectedIndex];
 
-            showToast("Branch Verified Successfully!", "success");
-
-            // Lock fields
-            lockField("txtIFSC");
-            lockField("txtBankName");
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.classList.replace("bg-blue-600", "bg-green-600");
+          if (selectedOption.value) {
+            const bank = JSON.parse(selectedOption.dataset.bank);
+            document.getElementById("bankCity").value = bank.City;
+            document.getElementById("bankState").value = bank.State;
+            document.getElementById("bankEmail").value = bank.BankEmail;
           } else {
-            showToast(data.message || "Branch not found", "error");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            document.getElementById("bankCity").value = "";
+            document.getElementById("bankState").value = "";
+            document.getElementById("bankEmail").value = "";
           }
-        } catch (error) {
-          console.error(error);
-          showToast("Server error verifying IFSC", "error");
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
-      }
-
-      function generateAccountNumber() {
-        const randomAcc = Math.floor(
-          100000000000 + Math.random() * 900000000000
-        );
-        document.getElementById("txtAccountNumber").value = randomAcc;
-        showToast("Account Number Allocated", "success");
-      }
-
-      async function verifyAadhaar() {
-        const aadhaar = document.getElementById("txtAadharNumber").value;
-        const cleanAadhar = aadhaar.replace(/\s/g, "");
-        const btn = document.getElementById("btnVerifyAadhaar");
-
-        if (cleanAadhar.length !== 12) {
-          showToast("Invalid Aadhaar Number", "error");
-          return;
         }
 
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-        btn.disabled = true;
+        async function verifyZenoPayId() {
+          const zenoPayId = document.getElementById("zenoPayId").value.trim();
 
-        try {
-          const response = await fetch("/verify-aadhar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ aadharNumber: cleanAadhar }),
+          if (!zenoPayId) {
+            alert("Please enter ZenoPay ID");
+            return;
+          }
+
+          ZenoPayLoader.show("Verifying ZenoPay ID...");
+
+          try {
+            const response = await fetch("/verify-zenopayId", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ zenoPayId }),
+              showLoader: false,
+            });
+
+            const data = await response.json();
+            ZenoPayLoader.hide();
+
+            if (data.success) {
+              zenoPayData = data.details;
+
+              // Populate form fields
+              document.getElementById("fullName").value = zenoPayData.FullName;
+              document.getElementById("dob").value =
+                zenoPayData.DOB?.split("T")[0] || "";
+              document.getElementById("gender").value = zenoPayData.Gender;
+              document.getElementById("email").value = zenoPayData.Email;
+              document.getElementById("mobile").value = zenoPayData.Mobile;
+              document.getElementById("city").value = zenoPayData.City;
+              document.getElementById("state").value = zenoPayData.State;
+              document.getElementById("pincode").value = zenoPayData.Pincode;
+
+              // Show verified badge
+              document.getElementById("verifiedBadge").style.display =
+                "inline-flex";
+              document.getElementById("step1NextBtn").disabled = false;
+
+              alert("ZenoPay ID verified successfully!");
+            } else {
+              alert(data.message || "ZenoPay ID not found");
+            }
+          } catch (error) {
+            ZenoPayLoader.hide();
+            console.error("Error:", error);
+            alert("Verification failed. Please try again.");
+          }
+        }
+
+        function updateProgress() {
+          const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+          document.getElementById("stepProgress").style.width = progress + "%";
+
+          document.querySelectorAll(".step").forEach((step) => {
+            const stepNum = parseInt(step.dataset.step);
+            step.classList.remove("active", "completed");
+            if (stepNum === currentStep) {
+              step.classList.add("active");
+            } else if (stepNum < currentStep) {
+              step.classList.add("completed");
+            }
           });
-          const data = await response.json();
+        }
 
-          if (response.ok && data.success && data.details) {
-            // Populate Fields
-            const fullName = data.details.FullName || "";
-            document.getElementById("txtFullName").value = fullName;
+        function nextStep(step) {
+          const currentFormStep = document.querySelector(
+            `.form-step[data-step="${step}"]`
+          );
+          const inputs = currentFormStep.querySelectorAll(
+            "input[required]:not([readonly]), select[required]"
+          );
+          let valid = true;
 
-            // --- Set Name on Card ---
-            document.getElementById("txtCardName").value =
-              fullName.toUpperCase();
-            lockField("txtCardName");
+          inputs.forEach((input) => {
+            if (!input.value) {
+              input.classList.add("error");
+              const errorMsg =
+                input.parentElement.querySelector(".error-message");
+              if (errorMsg) errorMsg.style.display = "block";
+              valid = false;
+            } else {
+              input.classList.remove("error");
+              const errorMsg =
+                input.parentElement.querySelector(".error-message");
+              if (errorMsg) errorMsg.style.display = "none";
+            }
+          });
 
-            if (data.details.DOB) {
-              const d = new Date(data.details.DOB);
-              document.getElementById("txtDOB").value = d
-                .toISOString()
-                .split("T")[0];
+          if (valid && currentStep < totalSteps) {
+            currentFormStep.classList.remove("active");
+            currentStep++;
+
+            if (currentStep === 4) {
+              populateReview();
             }
 
-            document.getElementById("ddlGender").value =
-              data.details.Gender || "";
-            document.getElementById("txtCity").value = data.details.City || "";
-            document.getElementById("txtState").value =
-              data.details.State || "";
-            document.getElementById("txtPincode").value =
-              data.details.Pincode || "";
-            document.getElementById("txtEmail").value =
-              data.details.Email || "";
-            document.getElementById("txtMobile").value =
-              data.details.Mobile || "";
-
-            showToast("Identity Verified Successfully!", "success");
-
-            // Lock Personal Info Fields
-            [
-              "txtAadharNumber",
-              "txtFullName",
-              "txtDOB",
-              "ddlGender",
-              "txtCity",
-              "txtState",
-              "txtPincode",
-              "txtEmail",
-              "txtMobile",
-            ].forEach(lockField);
-
-            btn.innerHTML = '<i class="fas fa-check-circle"></i> Verified';
-            btn.classList.replace("bg-purple-600", "bg-green-600");
-          } else {
-            showToast(data.message || "Aadhaar Not Found", "error");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            document
+              .querySelector(`.form-step[data-step="${currentStep}"]`)
+              .classList.add("active");
+            updateProgress();
+            window.scrollTo(0, 0);
           }
-        } catch (error) {
-          console.error(error);
-          showToast("Server Error verifying Aadhaar", "error");
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
-      }
-
-      async function verifyPan() {
-        const pan = document.getElementById("txtPanNumber").value;
-        const btn = document.getElementById("btnVerifyPan");
-
-        if (pan.length < 10) {
-          showToast("Invalid PAN format", "error");
-          return;
         }
 
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
+        function prevStep(step) {
+          if (currentStep > 1) {
+            document
+              .querySelector(`.form-step[data-step="${step}"]`)
+              .classList.remove("active");
+            currentStep--;
+            document
+              .querySelector(`.form-step[data-step="${currentStep}"]`)
+              .classList.add("active");
+            updateProgress();
+            window.scrollTo(0, 0);
+          }
+        }
 
-        try {
-          const response = await fetch("/verify-pan", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ panNumber: pan }),
+        function populateReview() {
+          const form = document.getElementById("openAccountForm");
+          const formData = new FormData(form);
+          const bankSelect = document.getElementById("bankSelect");
+          const bankName = bankSelect.options[bankSelect.selectedIndex].text;
+
+          let html = '<div style="display: grid; gap: 1rem;">';
+
+          html += `<div><strong>Bank:</strong> ${bankName}</div>`;
+          html += `<div><strong>Account Type:</strong> ${formData.get(
+            "AccountType"
+          )}</div>`;
+          html += `<div><strong>Card Type:</strong> ${formData.get(
+            "CardType"
+          )}</div>`;
+          html += `<div><strong>Full Name:</strong> ${formData.get(
+            "FullName"
+          )}</div>`;
+          html += `<div><strong>Profession:</strong> ${formData.get(
+            "Profession"
+          )}</div>`;
+          html += `<div><strong>Annual Income:</strong> ${formData.get(
+            "AnnualIncome"
+          )}</div>`;
+          html += `<div><strong>Opening Balance:</strong> ₹${formData.get(
+            "OpeningBalance"
+          )}</div>`;
+          html += `<div><strong>Transaction Limit:</strong> ₹${formData.get(
+            "TransactionLimit"
+          )}</div>`;
+
+          html += "</div>";
+          document.getElementById("reviewContent").innerHTML = html;
+        }
+
+        document
+          .getElementById("openAccountForm")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Add bank name
+            const bankSelect = document.getElementById("bankSelect");
+            const selectedBank = JSON.parse(
+              bankSelect.options[bankSelect.selectedIndex].dataset.bank
+            );
+            data.BankName = selectedBank.BankName;
+
+            try {
+              const response = await fetch("/open-account", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              });
+
+              const result = await response.json();
+
+              if (result.success) {
+                document.getElementById("openAccountForm").style.display =
+                  "none";
+                document.querySelector(".step-indicator").style.display =
+                  "none";
+
+                // Show success details
+                let successHtml = '<div style="display: grid; gap: 0.8rem;">';
+                successHtml += `<div class="success-detail-item"><span>Account Number:</span><strong>${result.accountNumber}</strong></div>`;
+                successHtml += `<div class="success-detail-item"><span>Debit Card Number:</span><strong>${result.cardNumber}</strong></div>`;
+                successHtml += `<div class="success-detail-item"><span>Card Expiry:</span><strong>${result.cardExpiry}</strong></div>`;
+                successHtml += `<div class="success-detail-item"><span>Card CVV:</span><strong>${result.cardCVV}</strong></div>`;
+                successHtml += `<div class="success-detail-item"><span>Opening Balance:</span><strong>₹${data.OpeningBalance}</strong></div>`;
+                successHtml += "</div>";
+
+                document.getElementById("successDetails").innerHTML =
+                  successHtml;
+                document.getElementById("successMessage").classList.add("show");
+
+                setTimeout(() => {
+                  window.location.href = "/profile";
+                }, 5000);
+              } else {
+                alert(result.message || "Failed to open account");
+              }
+            } catch (error) {
+              console.error("Error:", error);
+              alert("Failed to open account. Please try again.");
+            }
           });
-          const data = await response.json();
 
-          if (response.ok && data.success) {
-            showToast("PAN Verified (Registered)", "success");
-            lockField("txtPanNumber");
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            btn.classList.replace("bg-purple-600", "bg-green-600");
-          } else {
-            showToast("PAN Record Not Found in Database", "warning");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-          }
-        } catch (error) {
-          console.error(error);
-          showToast("Server error verifying PAN", "error");
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
-      }
-
-      function generateDebitCard() {
-        const randomCard = Math.floor(
-          4000000000000000 + Math.random() * 9000000000000000
-        );
-        const today = new Date();
-        const expMonth = String(today.getMonth() + 1).padStart(2, "0");
-        const expYear = String(today.getFullYear() + 5).slice(-2);
-        const cvv = Math.floor(100 + Math.random() * 900);
-
-        // Format card number with spaces every 4 digits
-        const formattedCard = String(randomCard)
-          .match(/.{1,4}/g)
-          .join(" ");
-
-        document.getElementById("txtDebitCardNumber").value = formattedCard;
-        document.getElementById("txtExpiry").value = `${expMonth}/${expYear}`;
-        document.getElementById("txtCVV").value = cvv;
-
-        showToast("Debit Card Generated", "success");
-      }
-
-      function clearForm() {
-        document.getElementById("accountForm").reset();
-        document.getElementById("imagePreview").src =
-          "https://via.placeholder.com/100";
-        showToast("Form cleared", "warning");
-      }
-
-      async function handleFormSubmit(e) {
-        e.preventDefault();
-
-        const form = document.getElementById("accountForm");
-        const accNum = document.getElementById("txtAccountNumber").value;
-        const branchName = document.getElementById("txtBranchName").value;
-
-        if (!accNum || accNum === "Click Generate") {
-          showToast("Please generate an Account Number first.", "error");
-          return false;
-        }
-        if (!branchName) {
-          showToast("Please verify IFSC Code first.", "error");
-          return false;
-        }
-
-        const btn = document.getElementById("btnSubmit");
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        btn.disabled = true;
-
-        const formData = new FormData(form);
-
-        // Manually append disabled fields because FormData skips them.
-        // Gender is disabled after verification.
-        const ddlGender = document.getElementById("ddlGender");
-        if (ddlGender && ddlGender.disabled) {
-          formData.append("gender", ddlGender.value);
-        }
-        // Note: ReadOnly fields are automatically included by FormData, so no need to append them manually.
-
-        try {
-          const response = await fetch("/open-account", {
-            method: "POST",
-            body: formData,
+        // Remove error on input
+        document
+          .querySelectorAll(".form-input, .form-select")
+          .forEach((input) => {
+            input.addEventListener("input", function () {
+              this.classList.remove("error");
+              const errorMsg =
+                this.parentElement.querySelector(".error-message");
+              if (errorMsg) errorMsg.style.display = "none";
+            });
           });
-          const data = await response.json();
 
-          if (response.ok && data.success) {
-            showToast("Account Opened Successfully!", "success");
-            setTimeout(() => {
-              window.location.href = "/"; // Redirect logic
-            }, 2000);
-          } else {
-            showToast(data.message || "Failed to open account.", "error");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-          }
-        } catch (error) {
-          console.error(error);
-          showToast("Network Error occurred.", "error");
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }
-
-        return false;
-      }
-    </script>
+        updateProgress();
+      </script>
+    </main>
   </body>
 </html>

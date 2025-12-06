@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const AadharDetails = require("../Models/AadharDetails");
+// const AadharDetails = require("../Models/AadharDetails");
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 const emailService = require("../Services/email");

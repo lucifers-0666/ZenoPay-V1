@@ -1,0 +1,1441 @@
+/* Profile Page Styles */
+:root {
+  --primary-blue: #456882;
+  --primary-dark: #1b3c53;
+  --accent-beige: #ead8c0;
+  --light-cream: #f8f6f3;
+  --white: #ffffff;
+  --text-dark: #2c3e50;
+  --text-light: #6c757d;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --info: #17a2b8;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.15);
+}
+
+/* Profile Container */
+.profile-container {
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+}
+
+/* Profile Header Section */
+.profile-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-blue) 0%,
+    var(--primary-dark) 100%
+  );
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px var(--shadow-lg);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: rgba(234, 216, 192, 0.1);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.card-shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 1s ease-in-out;
+  z-index: 10;
+}
+
+.profile-header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 5px solid var(--accent-beige);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.profile-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-name i {
+  color: var(--accent-beige);
+  font-size: 2rem;
+}
+
+.profile-email {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+}
+
+.stat-item i {
+  font-size: 1.5rem;
+  margin-right: 0.8rem;
+  color: var(--accent-beige);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.stat-balance-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stat-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.stat-toggle-btn i {
+  font-size: 0.85rem;
+  margin: 0;
+  color: var(--white);
+}
+
+/* Navigation Tabs */
+.profile-tabs {
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px var(--shadow);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.tabs-nav {
+  display: flex;
+  border-bottom: 2px solid var(--light-cream);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tabs-nav::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs-nav::-webkit-scrollbar-track {
+  background: var(--light-cream);
+}
+
+.tabs-nav::-webkit-scrollbar-thumb {
+  background: var(--primary-blue);
+  border-radius: 2px;
+}
+
+.tab-btn {
+  flex: 1;
+  min-width: 150px;
+  padding: 1.2rem 1.5rem;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.tab-btn i {
+  font-size: 1.1rem;
+}
+
+.tab-btn:hover {
+  background: var(--light-cream);
+  color: var(--primary-blue);
+}
+
+.tab-btn.active {
+  color: var(--primary-blue);
+  background: var(--light-cream);
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--primary-blue);
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+  animation: fadeIn 0.5s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Profile Section */
+.profile-section {
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px var(--shadow);
+  padding: 0.7rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-bottom: 2px solid var(--light-cream);
+  padding-bottom: 1rem;
+}
+
+.section-title i {
+  color: var(--primary-blue);
+  font-size: 1.6rem;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.info-item {
+  background: var(--light-cream);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-blue);
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.info-label i {
+  color: var(--primary-blue);
+  font-size: 1rem;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* Bank Accounts Section */
+.bank-accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 1.5rem;
+  max-width: 100%;
+}
+
+/* Debit Cards Container - Two cards in one row */
+.debit-cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 1.5rem;
+  max-width: 100%;
+}
+
+.bank-card {
+  background: linear-gradient(
+    135deg,
+    var(--primary-dark) 0%,
+    var(--primary-blue) 100%
+  );
+  border-radius: 15px;
+  padding: 1.8rem;
+  color: var(--white);
+  box-shadow: 0 8px 20px var(--shadow-lg);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bank-card::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  background: rgba(234, 216, 192, 0.1);
+  border-radius: 50%;
+}
+
+.bank-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.bank-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.bank-name i {
+  font-size: 1.3rem;
+}
+
+.bank-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 18px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bank-status-badge.active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bank-status-badge i {
+  font-size: 0.65rem;
+}
+
+.bank-card-body {
+  position: relative;
+  z-index: 2;
+}
+
+.bank-logo-container {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.bank-logo-img {
+  width: 150px;
+  height: auto;
+  filter: brightness(1.3) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.bank-account-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.account-number-section {
+  flex: 1;
+}
+
+.account-type-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.account-label {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.account-number-container {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.account-number {
+  font-size: 1.1rem;
+  letter-spacing: 1.5px;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+}
+
+.account-type {
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.35rem 0.8rem;
+  border-radius: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.copy-btn i {
+  font-size: 0.85rem;
+}
+
+.balance-container {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 2;
+}
+
+.balance-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-amount-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.balance-amount {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+.balance-toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.balance-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.balance-toggle-btn i {
+  font-size: 0.9rem;
+}
+
+.bank-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.bank-id-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bank-id-label {
+  font-size: 0.65rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bank-id-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  letter-spacing: 1px;
+}
+
+.btn-view-more {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-view-more:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Transaction Table */
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+}
+
+.transaction-table thead {
+  background: linear-gradient(
+    135deg,
+    var(--primary-blue) 0%,
+    var(--primary-dark) 100%
+  );
+  color: var(--white);
+}
+
+.transaction-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.transaction-table th:first-child {
+  border-radius: 10px 0 0 0;
+}
+
+.transaction-table th:last-child {
+  border-radius: 0 10px 0 0;
+}
+
+.transaction-table tbody tr {
+  border-bottom: 1px solid var(--light-cream);
+  transition: background 0.3s ease;
+}
+
+.transaction-table tbody tr:hover {
+  background: var(--light-cream);
+}
+
+.transaction-table td {
+  padding: 1rem;
+  color: var(--text-dark);
+}
+
+.transaction-date {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.transaction-status {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.transaction-status.success {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--success);
+}
+
+.transaction-status.pending {
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--warning);
+}
+
+.transaction-status.failed {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--danger);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-light);
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: var(--light-cream);
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  font-size: 1rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: var(--white);
+  box-shadow: 0 4px 10px rgba(69, 104, 130, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(69, 104, 130, 0.4);
+}
+
+.btn-secondary {
+  background: var(--light-cream);
+  color: var(--primary-dark);
+  border: 2px solid var(--primary-blue);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-blue);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+/* Verified Badge */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--success);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Realistic Debit Card Styles */
+.debit-card {
+  background: linear-gradient(
+    135deg,
+    var(--primary-dark) 0%,
+    var(--primary-blue) 100%
+  );
+  border-radius: 15px;
+  padding: 1.8rem;
+  color: var(--white);
+  box-shadow: 0 8px 20px var(--shadow-lg);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.debit-card::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  background: rgba(234, 216, 192, 0.1);
+  border-radius: 50%;
+}
+
+.debit-card-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.card-chip {
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(135deg, #f0c27b 0%, #e5a84b 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: #333;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 2;
+}
+
+.card-type-logo {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+}
+
+.card-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.zenopay-logo-img {
+  width: 120px;
+  height: auto;
+  filter: brightness(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.zenopay-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 3rem;
+  color: var(--white);
+}
+
+.zenopay-logo i {
+  font-size: 4rem;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+.zenopay-logo span {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.card-number-container {
+  position: relative;
+  z-index: 2;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-number {
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex: 0.6;
+}
+
+.card-toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--white);
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.card-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.card-toggle-btn i {
+  font-size: 0.9rem;
+}
+
+.card-details {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+}
+
+.card-holder,
+.card-expiry,
+.card-cvv {
+  flex: 1;
+}
+
+.card-cvv {
+  max-width: 80px;
+}
+
+.card-cvv .card-value {
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
+}
+
+.card-cvv-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card-cvv-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.card-cvv-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.card-cvv-btn i {
+  font-size: 0.7rem;
+}
+
+.card-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.75;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.card-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Card Top Section */
+.card-top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 3;
+}
+
+.card-bank-name-top {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.card-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 18px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-status-badge.active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.card-status-badge.blocked {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: var(--white);
+}
+
+.card-status-badge i {
+  font-size: 0.65rem;
+}
+
+.card-bank-name {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.9;
+  text-align: right;
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .profile-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .profile-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-name {
+    font-size: 2rem;
+    justify-content: center;
+  }
+
+  .profile-stats {
+    justify-content: center;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs-nav {
+    justify-content: flex-start;
+  }
+
+  .tab-btn {
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+
+  .transaction-table {
+    font-size: 0.85rem;
+  }
+
+  .transaction-table th,
+  .transaction-table td {
+    padding: 0.7rem 0.5rem;
+  }
+
+  .bank-accounts-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .bank-card {
+    padding: 1.5rem;
+  }
+
+  .bank-logo-img {
+    width: 110px;
+    opacity: 0.15;
+  }
+
+  .bank-name {
+    font-size: 1rem;
+  }
+
+  .bank-account-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .account-type-section {
+    align-items: flex-start;
+  }
+
+  .account-number {
+    font-size: 1rem;
+  }
+
+  .bank-card-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .bank-id-section {
+    order: 2;
+    width: 100%;
+  }
+
+  .btn-view-more {
+    order: 1;
+    align-self: flex-end;
+  }
+
+  .balance-amount {
+    font-size: 1.4rem;
+  }
+
+  .debit-cards-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 100%;
+  }
+
+  .debit-card {
+    max-width: 100%;
+    min-height: 240px;
+    padding: 1.5rem;
+  }
+
+  .card-bank-name-top {
+    display: none;
+  }
+
+  .card-status-badge {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .card-number {
+    font-size: 1.1rem;
+    letter-spacing: 2.5px;
+    font-weight: 500;
+  }
+
+  .card-chip i {
+    font-size: 2.2rem;
+  }
+
+  .card-details {
+    font-size: 0.75rem;
+  }
+
+  .card-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .card-label {
+    font-size: 0.65rem;
+  }
+
+  .zenopay-logo-img {
+    width: 95px;
+    opacity: 0.15;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-name {
+    font-size: 1.5rem;
+  }
+
+  .stat-item {
+    padding: 0.8rem 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .bank-card {
+    padding: 1.2rem;
+  }
+
+  .bank-logo-img {
+    width: 90px;
+    opacity: 0.18;
+  }
+
+  .bank-name {
+    font-size: 0.9rem;
+  }
+
+  .bank-name i {
+    font-size: 1.1rem;
+  }
+
+  .bank-status-badge {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .account-label {
+    font-size: 0.65rem;
+  }
+
+  .account-number {
+    font-size: 0.95rem;
+  }
+
+  .copy-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .copy-btn i {
+    font-size: 0.75rem;
+  }
+
+  .account-type {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .bank-card-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .bank-id-section {
+    order: 2;
+    width: auto;
+  }
+
+  .bank-id-label {
+    font-size: 0.6rem;
+  }
+
+  .bank-id-value {
+    font-size: 0.75rem;
+  }
+
+  .btn-view-more {
+    order: 1;
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .balance-label {
+    font-size: 0.7rem;
+  }
+
+  .balance-amount {
+    font-size: 1.2rem;
+  }
+
+  .balance-toggle-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .balance-toggle-btn i {
+    font-size: 0.85rem;
+  }
+
+  .debit-card {
+    padding: 1.5rem;
+    min-height: 220px;
+    border-radius: 16px;
+    aspect-ratio: auto;
+  }
+
+  .card-top-section {
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+
+  .card-bank-name-top {
+    display: block;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.7rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    letter-spacing: 1px;
+  }
+
+  .card-status-badge {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.65rem;
+    position: absolute;
+    top: 49px;
+    right: 12px;
+  }
+
+  .card-status-badge i {
+    font-size: 0.65rem;
+  }
+
+  .card-chip {
+    margin-bottom: 1.5rem;
+  }
+
+  .card-chip i {
+    font-size: 2.2rem;
+  }
+
+  .card-logo {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .zenopay-logo-img {
+    width: 90px;
+    opacity: 0.15;
+    filter: brightness(1.3);
+  }
+
+  .card-number-container {
+    margin-bottom: 1.2rem;
+  }
+
+  .card-number {
+    font-size: 1.15rem;
+    letter-spacing: 2.5px;
+    font-weight: 600;
+  }
+
+  .card-toggle-btn i,
+  .card-cvv-btn i {
+    font-size: 0.85rem;
+  }
+
+  .card-details {
+    gap: 1.2rem;
+    font-size: 0.7rem;
+  }
+
+  .card-holder {
+    flex: 1.5;
+  }
+
+  .card-holder .card-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .card-expiry .card-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .card-label {
+    font-size: 0.55rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.8;
+  }
+
+  .card-cvv {
+    margin-left: 0;
+  }
+
+  .card-cvv .card-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+}

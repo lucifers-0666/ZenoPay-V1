@@ -10,8 +10,9 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <script src="/js/Loader.js"></script>
   </head>
-  <body class="login-body">
+  <div class="login-body">
     <!-- Sidebar -->
     ><%- include('partials/header') %>
 
@@ -35,7 +36,7 @@
             <!-- User ID -->
             <div class="form-group">
               <label for="userId">
-                <i class="fas fa-user"></i> User ID / Aadhaar Number
+                <i class="fas fa-user"></i> ZenoPay / Email Id
               </label>
               <input
                 type="text"
@@ -158,6 +159,9 @@
         const btn = document.getElementById("btnLogin");
         const originalContent = btn.innerHTML;
 
+        // Show loader
+        ZenoPayLoader.show('Authenticating...');
+
         // Loading State
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Authenticating...';
@@ -169,13 +173,17 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ userId, password }),
+            showLoader: false // Prevent double loader from fetch interceptor
           });
 
           const data = await response.json();
 
+          ZenoPayLoader.hide();
+
           if (response.ok && data.success) {
             showToast(data.message, "success");
-            // Delay redirect slightly for toast visibility
+            // Show success loader before redirect
+            ZenoPayLoader.show('Login Successful! Redirecting...');
             setTimeout(() => {
               window.location.href = "/"; // Redirect to Home/Dashboard
             }, 1000);
@@ -185,6 +193,7 @@
             btn.innerHTML = originalContent;
           }
         } catch (error) {
+          ZenoPayLoader.hide();
           console.error("Login Error:", error);
           showToast("Server Connection Failed", "error");
           btn.disabled = false;

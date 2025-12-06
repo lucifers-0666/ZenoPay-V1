@@ -203,6 +203,70 @@ class EmailService {
     );
   }
 
+  // ZenoPay Registration Email
+  async sendZenoPayRegistrationEmail(email, fullName, zenoPayID) {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f8f6f3; }
+          .header { background: linear-gradient(135deg, #456882 0%, #1b3c53 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: white; padding: 30px; border-radius: 0 0 10px 10px; }
+          .info-box { background: #f8f6f3; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #456882; }
+          .button { display: inline-block; padding: 12px 30px; background: #456882; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Welcome to ZenoPay!</h1>
+          </div>
+          <div class="content">
+            <p>Dear <strong>${fullName}</strong>,</p>
+            
+            <p>Congratulations! Your ZenoPay account has been successfully created.</p>
+            
+            <div class="info-box">
+              <h3 style="margin-top: 0; color: #456882;">Your Account Details:</h3>
+              <p><strong>ZenoPay ID:</strong> ${zenoPayID}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Registration Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <p>You can now access all ZenoPay features including:</p>
+            <ul>
+              <li>✓ Instant money transfers</li>
+              <li>✓ Bank account management</li>
+              <li>✓ UPI payments</li>
+              <li>✓ Transaction history</li>
+              <li>✓ Merchant services</li>
+            </ul>
+            
+            <center>
+              <a href="${
+                process.env.APP_URL || "http://localhost:3000"
+              }/login" class="button">Login to Your Account</a>
+            </center>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">
+              If you didn't create this account, please contact our support team immediately.
+            </p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} ZenoPay. All rights reserved.</p>
+            <p>This is an automated email. Please do not reply.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await this.sendEmail(email, "ZenoPay - Registration Successful", html);
+  }
+
   // Format Aadhaar
   formatAadhar(num) {
     const digits = num.replace(/\D/g, "");
