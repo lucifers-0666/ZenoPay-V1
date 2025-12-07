@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+
+// Controllers
 const AadharController = require("../Controllers/ZenoPay");
-const PanController = require("../Controllers/Pan");
 const BankController = require("../Controllers/BankAccount");
 const BranchController = require("../Controllers/BankController");
 const LoginController = require("../Controllers/login");
@@ -12,16 +15,13 @@ const MerchantController = require("../Controllers/Merchant");
 const GatewayController = require("../Controllers/Gateway");
 const ShopController = require("../Controllers/Shop");
 const NotificationController = require("../Controllers/Notifications");
-const multer = require("multer");
-const path = require("path");
 
+// Multer Setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folder = "public/Uploads";
     if (req.originalUrl.includes("register-aadhar"))
       folder = "public/AadharImages";
-    else if (req.originalUrl.includes("register-zenopay"))
-      folder = "public/Uploads";
     cb(null, folder);
   },
   filename: (req, file, cb) => {
@@ -32,6 +32,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // --- ROUTES ---
+
+// Auth & Dashboard
 router.get("/", DashboardController.getDashboard);
 router.get("/login", LoginController.getLogin);
 router.post("/login", LoginController.postLogin);
@@ -45,11 +47,10 @@ router.post("/merchant/generate-keys", MerchantController.generateKeys);
 
 // Gateway
 router.post("/gateway/create-order", GatewayController.createOrder);
-router.post("/gateway/refund", GatewayController.processRefund); // NEW REFUND ROUTE
+router.post("/gateway/refund", GatewayController.processRefund);
 router.post("/gateway/send-otp", GatewayController.sendAadhaarOtp);
 router.post("/gateway/verify-otp", GatewayController.verifyOtpAndFetchAccounts);
 router.post("/pay/process", GatewayController.processPayment);
-router.get("/pay", GatewayController.renderCheckout);
 
 // Services
 router.get("/register-zenopay", AadharController.getRegisterZenoPay);
@@ -60,9 +61,9 @@ router.post(
 );
 router.post("/verify-zenopayId", AadharController.VerifyZenoPayId);
 
+// Banking
 router.get("/open-account", BankController.getOpenAccount);
 router.post("/open-account", BankController.postOpenAccount);
-
 router.get("/register-bank", BranchController.getBankBranches);
 router.post("/register-bank", BranchController.postBankBranch);
 router.get("/banks", BranchController.getAllBanks);
@@ -78,10 +79,33 @@ router.get("/api/banks", async (req, res) => {
   }
 });
 
-router.get("/transfer", TransferController.getTransferMoney);
-router.post("/transfer/verify-receiver", TransferController.verifyReceiver);
-router.post("/transfer", TransferController.postTransferMoney);
+// Transfer
+router.get("/send-to", TransferController.getTransferMoney);
+router.post("/send-to", TransferController.postTransferMoney);
+router.post("/verify-receiver", TransferController.verifyReceiver);
+router.get(
+  "/daily-transaction-summary",
+  TransferController.getDailyTransactionSummary
+);
 
 // Notifications
 router.get("/notifications", NotificationController.getNotifications);
+router.get(
+  "/api/notifications/count",
+  NotificationController.getNotificationCount
+);
+router.get(
+  "/api/notifications/recent",
+  NotificationController.getRecentNotifications
+);
+router.post("/api/notifications/mark-read", NotificationController.markAsRead);
+router.get(
+  "/notifications/mark-all-read",
+  NotificationController.markAllAsRead
+);
+router.get(
+  "/notifications/delete-read",
+  NotificationController.deleteReadNotifications
+);
+
 module.exports = router;

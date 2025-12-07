@@ -1,8 +1,13 @@
 const ZenoPayDetails = require("../Models/ZenoPayUser");
-const emailService = require("../Services/EmailService"); // Your Node.js email service
+const emailService = require("../Services/EmailService"); 
 
 const getRegisterZenoPay = (req, res) => {
-  res.render("ZenoPayRegister");
+  res.render("ZenoPayRegister",{
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user || null,
+    currentPage: "ZenoPay Registration",
+    qrCode : req.session.qrCode || null,
+  });
 };
 
 const postRegisterZenoPay = async (req, res) => {

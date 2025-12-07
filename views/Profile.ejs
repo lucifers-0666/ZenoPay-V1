@@ -26,20 +26,21 @@
         <div class="profile-header">
           <div class="profile-header-content">
             <img
-              src="https://placehold.co/150x150?text=User"
+              src="<%= user.ImagePath ? user.ImagePath : 'https://placehold.co/150x150?text=' + user.FullName.charAt(0) %>"
               alt="Profile"
               class="profile-avatar"
             />
             <div class="profile-info">
               <h1 class="profile-name">
                 <i class="fas fa-user-circle"></i>
-                John Doe
+                <%= user.FullName %>
               </h1>
               <p class="profile-email">
                 <i class="fas fa-envelope"></i>
-                john.doe@example.com
+                <%= user.Email %>
               </p>
               <div class="profile-stats">
+                <% if (accountCount > 0) { %>
                 <div class="stat-item">
                   <i class="fas fa-wallet"></i>
                   <div>
@@ -48,7 +49,7 @@
                       <span
                         class="stat-value"
                         id="totalBalance"
-                        data-balance="₹ 1,25,000.00"
+                        data-balance="₹ <%= totalBalance.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
                         >₹ XX,XXX.XX</span
                       >
                       <button
@@ -60,11 +61,16 @@
                     </div>
                   </div>
                 </div>
+                <% } %>
                 <div class="stat-item">
                   <i class="fas fa-calendar-check"></i>
                   <div>
                     <span class="stat-label">Member Since</span>
-                    <span class="stat-value">Jan 2024</span>
+                    <span class="stat-value"
+                      ><%= new
+                      Date(user.RegistrationDate).toLocaleDateString('en-US', {
+                      month: 'short', year: 'numeric' }) %></span
+                    >
                   </div>
                 </div>
               </div>
@@ -105,15 +111,15 @@
                   <i class="fas fa-user"></i>
                   Full Name
                 </div>
-                <div class="info-value">John Doe</div>
+                <div class="info-value"><%= user.FullName %></div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">
                   <i class="fas fa-id-badge"></i>
-                  Aadhaar Number
+                  ZenoPay ID
                 </div>
-                <div class="info-value">1234 5678 9012</div>
+                <div class="info-value"><%= user.ZenoPayID %></div>
               </div>
 
               <div class="info-item">
@@ -121,7 +127,7 @@
                   <i class="fas fa-envelope"></i>
                   Email Address
                 </div>
-                <div class="info-value">john.doe@example.com</div>
+                <div class="info-value"><%= user.Email %></div>
               </div>
 
               <div class="info-item">
@@ -129,7 +135,7 @@
                   <i class="fas fa-phone"></i>
                   Mobile Number
                 </div>
-                <div class="info-value">+91 98765 43210</div>
+                <div class="info-value"><%= user.Mobile %></div>
               </div>
 
               <div class="info-item">
@@ -137,7 +143,9 @@
                   <i class="fas fa-calendar-alt"></i>
                   Date of Birth
                 </div>
-                <div class="info-value">15/08/1990</div>
+                <div class="info-value">
+                  <%= new Date(user.DOB).toLocaleDateString('en-IN') %>
+                </div>
               </div>
 
               <div class="info-item">
@@ -145,7 +153,7 @@
                   <i class="fas fa-venus-mars"></i>
                   Gender
                 </div>
-                <div class="info-value">Male</div>
+                <div class="info-value"><%= user.Gender %></div>
               </div>
 
               <div class="info-item">
@@ -153,7 +161,7 @@
                   <i class="fas fa-male"></i>
                   Father's Name
                 </div>
-                <div class="info-value">Robert Doe</div>
+                <div class="info-value"><%= user.FatherName %></div>
               </div>
 
               <div class="info-item">
@@ -161,7 +169,7 @@
                   <i class="fas fa-female"></i>
                   Mother's Name
                 </div>
-                <div class="info-value">Mary Doe</div>
+                <div class="info-value"><%= user.MotherName || 'N/A' %></div>
               </div>
 
               <div class="info-item">
@@ -169,7 +177,7 @@
                   <i class="fas fa-map-marker-alt"></i>
                   Address
                 </div>
-                <div class="info-value">123 Main Street, Apartment 4B</div>
+                <div class="info-value"><%= user.Address %></div>
               </div>
 
               <div class="info-item">
@@ -177,7 +185,7 @@
                   <i class="fas fa-city"></i>
                   City
                 </div>
-                <div class="info-value">Mumbai</div>
+                <div class="info-value"><%= user.City %></div>
               </div>
 
               <div class="info-item">
@@ -185,7 +193,7 @@
                   <i class="fas fa-map"></i>
                   State
                 </div>
-                <div class="info-value">Maharashtra</div>
+                <div class="info-value"><%= user.State %></div>
               </div>
 
               <div class="info-item">
@@ -193,7 +201,7 @@
                   <i class="fas fa-mailbox"></i>
                   Pincode
                 </div>
-                <div class="info-value">400001</div>
+                <div class="info-value"><%= user.Pincode %></div>
               </div>
             </div>
 
@@ -215,14 +223,21 @@
             </h2>
 
             <div class="bank-accounts-grid">
+              <% if (bankAccounts && bankAccounts.length > 0) { %> <%
+              bankAccounts.forEach((account, index) => { %>
               <div class="bank-card">
                 <div class="bank-card-header">
                   <div class="bank-name">
                     <i class="fas fa-university"></i>
-                    State Bank of India
+                    <%= account.BankName %>
                   </div>
-                  <div class="bank-status-badge active">
-                    <i class="fas fa-check-circle"></i> Active
+                  <div
+                    class="bank-status-badge <%= account.AccountStatus.toLowerCase() %>"
+                  >
+                    <i
+                      class="fas fa-<%= account.AccountStatus === 'Active' ? 'check-circle' : 'exclamation-circle' %>"
+                    ></i>
+                    <%= account.AccountStatus %>
                   </div>
                 </div>
                 <div class="bank-card-body">
@@ -237,10 +252,12 @@
                     <div class="account-number-section">
                       <span class="account-label">Account Number</span>
                       <div class="account-number-container">
-                        <span class="account-number">1234 5678 9012 3456</span>
+                        <span class="account-number"
+                          ><%= account.AccountNumber.replace(/(.{4})/g, '$1').trim() %></span
+                        >
                         <button
                           class="copy-btn"
-                          onclick="copyAccountNumber('1234567890123456', this)"
+                          onclick="copyAccountNumber('<%= account.AccountNumber %>', this)"
                         >
                           <i class="fas fa-copy"></i>
                         </button>
@@ -248,104 +265,52 @@
                     </div>
                     <div class="account-type-section">
                       <span class="account-label">Account Type</span>
-                      <span class="account-type">Savings</span>
+                      <span class="account-type"
+                        ><%= account.AccountType %></span
+                      >
                     </div>
                   </div>
                   <div class="bank-card-actions">
                     <div class="bank-id-section">
                       <span class="bank-id-label">Bank ID</span>
-                      <span class="bank-id-value">SBI001234</span>
+                      <span class="bank-id-value"><%= account.BankId %></span>
                     </div>
-                    <button class="btn-view-more">
-                      <i class="fas fa-info-circle"></i> View More
-                    </button>
+                    <div class="bank-id-section">
+                      <span class="bank-id-label">Branch</span>
+                      <span class="bank-id-value"
+                        ><%= account.BankCity %>, <%= account.BankState %></span
+                      >
+                    </div>
                   </div>
                   <div class="balance-container">
                     <div class="balance-label">Available Balance</div>
                     <div class="balance-amount-container">
                       <div
                         class="balance-amount"
-                        id="balance1"
-                        data-balance="₹ 75,250.50"
+                        id="balance<%= index + 1 %>"
+                        data-balance="₹ <%= parseFloat(account.OpeningBalance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
                       >
                         ₹ XX,XXX.XX
                       </div>
                       <button
                         class="balance-toggle-btn"
-                        onclick="toggleBalance('balance1', 'balanceIcon1')"
+                        onclick="toggleBalance('balance<%= index + 1 %>', 'balanceIcon<%= index + 1 %>')"
                       >
-                        <i class="fas fa-eye" id="balanceIcon1"></i>
+                        <i
+                          class="fas fa-eye"
+                          id="balanceIcon<%= index + 1 %>"
+                        ></i>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="bank-card">
-                <div class="bank-card-header">
-                  <div class="bank-name">
-                    <i class="fas fa-university"></i>
-                    HDFC Bank
-                  </div>
-                  <div class="bank-status-badge active">
-                    <i class="fas fa-check-circle"></i> Active
-                  </div>
-                </div>
-                <div class="bank-card-body">
-                  <div class="bank-logo-container">
-                    <img
-                      src="/Images/bgFavicon.png"
-                      alt="ZenoPay"
-                      class="bank-logo-img"
-                    />
-                  </div>
-                  <div class="bank-account-info">
-                    <div class="account-number-section">
-                      <span class="account-label">Account Number</span>
-                      <div class="account-number-container">
-                        <span class="account-number">9876 5432 1098 7654</span>
-                        <button
-                          class="copy-btn"
-                          onclick="copyAccountNumber('9876543210987654', this)"
-                        >
-                          <i class="fas fa-copy"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="account-type-section">
-                      <span class="account-label">Account Type</span>
-                      <span class="account-type">Current</span>
-                    </div>
-                  </div>
-                  <div class="bank-card-actions">
-                    <div class="bank-id-section">
-                      <span class="bank-id-label">Bank ID</span>
-                      <span class="bank-id-value">HDFC009876</span>
-                    </div>
-                    <button class="btn-view-more">
-                      <i class="fas fa-info-circle"></i> View More
-                    </button>
-                  </div>
-                  <div class="balance-container">
-                    <div class="balance-label">Available Balance</div>
-                    <div class="balance-amount-container">
-                      <div
-                        class="balance-amount"
-                        id="balance2"
-                        data-balance="₹ 49,749.50"
-                      >
-                        ₹ XX,XXX.XX
-                      </div>
-                      <button
-                        class="balance-toggle-btn"
-                        onclick="toggleBalance('balance2', 'balanceIcon2')"
-                      >
-                        <i class="fas fa-eye" id="balanceIcon2"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <% }); %> <% } else { %>
+              <div class="no-data-message">
+                <i class="fas fa-inbox"></i>
+                <p>No bank accounts found. Open your first account!</p>
               </div>
+              <% } %>
             </div>
 
             <div class="action-buttons">
@@ -366,12 +331,22 @@
             </h2>
 
             <div class="debit-cards-container">
-              <!-- Card 1 - SBI Visa -->
-              <div class="debit-card">
+              <% if (bankAccounts && bankAccounts.length > 0) { %> <%
+              bankAccounts.forEach((account, index) => { %>
+              <div
+                class="debit-card <%= index % 2 === 0 ? '' : 'debit-card-dark' %>"
+              >
                 <div class="card-top-section">
-                  <div class="card-bank-name-top">STATE BANK OF INDIA</div>
-                  <div class="card-status-badge active">
-                    <i class="fas fa-check-circle"></i> Active
+                  <div class="card-bank-name-top">
+                    <%= account.BankName.toUpperCase() %>
+                  </div>
+                  <div
+                    class="card-status-badge <%= account.DebitCardStatus.toLowerCase() %>"
+                  >
+                    <i
+                      class="fas fa-<%= account.DebitCardStatus === 'Active' ? 'check-circle' : 'exclamation-circle' %>"
+                    ></i>
+                    <%= account.DebitCardStatus %>
                   </div>
                 </div>
                 <div class="card-chip">
@@ -387,98 +362,55 @@
                 <div class="card-number-container">
                   <div
                     class="card-number"
-                    id="cardNum1"
-                    data-number="4532 7856 9012 3456"
+                    id="cardNum<%= index + 1 %>"
+                    data-number="<%= account.DebitCardNumber.replace(/(.{4})/g, '$1 ').trim() %>"
                   >
-                    **** **** **** 3456
+                    **** **** **** <%= account.DebitCardNumber.slice(-4) %>
                   </div>
                   <button
                     class="card-toggle-btn"
-                    onclick="toggleCardNumber('cardNum1', 'cardIcon1')"
+                    onclick="toggleCardNumber('cardNum<%= index + 1 %>', 'cardIcon<%= index + 1 %>')"
                   >
-                    <i class="fas fa-eye" id="cardIcon1"></i>
+                    <i class="fas fa-eye" id="cardIcon<%= index + 1 %>"></i>
                   </button>
                 </div>
                 <div class="card-details">
                   <div class="card-holder">
                     <div class="card-label">CARD HOLDER</div>
-                    <div class="card-value">ASHOK KUMAR SHAH</div>
+                    <div class="card-value"><%= account.NameOnCard %></div>
                   </div>
                   <div class="card-expiry">
                     <div class="card-label">VALID THRU</div>
-                    <div class="card-value">12/27</div>
+                    <div class="card-value"><%= account.CardExpiry %></div>
                   </div>
                   <div class="card-cvv">
                     <div class="card-label">CVV</div>
                     <div class="card-cvv-container">
-                      <div class="card-value" id="cvv1" data-cvv="842">***</div>
+                      <div
+                        class="card-value"
+                        id="cvv<%= index + 1 %>"
+                        data-cvv="<%= account.CardCVV %>"
+                      >
+                        ***
+                      </div>
                       <button
                         class="card-cvv-btn"
-                        onclick="toggleCVV('cvv1', 'cvvIcon1')"
+                        onclick="toggleCVV('cvv<%= index + 1 %>', 'cvvIcon<%= index + 1 %>')"
                       >
-                        <i class="fas fa-eye" id="cvvIcon1"></i>
+                        <i class="fas fa-eye" id="cvvIcon<%= index + 1 %>"></i>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <!-- Card 2 - HDFC Mastercard -->
-              <div class="debit-card debit-card-dark">
-                <div class="card-top-section">
-                  <div class="card-bank-name-top">HDFC BANK</div>
-                  <div class="card-status-badge active">
-                    <i class="fas fa-check-circle"></i> Active
-                  </div>
-                </div>
-                <div class="card-chip">
-                  <i class="fas fa-microchip"></i>
-                </div>
-                <div class="card-logo">
-                  <img
-                    src="/Images/bgFavicon.png"
-                    alt="ZenoPay"
-                    class="zenopay-logo-img"
-                  />
-                </div>
-                <div class="card-number-container">
-                  <div
-                    class="card-number"
-                    id="cardNum2"
-                    data-number="5412 3456 7890 7654"
-                  >
-                    **** **** **** 7654
-                  </div>
-                  <button
-                    class="card-toggle-btn"
-                    onclick="toggleCardNumber('cardNum2', 'cardIcon2')"
-                  >
-                    <i class="fas fa-eye" id="cardIcon2"></i>
-                  </button>
-                </div>
-                <div class="card-details">
-                  <div class="card-holder">
-                    <div class="card-label">CARD HOLDER</div>
-                    <div class="card-value">ASHOK KUMAR SHAH</div>
-                  </div>
-                  <div class="card-expiry">
-                    <div class="card-label">VALID THRU</div>
-                    <div class="card-value">08/26</div>
-                  </div>
-                  <div class="card-cvv">
-                    <div class="card-label">CVV</div>
-                    <div class="card-cvv-container">
-                      <div class="card-value" id="cvv2" data-cvv="529">***</div>
-                      <button
-                        class="card-cvv-btn"
-                        onclick="toggleCVV('cvv2', 'cvvIcon2')"
-                      >
-                        <i class="fas fa-eye" id="cvvIcon2"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+              <% }); %> <% } else { %>
+              <div class="no-data-message">
+                <i class="fas fa-inbox"></i>
+                <p>
+                  No debit cards found. Open a bank account to get your card!
+                </p>
               </div>
+              <% } %>
             </div>
           </div>
         </div>

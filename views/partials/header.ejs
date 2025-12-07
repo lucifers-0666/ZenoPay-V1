@@ -13,7 +13,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <script src="/js/Loader.js"></script>
+    <script src="/js/confirmation.js"></script>
     <script src="/js/dashboard.js"></script>
+    <script src="/js/navbar.js" defer></script>
   </head>
   <body>
     <!-- Sidebar -->
@@ -23,31 +25,37 @@
         <h2>ZenoPay</h2>
       </div>
       <hr class="sidebar-divider" />
+      <% if(isLoggedIn && user) { %>
       <div class="sidebar-qr-section">
-        <div class="qr-code">
-          <img
-            src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi://pay?pa=9448902474@axis&pn=ZenoPay"
-            alt="QR Code"
-          />
+        <div class="qr-code-wrapper">
+          <% if (typeof qrCode !== 'undefined' && qrCode) { %>
+          <img src="<%= qrCode %>" alt="QR Code" class="qr-code-image" />
+          <img src="/Images/bgFavicon.png" alt="Logo" class="qr-logo-overlay" />
+          <% } %>
         </div>
         <div class="upi-id">
           <i class="fas fa-mobile-alt"></i>
-          <span>9448902474@axis</span>
+          <span><%= user.ZenoPayID %></span>
         </div>
       </div>
+      <% } %>
       <hr class="sidebar-divider" />
       <nav class="sidebar-nav">
         <ul>
-          <li class="active">
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>"
+          >
             <a href="/">
               <i class="fas fa-home"></i>
               <span>Dashboard</span>
             </a>
           </li>
-          <li>
-            <a href="#transactions">
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'send-money') ? 'active' : '' %>"
+          >
+            <a href="/send-to">
               <i class="fas fa-exchange-alt"></i>
-              <span>Transactions</span>
+              <span>Send Money</span>
             </a>
           </li>
           <li>
@@ -62,7 +70,17 @@
               <span>Analytics</span>
             </a>
           </li>
-          <li>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>"
+          >
+            <a href="/notifications">
+              <i class="fas fa-bell"></i>
+              <span>Notifications</span>
+            </a>
+          </li>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>"
+          >
             <a href="/Profile">
               <i class="fas fa-user-circle"></i>
               <span>Accounts</span>

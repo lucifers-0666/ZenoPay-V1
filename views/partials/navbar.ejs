@@ -1,93 +1,25 @@
 <!-- Navigation Bar -->
-      <nav class="navbar">
-        <div class="navbar-left">
-          <div class="mobile-logo">
-            <img
-              src="/Images/bgFavicon.png"
-              alt="ZenoPay Logo"
-              class="logo-img-mobile"
-            />
-            <h2>ZenoPay</h2>
-          </div>
-          <div class="user-profile desktop-only">
-            <img
-              src="https://ui-avatars.com/api/?name=Alex+Johnson&background=456882&color=fff"
-              alt="User"
-            />
-          </div>
-          <div class="welcome-message desktop-only">
-            <p>Welcome back, <strong>Alex Johnson</strong></p>
-            <span class="current-time" id="currentTime"></span>
-          </div>
-        </div>
-        <div class="navbar-right">
-          <div class="notification-wrapper">
-            <button class="notification-btn" id="notificationBtn">
-              <i class="fas fa-bell"></i>
-              <span class="notification-badge">6</span>
-            </button>
-            <div class="notification-dropdown" id="notificationDropdown">
-              <div class="notification-header">
-                <h3>Notifications</h3>
-                <button class="mark-read">Mark all as read</button>
-              </div>
-              <div class="notification-list">
-                <div class="notification-item unread">
-                  <div class="notification-icon-circle success">
-                    <i class="fas fa-arrow-down"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>Payment received from John Doe</p>
-                    <span class="notification-time">2 minutes ago</span>
-                  </div>
-                </div>
-                <div class="notification-item unread">
-                  <div class="notification-icon-circle danger">
-                    <i class="fas fa-arrow-up"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>Your transaction requires verification</p>
-                    <span class="notification-time">1 hour ago</span>
-                  </div>
-                </div>
-                <div class="notification-item unread">
-                  <div class="notification-icon-circle info">
-                    <i class="fas fa-info-circle"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>New feature update available</p>
-                    <span class="notification-time">3 hours ago</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon-circle success">
-                    <i class="fas fa-arrow-down"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>Monthly statement is ready</p>
-                    <span class="notification-time">5 hours ago</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon-circle warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>Security alert: New device login detected</p>
-                    <span class="notification-time">8 hours ago</span>
-                  </div>
-                </div>
-                <div class="notification-item">
-                  <div class="notification-icon-circle reward">
-                    <i class="fas fa-gift"></i>
-                  </div>
-                  <div class="notification-content">
-                    <p>You've earned 50 reward points</p>
-                    <span class="notification-time">1 day ago</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="mobile-logo">
+      <img
+        src="/Images/bgFavicon.png"
+        alt="ZenoPay Logo"
+        class="logo-img-mobile"
+      />
+      <h2>ZenoPay</h2>
+    </div>
+    <% if (isLoggedIn && user) { %>
+    <div class="welcome-message desktop-only">
+      <p>Welcome back, <strong><%= user.name %></strong></p>
+      <br />
+      <span class="current-time" id="currentTime"></span>
+    </div>
+    <% } %>
+  </div>
+  <div class="navbar-right">
+    <div class="notification-wrapper" id="notificationWrapper">
+      <!-- Notification dropdown will be created dynamically by JavaScript -->
+    </div>
+  </div>
+</nav>

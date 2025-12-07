@@ -12,9 +12,9 @@
     />
     <script src="/js/Loader.js"></script>
   </head>
-  <div class="login-body">
+  <body class="login-body">
     <!-- Sidebar -->
-    ><%- include('partials/header') %>
+    <%- include('partials/header') %>
 
     <!-- Main Content Area -->
     <div class="login-main-content">
@@ -93,7 +93,7 @@
           </div>
 
           <!-- Register Button -->
-          <a href="/register-aadhar" class="btn-register">
+          <a href="/register-zenopay" class="btn-register">
             <i class="fas fa-user-plus"></i> Register New Account
           </a>
         </div>
@@ -160,7 +160,7 @@
         const originalContent = btn.innerHTML;
 
         // Show loader
-        ZenoPayLoader.show('Authenticating...');
+        ZenoPayLoader.show("Authenticating...");
 
         // Loading State
         btn.disabled = true;
@@ -173,7 +173,7 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ userId, password }),
-            showLoader: false // Prevent double loader from fetch interceptor
+            showLoader: false, // Prevent double loader from fetch interceptor
           });
 
           const data = await response.json();
@@ -183,7 +183,7 @@
           if (response.ok && data.success) {
             showToast(data.message, "success");
             // Show success loader before redirect
-            ZenoPayLoader.show('Login Successful! Redirecting...');
+            ZenoPayLoader.show("Login Successful! Redirecting...");
             setTimeout(() => {
               window.location.href = "/"; // Redirect to Home/Dashboard
             }, 1000);

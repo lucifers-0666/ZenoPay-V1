@@ -1,9 +1,13 @@
+
 const BankBranch = require("../Models/Banks");
 
 const getBankBranches = async (req, res) => {
   // Renders the branch.ejs view
   res.render("RegisterBank", {
     pageTitle: "Register Bank",
+    currentPage: "Register Bank",
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user || null,
   });
 };
 

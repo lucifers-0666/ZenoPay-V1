@@ -1,5 +1,3 @@
-// Dashboard JavaScript
-
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function () {
   initializeTime();
@@ -7,12 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeSidebar();
   initializeAnimations();
   initializeFooterNav();
+  initializeActionButtons();
 });
-
 // Update current time
 function initializeTime() {
   const timeElement = document.getElementById("currentTime");
-
   function updateTime() {
     const now = new Date();
     const options = {
@@ -37,39 +34,46 @@ function initializeNotifications() {
   const markReadBtn = document.querySelector(".mark-read");
   const notificationItems = document.querySelectorAll(".notification-item");
 
-  // Toggle notification dropdown
-  notificationBtn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    notificationDropdown.classList.toggle("show");
-  });
+  // Only initialize if notification button exists (for navbar dropdown)
+  if (notificationBtn && notificationDropdown) {
+    // Toggle notification dropdown
+    notificationBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      notificationDropdown.classList.toggle("show");
+    });
 
-  // Close dropdown when clicking outside
-  document.addEventListener("click", function (e) {
-    if (
-      !notificationDropdown.contains(e.target) &&
-      e.target !== notificationBtn
-    ) {
-      notificationDropdown.classList.remove("show");
-    }
-  });
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (e) {
+      if (
+        !notificationDropdown.contains(e.target) &&
+        e.target !== notificationBtn
+      ) {
+        notificationDropdown.classList.remove("show");
+      }
+    });
+  }
 
-  // Mark all as read
-  markReadBtn.addEventListener("click", function () {
+  // Mark all as read - only if button exists
+  if (markReadBtn && notificationItems.length > 0) {
+    markReadBtn.addEventListener("click", function () {
+      notificationItems.forEach((item) => {
+        item.classList.remove("unread");
+      });
+
+      const badge = document.querySelector(".notification-badge");
+      if (badge) {
+        badge.style.display = "none";
+      }
+    });
+
+    // Individual notification click
     notificationItems.forEach((item) => {
-      item.classList.remove("unread");
+      item.addEventListener("click", function () {
+        this.classList.remove("unread");
+        updateNotificationBadge();
+      });
     });
-
-    const badge = document.querySelector(".notification-badge");
-    badge.style.display = "none";
-  });
-
-  // Individual notification click
-  notificationItems.forEach((item) => {
-    item.addEventListener("click", function () {
-      this.classList.remove("unread");
-      updateNotificationBadge();
-    });
-  });
+  }
 }
 
 // Update notification badge count
@@ -93,16 +97,20 @@ function initializeSidebar() {
   const sidebar = document.querySelector(".sidebar");
   const mainContent = document.querySelector(".main-content");
 
-  menuToggle.addEventListener("click", function () {
-    sidebar.classList.toggle("active");
-  });
+  if (menuToggle && sidebar) {
+    menuToggle.addEventListener("click", function () {
+      sidebar.classList.toggle("active");
+    });
+  }
 
   // Close sidebar when clicking outside on mobile
-  mainContent.addEventListener("click", function () {
-    if (window.innerWidth <= 768 && sidebar.classList.contains("active")) {
-      sidebar.classList.remove("active");
-    }
-  });
+  if (mainContent && sidebar) {
+    mainContent.addEventListener("click", function () {
+      if (window.innerWidth <= 768 && sidebar.classList.contains("active")) {
+        sidebar.classList.remove("active");
+      }
+    });
+  }
 
   // Sidebar navigation
   const navLinks = document.querySelectorAll(".sidebar-nav a");
@@ -153,21 +161,19 @@ function initializeAnimations() {
   });
 }
 
-// Quick action buttons
-const actionBtns = document.querySelectorAll(".action-btn");
-actionBtns.forEach((btn) => {
-  btn.addEventListener("click", function () {
-    const action = this.querySelector("span").textContent;
-    showNotification(`${action} clicked!`, "info");
-  });
-});
-
-// New Transaction button
-const newTransactionBtn = document.querySelector(".btn-primary");
-if (newTransactionBtn) {
-  newTransactionBtn.addEventListener("click", function () {
-    showNotification("New transaction form would open here", "success");
-  });
+// Quick action buttons initialization
+function initializeActionButtons() {
+  const actionBtns = document.querySelectorAll(".action-btn");
+  if (actionBtns.length > 0) {
+    actionBtns.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const action = this.querySelector("span")?.textContent;
+        if (action) {
+          showNotification(`${action} clicked!`, "info");
+        }
+      });
+    });
+  }
 }
 
 // Show notification toast
@@ -209,81 +215,101 @@ function showNotification(message, type = "info") {
   }, 3000);
 }
 
-// Add CSS animations for toast
-const style = document.createElement("style");
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+// Add CSS animations for toast - only once
+(function addToastAnimations() {
+  if (!document.getElementById("toast-animations")) {
+    const toastStyle = document.createElement("style");
+    toastStyle.id = "toast-animations";
+    toastStyle.textContent = `
+      @keyframes slideIn {
+          from {
+              transform: translateX(400px);
+              opacity: 0;
+          }
+          to {
+              transform: translateX(0);
+              opacity: 1;
+          }
+      }
+      
+      @keyframes slideOut {
+          from {
+              transform: translateX(0);
+              opacity: 1;
+          }
+          to {
+              transform: translateX(400px);
+              opacity: 0;
+          }
+      }
+    `;
+    document.head.appendChild(toastStyle);
+  }
+})();
 
 // Payment method interactions
-const paymentMethods = document.querySelectorAll(".payment-method");
-paymentMethods.forEach((method) => {
-  method.addEventListener("click", function () {
-    paymentMethods.forEach((m) => (m.style.outline = "none"));
-    this.style.outline = "2px solid #456882";
-    setTimeout(() => {
-      this.style.outline = "none";
-    }, 2000);
-  });
-});
+(function () {
+  const paymentMethods = document.querySelectorAll(".payment-method");
+  if (paymentMethods.length > 0) {
+    paymentMethods.forEach((method) => {
+      method.addEventListener("click", function () {
+        paymentMethods.forEach((m) => (m.style.outline = "none"));
+        this.style.outline = "2px solid #456882";
+        setTimeout(() => {
+          this.style.outline = "none";
+        }, 2000);
+      });
+    });
+  }
+})();
 
 // Transaction item interactions
-const transactionItems = document.querySelectorAll(".transaction-item");
-transactionItems.forEach((item) => {
-  item.addEventListener("click", function () {
-    const transactionName = this.querySelector(".transaction-name").textContent;
-    showNotification(`Viewing details for: ${transactionName}`, "info");
-  });
-});
+(function () {
+  const transactionItems = document.querySelectorAll(".transaction-item");
+  if (transactionItems.length > 0) {
+    transactionItems.forEach((item) => {
+      item.addEventListener("click", function () {
+        const transactionName =
+          this.querySelector(".transaction-name").textContent;
+        showNotification(`Viewing details for: ${transactionName}`, "info");
+      });
+    });
+  }
+})();
 
 // Handle video error
-const heroVideo = document.querySelector(".hero-video");
-if (heroVideo) {
-  heroVideo.addEventListener("error", function () {
-    console.warn(
-      "Video could not be loaded. Please ensure /zeno1.mp4 exists in the root directory."
-    );
-    // Add fallback background
-    const videoContainer = document.querySelector(".video-container");
-    videoContainer.style.background =
-      "linear-gradient(135deg, #1B3C53 0%, #456882 100%)";
-  });
-}
+(function () {
+  const heroVideo = document.querySelector(".hero-video");
+  if (heroVideo) {
+    heroVideo.addEventListener("error", function () {
+      console.warn(
+        "Video could not be loaded. Please ensure /zeno1.mp4 exists in the root directory."
+      );
+      // Add fallback background
+      const videoContainer = document.querySelector(".video-container");
+      if (videoContainer) {
+        videoContainer.style.background =
+          "linear-gradient(135deg, #1B3C53 0%, #456882 100%)";
+      }
+    });
+  }
+})();
 
 // Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-    if (target) {
-      target.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+(function () {
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    });
   });
-});
+})();
 
 // Add loading state to buttons
 function addLoadingState(button) {

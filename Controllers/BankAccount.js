@@ -1,10 +1,13 @@
+
 const BankAccount = require("../Models/BankAccount");
 const BankBranch = require("../Models/Banks");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
 
 const getOpenAccount = async (req, res) => {
   res.render("OpenAccount", {
-    pageTitle: "Open Bank Account",
+    currentPage: "Open Bank Account",
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user || null,
   });
 };
 
@@ -24,8 +27,7 @@ const postOpenAccount = async (req, res) => {
     }
 
     // Generate Account Number (16 digits)
-    const accountNumber =
-      "AC" + Date.now().toString() + Math.floor(Math.random() * 1000);
+    const accountNumber = Date.now().toString() + Math.floor(Math.random() * 1000);
 
     // Generate Debit Card Number (16 digits)
     const cardNumber =

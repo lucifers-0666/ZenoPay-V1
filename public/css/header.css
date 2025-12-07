@@ -179,17 +179,33 @@ body {
   flex-shrink: 0;
 }
 
-.qr-code {
+.qr-code-wrapper {
+  position: relative;
   background: var(--white);
-  padding: 0.8rem;
+  padding: 0.6rem;
   border-radius: 12px;
   box-shadow: 0 4px 10px var(--shadow);
+  width: fit-content;
 }
 
-.qr-code img {
+.qr-code-image {
   display: block;
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
+}
+
+.qr-logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 35px;
+  height: 35px;
+  background: white;
+  padding: 4px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
 }
 
 .upi-id {
@@ -301,6 +317,7 @@ body {
 
 .notification-wrapper {
   position: relative;
+  z-index: 10000;
 }
 
 .notification-btn {
@@ -311,27 +328,35 @@ body {
   cursor: pointer;
   position: relative;
   padding: 0.5rem;
-  transition: color 0.3s ease;
+  transition: none;
+  outline: none;
 }
 
 .notification-btn:hover {
-  color: var(--primary-blue);
+  color: var(--primary-dark);
+}
+
+.notification-btn:focus {
+  outline: none;
 }
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  background: var(--danger);
-  color: var(--white);
+  top: -5px;
+  right: -5px;
+  background: #dc3545;
+  color: white;
   font-size: 0.7rem;
-  width: 18px;
+  min-width: 18px;
   height: 18px;
   border-radius: 50%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  padding: 0 4px;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .notification-dropdown {
@@ -346,6 +371,7 @@ body {
   visibility: hidden;
   transform: translateY(-10px);
   transition: all 0.3s ease;
+  z-index: 9999;
 }
 
 .notification-dropdown.show {
@@ -402,21 +428,32 @@ body {
   background: var(--primary-dark);
 }
 
+.notification-view-all {
+  border-top: 1px solid #f0f0f0;
+  background: #f9f9f9;
+}
+
+.notification-view-all a:hover {
+  background: #f0f0f0;
+}
+
 .notification-item {
   padding: 1rem 1.5rem;
   display: flex;
   gap: 1rem;
-  border-bottom: 1px solid var(--light-cream);
-  transition: background 0.3s ease;
-  cursor: pointer;
-}
-
-.notification-item:hover {
-  background: var(--light-cream);
+  align-items: flex-start;
+  border-bottom: 1px solid #f0f0f0;
+  transition: none;
+  cursor: default;
 }
 
 .notification-item.unread {
-  background: rgba(69, 104, 130, 0.05);
+  background: rgba(69, 104, 130, 0.03);
+  border-left: 3px solid var(--primary-blue);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
 }
 
 .notification-icon-circle {
@@ -433,18 +470,22 @@ body {
   font-size: 1rem;
 }
 
+.notification-icon-circle.credit,
 .notification-icon-circle.success {
   background: rgba(40, 167, 69, 0.15);
 }
 
+.notification-icon-circle.credit i,
 .notification-icon-circle.success i {
   color: var(--success);
 }
 
+.notification-icon-circle.debit,
 .notification-icon-circle.danger {
   background: rgba(220, 53, 69, 0.15);
 }
 
+.notification-icon-circle.debit i,
 .notification-icon-circle.danger i {
   color: var(--danger);
 }
@@ -475,17 +516,91 @@ body {
 
 .notification-content {
   flex: 1;
+  min-width: 0;
 }
 
-.notification-content p {
+.notification-title {
   font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.notification-message {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .notification-time {
   font-size: 0.75rem;
-  color: var(--text-light);
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.notification-amount {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.notification-amount.credit {
+  color: var(--success);
+}
+
+.notification-amount.debit {
+  color: var(--danger);
+}
+
+.empty-notification,
+.loading-notification,
+.error-notification {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #999;
+}
+
+.empty-notification i,
+.loading-notification i,
+.error-notification i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  opacity: 0.5;
+}
+
+.loading-notification i {
+  animation: spin 1s linear infinite;
+}
+
+.error-notification {
+  color: var(--danger);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-notification p,
+.loading-notification p,
+.error-notification p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .navbar-right {

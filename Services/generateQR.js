@@ -1,15 +1,24 @@
-const QRCodeWithLogo = require("qr-code-with-logo");
+const QRCode = require("qrcode");
 
 async function generateQRWithLogo(url) {
-  const qrImage = await QRCodeWithLogo.toDataURL({
-    content: url,
-    logo: "/Images/bgFavicon.png", 
-    logoWidth: 80,
-    logoHeight: 80,
-    logoBackgroundTransparent: true,
-  });
+  try {
+    const qrSize = 400;
 
-  return qrImage;
+    const qrDataUrl = await QRCode.toDataURL(url, {
+      errorCorrectionLevel: "H",
+      margin: 2,
+      width: qrSize,
+      color: {
+        dark: "#456882", 
+        light: "#FFFFFF",
+      },
+    });
+
+    return qrDataUrl;
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+    throw error;
+  }
 }
 
 module.exports = generateQRWithLogo;

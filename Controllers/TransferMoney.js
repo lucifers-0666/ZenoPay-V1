@@ -1,79 +1,101 @@
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
+const Notification = require("../Models/Notification");
+const ZenoPayDetails = require("../Models/ZenoPayUser");
 
-// Render the Transfer Page with User's Accounts
 const getTransferMoney = async (req, res) => {
   try {
     if (!req.session.isLoggedIn || !req.session.user) {
       return res.redirect("/login");
     }
 
-    const userAadhar = req.session.user.aadharNumber;
+    const zenoPayId = req.session.user.ZenoPayID;
 
-    // Fetch all accounts belonging to the logged-in user
-    const accounts = await BankAccount.find({ AadharNumber: userAadhar });
+    const accounts = await BankAccount.find({ ZenoPayId: zenoPayId });
 
-    res.render("TransferMoney", {
-      pageTitle: "Fund Transfer",
-      accounts: accounts, // Pass accounts to EJS
+    res.render("SendMoney", {
+      pageTitle: "Send Money",
+      currentPage: "send-money",
+      accounts: accounts,
+      qrCode: req.session.qrCode || null,
       user: req.session.user,
+      isLoggedIn: true,
     });
   } catch (err) {
-    console.error("Error fetching transfer page:", err);
-    res.redirect("/");
+    res.redirect("/dashboard");
   }
 };
 
-// API to Verify Receiver (Account No or Mobile)
 const verifyReceiver = async (req, res) => {
-  const { mode, value } = req.body; // mode: 'Account' or 'Phone'
+  const { receiverInfo } = req.body;
 
   try {
-    let receiver;
-    if (mode === "Account") {
-      receiver = await BankAccount.findOne({ AccountNumber: value });
-    } else if (mode === "Phone") {
-      receiver = await BankAccount.findOne({ Mobile: value });
+
+
+    const zenoPayUser = await ZenoPayDetails.findOne({
+      $or: [
+        { ZenoPayID: receiverInfo },
+        { Email: receiverInfo },
+        { Mobile: receiverInfo },
+      ],
+    });
+
+    if (zenoPayUser) {
+      const accounts = await BankAccount.find({
+        ZenoPayId: zenoPayUser.ZenoPayID,
+      });
+
+      if (accounts.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: "Beneficiary verified successfully",
+          data: {
+            holderName: zenoPayUser.FullName,
+            zenoPayId: zenoPayUser.ZenoPayID,
+            email: zenoPayUser.Email,
+            mobile: zenoPayUser.Mobile,
+            accounts: accounts.map((acc) => ({
+              accountNumber: acc.AccountNumber,
+              bankName: acc.BankName,
+              accountType: acc.AccountType,
+              bankId: acc.BankId,
+            })),
+          },
+        });
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: `${zenoPayUser.FullName} has no bank account. Please ask them to open an account first.`,
+        });
+      }
     }
 
-    if (receiver) {
-      // Prevent showing sensitive data, just show name and bank
-      return res.status(200).json({
-        success: true,
-        message: "User Verified",
-        data: {
-          holderName: receiver.FullName,
-          bankName: receiver.BankName,
-          accountNumber: receiver.AccountNumber, // Needed if looked up by phone
-        },
-      });
-    } else {
-      return res
-        .status(404)
-        .json({ success: false, message: "Beneficiary not found." });
-    }
+    return res.status(404).json({
+      success: false,
+      message:
+        "Beneficiary not found. Please check the ZenoPay ID, Email, or Mobile number.",
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Verification failed." });
+    res.status(500).json({
+      success: false,
+      message: "Verification failed. Please try again.",
+    });
   }
 };
 
-// Process the Transaction
 const postTransferMoney = async (req, res) => {
   const { senderAccount, receiverAccount, amount, description } = req.body;
   const transferAmount = parseFloat(amount);
+  const DAILY_LIMIT = 50000;
 
   if (senderAccount === receiverAccount) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Cannot transfer to the same account.",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Cannot transfer to the same account.",
+    });
   }
 
   try {
-    // 1. Fetch Sender
     const sender = await BankAccount.findOne({ AccountNumber: senderAccount });
     if (!sender) {
       return res
@@ -81,7 +103,30 @@ const postTransferMoney = async (req, res) => {
         .json({ success: false, message: "Sender account not found." });
     }
 
-    // 2. Check Balance (Using Decimal128 conversion logic)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayTransactions = await TransactionHistory.find({
+      SenderAccountNumber: senderAccount,
+      TransactionTime: { $gte: today, $lt: tomorrow },
+    });
+
+    const todayTotal = todayTransactions.reduce(
+      (sum, tx) => sum + parseFloat(tx.Amount.toString()),
+      0
+    );
+
+    if (todayTotal + transferAmount > DAILY_LIMIT) {
+      return res.status(400).json({
+        success: false,
+        message: `Daily transaction limit exceeded. You have already transferred ₹${todayTotal.toFixed(
+          2
+        )} today. Daily limit is ₹${DAILY_LIMIT}.`,
+      });
+    }
+
     const currentBalance = parseFloat(sender.OpeningBalance.toString());
     if (currentBalance < transferAmount) {
       return res
@@ -89,7 +134,6 @@ const postTransferMoney = async (req, res) => {
         .json({ success: false, message: "Insufficient Balance." });
     }
 
-    // 3. Fetch Receiver
     const receiver = await BankAccount.findOne({
       AccountNumber: receiverAccount,
     });
@@ -98,9 +142,6 @@ const postTransferMoney = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Beneficiary account not found." });
     }
-
-    // 4. Perform Transaction (Update Balances)
-    // Note: In a real banking app, use MongoDB Transactions (Session) for atomicity.
 
     const senderNewBal = currentBalance - transferAmount;
     const receiverCurrentBal = parseFloat(receiver.OpeningBalance.toString());
@@ -112,8 +153,7 @@ const postTransferMoney = async (req, res) => {
     await sender.save();
     await receiver.save();
 
-    // 5. Create Transaction History Record
-    const transactionID = Math.floor(1000000000 + Math.random() * 9000000000); // Simple ID gen
+    const transactionID = Math.floor(1000000000 + Math.random() * 9000000000);
 
     const history = new TransactionHistory({
       TransactionID: transactionID,
@@ -133,6 +173,33 @@ const postTransferMoney = async (req, res) => {
 
     await history.save();
 
+    try {
+      await Notification.create({
+        ZenoPayId: sender.ZenoPayId,
+        Type: "debit",
+        Title: "Money Sent",
+        Message: `₹${transferAmount.toFixed(2)} sent to ${receiver.FullName} (${
+          receiver.AccountNumber
+        })`,
+        Amount: transferAmount,
+        TransactionID: transactionID,
+        IsRead: false,
+      });
+
+      await Notification.create({
+        ZenoPayId: receiver.ZenoPayId,
+        Type: "credit",
+        Title: "Money Received",
+        Message: `₹${transferAmount.toFixed(2)} received from ${
+          sender.FullName
+        } (${sender.AccountNumber})`,
+        Amount: transferAmount,
+        TransactionID: transactionID,
+        IsRead: false,
+      });
+    } catch (notifErr) {
+    }
+
     res.status(200).json({
       success: true,
       message: "Transfer Successful!",
@@ -140,10 +207,52 @@ const postTransferMoney = async (req, res) => {
       newBalance: senderNewBal,
     });
   } catch (err) {
-    console.error("Transfer Error:", err);
     res
       .status(500)
       .json({ success: false, message: "Server error during transaction." });
+  }
+};
+
+const getDailyTransactionSummary = async (req, res) => {
+  try {
+    if (!req.session.isLoggedIn || !req.session.user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authenticated" });
+    }
+
+    const zenoPayId = req.session.user.ZenoPayID;
+    const DAILY_LIMIT = 50000;
+
+    const accounts = await BankAccount.find({ ZenoPayId: zenoPayId });
+    const accountNumbers = accounts.map((acc) => acc.AccountNumber);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayTransactions = await TransactionHistory.find({
+      SenderAccountNumber: { $in: accountNumbers },
+      TransactionTime: { $gte: today, $lt: tomorrow },
+    });
+
+    const count = todayTransactions.length;
+    const totalAmount = todayTransactions.reduce(
+      (sum, tx) => sum + parseFloat(tx.Amount.toString()),
+      0
+    );
+    const remainingLimit = DAILY_LIMIT - totalAmount;
+
+    res.status(200).json({
+      success: true,
+      count: count,
+      totalAmount: totalAmount,
+      remainingLimit: remainingLimit > 0 ? remainingLimit : 0,
+      dailyLimit: DAILY_LIMIT,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error fetching summary" });
   }
 };
 
@@ -151,4 +260,5 @@ module.exports = {
   getTransferMoney,
   verifyReceiver,
   postTransferMoney,
+  getDailyTransactionSummary,
 };

@@ -1,83 +1,83 @@
-const ZenoPayUser = require("../Models/ZenoPayUser");
+const ZenoPayDetails = require("../Models/ZenoPayUser");
 
 // Show login page
 const getLogin = (req, res) => {
   if (req.session.isLoggedIn) {
-    return res.redirect("/dashboard");
+    return res.redirect("/");
   }
-
   res.render("login", {
-    pageTitle: "Login",
+    CurrentPage: "Login",
+    isLoggedIn: req.session.isLoggedIn || false,
+    user: req.session.user || null,
   });
 };
 
-// Handle login
 const postLogin = async (req, res) => {
   const { userId, password } = req.body;
-
-  console.log("Login attempt for userId:", userId);
-  console.log("Password received:", password);
-
   try {
     const cleanUserId = userId.trim();
-
-    // Find by Email OR ZenoPayID
-    const user = await ZenoPayUser.findOne({
+    const user = await ZenoPayDetails.findOne({
       $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
     });
-
     if (!user) {
       console.log("User not found!");
-      return res.status(401).render("login", {
-        pageTitle: "Login",
-        error: "User not found. Please try again.",
+      return res.status(401).json({
+        success: false,
+        message: "User not found. Please check your credentials.",
       });
     }
-
-    // Password check (later replace with bcrypt)
     if (user.Password !== password) {
       console.log("Incorrect password!");
-      return res.status(401).render("login", {
-        pageTitle: "Login",
-        error: "Invalid password.",
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password. Please try again.",
       });
     }
 
-    // Store session
-    req.session.user = {
-      _id: user._id.toString(),
-      name: user.FullName,
-      ZenoPayId: user.ZenoPayID,
-      role: user.Role,
-    };
-
-    req.session.isLoggedIn = true;
-
-    console.log("User logged in successfully:", req.session.user);
-
-    // Save session before redirect
-    req.session.save((err) => {
+    req.session.regenerate((err) => {
       if (err) {
-        console.error("Session creation failed:", err);
-        return res.render("login", {
-          pageTitle: "Login",
-          error: "Session error. Please try again.",
+        console.error("Session regeneration failed:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Session error. Please try again.",
         });
       }
 
-      return res.redirect("/dashboard");
+      req.session.user = {
+        _id: user._id.toString(),
+        name: user.FullName,
+        ZenoPayID: user.ZenoPayID,
+        email: user.Email,
+        role: user.Role,
+      };
+
+      req.session.isLoggedIn = true;
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session save failed:", saveErr);
+          return res.status(500).json({
+            success: false,
+            message: "Session save error. Please try again.",
+          });
+        }
+
+        console.log("Session saved successfully!");
+        return res.status(200).json({
+          success: true,
+          message: "Login successful!",
+        });
+      });
     });
   } catch (err) {
     console.error("Login Controller Error:", err);
 
-    return res.status(500).render("login", {
-      pageTitle: "Login",
-      error: "Internal Server Error. Please try again.",
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error. Please try again.",
     });
   }
 };
 
-// Logout
 const logout = (req, res) => {
   console.log(
     "User logged out:",
