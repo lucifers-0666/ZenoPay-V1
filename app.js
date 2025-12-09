@@ -70,8 +70,6 @@ mongoose
     console.log("MongoDB Connected");
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-<<<<<<< HEAD
-  .catch((err) => console.log("DB Connection Error:", err));
-=======
-  .catch((err) => console.log("DB Connection Error:", err));
->>>>>>> e2e4d6ac579ef09d8e8ef8c82b490b63e3b85cc8
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
