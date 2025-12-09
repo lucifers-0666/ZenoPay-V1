@@ -75,12 +75,7 @@
 
             </a>
           </li>
-          <li>
-            <a href="#analytics">
-              <i class="fas fa-chart-line"></i>
-              <span>Analytics</span>
-            </a>
-          </li>
+      
           <li
             class="<%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>"
           >
@@ -97,20 +92,25 @@
               <span>Accounts</span>
             </a>
           </li>
-          <li>
-            <a href="#settings">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
+     
         </ul>
       </nav>
+      <% if(isLoggedIn && user) { %>
+
       <div class="sidebar-footer">
         <a href="/logout">
           <i class="fas fa-sign-out-alt"></i>
           <span>Logout</span>
         </a>
       </div>
+      <% }else { %>
+          <div class="sidebar-footer">
+        <a href="/login" style="background: #018790;">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Login</span>
+        </a>
+      </div>
+      <% } %>
     </aside>
   </body>
 </html>
