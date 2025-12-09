@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle || 'Notifications' %> - ZenoPay</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script src="/js/Loader.js"></script>
+    <script src="/js/confirmation.js"></script>
+    <script src="/js/navbar.js" defer></script>
+
+    <style>
+      :root {
+        --primary: #456882;
+        --bg-light: #f8f9fa;
+        --border: #e9ecef;
+        --text-main: #333;
+        --text-muted: #6c757d;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+      }
+
+      body {
+        background-color: #f4f7f6;
+      }
+
+      .notifications-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .page-title {
+        font-size: 1.75rem;
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .filter-tab {
+        padding: 0.5rem 1.2rem;
+        border: 1px solid var(--border);
+        background: white;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        transition: all 0.2s;
+        color: var(--text-muted);
+      }
+
+      .filter-tab.active,
+      .filter-tab:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .action-group {
+        display: flex;
+        gap: 0.8rem;
+      }
+
+      .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: opacity 0.2s;
+      }
+      .btn:hover {
+        opacity: 0.9;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+      .btn-outline {
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+      }
+
+      .notifications-list {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+      }
+
+      .notification-card {
+        display: flex;
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+      }
+      .notification-card:last-child {
+        border-bottom: none;
+      }
+      .notification-card:hover {
+        background-color: #fcfcfc;
+      }
+
+      .notification-card.unread {
+        background-color: #f0f7ff;
+        border-left: 4px solid var(--primary);
+      }
+
+      .n-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+      .n-icon.credit {
+        background: #e6f4ea;
+        color: var(--success);
+      }
+      .n-icon.debit {
+        background: #fce8e6;
+        color: var(--danger);
+      }
+      .n-icon.info {
+        background: #e8f0fe;
+        color: var(--info);
+      }
+      .n-icon.warning {
+        background: #fef7e0;
+        color: var(--warning);
+      }
+      .n-icon.reward {
+        background: #fff8e1;
+        color: #ff9800;
+      }
+
+      .n-content {
+        flex: 1;
+      }
+      .n-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+      }
+      .n-title {
+        font-weight: 600;
+        color: var(--text-main);
+      }
+      .n-message {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+      }
+      .n-time {
+        font-size: 0.8rem;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .n-amount {
+        font-weight: 700;
+        font-size: 1rem;
+      }
+      .n-amount.credit {
+        color: var(--success);
+      }
+      .n-amount.debit {
+        color: var(--danger);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        color: var(--text-muted);
+      }
+      .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+      }
+
+      @media (max-width: 600px) {
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .action-group {
+          width: 100%;
+        }
+        .btn {
+          flex: 1;
+          justify-content: center;
+        }
+        .n-amount {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main class="main-content">
+      <%- include('partials/navbar') %>
+
+      <div class="notifications-container">
+        <div class="page-header">
+          <h1 class="page-title"><i class="fas fa-bell"></i> Notifications</h1>
+          <div class="action-group">
+            <a
+              href="/notifications/mark-all-read"
+              id="markAllReadBtn"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-check-double"></i> Mark All Read
+            </a>
+            <a
+              href="/notifications/delete-read"
+              id="deleteReadBtn"
+              class="btn btn-outline"
+            >
+              <i class="fas fa-trash-alt"></i> Clear Read
+            </a>
+          </div>
+        </div>
+
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">All</div>
+          <div class="filter-tab" data-filter="unread">Unread</div>
+          <div class="filter-tab" data-filter="credit">Credits</div>
+          <div class="filter-tab" data-filter="debit">Debits</div>
+          <div class="filter-tab" data-filter="info">Info</div>
+        </div>
+
+        <div class="notifications-list" id="notificationsList">
+          <% if (notifications && notifications.length > 0) { %> <%
+          notifications.forEach(n => { %>
+          <div
+            class="notification-card <%= !n.IsRead ? 'unread' : '' %>"
+            data-type="<%= n.Type %>"
+            data-read="<%= n.IsRead ? 'true' : 'false' %>"
+          >
+            <div class="n-icon <%= n.Type %>">
+              <i
+                class="fas <%= n.Type === 'credit' ? 'fa-arrow-down' : n.Type === 'debit' ? 'fa-arrow-up' : n.Type === 'warning' ? 'fa-exclamation-triangle' : n.Type === 'reward' ? 'fa-gift' : 'fa-info-circle' %>"
+              ></i>
+            </div>
+
+            <div class="n-content">
+              <div class="n-header">
+                <div class="n-title"><%= n.Title %></div>
+                <% if (n.Amount) { %>
+                <div class="n-amount <%= n.Type %>">
+                  <%= n.Type === 'credit' ? '+' : '-' %>₹<%=
+                  parseFloat(n.Amount).toFixed(2) %>
+                </div>
+                <% } %>
+              </div>
+              <div class="n-message"><%= n.Message %></div>
+              <div class="n-time">
+                <i class="far fa-clock"></i>
+                <span class="time-ago" data-time="<%= n.createdAt %>"></span>
+              </div>
+            </div>
+          </div>
+          <% }); %> <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <h3>No notifications</h3>
+            <p>You are all caught up!</p>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // -----------------------------
+        //  TIME AGO FUNCTION
+        // -----------------------------
+        function getTimeAgo(date) {
+          const seconds = Math.floor((new Date() - date) / 1000);
+          let interval = Math.floor(seconds / 31536000);
+          if (interval >= 1) return interval + "y ago";
+          interval = Math.floor(seconds / 2592000);
+          if (interval >= 1) return interval + "mo ago";
+          interval = Math.floor(seconds / 86400);
+          if (interval >= 1) return interval + "d ago";
+          interval = Math.floor(seconds / 3600);
+          if (interval >= 1) return interval + "h ago";
+          interval = Math.floor(seconds / 60);
+          if (interval >= 1) return interval + "m ago";
+          return "Just now";
+        }
+
+        function updateTimes() {
+          document.querySelectorAll(".time-ago").forEach((el) => {
+            const dateStr = el.dataset.time;
+            if (dateStr) {
+              el.textContent = getTimeAgo(new Date(dateStr));
+            }
+          });
+        }
+
+        updateTimes();
+        setInterval(updateTimes, 60000);
+
+        // -----------------------------
+        // FILTER TABS
+        // -----------------------------
+        const tabs = document.querySelectorAll(".filter-tab");
+        const cards = document.querySelectorAll(".notification-card");
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tabs.forEach((t) => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            const filter = tab.dataset.filter;
+
+            cards.forEach((card) => {
+              if (filter === "all") {
+                card.style.display = "flex";
+              } else if (filter === "unread") {
+                card.style.display =
+                  card.dataset.read === "false" ? "flex" : "none";
+              } else {
+                card.style.display =
+                  card.dataset.type === filter ? "flex" : "none";
+              }
+            });
+          });
+        });
+
+        // -----------------------------
+        // API POST REQUEST HANDLER
+        // -----------------------------
+        const handleApiAction = async (url, successMessage) => {
+          try {
+            const res = await fetch(url, {
+              method: "POST",
+              showLoader: false,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              if (typeof ZenoAlert !== "undefined") {
+                ZenoAlert.success("Success", successMessage);
+              }
+              setTimeout(() => location.reload(), 800);
+              return true;
+            } else {
+              if (typeof ZenoAlert !== "undefined") {
+                ZenoAlert.error(
+                  "Error",
+                  data.message || "Something went wrong"
+                );
+              }
+              return false;
+            }
+          } catch (err) {
+            if (typeof ZenoAlert !== "undefined") {
+              ZenoAlert.error("Error", "Server error — try again.");
+            }
+            return false;
+          }
+        };
+
+        // -----------------------------
+        // MARK ALL READ
+        // -----------------------------
+        const markAllReadBtn = document.getElementById("markAllReadBtn");
+
+        if (markAllReadBtn) {
+          markAllReadBtn.addEventListener("click", async function (e) {
+            e.preventDefault();
+
+            const cards = document.querySelectorAll(".notification-card");
+            const unreadExists = [...cards].some(
+              (c) => c.dataset.read === "false"
+            );
+
+            if (!unreadExists) {
+              if (typeof ZenoAlert !== "undefined") {
+                ZenoAlert.info(
+                  "No Unread Notifications",
+                  "Everything is already marked as read."
+                );
+              }
+              return;
+            }
+
+            const original = markAllReadBtn.innerHTML;
+            markAllReadBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            markAllReadBtn.style.pointerEvents = "none";
+
+            window.location.href = "/notifications/mark-all-read";
+
+            if (!success) {
+              markAllReadBtn.innerHTML = original;
+              markAllReadBtn.style.pointerEvents = "auto";
+            }
+          });
+        }
+
+        // -----------------------------
+        // DELETE READ NOTIFICATIONS
+        // -----------------------------
+        const deleteReadBtn = document.getElementById("deleteReadBtn");
+        console.log("Looking for deleteReadBtn:", deleteReadBtn);
+
+        if (deleteReadBtn) {
+          console.log("✅ Delete Read button found, attaching event listener");
+
+          deleteReadBtn.addEventListener("click", async (e) => {
+            console.log("🔴 Delete Read button clicked!");
+            e.preventDefault();
+            e.stopPropagation();
+
+            const cards = document.querySelectorAll(".notification-card");
+            const hasRead = [...cards].some((c) => c.dataset.read === "true");
+
+            console.log("Total cards:", cards.length);
+            console.log("Has read notifications:", hasRead);
+            console.log(
+              "Cards data-read values:",
+              [...cards].map((c) => c.dataset.read)
+            );
+
+            if (!hasRead) {
+              console.log("No read notifications to delete");
+              ZenoAlert.info(
+                "No Read Notifications",
+                "There are no read notifications to delete."
+              );
+              return;
+            }
+
+            console.log("Showing confirmation dialog");
+            const confirmed = await ZenoAlert.confirm(
+              "Delete Notifications",
+              "Are you sure you want to delete all read notifications? This action cannot be undone.",
+              {
+                confirmButtonText: "Yes, Delete",
+                cancelButtonText: "Cancel",
+              }
+            );
+
+            if (!confirmed) {
+              console.log("User cancelled delete operation");
+              return;
+            }
+
+            console.log("User confirmed, proceeding with delete...");
+            const original = deleteReadBtn.innerHTML;
+            deleteReadBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            deleteReadBtn.disabled = true;
+
+            window.location.href = "/notifications/delete-read";
+
+            if (!success) {
+              deleteReadBtn.innerHTML = original;
+              deleteReadBtn.disabled = false;
+            }
+          });
+        } else {
+          console.error("❌ Delete Read button NOT found!");
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay Dashboard</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/login.css" />
+
+     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7109994144427190"
+        crossorigin="anonymous"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="/js/Loader.js"></script>
+    <script src="/js/confirmation.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/navbar.js" defer></script>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="/Images/bgFavicon.png" alt="ZenoPay Logo" class="logo-img" />
+        <h2>ZenoPay</h2>
+      </div>
+      <hr class="sidebar-divider" />
+      <% if(isLoggedIn && user) { %>
+      <div class="sidebar-qr-section">
+        <div class="qr-code-wrapper">
+          <% if (typeof qrCode !== 'undefined' && qrCode) { %>
+          <img src="<%= qrCode %>" alt="QR Code" class="qr-code-image" />
+          <img src="/Images/bgFavicon.png" alt="Logo" class="qr-logo-overlay" />
+          <% } %>
+        </div>
+        <div class="upi-id">
+          <i class="fas fa-mobile-alt"></i>
+          <span><%= user.ZenoPayID %></span>
+        </div>
+      </div>
+      <% } %>
+      <hr class="sidebar-divider" />
+      <nav class="sidebar-nav">
+        <ul>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>"
+          >
+            <a href="/">
+              <i class="fas fa-home"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'send-money') ? 'active' : '' %>"
+          >
+            <a href="/send-to">
+              <i class="fas fa-exchange-alt"></i>
+              <span>Send Money</span>
+            </a>
+          </li>
+          <li 
+           class="<%= (typeof currentPage !== 'undefined' && currentPage === 'Transaction-History') ? 'active' : '' %>">
+            <a href="/Transaction-History">
+              <i class="fas fa-credit-card"></i>
+              <span>Transaction History</span>
+            </a>
+          </li>
+          <li>
+            <a href="#analytics">
+              <i class="fas fa-chart-line"></i>
+              <span>Analytics</span>
+            </a>
+          </li>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>"
+          >
+            <a href="/notifications">
+              <i class="fas fa-bell"></i>
+              <span>Notifications</span>
+            </a>
+          </li>
+          <li
+            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>"
+          >
+            <a href="/Profile">
+              <i class="fas fa-user-circle"></i>
+              <span>Accounts</span>
+            </a>
+          </li>
+          <li>
+            <a href="#settings">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </aside>
+  </body>
+</html>

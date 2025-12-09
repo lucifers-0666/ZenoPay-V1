@@ -1,0 +1,25 @@
+<!-- Navigation Bar -->
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="mobile-logo">
+      <img
+        src="/Images/bgFavicon.png"
+        alt="ZenoPay Logo"
+        class="logo-img-mobile"
+      />
+      <h2>ZenoPay</h2>
+    </div>
+    <% if (isLoggedIn && user) { %>
+    <div class="welcome-message desktop-only">
+      <p>Welcome back, <strong><%= user.name %></strong></p>
+      <br />
+      <span class="current-time" id="currentTime"></span>
+    </div>
+    <% } %>
+  </div>
+  <div class="navbar-right">
+    <div class="notification-wrapper" id="notificationWrapper">
+      <!-- Notification dropdown will be created dynamically by JavaScript -->
+    </div>
+  </div>
+</nav>

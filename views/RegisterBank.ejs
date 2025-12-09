@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bank Registration - ZenoPay</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .registration-container {
+        padding: 2rem;
+        min-height: calc(100vh - 80px);
+      }
+
+      .registration-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--primary-dark) 100%
+        );
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px var(--shadow-lg);
+        color: var(--white);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+      }
+
+      .registration-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(234, 216, 192, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
+
+      .registration-header h1 {
+        position: relative;
+        z-index: 2;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .registration-header p {
+        position: relative;
+        z-index: 2;
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .registration-form-section {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 25px var(--shadow);
+        margin-bottom: 2rem;
+      }
+
+      .form-section-title {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .form-section-title i {
+        color: var(--primary-blue);
+      }
+
+      .form-section-subtitle {
+        color: var(--text-light);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .form-label i {
+        color: var(--primary-blue);
+        font-size: 0.85rem;
+      }
+
+      .required {
+        color: var(--danger);
+      }
+
+      .form-input,
+      .form-select {
+        padding: 0.9rem 1rem;
+        border: 2px solid var(--light-cream);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+        color: var(--text-dark);
+        font-family: inherit;
+      }
+
+      .form-input:focus,
+      .form-select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(69, 104, 130, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-light);
+        opacity: 0.7;
+      }
+
+      .form-input.error,
+      .form-select.error {
+        border-color: var(--danger);
+      }
+
+      .error-message {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        display: none;
+      }
+
+      .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 0.9rem 2rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-blue) 0%,
+          var(--primary-dark) 100%
+        );
+        color: var(--white);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(69, 104, 130, 0.3);
+      }
+
+      .btn-secondary {
+        background: var(--light-cream);
+        color: var(--text-dark);
+      }
+
+      .btn-secondary:hover {
+        background: var(--accent-beige);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .success-message {
+        background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+        color: var(--white);
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .success-message.show {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .success-message i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .success-message h3 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .success-message p {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      .info-card {
+        background: linear-gradient(
+          135deg,
+          rgba(69, 104, 130, 0.1) 0%,
+          rgba(234, 216, 192, 0.1) 100%
+        );
+        border-left: 4px solid var(--primary-blue);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+      }
+
+      .info-card h4 {
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .info-card p {
+        color: var(--text-dark);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .registration-container {
+          padding: 1rem;
+        }
+
+        .registration-header {
+          padding: 2rem 1.5rem;
+        }
+
+        .registration-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .registration-form-section {
+          padding: 1.5rem;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .form-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <%- include('partials/header') %>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navigation Bar -->
+      <%- include('partials/navbar') %>
+
+      <div class="registration-container">
+        <!-- Registration Header -->
+        <div class="registration-header">
+          <h1>
+            <i class="fas fa-university"></i>
+            Bank Registration
+          </h1>
+          <p>Register your bank with ZenoPay network</p>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="registration-form-section">
+          <div class="info-card">
+            <h4><i class="fas fa-info-circle"></i> Important Information</h4>
+            <p>
+              Please ensure all bank details are accurate. Bank ID will be
+              automatically generated based on your bank name. This information
+              will be used to verify transactions and facilitate banking
+              operations.
+            </p>
+          </div>
+
+          <form
+            id="bankRegistrationForm"
+            data-loader-text="Registering Bank..."
+          >
+            <div class="form-section-title">
+              <i class="fas fa-building"></i>
+              Bank Details
+            </div>
+            <p class="form-section-subtitle">
+              Enter the complete bank information (Bank ID will be
+              auto-generated)
+            </p>
+
+            <div class="form-grid">
+              <!-- Bank Name -->
+              <div class="form-group full-width">
+                <label class="form-label">
+                  <i class="fas fa-university"></i>
+                  Bank Name <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="BankName"
+                  class="form-input"
+                  placeholder="Enter bank name (e.g., State Bank of India, HDFC Bank)"
+                  required
+                />
+                <span class="error-message">Bank name is required</span>
+                <small
+                  style="
+                    color: var(--text-light);
+                    font-size: 0.85rem;
+                    margin-top: 0.3rem;
+                  "
+                  >Bank ID will be auto-generated from capital letters (e.g.,
+                  SBI-1234567)</small
+                >
+              </div>
+
+              <!-- City -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-city"></i>
+                  City <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="City"
+                  class="form-input"
+                  placeholder="Enter city"
+                  required
+                />
+                <span class="error-message">City is required</span>
+              </div>
+
+              <!-- State -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-map-marked-alt"></i>
+                  State <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="State"
+                  class="form-input"
+                  placeholder="Enter state"
+                  required
+                />
+                <span class="error-message">State is required</span>
+              </div>
+
+              <!-- Pincode -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-map-pin"></i>
+                  Pincode <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="Pincode"
+                  class="form-input"
+                  placeholder="Enter 6-digit pincode"
+                  pattern="[0-9]{6}"
+                  maxlength="6"
+                  required
+                />
+                <span class="error-message"
+                  >Valid 6-digit pincode is required</span
+                >
+              </div>
+
+              <!-- Bank Phone -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-phone"></i>
+                  Bank Phone <span class="required">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="BankPhone"
+                  class="form-input"
+                  placeholder="Enter bank phone number"
+                  pattern="[0-9]{10}"
+                  maxlength="10"
+                  required
+                />
+                <span class="error-message"
+                  >Valid 10-digit phone number is required</span
+                >
+              </div>
+
+              <!-- Bank Email -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-envelope"></i>
+                  Bank Email <span class="required">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="BankEmail"
+                  class="form-input"
+                  placeholder="Enter bank email"
+                  required
+                />
+                <span class="error-message">Valid email is required</span>
+              </div>
+
+              <!-- Manager Name -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-user-tie"></i>
+                  Manager Name <span class="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="ManagerName"
+                  class="form-input"
+                  placeholder="Enter manager name"
+                  required
+                />
+                <span class="error-message">Manager name is required</span>
+              </div>
+
+              <!-- Manager Mobile -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-mobile-alt"></i>
+                  Manager Mobile <span class="required">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="ManagerMobile"
+                  class="form-input"
+                  placeholder="Enter manager mobile"
+                  pattern="[0-9]{10}"
+                  maxlength="10"
+                  required
+                />
+                <span class="error-message"
+                  >Valid 10-digit mobile number is required</span
+                >
+              </div>
+            </div>
+
+            <div class="form-buttons">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="window.history.back()"
+              >
+                <i class="fas fa-times"></i>
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i>
+                Register Bank
+              </button>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <h3>Bank Registered Successfully!</h3>
+            <p>The bank has been added to the ZenoPay network.</p>
+            <p
+              id="generatedBankId"
+              style="margin-top: 1rem; font-weight: 600"
+            ></p>
+            <p style="margin-top: 0.5rem">Redirecting to dashboard...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Footer Navigation -->
+      <footer class="mobile-footer">
+        <nav class="footer-nav">
+          <a href="/dashboard" class="footer-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+          <a href="/transfer-money" class="footer-nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transfer</span>
+          </a>
+          <a href="/profile" class="footer-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="/notifications" class="footer-nav-item">
+            <i class="fas fa-bell"></i>
+            <span>Alerts</span>
+          </a>
+          <a href="/shop" class="footer-nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Shop</span>
+          </a>
+        </nav>
+      </footer>
+
+      <script src="/js/header.js"></script>
+      <script>
+        // Form validation
+        function validateForm() {
+          const form = document.getElementById("bankRegistrationForm");
+          const inputs = form.querySelectorAll("input[required]");
+          let valid = true;
+
+          inputs.forEach((input) => {
+            const errorMsg =
+              input.parentElement.querySelector(".error-message");
+
+            if (!input.value.trim()) {
+              input.classList.add("error");
+              if (errorMsg) errorMsg.style.display = "block";
+              valid = false;
+            } else if (input.type === "email" && !validateEmail(input.value)) {
+              input.classList.add("error");
+              if (errorMsg) errorMsg.style.display = "block";
+              valid = false;
+            } else if (
+              input.pattern &&
+              !new RegExp(input.pattern).test(input.value)
+            ) {
+              input.classList.add("error");
+              if (errorMsg) errorMsg.style.display = "block";
+              valid = false;
+            } else {
+              input.classList.remove("error");
+              if (errorMsg) errorMsg.style.display = "none";
+            }
+          });
+
+          return valid;
+        }
+
+        // Email validation
+        function validateEmail(email) {
+          return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+        }
+
+        // Form submission
+        document
+          .getElementById("bankRegistrationForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            // Validate form
+            if (!validateForm()) {
+              return;
+            }
+
+            // Loader is automatically shown by Loader.js due to form submission event
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch("/bank-branches", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  // Hide form and show success message
+                  document.getElementById(
+                    "bankRegistrationForm"
+                  ).style.display = "none";
+                  document.querySelector(".info-card").style.display = "none";
+                  const successMsg = document.getElementById("successMessage");
+
+                  // Display generated Bank ID
+                  if (data.bankId) {
+                    document.getElementById("generatedBankId").textContent =
+                      "Bank ID: " + data.bankId;
+                  }
+
+                  successMsg.classList.add("show");
+
+                  // Redirect to dashboard after 3 seconds
+                  setTimeout(() => {
+                    window.location.href = "/";
+                  }, 3000);
+                } else {
+                  alert(
+                    "Registration failed: " +
+                      (data.message || "Please try again")
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                alert("Registration failed. Please try again.");
+              });
+          });
+
+        // Remove error on input
+        document
+          .querySelectorAll(".form-input, .form-select")
+          .forEach((input) => {
+            input.addEventListener("input", function () {
+              this.classList.remove("error");
+              const errorMsg =
+                this.parentElement.querySelector(".error-message");
+              if (errorMsg) errorMsg.style.display = "none";
+            });
+          });
+
+        // Auto-format phone numbers
+        document.querySelectorAll('input[type="tel"]').forEach((input) => {
+          input.addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+          });
+        });
+
+        // Auto-format pincode
+        document
+          .querySelector('input[name="Pincode"]')
+          .addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+          });
+      </script>
+    </main>
+  </body>
+</html>

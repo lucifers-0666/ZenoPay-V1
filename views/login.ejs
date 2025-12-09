@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay - Login</title>
+    <link rel="stylesheet" href="/css/login.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="/js/Loader.js"></script>
+  </head>
+  <body class="login-body">
+    <!-- Sidebar -->
+    <%- include('partials/header') %>
+
+    <!-- Main Content Area -->
+    <div class="login-main-content">
+      <!-- Video Background -->
+      <div class="video-background">
+        <video autoplay muted loop playsinline class="bg-video">
+          <source src="/Video/zeno1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay-login"></div>
+      </div>
+
+      <!-- Login Container -->
+      <div class="login-container">
+        <!-- Login Card -->
+        <div class="login-card">
+          <!-- Login Form -->
+          <form onsubmit="handleLogin(event)" class="login-form">
+            <!-- User ID -->
+            <div class="form-group">
+              <label for="userId">
+                <i class="fas fa-user"></i> ZenoPay / Email Id
+              </label>
+              <input
+                type="text"
+                id="userId"
+                name="userId"
+                class="form-control"
+                placeholder="Enter Aadhaar Number"
+                required
+              />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label for="password">
+                <i class="fas fa-lock"></i> Password
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  onclick="togglePassword()"
+                  class="password-toggle"
+                >
+                  <i id="eyeIcon" class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="form-options">
+              <div class="remember-me">
+                <input type="checkbox" id="remember" />
+                <label for="remember">Remember me</label>
+              </div>
+              <a href="#" class="forgot-link">Forgot Password?</a>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" id="btnLogin" class="btn-login">
+              <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="divider">
+            <span>Don't have an account?</span>
+          </div>
+
+          <!-- Register Button -->
+          <a href="/register-zenopay" class="btn-register">
+            <i class="fas fa-user-plus"></i> Register New Account
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+          <div class="footer-links">
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const eyeIcon = document.getElementById("eyeIcon");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          eyeIcon.classList.remove("fa-eye");
+          eyeIcon.classList.add("fa-eye-slash");
+        } else {
+          passwordInput.type = "password";
+          eyeIcon.classList.remove("fa-eye-slash");
+          eyeIcon.classList.add("fa-eye");
+        }
+      }
+
+      function showToast(message, type) {
+        // Remove existing toasts
+        const existingToast = document.querySelector(".toast");
+        if (existingToast) {
+          existingToast.remove();
+        }
+
+        // Create toast element
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+          <i class="fas ${
+            type === "success" ? "fa-check-circle" : "fa-exclamation-circle"
+          }"></i>
+          <div class="toast-content">
+            <p>${message}</p>
+          </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          toast.style.animation = "slideOutRight 0.4s ease";
+          setTimeout(() => toast.remove(), 400);
+        }, 3000);
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+
+        const userId = document.getElementById("userId").value;
+        const password = document.getElementById("password").value;
+        const btn = document.getElementById("btnLogin");
+        const originalContent = btn.innerHTML;
+
+        // Show loader
+        ZenoPayLoader.show("Authenticating...");
+
+        // Loading State
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Authenticating...';
+
+        try {
+          const response = await fetch("/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId, password }),
+            showLoader: false, // Prevent double loader from fetch interceptor
+          });
+
+          const data = await response.json();
+
+          ZenoPayLoader.hide();
+
+          if (response.ok && data.success) {
+            showToast(data.message, "success");
+            // Show success loader before redirect
+            ZenoPayLoader.show("Login Successful! Redirecting...");
+            setTimeout(() => {
+              window.location.href = "/"; // Redirect to Home/Dashboard
+            }, 1000);
+          } else {
+            showToast(data.message || "Invalid Login Credentials", "error");
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+          }
+        } catch (error) {
+          ZenoPayLoader.hide();
+          console.error("Login Error:", error);
+          showToast("Server Connection Failed", "error");
+          btn.disabled = false;
+          btn.innerHTML = originalContent;
+        }
+      }
+    </script>
+  </body>
+</html>

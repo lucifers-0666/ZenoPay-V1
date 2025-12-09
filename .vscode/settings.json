@@ -1,0 +1,43 @@
+{
+  // Stop VS Code from watching heavy folders
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/tmp/**": true
+  },
+
+  // Exclude folders from search to improve speed
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/tmp": true,
+    "**/coverage": true
+  },
+
+  // Boost memory for JavaScript & TypeScript IntelliSense
+  "typescript.tsserver.maxTsServerMemory": 4096,
+
+  // Reduce IntelliSense load
+  "javascript.suggestionActions.enabled": false,
+  "typescript.suggestionActions.enabled": false,
+
+  // Stop format on every save (heavy for larger files)
+  "editor.formatOnSave": false,
+
+  // Disable breadcrumbs (small speed boost)
+  "breadcrumbs.enabled": false,
+
+  // Disable semantic highlighting (very heavy)
+  "editor.semanticHighlighting.enabled": false,
+
+  // Git features slow down large repos — disable if not needed
+  "git.enabled": false,
+  "git.autorefresh": false,
+
+  // Disable minimap to improve scrolling FPS
+  "editor.minimap.enabled": false
+}
