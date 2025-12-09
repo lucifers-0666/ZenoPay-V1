@@ -15,10 +15,8 @@ const MerchantController = require("../Controllers/Merchant");
 const GatewayController = require("../Controllers/Gateway");
 const ShopController = require("../Controllers/Shop");
 const NotificationController = require("../Controllers/Notifications");
-<<<<<<< HEAD
+
 const TransactionInfoController = require("../Controllers/TransactionHistory");
-=======
->>>>>>> e2e4d6ac579ef09d8e8ef8c82b490b63e3b85cc8
 
 // Multer Setup
 const storage = multer.diskStorage({
@@ -112,10 +110,7 @@ router.get(
   NotificationController.deleteReadNotifications
 );
 
-<<<<<<< HEAD
-
 // Transaction History
 router.get("/Transaction-History", TransactionInfoController.getTransactionHistory);
-=======
->>>>>>> e2e4d6ac579ef09d8e8ef8c82b490b63e3b85cc8
+
 module.exports = router;
