@@ -9,17 +9,50 @@
       />
       <h2>ZenoPay</h2>
     </div>
+
     <% if (isLoggedIn && user) { %>
-    <div class="welcome-message desktop-only">
-      <p>Welcome back, <strong><%= user.name %></strong></p>
-      <br />
-      <span class="current-time" id="currentTime"></span>
-    </div>
+      <!-- Logged-in User -->
+      <div class="welcome-message desktop-only">
+        <p>Welcome back, <strong><%= user.name %></strong> 👋</p>
+      </div>
+    <% } else { %>
+      <!-- Guest User -->
+      <div class="guest-nav-content">
+        <div class="guest-tagline">
+          <i class="fas fa-rocket"></i>
+          <span>Experience <strong>Seamless Payments</strong> with ZenoPay</span>
+        </div>
+        <div class="guest-nav-cta">
+          <a href="/register-zenopay" class="btn-nav-primary">
+            <i class="fas fa-user-plus"></i>
+            <span>Get Started Free</span>
+          </a>
+          <a href="/login" class="btn-nav-secondary">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
     <% } %>
   </div>
+
   <div class="navbar-right">
+    <% if (!isLoggedIn) { %>
+      <!-- Guest Mobile CTA Buttons -->
+      <div class="guest-mobile-cta">
+        <a href="/register-zenopay" class="btn-nav-primary" title="Get Started">
+          <i class="fas fa-user-plus"></i>
+          <span>Sign Up</span>
+        </a>
+        <a href="/login" class="btn-nav-secondary" title="Login">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Login</span>
+        </a>
+      </div>
+    <% } %>
+    
     <div class="notification-wrapper" id="notificationWrapper">
-      <!-- Notification dropdown will be created dynamically by JavaScript -->
+      <!-- Notification dropdown (only for logged-in users via JS) -->
     </div>
   </div>
 </nav>

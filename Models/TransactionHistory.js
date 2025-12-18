@@ -49,7 +49,7 @@ const TransactionHistorySchema = new mongoose.Schema({
   },
   ReceiverBalanceAfter: {
     type: mongoose.Types.Decimal128,
-    required: true,
+    required: false,
   },
   Amount: {
     type: mongoose.Types.Decimal128,
@@ -58,6 +58,11 @@ const TransactionHistorySchema = new mongoose.Schema({
   Description: {
     type: String,
     required: true,
+  },
+  Status: {
+    type: String,
+    enum: ["success", "failed", "pending"],
+    default: "success",
   },
 });
 

@@ -96,24 +96,7 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     required: true,
   },
 
-  BusinessName: {
-    type: String,
-    required: false,
-  },
 
-  api_key: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-  },
-
-  api_secret: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-  },
 });
 
 module.exports = mongoose.model("ZenoPayDetails", ZenoPayDetailsSchema);

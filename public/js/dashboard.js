@@ -1,6 +1,5 @@
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function () {
-  initializeTime();
   initializeNotifications();
   initializeSidebar();
   initializeAnimations();
@@ -8,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeActionButtons();
 });
 // Update current time
-function initializeTime() {
+/*function initializeTime() {
   const timeElement = document.getElementById("currentTime");
   function updateTime() {
     const now = new Date();
@@ -24,9 +23,9 @@ function initializeTime() {
   }
 
   updateTime();
-  setInterval(updateTime, 60000); // Update every minute
+  setInterval(updateTime, 60000); 
 }
-
+*/
 // Notification functionality
 function initializeNotifications() {
   const notificationBtn = document.getElementById("notificationBtn");
@@ -166,6 +165,11 @@ function initializeActionButtons() {
   const actionBtns = document.querySelectorAll(".action-btn");
   if (actionBtns.length > 0) {
     actionBtns.forEach((btn) => {
+      // Skip if button is an anchor tag with href
+      if (btn.tagName === 'A' && btn.hasAttribute('href')) {
+        return;
+      }
+      
       btn.addEventListener("click", function () {
         const action = this.querySelector("span")?.textContent;
         if (action) {
@@ -356,15 +360,20 @@ function initializeFooterNav() {
 }
 
 // Handle window resize
-let resizeTimer;
-window.addEventListener("resize", function () {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(function () {
-    // Reset sidebar on desktop view
-    if (window.innerWidth > 768) {
-      document.querySelector(".sidebar").classList.remove("active");
-    }
-  }, 250);
-});
+(function() {
+  let resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      // Reset sidebar on desktop view
+      if (window.innerWidth > 768) {
+        const sidebar = document.querySelector(".sidebar");
+        if (sidebar) {
+          sidebar.classList.remove("active");
+        }
+      }
+    }, 250);
+  });
+})();
 
 console.log("ZenoPay Dashboard initialized successfully!");

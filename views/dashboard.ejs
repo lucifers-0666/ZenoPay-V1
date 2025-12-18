@@ -20,60 +20,93 @@
       <!-- Navigation Bar -->
       <%- include('partials/navbar') %>
 
-      <!-- Hero Section with Video -->
-      <section class="hero-section">
-        <div class="video-container">
-          <video autoplay muted loop playsinline class="hero-video">
-            <source src="/Video/zeno1.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div class="video-overlay"></div>
-        </div>
-        <div class="hero-content">
-          <h1 class="hero-title">Your Financial Dashboard</h1>
-          <p class="hero-subtitle">
-            Manage your payments seamlessly with ZenoPay
-          </p>
-          <div class="hero-stats">
-            <div class="stat-card">
-              <i class="fas fa-dollar-sign"></i>
-              <div class="stat-info">
-                <h3>$45,231</h3>
-                <p>Total Balance</p>
+      <% if (isLoggedIn) { %>
+        <!-- Logged In User Hero Section -->
+        <section class="hero-section">
+          <div class="video-container">
+            <video autoplay muted loop playsinline class="hero-video">
+              <source src="/Video/zeno1.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div class="video-overlay"></div>
+          </div>
+          <div class="hero-content">
+            <h1 class="hero-title">Welcome back, <%= user.Name || 'User' %>!</h1>
+            <p class="hero-subtitle">
+              Manage your payments seamlessly with ZenoPay
+            </p>
+          </div>
+        </section>
+      <% } else { %>
+        <!-- Guest User Hero Section -->
+        <section class="hero-section guest-hero">
+          <div class="video-container">
+            <video autoplay muted loop playsinline class="hero-video">
+              <source src="/Video/zeno1.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div class="video-overlay"></div>
+          </div>
+          <div class="hero-content guest-content">
+            <div class="guest-welcome">
+              <h1 class="hero-title animated-title">Your Financial Freedom Starts Here</h1>
+              <p class="hero-subtitle animated-subtitle">
+                Experience seamless payments, secure transactions, and complete financial control
+              </p>
+              <div class="cta-buttons">
+                <a href="/register-zenopay" class="btn-primary pulse">
+                  <i class="fas fa-user-plus"></i> Join ZenoPay Now
+                </a>
+                <a href="/login" class="btn-secondary">
+                  <i class="fas fa-sign-in-alt"></i> Login
+                </a>
               </div>
             </div>
-            <div class="stat-card">
-              <i class="fas fa-arrow-up"></i>
-              <div class="stat-info">
-                <h3>+23%</h3>
-                <p>This Month</p>
+            
+            <!-- Guest Stats -->
+            <div class="hero-stats guest-stats">
+              <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="stat-info">
+                  <h3>10,000+</h3>
+                  <p>Active Users</p>
+                </div>
               </div>
-            </div>
-            <div class="stat-card">
-              <i class="fas fa-users"></i>
-              <div class="stat-info">
-                <h3>1,234</h3>
-                <p>Active Users</p>
+              <div class="stat-card">
+                <i class="fas fa-shield-alt"></i>
+                <div class="stat-info">
+                  <h3>100%</h3>
+                  <p>Secure</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-bolt"></i>
+                <div class="stat-info">
+                  <h3>Instant</h3>
+                  <p>Transfers</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      <% } %>
 
       <!-- Dashboard Cards -->
       <section class="dashboard-content">
-        <div class="content-header">
-          <h2>Overview</h2>
-        </div>
+        <% if (isLoggedIn) { %>
+          <!-- Logged In User Dashboard -->
+          <div class="content-header">
+            <h2>Overview</h2>
+          </div>
 
-        <div class="cards-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>Recent Transactions</h3>
-              <button class="btn-link">View All</button>
-            </div>
-            <div class="card-body">
-              <div class="transaction-item">
+          <div class="cards-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Recent Transactions</h3>
+                <a href="/Transaction-History" class="btn-link">View All</a>
+              </div>
+              <div class="card-body">
+                <div class="transaction-item">
                 <div class="transaction-icon success">
                   <i class="fas fa-arrow-down"></i>
                 </div>
@@ -148,28 +181,197 @@
             </div>
             <div class="card-body">
               <div class="quick-actions">
-                <button class="action-btn">
+                <a href="/Transfer-Money" class="action-btn">
                   <i class="fas fa-paper-plane"></i>
                   <span>Send Money</span>
-                </button>
-                <button class="action-btn">
-                  <i class="fas fa-download"></i>
+                </a>
+                <a href="/profile" class="action-btn">
+                  <i class="fas fa-qrcode"></i>
                   <span>Request</span>
-                </button>
-                <button class="action-btn">
-                  <i class="fas fa-file-invoice"></i>
-                  <span>Invoice</span>
-                </button>
-                <button class="action-btn">
+                </a>
+                <a href="/Transaction-History" class="action-btn">
                   <i class="fas fa-history"></i>
                   <span>History</span>
-                </button>
+                </a>
+                <a href="/Banks" class="action-btn">
+                  <i class="fas fa-university"></i>
+                  <span>Banks</span>
+                </a>
               </div>
             </div>
           </div>
         </div>
+        <% } else { %>
+          <!-- Guest User Features Section -->
+          <div class="guest-features">
+            <div class="features-header">
+              <h2>Why Choose ZenoPay?</h2>
+              <p>Join thousands who trust us for their financial needs</p>
+            </div>
 
-        <!-- Additional Banking Features -->
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Instant Transfers</h3>
+                <p>Send and receive money instantly with zero delays. Your transactions are processed in real-time.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Bank-Level Security</h3>
+                <p>Your money and data are protected with military-grade encryption and advanced security protocols.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile First</h3>
+                <p>Access your account anywhere, anytime. Our mobile-optimized platform works seamlessly on all devices.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-percent"></i>
+                </div>
+                <h3>Zero Fees</h3>
+                <p>No hidden charges, no monthly fees. Keep more of your money with our transparent pricing.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-qrcode"></i>
+                </div>
+                <h3>QR Payments</h3>
+                <p>Pay anyone instantly by scanning their QR code. Simple, fast, and secure.</p>
+              </div>
+
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-headset"></i>
+                </div>
+                <h3>24/7 Support</h3>
+                <p>Our dedicated support team is always here to help you with any questions or concerns.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- How It Works Section -->
+          <div class="how-it-works">
+            <div class="section-title">
+              <h2>Get Started in 3 Simple Steps</h2>
+            </div>
+            <div class="steps-container">
+              <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <h3>Create Account</h3>
+                <p>Sign up in minutes with just your basic details. No paperwork required.</p>
+              </div>
+
+              <div class="step-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+
+              <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                  <i class="fas fa-university"></i>
+                </div>
+                <h3>Link Your Bank</h3>
+                <p>Securely connect your bank account or add money to your ZenoPay wallet.</p>
+              </div>
+
+              <div class="step-arrow">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+
+              <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                  <i class="fas fa-rocket"></i>
+                </div>
+                <h3>Start Transacting</h3>
+                <p>Send money, pay bills, and manage your finances with ease.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonials Section -->
+          <div class="testimonials-section">
+            <div class="section-title">
+              <h2>What Our Users Say</h2>
+            </div>
+            <div class="testimonials-grid">
+              <div class="testimonial-card">
+                <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p>"ZenoPay has made managing my finances so much easier. The instant transfers are a game-changer!"</p>
+                <div class="testimonial-author">
+                  <strong>Priya Sharma</strong>
+                  <span>Freelancer</span>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p>"The security features give me peace of mind. I trust ZenoPay with all my transactions."</p>
+                <div class="testimonial-author">
+                  <strong>Rahul Patel</strong>
+                  <span>Business Owner</span>
+                </div>
+              </div>
+
+              <div class="testimonial-card">
+                <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p>"Simple, fast, and reliable. ZenoPay is exactly what I needed for my daily transactions."</p>
+                <div class="testimonial-author">
+                  <strong>Anjali Verma</strong>
+                  <span>Student</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Section -->
+          <div class="cta-section">
+            <div class="cta-content">
+              <h2>Ready to Experience Financial Freedom?</h2>
+              <p>Join ZenoPay today and take control of your finances</p>
+              <div class="cta-buttons">
+                <a href="/register-zenopay" class="btn-primary large">
+                  <i class="fas fa-rocket"></i> Get Started Free
+                </a>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (isLoggedIn) { %>
+        <!-- Additional Banking Features (Logged In Only) -->
         <div class="section-title">
           <h2>Banking Services</h2>
         </div>
@@ -237,7 +439,7 @@
           </div>
         </div>
 
-        <!-- Loans & Insurance Section -->
+        <!-- Loans & Insurance Section (Logged In Only) -->
         <div class="section-title">
           <h2>Financial Products</h2>
         </div>
@@ -334,34 +536,11 @@
             </div>
           </div>
         </div>
+        <% } %>
       </section>
     </main>
 
-    <!-- Mobile Footer Navigation -->
-    <footer class="mobile-footer">
-      <nav class="footer-nav">
-        <a href="#dashboard" class="footer-nav-item active">
-          <i class="fas fa-home"></i>
-          <span>Home</span>
-        </a>
-        <a href="#transactions" class="footer-nav-item">
-          <i class="fas fa-exchange-alt"></i>
-          <span>Transactions</span>
-        </a>
-        <a href="#payments" class="footer-nav-item">
-          <i class="fas fa-credit-card"></i>
-          <span>Payments</span>
-        </a>
-        <a href="#analytics" class="footer-nav-item">
-          <i class="fas fa-chart-line"></i>
-          <span>Analytics</span>
-        </a>
-        <a href="#settings" class="footer-nav-item">
-          <i class="fas fa-cog"></i>
-          <span>Settings</span>
-        </a>
-      </nav>
-    </footer>
+<%- include('partials/MobileNav') %>
 
     <script src="/js/dashboard.js"></script>
   </body>

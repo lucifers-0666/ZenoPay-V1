@@ -4,34 +4,41 @@ const multer = require("multer");
 const path = require("path");
 
 // Controllers
-const AadharController = require("../Controllers/ZenoPay");
+const ZenoPayController = require("../Controllers/ZenoPay");
 const BankController = require("../Controllers/BankAccount");
 const BranchController = require("../Controllers/BankController");
 const LoginController = require("../Controllers/login");
 const TransferController = require("../Controllers/TransferMoney");
 const ProfileController = require("../Controllers/Profile");
 const DashboardController = require("../Controllers/Dashboard");
-const MerchantController = require("../Controllers/Merchant");
-const GatewayController = require("../Controllers/Gateway");
+const MerchantController = require("../Controllers/MerchantController");
+const GatewayController = require("../Controllers/PayGateway");
 const ShopController = require("../Controllers/Shop");
 const NotificationController = require("../Controllers/Notifications");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
-// Multer Setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let folder = "public/Uploads";
-    if (req.originalUrl.includes("register-aadhar"))
-      folder = "public/AadharImages";
-    cb(null, folder);
+// Multer Setup for Azure Blob Storage
+// Use memory storage to upload directly to Azure instead of saving to disk
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB file size limit
   },
-  filename: (req, file, cb) => {
-    const unique = Date.now() + path.extname(file.originalname);
-    cb(null, unique);
-  },
+  fileFilter: (req, file, cb) => {
+    // Only allow image files
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed!"));
+    }
+  }
 });
-const upload = multer({ storage });
 
 // --- ROUTES ---
 
@@ -44,24 +51,20 @@ router.get("/profile", ProfileController.getProfile);
 router.get("/shop", ShopController.getShop);
 
 // Merchant
-router.get("/merchant/api-keys", MerchantController.getCreateApiKeyPage);
-router.post("/merchant/generate-keys", MerchantController.generateKeys);
-
-// Gateway
-router.post("/gateway/create-order", GatewayController.createOrder);
-router.post("/gateway/refund", GatewayController.processRefund);
-router.post("/gateway/send-otp", GatewayController.sendAadhaarOtp);
-router.post("/gateway/verify-otp", GatewayController.verifyOtpAndFetchAccounts);
-router.post("/pay/process", GatewayController.processPayment);
+router.get("/api-integration", MerchantController.getApiKeyPage);
+router.post("/api/merchant/register", MerchantController.registerMerchant);
+router.post("/api/merchant/regenerate-keys", MerchantController.regenerateApiKeys);
+router.post("/api/merchant/settings", MerchantController.updateMerchantSettings);
+router.get("/api/merchant/stats", MerchantController.getMerchantStats);
 
 // Services
-router.get("/register-zenopay", AadharController.getRegisterZenoPay);
+router.get("/register-zenopay", ZenoPayController.getRegisterZenoPay);
 router.post(
   "/register-zenopay",
   upload.single("ImagePath"),
-  AadharController.postRegisterZenoPay
+  ZenoPayController.postRegisterZenoPay
 );
-router.post("/verify-zenopayId", AadharController.VerifyZenoPayId);
+router.post("/verify-zenopayId", ZenoPayController.VerifyZenoPayId);
 
 // Banking
 router.get("/open-account", BankController.getOpenAccount);
@@ -100,7 +103,7 @@ router.get(
   "/api/notifications/recent",
   NotificationController.getRecentNotifications
 );
-router.post("/api/notifications/mark-read", NotificationController.markAsRead);
+router.post("/api/notifications/mark-all-read", NotificationController.markAsRead);
 router.get(
   "/notifications/mark-all-read",
   NotificationController.markAllAsRead
@@ -113,4 +116,16 @@ router.get(
 // Transaction History
 router.get("/Transaction-History", TransactionInfoController.getTransactionHistory);
 
+// Payment Gateway API (for merchant integrations)
+router.post("/api/orders", GatewayController.verifyMerchant, GatewayController.createOrder);
+router.post("/api/payments/verify", GatewayController.verifyMerchant, GatewayController.verifyPayment);
+
+// Original ZenoPay APIs
+router.post("/api/payment/initiate", GatewayController.verifyMerchant, GatewayController.initiatePayment);
+router.post("/api/payment/process", GatewayController.verifyMerchant, GatewayController.processPayment);
+router.post("/api/payment/verify-customer", GatewayController.verifyCustomer);
+router.post("/api/payment/send-otp", GatewayController.sendPaymentOTP);
+router.get("/api/payment/status", GatewayController.getPaymentStatus);
+router.get("/api/payment/sdk-config", GatewayController.getSDKConfig);
+router.post("/api/payment/refund", GatewayController.verifyMerchant, GatewayController.processRefund);
 module.exports = router;

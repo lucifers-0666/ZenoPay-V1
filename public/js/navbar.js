@@ -157,7 +157,10 @@
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) {
+        console.error(`Error loading notifications: HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       const data = await response.json();
       if (data.success && data.notifications?.length > 0) {
@@ -167,6 +170,7 @@
           '<div class="empty-notification"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
       }
     } catch (error) {
+      console.error("Error in loadNotifications:", error);
       if (error.name === "AbortError") {
         elements.list.innerHTML =
           '<div class="error-notification"><i class="fas fa-exclamation-circle"></i><p>Request timeout</p></div>';
@@ -264,6 +268,17 @@
 
     if (!elements.list) return false;
 
+    // Check if there are any unread notifications
+    const unreadItems = elements.list.querySelectorAll('.notification-item.unread');
+    const hasUnread = unreadItems.length > 0;
+
+    if (!hasUnread) {
+      // Show message that all notifications are already read
+      elements.list.innerHTML =
+        '<div class="empty-notification"><i class="fas fa-check-circle"></i><p>All notifications are already read</p></div>';
+      return false;
+    }
+
     elements.list.innerHTML =
       '<div class="loading-notification"><i class="fas fa-spinner fa-spin"></i><p>Marking as read...</p></div>';
 
@@ -277,19 +292,23 @@
         showLoader: false,
       });
 
+      if (!response.ok) {
+        console.error(`Mark all as read failed: HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       const data = await response.json();
       if (data.success) {
+        // Update count and reload notifications
         await loadNotificationCount();
         await loadNotifications();
-
-        if (typeof ZenoAlert !== "undefined") {
-          ZenoAlert.success("Success", "All notifications marked as read");
-        }
       } else {
+        console.error('Mark all as read failed:', data);
         elements.list.innerHTML =
           '<div class="error-notification"><i class="fas fa-exclamation-circle"></i><p>Failed to mark as read</p></div>';
       }
     } catch (error) {
+      console.error('Error in markAllAsRead:', error);
       elements.list.innerHTML =
         '<div class="error-notification"><i class="fas fa-exclamation-circle"></i><p>An error occurred</p></div>';
     }

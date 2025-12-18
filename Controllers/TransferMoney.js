@@ -127,7 +127,7 @@ const postTransferMoney = async (req, res) => {
       });
     }
 
-    const currentBalance = parseFloat(sender.OpeningBalance.toString());
+    const currentBalance = parseFloat(sender.Balance.toString());
     if (currentBalance < transferAmount) {
       return res
         .status(400)
@@ -144,11 +144,11 @@ const postTransferMoney = async (req, res) => {
     }
 
     const senderNewBal = currentBalance - transferAmount;
-    const receiverCurrentBal = parseFloat(receiver.OpeningBalance.toString());
+    const receiverCurrentBal = parseFloat(receiver.Balance.toString());
     const receiverNewBal = receiverCurrentBal + transferAmount;
 
-    sender.OpeningBalance = senderNewBal;
-    receiver.OpeningBalance = receiverNewBal;
+    sender.Balance = senderNewBal;
+    receiver.Balance = receiverNewBal;
 
     await sender.save();
     await receiver.save();

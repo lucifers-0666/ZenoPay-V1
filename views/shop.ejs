@@ -1,151 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gadget World | Demo Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Shop - ZenoPay Integration</title>
     <style>
-        .product-card:hover { transform: translateY(-5px); }
-        .config-bar { background: #111827; color: white; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .product-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+      }
+
+      .product-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .product-image {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4em;
+        margin-bottom: 20px;
+      }
+
+      .product-title {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .product-description {
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .product-price {
+        font-size: 2em;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .buy-button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .buy-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .buy-button:active {
+        transform: scale(0.98);
+      }
+
+      .integration-info {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-top: 40px;
+      }
+
+      .integration-info h2 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .integration-info pre {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 0.9em;
+      }
+
+      .api-key-section {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .api-key-section h3 {
+        color: #856404;
+        margin-bottom: 10px;
+      }
+
+      .api-key {
+        background: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        word-break: break-all;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🛍️ Demo Shop</h1>
+        <p>Experience ZenoPay Payment Gateway Integration</p>
+      </div>
 
-    <!-- Config Bar -->
-    <div class="config-bar p-4 sticky top-0 z-40 shadow-lg">
-        <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2 text-yellow-400">
-                <i class="fas fa-server"></i>
-                <span class="font-bold text-sm tracking-wide">MERCHANT BACKEND SIMULATOR</span>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <div class="flex items-center gap-2 bg-gray-800 p-2 rounded-lg border border-gray-700 flex-1">
-                    <label class="text-[10px] text-gray-400 uppercase font-bold whitespace-nowrap">API Key</label>
-                    <input type="text" id="merchantKey" value="<%= prefillKey %>" placeholder="Public Key" 
-                        class="bg-transparent text-white text-xs w-full focus:outline-none font-mono">
-                </div>
-                <div class="flex items-center gap-2 bg-gray-800 p-2 rounded-lg border border-gray-700 flex-1">
-                    <label class="text-[10px] text-red-400 uppercase font-bold whitespace-nowrap">Secret</label>
-                    <input type="password" id="merchantSecret" placeholder="Secret Key" 
-                        class="bg-transparent text-white text-xs w-full focus:outline-none font-mono">
-                </div>
-            </div>
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="product-image">📱</div>
+          <h3 class="product-title">Smartphone X Pro</h3>
+          <p class="product-description">
+            Latest flagship smartphone with amazing features
+          </p>
+          <div class="product-price">₹45,999</div>
+          <button class="buy-button" onclick="buyProduct('Smartphone X Pro', 45999, 'ORD001')">
+            Buy Now
+          </button>
         </div>
-    </div>
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="bg-indigo-600 text-white w-8 h-8 rounded flex items-center justify-center font-bold shadow">G</div>
-                <h1 class="text-xl font-bold text-gray-800 tracking-tight">Gadget World</h1>
-            </div>
-            <div class="flex items-center gap-6">
-                <a href="#" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-search"></i></a>
-                <a href="#" class="text-gray-400 hover:text-indigo-600 relative">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">2</span>
-                </a>
-            </div>
+        <div class="product-card">
+          <div class="product-image">💻</div>
+          <h3 class="product-title">Laptop Ultra</h3>
+          <p class="product-description">
+            Powerful laptop for professionals and creators
+          </p>
+          <div class="product-price">₹89,999</div>
+          <button class="buy-button" onclick="buyProduct('Laptop Ultra', 89999, 'ORD002')">
+            Buy Now
+          </button>
         </div>
-    </nav>
 
-    <!-- Products Grid -->
-    <div class="container mx-auto px-4 py-12 flex-grow">
-        <h3 class="text-2xl font-bold text-gray-800 mb-8 border-l-4 border-indigo-600 pl-4">Latest Arrivals</h3>
+        <div class="product-card">
+          <div class="product-image">🎧</div>
+          <h3 class="product-title">Wireless Headphones</h3>
+          <p class="product-description">
+            Premium noise-cancelling wireless headphones
+          </p>
+          <div class="product-price">₹15,999</div>
+          <button class="buy-button" onclick="buyProduct('Wireless Headphones', 15999, 'ORD003')">
+            Buy Now
+          </button>
+        </div>
+      </div>
+
+      <div class="integration-info">
+        <div class="api-key-section">
+          <h3>⚠️ Test API Key (From your screenshot)</h3>
+          <div class="api-key">
+            <strong>API Key:</strong><br>
+            zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263
+          </div>
+        </div>
+
+        <h2>📘 Integration Guide</h2>
+        <p style="margin-bottom: 20px; color: #666;">
+          This is how merchants can integrate ZenoPay into their websites:
+        </p>
+
+        <h3 style="margin-top: 20px; margin-bottom: 10px;">🎯 Razorpay-Style Integration</h3>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            <!-- Product 1 -->
-            <div class="product-card bg-white rounded-xl shadow-sm hover:shadow-xl overflow-hidden transition-all duration-300 border border-gray-100 group">
-                <div class="h-56 bg-gray-50 flex items-center justify-center p-6 relative">
-                    <img src="https://placehold.co/300x300/e0e7ff/3730a3?text=Headphones" alt="Headphones" class="h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
-                    <span class="absolute top-4 right-4 bg-white text-indigo-600 text-xs font-bold px-2 py-1 rounded shadow-sm">NEW</span>
-                </div>
-                <div class="p-5">
-                    <p class="text-xs text-indigo-500 font-bold uppercase mb-1">Audio</p>
-                    <h4 class="text-lg font-bold text-gray-800 mb-1">Sonic Pro Wireless</h4>
-                    <p class="text-gray-500 text-xs mb-4">Active Noise Cancelling</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-xl font-bold text-gray-900">₹2,499</span>
-                        <button onclick="buyProduct(2499, 'Sonic Pro Wireless')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-indigo-200">
-                            Buy Now
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <h4 style="margin-top: 15px;">Step 1: Include Checkout Script</h4>
+        <pre>&lt;script src="https://your-zenopay-domain.com/js/checkout.js"&gt;&lt;/script&gt;</pre>
 
-            <!-- Product 2 -->
-            <div class="product-card bg-white rounded-xl shadow-sm hover:shadow-xl overflow-hidden transition-all duration-300 border border-gray-100 group">
-                <div class="h-56 bg-gray-50 flex items-center justify-center p-6 relative">
-                    <img src="https://placehold.co/300x300/e0e7ff/3730a3?text=Watch" alt="Watch" class="h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
-                </div>
-                <div class="p-5">
-                    <p class="text-xs text-indigo-500 font-bold uppercase mb-1">Wearables</p>
-                    <h4 class="text-lg font-bold text-gray-800 mb-1">FitPulse X1</h4>
-                    <p class="text-gray-500 text-xs mb-4">AMOLED Display & GPS</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-xl font-bold text-gray-900">₹4,999</span>
-                        <button onclick="buyProduct(4999, 'FitPulse X1')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-indigo-200">
-                            Buy Now
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h4 style="margin-top: 15px;">Step 2: Create Order (Server-side)</h4>
+        <pre>// On your server
+const order = await fetch('https://api.zenopay.com/api/orders', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'zpk_live_your_api_key'
+  },
+  body: JSON.stringify({
+    amount: 50000, // Amount in paise (₹500)
+    currency: 'INR',
+    receipt: 'order_rcptid_11'
+  })
+});</pre>
+
+        <h4 style="margin-top: 15px;">Step 3: Initialize Checkout (Client-side)</h4>
+        <pre>const options = {
+  key: 'zpk_live_your_api_key',
+  amount: order.amount,
+  currency: 'INR',
+  name: 'Your Business Name',
+  description: 'Product Description',
+  order_id: order.id,
+  handler: function (response) {
+    // Payment success
+    console.log(response.razorpay_payment_id);
+    console.log(response.razorpay_order_id);
+    console.log(response.razorpay_signature);
+  },
+  prefill: {
+    name: 'Customer Name',
+    email: 'customer@example.com',
+    contact: '9876543210'
+  },
+  theme: {
+    color: '#3399cc'
+  }
+};
+
+const zenopay = new ZenoPay({ key: options.key });
+zenopay.createPayment(options).open();</pre>
+
+        <h4 style="margin-top: 15px;">Step 4: Verify Payment (Server-side)</h4>
+        <pre>// Verify signature on your server
+const verified = await fetch('https://api.zenopay.com/api/payments/verify', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'zpk_live_your_api_key'
+  },
+  body: JSON.stringify({
+    razorpay_order_id: response.razorpay_order_id,
+    razorpay_payment_id: response.razorpay_payment_id,
+    razorpay_signature: response.razorpay_signature
+  })
+});</pre>
+
+        <h3 style="margin-top: 20px; margin-bottom: 10px;">Payment Methods Supported</h3>
+        <ul style="margin-left: 20px; color: #666; line-height: 2;">
+          <li>💳 Debit/Credit Card</li>
+          <li>📱 UPI / ZenoPay ID</li>
+          <li>📞 Mobile Number</li>
+          <li>📧 Email (Gmail)</li>
+        </ul>
+      </div>
     </div>
 
-    <!-- GovBank SDK Script -->
+    <!-- Load ZenoPay Checkout (Razorpay Style) -->
     <script src="/js/checkout.js"></script>
-
+    
     <script>
-        async function buyProduct(amount, product) {
-            // 1. Get Credentials (Developer Mode)
-            const key = document.getElementById('merchantKey').value.trim();
-            const secret = document.getElementById('merchantSecret').value.trim();
+      // Your API Key
+      const ZENOPAY_KEY = 'zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263';
 
-            if (!key || !secret) {
-                alert("Developer Error: Please enter API Key & Secret to simulate backend.");
-                window.scrollTo(0,0);
-                return;
+      // Function to handle product purchase (Razorpay Style)
+      async function buyProduct(productName, amount, orderId) {
+        try {
+          // Step 1: Create Order on Server (Razorpay style)
+          const orderResponse = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': ZENOPAY_KEY
+            },
+            body: JSON.stringify({
+              amount: amount, // Amount in INR
+              currency: 'INR',
+              receipt: orderId,
+              notes: {
+                productName: productName
+              }
+            })
+          });
+
+          if (!orderResponse.ok) {
+            const errorData = await orderResponse.json();
+            console.error('Order creation failed:', errorData);
+            alert('Failed to create order: ' + (errorData.error || 'Please try again.'));
+            return;
+          }
+
+          const order = await orderResponse.json();
+          console.log('Order created:', order);
+          
+          if (!order.id) {
+            alert('Failed to create order. Invalid response.');
+            return;
+          }
+
+          // Step 2: Initialize ZenoPay Checkout (Razorpay style)
+          const options = {
+            key: ZENOPAY_KEY,
+            amount: order.amount, // Amount in paise
+            currency: order.currency,
+            name: 'Demo Shop',
+            description: `Purchase of ${productName}`,
+            image: '', // Your logo URL
+            order_id: order.id,
+            handler: function (response) {
+              // Step 3: Payment Success Handler
+              console.log('Payment Response:', response);
+              
+              // Verify payment on server
+              verifyPayment(response);
+            },
+            prefill: {
+              name: '',
+              email: '',
+              contact: ''
+            },
+            notes: {
+              productName: productName
+            },
+            theme: {
+              color: '#667eea'
+            },
+            modal: {
+              ondismiss: function() {
+                console.log('Payment cancelled by user');
+              }
             }
+          };
 
-            // 2. Initialize SDK
-            const govBank = new GovBank({
-                key: key,
-                secret: secret // In production, secret stays on backend
-            });
+          // Step 4: Create ZenoPay instance and open checkout
+          const zenopay = new ZenoPay({ key: ZENOPAY_KEY });
+          zenopay.createPayment(options).open();
 
-            // 3. Create Order (Calls SDK -> Backend)
-            const orderData = await govBank.createOrder(amount);
-            
-            if(orderData.error || !orderData.success) {
-                alert("Order Creation Failed: " + (orderData.message || "Unknown Error"));
-                return;
-            }
-
-            // 4. Open Checkout
-            govBank.open({
-                orderId: orderData.order_id,
-                amount: orderData.amount,
-                productName: product,
-                merchantName: orderData.merchant_name,
-                
-                onSuccess: function(response) {
-                    console.log("Transaction Complete:", response);
-                    // Example: You can trigger a refund test here if needed
-                    // govBank.refundTransaction(response.transactionId, "Test Refund");
-                },
-                onError: function(err) {
-                    console.error("Checkout Error:", err);
-                },
-                onDismiss: function() {
-                    console.log("Checkout Closed");
-                }
-            });
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
         }
+      }
+
+      // Step 5: Verify payment on server (Razorpay style)
+      async function verifyPayment(response) {
+        try {
+          const verifyResponse = await fetch('/api/payments/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': ZENOPAY_KEY
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              zenopay_order_id: response.zenopay_order_id,
+              zenopay_payment_id: response.zenopay_payment_id,
+              zenopay_signature: response.zenopay_signature
+            })
+          });
+
+          const result = await verifyResponse.json();
+
+          if (result.success) {
+            // Payment verified successfully
+            alert('✅ Payment Successful!\n\n' +
+                  'Payment ID: ' + response.razorpay_payment_id + '\n' +
+                  'Order ID: ' + response.razorpay_order_id + '\n' +
+                  'Transaction ID: ' + response.zenopay_transaction_id);
+            
+            // Redirect or update UI
+            // window.location.href = '/payment-success';
+          } else {
+            alert('❌ Payment verification failed!\n' + result.error);
+          }
+        } catch (error) {
+          console.error('Verification error:', error);
+          alert('Payment verification failed. Please contact support.');
+        }
+      }
+
+      // Check if payment was successful (from callback)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('payment') === 'success') {
+        const transactionId = urlParams.get('transactionId');
+        alert(`Payment Successful! Transaction ID: ${transactionId}`);
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, '/shop');
+      }
     </script>
-</body>
+  </body>
 </html>

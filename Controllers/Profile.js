@@ -22,7 +22,7 @@ const getProfile = async (req, res) => {
 
     let totalBalance = 0;
     bankAccounts.forEach((acc) => {
-      totalBalance += parseFloat(acc.OpeningBalance.toString());
+      totalBalance += parseFloat(acc.Balance.toString());
     });
 
     // Get account numbers for transaction lookup

@@ -68,6 +68,7 @@ const postOpenAccount = async (req, res) => {
       BankEmail: data.BankEmail,
       AccountType: data.AccountType,
       OpeningBalance: data.OpeningBalance,
+      Balance: data.OpeningBalance,
       TransactionLimit: data.TransactionLimit,
       ZenoPayId: data.ZenoPayId,
       FullName: data.FullName,

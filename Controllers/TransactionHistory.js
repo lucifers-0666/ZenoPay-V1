@@ -20,7 +20,12 @@ const getTransactionHistory = async (req, res) => {
         qrCode: req.session.qrCode || null,
         isLoggedIn: true,
         groupedTransactions: {},
+        groupedByDate: {},
         hasTransactions: false,
+        totalCount: 0,
+        totalCredit: 0,
+        totalDebit: 0,
+        balance: 0,
       });
     }
 
@@ -96,6 +101,72 @@ const getTransactionHistory = async (req, res) => {
       groupedTransactions[monthYear].count++;
     });
 
+    // Calculate overall totals
+    let totalCredit = 0;
+    let totalDebit = 0;
+    let totalCount = transactions.length;
+
+    // Get user's total balance from all accounts
+    let accountBalance = 0;
+    userAccounts.forEach((acc) => {
+      accountBalance += parseFloat(acc.Balance || 0);
+    });
+
+    transactions.forEach((txn) => {
+      const isCredit = accountNumbers.includes(txn.ReceiverAccountNumber);
+      const amount = parseFloat(txn.Amount.toString());
+
+      if (isCredit) {
+        totalCredit += amount;
+      } else {
+        totalDebit += amount;
+      }
+    });
+
+    const balance = accountBalance;
+
+    // Group transactions by date for the card view
+    const groupedByDate = {};
+    transactions.forEach((txn) => {
+      const date = new Date(txn.TransactionTime);
+      const dateKey = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+      });
+
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = [];
+      }
+
+      const isCredit = accountNumbers.includes(txn.ReceiverAccountNumber);
+      const amount = parseFloat(txn.Amount.toString());
+
+      groupedByDate[dateKey].push({
+        transactionId: `TXN-${txn.TransactionID}`,
+        date: dateKey,
+        time: date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        type: isCredit ? "credit" : "debit",
+        description: isCredit
+          ? `Payment from ${txn.SenderHolderName}`
+          : `Payment to ${txn.ReceiverHolderName}`,
+        bank: isCredit ? txn.SenderBank : txn.ReceiverBank,
+        amount: amount,
+        isCredit: isCredit,
+        status: "success",
+        senderName: txn.SenderHolderName,
+        senderAccountNumber: txn.SenderAccountNumber,
+        senderBank: txn.SenderBank,
+        receiverName: txn.ReceiverHolderName,
+        receiverAccountNumber: txn.ReceiverAccountNumber,
+        receiverBank: txn.ReceiverBank,
+      });
+    });
+
     res.render("TransactionHistory", {
       pageTitle: "Transaction History",
       currentPage: "Transaction-History",
@@ -103,7 +174,12 @@ const getTransactionHistory = async (req, res) => {
       qrCode: req.session.qrCode || null,
       isLoggedIn: true,
       groupedTransactions: groupedTransactions,
+      groupedByDate: groupedByDate,
       hasTransactions: transactions.length > 0,
+      totalCount: totalCount,
+      totalCredit: totalCredit,
+      totalDebit: totalDebit,
+      balance: balance,
     });
   } catch (error) {
     console.error("Error fetching transaction history:", error);
@@ -114,7 +190,12 @@ const getTransactionHistory = async (req, res) => {
       qrCode: req.session.qrCode || null,
       isLoggedIn: true,
       groupedTransactions: {},
+      groupedByDate: {},
       hasTransactions: false,
+      totalCount: 0,
+      totalCredit: 0,
+      totalDebit: 0,
+      balance: 0,
       error: "Failed to load transaction history",
     });
   }

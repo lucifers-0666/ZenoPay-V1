@@ -1,207 +1,1536 @@
-<%-include ('partials/header')%>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Integration - ZenoPay</title>
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/header.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <style>
+      .api-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-12 max-w-3xl">
-      
-      <!-- Header -->
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-500/20 rounded-full mb-4 ring-2 ring-blue-400">
-          <i class="fas fa-key text-blue-400 text-4xl"></i>
+      .api-header {
+        background: linear-gradient(135deg, #1b3c53 0%, #456882 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(27, 60, 83, 0.2);
+      }
+
+      .api-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .api-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 800px;
+      }
+
+      .tabs-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .tab-btn {
+        padding: 1rem 2rem;
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1b3c53;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .tab-btn:hover {
+        border-color: #456882;
+        transform: translateY(-2px);
+      }
+
+      .tab-btn.active {
+        background: linear-gradient(135deg, #1b3c53 0%, #456882 100%);
+        color: white;
+        border-color: #1b3c53;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .register-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1b3c53;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #456882;
+        box-shadow: 0 0 0 3px rgba(69, 104, 130, 0.1);
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #1b3c53 0%, #456882 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(27, 60, 83, 0.3);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #1b3c53;
+        border: 2px solid #1b3c53;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background: #1b3c53;
+        color: white;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .api-key-display {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+        margin-bottom: 1.5rem;
+      }
+
+      .api-key-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .api-key-value {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.95rem;
+        word-break: break-all;
+        position: relative;
+      }
+
+      .api-key-value.hidden .key-text {
+        filter: blur(8px);
+        user-select: none;
+      }
+
+      .key-text {
+        flex: 1;
+      }
+
+      .key-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        color: #456882;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .icon-btn:hover {
+        color: #1b3c53;
+        transform: scale(1.1);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #456882;
+      }
+
+      .stat-card h3 {
+        font-size: 2rem;
+        color: #1b3c53;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card p {
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+
+      .stat-card i {
+        font-size: 2rem;
+        color: #456882;
+        margin-bottom: 1rem;
+      }
+
+      .code-block {
+        background: #2d2d2d;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        position: relative;
+        overflow-x: auto;
+      }
+
+      .code-block pre {
+        margin: 0;
+        color: #f8f8f2;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+      }
+
+      .copy-code-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .doc-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+      }
+
+      .doc-section h2 {
+        color: #1b3c53;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .doc-section h3 {
+        color: #456882;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .doc-section p {
+        line-height: 1.8;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      .endpoint {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        border-left: 4px solid #28a745;
+      }
+
+      .endpoint-method {
+        display: inline-block;
+        background: #28a745;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-right: 1rem;
+      }
+
+      .endpoint-url {
+        font-family: 'Courier New', monospace;
+        color: #1b3c53;
+        font-weight: 600;
+      }
+
+      .param-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+
+      .param-table th,
+      .param-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .param-table th {
+        background: #f8f9fa;
+        color: #1b3c53;
+        font-weight: 600;
+      }
+
+      .param-table code {
+        background: #f8f9fa;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        color: #456882;
+      }
+
+      .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .alert-info {
+        background: #d1ecf1;
+        border-left: 4px solid #0dcaf0;
+        color: #055160;
+      }
+
+      .alert-warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        color: #664d03;
+      }
+
+      .alert-success {
+        background: #d1e7dd;
+        border-left: 4px solid #28a745;
+        color: #0f5132;
+      }
+
+      .settings-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+      }
+
+      .settings-card h3 {
+        color: #1b3c53;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      @media (max-width: 768px) {
+        .api-container {
+          padding: 1rem;
+        }
+
+        .api-header {
+          padding: 2rem 1.5rem;
+        }
+
+        .api-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .tabs-container {
+          overflow-x: auto;
+          flex-wrap: nowrap;
+        }
+
+        .tab-btn {
+          white-space: nowrap;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+
+    <main class="main-content">
+      <%- include('partials/navbar') %>
+
+      <div class="api-container">
+        <!-- Header -->
+        <div class="api-header">
+          <h1>
+            <i class="fas fa-code"></i>
+            Payment Gateway Integration
+          </h1>
+          <p>
+            Integrate ZenoPay payment gateway into your application and start accepting payments in minutes.
+          </p>
         </div>
-        <h1 class="text-3xl font-bold text-white mb-2">Developer API Settings</h1>
-        <p class="text-gray-400">Link an account to generate settlement credentials.</p>
-      </div>
 
-      <!-- Main Card -->
-      <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-2xl mb-8">
-        
-        <!-- Step 1: Business Details & Account Selection -->
-        <div id="setupSection" class="<%= existingKey ? 'hidden' : '' %>">
-            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
-                <span class="bg-blue-600 text-xs w-6 h-6 rounded-full flex items-center justify-center mr-3">1</span>
-                Business Registration
-            </h2>
-            
-            <form onsubmit="handleGenerate(event)">
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Business / Merchant Name</label>
-                    <input type="text" id="txtBusinessName" class="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-4 p-3" placeholder="e.g. Acme Corp Solutions" required value="<%= existingBusiness || '' %>">
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Settlement Bank Account</label>
-                    <div class="relative">
-                        <select id="ddlAccount" class="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-4 p-3 appearance-none" required>
-                            <option value="">-- Select Account --</option>
-                            <% if(accounts && accounts.length > 0) { %>
-                                <% accounts.forEach(acc => { %>
-                                    <option value="<%= acc.AccountNumber %>">
-                                        <%= acc.BankName %> - <%= acc.AccountNumber %> (IFSC: <%= acc.IFSC %>)
-                                    </option>
-                                <% }); %>
-                            <% } else { %>
-                                <option disabled>No accounts found</option>
-                            <% } %>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
-                        </div>
-                    </div>
-                    <p class="mt-2 text-xs text-blue-300"><i class="fas fa-info-circle mr-1"></i> Funds will settle to this account. API Key will start with the bank's IFSC.</p>
-                </div>
-
-                <button type="submit" id="btnGenerate" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-1">
-                    <i class="fas fa-cogs mr-2"></i> Generate API Credentials
-                </button>
-            </form>
+        <!-- Tabs -->
+        <div class="tabs-container">
+          <button class="tab-btn active" data-tab="overview">
+            <i class="fas fa-home"></i> Overview
+          </button>
+          <button class="tab-btn" data-tab="register">
+            <i class="fas fa-rocket"></i> Get Started
+          </button>
+          <button class="tab-btn" data-tab="keys">
+            <i class="fas fa-key"></i> API Keys
+          </button>
+          <button class="tab-btn" data-tab="documentation">
+            <i class="fas fa-book"></i> Documentation
+          </button>
+          <button class="tab-btn" data-tab="settings">
+            <i class="fas fa-cog"></i> Settings
+          </button>
         </div>
 
-        <!-- Step 2: Credentials Display -->
-        <div id="keysSection" class="<%= existingKey ? '' : 'hidden' %> space-y-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-white flex items-center">
-                    <span class="bg-green-600 text-xs w-6 h-6 rounded-full flex items-center justify-center mr-3"><i class="fas fa-check"></i></span>
-                    Active Credentials
-                </h2>
-                <span class="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30 animate-pulse">LIVE MODE</span>
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-exchange-alt"></i>
+              <h3><%= merchant ? merchant.TransactionCount : 0 %></h3>
+              <p>Total Transactions</p>
             </div>
+            <div class="stat-card">
+              <i class="fas fa-rupee-sign"></i>
+              <h3>₹<%= merchant ? merchant.TotalVolume.toLocaleString('en-IN') : '0' %></h3>
+              <p>Total Volume</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-check-circle"></i>
+              <h3><%= merchant ? merchant.Status : 'Not Registered' %></h3>
+              <p>Account Status</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-calendar"></i>
+              <h3><%= merchant && merchant.LastTransactionDate ? new Date(merchant.LastTransactionDate).toLocaleDateString() : 'N/A' %></h3>
+              <p>Last Transaction</p>
+            </div>
+          </div>
 
-            <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase font-bold mb-1">Registered Business</p>
-                        <p class="text-lg text-white font-semibold" id="displayBusinessName"><%= existingBusiness %></p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-gray-500 uppercase font-bold mb-1">Settlement IFSC</p>
-                        <p class="text-sm text-blue-300 font-mono" id="displayIFSC"><%= linkedAccount || 'Hidden' %></p>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-2">API Key (Public)</label>
-                <div class="flex">
-                    <input type="text" id="txtApiKey" readonly class="flex-1 bg-gray-900 border border-gray-700 text-green-400 font-mono text-sm rounded-l-lg p-4" value="<%= existingKey || '' %>">
-                    <button onclick="copyToClipboard('txtApiKey')" class="bg-gray-700 hover:bg-gray-600 text-white px-5 rounded-r-lg border border-l-0 border-gray-700 transition-colors">
-                        <i class="far fa-copy"></i>
-                    </button>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-1">Format: [IFSC][RandomKey]</p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-2">API Secret (Private)</label>
-                <div class="flex">
-                    <input type="text" id="txtApiSecret" readonly class="flex-1 bg-gray-900 border border-gray-700 text-red-400 font-mono text-sm rounded-l-lg p-4" value="<%= existingSecret || '*************************' %>">
-                    <button onclick="copyToClipboard('txtApiSecret')" class="bg-gray-700 hover:bg-gray-600 text-white px-5 rounded-r-lg border border-l-0 border-gray-700 transition-colors">
-                        <i class="far fa-copy"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="pt-6 border-t border-gray-700 flex justify-center">
-                 <button onclick="document.getElementById('keysSection').classList.add('hidden'); document.getElementById('setupSection').classList.remove('hidden');" class="text-sm text-blue-400 hover:text-blue-300 underline">
-                    Generate New Key (For another account or Replace)
-                 </button>
-            </div>
-        </div>
-      </div>
-
-      <!-- Testing Tools Card -->
-      <div id="testTools" class="bg-gradient-to-r from-gray-800 to-gray-900 border border-white/10 rounded-2xl p-8 shadow-xl <%= existingKey ? '' : 'hidden' %>">
-          <h2 class="text-xl font-bold text-white mb-4 flex items-center">
-              <i class="fas fa-flask text-purple-400 mr-2"></i> Payment Link Generator
-          </h2>
-          <p class="text-sm text-gray-400 mb-4">Create a test link to verify payments are settling to your account.</p>
-          
-          <div class="flex gap-4 items-end">
-              <div class="flex-1">
-                  <label class="block text-xs font-medium text-gray-500 mb-1">Amount (INR)</label>
-                  <input type="number" id="testAmount" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white" value="500">
+          <div class="doc-section">
+            <h2><i class="fas fa-lightbulb"></i> Why Choose ZenoPay Gateway?</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+              <div style="padding: 1.5rem; background: #f8f9fa; border-radius: 12px;">
+                <i class="fas fa-bolt" style="font-size: 2rem; color: #456882; margin-bottom: 1rem;"></i>
+                <h3>Lightning Fast</h3>
+                <p>Process payments in milliseconds with our optimized infrastructure.</p>
               </div>
-              <button onclick="generateLink()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-bold transition-colors h-[42px]">
-                  Create Link
+              <div style="padding: 1.5rem; background: #f8f9fa; border-radius: 12px;">
+                <i class="fas fa-shield-alt" style="font-size: 2rem; color: #456882; margin-bottom: 1rem;"></i>
+                <h3>Secure & Compliant</h3>
+                <p>PCI-DSS compliant with end-to-end encryption for all transactions.</p>
+              </div>
+              <div style="padding: 1.5rem; background: #f8f9fa; border-radius: 12px;">
+                <i class="fas fa-code" style="font-size: 2rem; color: #456882; margin-bottom: 1rem;"></i>
+                <h3>Easy Integration</h3>
+                <p>Simple RESTful APIs with SDKs for all major platforms.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register Tab -->
+        <div class="tab-content" id="register">
+          <% if (!hasMerchant) { %>
+            <div class="register-card">
+              <h2 style="color: #1b3c53; margin-bottom: 1.5rem;">
+                <i class="fas fa-rocket"></i> Register as Merchant
+              </h2>
+              <p style="color: #6c757d; margin-bottom: 2rem;">
+                Fill in your business details to get started with ZenoPay payment gateway.
+              </p>
+
+              <form id="registerMerchantForm">
+                <div class="form-group">
+                  <label for="businessName">
+                    Business Name <span style="color: red;">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="businessName"
+                    name="businessName"
+                    required
+                    placeholder="Enter your business name"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="businessType">
+                    Business Type <span style="color: red;">*</span>
+                  </label>
+                  <select id="businessType" name="businessType" required>
+                    <option value="">Select business type</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="SaaS">SaaS</option>
+                    <option value="Education">Education</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="businessWebsite">Business Website</label>
+                  <input
+                    type="url"
+                    id="businessWebsite"
+                    name="businessWebsite"
+                    placeholder="https://yourbusiness.com"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="businessDescription">Business Description</label>
+                  <textarea
+                    id="businessDescription"
+                    name="businessDescription"
+                    placeholder="Tell us about your business..."
+                  ></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-check"></i>
+                  Register Now
+                </button>
+              </form>
+            </div>
+          <% } else { %>
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+              <div>
+                <strong>You're all set!</strong>
+                <p style="margin: 0.5rem 0 0 0;">Your merchant account is active. Navigate to API Keys tab to view your credentials.</p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- API Keys Tab -->
+        <div class="tab-content" id="keys">
+          <% if (hasMerchant) { %>
+            <div class="doc-section">
+              <h2><i class="fas fa-key"></i> Your API Credentials</h2>
+              
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <strong>Keep your keys secure!</strong>
+                  <p style="margin: 0.5rem 0 0 0;">Never share your secret key or commit it to version control.</p>
+                </div>
+              </div>
+
+              <div class="api-key-display">
+                <div class="api-key-label">API Key (Public)</div>
+                <div class="api-key-value">
+                  <span class="key-text"><%= merchant.ApiKey %></span>
+                  <div class="key-actions">
+                    <button class="icon-btn" onclick="copyToClipboard('<%= merchant.ApiKey %>')" title="Copy">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="api-key-display">
+                <div class="api-key-label">Secret Key (Private)</div>
+                <div class="api-key-value hidden" id="secretKeyValue">
+                  <span class="key-text"><%= merchant.SecretKey %></span>
+                  <div class="key-actions">
+                    <button class="icon-btn" onclick="toggleKeyVisibility()" title="Show/Hide">
+                      <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                    <button class="icon-btn" onclick="copyToClipboard('<%= merchant.SecretKey %>')" title="Copy">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 2rem;">
+                <button class="btn-danger" onclick="regenerateKeys()">
+                  <i class="fas fa-sync-alt"></i>
+                  Regenerate API Keys
+                </button>
+                <p style="font-size: 0.9rem; color: #6c757d; margin-top: 1rem;">
+                  <i class="fas fa-info-circle"></i> Regenerating keys will invalidate your current keys immediately.
+                </p>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle" style="font-size: 1.5rem;"></i>
+              <div>
+                <strong>Register first!</strong>
+                <p style="margin: 0.5rem 0 0 0;">Please register as a merchant to get your API keys.</p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Documentation Tab -->
+        <div class="tab-content" id="documentation">
+          <div class="doc-section">
+            <h2><i class="fas fa-book"></i> Integration Guide</h2>
+            
+            <h3>Step 1: Include ZenoPay Checkout Script</h3>
+            <p>Add this single line to your HTML page before the closing &lt;/body&gt; tag:</p>
+            
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
               </button>
-          </div>
+              <pre><code>&lt;script src="https://zenopay.me/js/checkout.js">&lt;/script></code></pre>
+            </div>
 
-          <div id="linkResult" class="mt-4 hidden p-4 bg-black/30 rounded border border-purple-500/30">
-              <p class="text-xs text-gray-400 mb-2">Share this link:</p>
-              <a id="generatedLinkAnchor" href="#" target="_blank" class="text-purple-400 text-sm font-mono break-all hover:underline"></a>
+            <h3>Step 2: Create a Payment Button</h3>
+            <p>Just 3 simple steps to accept payments:</p>
+            
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>// 1. Initialize ZenoPay with your API key
+const zenopay = new ZenoPay({
+  key: 'YOUR_API_KEY',              // Get this from API Keys tab
+  name: 'Your Business Name',        // Your store name
+  logo: 'https://yoursite.com/logo.png'  // Optional: Your logo URL
+});
+
+// 2. Set payment details
+const paymentOptions = {
+  amount: 50000,                     // Amount in paise (500 INR = 50000 paise)
+  currency: 'INR',
+  order_id: 'ORDER_' + Date.now(),   // Your unique order ID
+  description: 'Premium Product',    // What customer is buying
+  
+  handler: function(response) {
+    // 3. This runs when payment succeeds
+    alert('Payment Success! Transaction ID: ' + response.zenopay_transaction_id);
+    // Verify payment on your server here
+  }
+};
+
+// Open payment window
+zenopay.createPayment(paymentOptions).open();</code></pre>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <strong>Important:</strong> Amount should be in paise (smallest currency unit).
+                <br>Example: ₹500 = 50000 paise, ₹1599 = 159900 paise
+              </div>
+            </div>
+
+            <h3>Complete Working Example</h3>
+            <p>Copy and paste this complete HTML file to get started in 30 seconds:</p>
+            
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+  &lt;title>ZenoPay Payment Demo&lt;/title>
+&lt;/head>
+&lt;body>
+  &lt;h1>Buy Premium Product - ₹500&lt;/h1>
+  &lt;button onclick="payNow()" style="padding: 15px 30px; font-size: 16px; cursor: pointer;">
+    Pay ₹500
+  &lt;/button>
+  
+  &lt;!-- Step 1: Include ZenoPay script -->
+  &lt;script src="https://zenopay.me/js/checkout.js">&lt;/script>
+  
+  &lt;script>
+    function payNow() {
+      // Step 2: Initialize ZenoPay
+      const zenopay = new ZenoPay({
+        key: 'YOUR_API_KEY',        // Replace with your API key
+        name: 'My Awesome Store'
+      });
+      
+      // Step 3: Open payment window
+      zenopay.createPayment({
+        amount: 50000,              // ₹500 = 50000 paise
+        currency: 'INR',
+        order_id: 'ORDER_' + Date.now(),
+        description: 'Premium Product',
+        handler: function(response) {
+          // Payment successful!
+          alert('Thank you! Payment ID: ' + response.zenopay_payment_id);
+          window.location.href = '/success.html';  // Redirect to success page
+        }
+      }).open();
+    }
+  &lt;/script>
+&lt;/body>
+&lt;/html></code></pre>
+            </div>
+
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle"></i>
+              <div>
+                <strong>That's it!</strong> Replace <code>YOUR_API_KEY</code> with your actual key and you're ready to accept payments.
+              </div>
+            </div>
+
+            <h3>Payment Flow</h3>
+            <p>ZenoPay supports multiple payment methods with OTP verification:</p>
+            
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <strong>Supported Payment Methods:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                  <li>Credit/Debit Card</li>
+                  <li>ZenoPay ID</li>
+                  <li>Mobile Number</li>
+                  <li>Email Address</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; margin: 1rem 0;">
+              <h4 style="margin-top: 0; color: #1b3c53;">Payment Process:</h4>
+              <ol style="line-height: 2;">
+                <li>Customer enters identifier (Card/ZenoPay ID/Mobile/Email)</li>
+                <li>System sends OTP to registered email</li>
+                <li>Customer enters OTP for verification</li>
+                <li>System fetches user profile and bank accounts</li>
+                <li>Customer selects bank account</li>
+                <li>Payment confirmation displayed</li>
+                <li>Payment processed and result shown</li>
+              </ol>
+            </div>
+
+            <h3>API Endpoints</h3>
+            
+            <div class="endpoint">
+              <span class="endpoint-method">POST</span>
+              <span class="endpoint-url">/api/payment/send-otp</span>
+            </div>
+            <p>Send OTP for payment verification</p>
+            
+            <p><strong>Request Body:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "zenoPayId": "ZENO-1234567890",
+  "mobile": "9876543210",
+  "email": "user@example.com"
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Success):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": true,
+  "message": "OTP sent successfully",
+  "data": {
+    "otpSentTo": "user@example.com",
+    "expiresIn": 300
+  }
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Error):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": false,
+  "error": "User not registered",
+  "registrationUrl": "/ZenoPay/Register"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+              <span class="endpoint-method">POST</span>
+              <span class="endpoint-url">/api/payment/verify-customer</span>
+            </div>
+            <p>Verify OTP and get customer details</p>
+            
+            <p><strong>Request Body:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "zenoPayId": "ZENO-1234567890",
+  "otp": "628128"
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Success):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": true,
+  "data": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "zenoPayId": "ZENO-1234567890",
+    "profileImage": "/uploads/profile.jpg",
+    "bankAccounts": [
+      {
+        "accountNumber": "1234567890",
+        "bankName": "State Bank",
+        "balance": 25000.00
+      }
+    ]
+  }
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Error):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": false,
+  "error": "Invalid or expired OTP"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+              <span class="endpoint-method">POST</span>
+              <span class="endpoint-url">/api/payment/process</span>
+            </div>
+            <p>Process the payment transaction (requires API key)</p>
+            
+            <p><strong>Headers:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>x-api-key: YOUR_API_KEY
+Content-Type: application/json</code></pre>
+            </div>
+
+            <p><strong>Request Body:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "transactionRef": "TXN_1734567890",
+  "paymentMethod": "mobile",
+  "customerZenoPayId": "ZENO-1234567890",
+  "amount": 1599.00,
+  "orderId": "ORDER_12345",
+  "description": "Product Purchase",
+  "otp": "628128",
+  "paymentDetails": {
+    "accountNumber": "1234567890"
+  }
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Success):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": true,
+  "message": "Payment processed successfully",
+  "data": {
+    "transactionId": "TXN_1734567890123",
+    "orderId": "ORDER_12345",
+    "amount": 1599.00,
+    "status": "Success",
+    "timestamp": "2025-12-18T10:30:00.000Z"
+  }
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Error):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": false,
+  "error": "Insufficient balance"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+              <span class="endpoint-method">POST</span>
+              <span class="endpoint-url">/api/payment/refund</span>
+            </div>
+            <p>Process a refund for a completed transaction (requires API key)</p>
+            
+            <p><strong>Headers:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>x-api-key: YOUR_API_KEY
+Content-Type: application/json</code></pre>
+            </div>
+
+            <p><strong>Request Body:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "transactionId": "TXN_1734567890123",
+  "amount": 1599.00,
+  "reason": "Customer request"
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Success):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": true,
+  "message": "Refund processed successfully",
+  "data": {
+    "refundId": "REFUND_1734567890456",
+    "originalTransactionId": "TXN_1734567890123",
+    "refundAmount": 1599.00,
+    "refundStatus": "Refunded",
+    "refundDate": "2025-12-18T11:00:00.000Z"
+  }
+}</code></pre>
+            </div>
+
+            <p><strong>Response (Error):</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  "success": false,
+  "error": "Transaction not found"
+}</code></pre>
+            </div>
+
+            <h3>Response Handling</h3>
+            <p><strong>Success Response:</strong></p>
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>{
+  razorpay_payment_id: "pay_1734567890abc",
+  razorpay_order_id: "ORDER_12345",
+  razorpay_signature: "signature_hash",
+  zenopay_payment_id: "pay_1734567890abc",
+  zenopay_order_id: "ORDER_12345",
+  zenopay_signature: "signature_hash",
+  zenopay_transaction_id: "TXN_1734567890"
+}</code></pre>
+            </div>
+
+            <table class="param-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>zenopay_payment_id</code></td>
+                  <td>String</td>
+                  <td>Unique payment identifier</td>
+                </tr>
+                <tr>
+                  <td><code>zenopay_order_id</code></td>
+                  <td>String</td>
+                  <td>Your order reference ID</td>
+                </tr>
+                <tr>
+                  <td><code>zenopay_transaction_id</code></td>
+                  <td>String</td>
+                  <td>Transaction ID in ZenoPay system</td>
+                </tr>
+                <tr>
+                  <td><code>zenopay_signature</code></td>
+                  <td>String</td>
+                  <td>Payment verification signature</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>Server-Side Verification</h3>
+            <p>Always verify payment on your server before fulfilling the order:</p>
+            
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>function verifyPayment(paymentData) {
+  fetch('/api/verify-payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': 'YOUR_API_KEY'
+    },
+    body: JSON.stringify(paymentData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.verified) {
+      console.log('Payment verified successfully');
+    } else {
+      console.error('Payment verification failed');
+    }
+  });
+}</code></pre>
+            </div>
+
+            <h3>Refund Implementation</h3>
+            <p>Process refunds for completed transactions:</p>
+            
+            <div class="code-block">
+              <button class="copy-code-btn" onclick="copyCode(this)">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <pre><code>async function processRefund(transactionId, amount, reason) {
+  try {
+    const response = await fetch('https://zenopay.me/api/payment/refund', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'YOUR_API_KEY'
+      },
+      body: JSON.stringify({
+        transactionId: transactionId,
+        amount: amount,
+        reason: reason
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      console.log('Refund processed:', result.data);
+      return result.data;
+    } else {
+      console.error('Refund failed:', result.error);
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Refund error:', error);
+    throw error;
+  }
+}
+
+processRefund('TXN_1734567890123', 1599.00, 'Customer request')
+  .then(refund => {
+    console.log('Refund ID:', refund.refundId);
+  })
+  .catch(error => {
+    console.error('Failed to process refund:', error);
+  });</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div>
+                <strong>Refund Guidelines:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                  <li>Only successful transactions can be refunded</li>
+                  <li>Refund amount cannot exceed original transaction amount</li>
+                  <li>Partial refunds are supported</li>
+                  <li>Already refunded transactions cannot be refunded again</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3>Quick Reference - Payment Options</h3>
+            <p>All available options you can pass to createPayment():</p>
+            
+            <table class="param-table">
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                  <th>Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>amount</code></td>
+                  <td>✓ Yes</td>
+                  <td>Amount in paise</td>
+                  <td>50000 (₹500)</td>
+                </tr>
+                <tr>
+                  <td><code>currency</code></td>
+                  <td>✓ Yes</td>
+                  <td>Currency code</td>
+                  <td>'INR'</td>
+                </tr>
+                <tr>
+                  <td><code>order_id</code></td>
+                  <td>✓ Yes</td>
+                  <td>Your unique order ID</td>
+                  <td>'ORDER_12345'</td>
+                </tr>
+                <tr>
+                  <td><code>description</code></td>
+                  <td>✓ Yes</td>
+                  <td>What customer is buying</td>
+                  <td>'Premium Plan'</td>
+                </tr>
+                <tr>
+                  <td><code>handler</code></td>
+                  <td>✓ Yes</td>
+                  <td>Success callback function</td>
+                  <td>function(res) { ... }</td>
+                </tr>
+                <tr>
+                  <td><code>prefill.name</code></td>
+                  <td>No</td>
+                  <td>Pre-fill customer name</td>
+                  <td>'John Doe'</td>
+                </tr>
+                <tr>
+                  <td><code>prefill.email</code></td>
+                  <td>No</td>
+                  <td>Pre-fill customer email</td>
+                  <td>'john@example.com'</td>
+                </tr>
+                <tr>
+                  <td><code>prefill.contact</code></td>
+                  <td>No</td>
+                  <td>Pre-fill customer phone</td>
+                  <td>'9876543210'</td>
+                </tr>
+                <tr>
+                  <td><code>theme.color</code></td>
+                  <td>No</td>
+                  <td>Customize payment popup color</td>
+                  <td>'#456882'</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>SDKs & Libraries</h3>
+            <p>We provide official SDKs for popular platforms:</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+              <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <i class="fab fa-node-js" style="font-size: 3rem; color: #68a063;"></i>
+                <p style="margin-top: 0.5rem; font-weight: 600;">Node.js</p>
+              </div>
+              <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <i class="fab fa-python" style="font-size: 3rem; color: #3776ab;"></i>
+                <p style="margin-top: 0.5rem; font-weight: 600;">Python</p>
+              </div>
+              <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <i class="fab fa-php" style="font-size: 3rem; color: #777bb4;"></i>
+                <p style="margin-top: 0.5rem; font-weight: 600;">PHP</p>
+              </div>
+              <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <i class="fab fa-java" style="font-size: 3rem; color: #007396;"></i>
+                <p style="margin-top: 0.5rem; font-weight: 600;">Java</p>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings">
+          <% if (hasMerchant) { %>
+            <div class="settings-card">
+              <h3><i class="fas fa-cog"></i> Integration Settings</h3>
+              
+              <form id="settingsForm">
+                <div class="form-group">
+                  <label for="webhookUrl">Webhook URL</label>
+                  <input
+                    type="url"
+                    id="webhookUrl"
+                    name="webhookUrl"
+                    value="<%= merchant.WebhookUrl || '' %>"
+                    placeholder="https://yoursite.com/webhook"
+                  />
+                  <small style="color: #6c757d;">Receive real-time payment notifications</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="callbackUrl">Default Callback URL</label>
+                  <input
+                    type="url"
+                    id="callbackUrl"
+                    name="callbackUrl"
+                    value="<%= merchant.CallbackUrl || '' %>"
+                    placeholder="https://yoursite.com/payment-callback"
+                  />
+                  <small style="color: #6c757d;">Redirect users after payment completion</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="allowedDomains">Allowed Domains (comma-separated)</label>
+                  <input
+                    type="text"
+                    id="allowedDomains"
+                    name="allowedDomains"
+                    value="<%= merchant.AllowedDomains ? merchant.AllowedDomains.join(', ') : '' %>"
+                    placeholder="example.com, app.example.com"
+                  />
+                  <small style="color: #6c757d;">Restrict API access to specific domains</small>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-save"></i>
+                  Save Settings
+                </button>
+              </form>
+            </div>
+
+            <div class="settings-card">
+              <h3><i class="fas fa-info-circle"></i> Business Information</h3>
+              <table class="param-table">
+                <tr>
+                  <td><strong>Business Name</strong></td>
+                  <td><%= merchant.BusinessName %></td>
+                </tr>
+                <tr>
+                  <td><strong>Business Type</strong></td>
+                  <td><%= merchant.BusinessType %></td>
+                </tr>
+                <tr>
+                  <td><strong>Website</strong></td>
+                  <td><%= merchant.BusinessWebsite || 'N/A' %></td>
+                </tr>
+                <tr>
+                  <td><strong>Status</strong></td>
+                  <td><span style="color: #28a745; font-weight: 600;"><%= merchant.Status %></span></td>
+                </tr>
+                <tr>
+                  <td><strong>Registered On</strong></td>
+                  <td><%= new Date(merchant.createdAt).toLocaleDateString() %></td>
+                </tr>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle" style="font-size: 1.5rem;"></i>
+              <div>
+                <strong>Register first!</strong>
+                <p style="margin: 0.5rem 0 0 0;">Please register as a merchant to access settings.</p>
+              </div>
+            </div>
+          <% } %>
+        </div>
       </div>
+    </main>
 
-    </div>
+    <%- include('partials/MobileNav') %>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
     <script>
-        async function handleGenerate(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnGenerate');
-            const originalText = btn.innerHTML;
-            const businessName = document.getElementById('txtBusinessName').value;
-            const accountNumber = document.getElementById('ddlAccount').value;
+      // Tab Switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Remove active class from all tabs
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          // Add active class to clicked tab
+          btn.classList.add('active');
+          const tabId = btn.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
 
-            if(!accountNumber) return showToast("Please select a settlement account", "error");
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
-
-            try {
-                const response = await fetch('/merchant/generate-keys', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ businessName, accountNumber })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    showToast(data.message, 'success');
-                    
-                    document.getElementById('displayBusinessName').textContent = businessName;
-                    document.getElementById('displayIFSC').textContent = data.data.linkedIFSC;
-                    document.getElementById('txtApiKey').value = data.data.apiKey;
-                    document.getElementById('txtApiSecret').value = data.data.apiSecret;
-
-                    document.getElementById('setupSection').classList.add('hidden');
-                    document.getElementById('keysSection').classList.remove('hidden');
-                    document.getElementById('testTools').classList.remove('hidden');
-                } else {
-                    showToast(data.message || 'Generation failed', 'error');
-                }
-            } catch (error) {
-                console.error(error);
-                showToast('Server error occurred', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+      // Register Merchant
+      const registerForm = document.getElementById('registerMerchantForm');
+      if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(registerForm);
+          const data = Object.fromEntries(formData);
+          
+          try {
+            const response = await fetch('/api/merchant/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              showToast('Merchant registered successfully!', 'success');
+              setTimeout(() => window.location.reload(), 1500);
+            } else {
+              showToast(result.message || 'Registration failed', 'error');
             }
-        }
+          } catch (error) {
+            showToast('An error occurred', 'error');
+          }
+        });
+      }
 
-        function generateLink() {
-            const key = document.getElementById('txtApiKey').value;
-            const amount = document.getElementById('testAmount').value;
-            if(!key || !amount) return showToast("Missing details", "error");
-
-            const url = `${window.location.origin}/pay?key=${key}&amount=${amount}`;
+      // Save Settings
+      const settingsForm = document.getElementById('settingsForm');
+      if (settingsForm) {
+        settingsForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(settingsForm);
+          const data = Object.fromEntries(formData);
+          
+          try {
+            const response = await fetch('/api/merchant/settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
             
-            const linkBox = document.getElementById('linkResult');
-            const anchor = document.getElementById('generatedLinkAnchor');
+            const result = await response.json();
             
-            anchor.href = url;
-            anchor.textContent = url;
-            linkBox.classList.remove('hidden');
-            showToast("Test Link Generated!", "success");
-        }
+            if (result.success) {
+              showToast('Settings saved successfully!', 'success');
+            } else {
+              showToast(result.message || 'Failed to save settings', 'error');
+            }
+          } catch (error) {
+            showToast('An error occurred', 'error');
+          }
+        });
+      }
 
-        function copyToClipboard(elementId) {
-            const copyText = document.getElementById(elementId);
-            copyText.select();
-            navigator.clipboard.writeText(copyText.value);
-            showToast("Copied!", "success");
+      // Toggle Secret Key Visibility
+      function toggleKeyVisibility() {
+        const keyValue = document.getElementById('secretKeyValue');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (keyValue.classList.contains('hidden')) {
+          keyValue.classList.remove('hidden');
+          eyeIcon.className = 'fas fa-eye-slash';
+        } else {
+          keyValue.classList.add('hidden');
+          eyeIcon.className = 'fas fa-eye';
         }
+      }
 
-     
+      // Copy to Clipboard
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Copied to clipboard!', 'success');
+        }).catch(() => {
+          showToast('Failed to copy', 'error');
+        });
+      }
+
+      // Copy Code Block
+      function copyCode(btn) {
+        const codeBlock = btn.parentElement;
+        const code = codeBlock.querySelector('pre code').textContent;
+        
+        navigator.clipboard.writeText(code).then(() => {
+          btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+          }, 2000);
+        });
+      }
+
+      // Regenerate API Keys
+      async function regenerateKeys() {
+        if (!confirm('Are you sure you want to regenerate your API keys? This will invalidate your current keys immediately.')) {
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/merchant/regenerate-keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            showToast('API keys regenerated successfully!', 'success');
+            setTimeout(() => window.location.reload(), 1500);
+          } else {
+            showToast(result.message || 'Failed to regenerate keys', 'error');
+          }
+        } catch (error) {
+          showToast('An error occurred', 'error');
+        }
+      }
+
+      // Toast Notification
+      function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#456882'};
+          color: white;
+          padding: 1rem 1.5rem;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+      }
     </script>
   </body>
 </html>

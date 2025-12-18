@@ -529,7 +529,7 @@
                 class="account-item"
                 data-account="<%= account.AccountNumber %>"
                 data-bank="<%= account.BankName %>"
-                data-balance="<%= account.OpeningBalance.toString() %>"
+                data-balance="<%= account.Balance.toString() %>"
               >
                 <div class="account-bank">
                   <i class="fas fa-university"></i>
@@ -541,7 +541,7 @@
                 <div class="account-balance">
                   <i class="fas fa-coins"></i>
                   Balance: ₹ <%=
-                  parseFloat(account.OpeningBalance.toString()).toLocaleString('en-IN',
+                  parseFloat(account.Balance.toString()).toLocaleString('en-IN',
                   {minimumFractionDigits: 2}) %>
                 </div>
               </div>
@@ -1049,5 +1049,7 @@
         </div>
       </div>
     </div>
+
+    <%- include('partials/MobileNav') %>
   </body>
 </html>

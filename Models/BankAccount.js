@@ -21,13 +21,25 @@ const BankAccountSchema = new mongoose.Schema({
     default: 0,
   },
 
+  Balance: {
+    type: mongoose.Types.Decimal128,
+    required: false,
+    default: function() {
+      return this.OpeningBalance;
+    }
+  },
+
   TransactionLimit: {
     type: mongoose.Types.Decimal128,
     required: true,
     default: 0,
   },
 
-  ZenoPayId: { type: String, required: true },
+  ZenoPayId: {
+     type: String,
+      required: true ,
+      unique: true,
+      ref: "ZenoPayUser"},
 
   FullName: { type: String, required: true },
   DOB: { type: Date, required: true },

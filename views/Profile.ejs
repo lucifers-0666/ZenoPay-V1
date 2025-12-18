@@ -288,7 +288,7 @@
                       <div
                         class="balance-amount"
                         id="balance<%= index + 1 %>"
-                        data-balance="₹ <%= parseFloat(account.OpeningBalance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
+                        data-balance="₹ <%= parseFloat(account.Balance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
                       >
                         ₹ XX,XXX.XX
                       </div>
@@ -534,5 +534,5 @@
         }
       </script>
     </main>
-  </body>
+    <%- include('partials/MobileNav') %>  </body>
 </html>

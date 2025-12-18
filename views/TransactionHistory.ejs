@@ -11,69 +11,88 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
-      /* Transaction History Specific Styles */
+      /* Modern Paytm-like Transaction History Styles */
       .transaction-container {
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
+        padding: 0;
+        max-width: 75%;
+        ;
+        margin: 0;
+       
+        background: #f5f5f5;
+        min-height: 100vh;
+        padding-bottom: 100px;
       }
 
+      /* Page Header */
       .page-header {
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #018790 0%, #01a0ab 100%);
+        color: white;
+        padding: 1.5rem 1.5rem 2rem;
+        box-shadow: 0 2px 10px rgba(1, 135, 144, 0.2);
       }
 
       .page-header h1 {
-        font-size: 2.5rem;
-        color: #1b3c53;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
       }
 
       .page-header p {
-        color: #6c757d;
-        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        margin: 0;
       }
+
+
 
       /* Filter Section */
       .filter-section {
         background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
+        margin: 1rem;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
 
       .filter-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
       }
 
-      .filter-header h2 {
-        font-size: 1.5rem;
+      .filter-header h3 {
+        font-size: 1rem;
         color: #1b3c53;
         margin: 0;
+        font-weight: 600;
       }
 
       .filter-toggle {
-        background: #456882;
-        color: white;
+        background: none;
         border: none;
-        padding: 0.5rem 1.5rem;
-        border-radius: 8px;
+        color: #018790;
         cursor: pointer;
-        transition: background 0.3s;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
       }
 
-      .filter-toggle:hover {
-        background: #1b3c53;
+      .filter-content {
+        display: none;
       }
 
-      .filter-grid {
+      .filter-content.active {
+        display: block;
+      }
+
+      .filter-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
       }
 
       .filter-group {
@@ -82,236 +101,181 @@
       }
 
       .filter-group label {
-        font-weight: 600;
-        color: #1b3c53;
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 0.4rem;
+        font-weight: 500;
       }
 
       .filter-group input,
       .filter-group select {
-        padding: 0.75rem;
-        border: 2px solid #e0e0e0;
+        padding: 0.6rem;
+        border: 1px solid #ddd;
         border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
+        font-size: 0.9rem;
+        background: white;
       }
 
       .filter-group input:focus,
       .filter-group select:focus {
         outline: none;
-        border-color: #456882;
+        border-color: #018790;
       }
 
       .filter-actions {
         display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
+        gap: 0.8rem;
+        margin-top: 1rem;
       }
 
-      .btn {
-        padding: 0.75rem 2rem;
+      .filter-actions button {
+        flex: 1;
+        padding: 0.7rem;
         border: none;
         border-radius: 8px;
-        font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-primary {
-        background: #456882;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #1b3c53;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .btn-secondary {
-        background: #e0e0e0;
-        color: #333;
-      }
-
-      .btn-secondary:hover {
-        background: #d0d0d0;
-      }
-
-      /* Summary Cards */
-      .summary-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .summary-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
-
-      .summary-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-      }
-
-      .summary-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        color: white;
-      }
-
-      .summary-icon.total {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-
-      .summary-icon.income {
-        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-      }
-
-      .summary-icon.expense {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-      }
-
-      .summary-icon.pending {
-        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-      }
-
-      .summary-content h3 {
         font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0 0 0.5rem 0;
-        font-weight: 500;
       }
 
-      .summary-content .amount {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #1b3c53;
-        margin: 0;
+      .btn-apply {
+        background: #018790;
+        color: white;
       }
 
-      .summary-content .count {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
+      .btn-reset {
+        background: #f0f0f0;
+        color: #666;
+      }
+
+      /* Search Bar */
+      .search-section {
+        padding: 0 1rem 1rem;
+      }
+
+      .search-wrapper {
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.8rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        background: white;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #018790;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1rem;
       }
 
       /* Transaction List */
       .transaction-list {
+        padding: 0 1rem 1rem;
+      }
+
+      .date-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .month-header-section {
         background: white;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .list-header {
-        background: linear-gradient(135deg, #456882 0%, #1b3c53 100%);
-        color: white;
-        padding: 1.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .list-header h2 {
-        margin: 0;
-        font-size: 1.5rem;
-      }
-
-      /* Monthly Group Styles */
-      .monthly-group {
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .month-header {
-        background: #f8f9fa;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         cursor: pointer;
-        transition: background 0.3s;
-        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
-      .month-header:hover {
-        background: #f0f0f0;
-      }
-
-      .month-info {
+      .date-header {
+        font-size: 0.95rem;
+        color: #1b3c53;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.5rem;
       }
 
-      .month-name {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #1b3c53;
+      .month-info-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0;
+        margin-bottom: 0.8rem;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      }
+
+      .month-info-section.expanded {
+        max-height: 200px;
+        padding: 0.8rem 1rem;
+      }
+
+      .month-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       .month-count {
-        font-size: 0.9rem;
-        color: #6c757d;
-        background: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
       }
 
-      .month-summary {
+      .month-totals {
         display: flex;
-        gap: 2rem;
+        gap: 1rem;
         align-items: center;
       }
 
-      .summary-item {
+      .month-summary-inline {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
+        gap: 0.8rem;
       }
 
-      .summary-label {
-        font-size: 0.75rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+      .summary-credit {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #00a86b;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
       }
 
-      .summary-value {
+      .summary-debit {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #ff6b6b;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .month-toggle-icon {
         font-size: 1rem;
-        font-weight: 700;
-        margin-top: 0.2rem;
+        color: #666;
+        transition: transform 0.3s ease;
       }
 
-      .summary-value.credit {
-        color: #28a745;
-      }
-
-      .summary-value.debit {
-        color: #dc3545;
-      }
-
-      .month-toggle {
-        font-size: 1.2rem;
-        color: #456882;
-        transition: transform 0.3s;
-      }
-
-      .month-toggle.expanded {
+      .month-toggle-icon.expanded {
         transform: rotate(180deg);
       }
 
@@ -322,259 +286,165 @@
       }
 
       .month-transactions.expanded {
-        max-height: 5000px;
+        max-height: 10000px;
       }
 
-      .export-btn {
+      .transaction-card {
         background: white;
-        color: #456882;
-        padding: 0.5rem 1.5rem;
-        border-radius: 8px;
-        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s, box-shadow 0.2s;
         cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
       }
 
-      .export-btn:hover {
-        background: #f0f0f0;
-        transform: scale(1.05);
+      .transaction-card:active {
+        transform: scale(0.98);
       }
 
-      .search-bar {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e0e0e0;
+      .transaction-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      .search-input-wrapper {
-        position: relative;
+      .transaction-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
       }
 
-      .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 3rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
+      .transaction-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+
+      .transaction-icon.credit {
+        background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c3 100%);
+        color: #00a86b;
+      }
+
+      .transaction-icon.debit {
+        background: linear-gradient(135deg, #ffe6e6 0%, #ffd1d1 100%);
+        color: #ff6b6b;
+      }
+
+      .transaction-icon.transfer {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #2196f3;
+      }
+
+      .transaction-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .transaction-title {
         font-size: 1rem;
-        transition: border-color 0.3s;
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: #456882;
-      }
-
-      .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-      }
-
-      .transaction-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .transaction-table thead {
-        background: #f8f9fa;
-      }
-
-      .transaction-table th {
-        padding: 1rem 2rem;
-        text-align: left;
         font-weight: 600;
         color: #1b3c53;
-        font-size: 0.95rem;
-        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 0.3rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
-      .transaction-table td {
-        padding: 1.25rem 2rem;
-        border-bottom: 1px solid #f0f0f0;
-        color: #333;
+      .transaction-subtitle {
+        font-size: 0.75rem;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
       }
 
-      .transaction-table tbody tr {
-        transition: background 0.3s;
+      .transaction-subtitle span {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
       }
 
-      .transaction-table tbody tr:hover {
-        background: #f8f9fa;
+      .transaction-subtitle i {
+        font-size: 0.7rem;
       }
 
-      .transaction-id {
-        font-family: monospace;
-        color: #456882;
+      .transaction-amount {
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      .amount-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+      }
+
+      .amount-value.positive {
+        color: #00a86b;
+      }
+
+      .amount-value.negative {
+        color: #ff6b6b;
+      }
+
+      .transaction-status {
+        font-size: 0.75rem;
         font-weight: 600;
-      }
-
-      .transaction-type {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-      }
-
-      .type-credit {
-        background: #d4edda;
-        color: #155724;
-      }
-
-      .type-debit {
-        background: #f8d7da;
-        color: #721c24;
-      }
-
-      .type-transfer {
-        background: #d1ecf1;
-        color: #0c5460;
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
+        text-transform: uppercase;
       }
 
       .status-success {
-        background: #d4edda;
-        color: #155724;
+        color: #00a86b;
       }
 
       .status-pending {
-        background: #fff3cd;
-        color: #856404;
+        color: #ff9800;
       }
 
       .status-failed {
-        background: #f8d7da;
-        color: #721c24;
+        color: #ff6b6b;
       }
 
-      .amount-positive {
-        color: #28a745;
-        font-weight: 700;
-        font-size: 1.1rem;
-      }
-
-      .amount-negative {
-        color: #dc3545;
-        font-weight: 700;
-        font-size: 1.1rem;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .action-btn {
-        padding: 0.4rem 0.8rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-size: 0.9rem;
-      }
-
-      .btn-view {
-        background: #456882;
-        color: white;
-      }
-
-      .btn-view:hover {
-        background: #1b3c53;
-      }
-
-      .btn-download {
-        background: #e0e0e0;
-        color: #333;
-      }
-
-      .btn-download:hover {
-        background: #d0d0d0;
-      }
-
-      /* Pagination */
-      .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-      }
-
-      .pagination button {
-        padding: 0.5rem 1rem;
-        border: 2px solid #456882;
-        background: white;
-        color: #456882;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-weight: 600;
-      }
-
-      .pagination button:hover:not(:disabled) {
-        background: #456882;
-        color: white;
-      }
-
-      .pagination button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .pagination .page-number {
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        color: #1b3c53;
-      }
-
-      .pagination .page-number.active {
-        background: #456882;
-        color: white;
-        border-radius: 6px;
-      }
-
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-      }
-
-      .empty-state i {
-        font-size: 4rem;
-        color: #d0d0d0;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state h3 {
-        color: #6c757d;
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .empty-state p {
-        color: #999;
-      }
-
-      /* Modal Styles */
+      /* Transaction Detail Modal */
       .modal {
         display: none;
         position: fixed;
-        z-index: 1000;
+        z-index: 2000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        animation: fadeIn 0.3s;
+        animation: fadeIn 0.2s;
+      }
+
+      .modal.show {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px 20px 0 0;
+        width: 100%;
+        max-width: 600px;
+        max-height: 85vh;
+        overflow: hidden;
+        animation: slideUp 0.3s;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
       }
 
       @keyframes fadeIn {
@@ -586,164 +456,195 @@
         }
       }
 
-      .modal.show {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .modal-content {
-        background-color: white;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.3s;
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(50px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
       .modal-header {
-        background: linear-gradient(135deg, #456882 0%, #1b3c53 100%);
-        color: white;
-        padding: 1.5rem 2rem;
-        border-radius: 15px 15px 0 0;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: linear-gradient(135deg, #018790 0%, #01a0ab 100%);
+        color: white;
       }
 
-      .modal-header h2 {
+      .modal-header h3 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
       }
 
       .close-modal {
-        background: none;
+        background: rgba(255, 255, 255, 0.2);
         border: none;
         color: white;
-        font-size: 1.5rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         cursor: pointer;
-        width: 30px;
-        height: 30px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        transition: background 0.3s;
-      }
-
-      .close-modal:hover {
-        background: rgba(255, 255, 255, 0.2);
+        font-size: 1.2rem;
       }
 
       .modal-body {
-        padding: 2rem;
+        padding: 1.5rem;
+        overflow-y: auto;
+        max-height: calc(85vh - 130px);
       }
 
-      .transaction-detail-row {
+      .detail-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .detail-section h4 {
+        font-size: 0.85rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+
+      .detail-row {
         display: flex;
         justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f5f5f5;
       }
 
-      .transaction-detail-row:last-child {
+      .detail-row:last-child {
         border-bottom: none;
       }
 
       .detail-label {
-        font-weight: 600;
-        color: #6c757d;
         font-size: 0.9rem;
+        color: #666;
       }
 
       .detail-value {
-        font-weight: 600;
+        font-size: 0.9rem;
         color: #1b3c53;
+        font-weight: 600;
         text-align: right;
       }
 
-      .detail-value.success {
-        color: #28a745;
-      }
-
-      .detail-value.amount-large {
-        font-size: 1.8rem;
-        font-weight: 700;
+      .detail-value.highlight {
+        font-size: 1.5rem;
+        color: #018790;
       }
 
       .modal-footer {
-        padding: 1.5rem 2rem;
-        background: #f8f9fa;
-        border-radius: 0 0 15px 15px;
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f0f0f0;
+        background: #fafafa;
       }
 
-      /* Responsive Design */
-      @media (max-width: 768px) {
+      .modal-footer button {
+        width: 100%;
+        padding: 0.9rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        background: #018790;
+        color: white;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        margin: 1rem;
+      }
+
+      .empty-state i {
+        font-size: 3.5rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state h3 {
+        color: #666;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .empty-state p {
+        color: #999;
+        font-size: 0.9rem;
+      }
+
+      /* Desktop Responsive */
+      @media (min-width: 768px) {
         .transaction-container {
-          padding: 1rem;
+          padding: 2rem;
+          padding-bottom: 2rem;
         }
 
-        .page-header h1 {
-          font-size: 1.8rem;
+        .page-header {
+          border-radius: 15px;
+          margin-bottom: 2rem;
         }
 
-        .filter-grid {
-          grid-template-columns: 1fr;
+        .summary-cards {
+          grid-template-columns: repeat(4, 1fr);
+          margin: 0 0 2rem 0;
         }
 
-        .summary-section {
-          grid-template-columns: 1fr;
+        .filter-section {
+          margin: 0 0 2rem 0;
         }
 
-        .transaction-table {
-          display: block;
-          overflow-x: auto;
+        .search-section {
+          padding: 0 0 2rem 0;
         }
 
-        .transaction-table th,
-        .transaction-table td {
-          padding: 0.75rem 1rem;
-          font-size: 0.9rem;
+        .transaction-list {
+          padding: 0;
         }
 
-        .list-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: flex-start;
+        .transaction-card {
+          padding: 1.2rem 1.5rem;
         }
 
         .modal-content {
-          width: 95%;
-          max-height: 85vh;
+          border-radius: 20px;
+          max-width: 500px;
         }
 
-        .modal-body {
-          padding: 1.5rem;
+        .modal.show {
+          align-items: center;
+        }
+      }
+
+      @media (max-width: 767px) {
+        .main-content {
+          padding: 0;
         }
 
-        .transaction-detail-row {
-          flex-direction: column;
-          gap: 0.5rem;
+        .transaction-container {
+          padding-top: 0;
+          max-width: 100%;
         }
 
-        .detail-value {
-          text-align: left;
+        .page-header {
+          border-radius: 0;
+        }
+
+        .page-header h1 {
+          font-size: 1.3rem;
+        }
+
+        .summary-card .amount {
+          font-size: 1.2rem;
+        }
+
+        .filter-row {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -761,165 +662,140 @@
         <!-- Page Header -->
         <div class="page-header">
           <h1><i class="fas fa-history"></i> Transaction History</h1>
-          <p>View and manage all your transactions</p>
+          <p>View all your transactions</p>
         </div>
 
         <!-- Filter Section -->
         <div class="filter-section">
           <div class="filter-header">
-            <h2><i class="fas fa-filter"></i> Filters</h2>
+            <h3><i class="fas fa-filter"></i> Filter Transactions</h3>
             <button class="filter-toggle" onclick="toggleFilters()">
-              <i class="fas fa-chevron-up"></i> Toggle Filters
+              <span id="filterToggleText">Show</span>
+              <i class="fas fa-chevron-down" id="filterToggleIcon"></i>
             </button>
           </div>
-          <div class="filter-grid" id="filterGrid">
-            <div class="filter-group">
-              <label for="dateFrom">Date From</label>
-              <input type="date" id="dateFrom" />
+          <div class="filter-content" id="filterContent">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label for="dateFrom">From Date</label>
+                <input type="date" id="dateFrom" />
+              </div>
+              <div class="filter-group">
+                <label for="dateTo">To Date</label>
+                <input type="date" id="dateTo" />
+              </div>
             </div>
-            <div class="filter-group">
-              <label for="dateTo">Date To</label>
-              <input type="date" id="dateTo" />
+            <div class="filter-row">
+              <div class="filter-group">
+                <label for="transactionType">Type</label>
+                <select id="transactionType">
+                  <option value="">All Types</option>
+                  <option value="credit">Credit</option>
+                  <option value="debit">Debit</option>
+                  <option value="transfer">Transfer</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="status">Status</label>
+                <select id="status">
+                  <option value="">All Status</option>
+                  <option value="success">Success</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
             </div>
-            <div class="filter-group">
-              <label for="transactionType">Transaction Type</label>
-              <select id="transactionType">
-                <option value="">All Types</option>
-                <option value="credit">Credit</option>
-                <option value="debit">Debit</option>
-                <option value="transfer">Transfer</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="status">Status</label>
-              <select id="status">
-                <option value="">All Status</option>
-                <option value="success">Success</option>
-                <option value="pending">Pending</option>
-                <option value="failed">Failed</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="minAmount">Min Amount</label>
-              <input type="number" id="minAmount" placeholder="₹0" />
-            </div>
-            <div class="filter-group">
-              <label for="maxAmount">Max Amount</label>
-              <input type="number" id="maxAmount" placeholder="₹10000" />
+            <div class="filter-actions">
+              <button class="btn-apply" onclick="applyFilters()">
+                <i class="fas fa-check"></i> Apply
+              </button>
+              <button class="btn-reset" onclick="resetFilters()">
+                <i class="fas fa-undo"></i> Reset
+              </button>
             </div>
           </div>
-          <div class="filter-actions">
-            <button class="btn btn-primary">
-              <i class="fas fa-search"></i> Apply Filters
-            </button>
-            <button class="btn btn-secondary">
-              <i class="fas fa-redo"></i> Reset
-            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search transactions..."
+              id="searchInput"
+              oninput="searchTransactions()"
+            />
           </div>
         </div>
 
         <!-- Transaction List -->
         <div class="transaction-list">
-          <div class="list-header">
-            <h2><i class="fas fa-receipt"></i> All Transactions</h2>
-            <button class="export-btn">
-              <i class="fas fa-download"></i> Export
-            </button>
-          </div>
-
-          <!-- Search Bar -->
-          <div class="search-bar">
-            <div class="search-input-wrapper">
-              <i class="fas fa-search search-icon"></i>
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Search by transaction ID, description, or amount..."
-              />
-            </div>
-          </div>
-
-          <!-- Monthly Grouped Transactions -->
-          <div class="monthly-transactions">
-            <% if (hasTransactions) { %>
-              <% let monthIndex = 0; %>
-              <% for (const [monthYear, data] of Object.entries(groupedTransactions)) { %>
-                <% const monthId = monthYear.toLowerCase().replace(/\s+/g, ''); %>
-                <% const isFirstMonth = monthIndex === 0; %>
-                <div class="monthly-group">
-                  <div class="month-header" onclick="toggleMonth('<%= monthId %>')">
-                    <div class="month-info">
-                      <span class="month-name"><%= monthYear %></span>
-                      <span class="month-count"><%= data.count %> transaction<%= data.count !== 1 ? 's' : '' %></span>
-                    </div>
-                    <div class="month-summary">
-                      <% if (data.totalCredit > 0) { %>
-                      <div class="summary-item">
-                        <span class="summary-label">Credit</span>
-                        <span class="summary-value credit">+₹<%= data.totalCredit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
-                      </div>
-                      <% } %>
-                      <% if (data.totalDebit > 0) { %>
-                      <div class="summary-item">
-                        <span class="summary-label">Debit</span>
-                        <span class="summary-value debit">-₹<%= data.totalDebit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
-                      </div>
-                      <% } %>
-                      <i class="fas fa-chevron-down month-toggle <%= isFirstMonth ? 'expanded' : '' %>" id="toggle-<%= monthId %>"></i>
-                    </div>
+          <% if (hasTransactions) { %>
+            <% let monthIndex = 0; %>
+            <% for (const [monthYear, data] of Object.entries(groupedTransactions)) { %>
+              <% const monthId = monthYear.toLowerCase().replace(/\s+/g, ''); %>
+              <% const isFirstMonth = monthIndex === 0; %>
+              <div class="date-group">
+                <div class="month-header-section" onclick="toggleMonth('<%= monthId %>')">
+                  <div class="date-header">
+                    <%= monthYear %>
                   </div>
-                  <div class="month-transactions <%= isFirstMonth ? 'expanded' : '' %>" id="month-<%= monthId %>">
-                    <table class="transaction-table">
-                      <thead>
-                        <tr>
-                          <th>Transaction ID</th>
-                          <th>Date & Time</th>
-                          <th>Type</th>
-                          <th>Description</th>
-                          <th>Amount</th>
-                          <th>Status</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% data.transactions.forEach(txn => { %>
-                        <tr>
-                          <td class="transaction-id"><%= txn.transactionId %></td>
-                          <td><%= txn.date %><br /><small><%= txn.time %></small></td>
-                          <td><span class="transaction-type type-<%= txn.type %>"><%= txn.type.charAt(0).toUpperCase() + txn.type.slice(1) %></span></td>
-                          <td><%= txn.description %><br /><small><%= txn.bank %></small></td>
-                          <td class="<%= txn.isCredit ? 'amount-positive' : 'amount-negative' %>">
-                            <%= txn.isCredit ? '+' : '-' %>₹<%= txn.amount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
-                          </td>
-                          <td><span class="status-badge status-<%= txn.status %>"><%= txn.status.charAt(0).toUpperCase() + txn.status.slice(1) %></span></td>
-                          <td>
-                            <div class="action-buttons">
-                              <button class="action-btn btn-view" title="View Details"
-                                onclick='viewTransaction(<%= JSON.stringify(txn) %>)'>
-                                <i class="fas fa-eye"></i>
-                              </button>
-                              <button class="action-btn btn-download" title="Download Receipt"
-                                onclick='downloadReceipt(<%= JSON.stringify(txn) %>)'>
-                                <i class="fas fa-download"></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        <% }); %>
-                      </tbody>
-                    </table>
+                  <div class="month-summary-inline">
+                    <i class="fas fa-chevron-down month-toggle-icon <%= isFirstMonth ? 'expanded' : '' %>" id="toggle-<%= monthId %>"></i>
                   </div>
                 </div>
-                <% monthIndex++; %>
-              <% } %>
-            <% } else { %>
-              <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h3>No Transactions Found</h3>
-                <p>You don't have any transactions yet. Start making transactions to see your history here.</p>
+                <div class="month-info-section <%= isFirstMonth ? 'expanded' : '' %>" id="info-<%= monthId %>">
+                  <div class="month-stats">
+                    <span class="month-count"><%= data.count %> transaction<%= data.count !== 1 ? 's' : '' %></span>
+                    <div class="month-totals">
+                      <% if (data.totalCredit > 0) { %>
+                        <span class="summary-credit"><i class="fas fa-arrow-down"></i> +₹<%= data.totalCredit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
+                      <% } %>
+                      <% if (data.totalDebit > 0) { %>
+                        <span class="summary-debit"><i class="fas fa-arrow-up"></i> -₹<%= data.totalDebit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="month-transactions <%= isFirstMonth ? 'expanded' : '' %>" id="month-<%= monthId %>">
+                  <% data.transactions.forEach(txn => { %>
+                    <div class="transaction-card" onclick='viewTransaction(<%= JSON.stringify(txn) %>)'>
+                      <div class="transaction-row">
+                        <div class="transaction-icon <%= txn.type %>">
+                          <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
+                        </div>
+                        <div class="transaction-info">
+                          <div class="transaction-title">
+                            <%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %>
+                          </div>
+                          <div class="transaction-subtitle">
+                            <span><%= txn.date %></span>
+                          </div>
+                        </div>
+                        <div class="transaction-amount">
+                          <div class="amount-value <%= txn.isCredit ? 'positive' : 'negative' %>">
+                            <%= txn.isCredit ? '+' : '-' %>₹<%= txn.amount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
+                          </div>
+                          <div class="transaction-status status-<%= txn.status %>">
+                            <%= txn.status %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
               </div>
+              <% monthIndex++; %>
             <% } %>
-          </div>
+          <% } else { %>
+            <div class="empty-state">
+              <i class="fas fa-receipt"></i>
+              <h3>No Transactions Yet</h3>
+              <p>Your transaction history will appear here</p>
+            </div>
+          <% } %>
         </div>
       </div>
     </main>
@@ -928,7 +804,7 @@
     <div id="transactionModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2><i class="fas fa-receipt"></i> Transaction Details</h2>
+          <h3><i class="fas fa-receipt"></i> Transaction Details</h3>
           <button class="close-modal" onclick="closeModal()">
             <i class="fas fa-times"></i>
           </button>
@@ -937,123 +813,271 @@
           <!-- Content will be dynamically inserted -->
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeModal()">
-            <i class="fas fa-times"></i> Close
-          </button>
-          <button class="btn btn-primary" id="downloadFromModal">
-            <i class="fas fa-download"></i> Download Receipt
+          <button onclick="closeModal()">
+            <i class="fas fa-check"></i> Close
           </button>
         </div>
       </div>
     </div>
 
+    <%- include('partials/MobileNav') %>
+
     <script src="/js/header.js"></script>
-    <script src="/js/navbar.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-      // Toggle filter visibility
+      // Toggle Filters
       function toggleFilters() {
-        const filterGrid = document.getElementById('filterGrid');
-        const toggleBtn = document.querySelector('.filter-toggle i');
+        const content = document.getElementById('filterContent');
+        const icon = document.getElementById('filterToggleIcon');
+        const text = document.getElementById('filterToggleText');
         
-        if (filterGrid.style.display === 'none') {
-          filterGrid.style.display = 'grid';
-          toggleBtn.classList.remove('fa-chevron-down');
-          toggleBtn.classList.add('fa-chevron-up');
+        content.classList.toggle('active');
+        
+        if (content.classList.contains('active')) {
+          icon.style.transform = 'rotate(180deg)';
+          text.textContent = 'Hide';
         } else {
-          filterGrid.style.display = 'none';
-          toggleBtn.classList.remove('fa-chevron-up');
-          toggleBtn.classList.add('fa-chevron-down');
+          icon.style.transform = 'rotate(0deg)';
+          text.textContent = 'Show';
         }
       }
 
-      // Toggle monthly transaction group
+      // Toggle Month Transactions
       function toggleMonth(monthId) {
         const monthTransactions = document.getElementById('month-' + monthId);
+        const monthInfo = document.getElementById('info-' + monthId);
         const toggleIcon = document.getElementById('toggle-' + monthId);
         
         if (monthTransactions.classList.contains('expanded')) {
           monthTransactions.classList.remove('expanded');
+          monthInfo.classList.remove('expanded');
           toggleIcon.classList.remove('expanded');
         } else {
           monthTransactions.classList.add('expanded');
+          monthInfo.classList.add('expanded');
           toggleIcon.classList.add('expanded');
         }
       }
 
-      // Set default date values
-      document.addEventListener('DOMContentLoaded', function() {
-        const today = new Date();
-        const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-        
-        document.getElementById('dateTo').valueAsDate = today;
-        document.getElementById('dateFrom').valueAsDate = lastMonth;
-      });
+      // Apply Filters
+      function applyFilters() {
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const type = document.getElementById('transactionType').value;
+        const status = document.getElementById('status').value;
 
-      // Store current transaction for modal operations
+        const cards = document.querySelectorAll('.transaction-card');
+        const monthGroups = document.querySelectorAll('.date-group');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          let showCard = true;
+          
+          // Get transaction data from the card
+          const transactionText = card.textContent;
+          const dateText = card.querySelector('.transaction-subtitle span').textContent;
+          const transactionType = card.querySelector('.transaction-icon').classList.contains('credit') ? 'credit' : 'debit';
+          
+          // Parse the transaction date
+          const transactionDate = new Date(dateText);
+          
+          // Filter by date range
+          if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            if (transactionDate < fromDate) {
+              showCard = false;
+            }
+          }
+          
+          if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999); // End of day
+            if (transactionDate > toDate) {
+              showCard = false;
+            }
+          }
+          
+          // Filter by transaction type
+          if (type && transactionType !== type) {
+            showCard = false;
+          }
+          
+          // Filter by status (all are success for now)
+          if (status && status !== 'success') {
+            showCard = false;
+          }
+          
+          card.style.display = showCard ? 'block' : 'none';
+          if (showCard) visibleCount++;
+        });
+
+        // Hide month groups that have no visible transactions
+        monthGroups.forEach(group => {
+          const monthTransactions = group.querySelector('.month-transactions');
+          const visibleCards = Array.from(monthTransactions.querySelectorAll('.transaction-card'))
+            .filter(card => card.style.display !== 'none');
+          
+          if (visibleCards.length === 0) {
+            group.style.display = 'none';
+          } else {
+            group.style.display = 'block';
+          }
+        });
+
+        showToast(`Filters applied - ${visibleCount} transaction${visibleCount !== 1 ? 's' : ''} found`, 'success');
+      }
+
+      // Reset Filters
+      function resetFilters() {
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        document.getElementById('transactionType').value = '';
+        document.getElementById('status').value = '';
+        
+        // Show all cards
+        const cards = document.querySelectorAll('.transaction-card');
+        cards.forEach(card => {
+          card.style.display = 'block';
+        });
+        
+        // Show all month groups
+        const monthGroups = document.querySelectorAll('.date-group');
+        monthGroups.forEach(group => {
+          group.style.display = 'block';
+        });
+        
+        // Reset search input
+        document.getElementById('searchInput').value = '';
+        
+        showToast('Filters reset', 'info');
+      }
+
+      // Search Transactions
+      function searchTransactions() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.transaction-card');
+        
+        cards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      // View Transaction Details
       let currentTransaction = null;
 
-      // View transaction details in modal
       function viewTransaction(txn) {
         currentTransaction = txn;
         const modal = document.getElementById('transactionModal');
         const modalBody = document.getElementById('modalBody');
-        
-        const statusClass = txn.status === 'success' ? 'success' : '';
-        const amountSign = txn.isCredit ? '+' : '-';
-        const amountColor = txn.isCredit ? 'style="color: #28a745;"' : 'style="color: #dc3545;"';
-        
+
+        const statusColor = txn.status === 'success' ? '#00a86b' : txn.status === 'pending' ? '#ff9800' : '#ff6b6b';
+        const amountColor = txn.isCredit ? '#00a86b' : '#ff6b6b';
+
         modalBody.innerHTML = `
-          <div class="transaction-detail-row">
-            <span class="detail-label">Transaction ID</span>
-            <span class="detail-value">${txn.transactionId}</span>
+          <div class="detail-section">
+            <h4>Transaction Information</h4>
+            <div class="detail-row">
+              <span class="detail-label">Transaction ID</span>
+              <span class="detail-value">${txn.transactionId}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Date & Time</span>
+              <span class="detail-value">${txn.date} ${txn.time}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Type</span>
+              <span class="detail-value">${txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status</span>
+              <span class="detail-value" style="color: ${statusColor}">${txn.status.toUpperCase()}</span>
+            </div>
           </div>
-          <div class="transaction-detail-row">
-            <span class="detail-label">Date & Time</span>
-            <span class="detail-value">${txn.date} at ${txn.time}</span>
+
+          <div class="detail-section">
+            <h4>${txn.isCredit ? 'Received From' : 'Sent To'}</h4>
+            ${txn.isCredit && txn.senderName ? `
+            <div class="detail-row">
+              <span class="detail-label">Name</span>
+              <span class="detail-value">${txn.senderName}</span>
+            </div>
+            ` : ''}
+            ${!txn.isCredit && txn.receiverName ? `
+            <div class="detail-row">
+              <span class="detail-label">Name</span>
+              <span class="detail-value">${txn.receiverName}</span>
+            </div>
+            ` : ''}
+            ${txn.isCredit && txn.senderAccountNumber ? `
+            <div class="detail-row">
+              <span class="detail-label">Account Number</span>
+              <span class="detail-value">${txn.senderAccountNumber}</span>
+            </div>
+            ` : ''}
+            ${!txn.isCredit && txn.receiverAccountNumber ? `
+            <div class="detail-row">
+              <span class="detail-label">Account Number</span>
+              <span class="detail-value">${txn.receiverAccountNumber}</span>
+            </div>
+            ` : ''}
+            ${txn.isCredit && txn.senderBank ? `
+            <div class="detail-row">
+              <span class="detail-label">Bank</span>
+              <span class="detail-value">${txn.senderBank}</span>
+            </div>
+            ` : ''}
+            ${!txn.isCredit && txn.receiverBank ? `
+            <div class="detail-row">
+              <span class="detail-label">Bank</span>
+              <span class="detail-value">${txn.receiverBank}</span>
+            </div>
+            ` : ''}
+            ${txn.bank ? `
+            <div class="detail-row">
+              <span class="detail-label">Bank</span>
+              <span class="detail-value">${txn.bank}</span>
+            </div>
+            ` : ''}
           </div>
-          <div class="transaction-detail-row">
-            <span class="detail-label">Type</span>
-            <span class="detail-value">
-              <span class="transaction-type type-${txn.type}">
-                ${txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}
+
+          <div class="detail-section">
+            <h4>Payment Details</h4>
+            <div class="detail-row">
+              <span class="detail-label">Description</span>
+              <span class="detail-value">${txn.description || 'N/A'}</span>
+            </div>
+            ${txn.paymentMethod ? `
+            <div class="detail-row">
+              <span class="detail-label">Payment Method</span>
+              <span class="detail-value">${txn.paymentMethod}</span>
+            </div>
+            ` : ''}
+            ${txn.reference ? `
+            <div class="detail-row">
+              <span class="detail-label">Reference</span>
+              <span class="detail-value">${txn.reference}</span>
+            </div>
+            ` : ''}
+            <div class="detail-row">
+              <span class="detail-label">Amount</span>
+              <span class="detail-value highlight" style="color: ${amountColor}">
+                ${txn.isCredit ? '+' : '-'}₹${txn.amount.toLocaleString('en-IN', {maximumFractionDigits: 2})}
               </span>
-            </span>
-          </div>
-          <div class="transaction-detail-row">
-            <span class="detail-label">Description</span>
-            <span class="detail-value">${txn.description}</span>
-          </div>
-          <div class="transaction-detail-row">
-            <span class="detail-label">Bank</span>
-            <span class="detail-value">${txn.bank}</span>
-          </div>
-          <div style="background: ${txn.isCredit ? '#d4edda' : '#f8d7da'}; padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0; display: flex; justify-content: space-between; align-items: center;">
-            <span class="detail-label" style="font-size: 1.2rem; font-weight: 700; color: #333;">Amount</span>
-            <span ${amountColor} style="font-size: 2rem; font-weight: 700;">
-              ${amountSign}₹${txn.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-            </span>
-          </div>
-          <div class="transaction-detail-row">
-            <span class="detail-label">Status</span>
-            <span class="detail-value">
-              <span class="status-badge status-${txn.status}">
-                ${txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
-              </span>
-            </span>
+            </div>
           </div>
         `;
-        
+
         modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
       }
 
-      // Close modal
+      // Close Modal
       function closeModal() {
         const modal = document.getElementById('transactionModal');
         modal.classList.remove('show');
-        document.body.style.overflow = 'auto';
-        currentTransaction = null;
       }
 
       // Close modal when clicking outside
@@ -1062,337 +1086,16 @@
         if (event.target === modal) {
           closeModal();
         }
-      }
+      };
 
-      // Download receipt from modal
-      document.getElementById('downloadFromModal').addEventListener('click', function() {
-        if (currentTransaction) {
-          downloadReceipt(currentTransaction);
+      // Toast Notification
+      function showToast(message, type = 'info') {
+        if (typeof window.showToast === 'function') {
+          window.showToast(message, type);
+        } else {
+          console.log(`Toast: ${message} (${type})`);
         }
-      });
-
-      // Download receipt as PDF
-      function downloadReceipt(txn) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Set colors
-        const primaryColor = [69, 104, 130]; // #456882
-        const darkColor = [27, 60, 83]; // #1b3c53
-        const successColor = [40, 167, 69];
-        const dangerColor = [220, 53, 69];
-        const lightGray = [248, 249, 250];
-        
-        // Load and add logo
-        const logo = new Image();
-        logo.src = '/Images/bgFavicon.png';
-        
-        logo.onload = function() {
-          // Header background with gradient effect
-          doc.setFillColor(...primaryColor);
-          doc.rect(0, 0, 210, 50, 'F');
-          
-          // Add logo
-          doc.addImage(logo, 'PNG', 15, 12, 25, 25);
-          
-          // Company name and title
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(28);
-          doc.setFont('helvetica', 'bold');
-          doc.text('ZenoPay', 50, 23);
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'normal');
-          doc.text('Transaction Receipt', 50, 32);
-          
-          // Transaction type badge - top right
-          const typeColor = txn.isCredit ? successColor : dangerColor;
-          doc.setFillColor(...typeColor);
-          doc.roundedRect(155, 15, 40, 10, 2, 2, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'bold');
-          doc.text(txn.type.toUpperCase(), 175, 22, { align: 'center' });
-          
-          // Decorative line
-          doc.setDrawColor(...darkColor);
-          doc.setLineWidth(0.8);
-          doc.line(15, 55, 195, 55);
-          
-          // Transaction Details Section
-          let yPos = 70;
-          doc.setTextColor(...darkColor);
-          doc.setFontSize(14);
-          doc.setFont('helvetica', 'bold');
-          doc.text('Transaction Details', 15, yPos);
-          
-          yPos += 12;
-          const lineHeight = 11;
-          
-          const details = [
-            { label: 'Transaction ID', value: txn.transactionId },
-            { label: 'Date', value: txn.date },
-            { label: 'Time', value: txn.time },
-            { label: 'Description', value: txn.description },
-            { label: 'From (Sender)', value: txn.senderName },
-            { label: 'Sender Account', value: txn.senderAccountNumber },
-            { label: 'Sender Bank', value: txn.senderBank },
-            { label: 'To (Receiver)', value: txn.receiverName },
-            { label: 'Receiver Account', value: txn.receiverAccountNumber },
-            { label: 'Receiver Bank', value: txn.receiverBank },
-            { label: 'Status', value: txn.status.toUpperCase() }
-          ];
-          
-          doc.setFontSize(10);
-          
-          details.forEach((detail, index) => {
-            // Alternate row background
-            if (index % 2 === 0) {
-              doc.setFillColor(...lightGray);
-              doc.rect(15, yPos - 6, 180, 9, 'F');
-            }
-            
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(100, 100, 100);
-            doc.text(detail.label + ':', 20, yPos);
-            
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(0, 0, 0);
-            doc.text(detail.value, 80, yPos);
-            
-            yPos += lineHeight;
-          });
-          
-          // Amount Section - highlighted box
-          yPos += 10;
-          doc.setFillColor(...typeColor);
-          doc.roundedRect(15, yPos - 8, 180, 30, 4, 4, 'F');
-          
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(14);
-          doc.text('Amount', 20, yPos + 5);
-          
-          doc.setFontSize(24);
-          const amountSign = txn.isCredit ? '+' : '-';
-          const amountText = `${amountSign}₹${txn.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-          doc.text(amountText, 190, yPos + 8, { align: 'right' });
-          
-          // Note section
-          yPos += 45;
-          doc.setFillColor(255, 251, 230);
-          doc.roundedRect(15, yPos, 180, 25, 3, 3, 'F');
-          doc.setDrawColor(255, 193, 7);
-          doc.setLineWidth(0.5);
-          doc.roundedRect(15, yPos, 180, 25, 3, 3, 'S');
-          
-          doc.setTextColor(133, 100, 4);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'italic');
-          doc.text('Note: This is a computer-generated receipt and does not require a signature.', 20, yPos + 8);
-          doc.text('Please keep this receipt for your records.', 20, yPos + 15);
-          
-          // Footer
-          yPos = 265;
-          doc.setDrawColor(...primaryColor);
-          doc.setLineWidth(0.3);
-          doc.line(15, yPos, 195, yPos);
-          
-          yPos += 7;
-          doc.setTextColor(120, 120, 120);
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'normal');
-          doc.text(`Generated on: ${new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`, 105, yPos, { align: 'center' });
-          doc.setFont('helvetica', 'bold');
-          doc.text('ZenoPay - Secure Digital Payments', 105, yPos + 5, { align: 'center' });
-          doc.setFont('helvetica', 'normal');
-          doc.text('www.zenopay.com | support@zenopay.com', 105, yPos + 10, { align: 'center' });
-          
-          // Save PDF
-          const fileName = `ZenoPay_Receipt_${txn.transactionId}_${Date.now()}.pdf`;
-          doc.save(fileName);
-          
-          // Show success message
-          showToast('Receipt downloaded successfully!', 'success');
-        };
-        
-        logo.onerror = function() {
-          // Fallback if logo doesn't load
-          console.warn('Logo failed to load, generating receipt without logo');
-          generateReceiptWithoutLogo(doc, txn, primaryColor, darkColor, successColor, dangerColor, lightGray);
-        };
       }
-      
-      // Fallback function to generate receipt without logo
-      function generateReceiptWithoutLogo(doc, txn, primaryColor, darkColor, successColor, dangerColor, lightGray) {
-        // Header background
-        doc.setFillColor(...primaryColor);
-        doc.rect(0, 0, 210, 50, 'F');
-        
-        // Company name
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(28);
-        doc.setFont('helvetica', 'bold');
-        doc.text('ZenoPay', 105, 23, { align: 'center' });
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Transaction Receipt', 105, 32, { align: 'center' });
-        
-        // Continue with rest of the receipt (same as in the main function)
-        const typeColor = txn.isCredit ? successColor : dangerColor;
-        doc.setFillColor(...typeColor);
-        doc.roundedRect(155, 15, 40, 10, 2, 2, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text(txn.type.toUpperCase(), 175, 22, { align: 'center' });
-        
-        doc.setDrawColor(...darkColor);
-        doc.setLineWidth(0.8);
-        doc.line(15, 55, 195, 55);
-        
-        let yPos = 70;
-        doc.setTextColor(...darkColor);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Transaction Details', 15, yPos);
-        
-        yPos += 12;
-        const lineHeight = 11;
-        
-        const details = [
-          { label: 'Transaction ID', value: txn.transactionId },
-          { label: 'Date', value: txn.date },
-          { label: 'Time', value: txn.time },
-          { label: 'Description', value: txn.description },
-          { label: 'From (Sender)', value: txn.senderName },
-          { label: 'Sender Account', value: txn.senderAccountNumber },
-          { label: 'Sender Bank', value: txn.senderBank },
-          { label: 'To (Receiver)', value: txn.receiverName },
-          { label: 'Receiver Account', value: txn.receiverAccountNumber },
-          { label: 'Receiver Bank', value: txn.receiverBank },
-          { label: 'Status', value: txn.status.toUpperCase() }
-        ];
-        
-        doc.setFontSize(10);
-        
-        details.forEach((detail, index) => {
-          if (index % 2 === 0) {
-            doc.setFillColor(...lightGray);
-            doc.rect(15, yPos - 6, 180, 9, 'F');
-          }
-          
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(100, 100, 100);
-          doc.text(detail.label + ':', 20, yPos);
-          
-          doc.setFont('helvetica', 'normal');
-          doc.setTextColor(0, 0, 0);
-          doc.text(detail.value, 80, yPos);
-          
-          yPos += lineHeight;
-        });
-        
-        yPos += 10;
-        doc.setFillColor(...typeColor);
-        doc.roundedRect(15, yPos - 8, 180, 30, 4, 4, 'F');
-        
-        doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Amount', 20, yPos + 5);
-        
-        doc.setFontSize(24);
-        const amountSign = txn.isCredit ? '+' : '-';
-        const amountText = `${amountSign}₹${txn.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        doc.text(amountText, 190, yPos + 8, { align: 'right' });
-        
-        yPos += 45;
-        doc.setFillColor(255, 251, 230);
-        doc.roundedRect(15, yPos, 180, 25, 3, 3, 'F');
-        doc.setDrawColor(255, 193, 7);
-        doc.setLineWidth(0.5);
-        doc.roundedRect(15, yPos, 180, 25, 3, 3, 'S');
-        
-        doc.setTextColor(133, 100, 4);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'italic');
-        doc.text('Note: This is a computer-generated receipt and does not require a signature.', 20, yPos + 8);
-        doc.text('Please keep this receipt for your records.', 20, yPos + 15);
-        
-        yPos = 265;
-        doc.setDrawColor(...primaryColor);
-        doc.setLineWidth(0.3);
-        doc.line(15, yPos, 195, yPos);
-        
-        yPos += 7;
-        doc.setTextColor(120, 120, 120);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Generated on: ${new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`, 105, yPos, { align: 'center' });
-        doc.setFont('helvetica', 'bold');
-        doc.text('ZenoPay - Secure Digital Payments', 105, yPos + 5, { align: 'center' });
-        doc.setFont('helvetica', 'normal');
-        doc.text('www.zenopay.com | support@zenopay.com', 105, yPos + 10, { align: 'center' });
-        
-        const fileName = `ZenoPay_Receipt_${txn.transactionId}_${Date.now()}.pdf`;
-        doc.save(fileName);
-        showToast('Receipt downloaded successfully!', 'success');
-      }
-
-      // Show toast notification
-      function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: ${type === 'success' ? '#28a745' : '#dc3545'};
-          color: white;
-          padding: 1rem 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-          z-index: 10000;
-          animation: slideIn 0.3s ease-out;
-        `;
-        toast.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            <span>${message}</span>
-          </div>
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-          toast.style.animation = 'slideOut 0.3s ease-out';
-          setTimeout(() => toast.remove(), 300);
-        }, 3000);
-      }
-
-      // Add CSS animation for toast
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        @keyframes slideOut {
-          from {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          to {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-        }
-      `;
-      document.head.appendChild(style);
     </script>
   </body>
 </html>

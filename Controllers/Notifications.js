@@ -64,11 +64,22 @@ const getRecentNotifications = async (req, res) => {
 
 const markAsRead = async (req, res) => {
   try {
-    const { notificationId } = req.body;
-    await Notification.findByIdAndUpdate(notificationId, { IsRead: true });
+    if (!req.session.isLoggedIn || !req.session.user) {
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+    }
+
+    const zenoPayId = req.session.user.ZenoPayID;
+
+    // Mark all unread notifications as read for this user
+    await Notification.updateMany(
+      { ZenoPayId: zenoPayId, IsRead: false },
+      { IsRead: true }
+    );
+
     res.status(200).json({ success: true });
   } catch (err) {
-    res.status(500).json({ success: false });
+    console.error("Error in markAsRead:", err);
+    res.status(500).json({ success: false, message: "Error marking notifications as read" });
   }
 };
 

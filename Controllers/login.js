@@ -20,14 +20,14 @@ const postLogin = async (req, res) => {
       $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
     });
     if (!user) {
-      console.log("User not found!");
+     
       return res.status(401).json({
         success: false,
         message: "User not found. Please check your credentials.",
       });
     }
     if (user.Password !== password) {
-      console.log("Incorrect password!");
+     
       return res.status(401).json({
         success: false,
         message: "Invalid password. Please try again.",
@@ -54,14 +54,14 @@ const postLogin = async (req, res) => {
       req.session.isLoggedIn = true;
       req.session.save((saveErr) => {
         if (saveErr) {
-          console.error("Session save failed:", saveErr);
+       
           return res.status(500).json({
             success: false,
             message: "Session save error. Please try again.",
           });
         }
 
-        console.log("Session saved successfully!");
+       
         return res.status(200).json({
           success: true,
           message: "Login successful!",
@@ -69,7 +69,7 @@ const postLogin = async (req, res) => {
       });
     });
   } catch (err) {
-    console.error("Login Controller Error:", err);
+  
 
     return res.status(500).json({
       success: false,
@@ -79,11 +79,7 @@ const postLogin = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  console.log(
-    "User logged out:",
-    req.session.user ? req.session.user.name : "Unknown User"
-  );
-
+  
   req.session.destroy((err) => {
     if (err) {
       console.log("Logout error:", err);

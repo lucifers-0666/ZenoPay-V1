@@ -1,5 +1,6 @@
 const ZenoPayDetails = require("../Models/ZenoPayUser");
-const emailService = require("../Services/EmailService"); 
+const emailService = require("../Services/EmailService");
+const { uploadToAzure } = require("../Services/azureStorage"); 
 
 const getRegisterZenoPay = (req, res) => {
   res.render("ZenoPayRegister",{
@@ -25,6 +26,21 @@ const postRegisterZenoPay = async (req, res) => {
 
     const ZenoPayID = "ZENO-" + Date.now();
 
+    // Upload image to Azure Blob Storage if file is provided
+    let imageUrl = null;
+    if (file) {
+      try {
+        imageUrl = await uploadToAzure(file.buffer, file.originalname);
+        console.log("Image uploaded to Azure:", imageUrl);
+      } catch (uploadError) {
+        console.error("Failed to upload image to Azure:", uploadError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload profile image. Please try again.",
+        });
+      }
+    }
+
     const newZenoPay = new ZenoPayDetails({
       ZenoPayID,
       Password: data.Password,
@@ -41,7 +57,7 @@ const postRegisterZenoPay = async (req, res) => {
       Pincode: data.Pincode,
       Role: data.Role || "user",
       BusinessName: data.BusinessName || "",
-      ImagePath: file ? `/Uploads/${file.filename}` : null,
+      ImagePath: imageUrl, // Store Azure Blob URL instead of local path
     });
 
     await newZenoPay.save();

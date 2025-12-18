@@ -1,0 +1,122 @@
+    <!-- Mobile Footer Navigation -->
+<footer class="mobile-footer" id="mobileFooter">
+  <nav class="footer-nav" id="footerNav">
+    <a href="/" class="footer-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>">
+      <div class="nav-icon">
+        <i class="fas fa-home"></i>
+      </div>
+      <span>Dashboard</span>
+    </a>
+    <a href="/send-to" class="footer-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'send-money') ? 'active' : '' %>">
+      <div class="nav-icon">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+      <span>Send</span>
+    </a>
+    <a href="/Transaction-History" class="footer-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'Transaction-History') ? 'active' : '' %>">
+      <div class="nav-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <span>History</span>
+    </a>
+    <a href="#payments" class="footer-nav-item">
+      <div class="nav-icon">
+        <i class="fas fa-credit-card"></i>
+      </div>
+      <span>Payments</span>
+    </a>
+    <a href="/notifications" class="footer-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>">
+      <div class="nav-icon">
+        <i class="fas fa-bell"></i>
+        <% if(typeof notificationCount !== 'undefined' && notificationCount > 0) { %>
+        <span class="badge"><%= notificationCount %></span>
+        <% } %>
+      </div>
+      <span>Alerts</span>
+    </a>
+    <a href="/Profile" class="footer-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>">
+      <div class="nav-icon">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <span>Account</span>
+    </a>
+    <% if(typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+    <a href="/logout" class="footer-nav-item">
+      <div class="nav-icon">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <span>Logout</span>
+    </a>
+    <% } else { %>
+    <a href="/login" class="footer-nav-item">
+      <div class="nav-icon">
+        <i class="fas fa-sign-in-alt"></i>
+      </div>
+      <span>Login</span>
+    </a>
+    <% } %>
+  </nav>
+</footer>
+
+<script>
+  // Enable horizontal scroll detection for mobile nav
+  document.addEventListener('DOMContentLoaded', function() {
+    const footerNav = document.getElementById('footerNav');
+    const mobileFooter = document.getElementById('mobileFooter');
+    
+    if (footerNav && mobileFooter) {
+      function checkScroll() {
+        const hasScroll = footerNav.scrollWidth > footerNav.clientWidth;
+        const isScrolledToEnd = footerNav.scrollLeft + footerNav.clientWidth >= footerNav.scrollWidth - 5;
+        
+        if (hasScroll && !isScrolledToEnd) {
+          mobileFooter.classList.add('has-scroll');
+        } else {
+          mobileFooter.classList.remove('has-scroll');
+        }
+      }
+      
+      checkScroll();
+      footerNav.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      
+      // Ensure navigation items are clickable
+      const navItems = document.querySelectorAll('.footer-nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && href !== '#' && !href.startsWith('#')) {
+            // Allow normal navigation
+            return true;
+          }
+        });
+        
+        // Prevent scroll interfering with clicks
+        let isScrolling = false;
+        let startX = 0;
+        
+        item.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          isScrolling = false;
+        });
+        
+        item.addEventListener('touchmove', function(e) {
+          const moveX = e.touches[0].clientX;
+          if (Math.abs(moveX - startX) > 10) {
+            isScrolling = true;
+          }
+        });
+        
+        item.addEventListener('touchend', function(e) {
+          if (!isScrolling) {
+            // It's a tap, not a scroll - navigate
+            const href = this.getAttribute('href');
+            if (href && href !== '#' && !href.startsWith('#')) {
+              window.location.href = href;
+            }
+          }
+        });
+      });
+    }
+  });
+</script>

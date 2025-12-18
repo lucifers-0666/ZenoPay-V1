@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Merchant Integration Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .product {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .code-block {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏪 Merchant Integration Example</h1>
+  
+  <div class="code-block">
+    <h3>Step 1: Include ZenoPay SDK</h3>
+    <pre>&lt;script src="http://localhost:3000/js/GatewayUI.js"&gt;&lt;/script&gt;</pre>
+  </div>
+
+  <div class="code-block">
+    <h3>Step 2: Initialize with Your API Key</h3>
+    <pre>
+ZenoPay.init({
+  apiKey: 'zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263',
+  merchantName: 'Your Store Name'
+});</pre>
+  </div>
+
+  <div class="code-block">
+    <h3>Step 3: Trigger Payment on Button Click</h3>
+    <pre>
+function handlePayment(amount, orderId, productName) {
+  ZenoPay.openPayment({
+    amount: amount,
+    orderId: orderId,
+    customerName: 'Customer Name',
+    customerEmail: 'customer@example.com',
+    customerMobile: '9876543210',
+    description: 'Purchase of ' + productName,
+    callbackUrl: window.location.origin + '/payment-success'
+  });
+}</pre>
+  </div>
+
+  <hr>
+
+  <h2>Live Demo:</h2>
+
+  <div class="product">
+    <h3>Product A</h3>
+    <p>Price: ₹500</p>
+    <button onclick="buyProduct('Product A', 500, 'ORD-A-001')">Buy Now</button>
+  </div>
+
+  <div class="product">
+    <h3>Product B</h3>
+    <p>Price: ₹1,200</p>
+    <button onclick="buyProduct('Product B', 1200, 'ORD-B-002')">Buy Now</button>
+  </div>
+
+  <div class="product">
+    <h3>Product C</h3>
+    <p>Price: ₹2,500</p>
+    <button onclick="buyProduct('Product C', 2500, 'ORD-C-003')">Buy Now</button>
+  </div>
+
+  <!-- Include ZenoPay SDK -->
+  <script src="http://localhost:3000/js/GatewayUI.js"></script>
+  
+  <script>
+    // Initialize ZenoPay
+    ZenoPay.init({
+      apiKey: 'zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263',
+      merchantName: 'Example Store'
+    });
+
+    // Handle product purchase
+    function buyProduct(productName, amount, orderId) {
+      ZenoPay.openPayment({
+        amount: amount,
+        orderId: orderId,
+        customerName: 'Demo Customer',
+        customerEmail: 'customer@example.com',
+        customerMobile: '9876543210',
+        description: `Purchase of ${productName}`,
+        callbackUrl: window.location.origin + '/payment-success',
+        metadata: {
+          productName: productName,
+          source: 'merchant-example'
+        }
+      });
+    }
+
+    // Check for successful payment callback
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'success') {
+      const transactionId = urlParams.get('transactionId');
+      const amount = urlParams.get('amount');
+      
+      alert(`✅ Payment Successful!\nTransaction ID: ${transactionId}\nAmount: ₹${amount}`);
+      
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  </script>
+</body>
+</html>
