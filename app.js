@@ -12,7 +12,7 @@ const generateQRWithLogo = require("./Services/generateQR");
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
 
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 const store = new MongoDBStore({
   uri: DB_PATH,
@@ -24,10 +24,7 @@ store.on("error", (error) => {
 });
 
 app.use(
-  cors({
-    // origin: true,
-    // credentials: true,
-  })
+  cors({})
 );
 
 app.use(
@@ -36,12 +33,12 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store,
-    // cookie: {
-    //   httpOnly: false,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    //   maxAge: 1000 * 60 * 60 * 24,
-    // },
+    cookie: {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24,
+    },
     name: "zenopay.sid",
   })
 );
