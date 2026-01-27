@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Verification - <%= pageTitle %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/kyc-verification.css">
+</head>
+<body>
+    <div class="kyc-container">
+        <!-- Toast Container -->
+        <div class="toast-container"></div>
+
+        <!-- Main KYC Content -->
+        <div class="kyc-content">
+            <!-- Stepper Progress -->
+            <div class="kyc-stepper">
+                <div class="stepper-header">
+                    <h1 class="stepper-title">KYC Verification</h1>
+                    <p class="stepper-subtitle">Complete your identity verification in 3 simple steps</p>
+                </div>
+
+                <div class="steps-indicator">
+                    <div class="step-item active" data-step="1">
+                        <div class="step-number">
+                            <span class="step-count">1</span>
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-label">
+                            <span class="step-title">Identity</span>
+                            <span class="step-desc">Document</span>
+                        </div>
+                    </div>
+
+                    <div class="step-connector"></div>
+
+                    <div class="step-item" data-step="2">
+                        <div class="step-number">
+                            <span class="step-count">2</span>
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-label">
+                            <span class="step-title">Address</span>
+                            <span class="step-desc">Proof</span>
+                        </div>
+                    </div>
+
+                    <div class="step-connector"></div>
+
+                    <div class="step-item" data-step="3">
+                        <div class="step-number">
+                            <span class="step-count">3</span>
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-label">
+                            <span class="step-title">Selfie</span>
+                            <span class="step-desc">Verification</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 33%;"></div>
+                    </div>
+                    <p class="progress-text">Step <span class="current-step">1</span> of 3</p>
+                </div>
+            </div>
+
+            <!-- Steps Form -->
+            <form id="kyc-form" class="kyc-form">
+                <!-- Step 1: Identity Document -->
+                <div class="kyc-step active" data-step="1" id="step-1">
+                    <div class="step-content">
+                        <div class="content-header">
+                            <h2>Identity Document</h2>
+                            <p>Upload a government-issued ID to verify your identity</p>
+                        </div>
+
+                        <!-- Document Type Selector -->
+                        <div class="form-group">
+                            <label class="form-label">Select Document Type</label>
+                            <div class="document-selector">
+                                <label class="doc-option">
+                                    <input type="radio" name="identity-type" value="passport" required>
+                                    <span class="doc-label">
+                                        <i class="fas fa-passport"></i>
+                                        <span class="doc-name">Passport</span>
+                                    </span>
+                                </label>
+                                <label class="doc-option">
+                                    <input type="radio" name="identity-type" value="id-card">
+                                    <span class="doc-label">
+                                        <i class="fas fa-id-card"></i>
+                                        <span class="doc-name">ID Card</span>
+                                    </span>
+                                </label>
+                                <label class="doc-option">
+                                    <input type="radio" name="identity-type" value="drivers-license">
+                                    <span class="doc-label">
+                                        <i class="fas fa-car"></i>
+                                        <span class="doc-name">Driver's License</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upload Zones -->
+                        <div class="form-group">
+                            <label class="form-label">Upload Document</label>
+
+                            <!-- Front Side -->
+                            <div class="upload-section">
+                                <p class="upload-side-label">Front Side <span class="required">*</span></p>
+                                <div class="upload-zone" id="upload-front">
+                                    <input type="file" class="file-input" id="identity-front" accept="image/*" required>
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p class="upload-text">Drag & drop or click to upload</p>
+                                        <p class="upload-hint">JPG, PNG under 5MB</p>
+                                    </div>
+                                </div>
+                                <div class="preview-container" id="preview-front" style="display: none;">
+                                    <img class="preview-image" alt="Front preview">
+                                    <div class="preview-actions">
+                                        <button type="button" class="btn-icon rotate-btn" title="Rotate">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon remove-btn" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="upload-status" id="status-front"></p>
+                            </div>
+
+                            <!-- Back Side -->
+                            <div class="upload-section" id="back-side" style="display: none;">
+                                <p class="upload-side-label">Back Side <span class="required">*</span></p>
+                                <div class="upload-zone" id="upload-back">
+                                    <input type="file" class="file-input" id="identity-back" accept="image/*">
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p class="upload-text">Drag & drop or click to upload</p>
+                                        <p class="upload-hint">JPG, PNG under 5MB</p>
+                                    </div>
+                                </div>
+                                <div class="preview-container" id="preview-back" style="display: none;">
+                                    <img class="preview-image" alt="Back preview">
+                                    <div class="preview-actions">
+                                        <button type="button" class="btn-icon rotate-btn" title="Rotate">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon remove-btn" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="upload-status" id="status-back"></p>
+                            </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Document Requirements:</strong>
+                                <ul>
+                                    <li>Clear, well-lit photos</li>
+                                    <li>All four corners visible</li>
+                                    <li>No glare or reflections</li>
+                                    <li>Valid for at least 6 months</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Actions -->
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-secondary save-later-btn">
+                            <i class="fas fa-bookmark"></i> Save & Complete Later
+                        </button>
+                        <button type="button" class="btn btn-primary next-step-btn" id="step-1-next">
+                            Continue <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Proof of Address -->
+                <div class="kyc-step" data-step="2" id="step-2">
+                    <div class="step-content">
+                        <div class="content-header">
+                            <h2>Proof of Address</h2>
+                            <p>Upload a recent document proving your current address</p>
+                        </div>
+
+                        <!-- Document Type Selector -->
+                        <div class="form-group">
+                            <label class="form-label">Select Document Type</label>
+                            <div class="document-selector">
+                                <label class="doc-option">
+                                    <input type="radio" name="address-type" value="utility-bill" required>
+                                    <span class="doc-label">
+                                        <i class="fas fa-bolt"></i>
+                                        <span class="doc-name">Utility Bill</span>
+                                    </span>
+                                </label>
+                                <label class="doc-option">
+                                    <input type="radio" name="address-type" value="bank-statement">
+                                    <span class="doc-label">
+                                        <i class="fas fa-receipt"></i>
+                                        <span class="doc-name">Bank Statement</span>
+                                    </span>
+                                </label>
+                                <label class="doc-option">
+                                    <input type="radio" name="address-type" value="lease">
+                                    <span class="doc-label">
+                                        <i class="fas fa-file-contract"></i>
+                                        <span class="doc-name">Lease Agreement</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upload Zone -->
+                        <div class="form-group">
+                            <label class="form-label">Upload Document <span class="required">*</span></label>
+                            <div class="upload-zone" id="upload-address">
+                                <input type="file" class="file-input" id="address-doc" accept="image/*" required>
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p class="upload-text">Drag & drop or click to upload</p>
+                                    <p class="upload-hint">JPG, PNG under 5MB</p>
+                                </div>
+                            </div>
+                            <div class="preview-container" id="preview-address" style="display: none;">
+                                <img class="preview-image" alt="Address preview">
+                                <div class="preview-actions">
+                                    <button type="button" class="btn-icon rotate-btn" title="Rotate">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                    <button type="button" class="btn-icon remove-btn" title="Remove">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="upload-status" id="status-address"></p>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Address Requirements:</strong>
+                                <ul>
+                                    <li>Document issued within last 3 months</li>
+                                    <li>Must show your full name and address</li>
+                                    <li>Clear and legible</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Actions -->
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-secondary prev-step-btn">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <div class="step-actions-group">
+                            <button type="button" class="btn btn-secondary save-later-btn">
+                                <i class="fas fa-bookmark"></i> Save & Complete Later
+                            </button>
+                            <button type="button" class="btn btn-primary next-step-btn" id="step-2-next">
+                                Continue <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Selfie Verification -->
+                <div class="kyc-step" data-step="3" id="step-3">
+                    <div class="step-content">
+                        <div class="content-header">
+                            <h2>Selfie Verification</h2>
+                            <p>Take a selfie holding your ID to verify your identity</p>
+                        </div>
+
+                        <!-- Selfie Mode Selector -->
+                        <div class="form-group">
+                            <label class="form-label">Choose Verification Method</label>
+                            <div class="selfie-mode-selector">
+                                <label class="mode-option">
+                                    <input type="radio" name="selfie-mode" value="upload" checked>
+                                    <span class="mode-label">
+                                        <i class="fas fa-image"></i>
+                                        <span class="mode-name">Upload Photo</span>
+                                    </span>
+                                </label>
+                                <label class="mode-option">
+                                    <input type="radio" name="selfie-mode" value="camera">
+                                    <span class="mode-label">
+                                        <i class="fas fa-camera"></i>
+                                        <span class="mode-name">Take Photo</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Guidelines Box -->
+                        <div class="guidelines-box">
+                            <div class="guidelines-content">
+                                <div class="guidelines-text">
+                                    <h3>Selfie Guidelines</h3>
+                                    <ul>
+                                        <li>Hold your ID clearly next to your face</li>
+                                        <li>Ensure good lighting and clear visibility</li>
+                                        <li>Face must be clearly visible</li>
+                                        <li>ID document must be fully visible in the frame</li>
+                                        <li>No filters or alterations</li>
+                                    </ul>
+                                </div>
+                                <div class="guidelines-image">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Mode -->
+                        <div class="selfie-mode-content" id="upload-mode">
+                            <div class="form-group">
+                                <label class="form-label">Upload Selfie <span class="required">*</span></label>
+                                <div class="upload-zone" id="upload-selfie">
+                                    <input type="file" class="file-input" id="selfie-file" accept="image/*" required>
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p class="upload-text">Drag & drop or click to upload</p>
+                                        <p class="upload-hint">JPG, PNG under 5MB</p>
+                                    </div>
+                                </div>
+                                <div class="preview-container" id="preview-selfie" style="display: none;">
+                                    <img class="preview-image" alt="Selfie preview">
+                                    <div class="preview-actions">
+                                        <button type="button" class="btn-icon rotate-btn" title="Rotate">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon remove-btn" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="upload-status" id="status-selfie"></p>
+                            </div>
+                        </div>
+
+                        <!-- Camera Mode -->
+                        <div class="selfie-mode-content" id="camera-mode" style="display: none;">
+                            <div class="camera-container">
+                                <video id="camera-feed" playsinline autoplay></video>
+                                <div class="camera-overlay">
+                                    <div class="camera-frame"></div>
+                                </div>
+                                <div class="camera-controls">
+                                    <button type="button" class="btn btn-primary capture-btn">
+                                        <i class="fas fa-camera"></i> Capture
+                                    </button>
+                                </div>
+                            </div>
+                            <canvas id="camera-canvas" style="display: none;"></canvas>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>Privacy & Security:</strong>
+                                <p>Your photos are encrypted and used only for verification purposes. We never share your personal data.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step Actions -->
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-secondary prev-step-btn">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button type="submit" class="btn btn-primary submit-btn" id="submit-kyc">
+                            <i class="fas fa-check-circle"></i> Submit for Verification
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Success State -->
+            <div class="kyc-success" id="success-state" style="display: none;">
+                <div class="success-animation">
+                    <div class="success-icon-container">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+
+                <h2>Verification Submitted Successfully!</h2>
+                <p class="success-message">Your documents have been received and are under review.</p>
+
+                <div class="verification-status">
+                    <div class="status-item">
+                        <i class="fas fa-hourglass-half"></i>
+                        <div class="status-info">
+                            <p class="status-label">Verification Status</p>
+                            <p class="status-value">Under Review</p>
+                        </div>
+                    </div>
+
+                    <div class="status-item">
+                        <i class="fas fa-clock"></i>
+                        <div class="status-info">
+                            <p class="status-label">Expected Time</p>
+                            <p class="status-value">24-48 Hours</p>
+                        </div>
+                    </div>
+
+                    <div class="status-item">
+                        <i class="fas fa-envelope"></i>
+                        <div class="status-info">
+                            <p class="status-label">Notification</p>
+                            <p class="status-value">Email & SMS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <p>We'll notify you as soon as your verification is complete. You can check the status anytime in your account settings.</p>
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="window.location.href='/dashboard'">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/kyc-verification.js"></script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Status - ZenoPay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/verification-status.css">
+</head>
+<body>
+    <div class="status-page">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">Account Verification</p>
+                <h1>Verification Status</h1>
+                <p class="subtitle">Track the progress of your identity verification and next steps.</p>
+            </div>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-secondary"><i class="fas fa-home"></i> Dashboard</a>
+                <button class="btn btn-ghost" id="refresh-status"><i class="fas fa-rotate-right"></i> Refresh</button>
+            </div>
+        </header>
+
+        <main class="status-layout">
+            <!-- Left: Status Cards -->
+            <section class="status-column">
+                <div class="status-card" data-status="<%= kycStatus %>">
+                    <div class="status-top">
+                        <div class="status-badge">
+                            <% if (kycStatus === 'approved' || kycStatus === 'verified') { %>
+                                <i class="fas fa-check-circle"></i> Approved
+                            <% } else if (kycStatus === 'rejected') { %>
+                                <i class="fas fa-times-circle"></i> Rejected
+                            <% } else { %>
+                                <i class="fas fa-hourglass-half"></i> Pending
+                            <% } %>
+                        </div>
+                        <p class="status-meta">Reference ID: <span><%= ZenoPayID %></span></p>
+                    </div>
+
+                    <div class="status-body">
+                        <% if (kycStatus === 'approved' || kycStatus === 'verified') { %>
+                            <div class="status-icon success">
+                                <i class="fas fa-badge-check"></i>
+                            </div>
+                            <h2>Verification Complete!</h2>
+                            <p class="status-text">Your identity has been verified. You can now access all features.</p>
+                            <div class="status-details">
+                                <p><i class="fas fa-calendar-check"></i> Approved on <strong><%= approvalDate || '—' %></strong></p>
+                            </div>
+                            <div class="status-actions">
+                                <a class="btn btn-primary" href="/dashboard"><i class="fas fa-arrow-right"></i> Continue to Dashboard</a>
+                            </div>
+                        <% } else if (kycStatus === 'rejected') { %>
+                            <div class="status-icon danger">
+                                <i class="fas fa-triangle-exclamation"></i>
+                            </div>
+                            <h2>Verification Failed</h2>
+                            <p class="status-text">Your submission did not pass verification. Please review the reasons below.</p>
+                            <div class="status-details">
+                                <p><i class="fas fa-calendar-times"></i> Reviewed on <strong><%= rejectionDate || '—' %></strong></p>
+                            </div>
+
+                            <div class="rejection-box">
+                                <div class="rejection-header">
+                                    <div>
+                                        <p class="rejection-title">Why it was rejected</p>
+                                        <p class="rejection-subtitle">Expand to view the detailed reasons</p>
+                                    </div>
+                                    <button class="btn-icon" id="toggle-reasons"><i class="fas fa-chevron-down"></i></button>
+                                </div>
+                                <ul class="rejection-list" id="rejection-list">
+                                    <% (rejectionReasons && rejectionReasons.length ? rejectionReasons : ['Document not clear', 'Information mismatch', 'Document expired']).forEach(function(reason){ %>
+                                        <li><i class="fas fa-circle-exclamation"></i><span><%= reason %></span></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+
+                            <div class="status-actions">
+                                <a class="btn btn-primary" href="/kyc"><i class="fas fa-upload"></i> Resubmit Documents</a>
+                                <a class="btn btn-ghost" href="mailto:support@zenopay.com"><i class="fas fa-headset"></i> Contact Support</a>
+                            </div>
+                        <% } else { %>
+                            <div class="status-icon warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h2>Verification in Progress</h2>
+                            <p class="status-text">Hang tight! Our team is reviewing your documents.</p>
+                            <div class="status-details">
+                                <p><i class="fas fa-hourglass-half"></i> Expected completion: <strong><%= expectedCompletion || '24-48 hours' %></strong></p>
+                                <p><i class="fas fa-calendar-plus"></i> Submitted on <strong><%= submissionDate || '—' %></strong></p>
+                            </div>
+
+                            <div class="checklist">
+                                <p class="checklist-title">Documents submitted</p>
+                                <ul>
+                                    <li><i class="fas fa-check-circle"></i> Identity Document <span><%= submissionDate || '' %></span></li>
+                                    <li><i class="fas fa-check-circle"></i> Proof of Address <span><%= submissionDate || '' %></span></li>
+                                    <li><i class="fas fa-check-circle"></i> Selfie Verification <span><%= submissionDate || '' %></span></li>
+                                </ul>
+                            </div>
+
+                            <div class="status-actions">
+                                <a class="btn btn-secondary" href="/kyc"><i class="fas fa-edit"></i> Update Documents</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="tips-card">
+                    <div class="tips-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div>
+                        <h3>Helpful tips</h3>
+                        <ul>
+                            <li>Use clear, well-lit photos without glare.</li>
+                            <li>Ensure your full name and address are visible.</li>
+                            <li>If rejected, resubmit with higher quality images.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Timeline -->
+            <section class="timeline-column">
+                <div class="timeline-card">
+                    <div class="timeline-header">
+                        <div>
+                            <p class="eyebrow">Progress Timeline</p>
+                            <h3>Where you are now</h3>
+                        </div>
+                        <div class="status-dot <%= kycStatus %>"></div>
+                    </div>
+
+                    <div class="timeline">
+                        <% (timeline || []).forEach(function(item, idx){ %>
+                            <div class="timeline-item <%= item.active ? 'active' : '' %>">
+                                <div class="timeline-marker">
+                                    <span class="dot"></span>
+                                    <% if (idx < timeline.length - 1) { %>
+                                        <span class="line"></span>
+                                    <% } %>
+                                </div>
+                                <div class="timeline-content">
+                                    <p class="timeline-title"><%= item.title %></p>
+                                    <p class="timeline-date"><i class="fas fa-calendar"></i> <%= item.date || '—' %></p>
+                                    <% if (item.note) { %>
+                                        <p class="timeline-note"><%= item.note %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="status-faq">
+                    <div class="faq-header">
+                        <h3>Need help?</h3>
+                        <p>Find answers to common verification questions.</p>
+                    </div>
+                    <div class="faq-list">
+                        <details>
+                            <summary>How long does verification take?</summary>
+                            <p>Most verifications complete within 24-48 hours. Complex cases may take longer.</p>
+                        </details>
+                        <details>
+                            <summary>Can I speed up the process?</summary>
+                            <p>Ensure your documents are clear, uncut, and not expired. Use good lighting for selfies.</p>
+                        </details>
+                        <details>
+                            <summary>What if my documents are rejected?</summary>
+                            <p>Review the listed reasons, then resubmit clearer photos or updated documents.</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        window.__KYC_STATUS__ = {
+            status: '<%= kycStatus %>',
+            expectedCompletion: "<%= expectedCompletion || '' %>"
+        };
+    </script>
+    <script src="/js/verification-status.js"></script>
+</body>
+</html>

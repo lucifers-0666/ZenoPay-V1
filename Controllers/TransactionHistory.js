@@ -13,7 +13,7 @@ const getTransactionHistory = async (req, res) => {
     const userAccounts = await BankAccount.find({ ZenoPayId: userZenoPayId });
 
     if (!userAccounts || userAccounts.length === 0) {
-      return res.render("TransactionHistory", {
+      return res.render("transaction-history", {
         pageTitle: "Transaction History",
         currentPage: "Transaction-History",
         user: req.session.user,
@@ -167,7 +167,7 @@ const getTransactionHistory = async (req, res) => {
       });
     });
 
-    res.render("TransactionHistory", {
+    res.render("transaction-history", {
       pageTitle: "Transaction History",
       currentPage: "Transaction-History",
       user: req.session.user,
@@ -183,7 +183,7 @@ const getTransactionHistory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching transaction history:", error);
-    res.render("TransactionHistory", {
+    res.render("transaction-history", {
       pageTitle: "Transaction History",
       currentPage: "Transaction-History",
       user: req.session.user,

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found | ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/error-pages.css">
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-content">
+      <div class="error-illustration">
+        <i class="fas fa-search-location"></i>
+      </div>
+      
+      <div class="error-code">404</div>
+      
+      <h1 class="error-title">Page Not Found</h1>
+      
+      <p class="error-description">
+        The page you're looking for doesn't exist or has been moved. 
+        Don't worry, let's get you back on track.
+      </p>
+
+      <!-- Search Bar -->
+      <div class="error-search">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search for what you need..." id="error-search-input">
+          <button class="search-btn">Search</button>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <h3>Quick Links</h3>
+        <div class="links-grid">
+          <a href="/dashboard" class="quick-link">
+            <i class="fas fa-home"></i>
+            <span>Go to Dashboard</span>
+          </a>
+          <a href="/transaction-history" class="quick-link">
+            <i class="fas fa-history"></i>
+            <span>View Transactions</span>
+          </a>
+          <a href="/support" class="quick-link">
+            <i class="fas fa-headset"></i>
+            <span>Contact Support</span>
+          </a>
+          <a href="/send-money" class="quick-link">
+            <i class="fas fa-paper-plane"></i>
+            <span>Send Money</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Report Link -->
+      <div class="error-footer">
+        <a href="/report-issue" class="report-link">
+          <i class="fas fa-flag"></i> Report a broken link
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('error-search-input')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const query = e.target.value;
+        if (query) {
+          window.location.href = `/support/search?query=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+
+    document.querySelector('.search-btn')?.addEventListener('click', () => {
+      const query = document.getElementById('error-search-input').value;
+      if (query) {
+        window.location.href = `/support/search?query=${encodeURIComponent(query)}`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+@import url('./support-center.css');
+
+.hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.hero-illustration { font-size: 12rem; color: var(--primary); opacity: 0.2; text-align: center; }
+.reward-badge { background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%); color: #fff; padding: 2rem; border-radius: 20px; text-align: center; margin-bottom: 2rem; }
+.reward-amount { display: block; font-size: 3rem; font-weight: 800; }
+.reward-label { display: block; font-size: 1rem; opacity: 0.9; }
+
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+.step-card { text-align: center; position: relative; }
+.step-number { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.step-icon { font-size: 4rem; color: var(--primary); margin: 2rem 0 1rem; }
+
+.referral-code-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; }
+.code-container { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.code-display { flex: 1; padding: 1.5rem; background: var(--bg-tertiary); border: 2px solid var(--primary); border-radius: 12px; font-size: 2rem; font-weight: 700; letter-spacing: 2px; text-align: center; color: var(--primary); }
+.link-container { display: flex; gap: 1rem; margin-bottom: 2rem; }
+.link-input { flex: 1; padding: 1rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); }
+.qr-code-container { text-align: center; }
+.qr-code { width: 200px; height: 200px; margin: 0 auto 1rem; background: #fff; padding: 1rem; border-radius: 12px; }
+.qr-label { color: var(--text-secondary); font-size: 0.9rem; }
+
+.share-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+.share-btn { padding: 0.875rem 1.5rem; border-radius: 10px; border: none; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.share-btn:hover { transform: translateY(-2px); }
+.email-btn { background: #ea4335; }
+.whatsapp-btn { background: #25d366; }
+.facebook-btn { background: #1877f2; }
+.twitter-btn { background: #1da1f2; }
+.sms-btn { background: #8e44ad; }
+
+.rewards-card { background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%); color: #fff; border-radius: 20px; padding: 3rem; text-align: center; }
+.balance-display { font-size: 4rem; font-weight: 800; margin: 1rem 0 2rem; }
+
+.referral-table { width: 100%; border-collapse: collapse; }
+.referral-table th, .referral-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.referral-table th { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+.referral-table .positive { color: var(--success); font-weight: 700; }
+
+.leaderboard-list { max-width: 600px; margin: 0 auto; }
+.leaderboard-item { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 1.5rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 0.75rem; }
+.leaderboard-item.current-user { border-color: var(--primary); background: var(--primary-light); }
+.rank { font-size: 1.5rem; font-weight: 700; color: var(--primary); width: 40px; }
+.name { flex: 1; font-weight: 600; }
+.referrals { color: var(--text-secondary); }
+
+.terms-section details { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; }
+.terms-section summary { font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
+.terms-content { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.terms-content ul { padding-left: 1.5rem; }
+.terms-content li { margin-bottom: 0.75rem; color: var(--text-secondary); line-height: 1.6; }
+
+@media (max-width: 768px) { .hero-section, .steps-grid { grid-template-columns: 1fr; } }

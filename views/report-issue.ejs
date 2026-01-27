@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/report-issue.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <a href="/support" class="back-link"><i class="fas fa-arrow-left"></i> Back to Support</a>
+      <h1>Report an Issue</h1>
+      <p class="subtitle">We'll help you resolve this quickly. Please provide as much detail as possible.</p>
+    </header>
+
+    <div class="content-grid">
+      <!-- Form Section -->
+      <section class="form-section">
+        <form id="issue-form" class="issue-form">
+          <div class="form-group">
+            <label class="label" for="issue-category">
+              Issue Category <span class="required">*</span>
+            </label>
+            <select id="issue-category" class="input select" required>
+              <option value="">Select a category...</option>
+              <% issueCategories.forEach(category => { %>
+              <option value="<%= category.value %>"><%= category.label %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="subject">
+              Subject <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="subject"
+              class="input"
+              placeholder="Brief description of the issue"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="description">
+              Detailed Description <span class="required">*</span>
+            </label>
+            <textarea
+              id="description"
+              class="input textarea"
+              placeholder="Please describe your issue in detail..."
+              rows="6"
+              minlength="50"
+              maxlength="1000"
+              required
+            ></textarea>
+            <div class="char-counter">
+              <span id="char-count">0</span> / 1000 characters
+              <span id="char-min" class="char-warning" hidden>Minimum 50 characters required</span>
+            </div>
+          </div>
+
+          <div class="form-group" id="transaction-group" hidden>
+            <label class="label" for="transaction-id">
+              Affected Transaction (Optional)
+            </label>
+            <input
+              type="text"
+              id="transaction-id"
+              class="input"
+              placeholder="Enter transaction ID or select from recent"
+            />
+            <% if (recentTransactions && recentTransactions.length > 0) { %>
+            <select id="recent-transactions" class="input select" style="margin-top: 0.5rem;">
+              <option value="">Or select from recent transactions...</option>
+              <% recentTransactions.forEach(txn => { %>
+              <option value="<%= txn.TransactionID %>">
+                <%= txn.TransactionID %> - $<%= txn.Amount %> - <%= new Date(txn.createdAt).toLocaleDateString() %>
+              </option>
+              <% }); %>
+            </select>
+            <% } %>
+          </div>
+
+          <div class="form-group">
+            <label class="label">
+              Priority Level <span class="required">*</span>
+            </label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="priority" value="low" checked>
+                <span class="radio-custom"></span>
+                <div class="radio-content">
+                  <strong>Low</strong>
+                  <span>Can wait a few days</span>
+                </div>
+              </label>
+              
+              <label class="radio-label">
+                <input type="radio" name="priority" value="medium">
+                <span class="radio-custom"></span>
+                <div class="radio-content">
+                  <strong>Medium</strong>
+                  <span>Needs attention soon</span>
+                </div>
+              </label>
+              
+              <label class="radio-label">
+                <input type="radio" name="priority" value="high">
+                <span class="radio-custom"></span>
+                <div class="radio-content">
+                  <strong>High</strong>
+                  <span>Urgent issue</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Attachments (Optional)</label>
+            <div class="upload-zone" id="upload-zone">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p><strong>Drag & drop files here</strong> or click to browse</p>
+              <p class="upload-hint">PNG, JPG, PDF up to 5MB each (max 3 files)</p>
+              <input type="file" id="file-input" accept=".png,.jpg,.jpeg,.pdf" multiple hidden>
+            </div>
+            <div class="file-list" id="file-list"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Contact Preferences</label>
+            <div class="checkbox-group">
+              <label class="checkbox">
+                <input type="checkbox" id="contact-email" checked>
+                <span>Email me updates about this issue</span>
+              </label>
+              
+              <label class="checkbox">
+                <input type="checkbox" id="contact-phone">
+                <span>Call me if needed</span>
+              </label>
+            </div>
+            
+            <div class="form-group contact-time-group" id="contact-time-group" hidden>
+              <label class="label" for="preferred-time">Preferred Contact Time</label>
+              <select id="preferred-time" class="input select">
+                <option value="">Select a time...</option>
+                <option value="morning">Morning (9 AM - 12 PM)</option>
+                <option value="afternoon">Afternoon (12 PM - 5 PM)</option>
+                <option value="evening">Evening (5 PM - 8 PM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="save-draft-btn">
+              <i class="fas fa-save"></i> Save Draft
+            </button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <i class="fas fa-paper-plane"></i> Submit Issue
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Sidebar Section -->
+      <aside class="sidebar-section">
+        <div class="help-card">
+          <h3><i class="fas fa-lightbulb"></i> Quick Tips</h3>
+          <ul>
+            <li>Be as specific as possible</li>
+            <li>Include transaction IDs when relevant</li>
+            <li>Attach screenshots if applicable</li>
+            <li>Check our <a href="/support">Help Center</a> first</li>
+          </ul>
+        </div>
+
+        <div class="help-card similar-issues" id="similar-issues" hidden>
+          <h3><i class="fas fa-search"></i> Similar Issues</h3>
+          <p class="help-hint">These articles might help:</p>
+          <div id="similar-issues-list"></div>
+        </div>
+
+        <div class="help-card auto-save-status">
+          <i class="fas fa-check-circle"></i>
+          <span id="auto-save-status">Changes saved automatically</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal" id="success-modal" hidden>
+    <div class="modal-content success-modal-content">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>Issue Submitted Successfully!</h2>
+      <div class="ticket-number">
+        <span class="label">Your Ticket Number</span>
+        <strong id="ticket-number"></strong>
+      </div>
+      <p>Your issue has been submitted and our team will review it shortly.</p>
+      <div class="response-info">
+        <i class="fas fa-clock"></i>
+        <span>Expected response time: <strong id="response-time"></strong></span>
+      </div>
+      <p class="email-notice">
+        <i class="fas fa-envelope"></i>
+        A confirmation email has been sent to your registered email address.
+      </p>
+      <div class="modal-actions">
+        <a href="/support" class="btn btn-secondary">Back to Support</a>
+        <button class="btn btn-primary" id="track-ticket-btn">Track Your Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/report-issue.js"></script>
+</body>
+</html>

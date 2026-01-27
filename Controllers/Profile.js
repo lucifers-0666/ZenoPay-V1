@@ -38,7 +38,7 @@ const getProfile = async (req, res) => {
       .sort({ TransactionTime: -1 })
       .limit(10);
  console.log(user);
-    res.render("Profile", {
+    res.render("profile", {
       pageTitle: "User Profile",
       
       user: user,

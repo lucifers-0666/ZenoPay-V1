@@ -96,6 +96,115 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     required: true,
   },
 
+  PhoneNumber: {
+    type: String,
+    get: function() {
+      return this.Mobile;
+    },
+    set: function(v) {
+      this.Mobile = v;
+      return v;
+    }
+  },
+
+  AadharNumber: {
+    type: String,
+    required: false,
+  },
+
+  PANCard: {
+    type: String,
+    required: false,
+  },
+
+  NotificationPreferences: {
+    emailNotifications: {
+      type: Boolean,
+      default: true,
+    },
+    smsNotifications: {
+      type: Boolean,
+      default: true,
+    },
+    transactionAlerts: {
+      type: Boolean,
+      default: true,
+    },
+    promotionalEmails: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  AccountStatus: {
+    type: String,
+    enum: ["Active", "Inactive", "Suspended"],
+    default: "Active",
+  },
+
+  DeactivationReason: {
+    type: String,
+    required: false,
+  },
+
+  DeactivatedAt: {
+    type: Date,
+    required: false,
+  },
+
+  PasswordChangeDate: {
+    type: Date,
+    required: false,
+  },
+
+  PasswordResetToken: {
+    type: String,
+    required: false,
+  },
+
+  PasswordResetExpiry: {
+    type: Date,
+    required: false,
+  },
+
+  KYCStatus: {
+    type: String,
+    enum: ["not_started", "pending", "approved", "rejected", "verified"],
+    default: "not_started",
+  },
+
+  KYCSubmittedAt: {
+    type: Date,
+    required: false,
+  },
+
+  KYCVerifiedAt: {
+    type: Date,
+    required: false,
+  },
+
+  KYCRejectedAt: {
+    type: Date,
+    required: false,
+  },
+
+  KYCRejectionReason: {
+    type: String,
+    required: false,
+  },
+
+  KYCDocuments: {
+    identityType: String,
+    identityFront: String,
+    identityBack: String,
+    identityFrontRotation: Number,
+    identityBackRotation: Number,
+    addressType: String,
+    addressDocument: String,
+    addressRotation: Number,
+    selfie: String,
+    selfieRotation: Number,
+  },
 
 });
 

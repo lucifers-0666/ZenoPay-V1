@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/disputes.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <div>
+        <h1>My Disputes</h1>
+        <p class="subtitle">Track and manage your transaction disputes</p>
+      </div>
+      <button class="btn btn-primary" id="new-dispute-btn">
+        <i class="fas fa-plus"></i> Submit New Dispute
+      </button>
+    </header>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <a href="?status=all" class="tab <%= !filters.status || filters.status === 'all' ? 'active' : '' %>">All</a>
+      <a href="?status=open" class="tab <%= filters.status === 'open' ? 'active' : '' %>">Open</a>
+      <a href="?status=under-review" class="tab <%= filters.status === 'under-review' ? 'active' : '' %>">Under Review</a>
+      <a href="?status=resolved" class="tab <%= filters.status === 'resolved' ? 'active' : '' %>">Resolved</a>
+      <a href="?status=closed" class="tab <%= filters.status === 'closed' ? 'active' : '' %>">Closed</a>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search by Dispute ID, Transaction ID, or Merchant" value="<%= filters.search || '' %>">
+      </div>
+      
+      <div class="filter-group">
+        <input type="date" id="date-from" class="filter-input" placeholder="From Date" value="<%= filters.dateFrom || '' %>">
+        <input type="date" id="date-to" class="filter-input" placeholder="To Date" value="<%= filters.dateTo || '' %>">
+        <select id="sort-by" class="filter-select">
+          <option value="date-desc">Newest First</option>
+          <option value="date-asc">Oldest First</option>
+          <option value="amount-desc">Amount (High to Low)</option>
+          <option value="amount-asc">Amount (Low to High)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Disputes List -->
+    <div class="disputes-container">
+      <% if (disputes && disputes.length > 0) { %>
+        <div class="disputes-list">
+          <% disputes.forEach(dispute => { %>
+          <div class="dispute-card" data-dispute-id="<%= dispute.disputeId %>">
+            <div class="dispute-header">
+              <div>
+                <div class="dispute-id"><%= dispute.disputeId %></div>
+                <div class="transaction-id">
+                  <i class="fas fa-link"></i> <%= dispute.transactionId %>
+                </div>
+              </div>
+              <div class="dispute-amount">$<%= dispute.amount.toFixed(2) %></div>
+            </div>
+
+            <div class="dispute-body">
+              <div class="dispute-info">
+                <div class="info-item">
+                  <i class="fas fa-store"></i>
+                  <span><%= dispute.merchantName %></span>
+                </div>
+                <div class="info-item">
+                  <span class="reason-badge"><%= dispute.reason %></span>
+                </div>
+              </div>
+
+              <div class="dispute-status">
+                <span class="status-badge status-<%= dispute.status %>">
+                  <%= dispute.status.replace('-', ' ').toUpperCase() %>
+                </span>
+              </div>
+            </div>
+
+            <div class="dispute-footer">
+              <div class="dispute-dates">
+                <span>Submitted: <%= new Date(dispute.submittedDate).toLocaleDateString() %></span>
+                <span>Updated: <%= new Date(dispute.lastUpdated).toLocaleDateString() %></span>
+              </div>
+              <button class="btn btn-secondary view-details-btn" data-dispute-id="<%= dispute.disputeId %>">
+                View Details <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>No Disputes Found</h3>
+          <p>We hope you never need to use this, but if you have an issue, we're here to help.</p>
+          <button class="btn btn-primary" id="empty-new-dispute-btn">
+            <i class="fas fa-plus"></i> Submit Your First Dispute
+          </button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Dispute Detail Modal -->
+  <div class="modal" id="dispute-modal" hidden>
+    <div class="modal-content dispute-modal-content">
+      <div class="modal-header">
+        <h2 id="modal-dispute-id"></h2>
+        <button class="close-btn" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="dispute-detail-content">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading dispute details...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Dispute Modal -->
+  <div class="modal" id="new-dispute-modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Submit New Dispute</h2>
+        <button class="close-btn" id="close-new-dispute-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="new-dispute-form">
+          <div class="form-group">
+            <label class="label">Transaction ID <span class="required">*</span></label>
+            <input type="text" id="new-transaction-id" class="input" placeholder="TXN-XXXXXXXX" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="label">Reason for Dispute <span class="required">*</span></label>
+            <select id="new-dispute-reason" class="input select" required>
+              <option value="">Select a reason...</option>
+              <option value="Unauthorized Transaction">Unauthorized Transaction</option>
+              <option value="Service Not Received">Service Not Received</option>
+              <option value="Product Not as Described">Product Not as Described</option>
+              <option value="Duplicate Charge">Duplicate Charge</option>
+              <option value="Amount Incorrect">Amount Incorrect</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="label">Description <span class="required">*</span></label>
+            <textarea id="new-dispute-description" class="input textarea" rows="5" placeholder="Please describe the issue in detail..." required></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancel-new-dispute-btn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Dispute</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/disputes.js"></script>
+</body>
+</html>

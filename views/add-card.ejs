@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Card - ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/add-card.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <div class="title-section">
+        <a href="/payment-methods" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        <h1>Add New Card</h1>
+        <p class="subtitle">Add a debit or credit card for faster payments.</p>
+      </div>
+      <div class="security-badge">
+        <i class="fas fa-shield-check"></i>
+        <div>
+          <strong>SSL Secured</strong>
+          <span>Your data is encrypted</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-grid">
+      <!-- Card Preview -->
+      <section class="preview-section">
+        <div class="card-preview-wrapper">
+          <div class="card-3d" id="card-3d">
+            <!-- Front Side -->
+            <div class="card-face card-front">
+              <div class="card-bg"></div>
+              <div class="card-content">
+                <div class="card-top">
+                  <div class="card-chip">
+                    <svg width="40" height="30" viewBox="0 0 40 30">
+                      <rect width="40" height="30" rx="4" fill="#FFD700"/>
+                      <rect x="5" y="7" width="12" height="16" rx="2" fill="#FFA500"/>
+                      <rect x="23" y="7" width="12" height="16" rx="2" fill="#FFA500"/>
+                    </svg>
+                  </div>
+                  <div class="card-brand-logo" id="brand-logo"></div>
+                </div>
+                <div class="card-number-display" id="card-number-display">
+                  <span class="digit-group">••••</span>
+                  <span class="digit-group">••••</span>
+                  <span class="digit-group">••••</span>
+                  <span class="digit-group">••••</span>
+                </div>
+                <div class="card-bottom">
+                  <div class="card-holder">
+                    <div class="label">Card Holder</div>
+                    <div class="value" id="cardholder-display">YOUR NAME</div>
+                  </div>
+                  <div class="card-expiry">
+                    <div class="label">Expires</div>
+                    <div class="value" id="expiry-display">MM/YY</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Back Side -->
+            <div class="card-face card-back">
+              <div class="card-bg"></div>
+              <div class="card-content">
+                <div class="magnetic-strip"></div>
+                <div class="signature-panel">
+                  <div class="cvv-box">
+                    <span id="cvv-display">•••</span>
+                  </div>
+                </div>
+                <div class="card-info">
+                  <p>This card is the property of the cardholder. Misuse is criminal offense.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-tips">
+            <div class="tip">
+              <i class="fas fa-info-circle"></i>
+              <span>Card details are updated as you type</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form Section -->
+      <section class="form-section">
+        <form id="add-card-form" class="card-form">
+          <div class="form-group">
+            <label class="label" for="card-number">
+              Card Number
+              <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="card-number"
+                class="input"
+                placeholder="1234 5678 9012 3456"
+                maxlength="19"
+                autocomplete="cc-number"
+                required
+              />
+              <div class="input-icon brand-icon" id="brand-icon"></div>
+            </div>
+            <p class="error-message" id="card-number-error"></p>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="cardholder-name">
+              Cardholder Name
+              <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="cardholder-name"
+              class="input"
+              placeholder="JOHN DOE"
+              autocomplete="cc-name"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label" for="expiry-month">
+                Expiry Date
+                <span class="required">*</span>
+              </label>
+              <div class="expiry-row">
+                <select id="expiry-month" class="input select" autocomplete="cc-exp-month" required>
+                  <option value="">MM</option>
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                </select>
+                <select id="expiry-year" class="input select" autocomplete="cc-exp-year" required>
+                  <option value="">YY</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="cvv">
+                CVV
+                <span class="required">*</span>
+                <span class="tooltip-trigger" data-tooltip="3-digit code on the back of your card">
+                  <i class="fas fa-circle-question"></i>
+                </span>
+              </label>
+              <input
+                type="text"
+                id="cvv"
+                class="input"
+                placeholder="123"
+                maxlength="4"
+                autocomplete="cc-csc"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="divider">
+            <span>Billing Address</span>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="address-line1">Address Line 1</label>
+            <input
+              type="text"
+              id="address-line1"
+              class="input"
+              placeholder="123 Main Street"
+              autocomplete="address-line1"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label" for="city">City</label>
+              <input
+                type="text"
+                id="city"
+                class="input"
+                placeholder="Mumbai"
+                autocomplete="address-level2"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="state">State</label>
+              <input
+                type="text"
+                id="state"
+                class="input"
+                placeholder="Maharashtra"
+                autocomplete="address-level1"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label" for="zip-code">ZIP / Postal Code</label>
+              <input
+                type="text"
+                id="zip-code"
+                class="input"
+                placeholder="400001"
+                autocomplete="postal-code"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="country">Country</label>
+              <select id="country" class="input select" autocomplete="country">
+                <option value="IN" selected>India</option>
+                <option value="US">United States</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox">
+              <input type="checkbox" id="save-for-future" checked />
+              <span>Save for future payments</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox">
+              <input type="checkbox" id="set-as-default" />
+              <span>Set as default payment method</span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <a href="/payment-methods" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <i class="fas fa-credit-card"></i> Add Card
+            </button>
+          </div>
+        </form>
+
+        <div class="security-notice">
+          <i class="fas fa-lock"></i>
+          <div>
+            <strong>Your data is secure</strong>
+            <p>We use industry-standard encryption. Card details are never stored on our servers. PCI DSS compliant.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/add-card.js"></script>
+</body>
+</html>

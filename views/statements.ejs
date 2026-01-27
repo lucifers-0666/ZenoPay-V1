@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/statements.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <h1>Monthly Statements</h1>
+      <p class="subtitle">View and download your financial statements</p>
+    </header>
+
+    <!-- Current Month Stats -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">This Month's Total</span>
+          <span class="stat-value">$<%= currentMonthStats.totalSpent.toFixed(2) %></span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Money Sent</span>
+          <span class="stat-value">$<%= currentMonthStats.moneySent.amount.toFixed(2) %></span>
+          <span class="stat-meta"><%= currentMonthStats.moneySent.count %> transactions</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Money Received</span>
+          <span class="stat-value">$<%= currentMonthStats.moneyReceived.amount.toFixed(2) %></span>
+          <span class="stat-meta"><%= currentMonthStats.moneyReceived.count %> transactions</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Fees Paid</span>
+          <span class="stat-value">$<%= currentMonthStats.feesPaid.toFixed(2) %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statements List -->
+    <div class="statements-container">
+      <h2 class="section-title">Your Statements</h2>
+      
+      <div class="statements-list">
+        <% statements.forEach(statement => { %>
+        <div class="statement-card">
+          <div class="statement-header">
+            <div class="statement-period">
+              <i class="fas fa-calendar-alt"></i>
+              <h3><%= statement.period.label %></h3>
+            </div>
+            <div class="statement-count">
+              <%= statement.transactionCount %> transactions
+            </div>
+          </div>
+
+          <div class="statement-summary">
+            <div class="summary-item">
+              <span class="label">Total Sent</span>
+              <span class="value negative">-$<%= statement.totalSent.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total Received</span>
+              <span class="value positive">+$<%= statement.totalReceived.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Fees</span>
+              <span class="value">-$<%= statement.totalFees.toFixed(2) %></span>
+            </div>
+            <div class="summary-item highlight">
+              <span class="label">Net Amount</span>
+              <span class="value <%= statement.netAmount >= 0 ? 'positive' : 'negative' %>">
+                <%= statement.netAmount >= 0 ? '+' : '' %>$<%= Math.abs(statement.netAmount).toFixed(2) %>
+              </span>
+            </div>
+          </div>
+
+          <div class="statement-actions">
+            <button class="btn btn-secondary view-statement-btn" 
+                    data-month="<%= statement.period.month %>" 
+                    data-year="<%= statement.period.year %>">
+              <i class="fas fa-eye"></i> View Statement
+            </button>
+            <button class="btn btn-icon download-pdf-btn" 
+                    data-month="<%= statement.period.month %>" 
+                    data-year="<%= statement.period.year %>" 
+                    title="Download PDF">
+              <i class="fas fa-file-pdf"></i>
+            </button>
+            <button class="btn btn-icon download-csv-btn" 
+                    data-month="<%= statement.period.month %>" 
+                    data-year="<%= statement.period.year %>" 
+                    title="Download CSV">
+              <i class="fas fa-file-csv"></i>
+            </button>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statement Detail Modal -->
+  <div class="modal" id="statement-modal" hidden>
+    <div class="modal-content statement-modal-content">
+      <div class="modal-header">
+        <h2 id="modal-statement-title"></h2>
+        <button class="close-btn" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="statement-detail-content">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading statement...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/statements.js"></script>
+</body>
+</html>

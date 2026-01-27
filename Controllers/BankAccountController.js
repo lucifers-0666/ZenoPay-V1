@@ -4,7 +4,7 @@ const BankBranch = require("../Models/Banks");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
 
 const getOpenAccount = async (req, res) => {
-  res.render("OpenAccount", {
+  res.render("open-account", {
     currentPage: "Open Bank Account",
     isLoggedIn: req.session.isLoggedIn || false,
     user: req.session.user || null,

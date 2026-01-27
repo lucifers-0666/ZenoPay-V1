@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - ZenoPay</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/account-settings.css">
+</head>
+<body>
+    <div class="account-settings-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Account Settings</h1>
+            <p class="page-subtitle">Manage your account, security, and preferences</p>
+        </div>
+
+        <!-- Settings Layout -->
+        <div class="settings-layout">
+            <!-- Sidebar Navigation (Desktop) -->
+            <aside class="settings-sidebar">
+                <nav class="settings-nav">
+                    <button class="nav-item active" data-tab="profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </button>
+                    <button class="nav-item" data-tab="security">
+                        <i class="fas fa-lock"></i>
+                        <span>Security</span>
+                    </button>
+                    <button class="nav-item" data-tab="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                    </button>
+                    <button class="nav-item" data-tab="privacy">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Privacy</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Mobile Tab Buttons -->
+            <div class="mobile-tabs">
+                <button class="mobile-tab-btn active" data-tab="profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </button>
+                <button class="mobile-tab-btn" data-tab="security">
+                    <i class="fas fa-lock"></i>
+                    <span>Security</span>
+                </button>
+                <button class="mobile-tab-btn" data-tab="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </button>
+                <button class="mobile-tab-btn" data-tab="privacy">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Privacy</span>
+                </button>
+            </div>
+
+            <!-- Main Content -->
+            <main class="settings-content">
+                <!-- TAB 1: PROFILE -->
+                <div class="tab-panel active" id="profile-panel">
+                    <!-- Avatar Section -->
+                    <div class="settings-card avatar-section">
+                        <h2 class="card-title">Profile Picture</h2>
+                        <div class="avatar-upload-area">
+                            <div class="avatar-preview">
+                                <img id="avatar-preview" src="<%= user.ImagePath || '/Images/default-avatar.png' %>" alt="Profile Picture">
+                            </div>
+                            <div class="avatar-upload-controls">
+                                <p class="upload-instruction">Upload a new profile picture</p>
+                                <input type="file" id="avatar-input" class="file-input" accept="image/*">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('avatar-input').click()">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    Choose File
+                                </button>
+                                <p class="upload-hint">JPG, PNG or GIF. Max size 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Personal Information</h2>
+                        <form id="profile-form" class="form-grid">
+                            <!-- Full Name -->
+                            <div class="form-group">
+                                <label for="full-name" class="form-label">Full Name</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user input-icon"></i>
+                                    <input 
+                                        type="text" 
+                                        id="full-name" 
+                                        name="fullName" 
+                                        class="form-input" 
+                                        value="<%= user.FullName %>"
+                                    >
+                                </div>
+                                <span class="error-message" id="full-name-error"></span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email" class="form-label">
+                                    Email Address
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i>
+                                        Verified
+                                    </span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        name="email" 
+                                        class="form-input" 
+                                        value="<%= user.Email %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="form-group">
+                                <label for="phone" class="form-label">
+                                    Phone Number
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i>
+                                        Verified
+                                    </span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-phone input-icon"></i>
+                                    <input 
+                                        type="tel" 
+                                        id="phone" 
+                                        name="phone" 
+                                        class="form-input" 
+                                        value="<%= user.Mobile %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div class="form-group">
+                                <label for="dob" class="form-label">Date of Birth</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-calendar input-icon"></i>
+                                    <input 
+                                        type="date" 
+                                        id="dob" 
+                                        name="dob" 
+                                        class="form-input"
+                                        value="<%= user.DOB ? new Date(user.DOB).toISOString().split('T')[0] : '' %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="form-group form-group-full">
+                                <label for="address" class="form-label">Street Address</label>
+                                <div class="input-wrapper">
+                                    <i class="fas fa-map-marker-alt input-icon"></i>
+                                    <input 
+                                        type="text" 
+                                        id="address" 
+                                        name="address" 
+                                        class="form-input" 
+                                        value="<%= user.Address %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- City, State, Pincode -->
+                            <div class="form-group">
+                                <label for="city" class="form-label">City</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="city" 
+                                        name="city" 
+                                        class="form-input" 
+                                        value="<%= user.City %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="state" class="form-label">State</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="state" 
+                                        name="state" 
+                                        class="form-input" 
+                                        value="<%= user.State %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="pincode" class="form-label">Pincode</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="pincode" 
+                                        name="pincode" 
+                                        class="form-input" 
+                                        value="<%= user.Pincode %>"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check"></i>
+                                    Save Changes
+                                </button>
+                                <span class="save-indicator" id="profile-save-indicator" style="display: none;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Saved
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 2: SECURITY -->
+                <div class="tab-panel" id="security-panel">
+                    <!-- Change Password -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Change Password</h2>
+                        <p class="card-description">Update your password regularly to keep your account secure</p>
+                        <% if (user.PasswordChangeDate) { %>
+                            <p class="last-change">Last changed: <strong><%= new Date(user.PasswordChangeDate).toLocaleDateString() %></strong></p>
+                        <% } %>
+                        <a href="/change-password" class="btn btn-secondary">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                    </div>
+
+                    <!-- Two-Factor Authentication -->
+                    <div class="settings-card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Two-Factor Authentication</h2>
+                                <p class="card-description">Add an extra layer of security to your account</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="tfa-toggle" class="toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <p class="tfa-status" id="tfa-status">
+                            <i class="fas fa-info-circle"></i>
+                            Two-factor authentication is currently <strong>disabled</strong>
+                        </p>
+                        <button type="button" class="btn btn-secondary" onclick="setupTFA()" style="display: none;" id="tfa-setup-btn">
+                            <i class="fas fa-qrcode"></i>
+                            Set Up Two-Factor Authentication
+                        </button>
+                    </div>
+
+                    <!-- Active Sessions -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Active Sessions</h2>
+                        <p class="card-description">Manage your active sessions across devices</p>
+                        <div class="sessions-list">
+                            <div class="session-item current">
+                                <div class="session-info">
+                                    <i class="fas fa-laptop"></i>
+                                    <div>
+                                        <p class="session-device">Current Device</p>
+                                        <p class="session-details">Chrome on Windows • Active now</p>
+                                    </div>
+                                </div>
+                                <span class="session-badge">Current</span>
+                            </div>
+                            <div class="session-item">
+                                <div class="session-info">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <div>
+                                        <p class="session-device">Mobile Device</p>
+                                        <p class="session-details">Safari on iPhone • Last active 2 hours ago</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-link">
+                                    <i class="fas fa-times"></i>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-block">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out of All Other Sessions
+                        </button>
+                    </div>
+
+                    <!-- Login History -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Login History</h2>
+                        <p class="card-description">Recent login activity on your account</p>
+                        <div class="login-history">
+                            <div class="login-item">
+                                <div class="login-info">
+                                    <i class="fas fa-check-circle success"></i>
+                                    <div>
+                                        <p class="login-device">Chrome on Windows</p>
+                                        <p class="login-ip">IP: 192.168.1.1</p>
+                                        <p class="login-location">Location: New Delhi, India</p>
+                                    </div>
+                                </div>
+                                <p class="login-time">Today at 10:30 AM</p>
+                            </div>
+                            <div class="login-item">
+                                <div class="login-info">
+                                    <i class="fas fa-check-circle success"></i>
+                                    <div>
+                                        <p class="login-device">Safari on iPhone</p>
+                                        <p class="login-ip">IP: 192.168.1.2</p>
+                                        <p class="login-location">Location: Bangalore, India</p>
+                                    </div>
+                                </div>
+                                <p class="login-time">Yesterday at 2:15 PM</p>
+                            </div>
+                            <div class="login-item">
+                                <div class="login-info">
+                                    <i class="fas fa-times-circle danger"></i>
+                                    <div>
+                                        <p class="login-device">Unknown Browser</p>
+                                        <p class="login-ip">IP: 203.0.113.5</p>
+                                        <p class="login-location">Location: Unknown</p>
+                                    </div>
+                                </div>
+                                <p class="login-time">5 days ago (Failed)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: NOTIFICATIONS -->
+                <div class="tab-panel" id="notifications-panel">
+                    <!-- Email Notifications -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Email Notifications</h2>
+                        <div class="notification-group">
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Transaction Alerts</p>
+                                    <p class="notification-description">Get notified for every transaction</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-transactions" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Account Updates</p>
+                                    <p class="notification-description">Important updates about your account</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-updates" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Security Alerts</p>
+                                    <p class="notification-description">Alerts about suspicious activity</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-security" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Marketing Emails</p>
+                                    <p class="notification-description">Promotions, updates, and tips</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-marketing">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SMS Notifications -->
+                    <div class="settings-card">
+                        <h2 class="card-title">SMS Notifications</h2>
+                        <div class="notification-group">
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Transaction Alerts</p>
+                                    <p class="notification-description">Get SMS for every transaction</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-transactions" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Security Alerts</p>
+                                    <p class="notification-description">SMS alerts for security events</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-security" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Account Updates</p>
+                                    <p class="notification-description">SMS for important account changes</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-updates">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Push Notifications -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Push Notifications</h2>
+                        <div class="notification-group">
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Transaction Alerts</p>
+                                    <p class="notification-description">In-app notification for transactions</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-transactions" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-info">
+                                    <p class="notification-title">Account Updates</p>
+                                    <p class="notification-description">Push notifications for account updates</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-updates" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: PRIVACY -->
+                <div class="tab-panel" id="privacy-panel">
+                    <!-- Profile Visibility -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Profile Visibility</h2>
+                        <div class="privacy-group">
+                            <div class="privacy-item">
+                                <div class="privacy-info">
+                                    <p class="privacy-title">Show Profile to Other Users</p>
+                                    <p class="privacy-description">Allow others to see your profile</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input privacy-toggle" data-type="profile-visible" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="privacy-item">
+                                <div class="privacy-info">
+                                    <p class="privacy-title">Show Online Status</p>
+                                    <p class="privacy-description">Let others know when you're online</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input privacy-toggle" data-type="online-status" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Sharing -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Data & Privacy</h2>
+                        <div class="privacy-group">
+                            <div class="privacy-item">
+                                <div class="privacy-info">
+                                    <p class="privacy-title">Analytics & Improvement</p>
+                                    <p class="privacy-description">Share usage data to help improve ZenoPay</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input privacy-toggle" data-type="analytics" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="privacy-item">
+                                <div class="privacy-info">
+                                    <p class="privacy-title">Personalization</p>
+                                    <p class="privacy-description">Use your data to personalize your experience</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-input privacy-toggle" data-type="personalization" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Management -->
+                    <div class="settings-card">
+                        <h2 class="card-title">Data Management</h2>
+                        <div class="data-actions">
+                            <button type="button" class="btn btn-secondary btn-block">
+                                <i class="fas fa-download"></i>
+                                Download My Data
+                            </button>
+                            <p class="action-description">Request a copy of all your personal data in JSON format</p>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="settings-card danger-zone">
+                        <h2 class="card-title danger-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Danger Zone
+                        </h2>
+                        <p class="card-description">These actions cannot be undone. Please proceed with caution.</p>
+                        <button type="button" class="btn btn-danger btn-block" onclick="openDeleteAccountModal()">
+                            <i class="fas fa-trash-alt"></i>
+                            Delete Account
+                        </button>
+                        <p class="action-description">Permanently delete your account and all associated data</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="delete-account-modal" class="modal">
+        <div class="modal-overlay" onclick="closeDeleteAccountModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header danger">
+                <h2>Delete Account</h2>
+                <button type="button" class="modal-close" onclick="closeDeleteAccountModal()" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>This action cannot be undone. All your data will be permanently deleted.</p>
+                </div>
+                <p class="modal-message">Type your ZenoPay ID to confirm:</p>
+                <input type="text" id="confirm-zenopay-id" class="form-input" placeholder="Enter your ZenoPay ID">
+                <p class="confirm-hint">Your ZenoPay ID is: <strong><%= user.ZenoPayID %></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteAccountModal()">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()" disabled id="delete-confirm-btn">
+                    Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/js/account-settings.js"></script>
+</body>
+</html>

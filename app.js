@@ -93,6 +93,25 @@ app.use("/admin", (req, res, next) => {
 // User routes
 app.use(require("./Routes/routes"));
 
+// Error handling middleware
+// 404 handler - must be after all other routes
+app.use((req, res, next) => {
+  res.status(404).render('error-404', {
+    pageTitle: '404 - Page Not Found',
+    path: req.path
+  });
+});
+
+// 500 handler - catches all errors
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  const errorId = 'ERR-' + Date.now().toString(36).toUpperCase();
+  res.status(500).render('error-500', {
+    pageTitle: '500 - Server Error',
+    errorId: errorId
+  });
+});
+
 mongoose
   .connect(DB_PATH)
   .then(() => {

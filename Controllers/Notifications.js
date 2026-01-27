@@ -12,7 +12,7 @@ const getNotifications = async (req, res) => {
       .limit(50)
       .lean();
 
-    res.render("Notification", {
+    res.render("notifications", {
       notifications,
       user: req.session.user,
       isLoggedIn: true,

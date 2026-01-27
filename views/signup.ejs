@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - ZenoPay</title>
+    <link rel="stylesheet" href="/css/signup.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="signup-container">
+      <!-- Left Side: Brand Visual -->
+      <div class="brand-section">
+        <div class="brand-overlay"></div>
+        <div class="brand-content">
+          <div class="brand-logo">
+            <img src="/Images/bgFavicon.png" alt="ZenoPay" />
+            <h1>ZenoPay</h1>
+          </div>
+
+          <div class="brand-tagline">
+            <h2>Your Gateway to Seamless Payments</h2>
+            <p>
+              Join thousands of users who trust ZenoPay for secure, fast, and
+              reliable digital transactions.
+            </p>
+          </div>
+
+          <div class="brand-features">
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="feature-text">
+                <h3>Bank-Level Security</h3>
+                <p>Your data is protected with 256-bit encryption</p>
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="feature-text">
+                <h3>Instant Transfers</h3>
+                <p>Send money in seconds, not hours</p>
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-icon">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div class="feature-text">
+                <h3>Zero Hidden Fees</h3>
+                <p>Transparent pricing, no surprises</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="brand-stats">
+            <div class="stat-item">
+              <h3>1M+</h3>
+              <p>Active Users</p>
+            </div>
+            <div class="stat-item">
+              <h3>₹10B+</h3>
+              <p>Processed</p>
+            </div>
+            <div class="stat-item">
+              <h3>99.9%</h3>
+              <p>Uptime</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Animated Background Elements -->
+        <div class="floating-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+          <div class="shape shape-4"></div>
+        </div>
+      </div>
+
+      <!-- Right Side: Registration Form -->
+      <div class="form-section">
+        <div class="form-wrapper">
+          <!-- Back to Home Link -->
+          <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+          </a>
+
+          <!-- Form Header -->
+          <div class="form-header">
+            <h1>Create Your Account</h1>
+            <p>Start your journey with ZenoPay today</p>
+          </div>
+
+          <!-- Social Sign Up (Optional) -->
+          <div class="social-signup">
+            <button class="social-btn google-btn" type="button">
+              <i class="fab fa-google"></i>
+              <span>Continue with Google</span>
+            </button>
+            <button class="social-btn apple-btn" type="button">
+              <i class="fab fa-apple"></i>
+              <span>Continue with Apple</span>
+            </button>
+          </div>
+
+          <div class="divider">
+            <span>or sign up with email</span>
+          </div>
+
+          <!-- Registration Form -->
+          <form id="signup-form" class="signup-form" novalidate>
+            <!-- Full Name -->
+            <div class="form-group">
+              <label for="fullName" class="form-label">
+                <i class="fas fa-user"></i>
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                class="form-input"
+                placeholder="Enter your full name"
+                required
+                autocomplete="name"
+              />
+              <span class="error-message" id="fullName-error"></span>
+            </div>
+
+            <!-- Email Address -->
+            <div class="form-group">
+              <label for="email" class="form-label">
+                <i class="fas fa-envelope"></i>
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-input"
+                placeholder="you@example.com"
+                required
+                autocomplete="email"
+              />
+              <span class="error-message" id="email-error"></span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="phoneNumber" class="form-label">
+                <i class="fas fa-phone"></i>
+                Phone Number
+              </label>
+              <div class="phone-input-wrapper">
+                <select id="countryCode" class="country-code">
+                  <option value="+91" selected>🇮🇳 +91</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+86">🇨🇳 +86</option>
+                  <option value="+81">🇯🇵 +81</option>
+                  <option value="+971">🇦🇪 +971</option>
+                </select>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  class="form-input phone-input"
+                  placeholder="9876543210"
+                  required
+                  autocomplete="tel"
+                  maxlength="10"
+                />
+              </div>
+              <span class="error-message" id="phoneNumber-error"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label for="password" class="form-label">
+                <i class="fas fa-lock"></i>
+                Password
+              </label>
+              <div class="password-input-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-input"
+                  placeholder="Create a strong password"
+                  required
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePasswordVisibility('password')"
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+
+              <!-- Password Strength Indicator -->
+              <div class="password-strength" id="password-strength">
+                <div class="strength-bar">
+                  <div class="strength-fill" id="strength-fill"></div>
+                </div>
+                <span class="strength-text" id="strength-text">Enter password</span>
+              </div>
+
+              <!-- Password Requirements Tooltip -->
+              <div class="password-requirements">
+                <ul>
+                  <li id="req-length">
+                    <i class="fas fa-circle"></i>
+                    At least 8 characters
+                  </li>
+                  <li id="req-uppercase">
+                    <i class="fas fa-circle"></i>
+                    One uppercase letter
+                  </li>
+                  <li id="req-lowercase">
+                    <i class="fas fa-circle"></i>
+                    One lowercase letter
+                  </li>
+                  <li id="req-number">
+                    <i class="fas fa-circle"></i>
+                    One number
+                  </li>
+                </ul>
+              </div>
+
+              <span class="error-message" id="password-error"></span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+              <label for="confirmPassword" class="form-label">
+                <i class="fas fa-check-circle"></i>
+                Confirm Password
+              </label>
+              <div class="password-input-wrapper">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  class="form-input"
+                  placeholder="Re-enter your password"
+                  required
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePasswordVisibility('confirmPassword')"
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <span class="error-message" id="confirmPassword-error"></span>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  id="agreeToTerms"
+                  name="agreeToTerms"
+                  required
+                />
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">
+                  I agree to ZenoPay's
+                  <a href="/terms" target="_blank">Terms & Conditions</a>
+                  and
+                  <a href="/privacy" target="_blank">Privacy Policy</a>
+                </span>
+              </label>
+              <span class="error-message" id="terms-error"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-btn" id="submit-btn">
+              <span class="btn-text">Create Account</span>
+              <span class="btn-loader" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span>
+            </button>
+          </form>
+
+          <!-- Already have account -->
+          <div class="form-footer">
+            <p>
+              Already have an account?
+              <a href="/login" class="login-link">Login here</a>
+            </p>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="trust-badges">
+            <div class="trust-item">
+              <i class="fas fa-shield-check"></i>
+              <span>SSL Secured</span>
+            </div>
+            <div class="trust-item">
+              <i class="fas fa-lock"></i>
+              <span>GDPR Compliant</span>
+            </div>
+            <div class="trust-item">
+              <i class="fas fa-certificate"></i>
+              <span>ISO Certified</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="success-modal">
+      <div class="success-modal-content">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Welcome to ZenoPay!</h2>
+        <p>Your account has been created successfully.</p>
+        <p class="zenopay-id">
+          Your ZenoPay ID: <strong id="display-zenopay-id"></strong>
+        </p>
+        <button class="success-btn" id="proceed-btn">
+          Get Started
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/js/signup.js"></script>
+  </body>
+</html>

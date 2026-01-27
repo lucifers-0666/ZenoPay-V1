@@ -13,7 +13,7 @@ const getTransferMoney = async (req, res) => {
 
     const accounts = await BankAccount.find({ ZenoPayId: zenoPayId });
 
-    res.render("SendMoney", {
+    res.render("send-money", {
       pageTitle: "Send Money",
       currentPage: "send-money",
       accounts: accounts,

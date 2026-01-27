@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Money - ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/request-money.css">
+</head>
+<body data-user-name="<%= (user && user.FullName) || 'You' %>">
+  <div class="page-shell">
+    <header class="page-header">
+      <div class="title-block">
+        <p class="eyebrow">Payments</p>
+        <h1>Request Money</h1>
+        <p class="subtitle">Create a payment request, share it, and track responses.</p>
+      </div>
+      <div class="header-actions">
+        <a href="/dashboard" class="btn btn-ghost"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/Transaction-History" class="link">View Request History</a>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Create</p>
+            <h2>Payment Request</h2>
+          </div>
+          <div class="badge badge-soft">Secure</div>
+        </div>
+
+        <form id="request-form" class="form-grid">
+          <div class="form-row full">
+            <label class="label">Request From</label>
+            <div class="pill-input">
+              <input type="text" id="recipient-input" placeholder="Email or phone number" autocomplete="off">
+              <button type="button" class="btn btn-secondary" id="add-recipient"><i class="fas fa-user-plus"></i> Add</button>
+            </div>
+            <p class="hint">Add multiple recipients. We'll handle splits automatically.</p>
+            <div id="recipient-list" class="chip-list"></div>
+          </div>
+
+          <div class="form-row full amount-row">
+            <label class="label">Amount</label>
+            <div class="amount-input">
+              <select id="currency" class="input select">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="INR" selected>INR</option>
+                <option value="GBP">GBP</option>
+              </select>
+              <input type="number" id="amount" class="input big" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+            <div class="split-row">
+              <label class="checkbox">
+                <input type="checkbox" id="split-toggle"> Split this request
+              </label>
+              <div class="split-control" id="split-control" hidden>
+                <span>Split among</span>
+                <input type="number" id="split-count" class="input" min="1" value="1">
+                <span>people</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <label class="label" for="description">Description / Note</label>
+            <textarea id="description" class="input textarea" rows="3" placeholder="Add a note for your recipients"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label class="label" for="due-date">Due Date <span class="optional">(optional)</span></label>
+            <input type="date" id="due-date" class="input">
+          </div>
+
+          <div class="form-row">
+            <label class="label" for="category">Category / Tag <span class="optional">(optional)</span></label>
+            <select id="category" class="input select">
+              <option value="">Select</option>
+              <option value="rent">Rent</option>
+              <option value="utilities">Utilities</option>
+              <option value="subscription">Subscription</option>
+              <option value="freelance">Freelance</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-row full">
+            <label class="label">Send Options</label>
+            <div class="options">
+              <label class="checkbox"><input type="checkbox" id="send-email" checked> Email</label>
+              <label class="checkbox"><input type="checkbox" id="send-sms"> SMS</label>
+              <label class="checkbox"><input type="checkbox" id="generate-link" checked> Generate link</label>
+            </div>
+            <div class="option-actions">
+              <button type="button" class="btn btn-ghost" id="copy-link" disabled><i class="fas fa-link"></i> Copy link</button>
+              <button type="button" class="btn btn-ghost" id="show-qr" disabled><i class="fas fa-qrcode"></i> QR code</button>
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <label class="label">Templates</label>
+            <div class="templates">
+              <% (templates || []).forEach(function(t){ %>
+                <button type="button" class="template" data-amount="<%= t.amount %>" data-note="<%= t.note %>" data-title="<%= t.title %>">
+                  <span class="template-title"><i class="fas fa-bolt"></i> <%= t.title %></span>
+                  <span class="template-note"><%= t.note %></span>
+                  <span class="template-amount">₹<%= t.amount %></span>
+                </button>
+              <% }) %>
+            </div>
+          </div>
+
+          <div class="form-row actions full">
+            <button type="button" class="btn btn-secondary" id="save-draft"><i class="fas fa-save"></i> Save as Draft</button>
+            <button type="submit" class="btn btn-primary" id="send-request"><i class="fas fa-paper-plane"></i> Send Request</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card preview-card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Preview</p>
+            <h2>This is how recipients will see it</h2>
+          </div>
+          <div class="badge badge-pill" id="preview-status">Draft</div>
+        </div>
+
+        <div class="preview-body">
+          <div class="preview-amount" id="preview-amount">₹0.00</div>
+          <p class="preview-to">Requested by <strong id="preview-name"><%= (user && user.FullName) || 'You' %></strong></p>
+          <p class="preview-desc" id="preview-desc">Add a description so your recipients know what this is for.</p>
+          <div class="preview-meta">
+            <div class="meta-item">
+              <i class="fas fa-calendar"></i>
+              <span id="preview-due">No due date</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-tags"></i>
+              <span id="preview-category">No category</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-users"></i>
+              <span id="preview-recipients">0 recipients</span>
+            </div>
+          </div>
+          <div class="split-preview" id="split-preview" hidden>
+            <i class="fas fa-divide"></i>
+            <div>
+              <p class="split-title">Split request</p>
+              <p class="split-note" id="split-note">—</p>
+            </div>
+          </div>
+          <div class="history-link">
+            <a href="/Transaction-History"><i class="fas fa-clock"></i> View request history</a>
+          </div>
+        </div>
+
+        <div class="success-box" id="success-box" hidden>
+          <div class="success-icon"><i class="fas fa-circle-check"></i></div>
+          <h3>Request Sent</h3>
+          <p id="success-message">Your request has been sent to recipients.</p>
+          <div class="success-actions">
+            <button class="btn btn-primary" id="send-another"><i class="fas fa-plus"></i> Send Another</button>
+            <a class="btn btn-secondary" href="/Transaction-History"><i class="fas fa-list"></i> View Requests</a>
+            <a class="btn btn-ghost" href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <div class="modal" id="qr-modal" hidden>
+    <div class="modal-content">
+      <button class="btn-icon" id="close-qr"><i class="fas fa-times"></i></button>
+      <h3>Payment Request QR</h3>
+      <p>Scan to open the request link.</p>
+      <img id="qr-image" alt="QR Code" />
+    </div>
+  </div>
+
+  <script>
+    window.REQUEST_CONTEXT = {};
+    window.REQUEST_CONTEXT.userName = "<%= (user && user.FullName) ? user.FullName.replace(/\"/g, '\\\"') : 'You' %>";
+  </script>
+  <script src="/js/request-money.js"></script>
+</body>
+</html>

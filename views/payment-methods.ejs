@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Methods - ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/payment-methods.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <div class="title-section">
+        <p class="eyebrow">Account</p>
+        <h1>Payment Methods</h1>
+        <p class="subtitle">Manage your saved payment methods and wallets securely.</p>
+      </div>
+      <div class="header-actions">
+        <a href="/account-settings" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Settings</a>
+        <button class="btn btn-primary" id="add-method-btn"><i class="fas fa-plus"></i> Add New Method</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <% if (savedCards.length === 0 && savedBankAccounts.length === 0 && connectedWallets.filter(w => w.isConnected).length === 0) { %>
+        <!-- EMPTY STATE -->
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <h2>No Payment Methods Added</h2>
+          <p>Add your first payment method to make transactions easier and faster.</p>
+          <button class="btn btn-primary" id="add-first-method"><i class="fas fa-plus-circle"></i> Add Payment Method</button>
+        </div>
+      <% } else { %>
+        <!-- SAVED CARDS SECTION -->
+        <% if (savedCards.length > 0) { %>
+          <section class="methods-section">
+            <div class="section-header">
+              <div class="section-title">
+                <i class="fas fa-credit-card"></i>
+                <h2>Saved Cards</h2>
+                <span class="count-badge"><%= savedCards.length %></span>
+              </div>
+              <div class="security-badge">
+                <i class="fas fa-lock"></i> SSL Secured
+              </div>
+            </div>
+
+            <div class="cards-grid">
+              <% savedCards.forEach(function(card){ %>
+                <div class="payment-card" data-id="<%= card.id %>" data-type="card">
+                  <div class="card-top">
+                    <div class="card-brand">
+                      <% if (card.brand === 'visa') { %>
+                        <img src="https://cdn.worldvectorlogo.com/logos/visa-2.svg" alt="Visa" class="brand-logo">
+                      <% } else if (card.brand === 'mastercard') { %>
+                        <img src="https://cdn.worldvectorlogo.com/logos/mastercard-2.svg" alt="Mastercard" class="brand-logo">
+                      <% } else if (card.brand === 'amex') { %>
+                        <img src="https://cdn.worldvectorlogo.com/logos/american-express-2.svg" alt="Amex" class="brand-logo">
+                      <% } else { %>
+                        <i class="fas fa-credit-card card-icon"></i>
+                      <% } %>
+                    </div>
+                    <div class="card-actions">
+                      <button class="btn-icon dropdown-trigger" data-target="<%= card.id %>">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <div class="dropdown-menu" id="dropdown-<%= card.id %>">
+                        <% if (!card.isDefault) { %>
+                          <button class="dropdown-item set-default-btn" data-id="<%= card.id %>" data-type="card">
+                            <i class="fas fa-star"></i> Set as Default
+                          </button>
+                        <% } %>
+                        <button class="dropdown-item" disabled>
+                          <i class="fas fa-edit"></i> Edit (Coming Soon)
+                        </button>
+                        <button class="dropdown-item danger remove-btn" data-id="<%= card.id %>" data-type="card" data-name="Card •••• <%= card.last4 %>">
+                          <i class="fas fa-trash"></i> Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="card-number">
+                      <span class="dots">•••• •••• ••••</span>
+                      <span class="last4"><%= card.last4 %></span>
+                    </div>
+                    <div class="card-details">
+                      <div class="detail">
+                        <span class="label">Cardholder</span>
+                        <span class="value"><%= card.cardholderName %></span>
+                      </div>
+                      <div class="detail">
+                        <span class="label">Expires</span>
+                        <span class="value"><%= card.expiryMonth %>/<%= card.expiryYear %></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <% if (card.isDefault) { %>
+                    <div class="default-badge">
+                      <i class="fas fa-star"></i> Default
+                    </div>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+          </section>
+        <% } %>
+
+        <!-- SAVED BANK ACCOUNTS SECTION -->
+        <% if (savedBankAccounts.length > 0) { %>
+          <section class="methods-section">
+            <div class="section-header">
+              <div class="section-title">
+                <i class="fas fa-building-columns"></i>
+                <h2>Bank Accounts</h2>
+                <span class="count-badge"><%= savedBankAccounts.length %></span>
+              </div>
+            </div>
+
+            <div class="bank-list">
+              <% savedBankAccounts.forEach(function(bank){ %>
+                <div class="bank-item" data-id="<%= bank.id %>" data-type="bank">
+                  <div class="bank-icon">
+                    <i class="fas fa-university"></i>
+                  </div>
+                  <div class="bank-info">
+                    <div class="bank-name"><%= bank.bankName %></div>
+                    <div class="bank-details">
+                      <span class="account-number"><%= bank.accountNumber %></span>
+                      <span class="separator">•</span>
+                      <span class="account-type"><%= bank.accountType %></span>
+                    </div>
+                  </div>
+                  <% if (bank.isVerified) { %>
+                    <div class="verified-badge">
+                      <i class="fas fa-circle-check"></i> Verified
+                    </div>
+                  <% } %>
+                  <% if (bank.isDefault) { %>
+                    <div class="default-badge">
+                      <i class="fas fa-star"></i> Default
+                    </div>
+                  <% } %>
+                  <div class="bank-actions">
+                    <button class="btn-icon dropdown-trigger" data-target="<%= bank.id %>">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-<%= bank.id %>">
+                      <% if (!bank.isDefault) { %>
+                        <button class="dropdown-item set-default-btn" data-id="<%= bank.id %>" data-type="bank">
+                          <i class="fas fa-star"></i> Set as Default
+                        </button>
+                      <% } %>
+                      <button class="dropdown-item danger remove-btn" data-id="<%= bank.id %>" data-type="bank" data-name="<%= bank.bankName %> <%= bank.accountNumber %>">
+                        <i class="fas fa-trash"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </section>
+        <% } %>
+
+        <!-- WALLETS SECTION -->
+        <section class="methods-section">
+          <div class="section-header">
+            <div class="section-title">
+              <i class="fas fa-wallet"></i>
+              <h2>Digital Wallets</h2>
+            </div>
+          </div>
+
+          <div class="wallet-list">
+            <% connectedWallets.forEach(function(wallet){ %>
+              <div class="wallet-item" data-id="<%= wallet.id %>" data-connected="<%= wallet.isConnected %>">
+                <div class="wallet-icon <%= wallet.type %>">
+                  <% if (wallet.type === 'google_pay') { %>
+                    <i class="fab fa-google"></i>
+                  <% } else if (wallet.type === 'apple_pay') { %>
+                    <i class="fab fa-apple"></i>
+                  <% } else if (wallet.type === 'paypal') { %>
+                    <i class="fab fa-paypal"></i>
+                  <% } %>
+                </div>
+                <div class="wallet-info">
+                  <div class="wallet-name"><%= wallet.name %></div>
+                  <% if (wallet.isConnected && wallet.email) { %>
+                    <div class="wallet-email"><%= wallet.email %></div>
+                  <% } %>
+                </div>
+                <% if (wallet.isConnected) { %>
+                  <div class="connection-status connected">
+                    <i class="fas fa-circle"></i> Connected
+                  </div>
+                  <button class="btn btn-ghost btn-sm disconnect-btn" data-id="<%= wallet.id %>" data-name="<%= wallet.name %>">
+                    <i class="fas fa-unlink"></i> Disconnect
+                  </button>
+                <% } else { %>
+                  <div class="connection-status disconnected">
+                    <i class="fas fa-circle"></i> Not Connected
+                  </div>
+                  <button class="btn btn-secondary btn-sm">
+                    <i class="fas fa-link"></i> Connect
+                  </button>
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+    </main>
+  </div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div class="modal" id="confirm-modal" hidden>
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Confirm Action</h3>
+        <button class="btn-icon" id="modal-close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-icon warning">
+          <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <p id="modal-message">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn-danger" id="modal-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/payment-methods.js"></script>
+</body>
+</html>

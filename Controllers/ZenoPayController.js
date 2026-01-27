@@ -3,7 +3,7 @@ const emailService = require("../Services/EmailService");
 const { uploadToAzure } = require("../Services/azureStorage"); 
 
 const getRegisterZenoPay = (req, res) => {
-  res.render("ZenoPayRegister",{
+  res.render("register",{
     isLoggedIn: req.session.isLoggedIn || false,
     user: req.session.user || null,
     currentPage: "ZenoPay Registration",

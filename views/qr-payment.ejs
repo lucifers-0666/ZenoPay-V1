@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receive Payment - ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/qr-payment.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <div class="title-section">
+        <p class="eyebrow">Payments</p>
+        <h1>Receive Payment</h1>
+        <p class="subtitle">Share your QR code or payment link to receive money instantly.</p>
+      </div>
+      <div class="header-actions">
+        <a href="/dashboard" class="btn btn-ghost"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/Transaction-History" class="btn btn-ghost"><i class="fas fa-history"></i> History</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="tabs">
+        <button class="tab active" data-tab="static"><i class="fas fa-qrcode"></i> Static QR</button>
+        <button class="tab" data-tab="dynamic"><i class="fas fa-bolt"></i> Dynamic QR</button>
+      </div>
+
+      <!-- STATIC QR TAB -->
+      <section class="tab-content active" id="static-tab">
+        <div class="qr-display-card">
+          <div class="qr-header">
+            <div>
+              <h2>Your Payment QR Code</h2>
+              <p class="qr-subtitle">This is your permanent QR code. Anyone can scan it to send you money.</p>
+            </div>
+            <div class="badge badge-static">Permanent</div>
+          </div>
+
+          <div class="qr-wrapper">
+            <div class="qr-box">
+              <img id="static-qr" src="<%= staticQR %>" alt="Static QR Code" class="qr-image">
+              <div class="qr-overlay">
+                <div class="logo-badge">
+                  <i class="fas fa-shield-check"></i>
+                </div>
+              </div>
+            </div>
+            <div class="user-info">
+              <p class="user-name"><i class="fas fa-user-circle"></i> <%= user.FullName %></p>
+              <p class="user-id"><i class="fas fa-id-card"></i> <%= zenoPayId %></p>
+            </div>
+          </div>
+
+          <div class="action-grid">
+            <button class="btn btn-primary" id="download-static"><i class="fas fa-download"></i> Download QR</button>
+            <button class="btn btn-secondary" id="share-static"><i class="fas fa-share-nodes"></i> Share QR</button>
+            <button class="btn btn-secondary" id="print-static"><i class="fas fa-print"></i> Print QR</button>
+            <button class="btn btn-ghost" id="copy-static-link"><i class="fas fa-link"></i> Copy Link</button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-header">
+            <i class="fas fa-circle-info"></i>
+            <h3>How to use</h3>
+          </div>
+          <ol class="steps-list">
+            <li>
+              <div class="step-icon"><i class="fas fa-mobile-screen"></i></div>
+              <div>
+                <strong>Show QR to sender</strong>
+                <p>Display your QR code on your device</p>
+              </div>
+            </li>
+            <li>
+              <div class="step-icon"><i class="fas fa-camera"></i></div>
+              <div>
+                <strong>Sender scans with camera</strong>
+                <p>They open their payment app and scan</p>
+              </div>
+            </li>
+            <li>
+              <div class="step-icon"><i class="fas fa-circle-check"></i></div>
+              <div>
+                <strong>Payment completes</strong>
+                <p>You'll receive instant notification</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="link-card">
+          <div class="link-header">
+            <i class="fas fa-link"></i>
+            <h3>Payment Link Alternative</h3>
+          </div>
+          <p class="link-desc">Share this link via text, email, or social media.</p>
+          <div class="link-box">
+            <input type="text" id="static-link-input" value="<%= paymentUrl %>" readonly class="link-input">
+            <button class="btn-icon" id="copy-btn" title="Copy link"><i class="fas fa-copy"></i></button>
+          </div>
+          <div class="social-share">
+            <button class="social-btn whatsapp" id="share-whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></button>
+            <button class="social-btn telegram" id="share-telegram" title="Share on Telegram"><i class="fab fa-telegram"></i></button>
+            <button class="social-btn email" id="share-email" title="Share via Email"><i class="fas fa-envelope"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DYNAMIC QR TAB -->
+      <section class="tab-content" id="dynamic-tab">
+        <div class="form-card">
+          <div class="form-header">
+            <div>
+              <h2>Generate Custom QR Code</h2>
+              <p class="form-subtitle">Create a QR code with a specific amount and note.</p>
+            </div>
+            <div class="badge badge-dynamic">Temporary</div>
+          </div>
+
+          <form id="dynamic-form" class="dynamic-form">
+            <div class="form-group">
+              <label class="label" for="amount">Amount <span class="optional">(optional)</span></label>
+              <div class="input-with-icon">
+                <i class="fas fa-indian-rupee-sign"></i>
+                <input type="number" id="amount" class="input" placeholder="0.00" min="0" step="0.01">
+              </div>
+              <p class="hint">Leave empty to let the payer enter the amount.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="description">Description / Note <span class="optional">(optional)</span></label>
+              <textarea id="description" class="input textarea" rows="3" placeholder="Add a note (e.g., 'Payment for services')"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="expiry">QR Expiry</label>
+              <select id="expiry" class="input select">
+                <option value="15">15 minutes</option>
+                <option value="30" selected>30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="180">3 hours</option>
+                <option value="1440">24 hours</option>
+                <option value="0">No expiry</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="label">QR Code Customization</label>
+              <div class="customization-row">
+                <div class="custom-group">
+                  <label class="custom-label">Size</label>
+                  <select id="qr-size" class="input select">
+                    <option value="300">Small (300px)</option>
+                    <option value="400" selected>Medium (400px)</option>
+                    <option value="600">Large (600px)</option>
+                  </select>
+                </div>
+                <div class="custom-group">
+                  <label class="custom-label">Color</label>
+                  <select id="qr-color" class="input select">
+                    <option value="#456882" selected>Blue (Default)</option>
+                    <option value="#000000">Black</option>
+                    <option value="#6c5ce7">Purple</option>
+                    <option value="#2ecc71">Green</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary full-width"><i class="fas fa-wand-magic-sparkles"></i> Generate QR Code</button>
+          </form>
+        </div>
+
+        <div class="result-card" id="result-card" hidden>
+          <div class="result-header">
+            <h2>Generated QR Code</h2>
+            <button class="btn-icon" id="reset-dynamic" title="Create new QR"><i class="fas fa-rotate"></i></button>
+          </div>
+
+          <div class="qr-wrapper">
+            <div class="qr-box">
+              <img id="dynamic-qr" src="" alt="Dynamic QR Code" class="qr-image">
+            </div>
+            <div class="qr-details">
+              <div class="detail-row" id="amount-detail" hidden>
+                <span class="detail-label">Amount</span>
+                <span class="detail-value" id="amount-value">—</span>
+              </div>
+              <div class="detail-row" id="note-detail" hidden>
+                <span class="detail-label">Note</span>
+                <span class="detail-value" id="note-value">—</span>
+              </div>
+              <div class="detail-row" id="expiry-detail" hidden>
+                <span class="detail-label">Expires in</span>
+                <span class="detail-value countdown" id="countdown-value">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-grid">
+            <button class="btn btn-primary" id="download-dynamic"><i class="fas fa-download"></i> Download</button>
+            <button class="btn btn-secondary" id="share-dynamic"><i class="fas fa-share-nodes"></i> Share</button>
+            <button class="btn btn-ghost" id="copy-dynamic-link"><i class="fas fa-link"></i> Copy Link</button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-header">
+            <i class="fas fa-lightbulb"></i>
+            <h3>Dynamic QR Benefits</h3>
+          </div>
+          <ul class="benefits-list">
+            <li><i class="fas fa-check-circle"></i> Pre-set amount for specific payments</li>
+            <li><i class="fas fa-check-circle"></i> Add context with custom notes</li>
+            <li><i class="fas fa-check-circle"></i> Temporary codes for one-time transactions</li>
+            <li><i class="fas fa-check-circle"></i> Higher security with expiry times</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script>
+    window.QR_DATA = {
+      zenoPayId: "<%= zenoPayId %>",
+      paymentUrl: "<%= paymentUrl %>",
+      staticQR: "<%= staticQR %>"
+    };
+  </script>
+  <script src="/js/qr-payment.js"></script>
+</body>
+</html>

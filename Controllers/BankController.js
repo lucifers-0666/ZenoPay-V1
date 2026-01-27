@@ -3,7 +3,7 @@ const BankBranch = require("../Models/Banks");
 
 const getBankBranches = async (req, res) => {
   // Renders the branch.ejs view
-  res.render("RegisterBank", {
+  res.render("register-bank", {
     pageTitle: "Register Bank",
     currentPage: "Register Bank",
     isLoggedIn: req.session.isLoggedIn || false,
@@ -87,7 +87,7 @@ const postBankBranch = async (req, res) => {
 const getAllBanks = async (req, res) => {
   try {
     const banks = await BankBranch.find().sort({ RegistrationDate: -1 });
-    res.render("BanksList", {
+    res.render("banks-list", {
       pageTitle: "Registered Banks",
       banks: banks,
     });

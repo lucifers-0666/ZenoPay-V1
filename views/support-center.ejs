@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/support-center.css">
+</head>
+<body>
+  <div class="page-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1>How can we help you?</h1>
+        <p class="subtitle">Search for answers or browse our help categories</p>
+        
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search for help articles, FAQs, or guides...">
+            <button id="search-btn" class="search-btn">Search</button>
+          </div>
+          <div class="search-suggestions" id="search-suggestions" hidden></div>
+        </div>
+
+        <div class="popular-searches">
+          <span class="label">Popular:</span>
+          <a href="#" class="search-tag">How to send money</a>
+          <a href="#" class="search-tag">Account verification</a>
+          <a href="#" class="search-tag">Transaction fees</a>
+          <a href="#" class="search-tag">Reset password</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Status Banner -->
+    <% if (systemStatus.status !== 'operational') { %>
+    <div class="status-banner status-<%= systemStatus.status %>">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div>
+        <strong><%= systemStatus.message %></strong>
+        <a href="#" class="status-link">View Status Page</a>
+      </div>
+    </div>
+    <% } else { %>
+    <div class="status-banner status-operational">
+      <i class="fas fa-check-circle"></i>
+      <span><%= systemStatus.message %></span>
+    </div>
+    <% } %>
+
+    <div class="content-wrapper">
+      <!-- Help Categories -->
+      <section class="categories-section">
+        <h2 class="section-title">Browse by Category</h2>
+        <div class="categories-grid">
+          <% helpCategories.forEach(category => { %>
+          <a href="/support/category/<%= category.id %>" class="category-card">
+            <div class="category-icon">
+              <i class="fas <%= category.icon %>"></i>
+            </div>
+            <h3><%= category.title %></h3>
+            <p><%= category.description %></p>
+            <div class="category-meta">
+              <span><%= category.articleCount %> articles</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </a>
+          <% }); %>
+        </div>
+      </section>
+
+      <!-- Popular Articles -->
+      <section class="articles-section">
+        <h2 class="section-title">Popular Articles</h2>
+        <div class="articles-list">
+          <% popularArticles.forEach(article => { %>
+          <div class="article-card">
+            <div class="article-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="article-content">
+              <h3><%= article.title %></h3>
+              <p><%= article.excerpt %></p>
+              <div class="article-meta">
+                <span class="read-time"><i class="fas fa-clock"></i> <%= article.readTime %></span>
+                <span class="views"><i class="fas fa-eye"></i> <%= article.views.toLocaleString() %> views</span>
+                <span class="helpful"><i class="fas fa-thumbs-up"></i> <%= article.helpful %> helpful</span>
+              </div>
+            </div>
+            <button class="article-action">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          <% }); %>
+        </div>
+      </section>
+
+      <!-- Contact Options -->
+      <section class="contact-section">
+        <h2 class="section-title">Still Need Help?</h2>
+        <p class="section-subtitle">Our support team is here to assist you</p>
+        
+        <div class="contact-grid">
+          <% contactOptions.forEach(option => { %>
+          <div class="contact-card">
+            <div class="contact-icon">
+              <i class="fas <%= option.icon %>"></i>
+              <% if (option.status === 'online') { %>
+              <span class="status-dot online"></span>
+              <% } %>
+            </div>
+            <h3><%= option.title %></h3>
+            <p><%= option.description %></p>
+            
+            <% if (option.email) { %>
+            <div class="contact-detail">
+              <strong><%= option.email %></strong>
+            </div>
+            <% } %>
+            
+            <% if (option.phone) { %>
+            <div class="contact-detail">
+              <strong><%= option.phone %></strong>
+              <span class="hours"><%= option.hours %></span>
+            </div>
+            <% } %>
+            
+            <div class="response-time">
+              <i class="fas fa-clock"></i> <%= option.responseTime %>
+            </div>
+            
+            <% if (option.id === 'live-chat' && option.available) { %>
+            <button class="btn btn-primary" id="start-chat-btn">
+              <i class="fas fa-comments"></i> Start Chat
+            </button>
+            <% } else if (option.link) { %>
+            <a href="<%= option.link %>" class="btn btn-primary">
+              <i class="fas fa-ticket"></i> Submit Ticket
+            </a>
+            <% } else { %>
+            <button class="btn btn-secondary" onclick="window.location.href='mailto:<%= option.email || '' %>'">
+              Contact Us
+            </button>
+            <% } %>
+          </div>
+          <% }); %>
+        </div>
+      </section>
+
+      <!-- Help Resources -->
+      <section class="resources-section">
+        <h2 class="section-title">Help Resources</h2>
+        <div class="resources-grid">
+          <a href="#" class="resource-card">
+            <div class="resource-icon">
+              <i class="fas fa-video"></i>
+            </div>
+            <h3>Video Tutorials</h3>
+            <p>Watch step-by-step guides</p>
+          </a>
+          
+          <a href="#" class="resource-card">
+            <div class="resource-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <h3>User Guide</h3>
+            <p>Download PDF documentation</p>
+          </a>
+          
+          <a href="#" class="resource-card">
+            <div class="resource-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>Developer Docs</h3>
+            <p>API reference & integration</p>
+          </a>
+          
+          <a href="#" class="resource-card">
+            <div class="resource-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3>Community Forum</h3>
+            <p>Connect with other users</p>
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Live Chat Modal -->
+  <div class="modal" id="chat-modal" hidden>
+    <div class="modal-content chat-modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-comments"></i> Live Chat Support</h3>
+        <button class="close-btn" id="close-chat-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-loading">
+          <div class="spinner"></div>
+          <p>Connecting to support team...</p>
+          <p class="wait-time">Estimated wait time: <strong>2 minutes</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/support-center.js"></script>
+</body>
+</html>

@@ -58,7 +58,7 @@
       if (window.ZenoPayGatewayLoaded) return;
 
       const script = document.createElement('script');
-      script.src = `${this.config.baseUrl}/js/GatewayUI.js`;
+      script.src = `${this.config.baseUrl}/js/gateway-ui.js`;
       script.async = true;
       script.onload = () => {
         window.ZenoPayGatewayLoaded = true;

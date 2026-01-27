@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 - Access Denied | ZenoPay</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/error-pages.css">
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-content">
+      <div class="error-illustration">
+        <i class="fas fa-lock"></i>
+      </div>
+      
+      <div class="error-code">403</div>
+      
+      <h1 class="error-title">Access Denied</h1>
+      
+      <p class="error-description">
+        You don't have permission to view this page.
+      </p>
+
+      <!-- Reason Box -->
+      <% if (typeof reason !== 'undefined') { %>
+      <div class="reason-box">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <strong>Reason:</strong>
+          <% if (reason === 'not-verified') { %>
+            <span>Your account needs to be verified</span>
+          <% } else if (reason === 'subscription-required') { %>
+            <span>This feature requires a premium subscription</span>
+          <% } else if (reason === 'admin-only') { %>
+            <span>This area is restricted to administrators</span>
+          <% } else if (reason === 'suspended') { %>
+            <span>Your account has been temporarily suspended</span>
+          <% } else { %>
+            <span>Insufficient permissions</span>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Actions Based on Reason -->
+      <div class="error-actions">
+        <% if (typeof reason !== 'undefined' && reason === 'not-verified') { %>
+          <a href="/kyc-verification" class="btn btn-primary">
+            <i class="fas fa-id-card"></i> Verify Your Account
+          </a>
+        <% } else if (typeof reason !== 'undefined' && reason === 'subscription-required') { %>
+          <a href="/upgrade" class="btn btn-primary">
+            <i class="fas fa-crown"></i> Upgrade Account
+          </a>
+        <% } else { %>
+          <button class="btn btn-secondary" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Go Back
+          </button>
+        <% } %>
+        
+        <a href="/dashboard" class="btn btn-secondary">
+          <i class="fas fa-home"></i> Go to Dashboard
+        </a>
+      </div>
+
+      <!-- Help Links -->
+      <div class="help-section">
+        <h3>Need Help?</h3>
+        <div class="help-links">
+          <a href="/support" class="help-link">
+            <i class="fas fa-question-circle"></i>
+            <span>Visit Help Center</span>
+          </a>
+          <a href="/support" class="help-link">
+            <i class="fas fa-headset"></i>
+            <span>Contact Support</span>
+          </a>
+          <a href="#" class="help-link">
+            <i class="fas fa-book"></i>
+            <span>Learn About Access Levels</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

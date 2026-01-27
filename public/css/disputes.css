@@ -1,0 +1,30 @@
+@import url('./support-center.css');
+
+.filter-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.tab { padding: 1rem 1.5rem; color: var(--text-secondary); text-decoration: none; border-bottom: 2px solid transparent; transition: all 0.2s ease; }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab:hover { color: var(--text-primary); }
+
+.filter-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.filter-bar .search-box { flex: 1; min-width: 300px; }
+.filter-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.filter-input, .filter-select { padding: 0.75rem 1rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); }
+
+.dispute-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+.dispute-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.dispute-id { font-weight: 700; font-size: 1.1rem; }
+.transaction-id { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem; }
+.dispute-amount { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.dispute-body { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+.dispute-info { flex: 1; }
+.info-item { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.reason-badge { padding: 0.25rem 0.75rem; background: var(--primary-light); color: var(--primary); border-radius: 6px; font-size: 0.85rem; }
+.dispute-footer { display: flex; justify-content: space-between; align-items: center; }
+.dispute-dates { font-size: 0.85rem; color: var(--text-secondary); }
+
+.dispute-modal-content { max-width: 900px; }
+.timeline { margin: 2rem 0; }
+.timeline-item { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+.timeline-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; }
+.timeline-icon.completed { background: var(--success); color: #fff; }
+.timeline-icon.current { background: var(--primary); color: #fff; }
