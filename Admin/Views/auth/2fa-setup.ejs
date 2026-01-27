@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0F172A;
+            --bg-darker: #020617;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #64748B;
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --primary: #0EA5E9;
+            --primary-dark: #0284C7;
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --gradient-1: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-2: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+        }
+        
+        [data-theme="light"] {
+            --bg-dark: #F1F5F9;
+            --bg-darker: #E2E8F0;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(15, 23, 42, 0.1);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --input-bg: rgba(15, 23, 42, 0.04);
+            --input-border: rgba(15, 23, 42, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.4s ease;
+        }
+        
+        /* Animated Background */
+        .bg-gradient {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        
+        /* Floating Shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+            z-index: 0;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-1);
+            top: -100px;
+            left: -100px;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--gradient-2);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 5s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, 20px) rotate(180deg); }
+            75% { transform: translate(20px, 30px) rotate(270deg); }
+        }
+        
+        /* Main Container */
+        .setup-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 650px;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px) saturate(120%);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 50px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--input-border);
+            transform: rotate(180deg);
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 40px;
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--input-border);
+            z-index: 0;
+        }
+        
+        .progress-line-fill {
+            height: 100%;
+            background: var(--gradient-2);
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 3px;
+        }
+        
+        .progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 3px solid var(--input-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-step.active {
+            background: var(--gradient-2);
+            border-color: var(--primary);
+            color: white;
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+        }
+        
+        .progress-step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .progress-step.completed::after {
+            content: '\F26B';
+            font-family: 'bootstrap-icons';
+            font-size: 18px;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+        
+        .progress-label.active {
+            color: var(--primary);
+        }
+        
+        /* Step Container */
+        .step-container {
+            display: none;
+            animation: fadeInSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .step-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Step Header */
+        .step-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .step-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            background: var(--gradient-2);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            color: white;
+            filter: drop-shadow(0 10px 30px rgba(14, 165, 233, 0.4));
+            animation: breathe 3s ease-in-out infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .step-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .step-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Benefits List */
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            background: rgba(14, 165, 233, 0.05);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+        
+        .benefit-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .benefit-content h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .benefit-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        /* QR Code Section */
+        .qr-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .qr-wrapper {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 24px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-wrapper img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        /* Skeleton Loader */
+        .skeleton-loader {
+            background: linear-gradient(90deg, var(--input-bg) 25%, var(--input-border) 50%, var(--input-bg) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Manual Code */
+        .manual-code {
+            background: var(--input-bg);
+            border: 2px dashed var(--input-border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .code-text {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+        }
+        
+        .copy-btn {
+            padding: 10px 20px;
+            background: var(--gradient-2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+        
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        
+        /* Backup Codes */
+        .backup-codes {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .backup-codes-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .codes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .backup-code-item {
+            background: var(--card-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        /* App Recommendations */
+        .app-recommendations {
+            margin: 24px 0;
+        }
+        
+        .app-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .app-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .app-badge {
+            padding: 10px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .app-badge:hover {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        /* Verification Input */
+        .verification-container {
+            margin: 40px 0;
+        }
+        
+        .code-inputs {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        
+        .code-input {
+            width: 60px;
+            height: 70px;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 14px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
+        }
+        
+        .code-input:focus {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.05);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .code-input.valid {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .code-input.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.05);
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* Alert Messages */
+        .alert {
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .alert-error i {
+            font-size: 22px;
+            color: var(--error);
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1.5px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .alert-success i {
+            font-size: 22px;
+            color: var(--success);
+        }
+        
+        .alert-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* Success Screen */
+        .success-icon-large {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            margin: 0 auto 30px;
+            filter: drop-shadow(0 15px 40px rgba(16, 185, 129, 0.4));
+            animation: successPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes successPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            height: 56px;
+            background: var(--gradient-2);
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            height: 56px;
+            background: transparent;
+            border: 2px solid var(--input-border);
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.05);
+            color: var(--primary);
+        }
+        
+        .btn-text {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 16px;
+        }
+        
+        .btn-text:hover {
+            color: var(--primary-dark);
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .toast.success {
+            border-color: var(--success);
+        }
+        
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .toast-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: rgba(245, 158, 11, 0.08);
+            border: 1.5px solid rgba(245, 158, 11, 0.2);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin: 24px 0;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .info-box i {
+            font-size: 20px;
+            color: var(--warning);
+            margin-top: 2px;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .info-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .setup-wrapper {
+                padding: 40px 24px;
+            }
+            
+            .step-title {
+                font-size: 26px;
+            }
+            
+            .qr-wrapper {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .codes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .code-input {
+                width: 50px;
+                height: 60px;
+                font-size: 24px;
+            }
+            
+            .progress-label {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    
+    <!-- Main Container -->
+    <div class="setup-wrapper">
+        
+        <!-- Theme Toggle -->
+        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-step active" data-step="1">1</div>
+                <div class="progress-step" data-step="2">2</div>
+                <div class="progress-step" data-step="3">3</div>
+                <div class="progress-step" data-step="4">4</div>
+            </div>
+            <div class="progress-labels">
+                <div class="progress-label active">Introduction</div>
+                <div class="progress-label">QR Code</div>
+                <div class="progress-label">Verify</div>
+                <div class="progress-label">Complete</div>
+            </div>
+        </div>
+        
+        <!-- Step 1: Introduction -->
+        <div class="step-container active" id="step1">
+            <div class="step-header">
+                <div class="step-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h1 class="step-title">Secure Your Account</h1>
+                <p class="step-subtitle">
+                    Enable two-factor authentication to add an extra layer of security to your admin account
+                </p>
+            </div>
+            
+            <ul class="benefits-list">
+                <li class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Enhanced Security</h4>
+                        <p>Protect your account from unauthorized access with an additional verification layer</p>
+                    </div>
+                </li>
+                <li class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Instant Alerts</h4>
+                        <p>Get notified immediately of any suspicious login attempts on your account</p>
+                    </div>
+                </li>
+                <li class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Backup Codes</h4>
+                        <p>Receive emergency backup codes for account recovery when you can't access your device</p>
+                    </div>
+                </li>
+            </ul>
+            
+            <button class="btn-primary" onclick="nextStep()">
+                <span>Continue Setup</span>
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+        
+        <!-- Step 2: QR Code Display -->
+        <div class="step-container" id="step2">
+            <div class="step-header">
+                <div class="step-icon">
+                    <i class="bi bi-qr-code"></i>
+                </div>
+                <h1 class="step-title">Scan QR Code</h1>
+                <p class="step-subtitle">
+                    Use your authenticator app to scan this QR code
+                </p>
+            </div>
+            
+            <!-- QR Code -->
+            <div class="qr-container">
+                <div class="qr-wrapper" id="qrWrapper">
+                    <div class="skeleton-loader" id="qrSkeleton" style="width: 100%; height: 100%;"></div>
+                    <img id="qrImage" style="display: none;">
+                </div>
+                
+                <!-- Manual Code -->
+                <div class="manual-code">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Can't scan? Enter manually:</div>
+                        <div class="code-text" id="manualCode">Loading...</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyCode('manual')">
+                        <i class="bi bi-clipboard"></i>
+                        <span id="copyBtnText1">Copy</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- App Recommendations -->
+            <div class="app-recommendations">
+                <div class="app-title">📱 Recommended Authenticator Apps:</div>
+                <div class="app-list">
+                    <div class="app-badge">
+                        <i class="bi bi-google"></i>
+                        Google Authenticator
+                    </div>
+                    <div class="app-badge">
+                        <i class="bi bi-microsoft"></i>
+                        Microsoft Authenticator
+                    </div>
+                    <div class="app-badge">
+                        <i class="bi bi-shield-lock"></i>
+                        Authy
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Backup Codes -->
+            <div class="backup-codes">
+                <div class="backup-codes-title">
+                    <i class="bi bi-key-fill"></i>
+                    Backup Recovery Codes
+                </div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                    Save these codes in a secure location. Each code can only be used once.
+                </p>
+                <div class="codes-grid" id="backupCodesGrid">
+                    <!-- Codes will be generated here -->
+                </div>
+                <button class="copy-btn" onclick="copyBackupCodes()" style="width: 100%;">
+                    <i class="bi bi-download"></i>
+                    <span id="copyBtnText2">Download Backup Codes</span>
+                </button>
+            </div>
+            
+            <button class="btn-primary" onclick="nextStep()">
+                <span>I've Saved Everything</span>
+                <i class="bi bi-arrow-right"></i>
+            </button>
+            
+            <button class="btn-text" onclick="prevStep()">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+        </div>
+        
+        <!-- Step 3: Verification -->
+        <div class="step-container" id="step3">
+            <div class="step-header">
+                <div class="step-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h1 class="step-title">Verify Code</h1>
+                <p class="step-subtitle">
+                    Enter the 6-digit code from your authenticator app
+                </p>
+            </div>
+            
+            <div id="errorAlert" style="display: none;" class="alert alert-error">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <p class="alert-text" id="errorText"></p>
+            </div>
+            
+            <div class="verification-container">
+                <div class="code-inputs" id="codeInputs">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit1">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit2">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit3">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit4">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit5">
+                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="digit6">
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <i class="bi bi-info-circle-fill"></i>
+                <div class="info-content">
+                    <p class="info-text">
+                        The code refreshes every 30 seconds. If the code doesn't work, wait for a new one to generate.
+                    </p>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="verifyCode()" id="verifyBtn">
+                <span>Verify & Enable 2FA</span>
+                <i class="bi bi-check-lg"></i>
+            </button>
+            
+            <button class="btn-secondary" onclick="regenerateQR()">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Regenerate QR Code</span>
+            </button>
+            
+            <button class="btn-text" onclick="prevStep()">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+        </div>
+        
+        <!-- Step 4: Success -->
+        <div class="step-container" id="step4">
+            <div class="step-header">
+                <div class="success-icon-large">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h1 class="step-title">2FA Enabled!</h1>
+                <p class="step-subtitle">
+                    Your account is now protected with two-factor authentication
+                </p>
+            </div>
+            
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <p class="alert-text">
+                    Two-factor authentication has been successfully enabled. You'll be asked for a verification code each time you sign in.
+                </p>
+            </div>
+            
+            <div class="info-box">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div class="info-content">
+                    <div class="info-title">Important Reminder</div>
+                    <p class="info-text">
+                        Make sure to save your backup codes in a secure location. You'll need them if you lose access to your authenticator app.
+                    </p>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="goToDashboard()">
+                <i class="bi bi-speedometer2"></i>
+                <span>Go to Dashboard</span>
+            </button>
+            
+            <button class="btn-secondary" onclick="downloadBackupCodes()">
+                <i class="bi bi-download"></i>
+                <span>Download Backup Codes Again</span>
+            </button>
+        </div>
+        
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        let secret = '';
+        let qrCodeUrl = '';
+        let backupCodes = [];
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('themeIcon').classList.remove('bi-moon-stars');
+                document.getElementById('themeIcon').classList.add('bi-sun');
+            }
+            
+            // Generate 2FA data
+            generate2FAData();
+            
+            // Setup code inputs
+            setupCodeInputs();
+        });
+        
+        // Generate 2FA Secret and QR Code
+        async function generate2FAData() {
+            try {
+                const response = await fetch('/admin/2fa/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    secret = data.secret;
+                    qrCodeUrl = data.qrCode;
+                    backupCodes = data.backupCodes;
+                    
+                    // Display QR Code
+                    setTimeout(() => {
+                        document.getElementById('qrSkeleton').style.display = 'none';
+                        const qrImage = document.getElementById('qrImage');
+                        qrImage.src = qrCodeUrl;
+                        qrImage.style.display = 'block';
+                    }, 1000);
+                    
+                    // Display manual code
+                    document.getElementById('manualCode').textContent = secret;
+                    
+                    // Display backup codes
+                    const grid = document.getElementById('backupCodesGrid');
+                    grid.innerHTML = '';
+                    backupCodes.forEach(code => {
+                        const div = document.createElement('div');
+                        div.className = 'backup-code-item';
+                        div.textContent = code;
+                        grid.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Error generating 2FA data:', error);
+            }
+        }
+        
+        // Navigation
+        function nextStep() {
+            if (currentStep < 4) {
+                currentStep++;
+                updateStep();
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStep();
+            }
+        }
+        
+        function updateStep() {
+            // Hide all steps
+            document.querySelectorAll('.step-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            // Update progress
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const progressLabels = document.querySelectorAll('.progress-label');
+            
+            progressSteps.forEach((step, index) => {
+                const stepNum = index + 1;
+                if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+            
+            progressLabels.forEach((label, index) => {
+                if (index + 1 === currentStep) {
+                    label.classList.add('active');
+                } else {
+                    label.classList.remove('active');
+                }
+            });
+            
+            // Update progress bar
+            const progress = ((currentStep - 1) / 3) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            
+            // Auto-focus on code input in step 3
+            if (currentStep === 3) {
+                setTimeout(() => {
+                    document.getElementById('digit1').focus();
+                }, 300);
+            }
+        }
+        
+        // Code Input Handling
+        function setupCodeInputs() {
+            const inputs = document.querySelectorAll('.code-input');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    
+                    // Only allow numbers
+                    if (!/^\d*$/.test(value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Move to next input
+                    if (value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    
+                    // Auto-submit when all filled
+                    if (index === inputs.length - 1 && value) {
+                        const code = Array.from(inputs).map(i => i.value).join('');
+                        if (code.length === 6) {
+                            setTimeout(() => verifyCode(), 300);
+                        }
+                    }
+                    
+                    // Remove error state
+                    input.classList.remove('error');
+                    document.getElementById('errorAlert').style.display = 'none';
+                });
+                
+                // Handle backspace
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+                
+                // Handle paste
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+                    
+                    if (pastedData.length === 6) {
+                        inputs.forEach((inp, idx) => {
+                            inp.value = pastedData[idx] || '';
+                        });
+                        inputs[5].focus();
+                    }
+                });
+            });
+        }
+        
+        // Verify Code
+        async function verifyCode() {
+            const inputs = document.querySelectorAll('.code-input');
+            const code = Array.from(inputs).map(i => i.value).join('');
+            
+            if (code.length !== 6) {
+                showError('Please enter all 6 digits');
+                return;
+            }
+            
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;"></div> Verifying...';
+            
+            try {
+                const response = await fetch('/admin/2fa/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, secret })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    inputs.forEach(input => input.classList.add('valid'));
+                    setTimeout(() => {
+                        currentStep = 4;
+                        updateStep();
+                    }, 500);
+                } else {
+                    showError('Invalid code. Please try again.');
+                    inputs.forEach(input => {
+                        input.classList.add('error');
+                        input.value = '';
+                    });
+                    inputs[0].focus();
+                }
+            } catch (error) {
+                showError('Verification failed. Please try again.');
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '<span>Verify & Enable 2FA</span><i class="bi bi-check-lg"></i>';
+            }
+        }
+        
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorAlert.style.display = 'flex';
+            
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Copy Functions
+        function copyCode(type) {
+            const code = document.getElementById('manualCode').textContent;
+            navigator.clipboard.writeText(code);
+            
+            const btn = document.getElementById('copyBtnText1');
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.parentElement.classList.add('copied');
+            
+            showToast('Code copied to clipboard!');
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.parentElement.classList.remove('copied');
+            }, 2000);
+        }
+        
+        function copyBackupCodes() {
+            const codes = backupCodes.join('\n');
+            navigator.clipboard.writeText(codes);
+            
+            const btn = document.getElementById('copyBtnText2');
+            btn.textContent = 'Copied!';
+            
+            showToast('Backup codes copied to clipboard!');
+            
+            setTimeout(() => {
+                btn.textContent = 'Download Backup Codes';
+            }, 2000);
+        }
+        
+        function downloadBackupCodes() {
+            const codes = backupCodes.join('\n');
+            const blob = new Blob([codes], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'zenopay-backup-codes.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Backup codes downloaded!');
+        }
+        
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast success';
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="toast-text">${message}</div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) reverse';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+        
+        // Regenerate QR
+        function regenerateQR() {
+            currentStep = 1;
+            updateStep();
+            generate2FAData();
+            showToast('Generating new QR code...');
+        }
+        
+        // Go to Dashboard
+        function goToDashboard() {
+            window.location.href = '/admin/dashboard';
+        }
+        
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.hasAttribute('data-theme')) {
+                body.removeAttribute('data-theme');
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+</body>
+</html>

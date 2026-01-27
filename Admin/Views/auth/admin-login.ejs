@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0F172A;
+            --bg-darker: #020617;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #64748B;
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --primary: #0EA5E9;
+            --primary-dark: #0284C7;
+            --success: #10B981;
+            --error: #EF4444;
+            --gradient-1: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-2: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+        }
+        
+        [data-theme="light"] {
+            --bg-dark: #F1F5F9;
+            --bg-darker: #E2E8F0;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(15, 23, 42, 0.1);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --input-bg: rgba(15, 23, 42, 0.04);
+            --input-border: rgba(15, 23, 42, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.4s ease;
+        }
+        
+        /* Animated Background Mesh */
+        .bg-gradient {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        
+        /* Floating Shapes */
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+            z-index: 0;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-1);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--gradient-2);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 5s;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            top: 50%;
+            right: 10%;
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(-20px, 20px) rotate(180deg); }
+            75% { transform: translate(20px, 30px) rotate(270deg); }
+        }
+        
+        /* Main Container - Asymmetric Layout */
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 0;
+            max-width: 1100px;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px) saturate(120%);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        /* Left Side - Branding & Status */
+        .brand-panel {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230EA5E9' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        
+        .brand-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon-small {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .brand-tagline {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        .trust-indicators {
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+        
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .trust-item:last-child {
+            border-bottom: none;
+        }
+        
+        .trust-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--success);
+            font-size: 14px;
+        }
+        
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s ease infinite;
+            margin-right: 6px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+        
+        /* Right Side - Form */
+        .form-panel {
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        
+        .theme-toggle:hover {
+            background: var(--input-border);
+            transform: rotate(180deg);
+        }
+        
+        /* Animated Shield */
+        .shield-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .shield-icon {
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            filter: drop-shadow(0 10px 30px rgba(14, 165, 233, 0.4));
+            animation: breathe 3s ease-in-out infinite;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .shield-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .shield-icon.unlocked {
+            animation: unlock 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes unlock {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-10deg); }
+            50% { transform: scale(0.9) rotate(10deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        /* Particle Effect */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFly 1s ease-out forwards;
+        }
+        
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .form-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .form-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+        
+        /* Error Alert */
+        .error-alert {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        
+        .error-alert i {
+            font-size: 20px;
+            color: var(--error);
+        }
+        
+        .error-text {
+            font-size: 14px;
+            color: #FCA5A5;
+            margin: 0;
+        }
+        
+        /* Form Fields - Progressive Reveal */
+        .form-field {
+            margin-bottom: 24px;
+            position: relative;
+            opacity: 0;
+            animation: revealField 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .form-field:nth-child(1) { animation-delay: 0.1s; }
+        .form-field:nth-child(2) { animation-delay: 0.2s; }
+        .form-field:nth-child(3) { animation-delay: 0.3s; }
+        
+        @keyframes revealField {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-field.hidden {
+            display: none;
+        }
+        
+        /* Floating Label Pattern */
+        .input-group {
+            position: relative;
+        }
+        
+        .form-input {
+            width: 100%;
+            height: 56px;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 14px;
+            padding: 20px 18px 8px 18px;
+            font-size: 16px;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.05);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+        
+        .form-input.valid {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .form-input.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.05);
+            animation: shake 0.5s ease;
+        }
+        
+        /* Password Strength Glow */
+        .form-input.strength-weak {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .form-input.strength-medium {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+        }
+        
+        .form-input.strength-strong {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .floating-label {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .form-input:focus ~ .floating-label,
+        .form-input:not(:placeholder-shown) ~ .floating-label {
+            top: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            transform: translateY(0);
+        }
+        
+        /* Input Icons */
+        .input-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .input-icon:hover {
+            color: var(--primary);
+        }
+        
+        .input-icon.valid-check {
+            color: var(--success);
+            animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes checkPop {
+            0% { transform: translateY(-50%) scale(0); }
+            50% { transform: translateY(-50%) scale(1.3); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        
+        /* Remember & Forgot */
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--input-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-checkbox input {
+            display: none;
+        }
+        
+        .custom-checkbox input:checked + .checkmark {
+            display: block;
+        }
+        
+        .checkmark {
+            display: none;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .custom-checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+        
+        .forgot-link {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .forgot-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        /* Primary Button */
+        .btn-primary {
+            width: 100%;
+            height: 56px;
+            background: var(--gradient-2);
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.4);
+        }
+        
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-primary.loading {
+            pointer-events: none;
+        }
+        
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: inherit;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+        }
+        
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--input-border);
+        }
+        
+        .divider-text {
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        /* Biometric Button */
+        .btn-biometric {
+            width: 100%;
+            height: 56px;
+            background: transparent;
+            border: 2px solid var(--input-border);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-biometric::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+        }
+        
+        .btn-biometric:hover {
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.05);
+        }
+        
+        .btn-biometric:hover::before {
+            transform: scale(1);
+        }
+        
+        .fingerprint-icon {
+            font-size: 24px;
+            animation: fingerScan 2s ease-in-out infinite;
+        }
+        
+        @keyframes fingerScan {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Keyboard Shortcuts Hint */
+        .keyboard-hint {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .key-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0 4px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+            
+            .brand-panel {
+                display: none;
+            }
+            
+            .form-panel {
+                padding: 50px 40px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .form-panel {
+                padding: 40px 24px;
+            }
+            
+            .form-title {
+                font-size: 26px;
+            }
+            
+            .form-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .theme-toggle {
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Animated Background -->
+    <div class="bg-gradient"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+    
+    <!-- Main Container -->
+    <div class="login-wrapper">
+        
+        <!-- Left Panel: Branding -->
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <div class="logo-icon-small">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    ZenoPay
+                </div>
+                <p class="brand-tagline">
+                    Enterprise-grade transaction management platform. 
+                    Secure, compliant, and trusted by organizations worldwide.
+                </p>
+            </div>
+            
+            <div class="trust-indicators">
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">SSL Encrypted</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">256-bit encryption</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon">
+                        <i class="bi bi-patch-check"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">SOC 2 Compliant</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Type II certified</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div style="display: flex; align-items: center;">
+                        <div class="status-pulse"></div>
+                        <span style="font-weight: 600; color: var(--text-primary);">System Status</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-left: auto;">
+                        All systems operational
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel: Form -->
+        <div class="form-panel">
+            
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <i class="bi bi-moon-stars" id="themeIcon"></i>
+            </div>
+            
+            <!-- Animated Shield -->
+            <div class="shield-container">
+                <div class="shield-icon" id="shieldIcon" onclick="createParticles()">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+            </div>
+            
+            <!-- Header -->
+            <div class="form-header">
+                <h1 class="form-title">Welcome Back</h1>
+                <p class="form-subtitle">Sign in to access your admin dashboard</p>
+            </div>
+            
+            <!-- Error Alert -->
+            <% if (error) { %>
+            <div class="error-alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <p class="error-text"><%= error %></p>
+            </div>
+            <% } %>
+            
+            <!-- Success Alert -->
+            <% if (typeof success !== 'undefined' && success) { %>
+            <div class="success-alert" style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.5s ease;">
+                <i class="bi bi-check-circle-fill" style="font-size: 20px; color: var(--success);"></i>
+                <p style="font-size: 14px; color: #6EE7B7; margin: 0;"><%= success %></p>
+            </div>
+            <% } %>
+            
+            <!-- Login Form -->
+            <form id="adminLoginForm" action="/admin/login" method="POST">
+                
+                <!-- Email/ZenoPayID Field -->
+                <div class="form-field" id="emailField">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="emailInput"
+                            name="zenoPayId"
+                            class="form-input"
+                            placeholder=" "
+                            required
+                            autocomplete="username"
+                            autofocus>
+                        <label class="floating-label">Admin Email or ZenoPay ID</label>
+                        <i class="bi input-icon" id="emailIcon"></i>
+                    </div>
+                </div>
+                
+                <!-- Password Field (Progressive Reveal) -->
+                <div class="form-field hidden" id="passwordField">
+                    <div class="input-group">
+                        <input 
+                            type="password" 
+                            id="passwordInput"
+                            name="password"
+                            class="form-input"
+                            placeholder=" "
+                            required
+                            autocomplete="current-password">
+                        <label class="floating-label">Password</label>
+                        <i class="bi bi-eye input-icon" id="passwordToggle" onclick="togglePassword()"></i>
+                    </div>
+                </div>
+                
+                <!-- Remember & Forgot -->
+                <div class="form-footer" id="formFooter" style="display: none;">
+                    <label class="checkbox-group" onclick="toggleCheckbox()">
+                        <div class="custom-checkbox" id="customCheckbox">
+                            <input type="checkbox" name="remember" id="rememberCheck">
+                            <i class="bi bi-check checkmark"></i>
+                        </div>
+                        <span class="checkbox-label">Remember me</span>
+                    </label>
+                    <a href="/admin/forgot-password" class="forgot-link">Forgot password?</a>
+                </div>
+                
+                <!-- Sign In Button -->
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    Sign In
+                </button>
+                
+                <!-- Divider -->
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">OR</span>
+                    <div class="divider-line"></div>
+                </div>
+                
+                <!-- Biometric Button -->
+                <button type="button" class="btn-biometric">
+                    <i class="bi bi-fingerprint fingerprint-icon"></i>
+                    <span>Quick Access with Biometrics</span>
+                </button>
+                
+                <!-- Keyboard Hint -->
+                <div class="keyboard-hint">
+                    Press <span class="key-badge">Enter ↵</span> to sign in
+                </div>
+                
+            </form>
+            
+        </div>
+        
+    </div>
+    
+    <script>
+        // Progressive Field Reveal
+        const emailInput = document.getElementById('emailInput');
+        const passwordField = document.getElementById('passwordField');
+        const formFooter = document.getElementById('formFooter');
+        const emailIcon = document.getElementById('emailIcon');
+        
+        let emailValid = false;
+        
+        emailInput.addEventListener('input', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const zenoPayIdRegex = /^ZP-[A-Z0-9]+$/i;
+            
+            if (emailRegex.test(this.value) || zenoPayIdRegex.test(this.value) || this.value.length >= 5) {
+                this.classList.add('valid');
+                this.classList.remove('error');
+                emailIcon.className = 'bi bi-check-circle-fill input-icon valid-check';
+                
+                if (!emailValid) {
+                    emailValid = true;
+                    setTimeout(() => {
+                        passwordField.classList.remove('hidden');
+                        formFooter.style.display = 'flex';
+                        document.getElementById('passwordInput').focus();
+                    }, 300);
+                }
+            } else {
+                this.classList.remove('valid');
+                emailIcon.className = 'bi input-icon';
+                emailValid = false;
+            }
+        });
+        
+        // Password Strength Indicator (Glow Effect)
+        const passwordInput = document.getElementById('passwordInput');
+        
+        passwordInput.addEventListener('input', function() {
+            const strength = calculatePasswordStrength(this.value);
+            
+            this.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+            
+            if (this.value.length > 0) {
+                if (strength < 40) {
+                    this.classList.add('strength-weak');
+                } else if (strength < 70) {
+                    this.classList.add('strength-medium');
+                } else {
+                    this.classList.add('strength-strong');
+                }
+            }
+        });
+        
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength += 30;
+            if (password.length >= 12) strength += 20;
+            if (/[a-z]/.test(password)) strength += 10;
+            if (/[A-Z]/.test(password)) strength += 10;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+            return strength;
+        }
+        
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+        
+        // Custom Checkbox
+        function toggleCheckbox() {
+            const checkbox = document.getElementById('rememberCheck');
+            const customCheckbox = document.getElementById('customCheckbox');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                customCheckbox.classList.add('checked');
+            } else {
+                customCheckbox.classList.remove('checked');
+            }
+        }
+        
+        // Shield Animation with Particles
+        function createParticles() {
+            const shield = document.getElementById('shieldIcon');
+            const rect = shield.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const angle = (Math.PI * 2 * i) / 12;
+                const distance = 60 + Math.random() * 40;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.cssText = `
+                    left: ${centerX}px;
+                    top: ${centerY}px;
+                    --tx: ${tx}px;
+                    --ty: ${ty}px;
+                `;
+                
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+        
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.hasAttribute('data-theme')) {
+                body.removeAttribute('data-theme');
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon-stars');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Load Saved Theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                themeIcon.classList.remove('bi-moon-stars');
+                themeIcon.classList.add('bi-sun');
+            }
+        });
+        
+        // Form Submission with Loading State
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const shield = document.getElementById('shieldIcon');
+            
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Authenticating...';
+            
+            shield.classList.add('unlocked');
+            createParticles();
+        });
+        
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const form = document.getElementById('adminLoginForm');
+                if (emailInput.value && passwordInput.value) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+        
+        // Mouse Movement Effect on Floating Shapes
+        document.addEventListener('mousemove', function(e) {
+            const shapes = document.querySelectorAll('.floating-shape');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 20;
+                const xMove = (x - 0.5) * speed;
+                const yMove = (y - 0.5) * speed;
+                
+                shape.style.transform = `translate(${xMove}px, ${yMove}px)`;
+            });
+        });
+    </script>
+    
+</body>
+</html>

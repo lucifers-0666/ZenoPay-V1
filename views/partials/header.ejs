@@ -1,119 +1,732 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZenoPay Dashboard</title>
-    <link rel="stylesheet" href="/css/dashboard.css" />
-    <link rel="stylesheet" href="/css/header.css" />
-    <link rel="stylesheet" href="/css/login.css" />
-
-<meta name="google-adsense-account" content="ca-pub-7109994414427190">
-        
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script src="/js/Loader.js"></script>
-    <script src="/js/confirmation.js"></script>
-    <script src="/js/dashboard.js"></script>
-    <% if (isLoggedIn && user) { %>
-    <script src="/js/navbar.js" defer></script>
-    <% } %>
-  </head>
-  <body>
-   
-    <aside class="sidebar">
-      <div class="logo">
-        <img src="/Images/bgFavicon.png" alt="ZenoPay Logo" class="logo-img" />
-        <h2>ZenoPay</h2>
-      </div>
-      <hr class="sidebar-divider" />
-      <% if(isLoggedIn && user) { %>
-      <div class="sidebar-qr-section">
-        <div class="qr-code-wrapper">
-          <% if (typeof qrCode !== 'undefined' && qrCode) { %>
-          <img src="<%= qrCode %>" alt="QR Code" class="qr-code-image" />
-          <img src="/Images/bgFavicon.png" alt="Logo" class="qr-logo-overlay" />
-          <% } %>
-        </div>
-        <div class="upi-id">
-          <i class="fas fa-mobile-alt"></i>
-          <span><%= user.ZenoPayID %></span>
-        </div>
-      </div>
-      <% } %>
-      <hr class="sidebar-divider" />
-      <nav class="sidebar-nav">
-        <ul>
-          <li
-            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>"
-          >
-            <a href="/">
-              <i class="fas fa-home"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li
-            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'send-money') ? 'active' : '' %>"
-          >
-            <a href="/send-to">
-              <i class="fas fa-exchange-alt"></i>
-              <span>Send Money</span>
-            </a>
-          </li>
-
-          <li 
-           class="<%= (typeof currentPage !== 'undefined' && currentPage === 'Transaction-History') ? 'active' : '' %>">
-            <a href="/Transaction-History">
-              <i class="fas fa-credit-card"></i>
-              <span>Transaction History</span>
-            </a>
-          </li>
-          <li
-            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'api-key') ? 'active' : '' %>"
-          >
-            <a href="/api-integration">
-              <i class="fas fa-code"></i>
-              <span>API Integration</span>
-            </a>
-          </li>
+<!-- Modern ZenoPay Header with Mega Menu Navigation -->
+<header class="zenopay-header" id="zenopayHeader">
+  <div class="header-inner-container">
+    <div class="header-content-wrapper">
       
-          <li
-            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>"
-          >
-            <a href="/notifications">
-              <i class="fas fa-bell"></i>
-              <span>Notifications</span>
-            </a>
-          </li>
-          <li
-            class="<%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>"
-          >
-            <a href="/Profile">
-              <i class="fas fa-user-circle"></i>
-              <span>Accounts</span>
-            </a>
-          </li>
-     
-        </ul>
-      </nav>
-      <% if(isLoggedIn && user) { %>
+      <!-- Left: Logo Section -->
+      <div class="header-logo-section">
+        <a href="/" class="logo-link">
+          <img src="/Images/bgFavicon.png" alt="ZenoPay" class="logo-icon" />
+          <span class="logo-text">ZenoPay</span>
+        </a>
+        <span class="logo-badge">Beta</span>
+      </div>
 
-      <div class="sidebar-footer">
-        <a href="/logout">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </a>
+      <!-- Center: Main Navigation (Desktop) -->
+      <nav class="header-main-nav desktop-nav" role="navigation" aria-label="Main navigation">
+        
+        <!-- Products - Mega Menu -->
+        <div class="nav-item has-dropdown has-mega-menu">
+          <button class="nav-button" aria-haspopup="true" aria-expanded="false">
+            <span>Products</span>
+            <i class="fas fa-chevron-down nav-chevron"></i>
+          </button>
+          
+          <!-- Products Mega Menu -->
+          <div class="mega-menu-dropdown" role="menu">
+            <div class="mega-menu-container">
+              <div class="mega-menu-grid">
+                
+                <!-- Column 1: Payment Solutions -->
+                <div class="mega-menu-column">
+                  <h3 class="column-heading">Payment Solutions</h3>
+                  <a href="/payment-gateway" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Payment Gateway</div>
+                      <div class="item-description">Accept payments online</div>
+                    </div>
+                  </a>
+                  <a href="/send-to" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Send Money</div>
+                      <div class="item-description">Transfer funds instantly</div>
+                    </div>
+                  </a>
+                  <a href="/request-money" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Request Money</div>
+                      <div class="item-description">Request payments easily</div>
+                    </div>
+                  </a>
+                  <a href="/payment-links" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-link"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Payment Links</div>
+                      <div class="item-description">Share & get paid</div>
+                    </div>
+                  </a>
+                  <a href="/qr-payments" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">QR Code Payments</div>
+                      <div class="item-description">Scan and pay</div>
+                    </div>
+                  </a>
+                  <a href="/split-payments" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-divide"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Split Payments</div>
+                      <div class="item-description">Share costs with others</div>
+                    </div>
+                  </a>
+                </div>
+
+                <!-- Column 2: Business Tools -->
+                <div class="mega-menu-column">
+                  <h3 class="column-heading">Business Tools</h3>
+                  <a href="/api-integration" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-code"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Merchant API</div>
+                      <div class="item-description">Integrate with your app</div>
+                    </div>
+                  </a>
+                  <a href="/Transaction-History" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-history"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Transaction History</div>
+                      <div class="item-description">View all transactions</div>
+                    </div>
+                  </a>
+                  <a href="/invoicing" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Invoicing</div>
+                      <div class="item-description">Create & send invoices</div>
+                    </div>
+                  </a>
+                  <a href="/statements" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-file-lines"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Monthly Statements</div>
+                      <div class="item-description">Download statements</div>
+                    </div>
+                  </a>
+                  <a href="/receipts" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Payment Receipts</div>
+                      <div class="item-description">Generate receipts</div>
+                    </div>
+                  </a>
+                </div>
+
+                <!-- Column 3: Account Management -->
+                <div class="mega-menu-column">
+                  <h3 class="column-heading">Account Management</h3>
+                  <a href="/saved-methods" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Saved Cards & Wallets</div>
+                      <div class="item-description">Manage payment methods</div>
+                    </div>
+                  </a>
+                  <a href="/Banks" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-building-columns"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Payment Methods</div>
+                      <div class="item-description">Link bank accounts</div>
+                    </div>
+                  </a>
+                  <a href="/settings" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-gear"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Account Settings</div>
+                      <div class="item-description">Manage preferences</div>
+                    </div>
+                  </a>
+                  <a href="/security" class="mega-menu-item" role="menuitem">
+                    <div class="item-icon">
+                      <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div class="item-content">
+                      <div class="item-title">Security Settings</div>
+                      <div class="item-description">Protect your account</div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Featured CTA -->
+              <div class="mega-menu-footer">
+                <a href="/features" class="mega-menu-cta">
+                  <span>Explore All Features</span>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Developers - Dropdown -->
+        <div class="nav-item has-dropdown">
+          <button class="nav-button" aria-haspopup="true" aria-expanded="false">
+            <span>Developers</span>
+            <i class="fas fa-chevron-down nav-chevron"></i>
+          </button>
+          
+          <div class="dropdown-menu" role="menu">
+            <a href="/api-docs" class="dropdown-item" role="menuitem">
+              <i class="fas fa-book"></i>
+              <span>API Documentation</span>
+            </a>
+            <a href="/api-integration" class="dropdown-item" role="menuitem">
+              <i class="fas fa-puzzle-piece"></i>
+              <span>API Integration Guide</span>
+            </a>
+            <a href="/sdks" class="dropdown-item" role="menuitem">
+              <i class="fas fa-cube"></i>
+              <span>SDKs & Libraries</span>
+            </a>
+            <a href="/api-reference" class="dropdown-item" role="menuitem">
+              <i class="fas fa-code"></i>
+              <span>API Reference</span>
+            </a>
+            <a href="/sandbox" class="dropdown-item" role="menuitem">
+              <i class="fas fa-flask"></i>
+              <span>Testing Environment</span>
+            </a>
+            <a href="/code-samples" class="dropdown-item" role="menuitem">
+              <i class="fas fa-file-code"></i>
+              <span>Code Samples</span>
+            </a>
+            <a href="/webhooks" class="dropdown-item" role="menuitem">
+              <i class="fas fa-webhook"></i>
+              <span>Webhooks</span>
+            </a>
+            <a href="/status" class="dropdown-item" role="menuitem">
+              <i class="fas fa-signal"></i>
+              <span>Status Page</span>
+            </a>
+            <div class="dropdown-separator"></div>
+            <a href="/api-docs" class="dropdown-cta">
+              <span>View API Docs</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Pricing - Direct Link -->
+        <div class="nav-item">
+          <a href="/pricing" class="nav-link">Pricing</a>
+        </div>
+
+        <!-- Resources - Dropdown -->
+        <div class="nav-item has-dropdown has-wide-dropdown">
+          <button class="nav-button" aria-haspopup="true" aria-expanded="false">
+            <span>Resources</span>
+            <i class="fas fa-chevron-down nav-chevron"></i>
+          </button>
+          
+          <div class="dropdown-menu wide-dropdown" role="menu">
+            <div class="dropdown-columns">
+              <div class="dropdown-column">
+                <h4 class="dropdown-column-heading">Learn</h4>
+                <a href="/how-it-works" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-lightbulb"></i>
+                  <span>How It Works</span>
+                </a>
+                <a href="/guides" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-map"></i>
+                  <span>Integration Guides</span>
+                </a>
+                <a href="/tutorials" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-video"></i>
+                  <span>Video Tutorials</span>
+                </a>
+                <a href="/case-studies" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Case Studies</span>
+                </a>
+                <a href="/blog" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-newspaper"></i>
+                  <span>Blog</span>
+                </a>
+                <a href="/help" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-circle-question"></i>
+                  <span>FAQs / Help Center</span>
+                </a>
+              </div>
+              <div class="dropdown-column">
+                <h4 class="dropdown-column-heading">Support</h4>
+                <a href="/contact" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-headset"></i>
+                  <span>Contact Support</span>
+                </a>
+                <a href="/report-issue" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-flag"></i>
+                  <span>Report Issue</span>
+                </a>
+                <a href="/disputes" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-gavel"></i>
+                  <span>Dispute Management</span>
+                </a>
+                <a href="/security" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-lock"></i>
+                  <span>Security & Compliance</span>
+                </a>
+                <a href="/privacy" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-user-shield"></i>
+                  <span>Privacy Policy</span>
+                </a>
+                <a href="/terms" class="dropdown-item" role="menuitem">
+                  <i class="fas fa-file-contract"></i>
+                  <span>Terms of Service</span>
+                </a>
+              </div>
+            </div>
+            <div class="dropdown-separator"></div>
+            <a href="/help" class="dropdown-cta">
+              <span>Get Help</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Company - Dropdown -->
+        <div class="nav-item has-dropdown">
+          <button class="nav-button" aria-haspopup="true" aria-expanded="false">
+            <span>Company</span>
+            <i class="fas fa-chevron-down nav-chevron"></i>
+          </button>
+          
+          <div class="dropdown-menu" role="menu">
+            <a href="/about" class="dropdown-item" role="menuitem">
+              <i class="fas fa-building"></i>
+              <span>About Us</span>
+            </a>
+            <a href="/careers" class="dropdown-item" role="menuitem">
+              <i class="fas fa-briefcase"></i>
+              <span>Careers</span>
+            </a>
+            <a href="/press" class="dropdown-item" role="menuitem">
+              <i class="fas fa-newspaper"></i>
+              <span>Press Kit</span>
+            </a>
+            <a href="/partners" class="dropdown-item" role="menuitem">
+              <i class="fas fa-handshake"></i>
+              <span>Partners</span>
+            </a>
+            <a href="/referral" class="dropdown-item" role="menuitem">
+              <i class="fas fa-gift"></i>
+              <span>Referral Program</span>
+            </a>
+            <a href="/rewards" class="dropdown-item" role="menuitem">
+              <i class="fas fa-award"></i>
+              <span>Rewards Program</span>
+            </a>
+            <a href="/contact" class="dropdown-item" role="menuitem">
+              <i class="fas fa-envelope"></i>
+              <span>Contact Us</span>
+            </a>
+          </div>
+        </div>
+
+      </nav>
+
+      <!-- Right: Actions Section -->
+      <div class="header-actions-section">
+        
+        <% if (isLoggedIn && user) { %>
+          <!-- Authenticated User Actions -->
+          
+          <!-- Dashboard Link -->
+          <a href="/" class="action-link dashboard-link desktop-only">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </a>
+
+          <!-- Notifications -->
+          <div class="action-icon-wrapper">
+            <button class="action-icon-btn" id="notificationsBtn" aria-label="View notifications">
+              <i class="fas fa-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+            
+            <!-- Notifications Dropdown -->
+            <div class="notifications-dropdown" id="notificationsDropdown">
+              <div class="notifications-header">
+                <h3>Notifications</h3>
+                <button class="mark-read-btn">Mark all read</button>
+              </div>
+              <div class="notifications-list">
+                <a href="/notifications/1" class="notification-item unread">
+                  <div class="notification-icon success">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="notification-content">
+                    <div class="notification-title">Payment Received</div>
+                    <div class="notification-text">You received $150.00 from John Doe</div>
+                    <div class="notification-time">5 minutes ago</div>
+                  </div>
+                </a>
+                <a href="/notifications/2" class="notification-item unread">
+                  <div class="notification-icon info">
+                    <i class="fas fa-info-circle"></i>
+                  </div>
+                  <div class="notification-content">
+                    <div class="notification-title">Account Verified</div>
+                    <div class="notification-text">Your account has been verified</div>
+                    <div class="notification-time">2 hours ago</div>
+                  </div>
+                </a>
+                <a href="/notifications/3" class="notification-item">
+                  <div class="notification-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div class="notification-content">
+                    <div class="notification-title">Security Alert</div>
+                    <div class="notification-text">New login from Chrome on Windows</div>
+                    <div class="notification-time">1 day ago</div>
+                  </div>
+                </a>
+              </div>
+              <div class="notifications-footer">
+                <a href="/notifications" class="view-all-link">View All Notifications</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Menu -->
+          <div class="action-icon-wrapper">
+            <button class="profile-avatar-btn" id="profileBtn" aria-label="Open profile menu">
+              <% if (user.ProfilePicture) { %>
+                <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="avatar-image" />
+              <% } else { %>
+                <div class="avatar-placeholder">
+                  <%= user.Name.charAt(0).toUpperCase() %>
+                </div>
+              <% } %>
+            </button>
+            
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="profile-user-info">
+                <% if (user.ProfilePicture) { %>
+                  <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="profile-avatar-large" />
+                <% } else { %>
+                  <div class="profile-avatar-large placeholder">
+                    <%= user.Name.charAt(0).toUpperCase() %>
+                  </div>
+                <% } %>
+                <div class="profile-user-details">
+                  <div class="profile-user-name"><%= user.Name %></div>
+                  <div class="profile-user-email"><%= user.Email || user.ZenoPayID %></div>
+                </div>
+              </div>
+              
+              <div class="profile-menu-items">
+                <a href="/" class="profile-menu-item">
+                  <i class="fas fa-th-large"></i>
+                  <span>Dashboard</span>
+                </a>
+                <a href="/Profile" class="profile-menu-item">
+                  <i class="fas fa-user"></i>
+                  <span>My Profile</span>
+                </a>
+                <a href="/settings" class="profile-menu-item">
+                  <i class="fas fa-gear"></i>
+                  <span>Account Settings</span>
+                </a>
+                <a href="/security" class="profile-menu-item">
+                  <i class="fas fa-shield-halved"></i>
+                  <span>Security Settings</span>
+                </a>
+                <a href="/two-factor" class="profile-menu-item">
+                  <i class="fas fa-mobile-screen"></i>
+                  <span>Two-Factor Authentication</span>
+                </a>
+                <a href="/verification" class="profile-menu-item">
+                  <i class="fas fa-badge-check"></i>
+                  <span>Verification Status</span>
+                </a>
+                <a href="/Banks" class="profile-menu-item">
+                  <i class="fas fa-building-columns"></i>
+                  <span>Payment Methods</span>
+                </a>
+                <a href="/Transaction-History" class="profile-menu-item">
+                  <i class="fas fa-history"></i>
+                  <span>Transaction History</span>
+                </a>
+                <a href="/statements" class="profile-menu-item">
+                  <i class="fas fa-file-lines"></i>
+                  <span>Monthly Statements</span>
+                </a>
+                <a href="/rewards" class="profile-menu-item">
+                  <i class="fas fa-gift"></i>
+                  <span>Referral & Rewards</span>
+                </a>
+                
+                <div class="profile-menu-separator"></div>
+                
+                <a href="/help" class="profile-menu-item">
+                  <i class="fas fa-circle-question"></i>
+                  <span>Help Center</span>
+                </a>
+                <a href="/contact" class="profile-menu-item">
+                  <i class="fas fa-headset"></i>
+                  <span>Contact Support</span>
+                </a>
+                
+                <div class="profile-menu-separator"></div>
+                
+                <a href="/logout" class="profile-menu-item logout-item">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <span>Log Out</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        <% } else { %>
+          <!-- Non-Authenticated Actions -->
+          
+          <!-- Help/Support -->
+          <div class="action-icon-wrapper desktop-only">
+            <button class="action-icon-btn help-btn" aria-label="Help & Support">
+              <i class="fas fa-circle-question"></i>
+            </button>
+            
+            <div class="dropdown-menu help-dropdown">
+              <a href="/help" class="dropdown-item">
+                <i class="fas fa-circle-question"></i>
+                <span>Help Center</span>
+              </a>
+              <a href="/contact" class="dropdown-item">
+                <i class="fas fa-headset"></i>
+                <span>Contact Support</span>
+              </a>
+              <a href="/report-issue" class="dropdown-item">
+                <i class="fas fa-flag"></i>
+                <span>Report Issue</span>
+              </a>
+              <a href="/status" class="dropdown-item">
+                <i class="fas fa-signal"></i>
+                <span>API Status</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Login Button -->
+          <a href="/login" class="btn-header btn-login desktop-only">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+            <span>Login</span>
+          </a>
+
+          <!-- Sign Up Button -->
+          <a href="/register" class="btn-header btn-signup">
+            <i class="fas fa-user-plus"></i>
+            <span>Sign Up Free</span>
+          </a>
+
+        <% } %>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
+          <i class="fas fa-bars" id="menuOpenIcon"></i>
+          <i class="fas fa-xmark" id="menuCloseIcon" style="display: none;"></i>
+        </button>
+
       </div>
-      <% }else { %>
-          <div class="sidebar-footer">
-        <a href="/login" style="background: #018790;">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Login</span>
-        </a>
-      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay">
+    <div class="mobile-menu-content">
+      
+      <% if (isLoggedIn && user) { %>
+        <!-- Authenticated Mobile Menu -->
+        <div class="mobile-user-info">
+          <% if (user.ProfilePicture) { %>
+            <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="mobile-avatar" />
+          <% } else { %>
+            <div class="mobile-avatar placeholder">
+              <%= user.Name.charAt(0).toUpperCase() %>
+            </div>
+          <% } %>
+          <div class="mobile-user-details">
+            <div class="mobile-user-name"><%= user.Name %></div>
+            <div class="mobile-user-email"><%= user.Email || user.ZenoPayID %></div>
+          </div>
+        </div>
+
+        <nav class="mobile-nav">
+          <a href="/" class="mobile-nav-item">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="/send-to" class="mobile-nav-item">
+            <i class="fas fa-paper-plane"></i>
+            <span>Send Money</span>
+          </a>
+          <a href="/Transaction-History" class="mobile-nav-item">
+            <i class="fas fa-history"></i>
+            <span>Transaction History</span>
+          </a>
+          <a href="/Banks" class="mobile-nav-item">
+            <i class="fas fa-building-columns"></i>
+            <span>Banks & Cards</span>
+          </a>
+          <a href="/api-integration" class="mobile-nav-item">
+            <i class="fas fa-code"></i>
+            <span>API Integration</span>
+          </a>
+          
+          <div class="mobile-nav-divider"></div>
+          
+          <a href="/Profile" class="mobile-nav-item">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+          </a>
+          <a href="/settings" class="mobile-nav-item">
+            <i class="fas fa-gear"></i>
+            <span>Settings</span>
+          </a>
+          <a href="/help" class="mobile-nav-item">
+            <i class="fas fa-circle-question"></i>
+            <span>Help Center</span>
+          </a>
+          
+          <div class="mobile-nav-divider"></div>
+          
+          <a href="/logout" class="mobile-nav-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+          </a>
+        </nav>
+
+      <% } else { %>
+        <!-- Non-Authenticated Mobile Menu -->
+        <nav class="mobile-nav">
+          
+          <!-- Products Section -->
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item expandable">
+              <div class="nav-item-content">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+              </div>
+              <i class="fas fa-chevron-down expand-icon"></i>
+            </button>
+            <div class="mobile-submenu">
+              <a href="/payment-gateway" class="mobile-submenu-item">Payment Gateway</a>
+              <a href="/send-to" class="mobile-submenu-item">Send Money</a>
+              <a href="/request-money" class="mobile-submenu-item">Request Money</a>
+              <a href="/payment-links" class="mobile-submenu-item">Payment Links</a>
+              <a href="/qr-payments" class="mobile-submenu-item">QR Code Payments</a>
+            </div>
+          </div>
+
+          <!-- Developers Section -->
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item expandable">
+              <div class="nav-item-content">
+                <i class="fas fa-code"></i>
+                <span>Developers</span>
+              </div>
+              <i class="fas fa-chevron-down expand-icon"></i>
+            </button>
+            <div class="mobile-submenu">
+              <a href="/api-docs" class="mobile-submenu-item">API Documentation</a>
+              <a href="/api-integration" class="mobile-submenu-item">Integration Guide</a>
+              <a href="/sdks" class="mobile-submenu-item">SDKs & Libraries</a>
+              <a href="/sandbox" class="mobile-submenu-item">Testing Environment</a>
+            </div>
+          </div>
+
+          <!-- Direct Links -->
+          <a href="/pricing" class="mobile-nav-item">
+            <i class="fas fa-tag"></i>
+            <span>Pricing</span>
+          </a>
+
+          <!-- Resources Section -->
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item expandable">
+              <div class="nav-item-content">
+                <i class="fas fa-book"></i>
+                <span>Resources</span>
+              </div>
+              <i class="fas fa-chevron-down expand-icon"></i>
+            </button>
+            <div class="mobile-submenu">
+              <a href="/how-it-works" class="mobile-submenu-item">How It Works</a>
+              <a href="/guides" class="mobile-submenu-item">Integration Guides</a>
+              <a href="/help" class="mobile-submenu-item">Help Center</a>
+              <a href="/contact" class="mobile-submenu-item">Contact Support</a>
+            </div>
+          </div>
+
+          <!-- Company Section -->
+          <div class="mobile-nav-section">
+            <button class="mobile-nav-item expandable">
+              <div class="nav-item-content">
+                <i class="fas fa-building"></i>
+                <span>Company</span>
+              </div>
+              <i class="fas fa-chevron-down expand-icon"></i>
+            </button>
+            <div class="mobile-submenu">
+              <a href="/about" class="mobile-submenu-item">About Us</a>
+              <a href="/careers" class="mobile-submenu-item">Careers</a>
+              <a href="/partners" class="mobile-submenu-item">Partners</a>
+              <a href="/contact" class="mobile-submenu-item">Contact Us</a>
+            </div>
+          </div>
+
+        </nav>
+
+        <!-- Mobile CTA Buttons -->
+        <div class="mobile-cta-buttons">
+          <a href="/login" class="mobile-btn btn-login">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+            <span>Login</span>
+          </a>
+          <a href="/register" class="mobile-btn btn-signup">
+            <i class="fas fa-user-plus"></i>
+            <span>Sign Up Free</span>
+          </a>
+        </div>
+
       <% } %>
-    </aside>
-  </body>
-</html>
+
+    </div>
+  </div>
+</header>
+
+<!-- Header Spacer (prevents content jump) -->
+<div class="header-spacer"></div>
+
+

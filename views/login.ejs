@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZenoPay - Login</title>
-    <link rel="stylesheet" href="/css/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/login-modern.css" />
     <link rel="stylesheet" href="/css/header.css" />
     <link
       rel="stylesheet"
@@ -13,101 +19,222 @@
     <script src="/js/Loader.js"></script>
   </head>
   <body class="login-body">
-    <!-- Sidebar -->
-    <%- include('partials/header') %>
+    <a class="skip-link" href="#login-card">Skip to main content</a>
 
-    <!-- Main Content Area -->
-    <div class="login-main-content">
-      <!-- Video Background -->
-      <div class="video-background">
-        <video autoplay muted loop playsinline class="bg-video">
-          <source src="/Video/zeno1.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <div class="video-overlay-login"></div>
+    <div class="login-page">
+      <!-- Left Brand / Trust Panel (desktop) -->
+      <div class="brand-panel">
+        <div class="brand-gradient"></div>
+        <div class="brand-pattern"></div>
+        <div class="brand-content">
+          <div class="brand-top">
+            <div class="brand-logo-wrap">
+              <img
+                src="/Images/fullLogo.png"
+                alt="ZenoPay"
+                class="brand-logo"
+              />
+              <span class="brand-chip">
+                <i class="fas fa-bolt"></i> Modern Fintech
+              </span>
+            </div>
+            <div class="hero-copy">
+              <p class="eyebrow">Secure • Reliable • Scalable</p>
+              <h1>Secure Payment Gateway</h1>
+              <p class="subhead">Log in to access your ZenoPay dashboard</p>
+            </div>
+          </div>
+
+          <ul class="feature-list" aria-label="ZenoPay security and reliability features">
+            <li>
+              <span class="feature-icon success"><i class="fas fa-shield-alt"></i></span>
+              <span>Bank-grade 256-bit encryption</span>
+            </li>
+            <li>
+              <span class="feature-icon success"><i class="fas fa-signal"></i></span>
+              <span>99.9% uptime guarantee</span>
+            </li>
+            <li>
+              <span class="feature-icon success"><i class="fas fa-chart-line"></i></span>
+              <span>Real-time transaction monitoring</span>
+            </li>
+          </ul>
+
+          <div class="trust-strip" aria-label="Compliance badges">
+            <span><i class="fas fa-lock"></i> PCI DSS</span>
+            <span><i class="fas fa-shield-alt"></i> ISO 27001</span>
+            <span><i class="fas fa-check-circle"></i> SOC 2</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Login Container -->
-      <div class="login-container">
-        <!-- Login Card -->
-        <div class="login-card">
-          <!-- Login Form -->
-          <form onsubmit="handleLogin(event)" class="login-form">
-            <!-- User ID -->
+      <!-- Right Login Form Panel -->
+      <div class="form-panel">
+        <header class="mobile-header">
+          <a href="/" class="back-link" aria-label="Back to home">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+          <img src="/Images/fullLogo.png" alt="ZenoPay" class="mobile-logo" />
+        </header>
+
+        <div class="login-card" id="login-card" role="form" aria-labelledby="login-title">
+          <div class="secure-badge">
+            <i class="fas fa-lock"></i> Secure Login
+          </div>
+          <h2 id="login-title">Welcome Back</h2>
+          <p class="card-subhead">Enter your credentials to access your account</p>
+
+          <form onsubmit="handleLogin(event)" class="login-form" novalidate>
+            <!-- User ID / Email -->
             <div class="form-group">
-              <label for="userId">
-                <i class="fas fa-user"></i> ZenoPay / Email Id
-              </label>
-              <input
-                type="text"
-                id="userId"
-                name="userId"
-                class="form-control"
-                placeholder="Enter Aadhaar Number"
-                required
-              />
+              <label for="userId">Email or ZenoPay ID</label>
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  class="form-control"
+                  placeholder="Enter your email or ZenoPay ID"
+                  autocomplete="username"
+                  required
+                  aria-required="true"
+                />
+                <span class="state-icon" aria-hidden="true"></span>
+              </div>
+              <p class="input-help" id="userIdHelp">Use your registered email or ZenoPay ID.</p>
+              <p class="error-text" id="userIdError" aria-live="polite"></p>
             </div>
 
             <!-- Password -->
             <div class="form-group">
-              <label for="password">
-                <i class="fas fa-lock"></i> Password
-              </label>
+              <label for="password">Password</label>
               <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
                 <input
                   type="password"
                   id="password"
                   name="password"
                   class="form-control"
                   placeholder="Enter your password"
+                  autocomplete="current-password"
                   required
+                  aria-required="true"
                 />
                 <button
                   type="button"
                   onclick="togglePassword()"
                   class="password-toggle"
+                  aria-label="Toggle password visibility"
                 >
                   <i id="eyeIcon" class="fas fa-eye"></i>
                 </button>
               </div>
+              
+              <!-- Password Strength Meter -->
+              <div class="password-strength" id="passwordStrength" style="display: none;">
+                <div class="strength-bar-container">
+                  <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel"></div>
+              </div>
+              
+              <p class="error-text" id="passwordError" aria-live="polite"></p>
             </div>
 
             <!-- Remember Me & Forgot Password -->
             <div class="form-options">
-              <div class="remember-me">
+              <label class="remember-me">
                 <input type="checkbox" id="remember" />
-                <label for="remember">Remember me</label>
-              </div>
+                <span class="custom-checkbox" aria-hidden="true"></span>
+                <span>Remember me</span>
+              </label>
               <a href="#" class="forgot-link">Forgot Password?</a>
             </div>
 
             <!-- Login Button -->
             <button type="submit" id="btnLogin" class="btn-login">
-              <i class="fas fa-sign-in-alt"></i> Sign In
+              <span class="btn-text">Sign In</span>
+              <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
             </button>
           </form>
 
-          <!-- Divider -->
-          <div class="divider">
-            <span>Don't have an account?</span>
+          <div class="register-section">
+            <p>Don't have an account? <a href="/register-zenopay">Register New Account</a></p>
           </div>
 
-          <!-- Register Button -->
-          <a href="/register-zenopay" class="btn-register">
-            <i class="fas fa-user-plus"></i> Register New Account
-          </a>
+          <div class="security-notice" role="note">
+            <i class="fas fa-lock" aria-hidden="true"></i>
+            <span>Your connection is secure. We use 256-bit SSL encryption.</span>
+          </div>
         </div>
 
-        <!-- Footer -->
         <div class="login-footer">
           <div class="footer-links">
-            <a href="#">Terms of Service</a>
-            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+            <span class="dot">•</span>
+            <a href="#">Privacy</a>
+            <span class="dot">•</span>
+            <a href="#">Help</a>
+          </div>
+          <div class="footer-trust">
+            <span><i class="fas fa-lock"></i> PCI DSS</span>
+            <span><i class="fas fa-check"></i> SOC 2</span>
           </div>
         </div>
       </div>
     </div>
     <script>
+      // Password strength calculation
+      function calculatePasswordStrength(password) {
+        let strength = 0;
+        const criteria = {
+          length: password.length >= 8,
+          uppercase: /[A-Z]/.test(password),
+          lowercase: /[a-z]/.test(password),
+          number: /[0-9]/.test(password),
+          special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+        
+        Object.values(criteria).forEach(met => {
+          if (met) strength += 20;
+        });
+        
+        return { strength, criteria };
+      }
+      
+      function updatePasswordStrength() {
+        const password = document.getElementById("password").value;
+        const strengthMeter = document.getElementById("passwordStrength");
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthLabel = document.getElementById("strengthLabel");
+        
+        if (!password) {
+          strengthMeter.style.display = 'none';
+          return;
+        }
+        
+        strengthMeter.style.display = 'block';
+        const { strength } = calculatePasswordStrength(password);
+        
+        let level, color, text, icon;
+        if (strength <= 25) {
+          level = 'weak'; color = '#EF4444'; text = 'Weak'; icon = 'fa-shield';
+        } else if (strength <= 50) {
+          level = 'fair'; color = '#F59E0B'; text = 'Fair'; icon = 'fa-shield-halved';
+        } else if (strength <= 75) {
+          level = 'good'; color = '#3B82F6'; text = 'Good'; icon = 'fa-shield-halved';
+        } else {
+          level = 'strong'; color = '#10B981'; text = 'Strong'; icon = 'fa-shield-check';
+        }
+        
+        strengthBar.style.width = strength + '%';
+        strengthBar.style.backgroundColor = color;
+        strengthBar.className = 'strength-bar ' + level;
+        strengthLabel.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
+        strengthLabel.style.color = color;
+      }
+      
       function togglePassword() {
         const passwordInput = document.getElementById("password");
         const eyeIcon = document.getElementById("eyeIcon");
@@ -120,6 +247,18 @@
           passwordInput.type = "password";
           eyeIcon.classList.remove("fa-eye-slash");
           eyeIcon.classList.add("fa-eye");
+        }
+      }
+
+      function setFieldState(input, errorEl, message = "") {
+        if (message) {
+          input.classList.add("error");
+          input.classList.remove("success");
+          errorEl.textContent = message;
+        } else {
+          input.classList.remove("error");
+          input.classList.add("success");
+          errorEl.textContent = "";
         }
       }
 
@@ -150,21 +289,126 @@
           setTimeout(() => toast.remove(), 400);
         }, 3000);
       }
+      
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password');
+        const userIdInput = document.getElementById('userId');
+        const btnLogin = document.getElementById('btnLogin');
+        
+        // Auto-focus on first input
+        if (userIdInput) {
+          userIdInput.focus();
+        }
+        
+        // Password strength update
+        if (passwordInput) {
+          passwordInput.addEventListener('input', updatePasswordStrength);
+          passwordInput.addEventListener('focus', function() {
+            if (this.value) updatePasswordStrength();
+          });
+          passwordInput.addEventListener('blur', function() {
+            if (!this.value) {
+              const strengthMeter = document.getElementById("passwordStrength");
+              strengthMeter.style.display = 'none';
+            }
+          });
+        }
+        
+        // Add shake animation to inputs on error
+        document.querySelectorAll('.form-control').forEach(input => {
+          input.addEventListener('invalid', function(e) {
+            e.preventDefault();
+            this.classList.add('shake');
+            setTimeout(() => this.classList.remove('shake'), 500);
+          });
+        });
+        
+        // Button ripple effect
+        if (btnLogin) {
+          btnLogin.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+              position: absolute;
+              width: ${size}px;
+              height: ${size}px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.3);
+              left: ${x}px;
+              top: ${y}px;
+              transform: scale(0);
+              animation: ripple 0.6s ease-out;
+              pointer-events: none;
+            `;
+            
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+          });
+        }
+      });
+      
+      // Add ripple animation keyframes
+      if (!document.getElementById('ripple-animation')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-animation';
+        style.textContent = `
+          @keyframes ripple {
+            to {
+              transform: scale(2);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
 
       async function handleLogin(event) {
         event.preventDefault();
 
-        const userId = document.getElementById("userId").value;
-        const password = document.getElementById("password").value;
+        const userIdInput = document.getElementById("userId");
+        const passwordInput = document.getElementById("password");
+        const userIdError = document.getElementById("userIdError");
+        const passwordError = document.getElementById("passwordError");
+
+        const userId = userIdInput.value.trim();
+        const password = passwordInput.value.trim();
         const btn = document.getElementById("btnLogin");
         const originalContent = btn.innerHTML;
+
+        let hasError = false;
+        if (!userId) {
+          setFieldState(userIdInput, userIdError, "Email or ZenoPay ID is required");
+          userIdInput.classList.add('shake');
+          setTimeout(() => userIdInput.classList.remove('shake'), 500);
+          hasError = true;
+        } else {
+          setFieldState(userIdInput, userIdError, "");
+        }
+
+        if (!password) {
+          setFieldState(passwordInput, passwordError, "Password is required");
+          passwordInput.classList.add('shake');
+          setTimeout(() => passwordInput.classList.remove('shake'), 500);
+          hasError = true;
+        } else {
+          setFieldState(passwordInput, passwordError, "");
+        }
+
+        if (hasError) {
+          return;
+        }
 
         // Show loader
         ZenoPayLoader.show("Authenticating...");
 
         // Loading State
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Authenticating...';
+        btn.innerHTML = '<span class="spinner"></span> <span>Signing in...</span>';
 
         try {
           const response = await fetch("/login", {

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenoPay - Modern Payment Gateway | Accept Payments Globally</title>
+    <meta name="description" content="Enterprise-grade payment infrastructure for businesses. Zero setup fees, instant settlements, 99.9% uptime. Trusted by 10,000+ businesses." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard-modern.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body class="modern-body">
+    
+    <!-- Modern Header (No Sidebar) -->
+    <%- include('partials/modern-header') %>
+
+    <!-- Main Content -->
+    <main class="modern-main">
+
+      <% if (isLoggedIn && user) { %>
+        <!-- LOGGED IN USER VIEW -->
+        
+        <!-- Hero Section - Logged In -->
+        <section class="hero-logged-in">
+          <div class="hero-background"></div>
+          <div class="container">
+            <div class="hero-logged-content">
+              <!-- Welcome Text -->
+              <div class="welcome-section">
+                <div class="eyebrow-badge">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Welcome back</span>
+                </div>
+                <h1 class="hero-logged-title">Hello, <%= user.Name %>!</h1>
+                <p class="hero-logged-subtitle">
+                  Manage your payments seamlessly with enterprise-grade infrastructure
+                </p>
+              </div>
+
+              <!-- Quick Stats Cards -->
+              <div class="quick-stats-grid">
+                <div class="quick-stat-card">
+                  <div class="quick-stat-icon wallet">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <div class="quick-stat-content">
+                    <h3 class="quick-stat-value">₹0</h3>
+                    <p class="quick-stat-label">Total Balance</p>
+                    <span class="quick-stat-trend positive">
+                      <i class="fas fa-arrow-up"></i> 0%
+                    </span>
+                  </div>
+                </div>
+                <div class="quick-stat-card">
+                  <div class="quick-stat-icon transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                  </div>
+                  <div class="quick-stat-content">
+                    <h3 class="quick-stat-value">0</h3>
+                    <p class="quick-stat-label">Transactions</p>
+                    <span class="quick-stat-trend">This month</span>
+                  </div>
+                </div>
+                <div class="quick-stat-card">
+                  <div class="quick-stat-icon growth">
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                  <div class="quick-stat-content">
+                    <h3 class="quick-stat-value">98.4%</h3>
+                    <p class="quick-stat-label">Success Rate</p>
+                    <span class="quick-stat-trend positive">
+                      <i class="fas fa-arrow-up"></i> 2.1%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-section">
+              <h2 class="section-title-small">Quick Actions</h2>
+              <div class="quick-actions-grid">
+                <a href="/send-to" class="quick-action-card">
+                  <div class="quick-action-icon">
+                    <i class="fas fa-paper-plane"></i>
+                  </div>
+                  <h3>Send Money</h3>
+                  <p>Transfer funds instantly</p>
+                </a>
+                <a href="/Transaction-History" class="quick-action-card">
+                  <div class="quick-action-icon">
+                    <i class="fas fa-history"></i>
+                  </div>
+                  <h3>Transactions</h3>
+                  <p>View your history</p>
+                </a>
+                <a href="/api-integration" class="quick-action-card">
+                  <div class="quick-action-icon">
+                    <i class="fas fa-code"></i>
+                  </div>
+                  <h3>API Keys</h3>
+                  <p>Manage integration</p>
+                </a>
+                <a href="/Profile" class="quick-action-card">
+                  <div class="quick-action-icon">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                  <h3>Profile</h3>
+                  <p>Account settings</p>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <% } else { %>
+        <!-- GUEST/NOT LOGGED IN VIEW -->
+        
+        <!-- Hero Section - Guest -->
+        <section class="hero-guest">
+          <div class="hero-guest-background"></div>
+          <div class="hero-decorations">
+            <div class="decoration-circle circle-1"></div>
+            <div class="decoration-circle circle-2"></div>
+          </div>
+          
+          <div class="container">
+            <div class="hero-guest-grid">
+              
+              <!-- Left Column - Text Content -->
+              <div class="hero-text-content">
+                <!-- Trust Badge -->
+                <div class="trust-badge">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Trusted by 10,000+ Businesses</span>
+                </div>
+
+                <!-- Main Headline -->
+                <h1 class="hero-main-title">
+                  Accept Payments Globally.
+                  <span class="title-highlight">Get Paid Instantly.</span>
+                </h1>
+
+                <!-- Subheading -->
+                <p class="hero-main-subtitle">
+                  Enterprise-grade payment infrastructure for businesses of all sizes. 
+                  Zero setup fees, transparent pricing, instant settlements.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="hero-cta-group">
+                  <a href="/register" class="btn-hero btn-hero-primary">
+                    <i class="fas fa-rocket"></i>
+                    <span>Start Free Trial</span>
+                  </a>
+                  <a href="#integration" class="btn-hero btn-hero-secondary">
+                    <i class="fas fa-file-code"></i>
+                    <span>View Documentation</span>
+                  </a>
+                </div>
+
+                <!-- Trust Badges Row -->
+                <div class="trust-badges-row">
+                  <div class="trust-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>PCI-DSS Certified</span>
+                  </div>
+                  <div class="trust-item">
+                    <i class="fas fa-lock"></i>
+                    <span>256-bit SSL</span>
+                  </div>
+                  <div class="trust-item">
+                    <i class="fas fa-award"></i>
+                    <span>ISO Certified</span>
+                  </div>
+                  <div class="trust-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>99.9% Uptime</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column - Visual Element -->
+              <div class="hero-visual-content">
+                <div class="dashboard-preview-card">
+                  <div class="preview-header">
+                    <div class="preview-dots">
+                      <span class="dot red"></span>
+                      <span class="dot yellow"></span>
+                      <span class="dot green"></span>
+                    </div>
+                    <span class="preview-title">ZenoPay Dashboard</span>
+                  </div>
+                  <div class="preview-content">
+                    <div class="preview-stat-row">
+                      <span class="preview-label">Today's Revenue</span>
+                      <span class="preview-value">₹45,280</span>
+                    </div>
+                    <div class="preview-mini-stats">
+                      <div class="preview-mini-card cyan">
+                        <div class="preview-mini-label">Transactions</div>
+                        <div class="preview-mini-value">1,248</div>
+                        <div class="preview-mini-trend">
+                          <i class="fas fa-arrow-up"></i> 12.5%
+                        </div>
+                      </div>
+                      <div class="preview-mini-card emerald">
+                        <div class="preview-mini-label">Success Rate</div>
+                        <div class="preview-mini-value">98.4%</div>
+                        <div class="preview-mini-trend">
+                          <i class="fas fa-arrow-up"></i> 2.1%
+                        </div>
+                      </div>
+                    </div>
+                    <div class="preview-chart"></div>
+                  </div>
+                </div>
+
+                <!-- Floating stat card -->
+                <div class="floating-stat-card">
+                  <div class="floating-stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="floating-stat-info">
+                    <div class="floating-stat-label">Payment Success</div>
+                    <div class="floating-stat-amount">+₹2,450</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+          <div class="container">
+            <div class="stats-grid">
+              
+              <!-- Stat 1 -->
+              <div class="stat-item">
+                <div class="stat-icon-wrapper cyan">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" data-target="10000">0</div>
+                <div class="stat-label">Active Users</div>
+                <div class="stat-trend positive">
+                  <i class="fas fa-chart-line"></i> 23% this month
+                </div>
+              </div>
+
+              <!-- Stat 2 -->
+              <div class="stat-item">
+                <div class="stat-icon-wrapper emerald">
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-number">$50M+</div>
+                <div class="stat-label">Processed</div>
+                <div class="stat-trend positive">
+                  <i class="fas fa-chart-line"></i> 45% growth
+                </div>
+              </div>
+
+              <!-- Stat 3 -->
+              <div class="stat-item">
+                <div class="stat-icon-wrapper blue">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">Uptime</div>
+                <div class="stat-trend neutral">
+                  Last 12 months
+                </div>
+              </div>
+
+              <!-- Stat 4 -->
+              <div class="stat-item">
+                <div class="stat-icon-wrapper amber">
+                  <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-number">&lt;2sec</div>
+                <div class="stat-label">Settlement Time</div>
+                <div class="stat-trend neutral">
+                  Industry fastest
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+          <div class="container">
+            
+            <!-- Section Header -->
+            <div class="section-header">
+              <h2 class="section-title">Why Choose ZenoPay?</h2>
+              <p class="section-subtitle">Join thousands who trust us for their financial needs</p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+              
+              <!-- Feature 1 -->
+              <div class="feature-card">
+                <div class="feature-icon cyan">
+                  <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Instant Transfers</h3>
+                <p class="feature-description">
+                  Receive payments in under 2 seconds. Real-time settlement with zero delays. 
+                  Money hits your account instantly.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Feature 2 -->
+              <div class="feature-card">
+                <div class="feature-icon emerald">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Bank-Level Security</h3>
+                <p class="feature-description">
+                  Military-grade 256-bit encryption, PCI-DSS Level 1 certified, and 
+                  multi-layer fraud protection keeps your money safe.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Feature 3 -->
+              <div class="feature-card">
+                <div class="feature-icon blue">
+                  <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Mobile First</h3>
+                <p class="feature-description">
+                  Beautiful mobile apps for iOS and Android. Accept payments anywhere, 
+                  anytime with our optimized mobile experience.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Feature 4 -->
+              <div class="feature-card">
+                <div class="feature-icon purple">
+                  <i class="fas fa-percent"></i>
+                </div>
+                <h3 class="feature-title">Zero Hidden Fees</h3>
+                <p class="feature-description">
+                  Transparent pricing with no setup costs, no monthly fees, no hidden charges. 
+                  Only pay for successful transactions.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Feature 5 -->
+              <div class="feature-card">
+                <div class="feature-icon orange">
+                  <i class="fas fa-qrcode"></i>
+                </div>
+                <h3 class="feature-title">QR Payments</h3>
+                <p class="feature-description">
+                  Generate instant QR codes for UPI payments. Accept payments through 
+                  any UPI app with zero hassle.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- Feature 6 -->
+              <div class="feature-card">
+                <div class="feature-icon pink">
+                  <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="feature-title">24/7 Support</h3>
+                <p class="feature-description">
+                  Round-the-clock customer support via chat, email, and phone. 
+                  Our team is always ready to help you succeed.
+                </p>
+                <a href="#" class="feature-link">
+                  Learn More <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Integration Section -->
+        <section class="integration-section" id="integration">
+          <div class="container">
+            
+            <div class="section-header">
+              <h2 class="section-title">Integrate in Minutes, Not Days</h2>
+              <p class="section-subtitle">Get started with our simple API. Copy, paste, and you're ready to accept payments.</p>
+            </div>
+
+            <div class="integration-grid">
+              
+              <!-- Left - Code Example -->
+              <div class="code-example-container">
+                <div class="code-window">
+                  <!-- Window Chrome -->
+                  <div class="code-window-header">
+                    <div class="window-controls">
+                      <span class="control-dot red"></span>
+                      <span class="control-dot yellow"></span>
+                      <span class="control-dot green"></span>
+                    </div>
+                    <span class="window-title">payment.js</span>
+                    <button class="copy-code-btn" data-copy-target="code-sample">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+
+                  <!-- Code Content -->
+                  <div class="code-content">
+                    <pre id="code-sample"><code><span class="code-keyword">import</span> ZenoPay <span class="code-keyword">from</span> <span class="code-string">'zenopay-sdk'</span>;
+
+<span class="code-keyword">const</span> payment = <span class="code-keyword">new</span> <span class="code-function">ZenoPay</span>({
+  apiKey: <span class="code-string">'zpay_live_***********'</span>,
+  secret: <span class="code-string">'sk_live_***********'</span>
+});
+
+<span class="code-keyword">const</span> order = <span class="code-keyword">await</span> payment.<span class="code-function">createOrder</span>({
+  amount: <span class="code-number">49999</span>, <span class="code-comment">// ₹499.99</span>
+  currency: <span class="code-string">'INR'</span>,
+  customer: {
+    email: <span class="code-string">'customer@example.com'</span>,
+    phone: <span class="code-string">'+919876543210'</span>
+  }
+});
+
+<span class="code-function">console</span>.<span class="code-function">log</span>(order.<span class="code-property">id</span>);</code></pre>
+                  </div>
+                </div>
+
+                <!-- Floating Badge -->
+                <div class="integration-badge">
+                  <div class="integration-badge-icon">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="integration-badge-content">
+                    <div class="integration-badge-label">Integration Time</div>
+                    <div class="integration-badge-value">~15 minutes</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right - Features List -->
+              <div class="integration-features">
+                <div class="integration-feature-item">
+                  <div class="integration-feature-icon cyan">
+                    <i class="fas fa-code"></i>
+                  </div>
+                  <div class="integration-feature-content">
+                    <h3 class="integration-feature-title">RESTful API & Webhooks</h3>
+                    <p class="integration-feature-desc">Modern REST API with real-time webhook notifications for every transaction.</p>
+                  </div>
+                </div>
+
+                <div class="integration-feature-item">
+                  <div class="integration-feature-icon emerald">
+                    <i class="fas fa-box"></i>
+                  </div>
+                  <div class="integration-feature-content">
+                    <h3 class="integration-feature-title">SDKs for All Platforms</h3>
+                    <p class="integration-feature-desc">Official SDKs for Node.js, Python, PHP, Ruby, Java, and more.</p>
+                  </div>
+                </div>
+
+                <div class="integration-feature-item">
+                  <div class="integration-feature-icon blue">
+                    <i class="fas fa-book"></i>
+                  </div>
+                  <div class="integration-feature-content">
+                    <h3 class="integration-feature-title">Comprehensive Documentation</h3>
+                    <p class="integration-feature-desc">Step-by-step guides, code examples, and API reference documentation.</p>
+                  </div>
+                </div>
+
+                <div class="integration-feature-item">
+                  <div class="integration-feature-icon purple">
+                    <i class="fas fa-flask"></i>
+                  </div>
+                  <div class="integration-feature-content">
+                    <h3 class="integration-feature-title">Sandbox Environment</h3>
+                    <p class="integration-feature-desc">Test your integration with our full-featured sandbox before going live.</p>
+                  </div>
+                </div>
+
+                <a href="/api-integration" class="btn-integration">
+                  View API Documentation
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing">
+          <div class="container">
+            
+            <div class="section-header">
+              <h2 class="section-title">Simple, Transparent Pricing</h2>
+              <p class="section-subtitle">No hidden fees. No surprises. Pay only for what you use.</p>
+            </div>
+
+            <div class="pricing-grid">
+              
+              <!-- Starter Plan -->
+              <div class="pricing-card">
+                <div class="pricing-header">
+                  <h3 class="pricing-plan-name">Starter</h3>
+                  <div class="pricing-amount">
+                    <span class="pricing-currency">₹</span>
+                    <span class="pricing-price">0</span>
+                    <span class="pricing-period">/month</span>
+                  </div>
+                  <p class="pricing-description">Perfect for getting started</p>
+                </div>
+
+                <ul class="pricing-features">
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>2% + ₹2 per transaction</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Up to ₹1L monthly volume</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Basic integrations</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Email support</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Dashboard access</span>
+                  </li>
+                </ul>
+
+                <a href="/register" class="btn-pricing btn-pricing-outline">
+                  Get Started Free
+                </a>
+              </div>
+
+              <!-- Growth Plan - Most Popular -->
+              <div class="pricing-card featured">
+                <div class="pricing-badge">Most Popular</div>
+                
+                <div class="pricing-header">
+                  <h3 class="pricing-plan-name">Growth</h3>
+                  <div class="pricing-amount">
+                    <span class="pricing-currency">₹</span>
+                    <span class="pricing-price">999</span>
+                    <span class="pricing-period">/month</span>
+                  </div>
+                  <p class="pricing-description">For growing businesses</p>
+                </div>
+
+                <ul class="pricing-features">
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>1.5% + ₹1 per transaction</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Up to ₹50L monthly volume</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>All integrations</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Priority support</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Advanced analytics</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Custom branding</span>
+                  </li>
+                </ul>
+
+                <a href="/register" class="btn-pricing btn-pricing-primary">
+                  Start Free Trial
+                </a>
+              </div>
+
+              <!-- Enterprise Plan -->
+              <div class="pricing-card">
+                <div class="pricing-header">
+                  <h3 class="pricing-plan-name">Enterprise</h3>
+                  <div class="pricing-amount">
+                    <span class="pricing-price-text">Custom</span>
+                  </div>
+                  <p class="pricing-description">For large organizations</p>
+                </div>
+
+                <ul class="pricing-features">
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Negotiable rates</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Unlimited volume</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Dedicated account manager</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Custom integrations</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>SLA guarantee</span>
+                  </li>
+                  <li class="pricing-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>White-label options</span>
+                  </li>
+                </ul>
+
+                <a href="#" class="btn-pricing btn-pricing-outline">
+                  Contact Sales
+                </a>
+              </div>
+
+            </div>
+
+            <!-- Additional Info -->
+            <p class="pricing-footer-note">
+              All plans include: Instant settlements • Bank-level security • 24/7 monitoring • Free API access
+            </p>
+          </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section" id="how-it-works">
+          <div class="container">
+            
+            <div class="section-header">
+              <h2 class="section-title">Get Started in 3 Simple Steps</h2>
+              <p class="section-subtitle">From signup to first payment in under 10 minutes</p>
+            </div>
+
+            <!-- Connection Line -->
+            <div class="steps-connector"></div>
+
+            <div class="steps-grid">
+              
+              <!-- Step 1 -->
+              <div class="step-item">
+                <div class="step-number-wrapper">
+                  <div class="step-number">1</div>
+                  <div class="step-icon">
+                    <i class="fas fa-user-plus"></i>
+                  </div>
+                </div>
+                <h3 class="step-title">Create Account</h3>
+                <p class="step-description">
+                  Sign up in 60 seconds with just your email. No paperwork, no complexity.
+                </p>
+                <div class="step-meta">
+                  <i class="fas fa-clock"></i>
+                  <span>Takes 1 minute</span>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="step-item">
+                <div class="step-number-wrapper">
+                  <div class="step-number">2</div>
+                  <div class="step-icon">
+                    <i class="fas fa-building"></i>
+                  </div>
+                </div>
+                <h3 class="step-title">Link Your Bank</h3>
+                <p class="step-description">
+                  Securely connect your bank account. We verify instantly using bank-grade security.
+                </p>
+                <div class="step-meta">
+                  <i class="fas fa-clock"></i>
+                  <span>Takes 2 minutes</span>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="step-item">
+                <div class="step-number-wrapper">
+                  <div class="step-number">3</div>
+                  <div class="step-icon">
+                    <i class="fas fa-rocket"></i>
+                  </div>
+                </div>
+                <h3 class="step-title">Start Accepting Payments</h3>
+                <p class="step-description">
+                  Integrate our API or use no-code solutions. Go live and start receiving payments.
+                </p>
+                <div class="step-meta">
+                  <i class="fas fa-clock"></i>
+                  <span>Takes 5 minutes</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- CTA Below Steps -->
+            <div class="steps-cta">
+              <a href="/register" class="btn-steps">
+                Start Your Journey Now
+                <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+          <div class="container">
+            
+            <div class="section-header">
+              <h2 class="section-title">Trusted by Leading Businesses</h2>
+              <p class="section-subtitle">See what our customers have to say about ZenoPay</p>
+            </div>
+
+            <div class="testimonials-grid">
+              
+              <!-- Testimonial 1 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-quote">
+                  "ZenoPay transformed our payment infrastructure. Real-time settlements and 
+                  zero downtime have been game-changers for our business."
+                </p>
+                <div class="testimonial-author">
+                  <div class="author-avatar cyan">PS</div>
+                  <div class="author-info">
+                    <div class="author-name">Priya Sharma</div>
+                    <div class="author-title">Founder, TechStart India</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Testimonial 2 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-quote">
+                  "Security and speed at an unbeatable price. ZenoPay handles our 50,000+ 
+                  monthly transactions flawlessly."
+                </p>
+                <div class="testimonial-author">
+                  <div class="author-avatar emerald">RM</div>
+                  <div class="author-info">
+                    <div class="author-name">Rahul Mehta</div>
+                    <div class="author-title">CFO, E-commerce Solutions</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Testimonial 3 -->
+              <div class="testimonial-card">
+                <div class="testimonial-stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-quote">
+                  "Integration took 15 minutes. The developer experience is exceptional. 
+                  Best payment gateway we've used."
+                </p>
+                <div class="testimonial-author">
+                  <div class="author-avatar purple">AV</div>
+                  <div class="author-info">
+                    <div class="author-name">Anjali Verma</div>
+                    <div class="author-title">Product Manager, EdTech Pro</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section" id="support">
+          <div class="container-small">
+            
+            <div class="section-header">
+              <h2 class="section-title">Frequently Asked Questions</h2>
+              <p class="section-subtitle">Everything you need to know about ZenoPay</p>
+            </div>
+
+            <div class="faq-list">
+              
+              <!-- FAQ Item 1 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>How do I get started with ZenoPay?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  Simply sign up for a free account, complete the KYC verification, link your bank account, 
+                  and you're ready to start accepting payments. The entire process takes less than 10 minutes.
+                </div>
+              </div>
+
+              <!-- FAQ Item 2 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>Is my data secure with ZenoPay?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  Absolutely. We use bank-grade 256-bit encryption, are PCI-DSS Level 1 certified, 
+                  and undergo regular security audits. Your data is protected with the highest industry standards.
+                </div>
+              </div>
+
+              <!-- FAQ Item 3 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>Can I integrate ZenoPay with my existing platform?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  Yes! We provide easy integration options for all major e-commerce platforms including 
+                  Shopify, WooCommerce, Magento, and custom solutions via our REST API.
+                </div>
+              </div>
+
+              <!-- FAQ Item 4 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>What payment methods do you support?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  We support all major payment methods including UPI, credit/debit cards (Visa, Mastercard, RuPay), 
+                  net banking, and popular digital wallets.
+                </div>
+              </div>
+
+              <!-- FAQ Item 5 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>Are there any setup or monthly fees?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  No! Our Starter plan is completely free with no setup fees or monthly charges. 
+                  You only pay a small percentage on successful transactions.
+                </div>
+              </div>
+
+              <!-- FAQ Item 6 -->
+              <div class="faq-item">
+                <button class="faq-question">
+                  <span>How quickly do I receive my money?</span>
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                  Payments are settled instantly - typically within 2 seconds. Your money is available 
+                  in your bank account immediately after a successful transaction.
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Still have questions CTA -->
+            <div class="faq-cta-box">
+              <h3 class="faq-cta-title">Still have questions?</h3>
+              <p class="faq-cta-text">Our team is here to help you 24/7</p>
+              <a href="#" class="btn-faq-cta">
+                <i class="fas fa-comments"></i>
+                <span>Contact Support</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="final-cta-section">
+          <div class="final-cta-background"></div>
+          <div class="final-cta-decorations">
+            <div class="final-decoration-circle circle-1"></div>
+            <div class="final-decoration-circle circle-2"></div>
+          </div>
+
+          <div class="container">
+            <div class="final-cta-content">
+              
+              <!-- Pre-heading -->
+              <div class="final-cta-badge">
+                <i class="fas fa-sparkles"></i>
+                <span>Ready to Transform Your Payment Experience?</span>
+              </div>
+
+              <!-- Main Heading -->
+              <h2 class="final-cta-title">
+                Join 10,000+ Businesses Growing with ZenoPay
+              </h2>
+
+              <!-- Subheading -->
+              <p class="final-cta-subtitle">
+                Start accepting payments in minutes. No credit card required. Cancel anytime.
+              </p>
+
+              <!-- CTA Buttons -->
+              <div class="final-cta-buttons">
+                <a href="/register" class="btn-final-cta btn-final-primary">
+                  <i class="fas fa-rocket"></i>
+                  <span>Start Free Trial</span>
+                </a>
+                <a href="#" class="btn-final-cta btn-final-secondary">
+                  <i class="fas fa-calendar"></i>
+                  <span>Schedule Demo</span>
+                </a>
+              </div>
+
+              <!-- Trust Badges -->
+              <div class="final-trust-badges">
+                <div class="final-trust-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Free forever plan</span>
+                </div>
+                <div class="final-trust-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>No credit card required</span>
+                </div>
+                <div class="final-trust-item">
+                  <i class="fas fa-check-circle"></i>
+                  <span>Cancel anytime</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <% } %>
+
+    </main>
+
+    <!-- Modern Footer -->
+    <%- include('partials/modern-footer') %>
+
+    <!-- JavaScript -->
+    <script src="/js/dashboard-modern.js"></script>
+  </body>
+</html>

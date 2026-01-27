@@ -1,0 +1,156 @@
+<!-- Modern Header Component - No Sidebar -->
+<header class="modern-header">
+  <div class="header-container">
+    <div class="header-content">
+      
+      <!-- Logo - Left -->
+      <div class="header-logo">
+        <img src="/Images/bgFavicon.png" alt="ZenoPay Logo" class="logo-icon" />
+        <span class="logo-text">ZenoPay</span>
+      </div>
+
+      <!-- Navigation - Center (Desktop Only) -->
+      <nav class="header-nav desktop-only">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#integration" class="nav-link">Integration</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#support" class="nav-link">Support</a>
+      </nav>
+
+      <!-- CTA Buttons - Right -->
+      <div class="header-actions">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn mobile-only" id="mobileMenuBtn" aria-label="Open menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Desktop Buttons -->
+        <% if (isLoggedIn && user) { %>
+          <a href="/Profile" class="btn-header btn-secondary desktop-only">
+            <i class="fas fa-user-circle"></i>
+            <span><%= user.Name %></span>
+          </a>
+          <a href="/logout" class="btn-header btn-primary desktop-only">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        <% } else { %>
+          <a href="/login" class="btn-header btn-secondary desktop-only">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </a>
+          <a href="/register" class="btn-header btn-primary desktop-only">
+            <i class="fas fa-user-plus"></i>
+            <span>Sign Up Free</span>
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay">
+  <div class="mobile-menu-content">
+    <!-- Top bar with close button -->
+    <div class="mobile-menu-header">
+      <div class="mobile-menu-logo">
+        <img src="/Images/bgFavicon.png" alt="ZenoPay Logo" class="logo-icon" />
+        <span class="logo-text">ZenoPay</span>
+      </div>
+      <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Navigation Links -->
+    <nav class="mobile-menu-nav">
+      <a href="#features" class="mobile-nav-link">
+        <i class="fas fa-star"></i>
+        <span>Features</span>
+      </a>
+      <a href="#pricing" class="mobile-nav-link">
+        <i class="fas fa-tag"></i>
+        <span>Pricing</span>
+      </a>
+      <a href="#integration" class="mobile-nav-link">
+        <i class="fas fa-code"></i>
+        <span>Integration</span>
+      </a>
+      <a href="#how-it-works" class="mobile-nav-link">
+        <i class="fas fa-lightbulb"></i>
+        <span>How It Works</span>
+      </a>
+      <a href="#support" class="mobile-nav-link">
+        <i class="fas fa-headset"></i>
+        <span>Support</span>
+      </a>
+      
+      <% if (isLoggedIn && user) { %>
+        <div class="mobile-menu-divider"></div>
+        <a href="/Profile" class="mobile-nav-link">
+          <i class="fas fa-user-circle"></i>
+          <span>Profile</span>
+        </a>
+        <a href="/send-to" class="mobile-nav-link">
+          <i class="fas fa-exchange-alt"></i>
+          <span>Send Money</span>
+        </a>
+        <a href="/Transaction-History" class="mobile-nav-link">
+          <i class="fas fa-credit-card"></i>
+          <span>Transactions</span>
+        </a>
+        <a href="/api-integration" class="mobile-nav-link">
+          <i class="fas fa-code"></i>
+          <span>API Integration</span>
+        </a>
+      <% } %>
+    </nav>
+
+    <!-- Bottom Action Buttons -->
+    <div class="mobile-menu-actions">
+      <% if (isLoggedIn && user) { %>
+        <a href="/logout" class="btn-mobile btn-mobile-primary">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      <% } else { %>
+        <a href="/register" class="btn-mobile btn-mobile-outline">
+          <i class="fas fa-user-plus"></i>
+          <span>Sign Up</span>
+        </a>
+        <a href="/login" class="btn-mobile btn-mobile-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Login</span>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Navigation (For logged in users) -->
+<% if (isLoggedIn && user) { %>
+<nav class="mobile-bottom-nav mobile-only">
+  <a href="/" class="bottom-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>">
+    <i class="fas fa-home"></i>
+    <span>Dashboard</span>
+  </a>
+  <a href="/send-to" class="bottom-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'send-money') ? 'active' : '' %>">
+    <i class="fas fa-paper-plane"></i>
+    <span>Send</span>
+  </a>
+  <a href="/Transaction-History" class="bottom-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'Transaction-History') ? 'active' : '' %>">
+    <i class="fas fa-history"></i>
+    <span>History</span>
+  </a>
+  <a href="/api-integration" class="bottom-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'api-key') ? 'active' : '' %>">
+    <i class="fas fa-credit-card"></i>
+    <span>Payments</span>
+  </a>
+  <a href="/notifications" class="bottom-nav-item <%= (typeof currentPage !== 'undefined' && currentPage === 'notifications') ? 'active' : '' %>">
+    <i class="fas fa-bell"></i>
+    <span>Alerts</span>
+  </a>
+</nav>
+<% } %>

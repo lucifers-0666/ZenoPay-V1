@@ -48,8 +48,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Admin static files
+app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+// Add admin views path
+app.set("views", [
+  path.join(__dirname, "views"),
+  path.join(__dirname, "Admin/Views")
+]);
 
 app.use(async (req, res, next) => {
   if (req.session.user && !req.session.qrCode) {
@@ -60,6 +69,28 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Admin routes - AUTHENTICATION TEMPORARILY DISABLED
+console.log("Debugging: Loading Admin Routes...");
+app.use("/admin", (req, res, next) => {
+  console.log(`[Admin Access] ${req.method} ${req.url}`);
+  
+  // Create fake admin session for all admin routes (TEMPORARY - FOR DESIGN REVIEW)
+  if (!req.session.user) {
+    req.session.isLoggedIn = true;
+    req.session.user = {
+      ZenoPayID: "ZP-ADMIN001",
+      FullName: "System Administrator",
+      Email: "admin@zenopay.com",
+      Role: "admin",
+      ImagePath: ""
+    };
+    console.log("[Admin Session] Fake session created for design review");
+  }
+  
+  next();
+}, require("./Admin/Routes/adminRoutes"));
+
+// User routes
 app.use(require("./Routes/routes"));
 
 mongoose

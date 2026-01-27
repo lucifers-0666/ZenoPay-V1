@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0F172A;
+            --bg-darker: #020617;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #64748B;
+            --input-bg: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.08);
+            --primary: #0EA5E9;
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --gradient-1: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-2: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+        }
+        
+        [data-theme="light"] {
+            --bg-dark: #F1F5F9;
+            --bg-darker: #E2E8F0;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(15, 23, 42, 0.1);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #94A3B8;
+            --input-bg: rgba(15, 23, 42, 0.04);
+            --input-border: rgba(15, 23, 42, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .monitor-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Top Banner */
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 16px 24px;
+            z-index: 90;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .fullscreen .top-banner {
+            left: 0;
+        }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .realtime-stats {
+            display: flex;
+            gap: 32px;
+            flex: 1;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .banner-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .control-btn {
+            padding: 8px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .control-btn:hover, .control-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .control-btn i {
+            font-size: 16px;
+        }
+        
+        /* Left Sidebar - Filters */
+        .sidebar {
+            width: 280px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--card-border);
+            padding: 24px;
+            overflow-y: auto;
+            margin-top: 72px;
+            height: calc(100vh - 72px);
+            transition: all 0.3s ease;
+        }
+        
+        .fullscreen .sidebar {
+            margin-left: -280px;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--input-bg);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .sidebar-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-section {
+            margin-bottom: 24px;
+        }
+        
+        .filter-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: var(--input-bg);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .filter-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(14, 165, 233, 0.05);
+        }
+        
+        .clear-filters-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--error);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-filters-btn:hover {
+            background: #DC2626;
+            transform: translateY(-2px);
+        }
+        
+        /* Main Activity Stream */
+        .activity-stream {
+            flex: 1;
+            margin-top: 72px;
+            height: calc(100vh - 72px);
+            overflow-y: auto;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .activity-stream::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .activity-stream::-webkit-scrollbar-track {
+            background: var(--input-bg);
+        }
+        
+        .activity-stream::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .activity-item {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 16px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .activity-item:hover {
+            transform: translateX(4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.user {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        }
+        
+        .activity-icon.merchant {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        }
+        
+        .activity-icon.transaction {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .activity-icon.system {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .activity-icon.error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .activity-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .severity-badge.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+        
+        .severity-badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .severity-badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .severity-badge.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+        
+        .activity-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .activity-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .meta-id {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--input-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .activity-action {
+            margin-top: 12px;
+        }
+        
+        .action-btn {
+            padding: 6px 14px;
+            background: var(--primary);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Load More Button */
+        .load-more {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .load-more-btn {
+            padding: 12px 32px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .load-more-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Activity Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+        
+        .modal-detail {
+            margin-bottom: 16px;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            color: var(--text-secondary);
+            padding: 10px;
+            background: var(--input-bg);
+            border-radius: 8px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        
+        .empty-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .empty-description {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                margin-left: -280px;
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .top-banner {
+                left: 0;
+            }
+            
+            .realtime-stats {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .realtime-stats {
+                display: none;
+            }
+            
+            .banner-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="monitor-container" id="monitorContainer">
+        
+        <!-- Top Banner -->
+        <div class="top-banner">
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+            </div>
+            
+            <div class="realtime-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="activitiesLastHour">0</div>
+                    <div class="stat-label">Last Hour</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="criticalAlerts">0</div>
+                    <div class="stat-label">Critical Alerts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeUsersNow">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="transactionsPerMin">0</div>
+                    <div class="stat-label">Transactions/Min</div>
+                </div>
+            </div>
+            
+            <div class="banner-controls">
+                <button class="control-btn" id="autoScrollToggle" title="Auto-scroll">
+                    <i class="bi bi-arrow-down-circle"></i>
+                </button>
+                <button class="control-btn" id="soundToggle" title="Sound notifications">
+                    <i class="bi bi-volume-up"></i>
+                </button>
+                <button class="control-btn" onclick="exportActivityLog()">
+                    <i class="bi bi-download"></i>
+                </button>
+                <button class="control-btn" id="fullscreenToggle" title="Fullscreen mode">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
+                <button class="control-btn" id="toggleSidebar" title="Toggle filters" style="display: none;">
+                    <i class="bi bi-filter"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Left Sidebar - Filters -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-funnel"></i>
+                Filters
+            </div>
+            
+            <!-- Activity Type Filter -->
+            <div class="filter-section">
+                <div class="filter-title">Activity Type</div>
+                <div class="filter-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="activity-type-filter" value="user" checked>
+                        <span class="checkbox-label">User Activities</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="activity-type-filter" value="merchant" checked>
+                        <span class="checkbox-label">Merchant Activities</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="activity-type-filter" value="transaction" checked>
+                        <span class="checkbox-label">Transaction Events</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="activity-type-filter" value="system" checked>
+                        <span class="checkbox-label">System Events</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Severity Filter -->
+            <div class="filter-section">
+                <div class="filter-title">Severity Level</div>
+                <div class="filter-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="severity-filter" value="info" checked>
+                        <span class="checkbox-label">Info</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="severity-filter" value="success" checked>
+                        <span class="checkbox-label">Success</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="severity-filter" value="warning" checked>
+                        <span class="checkbox-label">Warning</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" class="severity-filter" value="error" checked>
+                        <span class="checkbox-label">Error</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Date/Time Range -->
+            <div class="filter-section">
+                <div class="filter-title">Time Range</div>
+                <div class="filter-group">
+                    <input type="datetime-local" class="filter-input" id="startTime">
+                    <input type="datetime-local" class="filter-input" id="endTime">
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="filter-section">
+                <div class="filter-title">Search</div>
+                <input type="text" class="filter-input" placeholder="User ID, Transaction ID, etc." id="searchInput">
+            </div>
+            
+            <!-- Clear Filters -->
+            <button class="clear-filters-btn" onclick="clearFilters()">
+                <i class="bi bi-x-circle"></i>
+                Clear All Filters
+            </button>
+        </div>
+        
+        <!-- Main Activity Stream -->
+        <div class="activity-stream" id="activityStream">
+            <!-- Activities will be loaded here -->
+            <div class="empty-state">
+                <div class="empty-icon"><i class="bi bi-broadcast"></i></div>
+                <div class="empty-title">Monitoring Live Activities</div>
+                <div class="empty-description">Activities will appear here as they happen</div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Activity Details Modal -->
+    <div class="modal" id="activityModal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeModal()">
+                <i class="bi bi-x-lg"></i>
+            </div>
+            <h2 class="modal-title">Activity Details</h2>
+            <div id="modalDetailsContent">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let activities = [];
+        let autoScroll = true;
+        let soundEnabled = false;
+        let isFullscreen = false;
+        let refreshInterval;
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            loadActivities();
+            startAutoRefresh();
+            setupEventListeners();
+            updateRealtimeStats();
+        });
+        
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Auto-scroll toggle
+            document.getElementById('autoScrollToggle').addEventListener('click', function() {
+                autoScroll = !autoScroll;
+                this.classList.toggle('active');
+            });
+            
+            // Sound toggle
+            document.getElementById('soundToggle').addEventListener('click', function() {
+                soundEnabled = !soundEnabled;
+                this.classList.toggle('active');
+                this.querySelector('i').classList.toggle('bi-volume-up');
+                this.querySelector('i').classList.toggle('bi-volume-mute');
+            });
+            
+            // Fullscreen toggle
+            document.getElementById('fullscreenToggle').addEventListener('click', function() {
+                isFullscreen = !isFullscreen;
+                document.getElementById('monitorContainer').classList.toggle('fullscreen');
+                this.querySelector('i').classList.toggle('bi-arrows-fullscreen');
+                this.querySelector('i').classList.toggle('bi-fullscreen-exit');
+            });
+            
+            // Sidebar toggle (mobile)
+            document.getElementById('toggleSidebar').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('show');
+            });
+            
+            // Activity stream scroll detection
+            const stream = document.getElementById('activityStream');
+            stream.addEventListener('scroll', function() {
+                if (stream.scrollTop < stream.scrollHeight - stream.clientHeight - 100) {
+                    autoScroll = false;
+                    document.getElementById('autoScrollToggle').classList.remove('active');
+                }
+            });
+            
+            // Filters
+            document.querySelectorAll('.activity-type-filter, .severity-filter').forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
+            
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            
+            // Responsive sidebar toggle
+            if (window.innerWidth <= 1024) {
+                document.getElementById('toggleSidebar').style.display = 'flex';
+            }
+        }
+        
+        // Load Activities
+        async function loadActivities() {
+            try {
+                const response = await fetch('/admin/activities/live');
+                const data = await response.json();
+                
+                if (data.success) {
+                    activities = data.activities;
+                    renderActivities(activities);
+                }
+            } catch (error) {
+                console.error('Error loading activities:', error);
+                loadMockActivities();
+            }
+        }
+        
+        // Load Mock Activities
+        function loadMockActivities() {
+            const mockActivities = [
+                {
+                    id: 'ACT-001',
+                    type: 'user',
+                    icon: 'person-plus-fill',
+                    title: 'New User Registration',
+                    description: 'John Doe (john.doe@email.com) registered a new account',
+                    user: 'John Doe',
+                    userId: 'USR-12547',
+                    timestamp: new Date(Date.now() - 2 * 60000),
+                    severity: 'success'
+                },
+                {
+                    id: 'ACT-002',
+                    type: 'transaction',
+                    icon: 'arrow-left-right',
+                    title: 'Transaction Completed',
+                    description: '$1,245.67 successfully transferred from Account #4532 to Account #7891',
+                    user: 'Sarah Smith',
+                    transactionId: 'TXN-45893',
+                    timestamp: new Date(Date.now() - 5 * 60000),
+                    severity: 'success'
+                },
+                {
+                    id: 'ACT-003',
+                    type: 'merchant',
+                    icon: 'shop',
+                    title: 'Merchant API Call',
+                    description: 'TechStore Inc initiated payment gateway request',
+                    user: 'TechStore Inc',
+                    merchantId: 'MER-234',
+                    timestamp: new Date(Date.now() - 8 * 60000),
+                    severity: 'info'
+                },
+                {
+                    id: 'ACT-004',
+                    type: 'system',
+                    icon: 'exclamation-triangle-fill',
+                    title: 'High Traffic Alert',
+                    description: 'Unusual spike in transaction volume detected',
+                    timestamp: new Date(Date.now() - 15 * 60000),
+                    severity: 'warning'
+                },
+                {
+                    id: 'ACT-005',
+                    type: 'transaction',
+                    icon: 'x-circle-fill',
+                    title: 'Transaction Failed',
+                    description: 'Payment of $567.00 failed due to insufficient funds',
+                    user: 'Mike Johnson',
+                    transactionId: 'TXN-45894',
+                    timestamp: new Date(Date.now() - 20 * 60000),
+                    severity: 'error'
+                }
+            ];
+            
+            activities = mockActivities;
+            renderActivities(activities);
+        }
+        
+        // Render Activities
+        function renderActivities(activitiesToRender) {
+            const stream = document.getElementById('activityStream');
+            
+            if (activitiesToRender.length === 0) {
+                stream.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+                        <div class="empty-title">No Activities Found</div>
+                        <div class="empty-description">Try adjusting your filters</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            stream.innerHTML = activitiesToRender.map(activity => `
+                <div class="activity-item" onclick="showActivityDetails('${activity.id}')">
+                    <div class="activity-icon ${activity.type}">
+                        <i class="bi bi-${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <div>
+                                <div class="activity-title">${activity.title}</div>
+                            </div>
+                            <span class="severity-badge ${activity.severity}">${activity.severity}</span>
+                        </div>
+                        <div class="activity-description">${activity.description}</div>
+                        <div class="activity-meta">
+                            <span class="meta-item">
+                                <i class="bi bi-clock"></i>
+                                ${getTimeAgo(activity.timestamp)}
+                            </span>
+                            ${activity.userId ? `<span class="meta-id">${activity.userId}</span>` : ''}
+                            ${activity.transactionId ? `<span class="meta-id">${activity.transactionId}</span>` : ''}
+                            ${activity.merchantId ? `<span class="meta-id">${activity.merchantId}</span>` : ''}
+                        </div>
+                        ${activity.action ? `
+                            <div class="activity-action">
+                                <button class="action-btn" onclick="handleAction(event, '${activity.id}')">
+                                    ${activity.action}
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            stream.innerHTML += `
+                <div class="load-more">
+                    <button class="load-more-btn" onclick="loadMoreActivities()">
+                        <i class="bi bi-arrow-down-circle"></i>
+                        Load More Activities
+                    </button>
+                </div>
+            `;
+            
+            if (autoScroll) {
+                stream.scrollTop = 0;
+            }
+        }
+        
+        // Apply Filters
+        function applyFilters() {
+            const typeFilters = Array.from(document.querySelectorAll('.activity-type-filter:checked')).map(f => f.value);
+            const severityFilters = Array.from(document.querySelectorAll('.severity-filter:checked')).map(f => f.value);
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = activities.filter(activity => {
+                const matchesType = typeFilters.includes(activity.type);
+                const matchesSeverity = severityFilters.includes(activity.severity);
+                const matchesSearch = searchTerm === '' || 
+                    activity.title.toLowerCase().includes(searchTerm) ||
+                    activity.description.toLowerCase().includes(searchTerm) ||
+                    (activity.userId && activity.userId.toLowerCase().includes(searchTerm)) ||
+                    (activity.transactionId && activity.transactionId.toLowerCase().includes(searchTerm));
+                
+                return matchesType && matchesSeverity && matchesSearch;
+            });
+            
+            renderActivities(filtered);
+        }
+        
+        // Clear Filters
+        function clearFilters() {
+            document.querySelectorAll('.activity-type-filter, .severity-filter').forEach(filter => {
+                filter.checked = true;
+            });
+            document.getElementById('searchInput').value = '';
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            applyFilters();
+        }
+        
+        // Show Activity Details
+        function showActivityDetails(activityId) {
+            const activity = activities.find(a => a.id === activityId);
+            if (!activity) return;
+            
+            const modal = document.getElementById('activityModal');
+            const content = document.getElementById('modalDetailsContent');
+            
+            content.innerHTML = `
+                <div class="modal-detail">
+                    <div class="detail-label">Activity ID</div>
+                    <div class="detail-value">${activity.id}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="detail-label">Type</div>
+                    <div class="detail-value">${activity.type}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="detail-label">Severity</div>
+                    <div class="detail-value">${activity.severity}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="detail-label">Title</div>
+                    <div class="detail-value">${activity.title}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value">${activity.description}</div>
+                </div>
+                <div class="modal-detail">
+                    <div class="detail-label">Timestamp</div>
+                    <div class="detail-value">${activity.timestamp.toLocaleString()}</div>
+                </div>
+                ${activity.user ? `
+                    <div class="modal-detail">
+                        <div class="detail-label">User</div>
+                        <div class="detail-value">${activity.user}</div>
+                    </div>
+                ` : ''}
+                ${activity.userId ? `
+                    <div class="modal-detail">
+                        <div class="detail-label">User ID</div>
+                        <div class="detail-value">${activity.userId}</div>
+                    </div>
+                ` : ''}
+                ${activity.transactionId ? `
+                    <div class="modal-detail">
+                        <div class="detail-label">Transaction ID</div>
+                        <div class="detail-value">${activity.transactionId}</div>
+                    </div>
+                ` : ''}
+            `;
+            
+            modal.classList.add('show');
+        }
+        
+        // Close Modal
+        function closeModal() {
+            document.getElementById('activityModal').classList.remove('show');
+        }
+        
+        // Update Realtime Stats
+        function updateRealtimeStats() {
+            document.getElementById('activitiesLastHour').textContent = Math.floor(Math.random() * 500) + 100;
+            document.getElementById('criticalAlerts').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('activeUsersNow').textContent = Math.floor(Math.random() * 200) + 50;
+            document.getElementById('transactionsPerMin').textContent = Math.floor(Math.random() * 50) + 10;
+        }
+        
+        // Start Auto Refresh
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                loadActivities();
+                updateRealtimeStats();
+            }, 10000); // Refresh every 10 seconds
+        }
+        
+        // Export Activity Log
+        function exportActivityLog() {
+            alert('Exporting activity log...');
+        }
+        
+        // Load More Activities
+        function loadMoreActivities() {
+            alert('Loading more activities...');
+        }
+        
+        // Handle Action
+        function handleAction(event, activityId) {
+            event.stopPropagation();
+            alert('Handling action for activity: ' + activityId);
+        }
+        
+        // Time Ago Helper
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' mins ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+            return Math.floor(seconds / 86400) + ' days ago';
+        }
+        
+        // Close modal on outside click
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('activityModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+    
+</body>
+</html>
