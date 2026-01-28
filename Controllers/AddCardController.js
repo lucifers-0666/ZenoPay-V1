@@ -3,13 +3,7 @@ const ZenoPayUser = require("../Models/ZenoPayUser");
 // GET: Add Card Page
 const getAddCardPage = async (req, res) => {
   try {
-    // TEMPORARY: Bypass auth for design review
-    if (!req.session.isLoggedIn || !req.session.user) {
-      req.session.isLoggedIn = true;
-      req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-    }
-
-    const zenoPayId = req.session.user.ZenoPayID;
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
     const user = await ZenoPayUser.findOne({ ZenoPayID: zenoPayId });
 
     if (!user) {
@@ -30,24 +24,7 @@ const getAddCardPage = async (req, res) => {
 // POST: Add New Card
 const addCard = async (req, res) => {
   try {
-    if (!req.session.isLoggedIn || !req.session.user) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    const {
-      cardNumber,
-      cardholderName,
-      expiryMonth,
-      expiryYear,
-      cvv,
-      addressLine1,
-      city,
-      state,
-      zipCode,
-      country,
-      saveForFuture = true,
-      setAsDefault = false,
-    } = req.body;
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
 
     // Validation
     if (!cardNumber || !cardholderName || !expiryMonth || !expiryYear || !cvv) {

@@ -1,14 +1,6 @@
 // Referral Program Controller
 const ZenoPayUser = require('../Models/ZenoPayUser');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Mock referral data
 const referralData = {
   referralCode: 'ZENO-DEMO2024',
@@ -86,7 +78,7 @@ const referralData = {
   ]
 };
 
-exports.getReferralPage = [ensureAuth, async (req, res) => {
+exports.getReferralPage = async (req, res) => {
   try {
     res.render('referral-program', {
       pageTitle: 'Referral Program - ZenoPay',
@@ -96,9 +88,9 @@ exports.getReferralPage = [ensureAuth, async (req, res) => {
     console.error('Error loading referral page:', error);
     res.status(500).send('Error loading referral page');
   }
-}];
+};
 
-exports.shareReferral = [ensureAuth, async (req, res) => {
+exports.shareReferral = async (req, res) => {
   try {
     const { method, recipient } = req.body;
     
@@ -113,9 +105,9 @@ exports.shareReferral = [ensureAuth, async (req, res) => {
     console.error('Error sharing referral:', error);
     res.status(500).json({ success: false, message: 'Failed to share referral' });
   }
-}];
+};
 
-exports.redeemRewards = [ensureAuth, async (req, res) => {
+exports.redeemRewards = async (req, res) => {
   try {
     const { amount, method } = req.body;
     
@@ -145,9 +137,9 @@ exports.redeemRewards = [ensureAuth, async (req, res) => {
     console.error('Error redeeming rewards:', error);
     res.status(500).json({ success: false, message: 'Failed to redeem rewards' });
   }
-}];
+};
 
-exports.trackReferralClick = [ensureAuth, async (req, res) => {
+exports.trackReferralClick = async (req, res) => {
   try {
     const { referralCode } = req.params;
     
@@ -159,4 +151,4 @@ exports.trackReferralClick = [ensureAuth, async (req, res) => {
     console.error('Error tracking referral:', error);
     res.status(500).json({ success: false });
   }
-}];
+};

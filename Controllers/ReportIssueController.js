@@ -2,14 +2,6 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Issue categories
 const issueCategories = [
   { value: 'payment-failed', label: 'Payment Failed' },
@@ -20,7 +12,7 @@ const issueCategories = [
   { value: 'other', label: 'Other' }
 ];
 
-exports.getReportIssuePage = [ensureAuth, async (req, res) => {
+exports.getReportIssuePage = async (req, res) => {
   try {
     const user = await ZenoPayUser.findOne({ ZenoPayID: req.session.user.ZenoPayID });
     
@@ -45,10 +37,10 @@ exports.getReportIssuePage = [ensureAuth, async (req, res) => {
     console.error('Error loading report issue page:', error);
     res.status(500).send('Error loading page');
   }
-}];
+};
 
 // Submit issue report
-exports.submitIssue = [ensureAuth, async (req, res) => {
+exports.submitIssue = async (req, res) => {
   try {
     const {
       category,
@@ -122,10 +114,10 @@ exports.submitIssue = [ensureAuth, async (req, res) => {
       message: 'Failed to submit issue. Please try again.'
     });
   }
-}];
+};
 
 // Check similar issues (for suggestions)
-exports.checkSimilarIssues = [ensureAuth, async (req, res) => {
+exports.checkSimilarIssues = async (req, res) => {
   try {
     const { query } = req.body;
     
@@ -148,10 +140,10 @@ exports.checkSimilarIssues = [ensureAuth, async (req, res) => {
     console.error('Error checking similar issues:', error);
     res.status(500).json({ success: false, similarIssues: [] });
   }
-}];
+};
 
 // Save draft
-exports.saveDraft = [ensureAuth, async (req, res) => {
+exports.saveDraft = async (req, res) => {
   try {
     const draftData = req.body;
     const draftId = 'DRAFT-' + Date.now();
@@ -168,4 +160,4 @@ exports.saveDraft = [ensureAuth, async (req, res) => {
     console.error('Error saving draft:', error);
     res.status(500).json({ success: false, message: 'Failed to save draft' });
   }
-}];
+};

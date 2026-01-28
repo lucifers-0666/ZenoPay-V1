@@ -2,14 +2,6 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Mock receipts data
 const mockReceipts = [
   {
@@ -67,7 +59,7 @@ const mockReceipts = [
   }
 ];
 
-exports.getReceiptsPage = [ensureAuth, async (req, res) => {
+exports.getReceiptsPage = async (req, res) => {
   try {
     const { type, status, dateFrom, dateTo, search } = req.query;
     
@@ -99,9 +91,9 @@ exports.getReceiptsPage = [ensureAuth, async (req, res) => {
     console.error('Error loading receipts:', error);
     res.status(500).send('Error loading receipts');
   }
-}];
+};
 
-exports.getReceiptDetail = [ensureAuth, async (req, res) => {
+exports.getReceiptDetail = async (req, res) => {
   try {
     const { receiptId } = req.params;
     
@@ -116,9 +108,9 @@ exports.getReceiptDetail = [ensureAuth, async (req, res) => {
     console.error('Error loading receipt:', error);
     res.status(500).json({ success: false, message: 'Failed to load receipt' });
   }
-}];
+};
 
-exports.downloadReceiptPDF = [ensureAuth, async (req, res) => {
+exports.downloadReceiptPDF = async (req, res) => {
   try {
     const { receiptId } = req.params;
     
@@ -132,9 +124,9 @@ exports.downloadReceiptPDF = [ensureAuth, async (req, res) => {
     console.error('Error downloading receipt:', error);
     res.status(500).json({ success: false, message: 'Failed to download receipt' });
   }
-}];
+};
 
-exports.emailReceipt = [ensureAuth, async (req, res) => {
+exports.emailReceipt = async (req, res) => {
   try {
     const { receiptId } = req.params;
     const { email } = req.body;
@@ -154,9 +146,9 @@ exports.emailReceipt = [ensureAuth, async (req, res) => {
     console.error('Error emailing receipt:', error);
     res.status(500).json({ success: false, message: 'Failed to email receipt' });
   }
-}];
+};
 
-exports.downloadBulkReceipts = [ensureAuth, async (req, res) => {
+exports.downloadBulkReceipts = async (req, res) => {
   try {
     const { receiptIds } = req.body;
     
@@ -174,4 +166,4 @@ exports.downloadBulkReceipts = [ensureAuth, async (req, res) => {
     console.error('Error downloading bulk receipts:', error);
     res.status(500).json({ success: false, message: 'Failed to download receipts' });
   }
-}];
+};

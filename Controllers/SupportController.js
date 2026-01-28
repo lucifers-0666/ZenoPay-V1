@@ -1,14 +1,6 @@
 // Support Center Controller
 const ZenoPayUser = require('../Models/ZenoPayUser');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Mock data for help categories and articles
 const helpCategories = [
   {
@@ -146,7 +138,7 @@ const systemStatus = {
   ]
 };
 
-exports.getSupportCenter = [ensureAuth, async (req, res) => {
+exports.getSupportCenter = async (req, res) => {
   try {
     res.render('support-center', {
       pageTitle: 'Support Center - ZenoPay',
@@ -159,10 +151,10 @@ exports.getSupportCenter = [ensureAuth, async (req, res) => {
     console.error('Error loading support center:', error);
     res.status(500).send('Error loading support center');
   }
-}];
+};
 
 // Search help articles
-exports.searchHelpArticles = [ensureAuth, async (req, res) => {
+exports.searchHelpArticles = async (req, res) => {
   try {
     const { query } = req.query;
     
@@ -177,10 +169,10 @@ exports.searchHelpArticles = [ensureAuth, async (req, res) => {
     console.error('Error searching articles:', error);
     res.status(500).json({ success: false, message: 'Search failed' });
   }
-}];
+};
 
 // Get category articles
-exports.getCategoryArticles = [ensureAuth, async (req, res) => {
+exports.getCategoryArticles = async (req, res) => {
   try {
     const { categoryId } = req.params;
     
@@ -199,12 +191,13 @@ exports.getCategoryArticles = [ensureAuth, async (req, res) => {
     console.error('Error loading category:', error);
     res.status(500).json({ success: false, message: 'Failed to load category' });
   }
-}];
+};
 
 // Initialize live chat
-exports.initiateLiveChat = [ensureAuth, async (req, res) => {
+exports.initiateLiveChat = async (req, res) => {
   try {
-    const user = await ZenoPayUser.findOne({ ZenoPayID: req.session.user.ZenoPayID });
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const user = await ZenoPayUser.findOne({ ZenoPayID: zenoPayId });
     
     // Mock chat initialization
     const chatSession = {
@@ -222,4 +215,4 @@ exports.initiateLiveChat = [ensureAuth, async (req, res) => {
     console.error('Error initiating chat:', error);
     res.status(500).json({ success: false, message: 'Failed to start chat' });
   }
-}];
+};

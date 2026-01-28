@@ -2,14 +2,6 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Mock statements data
 const mockStatements = [
   {
@@ -51,7 +43,7 @@ const currentMonthStats = {
   feesPaid: 32.50
 };
 
-exports.getStatementsPage = [ensureAuth, async (req, res) => {
+exports.getStatementsPage = async (req, res) => {
   try {
     res.render('statements', {
       pageTitle: 'Monthly Statements - ZenoPay',
@@ -62,9 +54,9 @@ exports.getStatementsPage = [ensureAuth, async (req, res) => {
     console.error('Error loading statements:', error);
     res.status(500).send('Error loading statements');
   }
-}];
+};
 
-exports.getStatementDetail = [ensureAuth, async (req, res) => {
+exports.getStatementDetail = async (req, res) => {
   try {
     const { month, year } = req.params;
     
@@ -132,9 +124,9 @@ exports.getStatementDetail = [ensureAuth, async (req, res) => {
     console.error('Error loading statement detail:', error);
     res.status(500).json({ success: false, message: 'Failed to load statement' });
   }
-}];
+};
 
-exports.downloadStatementPDF = [ensureAuth, async (req, res) => {
+exports.downloadStatementPDF = async (req, res) => {
   try {
     const { month, year } = req.params;
     
@@ -148,9 +140,9 @@ exports.downloadStatementPDF = [ensureAuth, async (req, res) => {
     console.error('Error generating PDF:', error);
     res.status(500).json({ success: false, message: 'Failed to generate PDF' });
   }
-}];
+};
 
-exports.downloadStatementCSV = [ensureAuth, async (req, res) => {
+exports.downloadStatementCSV = async (req, res) => {
   try {
     const { month, year } = req.params;
     
@@ -164,9 +156,9 @@ exports.downloadStatementCSV = [ensureAuth, async (req, res) => {
     console.error('Error generating CSV:', error);
     res.status(500).json({ success: false, message: 'Failed to generate CSV' });
   }
-}];
+};
 
-exports.emailStatement = [ensureAuth, async (req, res) => {
+exports.emailStatement = async (req, res) => {
   try {
     const { month, year } = req.params;
     const { email } = req.body;
@@ -182,4 +174,4 @@ exports.emailStatement = [ensureAuth, async (req, res) => {
     console.error('Error emailing statement:', error);
     res.status(500).json({ success: false, message: 'Failed to email statement' });
   }
-}];
+};

@@ -2,14 +2,6 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 
-// Temporary auth bypass for design review
-const ensureAuth = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-  }
-  next();
-};
-
 // Mock disputes data
 const mockDisputes = [
   {
@@ -58,7 +50,7 @@ const mockDisputes = [
   }
 ];
 
-exports.getDisputesPage = [ensureAuth, async (req, res) => {
+exports.getDisputesPage = async (req, res) => {
   try {
     const { status, search, dateFrom, dateTo } = req.query;
     
@@ -87,9 +79,9 @@ exports.getDisputesPage = [ensureAuth, async (req, res) => {
     console.error('Error loading disputes:', error);
     res.status(500).send('Error loading disputes');
   }
-}];
+};
 
-exports.getDisputeDetail = [ensureAuth, async (req, res) => {
+exports.getDisputeDetail = async (req, res) => {
   try {
     const { disputeId } = req.params;
     
@@ -104,9 +96,9 @@ exports.getDisputeDetail = [ensureAuth, async (req, res) => {
     console.error('Error loading dispute detail:', error);
     res.status(500).json({ success: false, message: 'Failed to load dispute' });
   }
-}];
+};
 
-exports.submitDispute = [ensureAuth, async (req, res) => {
+exports.submitDispute = async (req, res) => {
   try {
     const {
       transactionId,
@@ -145,9 +137,9 @@ exports.submitDispute = [ensureAuth, async (req, res) => {
     console.error('Error submitting dispute:', error);
     res.status(500).json({ success: false, message: 'Failed to submit dispute' });
   }
-}];
+};
 
-exports.addDisputeInformation = [ensureAuth, async (req, res) => {
+exports.addDisputeInformation = async (req, res) => {
   try {
     const { disputeId } = req.params;
     const { message } = req.body;
@@ -163,9 +155,9 @@ exports.addDisputeInformation = [ensureAuth, async (req, res) => {
     console.error('Error adding information:', error);
     res.status(500).json({ success: false, message: 'Failed to add information' });
   }
-}];
+};
 
-exports.withdrawDispute = [ensureAuth, async (req, res) => {
+exports.withdrawDispute = async (req, res) => {
   try {
     const { disputeId } = req.params;
     
@@ -180,4 +172,4 @@ exports.withdrawDispute = [ensureAuth, async (req, res) => {
     console.error('Error withdrawing dispute:', error);
     res.status(500).json({ success: false, message: 'Failed to withdraw dispute' });
   }
-}];
+};

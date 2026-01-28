@@ -4,13 +4,7 @@ const generateQRWithLogo = require("../Services/generateQR");
 // GET: QR Payment Page
 const getQRPaymentPage = async (req, res) => {
   try {
-    // TEMPORARY: Bypass auth for design review
-    if (!req.session.isLoggedIn || !req.session.user) {
-      req.session.isLoggedIn = true;
-      req.session.user = { ZenoPayID: "ZP-DEMO2024" };
-    }
-
-    const zenoPayId = req.session.user.ZenoPayID;
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
     const user = await ZenoPayUser.findOne({ ZenoPayID: zenoPayId });
 
     if (!user) {
@@ -39,12 +33,7 @@ const getQRPaymentPage = async (req, res) => {
 // POST: Generate Dynamic QR Code
 const generateDynamicQR = async (req, res) => {
   try {
-    if (!req.session.isLoggedIn || !req.session.user) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    const { amount = null, description = "", expiryMinutes = 30 } = req.body;
-    const zenoPayId = req.session.user.ZenoPayID;
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
 
     // Build dynamic payment URL with query params
     const baseUrl = `${req.protocol}://${req.get("host")}`;

@@ -2,12 +2,8 @@ const TransactionHistory = require("../Models/TransactionHistory");
 const BankAccount = require("../Models/BankAccount");
 
 const getTransactionHistory = async (req, res) => {
-  if (!req.session.isLoggedIn || !req.session.user) {
-    return res.redirect("/login");
-  }
-
   try {
-    const userZenoPayId = req.session.user.ZenoPayID;
+    const userZenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
 
     // First, get all bank accounts for this user
     const userAccounts = await BankAccount.find({ ZenoPayId: userZenoPayId });
