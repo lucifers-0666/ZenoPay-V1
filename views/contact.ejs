@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'Contact Us - ZenoPay' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header-modern.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/contact.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <!-- Response Time Banner -->
+  <div class="response-time-banner">
+    <div class="banner-content">
+      <i class="fas fa-clock"></i>
+      <span>Average response time: <strong>2 hours</strong></span>
+      <div class="trust-badges">
+        <span class="badge"><i class="fas fa-certificate"></i> ISO Certified</span>
+        <span class="badge"><i class="fas fa-headset"></i> 24/7 Available</span>
+        <span class="badge"><i class="fas fa-language"></i> Multilingual</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="contact-hero">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+      <i class="fas fa-comments hero-icon"></i>
+      <h1 class="hero-title">Get in Touch</h1>
+      <p class="hero-subtitle">We're here to help and answer any questions you may have</p>
+    </div>
+  </section>
+
+  <div class="contact-container">
+    
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">Home</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Contact Us</span>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <div class="contact-grid">
+      
+      <!-- LEFT COLUMN - Contact Form -->
+      <div class="contact-form-section">
+        <div class="form-card">
+          <div class="card-header">
+            <i class="fas fa-pen-to-square"></i>
+            <div>
+              <h2 class="card-title">Send us a Message</h2>
+              <p class="card-description">Fill out the form and we'll get back to you within 24 hours</p>
+            </div>
+          </div>
+
+          <!-- Success Message (Hidden by default) -->
+          <div class="success-message" id="successMessage" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <strong>Message sent successfully!</strong>
+              <p>We'll respond to you soon. Reference: <span id="ticketNumber"></span></p>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <form id="contactForm" class="contact-form">
+            
+            <!-- Name Field -->
+            <div class="form-group">
+              <label for="fullName">
+                Full Name <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input 
+                  type="text" 
+                  id="fullName" 
+                  name="fullName" 
+                  class="form-input" 
+                  placeholder="Enter your full name"
+                  required
+                >
+              </div>
+              <span class="error-message" id="nameError"></span>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+              <label for="email">
+                Email Address <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope input-icon"></i>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  class="form-input" 
+                  placeholder="you@example.com"
+                  required
+                >
+              </div>
+              <span class="error-message" id="emailError"></span>
+            </div>
+
+            <!-- Phone Field (Optional) -->
+            <div class="form-group">
+              <label for="phone">
+                Phone Number <span class="optional">(Optional)</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-phone input-icon"></i>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  class="form-input" 
+                  placeholder="+91 "
+                >
+              </div>
+            </div>
+
+            <!-- Subject Dropdown -->
+            <div class="form-group">
+              <label for="subject">
+                Subject <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-tag input-icon"></i>
+                <select id="subject" name="subject" class="form-select" required>
+                  <option value="">Select a subject</option>
+                  <option value="general">General Inquiry</option>
+                  <option value="technical">Technical Support</option>
+                  <option value="billing">Billing Question</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="report">Report Issue</option>
+                  <option value="other">Other</option>
+                </select>
+                <i class="fas fa-chevron-down select-arrow"></i>
+              </div>
+              <span class="error-message" id="subjectError"></span>
+            </div>
+
+            <!-- Message Textarea -->
+            <div class="form-group">
+              <label for="message">
+                Message <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-comment-dots input-icon textarea-icon"></i>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  class="form-textarea" 
+                  placeholder="Tell us how we can help you..."
+                  rows="6"
+                  maxlength="500"
+                  required
+                ></textarea>
+              </div>
+              <div class="char-counter">
+                <span id="charCount">0</span>/500
+              </div>
+              <span class="error-message" id="messageError"></span>
+            </div>
+
+            <!-- File Attachment (Optional) -->
+            <div class="form-group">
+              <label for="attachment">
+                Attach Files <span class="optional">(Optional)</span>
+              </label>
+              <div class="file-upload-area" id="fileUploadArea">
+                <i class="fas fa-paperclip"></i>
+                <div class="upload-text">
+                  <strong>Click to upload</strong> or drag and drop
+                  <span>PDF, JPG, PNG (max 5MB)</span>
+                </div>
+                <input 
+                  type="file" 
+                  id="attachment" 
+                  name="attachment" 
+                  class="file-input"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                >
+              </div>
+              <div class="file-info" id="fileInfo" style="display: none;">
+                <i class="fas fa-file"></i>
+                <span id="fileName"></span>
+                <button type="button" class="remove-file" id="removeFile">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Priority Selection (Optional) -->
+            <div class="form-group">
+              <label>
+                Priority <span class="optional">(Optional)</span>
+              </label>
+              <div class="priority-options">
+                <label class="priority-option">
+                  <input type="radio" name="priority" value="low" checked>
+                  <span class="priority-label low">
+                    <i class="fas fa-circle"></i>
+                    Low
+                  </span>
+                </label>
+                <label class="priority-option">
+                  <input type="radio" name="priority" value="medium">
+                  <span class="priority-label medium">
+                    <i class="fas fa-circle"></i>
+                    Medium
+                  </span>
+                </label>
+                <label class="priority-option">
+                  <input type="radio" name="priority" value="high">
+                  <span class="priority-label high">
+                    <i class="fas fa-circle"></i>
+                    High
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit" id="submitBtn">
+              <i class="fas fa-paper-plane"></i>
+              <span id="btnText">Send Message</span>
+            </button>
+
+            <!-- Privacy Note -->
+            <div class="privacy-note">
+              <i class="fas fa-shield-halved"></i>
+              <span>Your information is secure and will never be shared</span>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN - Contact Information -->
+      <div class="contact-info-section">
+        
+        <!-- Email Contact Card -->
+        <div class="info-card">
+          <div class="info-icon-wrapper email">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h3 class="info-title">Email Us</h3>
+          <a href="mailto:support@zenopay.com" class="info-link">support@zenopay.com</a>
+          <p class="info-description">We respond within 24 hours</p>
+          <span class="status-badge online">
+            <span class="status-dot"></span>
+            Available
+          </span>
+        </div>
+
+        <!-- Phone Contact Card -->
+        <div class="info-card">
+          <div class="info-icon-wrapper phone">
+            <i class="fas fa-phone"></i>
+          </div>
+          <h3 class="info-title">Call Us</h3>
+          <a href="tel:+911800ZENOPAY" class="info-link">+91 1800-ZENOPAY</a>
+          <p class="info-description">Monday - Friday, 9 AM - 6 PM IST</p>
+          <span class="status-badge" id="phoneStatus">
+            <span class="status-dot"></span>
+            <span id="phoneStatusText">Available</span>
+          </span>
+        </div>
+
+        <!-- Live Chat Card -->
+        <div class="info-card">
+          <div class="info-icon-wrapper chat">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3 class="info-title">Live Chat</h3>
+          <p class="info-description">Get instant help from our support team</p>
+          <a href="/support" class="btn-chat">
+            <i class="fas fa-message"></i>
+            Start Chat
+          </a>
+          <span class="status-badge online">
+            <span class="status-dot"></span>
+            Available 24/7
+          </span>
+        </div>
+
+        <!-- Office Location Card -->
+        <div class="info-card">
+          <div class="info-icon-wrapper location">
+            <i class="fas fa-map-pin"></i>
+          </div>
+          <h3 class="info-title">Visit Our Office</h3>
+          <address class="office-address">
+            <strong>ZenoPay Headquarters</strong><br>
+            123 Financial District<br>
+            Mumbai, Maharashtra 400001<br>
+            India
+          </address>
+          <a href="https://maps.google.com" target="_blank" class="directions-link">
+            <i class="fas fa-arrow-up-right-from-square"></i>
+            Get Directions
+          </a>
+        </div>
+
+        <!-- Business Hours Card -->
+        <div class="info-card">
+          <div class="info-icon-wrapper hours">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="info-title">Business Hours</h3>
+          <div class="hours-table">
+            <div class="hours-row">
+              <span class="day">Monday - Friday</span>
+              <span class="time">9:00 AM - 6:00 PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="day">Saturday</span>
+              <span class="time">10:00 AM - 4:00 PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="day">Sunday</span>
+              <span class="time">Closed</span>
+            </div>
+          </div>
+          <div class="current-status" id="currentStatus">
+            <i class="fas fa-circle status-indicator"></i>
+            <span id="statusText">Currently Open</span>
+          </div>
+        </div>
+
+        <!-- Social Media Card -->
+        <div class="info-card">
+          <h3 class="info-title">Connect With Us</h3>
+          <div class="social-links">
+            <a href="https://twitter.com/zenopay" target="_blank" class="social-link" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://linkedin.com/company/zenopay" target="_blank" class="social-link" aria-label="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="https://facebook.com/zenopay" target="_blank" class="social-link" aria-label="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://instagram.com/zenopay" target="_blank" class="social-link" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Department Contacts Card -->
+        <div class="info-card">
+          <h3 class="info-title">Department Contacts</h3>
+          <div class="department-list">
+            <a href="mailto:sales@zenopay.com" class="department-item">
+              <i class="fas fa-handshake"></i>
+              <div>
+                <strong>Sales</strong>
+                <span>sales@zenopay.com</span>
+              </div>
+            </a>
+            <a href="mailto:support@zenopay.com" class="department-item">
+              <i class="fas fa-headset"></i>
+              <div>
+                <strong>Support</strong>
+                <span>support@zenopay.com</span>
+              </div>
+            </a>
+            <a href="mailto:legal@zenopay.com" class="department-item">
+              <i class="fas fa-gavel"></i>
+              <div>
+                <strong>Legal</strong>
+                <span>legal@zenopay.com</span>
+              </div>
+            </a>
+            <a href="mailto:press@zenopay.com" class="department-item">
+              <i class="fas fa-newspaper"></i>
+              <div>
+                <strong>Press</strong>
+                <span>press@zenopay.com</span>
+              </div>
+            </a>
+            <a href="mailto:careers@zenopay.com" class="department-item">
+              <i class="fas fa-briefcase"></i>
+              <div>
+                <strong>Careers</strong>
+                <span>careers@zenopay.com</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FAQ Shortcuts Section -->
+    <section class="faq-shortcuts">
+      <h2 class="section-title">Before you contact us</h2>
+      <p class="section-subtitle">Find quick answers to common questions</p>
+      
+      <div class="faq-links-grid">
+        <a href="/help#reset-password" class="faq-link-item">
+          <i class="fas fa-lock"></i>
+          <span>How to reset password?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="/help#transaction-failed" class="faq-link-item">
+          <i class="fas fa-rotate-left"></i>
+          <span>Transaction not completed?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="/help#verify-account" class="faq-link-item">
+          <i class="fas fa-id-card"></i>
+          <span>How to verify account?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="/help#fees" class="faq-link-item">
+          <i class="fas fa-indian-rupee-sign"></i>
+          <span>Fees and charges?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="/help#payment-method" class="faq-link-item">
+          <i class="fas fa-credit-card"></i>
+          <span>Add payment method?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="/help#transaction-history" class="faq-link-item">
+          <i class="fas fa-clock-rotate-left"></i>
+          <span>View transaction history?</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="view-all-faq">
+        <a href="/help" class="btn-view-all">
+          View all FAQs
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- Emergency Support Callout -->
+    <div class="emergency-callout">
+      <div class="emergency-content">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+          <strong>Need urgent assistance?</strong>
+          <p>For critical issues, call our 24/7 emergency helpline</p>
+        </div>
+        <a href="tel:+911800URGENT" class="btn-emergency">
+          <i class="fas fa-phone"></i>
+          +91 1800-URGENT
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/contact.js"></script>
+</body>
+</html>

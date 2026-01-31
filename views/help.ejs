@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'Help Center - ZenoPay' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header-modern.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/help.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <!-- Hero Section with Search -->
+  <section class="help-hero">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+      <i class="fas fa-life-ring hero-icon"></i>
+      <h1 class="hero-title">How can we help you?</h1>
+      <p class="hero-subtitle">Search our help center or browse by category</p>
+      
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input 
+            type="text" 
+            id="helpSearch" 
+            class="search-input" 
+            placeholder="Search for help..." 
+            autocomplete="off"
+          >
+          <button class="search-clear" id="clearSearch" style="display: none;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <!-- Search Suggestions Dropdown -->
+        <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+          <div class="suggestions-list"></div>
+        </div>
+      </div>
+
+      <!-- Popular Searches -->
+      <div class="popular-searches">
+        <span class="popular-label">Popular:</span>
+        <button class="popular-tag" data-query="send money">How to send money</button>
+        <button class="popular-tag" data-query="reset password">Reset password</button>
+        <button class="popular-tag" data-query="add bank account">Add bank account</button>
+        <button class="popular-tag" data-query="transaction fees">Transaction fees</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="help-container">
+    
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">Home</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Help Center</span>
+    </nav>
+
+    <!-- Helpful Resources Box -->
+    <div class="resources-box">
+      <h3 class="resources-title">
+        <i class="fas fa-bookmark"></i>
+        Helpful Resources
+      </h3>
+      <div class="resources-grid">
+        <a href="#" class="resource-link">
+          <i class="fas fa-video"></i>
+          <span>Video Tutorials</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a href="/api-integration" class="resource-link">
+          <i class="fas fa-code"></i>
+          <span>API Documentation</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a href="#" class="resource-link">
+          <i class="fas fa-book"></i>
+          <span>Integration Guides</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a href="#" class="resource-link">
+          <i class="fas fa-users"></i>
+          <span>Community Forum</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a href="#" class="resource-link">
+          <i class="fas fa-chart-line"></i>
+          <span>System Status</span>
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Category Cards Section -->
+    <section class="categories-section">
+      <h2 class="section-title">Browse by Category</h2>
+      <div class="categories-grid">
+        
+        <!-- Category 1: Getting Started -->
+        <div class="category-card" data-category="getting-started">
+          <div class="category-icon-wrapper getting-started">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h3 class="category-name">Getting Started</h3>
+          <p class="category-description">Learn the basics of using ZenoPay</p>
+          <span class="article-count">8 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 2: Account Management -->
+        <div class="category-card" data-category="account">
+          <div class="category-icon-wrapper account">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <h3 class="category-name">Account Management</h3>
+          <p class="category-description">Manage your account settings and profile</p>
+          <span class="article-count">12 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 3: Payments & Transfers -->
+        <div class="category-card" data-category="payments">
+          <div class="category-icon-wrapper payments">
+            <i class="fas fa-money-bill-transfer"></i>
+          </div>
+          <h3 class="category-name">Payments & Transfers</h3>
+          <p class="category-description">Send and receive money securely</p>
+          <span class="article-count">15 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 4: Security & Privacy -->
+        <div class="category-card" data-category="security">
+          <div class="category-icon-wrapper security">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="category-name">Security & Privacy</h3>
+          <p class="category-description">Keep your account safe and secure</p>
+          <span class="article-count">10 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 5: API & Integration -->
+        <div class="category-card" data-category="api">
+          <div class="category-icon-wrapper api">
+            <i class="fas fa-code"></i>
+          </div>
+          <h3 class="category-name">API & Integration</h3>
+          <p class="category-description">Integrate ZenoPay with your platform</p>
+          <span class="article-count">9 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 6: Billing & Fees -->
+        <div class="category-card" data-category="billing">
+          <div class="category-icon-wrapper billing">
+            <i class="fas fa-indian-rupee-sign"></i>
+          </div>
+          <h3 class="category-name">Billing & Fees</h3>
+          <p class="category-description">Understand our pricing and charges</p>
+          <span class="article-count">7 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 7: Troubleshooting -->
+        <div class="category-card" data-category="troubleshooting">
+          <div class="category-icon-wrapper troubleshooting">
+            <i class="fas fa-wrench"></i>
+          </div>
+          <h3 class="category-name">Troubleshooting</h3>
+          <p class="category-description">Fix common issues and errors</p>
+          <span class="article-count">11 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+        <!-- Category 8: Compliance & Legal -->
+        <div class="category-card" data-category="legal">
+          <div class="category-icon-wrapper legal">
+            <i class="fas fa-file-contract"></i>
+          </div>
+          <h3 class="category-name">Compliance & Legal</h3>
+          <p class="category-description">Policies, terms, and regulations</p>
+          <span class="article-count">6 articles</span>
+          <i class="fas fa-chevron-right category-arrow"></i>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FAQ Accordion Section -->
+    <section class="faq-section">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+
+      <!-- Category Tabs -->
+      <div class="faq-tabs">
+        <button class="faq-tab active" data-category="all">All Questions</button>
+        <button class="faq-tab" data-category="getting-started">Getting Started</button>
+        <button class="faq-tab" data-category="account">Account</button>
+        <button class="faq-tab" data-category="payments">Payments</button>
+        <button class="faq-tab" data-category="security">Security</button>
+      </div>
+
+      <!-- FAQ Accordion -->
+      <div class="faq-accordion">
+        
+        <!-- Getting Started FAQs -->
+        <div class="faq-item" data-category="getting-started">
+          <div class="faq-question">
+            <span>How do I create a ZenoPay account?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Creating a ZenoPay account is simple and takes just a few minutes:</p>
+            <ol>
+              <li>Click the "Sign Up" button on the homepage</li>
+              <li>Enter your email address, phone number, and create a password</li>
+              <li>Verify your email address by clicking the link we send you</li>
+              <li>Complete your profile with basic information</li>
+              <li>Add a payment method to start using ZenoPay</li>
+            </ol>
+            <p>You'll need to complete KYC verification to access all features and higher transaction limits.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="getting-started">
+          <div class="faq-question">
+            <span>What documents do I need for KYC verification?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>For KYC verification, you'll need to provide:</p>
+            <ul>
+              <li><strong>Identity Proof:</strong> Aadhaar Card, PAN Card, Passport, or Driver's License</li>
+              <li><strong>Address Proof:</strong> Utility bill, bank statement, or rental agreement (not older than 3 months)</li>
+              <li><strong>Selfie Photo:</strong> A clear photo of yourself for identity verification</li>
+            </ul>
+            <p>All documents must be clear, valid, and not expired. The verification process typically takes 24-48 hours.</p>
+          </div>
+        </div>
+
+        <!-- Account Management FAQs -->
+        <div class="faq-item" data-category="account">
+          <div class="faq-question">
+            <span>How do I reset my password?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>If you've forgotten your password:</p>
+            <ol>
+              <li>Go to the login page and click "Forgot Password"</li>
+              <li>Enter your registered email address</li>
+              <li>Check your email for a password reset link</li>
+              <li>Click the link and create a new password</li>
+              <li>Log in with your new password</li>
+            </ol>
+            <p>The reset link is valid for 1 hour. If it expires, you can request a new one.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="account">
+          <div class="faq-question">
+            <span>Can I change my registered email address?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Yes, you can update your email address from your account settings:</p>
+            <ol>
+              <li>Go to Settings > Account Settings</li>
+              <li>Click "Change Email Address"</li>
+              <li>Enter your new email address</li>
+              <li>Verify the new email by clicking the confirmation link</li>
+              <li>Enter your password to confirm the change</li>
+            </ol>
+            <p>For security reasons, you'll be logged out of all devices after changing your email.</p>
+          </div>
+        </div>
+
+        <!-- Payments & Transfers FAQs -->
+        <div class="faq-item" data-category="payments">
+          <div class="faq-question">
+            <span>How do I send money to someone?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Sending money with ZenoPay is quick and easy:</p>
+            <ol>
+              <li>Go to "Send Money" from your dashboard</li>
+              <li>Enter the recipient's ZenoPay ID, email, or phone number</li>
+              <li>Enter the amount you want to send</li>
+              <li>Add a note (optional)</li>
+              <li>Review the transaction details and fees</li>
+              <li>Confirm with your password or biometric authentication</li>
+            </ol>
+            <p>The money is typically transferred instantly. You'll receive a confirmation email and notification.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="payments">
+          <div class="faq-question">
+            <span>What are the transaction fees?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>ZenoPay's fee structure is transparent and competitive:</p>
+            <ul>
+              <li><strong>Person-to-Person:</strong> Free for transfers within ZenoPay</li>
+              <li><strong>Bank Transfers:</strong> ₹5 flat fee per transaction</li>
+              <li><strong>Credit Card Payments:</strong> 2.5% + ₹3 per transaction</li>
+              <li><strong>International Transfers:</strong> 1.5% + currency conversion fee</li>
+              <li><strong>Merchant Payments:</strong> Custom rates based on volume</li>
+            </ul>
+            <p>View complete pricing details in your dashboard or visit our <a href="/terms">pricing page</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="payments">
+          <div class="faq-question">
+            <span>How long do transfers take?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Transfer times depend on the payment method:</p>
+            <ul>
+              <li><strong>ZenoPay to ZenoPay:</strong> Instant (within seconds)</li>
+              <li><strong>To Bank Account:</strong> 2-4 hours (during banking hours)</li>
+              <li><strong>To UPI:</strong> Instant to 30 minutes</li>
+              <li><strong>International Transfers:</strong> 1-3 business days</li>
+            </ul>
+            <p>Transfers initiated outside banking hours may be processed the next business day.</p>
+          </div>
+        </div>
+
+        <!-- Security FAQs -->
+        <div class="faq-item" data-category="security">
+          <div class="faq-question">
+            <span>Is my data secure with ZenoPay?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Absolutely. We take security very seriously:</p>
+            <ul>
+              <li><strong>256-bit SSL Encryption:</strong> All data transmitted is encrypted</li>
+              <li><strong>PCI DSS Compliant:</strong> We meet the highest payment security standards</li>
+              <li><strong>Two-Factor Authentication:</strong> Optional 2FA for added security</li>
+              <li><strong>Regular Security Audits:</strong> Third-party penetration testing</li>
+              <li><strong>ISO 27001 Certified:</strong> International security management standards</li>
+            </ul>
+            <p>We never store your complete card details and use tokenization for payments.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="security">
+          <div class="faq-question">
+            <span>How do I enable Two-Factor Authentication (2FA)?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>To enable 2FA for enhanced security:</p>
+            <ol>
+              <li>Go to Settings > Security</li>
+              <li>Click "Enable Two-Factor Authentication"</li>
+              <li>Choose your 2FA method (SMS or Authenticator App)</li>
+              <li>Follow the setup instructions</li>
+              <li>Save your backup codes in a secure location</li>
+            </ol>
+            <p>We recommend using an authenticator app like Google Authenticator for better security.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="account">
+          <div class="faq-question">
+            <span>How do I add a bank account?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>To link your bank account:</p>
+            <ol>
+              <li>Go to Settings > Payment Methods</li>
+              <li>Click "Add Bank Account"</li>
+              <li>Enter your bank account details (Account number, IFSC code)</li>
+              <li>Verify with a small test deposit (we'll deposit ₹1)</li>
+              <li>Confirm the deposit amount to complete verification</li>
+            </ol>
+            <p>Once verified, you can use this account for withdrawals and direct transfers.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="payments">
+          <div class="faq-question">
+            <span>What payment methods are supported?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>ZenoPay supports multiple payment methods:</p>
+            <ul>
+              <li><strong>Bank Accounts:</strong> Direct bank transfers via NEFT/RTGS/IMPS</li>
+              <li><strong>UPI:</strong> All major UPI apps (Google Pay, PhonePe, Paytm)</li>
+              <li><strong>Debit Cards:</strong> Visa, Mastercard, RuPay</li>
+              <li><strong>Credit Cards:</strong> Visa, Mastercard, American Express</li>
+              <li><strong>Net Banking:</strong> All major banks</li>
+              <li><strong>Digital Wallets:</strong> ZenoPay wallet balance</li>
+            </ul>
+            <p>You can save multiple payment methods for quick transactions.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="account">
+          <div class="faq-question">
+            <span>How do I download my transaction history?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>To download your transaction history:</p>
+            <ol>
+              <li>Go to Transactions or Statements page</li>
+              <li>Select the date range you want to download</li>
+              <li>Click the "Download" button</li>
+              <li>Choose your preferred format (PDF or CSV)</li>
+              <li>The file will be downloaded to your device</li>
+            </ol>
+            <p>You can also receive monthly statements via email by enabling this option in your notification settings.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="troubleshooting">
+          <div class="faq-question">
+            <span>My transaction failed. What should I do?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>If your transaction failed, here's what to check:</p>
+            <ol>
+              <li><strong>Check Your Balance:</strong> Ensure you have sufficient funds</li>
+              <li><strong>Verify Recipient Details:</strong> Make sure the details are correct</li>
+              <li><strong>Check Payment Method:</strong> Your card or bank account may have issues</li>
+              <li><strong>Transaction Limits:</strong> You may have reached your daily limit</li>
+              <li><strong>Network Issues:</strong> Try again after a few minutes</li>
+            </ol>
+            <p>If the problem persists, contact support with your transaction ID. If money was debited, it will be refunded within 3-5 business days.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="security">
+          <div class="faq-question">
+            <span>What should I do if I suspect fraud?</span>
+            <i class="fas fa-chevron-down faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>If you suspect unauthorized activity:</p>
+            <ol>
+              <li><strong>Immediately:</strong> Change your password</li>
+              <li><strong>Contact Support:</strong> Report the issue via chat or email</li>
+              <li><strong>Block Your Account:</strong> Temporarily freeze your account from settings</li>
+              <li><strong>Review Transactions:</strong> Check all recent transactions</li>
+              <li><strong>File a Dispute:</strong> Open a dispute for unauthorized transactions</li>
+            </ol>
+            <p>We have a zero-liability policy for unauthorized transactions reported within 60 days.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Still Need Help Section -->
+    <section class="help-actions-section">
+      <h2 class="section-title">Still need help?</h2>
+      <p class="section-subtitle">Our support team is here to assist you</p>
+      
+      <div class="help-actions-grid">
+        
+        <!-- Live Chat Card -->
+        <div class="help-action-card">
+          <div class="action-icon-wrapper chat">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3 class="action-title">Live Chat</h3>
+          <p class="action-description">Chat with our support team in real-time</p>
+          <div class="action-status">
+            <span class="status-dot online"></span>
+            <span class="status-text">Available 24/7</span>
+          </div>
+          <a href="/support" class="btn-action primary">
+            <i class="fas fa-message"></i>
+            <span>Start Chat</span>
+          </a>
+        </div>
+
+        <!-- Email Support Card -->
+        <div class="help-action-card">
+          <div class="action-icon-wrapper email">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <h3 class="action-title">Email Support</h3>
+          <p class="action-description">Send us an email and we'll respond</p>
+          <div class="action-status">
+            <i class="fas fa-clock"></i>
+            <span class="status-text">Within 24 hours</span>
+          </div>
+          <a href="mailto:support@zenopay.com" class="btn-action outline">
+            <i class="fas fa-paper-plane"></i>
+            <span>Send Email</span>
+          </a>
+        </div>
+
+        <!-- Submit Ticket Card -->
+        <div class="help-action-card">
+          <div class="action-icon-wrapper ticket">
+            <i class="fas fa-ticket"></i>
+          </div>
+          <h3 class="action-title">Submit a Ticket</h3>
+          <p class="action-description">Create a support ticket for your issue</p>
+          <div class="action-status">
+            <i class="fas fa-headset"></i>
+            <span class="status-text">We'll get back soon</span>
+          </div>
+          <a href="/report-issue" class="btn-action outline">
+            <i class="fas fa-plus"></i>
+            <span>Create Ticket</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <div class="feedback-section">
+      <p class="feedback-question">Was this helpful?</p>
+      <div class="feedback-buttons">
+        <button class="feedback-btn" data-feedback="yes">
+          <i class="fas fa-thumbs-up"></i>
+          <span>Yes</span>
+        </button>
+        <button class="feedback-btn" data-feedback="no">
+          <i class="fas fa-thumbs-down"></i>
+          <span>No</span>
+        </button>
+      </div>
+      <div class="feedback-thank-you" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span>Thank you for your feedback!</span>
+      </div>
+    </div>
+
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/help.js"></script>
+</body>
+</html>

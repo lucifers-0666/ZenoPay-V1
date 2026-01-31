@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send Money - ZenoPay Payment Gateway</title>
+    <meta name="description" content="Send money instantly to any ZenoPay account. Secure, fast, and reliable money transfers." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard-modern.css" />
+    <link rel="stylesheet" href="/css/send-money.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body class="modern-body">
+    
+    <!-- Modern Header -->
+    <%- include('partials/modern-header') %>
+
+    <!-- Main Content -->
+    <main class="send-money-main">
+      <div class="send-money-container">
+        
+        <!-- Page Header Section -->
+        <div class="page-header">
+          <div class="breadcrumb">
+            <a href="/dashboard" class="breadcrumb-link">
+              <i class="fas fa-home"></i>
+              Dashboard
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+            <span class="breadcrumb-current">Send Money</span>
+          </div>
+          
+          <div class="page-header-content">
+            <div class="page-title-wrapper">
+              <div class="page-icon">
+                <i class="fas fa-paper-plane"></i>
+              </div>
+              <div>
+                <h1 class="page-title">Send Money</h1>
+                <p class="page-subtitle">Transfer funds instantly to any account</p>
+              </div>
+            </div>
+            
+            <div class="page-actions">
+              <button class="btn-action btn-secondary">
+                <i class="fas fa-users"></i>
+                <span class="desktop-only">Recent Recipients</span>
+              </button>
+              <a href="/Transaction-History" class="btn-action btn-secondary">
+                <i class="fas fa-history"></i>
+                <span class="desktop-only">Transaction History</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Dashboard Row -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrapper blue">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value" id="todayTransactions">0</h3>
+              <p class="stat-label">Transactions Today</p>
+              <span class="stat-trend">
+                <i class="fas fa-clock"></i> Updated now
+              </span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper green">
+              <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value" id="todayAmount">₹ 0.00</h3>
+              <p class="stat-label">Total Sent Today</p>
+              <span class="stat-trend positive">
+                <i class="fas fa-arrow-up"></i> 0%
+              </span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper yellow">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">₹ 50,000</h3>
+              <p class="stat-label">Daily Limit</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="limitProgress" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper gray">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value" id="remainingLimit">₹ 50,000</h3>
+              <p class="stat-label">Remaining Limit</p>
+              <span class="stat-trend">
+                100% available
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-content-grid">
+          
+          <!-- LEFT COLUMN - Select Account Card -->
+          <div class="content-card">
+            <div class="card-header">
+              <div class="card-title-wrapper">
+                <i class="fas fa-university card-title-icon"></i>
+                <h2 class="card-title">Select Your Account</h2>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <% if (accounts && accounts.length > 0) { %>
+                <!-- Accounts List -->
+                <div class="accounts-list">
+                  <% accounts.forEach((account, index) => { %>
+                    <label class="account-card <%= index === 0 ? 'selected' : '' %>">
+                      <input type="radio" name="sourceAccount" value="<%= account._id %>" <%= index === 0 ? 'checked' : '' %> class="account-radio" />
+                      <div class="account-info">
+                        <div class="account-header-row">
+                          <div class="bank-icon-wrapper">
+                            <i class="fas fa-university"></i>
+                          </div>
+                          <div class="account-details">
+                            <h4 class="account-name"><%= account.AccountHolderName %></h4>
+                            <p class="account-number">
+                              <i class="fas fa-credit-card"></i>
+                              •••• <%= account.AccountNumber ? account.AccountNumber.slice(-4) : '0000' %>
+                            </p>
+                          </div>
+                          <% if (index === 0) { %>
+                            <span class="primary-badge">Primary</span>
+                          <% } %>
+                        </div>
+                        <div class="account-balance">
+                          <span class="balance-label">Available Balance</span>
+                          <span class="balance-value">₹ <%= account.Balance || '0.00' %></span>
+                        </div>
+                      </div>
+                      <div class="account-check">
+                        <i class="fas fa-check-circle"></i>
+                      </div>
+                    </label>
+                  <% }); %>
+                  
+                  <!-- Add New Account Button -->
+                  <a href="/open-account" class="add-account-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add New Account</span>
+                  </a>
+                </div>
+              <% } else { %>
+                <!-- Empty State -->
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <h3 class="empty-title">No bank accounts linked</h3>
+                  <p class="empty-description">Link your bank account to start sending money securely</p>
+                  <a href="/open-account" class="btn-primary btn-large">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Open an Account</span>
+                  </a>
+                  <a href="#" class="learn-more-link">
+                    <i class="fas fa-question-circle"></i>
+                    Learn how to link accounts
+                  </a>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN - Transfer Details Card -->
+          <div class="content-card">
+            <div class="card-header">
+              <div class="card-title-wrapper">
+                <i class="fas fa-exchange-alt card-title-icon"></i>
+                <h2 class="card-title">Transfer Details</h2>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <form id="sendMoneyForm" class="transfer-form">
+                
+                <!-- Receiver Input -->
+                <div class="form-group">
+                  <label class="form-label">
+                    Receiver (ZenoPay ID / Email / Mobile)
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                    <input 
+                      type="text" 
+                      id="receiverId" 
+                      name="receiverId" 
+                      class="form-input" 
+                      placeholder="Enter ZenoPay ID, Email, or Mobile number"
+                      required
+                    />
+                  </div>
+                  <p class="helper-text">Enter the recipient's ZenoPay ID (e.g., ZP-123456), email address, or mobile number</p>
+                  
+                  <button type="button" id="verifyReceiverBtn" class="btn-secondary btn-full">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verify Receiver</span>
+                  </button>
+
+                  <!-- Success Card (Hidden by default) -->
+                  <div class="receiver-verified-card" id="receiverVerifiedCard" style="display: none;">
+                    <div class="verified-icon">
+                      <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="verified-details">
+                      <h4 id="verifiedName">John Doe</h4>
+                      <p id="verifiedId">ZP-123456</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Amount Input -->
+                <div class="form-group">
+                  <label class="form-label">
+                    Amount (₹)
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-rupee-sign input-icon"></i>
+                    <input 
+                      type="number" 
+                      id="amount" 
+                      name="amount" 
+                      class="form-input" 
+                      placeholder="0.00"
+                      min="1"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+
+                  <!-- Quick Amount Buttons -->
+                  <div class="quick-amounts">
+                    <button type="button" class="quick-amount-btn" data-amount="100">₹100</button>
+                    <button type="button" class="quick-amount-btn" data-amount="500">₹500</button>
+                    <button type="button" class="quick-amount-btn" data-amount="1000">₹1000</button>
+                    <button type="button" class="quick-amount-btn" data-amount="5000">₹5000</button>
+                    <button type="button" class="quick-amount-btn" data-amount="10000">₹10000</button>
+                  </div>
+
+                  <!-- Info Card -->
+                  <div class="info-card">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Transaction charges may apply for amounts above ₹10,000</p>
+                  </div>
+                </div>
+
+                <!-- Description Textarea -->
+                <div class="form-group">
+                  <label class="form-label">
+                    Description (Optional)
+                  </label>
+                  <textarea 
+                    id="description" 
+                    name="description" 
+                    class="form-textarea" 
+                    placeholder="Add a note or reference..."
+                    maxlength="200"
+                    rows="3"
+                  ></textarea>
+                  <div class="character-counter">
+                    <span id="charCount">0</span>/200
+                  </div>
+                </div>
+
+                <!-- Transaction Summary -->
+                <div class="transaction-summary">
+                  <div class="summary-row">
+                    <span class="summary-label">Amount</span>
+                    <span class="summary-value" id="summaryAmount">₹ 0.00</span>
+                  </div>
+                  <div class="summary-row">
+                    <span class="summary-label">Charges</span>
+                    <span class="summary-value" id="summaryCharges">₹ 0.00</span>
+                  </div>
+                  <div class="summary-divider"></div>
+                  <div class="summary-row summary-total">
+                    <span class="summary-label">Total</span>
+                    <span class="summary-value" id="summaryTotal">₹ 0.00</span>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary btn-large btn-full submit-btn">
+                  <i class="fas fa-paper-plane"></i>
+                  <span>Send Money</span>
+                </button>
+
+                <!-- Security Notice -->
+                <div class="security-notice">
+                  <i class="fas fa-shield-alt"></i>
+                  <p>All transactions are encrypted and secure</p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Recipients Section -->
+        <div class="recent-recipients-section">
+          <div class="section-header">
+            <h2 class="section-title">Recent Recipients</h2>
+            <a href="#" class="view-all-link">
+              View All
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="recipients-grid" id="recipientsGrid">
+            <!-- Empty State (Will be replaced with recipients dynamically) -->
+            <div class="recipients-empty-state">
+              <div class="recipients-empty-icon">
+                <i class="fas fa-user-friends"></i>
+              </div>
+              <p class="recipients-empty-text">No recent recipients yet</p>
+              <p class="recipients-empty-subtext">Recipients you've sent money to will appear here</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+      <div class="modal-content success-modal">
+        <div class="modal-icon success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="modal-title">Transaction Successful!</h2>
+        <p class="modal-message">Your money has been sent successfully</p>
+        
+        <div class="transaction-details">
+          <div class="detail-row">
+            <span class="detail-label">Transaction ID</span>
+            <span class="detail-value" id="transactionId">TXN123456789</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Amount</span>
+            <span class="detail-value" id="transactionAmount">₹ 1,000.00</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Recipient</span>
+            <span class="detail-value" id="transactionRecipient">John Doe</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-primary" onclick="location.reload()">
+            <i class="fas fa-redo"></i>
+            Send Again
+          </button>
+          <button class="btn-secondary" onclick="window.location.href='/receipts'">
+            <i class="fas fa-receipt"></i>
+            View Receipt
+          </button>
+        </div>
+        
+        <button class="modal-close" onclick="closeSuccessModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal" style="display: none;">
+      <div class="modal-content error-modal">
+        <div class="modal-icon error">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2 class="modal-title">Transaction Failed</h2>
+        <p class="modal-message" id="errorMessage">Something went wrong. Please try again.</p>
+        
+        <div class="modal-actions">
+          <button class="btn-primary" onclick="closeErrorModal()">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
+          <button class="btn-secondary" onclick="window.location.href='/support-center'">
+            <i class="fas fa-headset"></i>
+            Contact Support
+          </button>
+        </div>
+        
+        <button class="modal-close" onclick="closeErrorModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/send-money.js"></script>
+  </body>
+</html>

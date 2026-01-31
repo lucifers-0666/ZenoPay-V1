@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'About Us - ZenoPay' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header-modern.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/about.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="hero-background">
+      <div class="hero-blob hero-blob-1"></div>
+      <div class="hero-blob hero-blob-2"></div>
+      <div class="hero-blob hero-blob-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-logo">
+        <img src="/Images/fullLogo.png" alt="ZenoPay" class="hero-logo-img">
+      </div>
+      <h1 class="hero-title">Revolutionizing Digital Payments</h1>
+      <p class="hero-subtitle">Secure, Fast, and Reliable Payment Solutions for Everyone</p>
+      <div class="hero-cta">
+        <a href="/register" class="btn-hero-primary">
+          <span>Join Us Today</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="#story" class="btn-hero-secondary">
+          <span>Learn More</span>
+        </a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- Our Story Section -->
+  <section id="story" class="story-section">
+    <div class="container">
+      <div class="story-grid">
+        <div class="story-content">
+          <span class="section-label">Our Journey</span>
+          <h2 class="section-title">The Story Behind <span class="gradient-text">ZenoPay</span></h2>
+          <div class="story-text">
+            <p>Founded in 2024, ZenoPay was born from a simple vision: to make digital payments accessible, secure, and effortless for everyone. Our founders, experienced fintech professionals, recognized the growing need for a payment platform that combines cutting-edge technology with user-friendly design.</p>
+            
+            <p>What started as a small team of five passionate individuals in San Francisco has grown into a thriving fintech company serving thousands of users across multiple countries. We've built our platform from the ground up, focusing on security, speed, and reliability.</p>
+            
+            <p>Today, ZenoPay processes millions in transactions monthly, helping individuals send money to loved ones, merchants accept payments seamlessly, and businesses scale their operations with confidence. Our journey is just beginning, and we're excited about the future we're building together.</p>
+          </div>
+          <div class="story-timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-year">2024</span>
+                <span class="timeline-event">Company Founded</span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-year">2025</span>
+                <span class="timeline-event">50K Users Reached</span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-year">2026</span>
+                <span class="timeline-event">International Expansion</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="story-visual">
+          <div class="story-image-wrapper">
+            <img src="/Images/about-story.jpg" alt="ZenoPay Team" class="story-image" onerror="this.src='/Images/fullLogo.png'">
+            <div class="story-overlay">
+              <div class="overlay-stat">
+                <span class="stat-number">2+</span>
+                <span class="stat-label">Years of Innovation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission & Vision Section -->
+  <section class="mission-vision-section">
+    <div class="container">
+      <div class="mission-vision-grid">
+        <!-- Mission Card -->
+        <div class="mv-card mission-card">
+          <div class="mv-icon-wrapper">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h3 class="mv-title">Our Mission</h3>
+          <div class="quote-marks">"</div>
+          <p class="mv-text">To democratize digital payments by providing a secure, efficient, and user-friendly platform that empowers individuals and businesses to transact with confidence.</p>
+          <p class="mv-text">We believe everyone deserves access to fast, reliable payment solutions without the complexity of traditional banking systems. Our mission is to break down financial barriers and create opportunities for growth in the digital economy.</p>
+          <div class="mv-badge">Est. 2024</div>
+        </div>
+
+        <!-- Vision Card -->
+        <div class="mv-card vision-card">
+          <div class="mv-icon-wrapper">
+            <i class="fas fa-eye"></i>
+          </div>
+          <h3 class="mv-title">Our Vision</h3>
+          <div class="quote-marks">"</div>
+          <p class="mv-text">To become the world's most trusted payment gateway, enabling seamless financial transactions across borders and empowering millions to participate in the global digital economy.</p>
+          <p class="mv-text">We envision a future where payments are instant, secure, and accessible to everyone, regardless of location or financial background. Through innovation and dedication, we're building that future today.</p>
+          <div class="mv-badge">Global Impact</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Values Section -->
+  <section class="values-section">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-label">What Drives Us</span>
+        <h2 class="section-title">Our Core <span class="gradient-text">Values</span></h2>
+        <p class="section-description">The principles that guide everything we do</p>
+      </div>
+      
+      <div class="values-grid">
+        <!-- Value 1: Trust -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="value-title">Trust & Security</h3>
+          <p class="value-description">We prioritize the security of your data and transactions with bank-level encryption and compliance with international standards.</p>
+        </div>
+
+        <!-- Value 2: Innovation -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h3 class="value-title">Innovation</h3>
+          <p class="value-description">We continuously evolve our technology to provide cutting-edge payment solutions that meet tomorrow's needs today.</p>
+        </div>
+
+        <!-- Value 3: Speed -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3 class="value-title">Speed & Efficiency</h3>
+          <p class="value-description">Real-time transaction processing ensures your payments reach their destination instantly, every time.</p>
+        </div>
+
+        <!-- Value 4: Transparency -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <h3 class="value-title">Transparency</h3>
+          <p class="value-description">Clear pricing, no hidden fees, and complete visibility into every transaction. We believe in honest business practices.</p>
+        </div>
+
+        <!-- Value 5: Customer First -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3 class="value-title">Customer First</h3>
+          <p class="value-description">Your success is our success. We're dedicated to providing exceptional support and user experiences.</p>
+        </div>
+
+        <!-- Value 6: Accessibility -->
+        <div class="value-card">
+          <div class="value-icon">
+            <i class="fas fa-globe"></i>
+          </div>
+          <h3 class="value-title">Accessibility</h3>
+          <p class="value-description">Payment solutions designed for everyone, making digital finance inclusive and easy to use.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="stats-section">
+    <div class="stats-background"></div>
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-number" data-target="10">0</div>
+          <div class="stat-suffix">M+</div>
+          <div class="stat-label">Transaction Volume</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-number" data-target="50000">0</div>
+          <div class="stat-suffix">+</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-number" data-target="99.9">0</div>
+          <div class="stat-suffix">%</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-globe-americas"></i>
+          </div>
+          <div class="stat-number" data-target="5">0</div>
+          <div class="stat-suffix">+</div>
+          <div class="stat-label">Countries Served</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-label">The People Behind ZenoPay</span>
+        <h2 class="section-title">Meet Our <span class="gradient-text">Team</span></h2>
+        <p class="section-description">Passionate experts dedicated to revolutionizing payments</p>
+      </div>
+
+      <!-- Leadership Team -->
+      <div class="leadership-section">
+        <h3 class="subsection-title">Leadership</h3>
+        <div class="leadership-grid">
+          <div class="team-card leadership-card">
+            <div class="team-avatar">
+              <img src="/Images/team/ceo.jpg" alt="CEO" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">Sarah Johnson</h4>
+            <p class="team-role">Chief Executive Officer</p>
+            <p class="team-bio">Former VP at PayPal, 15+ years in fintech. Leading ZenoPay's vision to democratize digital payments globally.</p>
+          </div>
+
+          <div class="team-card leadership-card">
+            <div class="team-avatar">
+              <img src="/Images/team/cto.jpg" alt="CTO" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">Michael Chen</h4>
+            <p class="team-role">Chief Technology Officer</p>
+            <p class="team-bio">Stanford CS graduate, ex-Google engineer. Building scalable, secure payment infrastructure for the future.</p>
+          </div>
+
+          <div class="team-card leadership-card">
+            <div class="team-avatar">
+              <img src="/Images/team/cfo.jpg" alt="CFO" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">David Martinez</h4>
+            <p class="team-role">Chief Financial Officer</p>
+            <p class="team-bio">MBA from Harvard, former Goldman Sachs analyst. Ensuring financial excellence and sustainable growth.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Team -->
+      <div class="core-team-section">
+        <h3 class="subsection-title">Core Team</h3>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">
+              <img src="/Images/team/member1.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">Emily Rodriguez</h4>
+            <p class="team-role">Head of Product</p>
+          </div>
+
+          <div class="team-card">
+            <div class="team-avatar">
+              <img src="/Images/team/member2.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">James Wilson</h4>
+            <p class="team-role">Head of Engineering</p>
+          </div>
+
+          <div class="team-card">
+            <div class="team-avatar">
+              <img src="/Images/team/member3.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">Priya Sharma</h4>
+            <p class="team-role">Head of Security</p>
+          </div>
+
+          <div class="team-card">
+            <div class="team-avatar">
+              <img src="/Images/team/member4.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
+              <div class="avatar-overlay">
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <h4 class="team-name">Alex Thompson</h4>
+            <p class="team-role">Head of Marketing</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Achievements & Milestones Section -->
+  <section class="achievements-section">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-label">Our Journey</span>
+        <h2 class="section-title">Achievements & <span class="gradient-text">Milestones</span></h2>
+        <p class="section-description">Key moments that shaped our story</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">January 2024</span>
+            <div class="timeline-icon">
+              <i class="fas fa-flag-checkered"></i>
+            </div>
+            <h4 class="timeline-title">Company Founded</h4>
+            <p class="timeline-description">ZenoPay officially launched with a mission to revolutionize digital payments. Our founding team of five began building the platform from the ground up.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">June 2024</span>
+            <div class="timeline-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h4 class="timeline-title">First 1,000 Users</h4>
+            <p class="timeline-description">Reached our first major milestone with 1,000 active users. This validated our product-market fit and gave us confidence to scale.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">October 2024</span>
+            <div class="timeline-icon">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h4 class="timeline-title">Series A Funding</h4>
+            <p class="timeline-description">Secured $5M in Series A funding from leading venture capital firms to accelerate growth and expand our engineering team.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">March 2025</span>
+            <div class="timeline-icon">
+              <i class="fas fa-certificate"></i>
+            </div>
+            <h4 class="timeline-title">ISO 27001 Certified</h4>
+            <p class="timeline-description">Achieved ISO 27001 certification for information security management, demonstrating our commitment to data protection.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">September 2025</span>
+            <div class="timeline-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <h4 class="timeline-title">50,000 Users Milestone</h4>
+            <p class="timeline-description">Celebrated reaching 50,000 active users across five countries, processing millions in monthly transactions.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+          </div>
+          <div class="timeline-card">
+            <span class="timeline-year">January 2026</span>
+            <div class="timeline-icon">
+              <i class="fas fa-globe"></i>
+            </div>
+            <h4 class="timeline-title">International Expansion</h4>
+            <p class="timeline-description">Launched in three new markets, expanding our reach and bringing secure payment solutions to more users worldwide.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners & Certifications Section -->
+  <section class="partners-section">
+    <div class="container">
+      <div class="section-header-center">
+        <span class="section-label">Trust & Compliance</span>
+        <h2 class="section-title">Trusted By Industry <span class="gradient-text">Leaders</span></h2>
+      </div>
+
+      <!-- Certifications -->
+      <div class="certifications-grid">
+        <div class="cert-badge">
+          <div class="cert-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h4 class="cert-title">PCI DSS</h4>
+          <p class="cert-subtitle">Level 1 Certified</p>
+        </div>
+
+        <div class="cert-badge">
+          <div class="cert-icon">
+            <i class="fas fa-certificate"></i>
+          </div>
+          <h4 class="cert-title">ISO 27001</h4>
+          <p class="cert-subtitle">Information Security</p>
+        </div>
+
+        <div class="cert-badge">
+          <div class="cert-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h4 class="cert-title">SOC 2</h4>
+          <p class="cert-subtitle">Type II Compliant</p>
+        </div>
+
+        <div class="cert-badge">
+          <div class="cert-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h4 class="cert-title">GDPR</h4>
+          <p class="cert-subtitle">Compliant</p>
+        </div>
+      </div>
+
+      <!-- Partners -->
+      <div class="partners-grid">
+        <div class="partner-logo">
+          <img src="/Images/partners/partner1.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 1</span>
+        </div>
+        <div class="partner-logo">
+          <img src="/Images/partners/partner2.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 2</span>
+        </div>
+        <div class="partner-logo">
+          <img src="/Images/partners/partner3.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 3</span>
+        </div>
+        <div class="partner-logo">
+          <img src="/Images/partners/partner4.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 4</span>
+        </div>
+        <div class="partner-logo">
+          <img src="/Images/partners/partner5.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 5</span>
+        </div>
+        <div class="partner-logo">
+          <img src="/Images/partners/partner6.png" alt="Partner" onerror="this.style.display='none'">
+          <span class="partner-fallback">Partner 6</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <section class="cta-section">
+    <div class="cta-background"></div>
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="cta-title">Join Us on Our Journey</h2>
+        <p class="cta-subtitle">Be part of the payment revolution and experience the future of digital finance</p>
+        <div class="cta-buttons">
+          <a href="/register" class="btn-cta-primary">
+            <i class="fas fa-user-plus"></i>
+            <span>Open an Account</span>
+          </a>
+          <a href="/careers" class="btn-cta-outline">
+            <i class="fas fa-briefcase"></i>
+            <span>We're Hiring</span>
+          </a>
+        </div>
+        <p class="cta-footnote">Join 50,000+ users who trust ZenoPay for their payment needs</p>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/about.js"></script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification - ZenoPay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/verify-email.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="verify-page">
+      <div class="verify-container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+          <img
+            src="/Images/fullLogo.png"
+            alt="ZenoPay"
+            class="verify-logo"
+          />
+        </div>
+
+        <!-- Main Card -->
+        <div class="verify-card">
+          <% if (status === 'loading') { %>
+            <!-- LOADING STATE -->
+            <div class="verify-content loading-state">
+              <div class="icon-wrapper">
+                <div class="spinner-icon">
+                  <i class="fas fa-sync-alt"></i>
+                </div>
+              </div>
+              <h1 class="verify-heading">Verifying Your Email...</h1>
+              <p class="verify-message">
+                Please wait while we confirm your email address
+              </p>
+              <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+          <% } else if (status === 'success') { %>
+            <!-- SUCCESS STATE -->
+            <div class="verify-content success-state">
+              <div class="icon-wrapper success-icon-wrapper">
+                <div class="icon-circle success-circle">
+                  <i class="fas fa-check-circle success-icon"></i>
+                </div>
+              </div>
+              <h1 class="verify-heading">Email Verified Successfully!</h1>
+              <p class="verify-message">
+                Your email address has been verified. You can now access all features of your ZenoPay account.
+              </p>
+
+              <!-- Email Display Badge -->
+              <% if (email) { %>
+              <div class="email-badge">
+                <i class="fas fa-envelope"></i>
+                <span><%= email %></span>
+              </div>
+              <% } %>
+
+              <!-- Info Card -->
+              <div class="info-card success-info">
+                <i class="fas fa-info-circle"></i>
+                <span>You can now send money, access API, and enjoy all premium features</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <a href="/dashboard" class="btn-primary">
+                  <span>Go to Dashboard</span>
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="/login" class="btn-secondary">
+                  Continue to Login
+                </a>
+              </div>
+            </div>
+
+          <% } else if (status === 'expired') { %>
+            <!-- EXPIRED STATE -->
+            <div class="verify-content expired-state">
+              <div class="icon-wrapper expired-icon-wrapper">
+                <div class="icon-circle expired-circle">
+                  <i class="fas fa-clock expired-icon"></i>
+                </div>
+              </div>
+              <h1 class="verify-heading">Verification Link Expired</h1>
+              <p class="verify-message">
+                This verification link has expired. Please request a new one to verify your email address.
+              </p>
+
+              <!-- Info Card -->
+              <div class="info-card expired-info">
+                <div class="info-content">
+                  <p class="info-title">Why did this happen?</p>
+                  <ul class="info-list">
+                    <li>Verification links are valid for 24 hours only</li>
+                    <li>This link may have already been used</li>
+                    <li>For security reasons, expired links cannot be reused</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Resend Form -->
+              <form id="resendForm" class="resend-form">
+                <div class="form-group">
+                  <label for="emailInput">Email Address</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input
+                      type="email"
+                      id="emailInput"
+                      name="email"
+                      placeholder="Enter your email"
+                      value="<%= email || '' %>"
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                  <i class="fas fa-paper-plane"></i>
+                  <span>Send New Verification Link</span>
+                </button>
+              </form>
+
+              <a href="/login" class="btn-secondary">
+                Return to Login
+              </a>
+            </div>
+
+          <% } else { %>
+            <!-- ERROR STATE -->
+            <div class="verify-content error-state">
+              <div class="icon-wrapper error-icon-wrapper">
+                <div class="icon-circle error-circle">
+                  <i class="fas fa-times-circle error-icon"></i>
+                </div>
+              </div>
+              <h1 class="verify-heading">Verification Failed</h1>
+              <p class="verify-message">
+                <%= message || 'The verification link is invalid or has expired. Please request a new verification email.' %>
+              </p>
+
+              <!-- Error Info Card -->
+              <div class="info-card error-info">
+                <div class="info-content">
+                  <p class="info-title">Possible reasons:</p>
+                  <ul class="info-list">
+                    <li>Link may have expired (valid for 24 hours)</li>
+                    <li>Link may have already been used</li>
+                    <li>Link may be incorrect or corrupted</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <button onclick="showResendForm()" class="btn-primary">
+                  <i class="fas fa-envelope"></i>
+                  <span>Resend Verification Email</span>
+                </button>
+                <a href="/login" class="btn-secondary">
+                  Return to Login
+                </a>
+                <a href="/support" class="btn-link">
+                  Contact Support
+                </a>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Security Badge -->
+          <div class="security-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure verification powered by ZenoPay</span>
+          </div>
+        </div>
+
+        <!-- Help Link -->
+        <div class="help-section">
+          <p>Need help? <a href="/support">Contact Support</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Animation -->
+    <script>
+      // Animate success checkmark
+      document.addEventListener('DOMContentLoaded', function() {
+        const successIcon = document.querySelector('.success-icon');
+        if (successIcon) {
+          setTimeout(() => {
+            successIcon.style.animation = 'checkmarkDraw 0.8s ease-out forwards';
+          }, 100);
+        }
+      });
+
+      // Handle resend form
+      const resendForm = document.getElementById('resendForm');
+      if (resendForm) {
+        resendForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email = document.getElementById('emailInput').value;
+          const button = this.querySelector('button[type="submit"]');
+          const originalHTML = button.innerHTML;
+
+          try {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            const response = await fetch('/api/auth/resend-verification', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              button.innerHTML = '<i class="fas fa-check"></i> Email Sent!';
+              button.classList.add('success');
+              setTimeout(() => {
+                window.location.href = '/login';
+              }, 2000);
+            } else {
+              alert(data.message || 'Failed to send verification email. Please try again.');
+              button.innerHTML = originalHTML;
+              button.disabled = false;
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again later.');
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+          }
+        });
+      }
+
+      // Show resend form for error state
+      function showResendForm() {
+        const errorState = document.querySelector('.error-state');
+        const formHTML = `
+          <form id="resendFormDynamic" class="resend-form" style="margin-top: 24px;">
+            <div class="form-group">
+              <label for="emailInputDynamic">Email Address</label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope input-icon"></i>
+                <input
+                  type="email"
+                  id="emailInputDynamic"
+                  name="email"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-paper-plane"></i>
+              <span>Send New Verification Link</span>
+            </button>
+          </form>
+        `;
+        
+        const existingForm = document.getElementById('resendFormDynamic');
+        if (!existingForm && errorState) {
+          const actionButtons = errorState.querySelector('.action-buttons');
+          actionButtons.insertAdjacentHTML('beforebegin', formHTML);
+          
+          // Attach event listener
+          const newForm = document.getElementById('resendFormDynamic');
+          newForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInputDynamic').value;
+            const button = this.querySelector('button[type="submit"]');
+            const originalHTML = button.innerHTML;
+
+            try {
+              button.disabled = true;
+              button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+              const response = await fetch('/api/auth/resend-verification', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                button.innerHTML = '<i class="fas fa-check"></i> Email Sent!';
+                button.classList.add('success');
+                setTimeout(() => {
+                  window.location.href = '/login';
+                }, 2000);
+              } else {
+                alert(data.message || 'Failed to send verification email. Please try again.');
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('An error occurred. Please try again later.');
+              button.innerHTML = originalHTML;
+              button.disabled = false;
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

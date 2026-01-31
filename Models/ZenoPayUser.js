@@ -206,6 +206,26 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     selfieRotation: Number,
   },
 
+  EmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  EmailVerificationToken: {
+    type: String,
+    required: false,
+  },
+
+  EmailVerificationExpiry: {
+    type: Date,
+    required: false,
+  },
+
+  EmailVerifiedAt: {
+    type: Date,
+    required: false,
+  },
+
 });
 
 module.exports = mongoose.model("ZenoPayDetails", ZenoPayDetailsSchema);

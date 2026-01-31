@@ -27,6 +27,9 @@ const DisputeController = require("../Controllers/DisputeController");
 const StatementsController = require("../Controllers/StatementsController");
 const ReceiptsController = require("../Controllers/ReceiptsController");
 const ReferralController = require("../Controllers/ReferralController");
+const EmailVerificationController = require("../Controllers/EmailVerificationController");
+const LegalPagesController = require("../Controllers/LegalPagesController");
+const ContactController = require("../Controllers/ContactController");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -70,6 +73,28 @@ router.post("/forgot-password", LoginController.postForgotPassword);
 router.post("/forgot-password/resend", LoginController.postResendResetLink);
 router.get("/reset-password/:token", LoginController.getResetPassword);
 router.post("/reset-password", LoginController.postResetPassword);
+
+// Email Verification
+router.get("/verify-email/:token", EmailVerificationController.getVerifyEmail);
+router.post("/api/auth/resend-verification", EmailVerificationController.resendVerificationEmail);
+router.get("/api/auth/verification-status", EmailVerificationController.checkVerificationStatus);
+
+// Design Preview Routes (for testing UI)
+router.get("/verify-email-preview/:state", (req, res) => {
+  const { state } = req.params;
+  const validStates = ['success', 'error', 'expired', 'loading'];
+  
+  if (!validStates.includes(state)) {
+    return res.redirect('/verify-email-preview/success');
+  }
+  
+  res.render('verify-email', {
+    status: state,
+    message: state === 'error' ? 'This is a preview of the error state.' : null,
+    email: 'user@example.com',
+    pageTitle: `Email Verification ${state.charAt(0).toUpperCase() + state.slice(1)} - ZenoPay`
+  });
+});
 
 router.get("/profile", ProfileController.getProfile);
 router.get("/shop", ShopController.getShop);
@@ -131,8 +156,9 @@ router.get("/api/banks", async (req, res) => {
 
 // Transfer
 router.get("/send-to", TransferController.getTransferMoney);
-router.post("/send-to", TransferController.postTransferMoney);
-router.post("/verify-receiver", TransferController.verifyReceiver);
+router.post("/api/send-money", TransferController.postTransferMoney);
+router.post("/api/verify-receiver", TransferController.verifyReceiver);
+router.get("/api/today-stats", TransferController.getDailyTransactionSummary);
 router.get(
   "/daily-transaction-summary",
   TransferController.getDailyTransactionSummary
@@ -223,5 +249,18 @@ router.get("/referral", ReferralController.getReferralPage);
 router.post("/referral/share", ReferralController.shareReferral);
 router.post("/referral/redeem", ReferralController.redeemRewards);
 router.get("/ref/:referralCode", ReferralController.trackReferralClick);
+
+// Legal Pages Routes
+router.get("/terms", LegalPagesController.getTermsPage);
+router.get("/privacy", LegalPagesController.getPrivacyPage);
+router.get("/about", LegalPagesController.getAboutPage);
+router.get("/help", LegalPagesController.getHelpPage);
+router.get("/faq", LegalPagesController.getHelpPage); // Alias for /help
+router.get("/contact", LegalPagesController.getContactPage);
+router.get("/api/legal/terms-version", LegalPagesController.getTermsVersion);
+router.post("/api/legal/accept-terms", LegalPagesController.acceptTerms);
+
+// Contact Form API Route
+router.post("/api/contact/submit", ContactController.submitContactForm);
 
 module.exports = router;
