@@ -5,172 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= pageTitle %></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/receipts.css">
   <style>
+    /* Inline critical styles for faster loading */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 2rem 1rem; }
     .page-container { max-width: 1400px; margin: 0 auto; }
-    .page-header { background: white; border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
-    .page-header h1 { font-size: 2.5rem; color: #1a202c; margin-bottom: 0.5rem; font-weight: 800; }
-    .page-header .subtitle { color: #718096; font-size: 1.1rem; }
-    .header-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .stat-card { background: white; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: transform 0.3s, box-shadow 0.3s; }
-    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); }
-    .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(102, 126, 234, 0.1); color: #667eea; }
-    .stat-card.primary .stat-icon { background: rgba(255, 255, 255, 0.2); color: white; }
-    .stat-content { flex: 1; }
-    .stat-label { display: block; font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem; }
-    .stat-card.primary .stat-label { color: rgba(255, 255, 255, 0.9); }
-    .stat-value { display: block; font-size: 1.75rem; font-weight: 700; color: #1a202c; }
-    .stat-card.primary .stat-value { color: white; }
-    .filter-bar { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
-    .search-input-wrapper { position: relative; margin-bottom: 1rem; }
-    .search-input-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-    .search-input { width: 100%; padding: 0.875rem 1rem 0.875rem 3rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: border-color 0.3s; }
-    .search-input:focus { outline: none; border-color: #667eea; }
-    .filter-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-    .filter-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; }
-    .filter-group select, .filter-group input { width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; }
-    .quick-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .quick-filter-btn { padding: 0.5rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; background: white; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.3s; }
-    .quick-filter-btn:hover { border-color: #667eea; color: #667eea; }
-    .quick-filter-btn.active { background: #667eea; border-color: #667eea; color: white; }
-    .view-controls { background: white; border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; }
-    .view-toggle { display: flex; gap: 0.5rem; }
-    .view-toggle-btn { width: 40px; height: 40px; border: 2px solid #e5e7eb; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; }
-    .view-toggle-btn:hover { border-color: #667eea; color: #667eea; }
-    .view-toggle-btn.active { background: #667eea; border-color: #667eea; color: white; }
-    .receipts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-    .receipt-card { background: white; border-radius: 16px; border: 2px solid #e5e7eb; padding: 1.5rem; transition: all 0.3s; cursor: pointer; position: relative; }
-    .receipt-card:hover { border-color: #667eea; box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2); transform: translateY(-5px); }
-    .receipt-card.sent { border-left: 4px solid #ef4444; }
-    .receipt-card.received { border-left: 4px solid #10b981; }
-    .receipt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .receipt-number { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 6px; background: #f3f4f6; color: #667eea; }
-    .receipt-status { font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem; border-radius: 6px; }
-    .receipt-status.success { background: #d1fae5; color: #065f46; }
-    .receipt-status.pending { background: #fef3c7; color: #92400e; }
-    .receipt-status.failed { background: #fee2e2; color: #991b1b; }
-    .receipt-type-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
-    .receipt-card.sent .receipt-type-icon { background: #fee2e2; color: #ef4444; }
-    .receipt-card.received .receipt-type-icon { background: #d1fae5; color: #10b981; }
-    .recipient-name { font-size: 1.125rem; font-weight: 700; color: #1a202c; margin-bottom: 0.25rem; }
-    .recipient-id { font-size: 0.875rem; color: #6b7280; }
-    .receipt-amount { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; }
-    .receipt-card.sent .receipt-amount { color: #ef4444; }
-    .receipt-card.received .receipt-amount { color: #10b981; }
-    .receipt-fee, .receipt-date { font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; }
-    .receipt-actions { display: flex; gap: 0.5rem; }
-    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
-    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
-    .btn-secondary { background: white; border: 2px solid #e5e7eb; color: #4b5563; }
-    .btn-secondary:hover { border-color: #667eea; color: #667eea; }
-    .btn-small { padding: 0.5rem 1rem; font-size: 0.8125rem; flex: 1; }
-    .receipts-list { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); display: none; }
-    .receipts-list.active { display: block; }
-    .receipts-grid.active { display: grid; }
-    .receipts-grid.hidden { display: none; }
-    .receipts-table { width: 100%; border-collapse: collapse; }
-    .receipts-table thead { background: #f9fafb; }
-    .receipts-table th { padding: 1rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #4b5563; border-bottom: 2px solid #e5e7eb; }
-    .receipts-table td { padding: 1rem; border-bottom: 1px solid #f3f4f6; }
-    .receipts-table tbody tr { transition: background-color 0.2s; }
-    .receipts-table tbody tr:hover { background: #f9fafb; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; padding: 2rem; overflow-y: auto; }
-    .modal.active { display: flex; align-items: center; justify-content: center; }
-    .modal-content { background: white; border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
-    .modal-header { padding: 2rem; border-bottom: 2px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
-    .modal-header h2 { font-size: 1.5rem; color: #1a202c; }
-    .close-btn { width: 40px; height: 40px; border: none; background: #f3f4f6; border-radius: 10px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; }
-    .close-btn:hover { background: #e5e7eb; }
-    .modal-body { padding: 2rem; }
-    .receipt-detail { padding: 2rem; background: #f9fafb; border-radius: 16px; margin-bottom: 1.5rem; }
-    .receipt-detail-header { text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px dashed #d1d5db; }
-    .receipt-logo { font-size: 2rem; font-weight: 800; color: #667eea; margin-bottom: 0.5rem; }
-    .receipt-title { font-size: 1.5rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; }
-    .receipt-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
-    .detail-section h3 { font-size: 0.875rem; font-weight: 700; color: #6b7280; margin-bottom: 1rem; text-transform: uppercase; }
-    .detail-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; }
-    .detail-label { font-size: 0.875rem; color: #6b7280; }
-    .detail-value { font-size: 0.875rem; font-weight: 600; color: #1a202c; }
-    .amount-breakdown { background: white; border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
-    .amount-breakdown h3 { font-size: 1rem; font-weight: 700; color: #1a202c; margin-bottom: 1rem; }
-    .amount-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.875rem; }
-    .amount-row.total { padding-top: 1rem; border-top: 2px solid #e5e7eb; font-size: 1.25rem; font-weight: 700; }
-    .modal-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1a202c; color: white; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); display: none; align-items: center; gap: 1rem; z-index: 2000; }
-    .toast.show { display: flex; animation: slideIn 0.3s ease-out; }
-    @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+    .loading-container { text-align: center; padding: 3rem; }
     .spinner { width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 2rem auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-container { text-align: center; padding: 3rem; }
-    .empty-state { text-align: center; padding: 4rem 2rem; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
-    .empty-state i { font-size: 4rem; color: #d1d5db; margin-bottom: 1rem; }
-    .empty-state h3 { font-size: 1.5rem; color: #1a202c; margin-bottom: 0.5rem; }
-    .empty-state p { color: #6b7280; margin-bottom: 2rem; }
-    .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem; }
-    .pagination-btn { padding: 0.5rem 1rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-    .pagination-btn:hover:not(:disabled) { border-color: #667eea; color: #667eea; }
-    .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .pagination-btn.active { background: #667eea; border-color: #667eea; color: white; }
-    @media (max-width: 768px) {
-      .page-header h1 { font-size: 1.75rem; }
-      .stats-grid, .receipts-grid { grid-template-columns: 1fr; }
-      .filter-controls { grid-template-columns: 1fr; }
-      .receipt-detail-grid { grid-template-columns: 1fr; }
-    }
   </style>
 </head>
 <body>
   <div class="page-container">
+    <!-- Header -->
     <header class="page-header">
-      <h1>Payment Receipts</h1>
-      <p class="subtitle">View, download, and share your transaction receipts</p>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="openEmailModal()">
-          <i class="fas fa-envelope"></i> Email Receipt
-        </button>
-        <button class="btn btn-secondary" onclick="downloadAllReceipts()">
-          <i class="fas fa-download"></i> Download All
-        </button>
+      <div class="header-content">
+        <div>
+          <h1>Payment Receipts</h1>
+          <p class="subtitle">View, download, and manage your transaction receipts</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="exportFiltered()">
+            <i class="fas fa-file-export"></i> Export
+          </button>
+          <button class="btn btn-primary" onclick="viewTransactions()">
+            <i class="fas fa-history"></i> View Transactions
+          </button>
+        </div>
       </div>
     </header>
 
+    <!-- Enhanced Stats Cards -->
     <div class="stats-grid">
-      <div class="stat-card primary">
-        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+      <div class="stat-card primary animated">
+        <div class="stat-icon">
+          <i class="fas fa-receipt"></i>
+        </div>
         <div class="stat-content">
           <span class="stat-label">Total Receipts</span>
-          <span class="stat-value"><%= stats.totalReceipts %></span>
+          <span class="stat-value" data-count="<%= stats.totalReceipts %>">0</span>
+          <span class="stat-trend"><i class="fas fa-arrow-up"></i> +3 this week</span>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+      
+      <div class="stat-card hover-lift">
+        <div class="stat-icon success">
+          <i class="fas fa-wallet"></i>
+        </div>
         <div class="stat-content">
           <span class="stat-label">Total Amount</span>
-          <span class="stat-value">$<%= stats.totalAmount.toFixed(2) %></span>
+          <span class="stat-value">₹<%= stats.totalAmount.toFixed(2) %></span>
         </div>
+        <canvas class="mini-chart" id="chart-amount" width="120" height="40"></canvas>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+      
+      <div class="stat-card hover-lift">
+        <div class="stat-icon danger">
+          <i class="fas fa-arrow-up"></i>
+        </div>
         <div class="stat-content">
           <span class="stat-label">Receipts Sent</span>
           <span class="stat-value"><%= stats.sentCount %></span>
         </div>
+        <canvas class="mini-chart" id="chart-sent" width="120" height="40"></canvas>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+      
+      <div class="stat-card hover-lift">
+        <div class="stat-icon success">
+          <i class="fas fa-arrow-down"></i>
+        </div>
         <div class="stat-content">
           <span class="stat-label">Receipts Received</span>
           <span class="stat-value"><%= stats.receivedCount %></span>
         </div>
+        <canvas class="mini-chart" id="chart-received" width="120" height="40"></canvas>
       </div>
     </div>
 
-    <div class="filter-bar">
+    <!-- Quick Filters Pills -->
+    <div class="quick-filters-section">
+      <div class="quick-filters-pills">
+        <button class="filter-pill active" data-filter="all" onclick="applyQuickFilter('all')">
+          <i class="fas fa-list"></i> All <span class="badge"><%= stats.totalReceipts %></span>
+        </button>
+        <button class="filter-pill" data-filter="today" onclick="applyQuickFilter('today')">
+          <i class="fas fa-calendar-day"></i> Today <span class="badge">0</span>
+        </button>
+        <button class="filter-pill" data-filter="week" onclick="applyQuickFilter('week')">
+          <i class="fas fa-calendar-week"></i> This Week <span class="badge">0</span>
+        </button>
+        <button class="filter-pill" data-filter="month" onclick="applyQuickFilter('month')">
+          <i class="fas fa-calendar-alt"></i> This Month <span class="badge">0</span>
+        </button>
+        <button class="filter-pill" data-filter="3months" onclick="applyQuickFilter('3months')">
+          <i class="fas fa-calendar"></i> Last 3 Months <span class="badge">0</span>
+        </button>
+      </div>
+      <button class="btn btn-icon" onclick="toggleAdvancedFilters()">
+        <i class="fas fa-sliders-h"></i>
+      </button>
+    </div>
+
+    <!-- Enhanced Filter Bar -->
       <div class="search-input-wrapper">
         <i class="fas fa-search"></i>
         <input type="text" class="search-input" id="search-input" placeholder="Search by receipt number, recipient, or amount...">
