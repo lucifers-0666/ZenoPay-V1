@@ -1,425 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Demo Shop - ZenoPay Integration</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f9fafb;color:#1a202c}
+    .top-bar{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:12px 0;text-align:center;font-size:14px;position:sticky;top:0;z-index:100}
+    .header{background:white;padding:20px 40px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;position:sticky;top:48px;z-index:99}
+    .header h1{font-size:28px;font-weight:800;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .header-right{display:flex;gap:24px;align-items:center}
+    .cart-icon{position:relative;cursor:pointer;font-size:24px;color:#667eea;transition:all .3s}
+    .cart-icon:hover{transform:scale(1.1)}.cart-badge{position:absolute;top:-8px;right:-8px;background:#ef4444;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+    .main-container{display:flex;max-width:1400px;margin:40px auto;padding:0 40px;gap:32px}
+    .sidebar{width:280px;position:sticky;top:160px;height:fit-content}
+    .content{flex:1;min-width:0}
+    .filter-card{background:white;border-radius:16px;padding:24px;margin-bottom:24px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .filter-title{font-size:16px;font-weight:700;margin-bottom:16px;color:#1a202c}
+    .filter-group{margin-bottom:20px}.filter-group:last-child{margin-bottom:0}
+    .filter-label{font-size:14px;color:#4b5563;font-weight:500;margin-bottom:12px;display:block}
+    .checkbox-group{display:flex;flex-direction:column;gap:8px}
+    .checkbox-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px;border-radius:6px;transition:all .2s}
+    .checkbox-item:hover{background:#f3f4f6}.checkbox-item input{cursor:pointer}
+    .checkbox-item label{cursor:pointer;font-size:14px;color:#4b5563;flex:1}
+    .category-icon{width:20px;text-align:center;color:#667eea}
+    .price-inputs{display:flex;gap:8px;align-items:center}.price-inputs input{flex:1;padding:8px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px}
+    .btn{padding:12px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:white}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.3)}
+    .btn-secondary{background:#f3f4f6;color:#4b5563}.btn-secondary:hover{background:#e5e7eb}
+    .btn-sm{padding:8px 16px;font-size:13px}
+    .active-filters{background:white;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .filter-pills{display:flex;flex-wrap:wrap;gap:8px}
+    .filter-pill{background:#e0e7ff;color:#4338ca;padding:6px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px}
+    .filter-pill i{cursor:pointer}.result-count{font-size:14px;color:#6b7280;font-weight:500}
+    .products-header{background:white;border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+    .sort-select{padding:8px 16px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;background:white}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-bottom:40px}
+    .product-card{background:white;border-radius:16px;overflow:hidden;transition:all .3s;cursor:pointer;position:relative;border:2px solid transparent}
+    .product-card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,.15);border-color:#667eea}
+    .product-image-wrapper{position:relative;width:100%;padding-top:100%;overflow:hidden;background:#f9fafb}
+    .product-image{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:all .3s}
+    .product-card:hover .product-image{transform:scale(1.1)}
+    .badge{position:absolute;top:12px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;z-index:1}
+    .badge-sale{left:12px;background:#ef4444;color:white}.badge-new{right:12px;background:#3b82f6;color:white}
+    .badge-sold-out{top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:white;font-size:16px;padding:12px 24px}
+    .wishlist-btn{position:absolute;top:12px;right:12px;width:36px;height:36px;background:white;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;z-index:2;opacity:0}
+    .product-card:hover .wishlist-btn{opacity:1}.wishlist-btn:hover{background:#ef4444;color:white;transform:scale(1.1)}
+    .product-info{padding:16px}.category-tag{font-size:11px;color:#6b7280;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+    .product-name{font-size:16px;font-weight:600;color:#1a202c;margin-bottom:8px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .rating{display:flex;align-items:center;gap:6px;margin-bottom:8px}.stars{color:#fbbf24;font-size:14px}
+    .review-count{font-size:12px;color:#6b7280}.price-section{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .original-price{font-size:14px;color:#9ca3af;text-decoration:line-through}.sale-price{font-size:20px;font-weight:700;color:#ef4444}
+    .discount-badge{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
+    .add-to-cart-btn{width:100%;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .add-to-cart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(102,126,234,.4)}
+    .empty-state{text-align:center;padding:80px 20px;background:white;border-radius:16px}
+    .empty-state i{font-size:80px;color:#d1d5db;margin-bottom:20px}.empty-state h3{font-size:24px;color:#1a202c;margin-bottom:12px}
+    .empty-state p{color:#6b7280;margin-bottom:24px}
+    .pagination{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:40px}
+    .page-btn{padding:10px 16px;border:2px solid #e5e7eb;background:white;border-radius:8px;cursor:pointer;font-weight:600;transition:all .3s}
+    .page-btn:hover:not(:disabled){background:#667eea;color:white;border-color:#667eea}
+    .page-btn:disabled{opacity:.5;cursor:not-allowed}.page-btn.active{background:#667eea;color:white;border-color:#667eea}
+    .loading{display:flex;justify-content:center;align-items:center;padding:60px;font-size:18px;color:#6b7280}
+    .loading i{margin-right:12px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .cart-sidebar{position:fixed;right:0;top:0;height:100vh;width:400px;background:white;box-shadow:-4px 0 20px rgba(0,0,0,.1);transform:translateX(100%);transition:all .3s;z-index:1000;display:flex;flex-direction:column}
+    .cart-sidebar.open{transform:translateX(0)}.cart-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;display:none}
+    .cart-overlay.show{display:block}.cart-header{padding:24px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+    .cart-header h2{font-size:20px;font-weight:700}.close-cart{width:36px;height:36px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:18px;transition:all .3s}
+    .close-cart:hover{background:#e5e7eb}.cart-items{flex:1;overflow-y:auto;padding:24px}
+    .cart-item{display:flex;gap:16px;padding:16px;background:#f9fafb;border-radius:12px;margin-bottom:16px}
+    .cart-item-image{width:80px;height:80px;object-fit:cover;border-radius:8px}.cart-item-details{flex:1}
+    .cart-item-name{font-size:14px;font-weight:600;margin-bottom:4px}.cart-item-price{font-size:13px;color:#6b7280}
+    .qty-controls{display:flex;align-items:center;gap:8px;margin-top:8px}.qty-btn{width:28px;height:28px;border:1px solid #e5e7eb;background:white;border-radius:6px;cursor:pointer;font-weight:600;transition:all .2s}
+    .qty-btn:hover{background:#f3f4f6}.qty-value{font-size:14px;font-weight:600;min-width:30px;text-align:center}
+    .remove-item{color:#ef4444;cursor:pointer;font-size:18px;transition:all .2s}.remove-item:hover{transform:scale(1.2)}
+    .cart-footer{border-top:2px solid #e5e7eb;padding:24px}.cart-summary{margin-bottom:16px}
+    .summary-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}.summary-row.total{font-size:18px;font-weight:700;margin-top:12px;padding-top:12px;border-top:2px solid #e5e7eb}
+    .checkout-btn{width:100%;padding:16px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s}
+    .checkout-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(102,126,234,.4)}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:#1a202c;color:white;padding:16px 24px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none;align-items:center;gap:12px;z-index:2000}
+    .toast.show{display:flex;animation:slideIn .3s}@keyframes slideIn{from{transform:translateX(400px)}to{transform:translateX(0)}}
+    @media(max-width:1024px){.main-container{flex-direction:column}.sidebar{width:100%;position:static}.products-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}}
+    @media(max-width:768px){.header{padding:16px 20px}.main-container{padding:0 20px}.products-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}.cart-sidebar{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <i class="fas fa-truck"></i> Free Shipping on orders above ₹500 | <i class="fas fa-shield-alt"></i> 100% Secure Payments
+  </div>
 
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-      }
+  <div class="header">
+    <h1><i class="fas fa-shopping-bag"></i> ZenoPay Shop</h1>
+    <div class="header-right">
+      <div class="cart-icon" onclick="openCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-count">0</span>
+      </div>
+      <a href="/dashboard" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+  </div>
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .header {
-        text-align: center;
-        color: white;
-        margin-bottom: 40px;
-      }
-
-      .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
-      }
-
-      .header p {
-        font-size: 1.2em;
-        opacity: 0.9;
-      }
-
-      .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        margin-bottom: 40px;
-      }
-
-      .product-card {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease;
-      }
-
-      .product-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .product-image {
-        width: 100%;
-        height: 200px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4em;
-        margin-bottom: 20px;
-      }
-
-      .product-title {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-        color: #333;
-      }
-
-      .product-description {
-        color: #666;
-        margin-bottom: 15px;
-        line-height: 1.6;
-      }
-
-      .product-price {
-        font-size: 2em;
-        color: #667eea;
-        font-weight: bold;
-        margin-bottom: 20px;
-      }
-
-      .buy-button {
-        width: 100%;
-        padding: 15px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1em;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .buy-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-      }
-
-      .buy-button:active {
-        transform: scale(0.98);
-      }
-
-      .integration-info {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        margin-top: 40px;
-      }
-
-      .integration-info h2 {
-        color: #333;
-        margin-bottom: 20px;
-      }
-
-      .integration-info pre {
-        background: #f5f5f5;
-        padding: 20px;
-        border-radius: 8px;
-        overflow-x: auto;
-        font-size: 0.9em;
-      }
-
-      .api-key-section {
-        background: #fff3cd;
-        border: 2px solid #ffc107;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
-
-      .api-key-section h3 {
-        color: #856404;
-        margin-bottom: 10px;
-      }
-
-      .api-key {
-        background: white;
-        padding: 10px;
-        border-radius: 5px;
-        font-family: monospace;
-        word-break: break-all;
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>🛍️ Demo Shop</h1>
-        <p>Experience ZenoPay Payment Gateway Integration</p>
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="filter-card">
+        <div class="filter-title">Categories</div>
+        <div class="checkbox-group" id="categories-filter"></div>
       </div>
 
-      <div class="products-grid">
-        <div class="product-card">
-          <div class="product-image">📱</div>
-          <h3 class="product-title">Smartphone X Pro</h3>
-          <p class="product-description">
-            Latest flagship smartphone with amazing features
-          </p>
-          <div class="product-price">₹45,999</div>
-          <button class="buy-button" onclick="buyProduct('Smartphone X Pro', 45999, 'ORD001')">
-            Buy Now
-          </button>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">💻</div>
-          <h3 class="product-title">Laptop Ultra</h3>
-          <p class="product-description">
-            Powerful laptop for professionals and creators
-          </p>
-          <div class="product-price">₹89,999</div>
-          <button class="buy-button" onclick="buyProduct('Laptop Ultra', 89999, 'ORD002')">
-            Buy Now
-          </button>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">🎧</div>
-          <h3 class="product-title">Wireless Headphones</h3>
-          <p class="product-description">
-            Premium noise-cancelling wireless headphones
-          </p>
-          <div class="product-price">₹15,999</div>
-          <button class="buy-button" onclick="buyProduct('Wireless Headphones', 15999, 'ORD003')">
-            Buy Now
-          </button>
+      <div class="filter-card">
+        <div class="filter-title">Price Range</div>
+        <div class="filter-group">
+          <div class="price-inputs">
+            <input type="number" id="min-price" placeholder="Min" min="0">
+            <span>-</span>
+            <input type="number" id="max-price" placeholder="Max" min="0">
+          </div>
+          <button class="btn btn-primary btn-sm" style="width:100%;margin-top:12px" onclick="applyPriceFilter()">Apply</button>
         </div>
       </div>
 
-      <div class="integration-info">
-        <div class="api-key-section">
-          <h3>⚠️ Test API Key (From your screenshot)</h3>
-          <div class="api-key">
-            <strong>API Key:</strong><br>
-            zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263
+      <div class="filter-card">
+        <div class="filter-title">Availability</div>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="in-stock" onchange="applyFilters()">
+            <label for="in-stock">In Stock Only</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="on-sale" onchange="applyFilters()">
+            <label for="on-sale">On Sale</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="featured" onchange="applyFilters()">
+            <label for="featured">Featured</label>
           </div>
         </div>
+      </div>
 
-        <h2>📘 Integration Guide</h2>
-        <p style="margin-bottom: 20px; color: #666;">
-          This is how merchants can integrate ZenoPay into their websites:
-        </p>
+      <button class="btn btn-secondary" style="width:100%" onclick="clearFilters()">
+        <i class="fas fa-times"></i> Clear All Filters
+      </button>
+    </aside>
 
-        <h3 style="margin-top: 20px; margin-bottom: 10px;">🎯 Razorpay-Style Integration</h3>
-        
-        <h4 style="margin-top: 15px;">Step 1: Include Checkout Script</h4>
-        <pre>&lt;script src="https://your-zenopay-domain.com/js/checkout.js"&gt;&lt;/script&gt;</pre>
+    <main class="content">
+      <div class="active-filters" id="active-filters-bar" style="display:none">
+        <div>
+          <span class="result-count" id="result-count">0 products found</span>
+          <div class="filter-pills" id="active-filter-pills"></div>
+        </div>
+        <a href="#" onclick="clearFilters();return false;" style="color:#667eea;font-size:14px;font-weight:600">Clear All</a>
+      </div>
 
-        <h4 style="margin-top: 15px;">Step 2: Create Order (Server-side)</h4>
-        <pre>// On your server
-const order = await fetch('https://api.zenopay.com/api/orders', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': 'zpk_live_your_api_key'
-  },
-  body: JSON.stringify({
-    amount: 50000, // Amount in paise (₹500)
-    currency: 'INR',
-    receipt: 'order_rcptid_11'
-  })
-});</pre>
+      <div class="products-header">
+        <div class="result-count" id="products-count">Loading products...</div>
+        <select class="sort-select" id="sort-select" onchange="applySort()">
+          <option value="newest">Newest First</option>
+          <option value="popular">Most Popular</option>
+          <option value="rating">Highest Rated</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+        </select>
+      </div>
 
-        <h4 style="margin-top: 15px;">Step 3: Initialize Checkout (Client-side)</h4>
-        <pre>const options = {
-  key: 'zpk_live_your_api_key',
-  amount: order.amount,
-  currency: 'INR',
-  name: 'Your Business Name',
-  description: 'Product Description',
-  order_id: order.id,
-  handler: function (response) {
-    // Payment success
-    console.log(response.razorpay_payment_id);
-    console.log(response.razorpay_order_id);
-    console.log(response.razorpay_signature);
-  },
-  prefill: {
-    name: 'Customer Name',
-    email: 'customer@example.com',
-    contact: '9876543210'
-  },
-  theme: {
-    color: '#3399cc'
-  }
-};
+      <div id="products-container">
+        <div class="loading">
+          <i class="fas fa-spinner"></i> Loading products...
+        </div>
+      </div>
 
-const zenopay = new ZenoPay({ key: options.key });
-zenopay.createPayment(options).open();</pre>
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
 
-        <h4 style="margin-top: 15px;">Step 4: Verify Payment (Server-side)</h4>
-        <pre>// Verify signature on your server
-const verified = await fetch('https://api.zenopay.com/api/payments/verify', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': 'zpk_live_your_api_key'
-  },
-  body: JSON.stringify({
-    razorpay_order_id: response.razorpay_order_id,
-    razorpay_payment_id: response.razorpay_payment_id,
-    razorpay_signature: response.razorpay_signature
-  })
-});</pre>
-
-        <h3 style="margin-top: 20px; margin-bottom: 10px;">Payment Methods Supported</h3>
-        <ul style="margin-left: 20px; color: #666; line-height: 2;">
-          <li>💳 Debit/Credit Card</li>
-          <li>📱 UPI / ZenoPay ID</li>
-          <li>📞 Mobile Number</li>
-          <li>📧 Email (Gmail)</li>
-        </ul>
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h2><i class="fas fa-shopping-cart"></i> Shopping Cart</h2>
+      <button class="close-cart" onclick="closeCart()">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items-container">
+      <div class="empty-state">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Your cart is empty</h3>
+        <p>Start shopping to add items</p>
       </div>
     </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span id="cart-subtotal">₹0</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax (18%):</span>
+          <span id="cart-tax">₹0</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping:</span>
+          <span id="cart-shipping">₹0</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span id="cart-total">₹0</span>
+        </div>
+      </div>
+      <button class="checkout-btn" onclick="proceedToCheckout()">
+        <i class="fas fa-lock"></i> Proceed to Checkout
+      </button>
+    </div>
+  </div>
 
-    <!-- Load ZenoPay Checkout (Razorpay Style) -->
-    <script src="/js/checkout.js"></script>
-    
-    <script>
-      // Your API Key
-      const ZENOPAY_KEY = 'zpk_live_c9ec6b9e9e7ac4ab7e174f53b0e7b8b879973ed919236344760397244f734f263';
+  <div class="toast" id="toast"></div>
 
-      // Function to handle product purchase (Razorpay Style)
-      async function buyProduct(productName, amount, orderId) {
-        try {
-          // Step 1: Create Order on Server (Razorpay style)
-          const orderResponse = await fetch('/api/orders', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': ZENOPAY_KEY
-            },
-            body: JSON.stringify({
-              amount: amount, // Amount in INR
-              currency: 'INR',
-              receipt: orderId,
-              notes: {
-                productName: productName
-              }
-            })
-          });
-
-          if (!orderResponse.ok) {
-            const errorData = await orderResponse.json();
-            console.error('Order creation failed:', errorData);
-            alert('Failed to create order: ' + (errorData.error || 'Please try again.'));
-            return;
-          }
-
-          const order = await orderResponse.json();
-          console.log('Order created:', order);
-          
-          if (!order.id) {
-            alert('Failed to create order. Invalid response.');
-            return;
-          }
-
-          // Step 2: Initialize ZenoPay Checkout (Razorpay style)
-          const options = {
-            key: ZENOPAY_KEY,
-            amount: order.amount, // Amount in paise
-            currency: order.currency,
-            name: 'Demo Shop',
-            description: `Purchase of ${productName}`,
-            image: '', // Your logo URL
-            order_id: order.id,
-            handler: function (response) {
-              // Step 3: Payment Success Handler
-              console.log('Payment Response:', response);
-              
-              // Verify payment on server
-              verifyPayment(response);
-            },
-            prefill: {
-              name: '',
-              email: '',
-              contact: ''
-            },
-            notes: {
-              productName: productName
-            },
-            theme: {
-              color: '#667eea'
-            },
-            modal: {
-              ondismiss: function() {
-                console.log('Payment cancelled by user');
-              }
-            }
-          };
-
-          // Step 4: Create ZenoPay instance and open checkout
-          const zenopay = new ZenoPay({ key: ZENOPAY_KEY });
-          zenopay.createPayment(options).open();
-
-        } catch (error) {
-          console.error('Error:', error);
-          alert('An error occurred. Please try again.');
-        }
-      }
-
-      // Step 5: Verify payment on server (Razorpay style)
-      async function verifyPayment(response) {
-        try {
-          const verifyResponse = await fetch('/api/payments/verify', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Key': ZENOPAY_KEY
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              zenopay_order_id: response.zenopay_order_id,
-              zenopay_payment_id: response.zenopay_payment_id,
-              zenopay_signature: response.zenopay_signature
-            })
-          });
-
-          const result = await verifyResponse.json();
-
-          if (result.success) {
-            // Payment verified successfully
-            alert('✅ Payment Successful!\n\n' +
-                  'Payment ID: ' + response.razorpay_payment_id + '\n' +
-                  'Order ID: ' + response.razorpay_order_id + '\n' +
-                  'Transaction ID: ' + response.zenopay_transaction_id);
-            
-            // Redirect or update UI
-            // window.location.href = '/payment-success';
-          } else {
-            alert('❌ Payment verification failed!\n' + result.error);
-          }
-        } catch (error) {
-          console.error('Verification error:', error);
-          alert('Payment verification failed. Please contact support.');
-        }
-      }
-
-      // Check if payment was successful (from callback)
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('payment') === 'success') {
-        const transactionId = urlParams.get('transactionId');
-        alert(`Payment Successful! Transaction ID: ${transactionId}`);
-        
-        // Clean URL
-        window.history.replaceState({}, document.title, '/shop');
-      }
-    </script>
-  </body>
+  <script src="/js/shop.js"></script>
+</body>
 </html>

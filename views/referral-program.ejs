@@ -6,248 +6,301 @@
   <title><%= pageTitle %></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/referral-program.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f9fafb;color:#1a202c}
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:80px 40px;text-align:center;color:white;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 1px,transparent 1px);background-size:50px 50px;animation:move 20s linear infinite}
+    @keyframes move{0%{transform:translate(0,0)}100%{transform:translate(50px,50px)}}
+    .hero-icon{font-size:60px;margin-bottom:20px;animation:bounce 2s infinite}
+    @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    .hero h1{font-size:40px;font-weight:800;margin-bottom:16px;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+    .hero p{font-size:18px;opacity:.95;margin-bottom:32px}
+    .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+    .btn{padding:14px 32px;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:white;color:#667eea}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.2)}
+    .btn-secondary{background:transparent;border:2px solid white;color:white}.btn-secondary:hover{background:rgba(255,255,255,.1)}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;max-width:1200px;margin:-40px auto 0;padding:0 40px;position:relative;z-index:10}
+    .stat-card{background:white;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.1);transition:all .3s}
+    .stat-card:hover{transform:translateY(-5px);box-shadow:0 15px 50px rgba(0,0,0,.15)}
+    .stat-card h3{font-size:14px;color:#6b7280;font-weight:600;margin-bottom:12px;text-transform:uppercase}
+    .stat-card .value{font-size:36px;font-weight:800;color:#667eea}
+    .container{max-width:1200px;margin:80px auto;padding:0 40px}
+    .section-title{font-size:32px;font-weight:800;text-align:center;margin-bottom:48px;color:#1a202c}
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;margin-bottom:80px}
+    .step-card{background:white;border-radius:20px;padding:40px;text-align:center;border:2px solid #e5e7eb;transition:all .3s;position:relative}
+    .step-card:hover{border-color:#667eea;box-shadow:0 10px 40px rgba(102,126,234,.2)}
+    .step-number{width:60px;height:60px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:0 auto 24px}
+    .step-icon{font-size:48px;color:#667eea;margin-bottom:24px}
+    .step-card h3{font-size:20px;font-weight:700;margin-bottom:12px}
+    .step-card p{color:#6b7280;line-height:1.6}
+    .referral-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:24px;padding:48px;box-shadow:0 20px 60px rgba(102,126,234,.3);margin-bottom:80px}
+    .referral-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+    .code-section{background:rgba(255,255,255,.95);border-radius:16px;padding:24px;margin-bottom:24px}
+    .code-label{font-size:14px;color:#6b7280;font-weight:600;margin-bottom:8px;text-transform:uppercase}
+    .code-display{background:white;border:2px dashed #667eea;border-radius:12px;padding:20px;display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .code-text{font-size:32px;font-weight:800;font-family:monospace;color:#667eea}
+    .copy-btn{width:48px;height:48px;border:none;background:#667eea;color:white;border-radius:10px;cursor:pointer;transition:all .3s}
+    .copy-btn:hover{transform:scale(1.1)}
+    .share-buttons{display:grid;gap:12px}
+    .share-btn{width:100%;padding:16px;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all .3s}
+    .share-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+    .share-btn.whatsapp{background:#25D366;color:white}
+    .share-btn.email{background:#0078D4;color:white}
+    .share-btn.link{background:#764ba2;color:white}
+    .social-icons{display:flex;gap:12px;justify-content:center;margin-top:24px}
+    .social-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;cursor:pointer;transition:all .3s}
+    .social-icon:hover{transform:scale(1.15)}
+    .social-icon.facebook{background:#1877F2}
+    .social-icon.twitter{background:#1DA1F2}
+    .social-icon.linkedin{background:#0A66C2}
+    .social-icon.telegram{background:#0088cc}
+    .tabs{display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:32px}
+    .tab{padding:16px 32px;border:none;background:none;font-size:16px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:3px solid transparent;transition:all .3s}
+    .tab.active{color:#667eea;border-bottom-color:#667eea}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .table{width:100%;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+    .table thead{background:#f9fafb}.table th{padding:16px;text-align:left;font-size:14px;font-weight:600;color:#4b5563;border-bottom:2px solid #e5e7eb}
+    .table td{padding:16px;border-bottom:1px solid #f3f4f6}
+    .table tbody tr:hover{background:#f9fafb}
+    .badge{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block}
+    .badge.success{background:#d1fae5;color:#065f46}
+    .badge.pending{background:#fef3c7;color:#92400e}
+    .badge.completed{background:#dbeafe;color:#1e40af}
+    .tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:80px}
+    .tier-card{background:white;border-radius:20px;padding:40px;text-align:center;border:3px solid;transition:all .3s}
+    .tier-card.bronze{border-color:#CD7F32}.tier-card.silver{border-color:#C0C0C0}.tier-card.gold{border-color:#FFD700}
+    .tier-card:hover{transform:translateY(-10px);box-shadow:0 20px 60px rgba(0,0,0,.15)}
+    .tier-icon{font-size:60px;margin-bottom:16px}.tier-card.bronze .tier-icon{color:#CD7F32}
+    .tier-card.silver .tier-icon{color:#C0C0C0}.tier-card.gold .tier-icon{color:#FFD700}
+    .tier-card h3{font-size:24px;font-weight:700;margin-bottom:8px}
+    .tier-requirement{font-size:14px;color:#6b7280;margin-bottom:24px}
+    .tier-benefits{text-align:left;list-style:none;padding:0}
+    .tier-benefits li{padding:8px 0;display:flex;align-items:center;gap:8px;color:#4b5563}
+    .tier-benefits li i{color:#10b981}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;padding:2rem;overflow-y:auto}
+    .modal.active{display:flex;align-items:center;justify-content:center}
+    .modal-content{background:white;border-radius:20px;max-width:500px;width:100%;padding:40px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+    .modal-header h2{font-size:24px;font-weight:700}
+    .close-btn{width:40px;height:40px;border:none;background:#f3f4f6;border-radius:10px;font-size:20px;cursor:pointer;transition:all .3s}
+    .close-btn:hover{background:#e5e7eb}
+    .form-group{margin-bottom:20px}.form-group label{display:block;font-size:14px;font-weight:600;color:#4b5563;margin-bottom:8px}
+    .form-group input{width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:16px}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:#1a202c;color:white;padding:16px 24px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);display:none;align-items:center;gap:12px;z-index:2000}
+    .toast.show{display:flex;animation:slideIn .3s}
+    @keyframes slideIn{from{transform:translateX(400px)}to{transform:translateX(0)}}
+    .qr-section{background:rgba(255,255,255,.95);border-radius:16px;padding:24px;text-align:center}
+    #qr-canvas{margin:16px auto;display:block;border-radius:12px}
+    .empty-state{text-align:center;padding:60px 20px;background:white;border-radius:16px}
+    .empty-state i{font-size:80px;color:#d1d5db;margin-bottom:20px}
+    .empty-state h3{font-size:24px;color:#1a202c;margin-bottom:12px}
+    .empty-state p{color:#6b7280;margin-bottom:24px}
+    @media(max-width:768px){
+      .hero h1{font-size:28px}.hero p{font-size:16px}.stats-grid,.steps-grid,.referral-grid,.tier-grid{grid-template-columns:1fr}
+      .container{padding:0 20px}.tabs{overflow-x:auto;white-space:nowrap}
+    }
+  </style>
 </head>
 <body>
-  <div class="page-container">
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-content">
-        <div class="reward-badge">
-          <span class="reward-amount">$<%= referralData.rewardPerReferral.toFixed(2) %></span>
-          <span class="reward-label">per referral</span>
-        </div>
-        <h1>Refer Friends, Earn Rewards</h1>
-        <p class="subtitle">Share ZenoPay with friends and earn rewards when they sign up and verify their account.</p>
-        <button class="btn btn-primary btn-lg" id="invite-now-btn">
-          <i class="fas fa-user-plus"></i> Invite Friends Now
-        </button>
-      </div>
-      <div class="hero-illustration">
-        <i class="fas fa-gifts"></i>
-      </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-it-works-section">
-      <h2 class="section-title">How It Works</h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-number">1</div>
-          <div class="step-icon"><i class="fas fa-share-alt"></i></div>
-          <h3>Share Your Link</h3>
-          <p>Share your unique referral link with friends via email, social media, or messaging</p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number">2</div>
-          <div class="step-icon"><i class="fas fa-user-check"></i></div>
-          <h3>Friend Signs Up & Verifies</h3>
-          <p>Your friend creates an account and completes identity verification</p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number">3</div>
-          <div class="step-icon"><i class="fas fa-gift"></i></div>
-          <h3>You Both Earn Rewards</h3>
-          <p>You and your friend each get $<%= referralData.rewardPerReferral.toFixed(2) %> credited to your accounts</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Referral Code/Link Section -->
-    <section class="referral-section">
-      <h2 class="section-title">Your Referral Code</h2>
-      
-      <div class="referral-code-card">
-        <div class="code-container">
-          <div class="code-display" id="referral-code"><%= referralData.referralCode %></div>
-          <button class="btn btn-icon copy-code-btn" data-copy="<%= referralData.referralCode %>" title="Copy Code">
-            <i class="fas fa-copy"></i>
-          </button>
-        </div>
-
-        <div class="link-container">
-          <input type="text" class="link-input" id="referral-link" value="<%= referralData.referralLink %>" readonly>
-          <button class="btn btn-primary copy-link-btn" data-copy="<%= referralData.referralLink %>">
-            <i class="fas fa-copy"></i> Copy Link
-          </button>
-        </div>
-
-        <div class="qr-code-container">
-          <div class="qr-code" id="qr-code"></div>
-          <p class="qr-label">Scan to refer</p>
-        </div>
-      </div>
-
-      <!-- Share Options -->
-      <div class="share-section">
-        <h3>Share Via</h3>
-        <div class="share-buttons">
-          <button class="share-btn email-btn" data-method="email">
-            <i class="fas fa-envelope"></i> Email
-          </button>
-          <button class="share-btn whatsapp-btn" data-method="whatsapp">
-            <i class="fab fa-whatsapp"></i> WhatsApp
-          </button>
-          <button class="share-btn facebook-btn" data-method="facebook">
-            <i class="fab fa-facebook"></i> Facebook
-          </button>
-          <button class="share-btn twitter-btn" data-method="twitter">
-            <i class="fab fa-twitter"></i> Twitter
-          </button>
-          <button class="share-btn sms-btn" data-method="sms">
-            <i class="fas fa-sms"></i> SMS
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Referral Stats Dashboard -->
-    <section class="stats-section">
-      <h2 class="section-title">Your Referral Stats</h2>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-users"></i></div>
-          <div class="stat-value"><%= referralData.stats.totalReferrals %></div>
-          <div class="stat-label">Total Referrals</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-user-check"></i></div>
-          <div class="stat-value"><%= referralData.stats.successfulSignups %></div>
-          <div class="stat-label">Successful Sign-ups</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
-          <div class="stat-value">$<%= referralData.stats.pendingRewards.toFixed(2) %></div>
-          <div class="stat-label">Pending Rewards</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-coins"></i></div>
-          <div class="stat-value">$<%= referralData.stats.totalEarned.toFixed(2) %></div>
-          <div class="stat-label">Total Earned</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Available Rewards -->
-    <section class="rewards-section">
-      <div class="rewards-card">
-        <h3>Available Rewards Balance</h3>
-        <div class="balance-display">${<%= referralData.stats.availableBalance.toFixed(2) %></div>
-        <button class="btn btn-primary btn-lg" id="redeem-btn">
-          <i class="fas fa-wallet"></i> Redeem Rewards
-        </button>
-      </div>
-    </section>
-
-    <!-- Referral History -->
-    <section class="history-section">
-      <h2 class="section-title">Referral History</h2>
-      <div class="table-container">
-        <table class="referral-table">
-          <thead>
-            <tr>
-              <th>Friend</th>
-              <th>Status</th>
-              <th>Date Referred</th>
-              <th>Reward</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% referralData.referrals.forEach(referral => { %>
-            <tr>
-              <td><%= referral.friendName %></td>
-              <td>
-                <span class="status-badge status-<%= referral.status %>">
-                  <%= referral.status.replace('-', ' ').toUpperCase() %>
-                </span>
-              </td>
-              <td><%= new Date(referral.dateReferred).toLocaleDateString() %></td>
-              <td class="<%= referral.rewardAmount > 0 ? 'positive' : '' %>">
-                <% if (referral.rewardAmount > 0) { %>
-                  +$<%= referral.rewardAmount.toFixed(2) %>
-                <% } else { %>
-                  -
-                <% } %>
-              </td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Leaderboard (Optional) -->
-    <section class="leaderboard-section">
-      <h2 class="section-title">
-        <i class="fas fa-trophy"></i> Top Referrers This Month
-      </h2>
-      <div class="leaderboard-list">
-        <% referralData.leaderboard.forEach(entry => { %>
-        <div class="leaderboard-item <%= entry.isCurrentUser ? 'current-user' : '' %>">
-          <div class="rank">#<%= entry.rank %></div>
-          <div class="name"><%= entry.name %></div>
-          <div class="referrals"><%= entry.referrals %> referrals</div>
-        </div>
-        <% }); %>
-      </div>
-    </section>
-
-    <!-- Terms & Conditions -->
-    <section class="terms-section">
-      <details>
-        <summary><i class="fas fa-file-contract"></i> Terms & Conditions</summary>
-        <div class="terms-content">
-          <ul>
-            <li>Referral rewards are credited after the referred user completes account verification</li>
-            <li>Both referrer and referee must be active ZenoPay users in good standing</li>
-            <li>Rewards may take up to 7 business days to be credited</li>
-            <li>Maximum 50 successful referrals per month</li>
-            <li>Rewards expire after 12 months of inactivity</li>
-            <li>ZenoPay reserves the right to modify or terminate the program at any time</li>
-            <li>Fraudulent referrals will result in account suspension</li>
-          </ul>
-        </div>
-      </details>
-    </section>
+  <div class="hero">
+    <div class="hero-icon"><i class="fas fa-gift"></i></div>
+    <h1>Refer Friends, Earn Rewards</h1>
+    <p>Give ₹<%= settings.signup_bonus_referee %>, Get ₹<%= settings.signup_bonus_referrer %> for every friend who joins</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary" onclick="scrollToShare()"><i class="fas fa-share-alt"></i> Invite Friends</button>
+      <button class="btn btn-secondary" onclick="switchTab('list')"><i class="fas fa-users"></i> View My Referrals</button>
+    </div>
   </div>
 
-  <!-- Redeem Modal -->
-  <div class="modal" id="redeem-modal" hidden>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Redeem Rewards</h2>
-        <button class="close-btn" id="close-redeem-modal">&times;</button>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Referrals</h3>
+      <div class="value" id="total-referrals"><%= stats.totalReferrals %></div>
+    </div>
+    <div class="stat-card">
+      <h3>Successful</h3>
+      <div class="value" id="successful-signups"><%= stats.successfulSignups %></div>
+    </div>
+    <div class="stat-card">
+      <h3>Pending</h3>
+      <div class="value" id="pending-signups"><%= stats.pendingSignups %></div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Earned</h3>
+      <div class="value">₹<span id="total-earned"><%= stats.totalRewardsEarned.toFixed(0) %></span></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-icon"><i class="fas fa-share-nodes"></i></div>
+        <h3>Share Your Link</h3>
+        <p>Invite friends using your unique referral link or code via WhatsApp, email, or social media</p>
       </div>
-      <div class="modal-body">
-        <p>Available Balance: <strong>$<%= referralData.stats.availableBalance.toFixed(2) %></strong></p>
-        
-        <form id="redeem-form">
-          <div class="form-group">
-            <label class="label">Redemption Method</label>
-            <select id="redeem-method" class="input select">
-              <option value="wallet">Add to Wallet Balance</option>
-              <option value="transaction">Use for Next Transaction</option>
-              <option value="withdraw">Withdraw to Bank</option>
-            </select>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+        <h3>They Sign Up</h3>
+        <p>Your friend creates an account and makes their first transaction of ₹<%= settings.min_transaction_for_reward %> or more</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-icon"><i class="fas fa-coins"></i></div>
+        <h3>You Both Earn</h3>
+        <p>You get ₹<%= settings.signup_bonus_referrer %> and your friend gets ₹<%= settings.signup_bonus_referee %> as welcome bonus</p>
+      </div>
+    </div>
+
+    <div class="referral-card" id="share-section">
+      <div class="referral-grid">
+        <div>
+          <div class="code-section">
+            <div class="code-label" style="color:#1a202c">Your Referral Code</div>
+            <div class="code-display">
+              <span class="code-text" id="referral-code"><%= referralCode %></span>
+              <button class="copy-btn" onclick="copyCode()"><i class="fas fa-copy"></i></button>
+            </div>
+            <button class="btn btn-secondary" style="margin-top:12px;width:100%" onclick="openCustomCodeModal()">
+              <i class="fas fa-edit"></i> Customize Code
+            </button>
           </div>
-          
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary" id="cancel-redeem-btn">Cancel</button>
-            <button type="submit" class="btn btn-primary">Confirm Redemption</button>
+          <div class="code-section">
+            <div class="code-label" style="color:#1a202c">Your Referral Link</div>
+            <div class="code-display">
+              <span class="code-text" style="font-size:14px;word-break:break-all" id="referral-link"><%= referralLink %></span>
+              <button class="copy-btn" onclick="copyLink()"><i class="fas fa-link"></i></button>
+            </div>
           </div>
-        </form>
+          <div class="qr-section">
+            <div class="code-label" style="color:#1a202c">Share QR Code</div>
+            <canvas id="qr-canvas"></canvas>
+            <button class="btn btn-secondary" style="width:100%;margin-top:12px" onclick="downloadQR()">
+              <i class="fas fa-download"></i> Download QR
+            </button>
+          </div>
+        </div>
+        <div>
+          <div style="color:white;margin-bottom:24px"><h3 style="font-size:20px;margin-bottom:12px">Share Via</h3></div>
+          <div class="share-buttons">
+            <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+              <i class="fab fa-whatsapp"></i> Share on WhatsApp
+            </button>
+            <button class="share-btn email" onclick="shareEmail()">
+              <i class="fas fa-envelope"></i> Share via Email
+            </button>
+            <button class="share-btn link" onclick="copyLink()">
+              <i class="fas fa-link"></i> Copy Link
+            </button>
+          </div>
+          <div style="color:white;margin-top:32px;margin-bottom:12px"><h4>Share on Social Media</h4></div>
+          <div class="social-icons">
+            <div class="social-icon facebook" onclick="shareFacebook()"><i class="fab fa-facebook-f"></i></div>
+            <div class="social-icon twitter" onclick="shareTwitter()"><i class="fab fa-twitter"></i></div>
+            <div class="social-icon linkedin" onclick="shareLinkedIn()"><i class="fab fa-linkedin-in"></i></div>
+            <div class="social-icon telegram" onclick="shareTelegram()"><i class="fab fa-telegram-plane"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">My Referrals</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('overview')">Overview</button>
+      <button class="tab" onclick="switchTab('list')">Referral List</button>
+      <button class="tab" onclick="switchTab('rewards')">Rewards History</button>
+      <button class="tab" onclick="switchTab('leaderboard')">Leaderboard</button>
+    </div>
+
+    <div class="tab-content active" id="tab-overview">
+      <div class="stats-grid" style="margin-top:0">
+        <div class="stat-card"><h3>Total Invited</h3><div class="value" id="total-invited"><%= stats.totalReferrals %></div></div>
+        <div class="stat-card"><h3>Successful Signups</h3><div class="value"><%= stats.successfulSignups %></div></div>
+        <div class="stat-card"><h3>Pending Signups</h3><div class="value"><%= stats.pendingSignups %></div></div>
+        <div class="stat-card"><h3>Total Rewards</h3><div class="value">₹<%= stats.totalRewardsEarned.toFixed(0) %></div></div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-list">
+      <div class="table" id="referrals-table"></div>
+    </div>
+
+    <div class="tab-content" id="tab-rewards">
+      <div class="table" id="rewards-table"></div>
+    </div>
+
+    <div class="tab-content" id="tab-leaderboard">
+      <div style="margin-bottom:24px;text-align:center">
+        <button class="btn btn-secondary" onclick="loadLeaderboard('week')">This Week</button>
+        <button class="btn btn-secondary" onclick="loadLeaderboard('month')">This Month</button>
+        <button class="btn btn-primary" onclick="loadLeaderboard('all-time')">All Time</button>
+      </div>
+      <div class="table" id="leaderboard-table"></div>
+    </div>
+
+    <h2 class="section-title">Reward Tiers</h2>
+    <div class="tier-grid">
+      <div class="tier-card bronze">
+        <div class="tier-icon"><i class="fas fa-award"></i></div>
+        <h3>Bronze Tier</h3>
+        <div class="tier-requirement">1-9 Referrals</div>
+        <ul class="tier-benefits">
+          <li><i class="fas fa-check"></i> ₹<%= settings.signup_bonus_referrer %> per referral</li>
+          <li><i class="fas fa-check"></i> Priority email support</li>
+          <li><i class="fas fa-check"></i> Dashboard access</li>
+        </ul>
+      </div>
+      <div class="tier-card silver">
+        <div class="tier-icon"><i class="fas fa-medal"></i></div>
+        <h3>Silver Tier</h3>
+        <div class="tier-requirement">10-24 Referrals</div>
+        <ul class="tier-benefits">
+          <li><i class="fas fa-check"></i> ₹<%= (settings.signup_bonus_referrer * 1.2).toFixed(0) %> per referral</li>
+          <li><i class="fas fa-check"></i> 0.5% fee reduction</li>
+          <li><i class="fas fa-check"></i> Early feature access</li>
+          <li><i class="fas fa-check"></i> Account manager</li>
+        </ul>
+      </div>
+      <div class="tier-card gold">
+        <div class="tier-icon"><i class="fas fa-trophy"></i></div>
+        <h3>Gold Tier</h3>
+        <div class="tier-requirement">25+ Referrals</div>
+        <ul class="tier-benefits">
+          <li><i class="fas fa-check"></i> ₹<%= (settings.signup_bonus_referrer * 1.5).toFixed(0) %> per referral</li>
+          <li><i class="fas fa-check"></i> 1% fee reduction</li>
+          <li><i class="fas fa-check"></i> VIP support 24/7</li>
+          <li><i class="fas fa-check"></i> Exclusive offers</li>
+          <li><i class="fas fa-check"></i> Custom dashboard</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast" hidden></div>
+  <div class="modal" id="custom-code-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Customize Referral Code</h2>
+        <button class="close-btn" onclick="closeCustomCodeModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>New Referral Code</label>
+        <input type="text" id="custom-code-input" placeholder="Enter 4-15 characters" maxlength="15" style="text-transform:uppercase">
+        <p style="font-size:12px;color:#6b7280;margin-top:8px">Only letters and numbers allowed</p>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="saveCustomCode()">
+        <i class="fas fa-save"></i> Save Code
+      </button>
+    </div>
+  </div>
 
-  <script src="/js/referral-program.js"></script>
+  <div class="toast" id="toast"></div>
+  <script>
+    const referralCode='<%= referralCode %>';
+    const referralLink='<%= referralLink %>';
+  </script>
+  <script src="/js/referral.js"></script>
 </body>
 </html>

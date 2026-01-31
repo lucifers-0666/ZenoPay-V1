@@ -97,7 +97,25 @@ router.get("/verify-email-preview/:state", (req, res) => {
 });
 
 router.get("/profile", ProfileController.getProfile);
+
+// Shop Routes
 router.get("/shop", ShopController.getShop);
+router.get("/api/shop/products", ShopController.getProducts);
+router.get("/api/shop/products/:id", ShopController.getProductById);
+router.get("/api/shop/categories", ShopController.getCategories);
+
+// Cart Routes
+router.get("/api/cart", ShopController.getCart);
+router.post("/api/cart/add", ShopController.addToCart);
+router.put("/api/cart/update/:id", ShopController.updateCartItem);
+router.delete("/api/cart/remove/:id", ShopController.removeFromCart);
+
+// Checkout & Orders
+router.post("/api/checkout", ShopController.processCheckout);
+router.get("/api/orders", ShopController.getUserOrders);
+router.get("/api/orders/:id", ShopController.getOrderById);
+router.post("/api/orders/:id/cancel", ShopController.cancelOrder);
+
 router.get("/request-money", RequestMoneyController.getRequestMoneyPage);
 router.post("/request-money", RequestMoneyController.createRequestMoney);
 router.get("/qr-payment", QRPaymentController.getQRPaymentPage);
@@ -232,23 +250,44 @@ router.post("/disputes/:disputeId/withdraw", DisputeController.withdrawDispute);
 
 // Monthly Statements Routes
 router.get("/statements", StatementsController.getStatementsPage);
-router.get("/statements/:month/:year", StatementsController.getStatementDetail);
-router.get("/statements/:month/:year/download-pdf", StatementsController.downloadStatementPDF);
-router.get("/statements/:month/:year/download-csv", StatementsController.downloadStatementCSV);
-router.post("/statements/:month/:year/email", StatementsController.emailStatement);
+
+// API Routes for Statements
+router.get("/api/statements", StatementsController.getStatements);
+router.get("/api/statements/:id", StatementsController.getStatementDetail);
+router.post("/api/statements/generate", StatementsController.generateStatement);
+router.get("/api/statements/:id/download", StatementsController.downloadStatementPDF);
+router.get("/api/statements/:id/transactions", StatementsController.getStatementTransactions);
+router.post("/api/statements/:id/email", StatementsController.emailStatement);
 
 // Payment Receipts Routes
 router.get("/receipts", ReceiptsController.getReceiptsPage);
-router.get("/receipts/:receiptId", ReceiptsController.getReceiptDetail);
-router.get("/receipts/:receiptId/download", ReceiptsController.downloadReceiptPDF);
-router.post("/receipts/:receiptId/email", ReceiptsController.emailReceipt);
-router.post("/receipts/download-bulk", ReceiptsController.downloadBulkReceipts);
+
+// API Routes for Receipts
+router.get("/api/receipts", ReceiptsController.getReceipts);
+router.get("/api/receipts/search", ReceiptsController.searchReceipts);
+router.get("/api/receipts/:id", ReceiptsController.getReceiptDetail);
+router.get("/api/receipts/transaction/:transaction_id", ReceiptsController.getReceiptByTransaction);
+router.post("/api/receipts/:id/download", ReceiptsController.downloadReceiptPDF);
+router.post("/api/receipts/:id/email", ReceiptsController.emailReceipt);
+router.post("/api/receipts/bulk-download", ReceiptsController.downloadBulkReceipts);
+
+// Public receipt verification
+router.get("/verify-receipt/:receipt_number", ReceiptsController.verifyReceipt);
 
 // Referral Program Routes
 router.get("/referral", ReferralController.getReferralPage);
-router.post("/referral/share", ReferralController.shareReferral);
-router.post("/referral/redeem", ReferralController.redeemRewards);
-router.get("/ref/:referralCode", ReferralController.trackReferralClick);
+
+// API Routes for Referral Program
+router.get("/api/referral/code", ReferralController.getReferralCode);
+router.post("/api/referral/generate-code", ReferralController.generateCustomCode);
+router.get("/api/referral/stats", ReferralController.getReferralStats);
+router.get("/api/referral/list", ReferralController.getReferralList);
+router.get("/api/referral/rewards", ReferralController.getRewardsHistory);
+router.post("/api/referral/track/:code", ReferralController.trackReferralClick);
+router.get("/api/referral/leaderboard", ReferralController.getLeaderboard);
+
+// Public referral link handler
+router.get("/ref/:code", ReferralController.handleReferralLink);
 
 // Legal Pages Routes
 router.get("/terms", LegalPagesController.getTermsPage);
@@ -256,11 +295,17 @@ router.get("/privacy", LegalPagesController.getPrivacyPage);
 router.get("/about", LegalPagesController.getAboutPage);
 router.get("/help", LegalPagesController.getHelpPage);
 router.get("/faq", LegalPagesController.getHelpPage); // Alias for /help
-router.get("/contact", LegalPagesController.getContactPage);
 router.get("/api/legal/terms-version", LegalPagesController.getTermsVersion);
 router.post("/api/legal/accept-terms", LegalPagesController.acceptTerms);
 
-// Contact Form API Route
-router.post("/api/contact/submit", ContactController.submitContactForm);
+// Contact Routes
+router.get("/contact", ContactController.getContactPage);
+router.post("/api/contact/submit", ContactController.upload.array('attachments', 3), ContactController.submitContactForm);
+
+// Admin Contact Management Routes
+router.get("/api/admin/contact/submissions", ContactController.getAllSubmissions);
+router.get("/api/admin/contact/submissions/:id", ContactController.getSubmissionById);
+router.put("/api/admin/contact/submissions/:id/status", ContactController.updateSubmissionStatus);
+router.post("/api/admin/contact/submissions/:id/reply", ContactController.replyToSubmission);
 
 module.exports = router;
