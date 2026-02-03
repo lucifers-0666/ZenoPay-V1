@@ -5,115 +5,363 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= pageTitle %></title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/receipts.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    /* Inline critical styles for faster loading */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 2rem 1rem; }
     .page-container { max-width: 1400px; margin: 0 auto; }
-    .loading-container { text-align: center; padding: 3rem; }
-    .spinner { width: 40px; height: 40px; border: 4px solid #f3f4f6; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 2rem auto; }
+    
+    /* Page Header */
+    .page-header { background: white; border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+    .page-header h1 { font-size: 2.5rem; color: #1a202c; margin-bottom: 0.5rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-header .subtitle { color: #718096; font-size: 1.1rem; }
+    .header-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    
+    /* Enhanced Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 16px; padding: 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s; position: relative; overflow: hidden; }
+    .stat-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); opacity: 0; transition: opacity 0.3s; }
+    .stat-card:hover::before { opacity: 1; }
+    
+    /* Primary Stats Card with Animation */
+    .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .stat-card.primary:hover { box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4); }
+    .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(102, 126, 234, 0.1); color: #667eea; transition: transform 0.3s; }
+    .stat-card:hover .stat-icon { transform: scale(1.1) rotate(5deg); }
+    .stat-card.primary .stat-icon { background: rgba(255, 255, 255, 0.2); color: white; }
+    .stat-content { flex: 1; }
+    .stat-label { display: block; font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem; font-weight: 500; }
+    .stat-card.primary .stat-label { color: rgba(255, 255, 255, 0.9); }
+    .stat-value { display: block; font-size: 2rem; font-weight: 800; color: #1a202c; }
+    .stat-card.primary .stat-value { color: white; }
+    .stat-trend { display: block; font-size: 0.75rem; color: #10b981; margin-top: 0.25rem; font-weight: 600; }
+    .stat-card.primary .stat-trend { color: rgba(255, 255, 255, 0.95); }
+    
+    /* Mini Charts in Stats Cards */
+    .stat-chart-container { position: absolute; bottom: 0; right: 0; width: 120px; height: 50px; opacity: 0.3; }
+    .stat-card:hover .stat-chart-container { opacity: 0.5; }
+    
+    /* Quick Filters Pills */
+    .quick-filters-section { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+    .quick-filters { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+    .quick-filters-label { font-size: 0.875rem; font-weight: 600; color: #4b5563; margin-right: 0.5rem; }
+    .quick-filter-pill { padding: 0.625rem 1.25rem; border: 2px solid #e5e7eb; border-radius: 50px; background: white; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .quick-filter-pill i { font-size: 0.75rem; }
+    .quick-filter-pill:hover { border-color: #667eea; color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); }
+    .quick-filter-pill.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .filter-count { display: inline-block; padding: 0.125rem 0.5rem; background: rgba(255, 255, 255, 0.9); color: #667eea; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 0.25rem; }
+    .quick-filter-pill.active .filter-count { background: rgba(255, 255, 255, 0.3); color: white; }
+    
+    /* Enhanced Filter Bar */
+    .filter-bar { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+    .filter-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 1rem; margin-bottom: 1rem; align-items: end; }
+    .filter-row-2 { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; }
+    .search-input-wrapper { position: relative; }
+    .search-input-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1rem; }
+    .search-input { width: 100%; padding: 0.875rem 1rem 0.875rem 3rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.9375rem; transition: border-color 0.3s; font-family: 'Inter', sans-serif; }
+    .search-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    .filter-group label { display: block; font-size: 0.875rem; font-weight: 600; color: #4b5563; margin-bottom: 0.5rem; }
+    .filter-group select, .filter-group input { width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.875rem; font-family: 'Inter', sans-serif; transition: border-color 0.3s; }
+    .filter-group select:focus, .filter-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+    
+    /* Advanced Filters Toggle */
+    .advanced-filters-toggle { background: transparent; border: 2px solid #e5e7eb; padding: 0.875rem 1.25rem; border-radius: 12px; cursor: pointer; font-size: 0.875rem; font-weight: 600; color: #4b5563; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .advanced-filters-toggle:hover { border-color: #667eea; color: #667eea; }
+    .advanced-filters-toggle i { transition: transform 0.3s; }
+    .advanced-filters-toggle.active i { transform: rotate(180deg); }
+    .advanced-filters { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .advanced-filters.active { max-height: 500px; margin-top: 1rem; }
+    .advanced-filters-content { padding-top: 1rem; border-top: 2px solid #f3f4f6; }
+    .advanced-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    
+    /* Export Button */
+    .export-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 0.875rem 1.5rem; border-radius: 12px; cursor: pointer; font-size: 0.875rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s; }
+    .export-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3); }
+    
+    /* View Controls Enhanced */
+    .view-controls { background: white; border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .view-controls-left { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .results-count { font-size: 0.9375rem; color: #4b5563; font-weight: 500; }
+    .results-count strong { color: #1a202c; font-weight: 700; }
+    .bulk-actions { display: none; align-items: center; gap: 0.75rem; }
+    .bulk-actions.active { display: flex; }
+    .bulk-actions-label { font-size: 0.875rem; color: #4b5563; font-weight: 600; }
+    .view-toggle { display: flex; gap: 0.5rem; background: #f9fafb; padding: 0.25rem; border-radius: 10px; }
+    .view-toggle-btn { width: 44px; height: 44px; border: none; border-radius: 8px; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; color: #6b7280; font-size: 1.125rem; }
+    .view-toggle-btn:hover { color: #667eea; background: rgba(102, 126, 234, 0.1); }
+    .view-toggle-btn.active { background: white; color: #667eea; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+    
+    /* Enhanced Receipts Grid */
+    .receipts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .receipt-card { background: white; border-radius: 16px; border: 2px solid #e5e7eb; padding: 1.5rem; transition: all 0.3s; cursor: pointer; position: relative; }
+    .receipt-card:hover { border-color: #6366f1; box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15); transform: translateY(-5px) scale(1.01); }
+    .receipt-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; border-radius: 16px 16px 0 0; }
+    .receipt-card.sent::before { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
+    .receipt-card.received::before { background: linear-gradient(90deg, #10b981 0%, #059669 100%); }
+    
+    /* Receipt Card Header */
+    .receipt-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+    .receipt-header-left { flex: 1; }
+    .receipt-number { font-size: 0.9375rem; font-weight: 700; color: #667eea; margin-bottom: 0.25rem; letter-spacing: 0.5px; }
+    .receipt-datetime { font-size: 0.8125rem; color: #9ca3af; display: flex; align-items: center; gap: 0.375rem; }
+    .receipt-datetime i { font-size: 0.75rem; }
+    .receipt-status { font-size: 0.8125rem; font-weight: 700; padding: 0.375rem 0.875rem; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .receipt-status.success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
+    .receipt-status.pending { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+    .receipt-status.failed { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
+    
+    /* Transaction Icon Circle */
+    .receipt-icon-wrapper { display: flex; justify-content: center; margin-bottom: 1.25rem; }
+    .receipt-type-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transition: transform 0.3s; }
+    .receipt-card:hover .receipt-type-icon { transform: scale(1.1) rotate(5deg); }
+    .receipt-card.sent .receipt-type-icon { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #ef4444; }
+    .receipt-card.received .receipt-type-icon { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #10b981; }
+    
+    /* Recipient Section */
+    .recipient-section { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.25rem; }
+    .recipient-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.125rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); }
+    .recipient-info { flex: 1; min-width: 0; }
+    .recipient-name { font-size: 1.0625rem; font-weight: 700; color: #1a202c; margin-bottom: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recipient-id { font-size: 0.8125rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .transaction-type-badge { display: inline-block; padding: 0.25rem 0.625rem; background: #f3f4f6; color: #6b7280; font-size: 0.75rem; font-weight: 600; border-radius: 6px; margin-top: 0.375rem; }
+    
+    /* Amount Display */
+    .receipt-amount-section { background: #f9fafb; border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
+    .receipt-amount { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 0.375rem; }
+    .receipt-card.sent .receipt-amount { color: #ef4444; }
+    .receipt-card.received .receipt-amount { color: #10b981; }
+    .receipt-fee { font-size: 0.8125rem; color: #6b7280; }
+    .receipt-fee i { margin-right: 0.25rem; font-size: 0.75rem; }
+    
+    /* Card Actions Footer */
+    .receipt-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; padding-top: 1rem; border-top: 2px solid #f3f4f6; }
+    .action-btn { width: 100%; height: 38px; border: 2px solid #e5e7eb; background: white; border-radius: 10px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 0.9375rem; }
+    .action-btn:hover { border-color: #667eea; color: #667eea; background: #f9fafb; transform: translateY(-2px); }
+    .action-btn i { font-size: 0.875rem; }
+    
+    /* List View */
+    .receipts-list { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); display: none; }
+    .receipts-list.active { display: block; }
+    .receipts-grid.active { display: grid; }
+    .receipts-grid.hidden { display: none; }
+    .receipts-table { width: 100%; border-collapse: collapse; }
+    .receipts-table thead { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); }
+    .receipts-table th { padding: 1.125rem 1.25rem; text-align: left; font-size: 0.875rem; font-weight: 700; color: #4b5563; border-bottom: 2px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.5px; }
+    .receipts-table th:first-child { padding-left: 1.5rem; }
+    .receipts-table th:last-child { text-align: center; }
+    .receipts-table td { padding: 1.125rem 1.25rem; border-bottom: 1px solid #f3f4f6; font-size: 0.9375rem; }
+    .receipts-table td:first-child { padding-left: 1.5rem; font-weight: 600; color: #667eea; }
+    .receipts-table td:last-child { text-align: center; }
+    .receipts-table tbody tr { transition: all 0.2s; }
+    .receipts-table tbody tr:hover { background: #f9fafb; }
+    .table-actions { display: flex; gap: 0.5rem; justify-content: center; }
+    .table-action-btn { padding: 0.375rem 0.75rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 0.8125rem; color: #6b7280; }
+    .table-action-btn:hover { border-color: #667eea; color: #667eea; }
+    
+    /* Enhanced Pagination */
+    .pagination-wrapper { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-top: 1.5rem; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .pagination-info { font-size: 0.9375rem; color: #4b5563; }
+    .pagination-info strong { color: #1a202c; font-weight: 700; }
+    .pagination-controls { display: flex; align-items: center; gap: 0.5rem; }
+    .pagination-btn { padding: 0.625rem 1rem; border: 2px solid #e5e7eb; background: white; border-radius: 10px; cursor: pointer; transition: all 0.3s; font-size: 0.875rem; font-weight: 600; color: #4b5563; min-width: 44px; display: flex; align-items: center; justify-content: center; }
+    .pagination-btn:hover:not(:disabled) { border-color: #667eea; color: #667eea; background: #f9fafb; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .pagination-ellipsis { padding: 0 0.5rem; color: #9ca3af; font-weight: 600; }
+    .per-page-select { padding: 0.625rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.875rem; font-family: 'Inter', sans-serif; font-weight: 600; color: #4b5563; cursor: pointer; }
+    .per-page-select:focus { outline: none; border-color: #667eea; }
+    
+    /* Enhanced Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); }
+    .empty-icon-wrapper { margin-bottom: 2rem; }
+    .empty-icon { font-size: 6rem; color: #667eea; animation: float 3s ease-in-out infinite; opacity: 0.9; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    .empty-state h3 { font-size: 1.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.75rem; font-weight: 800; }
+    .empty-state p { color: #6b7280; font-size: 1.0625rem; margin-bottom: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .empty-tips-card { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 16px; padding: 1.75rem; margin: 2.5rem auto; max-width: 600px; text-align: left; }
+    .empty-tips-card h4 { font-size: 1.125rem; color: #1a202c; margin-bottom: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .empty-tips-card h4 i { color: #667eea; }
+    .empty-tips-list { list-style: none; }
+    .empty-tips-list li { padding: 0.75rem 0; color: #4b5563; display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.6; }
+    .empty-tips-list li i { color: #10b981; margin-top: 0.25rem; flex-shrink: 0; }
+    .empty-cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+    
+    /* Buttons */
+    .btn { padding: 0.875rem 1.75rem; border: none; border-radius: 12px; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: white; border: 2px solid #e5e7eb; color: #4b5563; }
+    .btn-secondary:hover { border-color: #667eea; color: #667eea; background: #f9fafb; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+    .btn-small { padding: 0.5rem 1rem; font-size: 0.8125rem; }
+    
+    /* Modal Enhanced */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1000; padding: 2rem; overflow-y: auto; }
+    .modal.active { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-content { background: white; border-radius: 24px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3); animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header { padding: 2rem; border-bottom: 2px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h2 { font-size: 1.75rem; color: #1a202c; font-weight: 800; }
+    .close-btn { width: 44px; height: 44px; border: none; background: #f3f4f6; border-radius: 12px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; color: #6b7280; display: flex; align-items: center; justify-content: center; }
+    .close-btn:hover { background: #e5e7eb; transform: rotate(90deg); }
+    .modal-body { padding: 2rem; }
+    
+    /* Receipt Detail Preview */
+    .receipt-detail { padding: 2.5rem; background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border-radius: 20px; margin-bottom: 1.5rem; border: 2px solid #e5e7eb; }
+    .receipt-detail-header { text-align: center; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 2px dashed #d1d5db; }
+    .receipt-logo { font-size: 2.25rem; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }
+    .receipt-title { font-size: 1.5rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; }
+    .receipt-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-bottom: 2rem; }
+    .detail-section h3 { font-size: 0.875rem; font-weight: 700; color: #6b7280; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 1px; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 0.875rem; padding-bottom: 0.875rem; border-bottom: 1px solid #f3f4f6; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 0.875rem; color: #6b7280; font-weight: 500; }
+    .detail-value { font-size: 0.875rem; font-weight: 700; color: #1a202c; text-align: right; }
+    .amount-breakdown { background: white; border-radius: 16px; padding: 1.75rem; margin: 2rem 0; border: 2px solid #e5e7eb; }
+    .amount-breakdown h3 { font-size: 1.125rem; font-weight: 700; color: #1a202c; margin-bottom: 1.25rem; }
+    .amount-row { display: flex; justify-content: space-between; margin-bottom: 0.875rem; font-size: 0.9375rem; color: #4b5563; }
+    .amount-row.total { padding-top: 1.25rem; border-top: 2px solid #e5e7eb; font-size: 1.5rem; font-weight: 800; color: #1a202c; margin-top: 0.5rem; }
+    .modal-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    
+    /* Toast Notification */
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1a202c; color: white; padding: 1.125rem 1.75rem; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); display: none; align-items: center; gap: 1rem; z-index: 2000; max-width: 400px; }
+    .toast.show { display: flex; animation: slideInRight 0.3s ease-out; }
+    @keyframes slideInRight { from { transform: translateX(400px); } to { transform: translateX(0); } }
+    .toast i { font-size: 1.25rem; }
+    .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .toast.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    
+    /* Loading States */
+    .spinner { width: 44px; height: 44px; border: 4px solid #f3f4f6; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 2rem auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-container { text-align: center; padding: 4rem 2rem; }
+    .loading-text { color: #6b7280; margin-top: 1rem; font-size: 0.9375rem; }
+    
+    /* Checkbox for Bulk Select */
+    .receipt-checkbox { position: absolute; top: 1rem; left: 1rem; width: 24px; height: 24px; cursor: pointer; z-index: 10; }
+    .receipt-card.selected { border-color: #667eea; background: rgba(102, 126, 234, 0.02); }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .receipts-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+      .filter-row { grid-template-columns: 1fr; }
+      .filter-row-2 { grid-template-columns: 1fr 1fr; }
+    }
+    
+    @media (max-width: 768px) {
+      body { padding: 1rem 0.75rem; }
+      .page-header { padding: 1.5rem; }
+      .page-header h1 { font-size: 1.75rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .receipts-grid { grid-template-columns: 1fr; }
+      .filter-row, .filter-row-2 { grid-template-columns: 1fr; }
+      .receipt-detail-grid { grid-template-columns: 1fr; }
+      .pagination { flex-direction: column; align-items: stretch; }
+      .pagination-controls { justify-content: center; }
+      .quick-filters { justify-content: center; }
+      .view-controls { flex-direction: column; align-items: stretch; }
+      .view-controls-left { justify-content: space-between; }
+      .modal { padding: 1rem; }
+      .modal-content { border-radius: 20px; max-height: 95vh; }
+      .modal-header, .modal-body { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
   <div class="page-container">
-    <!-- Header -->
+    <!-- Page Header -->
     <header class="page-header">
-      <div class="header-content">
-        <div>
-          <h1>Payment Receipts</h1>
-          <p class="subtitle">View, download, and manage your transaction receipts</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn-secondary" onclick="exportFiltered()">
-            <i class="fas fa-file-export"></i> Export
-          </button>
-          <button class="btn btn-primary" onclick="viewTransactions()">
-            <i class="fas fa-history"></i> View Transactions
-          </button>
-        </div>
+      <h1>💳 Payment Receipts</h1>
+      <p class="subtitle">View, download, and manage all your transaction receipts in one place</p>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openEmailModal()">
+          <i class="fas fa-envelope"></i> Email Receipts
+        </button>
+        <button class="btn btn-secondary" onclick="downloadAllReceipts()">
+          <i class="fas fa-download"></i> Download All
+        </button>
+        <button class="btn btn-secondary" id="bulk-mode-toggle" onclick="toggleBulkMode()">
+          <i class="fas fa-check-square"></i> Bulk Actions
+        </button>
       </div>
     </header>
 
-    <!-- Enhanced Stats Cards -->
+    <!-- Enhanced Stats Grid -->
     <div class="stats-grid">
-      <div class="stat-card primary animated">
-        <div class="stat-icon">
-          <i class="fas fa-receipt"></i>
-        </div>
+      <!-- Primary Card with Count-up Animation -->
+      <div class="stat-card primary">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
         <div class="stat-content">
           <span class="stat-label">Total Receipts</span>
-          <span class="stat-value" data-count="<%= stats.totalReceipts %>">0</span>
+          <span class="stat-value" id="total-receipts-counter"><%= stats.totalReceipts %></span>
           <span class="stat-trend"><i class="fas fa-arrow-up"></i> +3 this week</span>
         </div>
       </div>
       
-      <div class="stat-card hover-lift">
-        <div class="stat-icon success">
-          <i class="fas fa-wallet"></i>
-        </div>
+      <!-- Total Amount with Mini Chart -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
         <div class="stat-content">
           <span class="stat-label">Total Amount</span>
           <span class="stat-value">₹<%= stats.totalAmount.toFixed(2) %></span>
         </div>
-        <canvas class="mini-chart" id="chart-amount" width="120" height="40"></canvas>
+        <canvas id="amount-chart" class="stat-chart-container"></canvas>
       </div>
       
-      <div class="stat-card hover-lift">
-        <div class="stat-icon danger">
-          <i class="fas fa-arrow-up"></i>
-        </div>
+      <!-- Receipts Sent with Mini Chart -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
         <div class="stat-content">
           <span class="stat-label">Receipts Sent</span>
           <span class="stat-value"><%= stats.sentCount %></span>
         </div>
-        <canvas class="mini-chart" id="chart-sent" width="120" height="40"></canvas>
+        <canvas id="sent-chart" class="stat-chart-container"></canvas>
       </div>
       
-      <div class="stat-card hover-lift">
-        <div class="stat-icon success">
-          <i class="fas fa-arrow-down"></i>
-        </div>
+      <!-- Receipts Received with Mini Chart -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
         <div class="stat-content">
           <span class="stat-label">Receipts Received</span>
           <span class="stat-value"><%= stats.receivedCount %></span>
         </div>
-        <canvas class="mini-chart" id="chart-received" width="120" height="40"></canvas>
+        <canvas id="received-chart" class="stat-chart-container"></canvas>
       </div>
     </div>
 
-    <!-- Quick Filters Pills -->
+    <!-- Quick Filters Pills Section -->
     <div class="quick-filters-section">
-      <div class="quick-filters-pills">
-        <button class="filter-pill active" data-filter="all" onclick="applyQuickFilter('all')">
-          <i class="fas fa-list"></i> All <span class="badge"><%= stats.totalReceipts %></span>
+      <div class="quick-filters">
+        <span class="quick-filters-label">Quick Filters:</span>
+        <button class="quick-filter-pill active" data-filter="all" onclick="applyQuickFilter('all')">
+          <i class="fas fa-infinity"></i> All <span class="filter-count"><%= stats.totalReceipts %></span>
         </button>
-        <button class="filter-pill" data-filter="today" onclick="applyQuickFilter('today')">
-          <i class="fas fa-calendar-day"></i> Today <span class="badge">0</span>
+        <button class="quick-filter-pill" data-filter="today" onclick="applyQuickFilter('today')">
+          <i class="fas fa-calendar-day"></i> Today <span class="filter-count">0</span>
         </button>
-        <button class="filter-pill" data-filter="week" onclick="applyQuickFilter('week')">
-          <i class="fas fa-calendar-week"></i> This Week <span class="badge">0</span>
+        <button class="quick-filter-pill" data-filter="week" onclick="applyQuickFilter('week')">
+          <i class="fas fa-calendar-week"></i> This Week <span class="filter-count">0</span>
         </button>
-        <button class="filter-pill" data-filter="month" onclick="applyQuickFilter('month')">
-          <i class="fas fa-calendar-alt"></i> This Month <span class="badge">0</span>
+        <button class="quick-filter-pill" data-filter="month" onclick="applyQuickFilter('month')">
+          <i class="fas fa-calendar"></i> This Month <span class="filter-count">0</span>
         </button>
-        <button class="filter-pill" data-filter="3months" onclick="applyQuickFilter('3months')">
-          <i class="fas fa-calendar"></i> Last 3 Months <span class="badge">0</span>
+        <button class="quick-filter-pill" data-filter="3months" onclick="applyQuickFilter('3months')">
+          <i class="fas fa-calendar-alt"></i> Last 3 Months <span class="filter-count">0</span>
         </button>
       </div>
-      <button class="btn btn-icon" onclick="toggleAdvancedFilters()">
-        <i class="fas fa-sliders-h"></i>
-      </button>
     </div>
 
     <!-- Enhanced Filter Bar -->
-      <div class="search-input-wrapper">
-        <i class="fas fa-search"></i>
-        <input type="text" class="search-input" id="search-input" placeholder="Search by receipt number, recipient, or amount...">
-      </div>
-      <div class="filter-controls">
+    <div class="filter-bar">
+      <!-- First Row: Search, Type, Status, Export -->
+      <div class="filter-row">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" class="search-input" id="search-input" placeholder="Search by receipt number, recipient name, or amount...">
+        </div>
         <div class="filter-group">
           <label>Transaction Type</label>
           <select id="filter-type">
@@ -131,6 +379,13 @@
             <option value="failed">Failed</option>
           </select>
         </div>
+        <button class="export-btn" onclick="exportReceipts()">
+          <i class="fas fa-file-export"></i> Export
+        </button>
+      </div>
+      
+      <!-- Second Row: Date Filters & Advanced Toggle -->
+      <div class="filter-row-2">
         <div class="filter-group">
           <label>From Date</label>
           <input type="date" id="filter-date-from">
@@ -139,44 +394,174 @@
           <label>To Date</label>
           <input type="date" id="filter-date-to">
         </div>
+        <div></div>
+        <button class="advanced-filters-toggle" id="advanced-toggle" onclick="toggleAdvancedFilters()">
+          <i class="fas fa-sliders-h"></i> Advanced
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div class="quick-filters">
-        <button class="quick-filter-btn active" onclick="applyQuickFilter('all')">All Time</button>
-        <button class="quick-filter-btn" onclick="applyQuickFilter('today')">Today</button>
-        <button class="quick-filter-btn" onclick="applyQuickFilter('week')">Last 7 Days</button>
-        <button class="quick-filter-btn" onclick="applyQuickFilter('month')">Last 30 Days</button>
-        <button class="quick-filter-btn" onclick="applyQuickFilter('this-month')">This Month</button>
+      
+      <!-- Advanced Filters (Collapsible) -->
+      <div class="advanced-filters" id="advanced-filters">
+        <div class="advanced-filters-content">
+          <div class="advanced-filter-grid">
+            <div class="filter-group">
+              <label>Min Amount (₹)</label>
+              <input type="number" id="filter-min-amount" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <div class="filter-group">
+              <label>Max Amount (₹)</label>
+              <input type="number" id="filter-max-amount" placeholder="10000.00" min="0" step="0.01">
+            </div>
+            <div class="filter-group">
+              <label>Payment Method</label>
+              <select id="filter-payment-method">
+                <option value="all">All Methods</option>
+                <option value="upi">UPI</option>
+                <option value="card">Card</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="wallet">Wallet</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Recipient</label>
+              <input type="text" id="filter-recipient" placeholder="Search recipient...">
+            </div>
+          </div>
+          <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+            <button class="btn btn-primary btn-small" onclick="applyAdvancedFilters()">
+              <i class="fas fa-filter"></i> Apply Filters
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="clearAllFilters()">
+              <i class="fas fa-times"></i> Clear All
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- View Controls with Bulk Actions -->
     <div class="view-controls">
-      <div><span id="results-count" style="color: #6b7280;">Loading receipts...</span></div>
+      <div class="view-controls-left">
+        <div class="results-count" id="results-count">
+          Loading receipts...
+        </div>
+        <div class="bulk-actions" id="bulk-actions">
+          <span class="bulk-actions-label"><span id="selected-count">0</span> selected</span>
+          <button class="btn btn-small btn-primary" onclick="bulkDownload()">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button class="btn btn-small btn-secondary" onclick="bulkEmail()">
+            <i class="fas fa-envelope"></i> Email
+          </button>
+        </div>
+      </div>
       <div class="view-toggle">
-        <button class="view-toggle-btn active" id="grid-view-btn" onclick="switchView('grid')"><i class="fas fa-th-large"></i></button>
-        <button class="view-toggle-btn" id="list-view-btn" onclick="switchView('list')"><i class="fas fa-list"></i></button>
+        <button class="view-toggle-btn active" id="grid-view-btn" onclick="switchView('grid')" title="Grid View">
+          <i class="fas fa-th-large"></i>
+        </button>
+        <button class="view-toggle-btn" id="list-view-btn" onclick="switchView('list')" title="List View">
+          <i class="fas fa-list"></i>
+        </button>
+        <button class="view-toggle-btn" id="detailed-view-btn" onclick="switchView('detailed')" title="Detailed View">
+          <i class="fas fa-file-invoice"></i>
+        </button>
       </div>
     </div>
 
-    <div class="receipts-grid active" id="receipts-grid"></div>
+    <!-- Receipts Grid (Will be populated by JS) -->
+    <div class="receipts-grid active" id="receipts-grid">
+      <!-- Receipt cards will be dynamically inserted here -->
+    </div>
+
+    <!-- Receipts List View -->
     <div class="receipts-list" id="receipts-list">
       <table class="receipts-table">
         <thead>
           <tr>
-            <th>Receipt #</th><th>Date & Time</th><th>Recipient</th><th>Type</th><th>Amount</th><th>Fee</th><th>Status</th><th>Actions</th>
+            <th><input type="checkbox" id="select-all-list" onchange="toggleSelectAllList()"></th>
+            <th>Receipt #</th>
+            <th>Date & Time</th>
+            <th>Recipient</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Fee</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="receipts-table-body"></tbody>
+        <tbody id="receipts-table-body">
+          <!-- Table rows will be dynamically inserted here -->
+        </tbody>
       </table>
     </div>
 
-    <div class="pagination" id="pagination"></div>
+    <!-- Enhanced Empty State -->
     <div class="empty-state" id="empty-state" style="display: none;">
-      <i class="fas fa-receipt"></i>
+      <div class="empty-icon-wrapper">
+        <i class="fas fa-receipt empty-icon"></i>
+      </div>
       <h3>No Receipts Found</h3>
-      <p>You don't have any receipts yet. Start making transactions to see them here.</p>
+      <p>You haven't generated any receipts yet. All your transaction receipts will appear here automatically.</p>
+      
+      <div class="empty-tips-card">
+        <h4><i class="fas fa-lightbulb"></i> Helpful Tips</h4>
+        <ul class="empty-tips-list">
+          <li>
+            <i class="fas fa-check-circle"></i>
+            <span>Receipts are auto-generated for all successful transactions</span>
+          </li>
+          <li>
+            <i class="fas fa-check-circle"></i>
+            <span>Access receipts anytime from Transaction History</span>
+          </li>
+          <li>
+            <i class="fas fa-check-circle"></i>
+            <span>Download or email receipts directly from this page</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="empty-cta-buttons">
+        <a href="/Transaction-History" class="btn btn-primary">
+          <i class="fas fa-history"></i> View All Transactions
+        </a>
+        <a href="/help" class="btn btn-secondary">
+          <i class="fas fa-book"></i> Learn More About Receipts
+        </a>
+      </div>
+    </div>
+
+    <!-- Enhanced Pagination -->
+    <div class="pagination-wrapper" id="pagination-wrapper" style="display: none;">
+      <div class="pagination">
+        <div class="pagination-info" id="pagination-info">
+          Showing <strong>1-12</strong> of <strong>24</strong> receipts
+        </div>
+        <div class="pagination-controls" id="pagination-controls">
+          <button class="pagination-btn" onclick="goToPage('prev')">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="pagination-btn active">1</button>
+          <button class="pagination-btn">2</button>
+          <button class="pagination-btn">3</button>
+          <span class="pagination-ellipsis">...</span>
+          <button class="pagination-btn">10</button>
+          <button class="pagination-btn" onclick="goToPage('next')">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <select class="per-page-select" id="per-page-select" onchange="changePerPage()">
+            <option value="12">12 per page</option>
+            <option value="24">24 per page</option>
+            <option value="48">48 per page</option>
+            <option value="96">96 per page</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Enhanced Receipt Detail Modal -->
   <div class="modal" id="receipt-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -184,11 +569,15 @@
         <button class="close-btn" onclick="closeReceiptModal()">&times;</button>
       </div>
       <div class="modal-body" id="receipt-detail-body">
-        <div class="loading-container"><div class="spinner"></div></div>
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Loading receipt details...</p>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Email Receipt Modal -->
   <div class="modal" id="email-modal">
     <div class="modal-content" style="max-width: 500px;">
       <div class="modal-header">
@@ -198,17 +587,177 @@
       <div class="modal-body">
         <div class="filter-group">
           <label>Email Address</label>
-          <input type="email" id="email-address" placeholder="Enter email address" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+          <input type="email" id="email-address" placeholder="Enter email address" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-family: 'Inter', sans-serif;">
         </div>
         <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-          <button class="btn btn-primary" style="flex: 1;" onclick="sendEmail()"><i class="fas fa-paper-plane"></i> Send Email</button>
-          <button class="btn btn-secondary" style="flex: 1;" onclick="closeEmailModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex: 1;" onclick="sendEmail()">
+            <i class="fas fa-paper-plane"></i> Send Email
+          </button>
+          <button class="btn btn-secondary" style="flex: 1;" onclick="closeEmailModal()">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
+
   <script src="/js/receipts.js"></script>
+  <script>
+    // Count-up animation for total receipts
+    function animateCounter(element, start, end, duration) {
+      const startTime = performance.now();
+      const countUp = (currentTime) => {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const current = Math.floor(progress * (end - start) + start);
+        element.textContent = current;
+        if (progress < 1) {
+          requestAnimationFrame(countUp);
+        }
+      };
+      requestAnimationFrame(countUp);
+    }
+    
+    // Initialize counter animation on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const counterElement = document.getElementById('total-receipts-counter');
+      const targetValue = parseInt(counterElement.textContent);
+      animateCounter(counterElement, 0, targetValue, 1500);
+      
+      // Initialize mini charts
+      initMiniCharts();
+    });
+    
+    // Mini Charts Initialization
+    function initMiniCharts() {
+      // Amount Chart (Area)
+      const amountCtx = document.getElementById('amount-chart');
+      if (amountCtx) {
+        new Chart(amountCtx, {
+          type: 'line',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [12, 19, 15, 25, 22, 30, 28],
+              borderColor: '#667eea',
+              backgroundColor: 'rgba(102, 126, 234, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+      
+      // Sent Chart (Bar)
+      const sentCtx = document.getElementById('sent-chart');
+      if (sentCtx) {
+        new Chart(sentCtx, {
+          type: 'bar',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [8, 12, 10, 15, 13, 18, 16],
+              backgroundColor: 'rgba(239, 68, 68, 0.3)',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+      
+      // Received Chart (Line)
+      const receivedCtx = document.getElementById('received-chart');
+      if (receivedCtx) {
+        new Chart(receivedCtx, {
+          type: 'line',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [5, 8, 6, 12, 10, 14, 13],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+    }
+    
+    // Advanced Filters Toggle
+    function toggleAdvancedFilters() {
+      const filters = document.getElementById('advanced-filters');
+      const toggle = document.getElementById('advanced-toggle');
+      filters.classList.toggle('active');
+      toggle.classList.toggle('active');
+    }
+    
+    // Bulk Mode Toggle
+    let bulkModeActive = false;
+    function toggleBulkMode() {
+      bulkModeActive = !bulkModeActive;
+      const bulkActions = document.getElementById('bulk-actions');
+      const checkboxes = document.querySelectorAll('.receipt-checkbox');
+      
+      if (bulkModeActive) {
+        bulkActions.classList.add('active');
+        checkboxes.forEach(cb => cb.style.display = 'block');
+      } else {
+        bulkActions.classList.remove('active');
+        checkboxes.forEach(cb => {
+          cb.style.display = 'none';
+          cb.checked = false;
+        });
+        updateSelectedCount();
+      }
+    }
+    
+    // Update selected count
+    function updateSelectedCount() {
+      const selected = document.querySelectorAll('.receipt-checkbox:checked').length;
+      document.getElementById('selected-count').textContent = selected;
+    }
+    
+    // Bulk operations
+    function bulkDownload() {
+      showToast('Downloading selected receipts...', 'success');
+    }
+    
+    function bulkEmail() {
+      openEmailModal();
+    }
+    
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.className = `toast show ${type}`;
+      toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
 </body>
 </html>

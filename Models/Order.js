@@ -66,7 +66,6 @@ const orderSchema = new mongoose.Schema({
 
 // Indexes
 orderSchema.index({ user_id: 1, ordered_at: -1 });
-orderSchema.index({ order_number: 1 });
 orderSchema.index({ order_status: 1 });
 orderSchema.index({ payment_status: 1 });
 

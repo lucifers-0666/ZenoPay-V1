@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const referralSchema = new mongoose.Schema({
   referrer_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   referee_id: {
     type: String,
@@ -14,8 +13,7 @@ const referralSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    uppercase: true,
-    index: true
+    uppercase: true
   },
   referral_link: {
     type: String,
@@ -69,7 +67,6 @@ const referralSchema = new mongoose.Schema({
 
 // Indexes
 referralSchema.index({ referrer_id: 1, status: 1 });
-referralSchema.index({ referral_code: 1 });
 referralSchema.index({ created_at: -1 });
 
 // Static method to generate unique referral code

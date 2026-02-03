@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const referralRewardSchema = new mongoose.Schema({
   user_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   referral_id: {
     type: mongoose.Schema.Types.ObjectId,

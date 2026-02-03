@@ -12,7 +12,6 @@ const categorySchema = new mongoose.Schema({
 });
 
 // Indexes
-categorySchema.index({ slug: 1 });
 categorySchema.index({ parent_id: 1 });
 categorySchema.index({ display_order: 1 });
 

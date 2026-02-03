@@ -14,14 +14,31 @@ const DB_PATH = process.env.MONGO_URI;
 
 app.set("trust proxy", 1);
 
-const store = new MongoDBStore({
-  uri: DB_PATH,
-  collection: "sessions",
-});
+// Session store with fallback
+let store;
+try {
+  store = new MongoDBStore({
+    uri: DB_PATH,
+    collection: "sessions",
+    connectionOptions: {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    },
+  });
 
-store.on("error", (error) => {
-  console.error("Session Store Error:", error);
-});
+  store.on("error", (error) => {
+    console.error("❌ Session Store Error:", error.message);
+    console.error("⚠️  Sessions may not persist correctly");
+  });
+
+  store.on("connected", () => {
+    console.log("✓ Session store connected to MongoDB");
+  });
+} catch (error) {
+  console.error("❌ Failed to initialize MongoDB session store:", error.message);
+  console.warn("⚠️  Falling back to memory store (sessions will not persist)");
+  store = null;
+}
 
 app.use(
   cors({})
@@ -112,12 +129,56 @@ app.use((err, req, res, next) => {
   });
 });
 
-mongoose
-  .connect(DB_PATH)
-  .then(() => {
-    console.log("MongoDB Connected");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
+// MongoDB connection with retry logic and graceful degradation
+const connectDB = async () => {
+  const maxRetries = 5;
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      await mongoose.connect(DB_PATH, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+      console.log("✓ MongoDB Connected Successfully");
+      return true;
+    } catch (err) {
+      retries++;
+      console.error(`❌ MongoDB connection attempt ${retries}/${maxRetries} failed:`, err.message);
+      
+      if (retries < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, retries), 10000);
+        console.log(`⏳ Retrying in ${delay/1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  console.error("⚠️  Could not connect to MongoDB after", maxRetries, "attempts");
+  console.error("⚠️  Server starting in degraded mode - database features disabled");
+  return false;
+};
+
+// Handle MongoDB connection events
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✓ MongoDB reconnected');
+});
+
+// Start server with or without DB connection
+(async () => {
+  const dbConnected = await connectDB();
+  
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Server running on port ${PORT}`);
+    console.log(`📊 Database status: ${dbConnected ? '✓ Connected' : '❌ Disconnected (degraded mode)'}`);
+    console.log(`🔒 Session store: ${dbConnected ? '✓ MongoDB' : '⚠️  Memory (not persistent)'}\n`);
   });
+})();

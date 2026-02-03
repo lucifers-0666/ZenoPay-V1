@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const StatementSchema = new mongoose.Schema({
   user_id: {
     type: String,
-    required: true,
-    index: true,
+    required: true
   },
   statement_month: {
     type: String,

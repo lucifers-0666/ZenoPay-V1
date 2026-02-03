@@ -14,8 +14,7 @@ const receiptSchema = new mongoose.Schema({
   },
   user_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   transaction_type: {
     type: String,
@@ -99,7 +98,6 @@ const receiptSchema = new mongoose.Schema({
 
 // Indexes for efficient querying
 receiptSchema.index({ user_id: 1, transaction_date: -1 });
-receiptSchema.index({ receipt_number: 1 });
 receiptSchema.index({ transaction_id: 1 });
 receiptSchema.index({ status: 1 });
 
