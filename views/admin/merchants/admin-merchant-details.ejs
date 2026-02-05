@@ -1,0 +1,131 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-store" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+    Merchant Details
+  </h1>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-2xl);">
+  <!-- Merchant Info -->
+  <div>
+    <div class="card" style="margin-bottom: var(--spacing-2xl);">
+      <div class="card-header">
+        <h2 class="card-title">Business Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Business Name</label>
+          <p style="margin: 0;">Acme Store</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Business Email</label>
+          <p style="margin: 0;">contact@acmestore.com</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <p style="margin: 0;">+234 812 345 6789</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Business Type</label>
+          <p style="margin: 0;">Retail</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Business Address</label>
+          <p style="margin: 0;">123 Shopping Street, Lagos, Nigeria</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Registration Date</label>
+          <p style="margin: 0;">January 10, 2024</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bank Information -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Bank Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <p style="margin: 0;">First Bank</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <p style="margin: 0;">1234567890</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Account Name</label>
+          <p style="margin: 0;">ACME STORE</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sidebar -->
+  <div>
+    <div class="card" style="margin-bottom: var(--spacing-2xl);">
+      <div class="card-header">
+        <h2 class="card-title">Status & Verification</h2>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom: var(--spacing-lg);">
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Account Status</p>
+          <span class="badge badge-success">Active</span>
+        </div>
+        
+        <div style="margin-bottom: var(--spacing-lg);">
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Verification Status</p>
+          <span class="badge badge-success">Verified</span>
+        </div>
+        
+        <div style="margin-bottom: var(--spacing-lg);">
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Documents Status</p>
+          <span class="badge badge-success">Complete</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Quick Stats</h2>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom: var(--spacing-lg);">
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Total Sales</p>
+          <div style="font-size: var(--text-xl); font-weight: bold;">₦2.5M</div>
+        </div>
+        
+        <div style="margin-bottom: var(--spacing-lg);">
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Transactions</p>
+          <div style="font-size: var(--text-xl); font-weight: bold;">234</div>
+        </div>
+        
+        <div>
+          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Success Rate</p>
+          <div style="font-size: var(--text-xl); font-weight: bold; color: var(--success);">99.5%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div style="margin-top: var(--spacing-2xl); display: flex; gap: var(--spacing-base);">
+  <a href="/admin/merchants/<%= id %>/edit" class="btn btn-primary">
+    <i class="fas fa-edit"></i> Edit Details
+  </a>
+  <button class="btn btn-outline">
+    <i class="fas fa-comment"></i> Add Note
+  </button>
+  <button class="btn btn-error">
+    <i class="fas fa-ban"></i> Suspend Account
+  </button>
+</div>

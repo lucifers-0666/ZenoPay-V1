@@ -151,12 +151,33 @@ const acceptTerms = async (req, res) => {
   }
 };
 
+// Get API Integration page
+const getAPIIntegrationPage = (req, res) => {
+  try {
+    res.render('api-integration', {
+      pageTitle: 'API Integration - ZenoPay',
+      isLoggedIn: req.session?.isLoggedIn || false,
+      user: req.session?.user || null,
+      userData: req.session?.user || null
+    });
+  } catch (error) {
+    console.error('Error rendering API integration page:', error);
+    res.status(500).render('error-500', {
+      pageTitle: 'Error - ZenoPay',
+      error: 'Failed to load API Integration page',
+      isLoggedIn: false,
+      user: null
+    });
+  }
+};
+
 module.exports = {
   getTermsPage,
   getPrivacyPage,
   getAboutPage,
   getHelpPage,
   getContactPage,
+  getAPIIntegrationPage,
   getTermsVersion,
   acceptTerms
 };

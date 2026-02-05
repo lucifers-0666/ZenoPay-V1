@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'API Integration - ZenoPay' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header-modern.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/api-integration.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  <%- include('partials/header') %>
+
+  <main class="api-integration-page" id="mainContent">
+    <!-- SECTION 1: PAGE HEADER -->
+    <section class="page-header">
+      <div class="header-wrapper">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span>/</span>
+            <a href="/developer">Developer</a>
+            <span>/</span>
+            <span>API Integration</span>
+          </div>
+          
+          <div class="header-main">
+            <div class="header-icon-circle">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="header-content">
+              <h1>API Integration</h1>
+              <p>Integrate ZenoPay payment gateway into your application and start accepting payments</p>
+            </div>
+          </div>
+
+          <div class="badge-row">
+            <span class="badge blue">RESTful API</span>
+            <span class="badge green">Real-time Updates</span>
+            <span class="badge purple">Secure &amp; Encrypted</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-outline" onclick="switchTab('documentation')">
+            <i class="fas fa-book-open"></i>
+            View Documentation
+          </button>
+          <button class="btn btn-primary" onclick="switchTab('api-keys')">
+            <i class="fas fa-key"></i>
+            Generate API Key
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: NAVIGATION TABS -->
+    <nav class="api-nav-tabs">
+      <div class="tabs-wrapper" role="tablist" aria-label="API Integration Sections">
+        <button class="tab-item active" data-tab="overview" aria-selected="true">
+          <i class="fas fa-home"></i>
+          <span>Overview</span>
+        </button>
+        <button class="tab-item" data-tab="api-keys" aria-selected="false">
+          <i class="fas fa-key"></i>
+          <span>API Keys</span>
+        </button>
+        <button class="tab-item" data-tab="quickstart" aria-selected="false">
+          <i class="fas fa-rocket"></i>
+          <span>Quick Start</span>
+        </button>
+        <button class="tab-item" data-tab="documentation" aria-selected="false">
+          <i class="fas fa-book-open"></i>
+          <span>Documentation</span>
+        </button>
+        <button class="tab-item" data-tab="webhooks" aria-selected="false">
+          <i class="fas fa-bolt"></i>
+          <span>Webhooks</span>
+        </button>
+        <button class="tab-item" data-tab="settings" aria-selected="false">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="api-content-wrapper">
+      
+      <!-- SECTION 3: API STATISTICS CARDS -->
+      <section class="stats-section">
+        <div class="stats-grid">
+          <!-- Stat Card 1: Total API Calls -->
+          <div class="stat-card stat-card--blue">
+            <div class="stat-icon gradient-blue">
+              <i class="fas fa-arrow-rotate-right"></i>
+            </div>
+            <div class="stat-body">
+              <div class="stat-label">Total API Calls</div>
+              <div class="stat-value">0</div>
+              <div class="stat-trend positive">
+                <i class="fas fa-arrow-up"></i>
+                +0% this month
+              </div>
+            </div>
+          </div>
+
+          <!-- Stat Card 2: Success Rate -->
+          <div class="stat-card stat-card--green">
+            <div class="stat-icon gradient-green">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-body">
+              <div class="stat-label">Success Rate</div>
+              <div class="stat-value">100%</div>
+              <div class="stat-trend">Perfect performance</div>
+            </div>
+          </div>
+
+          <!-- Stat Card 3: Transaction Volume -->
+          <div class="stat-card stat-card--purple">
+            <div class="stat-icon gradient-purple">
+              <i class="fas fa-indian-rupee-sign"></i>
+            </div>
+            <div class="stat-body">
+              <div class="stat-label">Transaction Volume</div>
+              <div class="stat-value">₹0</div>
+              <div class="stat-trend">Last 30 days</div>
+            </div>
+          </div>
+
+          <!-- Stat Card 4: Account Status -->
+          <div class="stat-card stat-card--orange">
+            <div class="stat-icon gradient-orange">
+              <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="stat-body">
+              <div class="stat-label">Account Status</div>
+              <div class="stat-badge not-verified">Not Verified</div>
+              <a href="#" class="stat-action">Complete Verification →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: MAIN CONTENT (TWO COLUMN LAYOUT) -->
+      <section class="main-content">
+        <div class="left-column">
+          <!-- TAB CONTENT: OVERVIEW -->
+          <div class="tab-content active" id="overview">
+            <!-- CARD: API KEYS & CREDENTIALS -->
+            <div class="content-card">
+              <div class="card-header">
+                <div>
+                  <h3>API Keys</h3>
+                  <p>Use these keys to authenticate your API requests</p>
+                </div>
+              </div>
+
+              <div class="env-toggle">
+                <button class="env-btn env-btn--test active" data-env="test">
+                  <i class="fas fa-flask"></i>
+                  Test Mode
+                </button>
+                <button class="env-btn env-btn--live" data-env="live">
+                  <i class="fas fa-circle-check"></i>
+                  Live Mode
+                </button>
+              </div>
+
+              <div class="key-section">
+                <div class="key-item">
+                  <label class="key-label">
+                    <i class="fas fa-eye"></i>
+                    Publishable Key
+                  </label>
+                  <div class="key-display">
+                    <code id="pubKey" data-key="pk_test_4b5f6g7h8i9j0k1l2m3n4o5p">pk_test_4b5f6g7h8i9j0k1l2m3n4o5p</code>
+                    <button class="key-btn" onclick="copyKey(this)" title="Copy key">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="key-item">
+                  <label class="key-label">
+                    <i class="fas fa-lock"></i>
+                    Secret Key
+                  </label>
+                  <div class="key-display">
+                    <code id="secretKey" data-key="sk_test_1a2b3c4d5e6f7g8h9i0j">sk_test_••••••••••••••••••••</code>
+                    <button class="key-btn toggle-visibility" onclick="toggleKeyVisibility(this)" title="Show/hide key">
+                      <i class="fas fa-eye-slash"></i>
+                    </button>
+                    <button class="key-btn" onclick="copyKey(this)" title="Copy key">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Never share your secret key in public repositories or client-side code</span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-danger" onclick="regenerateKeys()">
+                  <i class="fas fa-arrow-rotate-right"></i>
+                  Regenerate Keys
+                </button>
+                <button class="btn btn-success" onclick="switchToLive()">
+                  <i class="fas fa-rocket"></i>
+                  Switch to Live
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD: QUICK ACTIONS -->
+            <div class="content-card">
+              <h3>Quick Actions</h3>
+              <div class="quick-actions-list">
+                <button class="action-btn action-btn--test" onclick="testPayment()">
+                  <div class="action-icon action-icon--primary">
+                    <i class="fas fa-play"></i>
+                  </div>
+                  <div class="action-info">
+                    <span class="action-title">Test Payment Flow</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="action-btn action-btn--docs" onclick="switchTab('documentation')">
+                  <div class="action-icon action-icon--success">
+                    <i class="fas fa-book-open"></i>
+                  </div>
+                  <div class="action-info">
+                    <span class="action-title">View Documentation</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="action-btn action-btn--webhooks" onclick="switchTab('webhooks')">
+                  <div class="action-icon action-icon--warning">
+                    <i class="fas fa-bolt"></i>
+                  </div>
+                  <div class="action-info">
+                    <span class="action-title">Configure Webhooks</span>
+                  </div>
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD: AVAILABLE ENDPOINTS -->
+            <div class="content-card">
+              <h3>API Endpoints</h3>
+              <div class="endpoints-list">
+                <div class="endpoint-item" onclick="expandEndpoint(this)">
+                  <div class="endpoint-method post">POST</div>
+                  <div class="endpoint-path">/api/v1/payments/create</div>
+                  <div class="endpoint-description">Create a new payment transaction</div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="endpoint-item" onclick="expandEndpoint(this)">
+                  <div class="endpoint-method get">GET</div>
+                  <div class="endpoint-path">/api/v1/payments/:id</div>
+                  <div class="endpoint-description">Get payment transaction status</div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="endpoint-item" onclick="expandEndpoint(this)">
+                  <div class="endpoint-method post">POST</div>
+                  <div class="endpoint-path">/api/v1/payments/:id/refund</div>
+                  <div class="endpoint-description">Refund a completed payment</div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="endpoint-item" onclick="expandEndpoint(this)">
+                  <div class="endpoint-method get">GET</div>
+                  <div class="endpoint-path">/api/v1/transactions</div>
+                  <div class="endpoint-description">List all transactions</div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="endpoint-item" onclick="expandEndpoint(this)">
+                  <div class="endpoint-method post">POST</div>
+                  <div class="endpoint-path">/api/v1/webhooks</div>
+                  <div class="endpoint-description">Register webhook endpoint</div>
+                  <i class="fas fa-chevron-right"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD: RECENT ACTIVITY (NEW) -->
+            <div class="content-card recent-activity-card">
+              <div class="card-header">
+                <h3>Recent Activity</h3>
+                <a href="#" class="view-all-link">View All</a>
+              </div>
+              
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-icon-wrapper icon-blue">
+                    <i class="fas fa-key"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">API Key Created</div>
+                    <div class="activity-time">Just now</div>
+                  </div>
+                </div>
+                
+                <div class="activity-item">
+                  <div class="activity-icon-wrapper icon-green">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">Payment Processed</div>
+                    <div class="activity-time">2 hours ago</div>
+                  </div>
+                  <span class="activity-status success">Success</span>
+                </div>
+                
+                <div class="activity-item">
+                  <div class="activity-icon-wrapper icon-orange">
+                    <i class="fas fa-bolt"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">Webhook Configured</div>
+                    <div class="activity-time">Yesterday</div>
+                  </div>
+                </div>
+                
+                <div class="activity-item">
+                  <div class="activity-icon-wrapper icon-purple">
+                    <i class="fas fa-book-open"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">Documentation Viewed</div>
+                    <div class="activity-time">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT: API KEYS -->
+          <div class="tab-content" id="api-keys">
+            <div class="content-card">
+              <div class="section-header">
+                <div>
+                  <h2>API Keys & Credentials</h2>
+                  <p>Manage keys for your test and live environments with granular access control.</p>
+                </div>
+                <button class="btn btn-primary">
+                  <i class="fas fa-key"></i>
+                  Generate New Key
+                </button>
+              </div>
+
+              <div class="key-cards-grid">
+                <div class="key-card">
+                  <div class="key-card-header">
+                    <div>
+                      <h4>Test Mode Key</h4>
+                      <span class="key-status active">Active</span>
+                    </div>
+                    <span class="key-date">Last used: Today</span>
+                  </div>
+                  <div class="key-card-body">
+                    <div class="key-line">
+                      <span>Publishable</span>
+                      <code>pk_test_4b5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t</code>
+                      <button class="key-btn" onclick="copyToClipboard('pk_test_4b5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t', this)">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                    <div class="key-line">
+                      <span>Secret</span>
+                      <code>sk_test_••••••••••••••••••••••••••••••••</code>
+                      <button class="key-btn" onclick="copyToClipboard('sk_test_1a2b3c4d5e6f7g8h9i0j', this)">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                    <div class="permissions-list">
+                      <span class="pill">Payments</span>
+                      <span class="pill">Refunds</span>
+                      <span class="pill">Webhooks</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="key-card">
+                  <div class="key-card-header">
+                    <div>
+                      <h4>Live Mode Key</h4>
+                      <span class="key-status pending">Pending Verification</span>
+                    </div>
+                    <span class="key-date">Last used: Never</span>
+                  </div>
+                  <div class="key-card-body">
+                    <div class="key-line">
+                      <span>Publishable</span>
+                      <code>pk_live_••••••••••••••••••••••••••••••••</code>
+                      <button class="key-btn" disabled>
+                        <i class="fas fa-lock"></i>
+                      </button>
+                    </div>
+                    <div class="key-line">
+                      <span>Secret</span>
+                      <code>sk_live_••••••••••••••••••••••••••••••••</code>
+                      <button class="key-btn" disabled>
+                        <i class="fas fa-lock"></i>
+                      </button>
+                    </div>
+                    <div class="key-alert">
+                      Complete KYC verification to activate live keys.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT: QUICK START -->
+          <div class="tab-content" id="quickstart">
+            <div class="content-card">
+              <h2>Quick Start Guide</h2>
+              <p>Follow these steps to integrate ZenoPay in under 10 minutes.</p>
+
+              <div class="quickstart-grid">
+                <div class="quickstart-steps">
+                  <div class="step-row">
+                    <span class="step-badge">1</span>
+                    <div>
+                      <h4>Install SDK</h4>
+                      <p>Install the official SDK for your platform.</p>
+                      <code>npm install zenopay-sdk</code>
+                    </div>
+                  </div>
+                  <div class="step-row">
+                    <span class="step-badge">2</span>
+                    <div>
+                      <h4>Initialize Client</h4>
+                      <p>Provide your publishable and secret keys.</p>
+                    </div>
+                  </div>
+                  <div class="step-row">
+                    <span class="step-badge">3</span>
+                    <div>
+                      <h4>Create Payment</h4>
+                      <p>Send a payment request with amount and customer details.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="quickstart-code">
+                  <div class="code-card compact">
+                    <div class="code-header">
+                      <div class="code-title">
+                        <i class="fas fa-code"></i>
+                        <span>Node.js Example</span>
+                      </div>
+                      <button class="copy-btn" onclick="copyCode(this)" title="Copy code">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                    <pre class="code-content"><code class="language-javascript">const zenopay = require('zenopay-sdk');
+
+zenopay.init({
+  apiKey: 'pk_test_...',
+  secretKey: 'sk_test_...'
+});
+
+const payment = await zenopay.createPayment({
+  amount: 5000,
+  currency: 'INR'
+});</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT: DOCUMENTATION -->
+          <div class="tab-content" id="documentation">
+            <div class="content-card">
+              <div class="section-header">
+                <div>
+                  <h2>API Documentation</h2>
+                  <p>Detailed endpoint reference with request and response examples.</p>
+                </div>
+                <button class="btn btn-outline">
+                  <i class="fas fa-arrow-up-right-from-square"></i>
+                  Open Full Docs
+                </button>
+              </div>
+
+              <div class="doc-table">
+                <div class="doc-row doc-header">
+                  <span>Method</span>
+                  <span>Endpoint</span>
+                  <span>Description</span>
+                </div>
+                <div class="doc-row">
+                  <span class="method post">POST</span>
+                  <span>/api/v1/payments/create</span>
+                  <span>Create a new payment</span>
+                </div>
+                <div class="doc-row">
+                  <span class="method get">GET</span>
+                  <span>/api/v1/payments/:id</span>
+                  <span>Get payment status</span>
+                </div>
+                <div class="doc-row">
+                  <span class="method post">POST</span>
+                  <span>/api/v1/payments/:id/refund</span>
+                  <span>Refund a payment</span>
+                </div>
+                <div class="doc-row">
+                  <span class="method get">GET</span>
+                  <span>/api/v1/transactions</span>
+                  <span>List transactions</span>
+                </div>
+              </div>
+
+              <div class="doc-sample">
+                <h4>Sample Response</h4>
+                <pre class="code-content"><code class="language-json">{
+  "id": "pay_123456",
+  "status": "success",
+  "amount": 5000,
+  "currency": "INR",
+  "created_at": "2026-02-03T10:15:00Z"
+}</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT: WEBHOOKS -->
+          <div class="tab-content" id="webhooks">
+            <div class="content-card">
+              <h2>Webhook Configuration</h2>
+              <p>Receive real-time updates for payment events and disputes.</p>
+
+              <div class="webhook-card">
+                <div>
+                  <h4>Webhook URL</h4>
+                  <p>We’ll send events to this endpoint.</p>
+                </div>
+                <div class="webhook-input">
+                  <input type="url" placeholder="https://yourdomain.com/webhooks/zenopay" />
+                  <button class="btn btn-primary">Save</button>
+                </div>
+              </div>
+
+              <div class="event-list">
+                <h4>Enabled Events</h4>
+                <div class="event-item">
+                  <span>payment.success</span>
+                  <span class="event-status">Active</span>
+                </div>
+                <div class="event-item">
+                  <span>payment.failed</span>
+                  <span class="event-status">Active</span>
+                </div>
+                <div class="event-item">
+                  <span>refund.processed</span>
+                  <span class="event-status">Active</span>
+                </div>
+                <div class="event-item">
+                  <span>dispute.created</span>
+                  <span class="event-status">Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT: SETTINGS -->
+          <div class="tab-content" id="settings">
+            <div class="content-card">
+              <h2>API Settings</h2>
+              <p>Configure rate limits, IP whitelist, and security preferences.</p>
+
+              <div class="settings-grid">
+                <div class="settings-card">
+                  <h4>Rate Limits</h4>
+                  <p>Default limit: 120 requests/minute</p>
+                  <div class="settings-row">
+                    <span>Current plan</span>
+                    <strong>Developer</strong>
+                  </div>
+                  <button class="btn btn-outline">Request Increase</button>
+                </div>
+
+                <div class="settings-card">
+                  <h4>IP Allowlist</h4>
+                  <p>Restrict API access to approved IPs only.</p>
+                  <div class="settings-row">
+                    <span>Allowed IPs</span>
+                    <strong>0</strong>
+                  </div>
+                  <button class="btn btn-primary">Add IP Address</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-column">
+          <!-- CARD: INTEGRATION GUIDE (Gradient) -->
+          <div class="guide-card">
+            <i class="fas fa-rocket guide-icon"></i>
+            <h3>Quick Start Guide</h3>
+            <p>Get started with ZenoPay integration in minutes</p>
+            
+            <div class="steps-list">
+              <div class="step">
+                <span class="step-number">1</span>
+                <span>Copy your API keys from above</span>
+              </div>
+              <div class="step">
+                <span class="step-number">2</span>
+                <span>Install SDK: npm install zenopay</span>
+              </div>
+              <div class="step">
+                <span class="step-number">3</span>
+                <span>Initialize in your application</span>
+              </div>
+              <div class="step">
+                <span class="step-number">4</span>
+                <span>Create your first payment</span>
+              </div>
+            </div>
+
+            <button class="btn btn-white-gradient" onclick="switchTab('documentation')">
+              <i class="fas fa-arrow-right"></i>
+              View Full Documentation
+            </button>
+          </div>
+
+          <!-- CARD: CODE EXAMPLE (Dark Theme) -->
+          <div class="code-card">
+            <div class="code-header">
+              <div class="code-title">
+                <i class="fas fa-code"></i>
+                <span>Code Example</span>
+              </div>
+              <div class="code-controls">
+                <div class="lang-tabs">
+                  <button class="lang-tab active" data-lang="javascript">Node.js</button>
+                  <button class="lang-tab" data-lang="python">Python</button>
+                  <button class="lang-tab" data-lang="php">PHP</button>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)" title="Copy code">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+            <pre class="code-content"><code class="language-javascript" data-lang="javascript">const zenopay = require('zenopay-sdk');
+
+// Initialize SDK
+zenopay.init({
+  apiKey: 'pk_test_...',
+  secretKey: 'sk_test_...'
+});
+
+// Create payment
+const payment = await zenopay.createPayment({
+  amount: 5000,
+  currency: 'INR',
+  customer: {
+    email: 'user@example.com'
+  }
+});
+
+console.log(payment.id);</code></pre>
+          </div>
+
+          <!-- CARD: SDK & LIBRARIES -->
+          <div class="sdk-card">
+            <h3>Official SDKs</h3>
+            <div class="sdk-grid">
+              <a href="#" class="sdk-item" target="_blank">
+                <div class="sdk-icon nodejs">
+                  <i class="fab fa-node-js"></i>
+                </div>
+                <div class="sdk-info">
+                  <div class="sdk-name">Node.js</div>
+                  <div class="sdk-install">npm install zenopay</div>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+              </a>
+
+              <a href="#" class="sdk-item" target="_blank">
+                <div class="sdk-icon python">
+                  <i class="fab fa-python"></i>
+                </div>
+                <div class="sdk-info">
+                  <div class="sdk-name">Python</div>
+                  <div class="sdk-install">pip install zenopay</div>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+              </a>
+
+              <a href="#" class="sdk-item" target="_blank">
+                <div class="sdk-icon php">
+                  <i class="fab fa-php"></i>
+                </div>
+                <div class="sdk-info">
+                  <div class="sdk-name">PHP</div>
+                  <div class="sdk-install">composer require zenopay/sdk</div>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+              </a>
+
+              <a href="#" class="sdk-item" target="_blank">
+                <div class="sdk-icon java">
+                  <i class="fab fa-java"></i>
+                </div>
+                <div class="sdk-info">
+                  <div class="sdk-name">Java</div>
+                  <div class="sdk-install">maven: com.zenopay</div>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- CARD: API STATUS (NEW) -->
+          <div class="api-status-card">
+            <div class="status-icon-wrapper">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>All Systems Operational</h3>
+            <div class="status-metric">API uptime: 99.9%</div>
+            <div class="status-time">Last updated: 2 minutes ago</div>
+            <a href="#" class="status-link">View Status Page →</a>
+          </div>
+
+          <!-- CARD: DOCUMENTATION CTA -->
+          <div class="docs-cta-card">
+            <div class="docs-cta-icon">
+              <i class="fas fa-book-open"></i>
+            </div>
+            <h3>Complete API Documentation</h3>
+            <p>Explore detailed guides, examples, and API reference</p>
+            <button class="btn btn-docs-cta" onclick="switchTab('documentation')">
+              <i class="fas fa-book-open"></i>
+              View Full Documentation
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: WHY CHOOSE SECTION -->
+      <section class="features-section">
+        <h2>Why Choose ZenoPay Gateway?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon lightning">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Lightning Fast</h3>
+            <p>Process payments in milliseconds with our optimized infrastructure</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon secure">
+              <i class="fas fa-shield-halved"></i>
+            </div>
+            <h3>Secure & Compliant</h3>
+            <p>PCI-DSS compliant with end-to-end encryption for all transactions</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon integration">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>Easy Integration</h3>
+            <p>Simple RESTful APIs with SDKs for all major platforms</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: API FEATURES GRID (NEW) -->
+      <section class="api-features-section">
+        <div class="features-header">
+          <h2>Powerful API Features</h2>
+          <p>Everything you need to integrate payments seamlessly</p>
+        </div>
+        
+        <div class="api-features-grid">
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-orange">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Real-time Webhooks</h3>
+            <p>Receive instant notifications for all payment events</p>
+          </div>
+          
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-green">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h3>Multiple Currencies</h3>
+            <p>Support for 100+ currencies with automatic conversion</p>
+          </div>
+          
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-indigo">
+              <i class="fas fa-shield-halved"></i>
+            </div>
+            <h3>Advanced Security</h3>
+            <p>PCI-DSS Level 1 certified with 256-bit encryption</p>
+          </div>
+          
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-purple">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>Developer Tools</h3>
+            <p>Comprehensive SDKs, testing sandbox, and debugging tools</p>
+          </div>
+          
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-pink">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3>Analytics Dashboard</h3>
+            <p>Real-time insights into payments, refunds, and trends</p>
+          </div>
+          
+          <div class="api-feature-card">
+            <div class="api-feature-icon icon-blue">
+              <i class="fas fa-comments"></i>
+            </div>
+            <h3>24/7 Support</h3>
+            <p>Round-the-clock developer support and documentation</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: SUPPORT SECTION -->
+      <section class="support-newsletter-wrapper">
+        <div class="support-section">
+          <div class="chat-icon-container">
+            <i class="fas fa-comments chat-icon"></i>
+          </div>
+          <h2>Need Help with Integration?</h2>
+          <p>Our developer support team is here to assist you 24/7</p>
+
+          <div class="support-stats-row">
+            <div class="stat-item">
+              <i class="fas fa-clock"></i>
+              <span>&lt; 2 hour response time</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-users"></i>
+              <span>1000+ developers helped</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-star"></i>
+              <span>98% satisfaction rate</span>
+            </div>
+          </div>
+
+          <div class="support-buttons">
+            <button class="btn btn-contact-support">
+              <i class="fas fa-envelope"></i>
+              Contact Support
+            </button>
+            <button class="btn btn-join-community">
+              <i class="fas fa-users"></i>
+              Join Community
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="/js/api-integration.js"></script>
+</body>
+</html>

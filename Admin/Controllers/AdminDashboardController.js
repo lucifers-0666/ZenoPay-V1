@@ -8,9 +8,9 @@ const Banks = require("../../Models/Banks");
 const getDashboard = async (req, res) => {
   try {
     // Render the new modern dashboard
-    res.render("dashboard/overview", {
+    res.render("dashboard/admin-dashboard-overview", {
       user: req.session.user,
-      pageTitle: "Admin Dashboard - ZenoPay"
+      pageTitle: "Admin Dashboard Overview - ZenoPay"
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
@@ -197,9 +197,9 @@ function getTimeAgo(date) {
 // GET Statistics Page
 const getStatistics = async (req, res) => {
   try {
-    res.render("dashboard/statistics", {
+    res.render("dashboard/admin-dashboard-analytics", {
       user: req.session.user,
-      pageTitle: "Platform Statistics - ZenoPay"
+      pageTitle: "Admin Dashboard Analytics - ZenoPay"
     });
   } catch (error) {
     console.error("Statistics Error:", error);
@@ -309,9 +309,9 @@ const getStatisticsData = async (req, res) => {
 // GET Activity Monitor Page
 const getActivityMonitor = async (req, res) => {
   try {
-    res.render("dashboard/activity-monitor", {
+    res.render("dashboard/admin-real-time-monitor", {
       user: req.session.user,
-      pageTitle: "Activity Monitor - ZenoPay"
+      pageTitle: "Admin Real-Time Monitor - ZenoPay"
     });
   } catch (error) {
     console.error("Activity Monitor Error:", error);
@@ -372,8 +372,8 @@ const getLiveActivities = async (req, res) => {
 const getAnalytics = async (req, res) => {
   try {
     // Add analytics logic here
-    res.render("admin/analytics", {
-      pageTitle: "Analytics",
+    res.render("analytics/admin-business-analytics", {
+      pageTitle: "Admin Business Analytics",
       currentPage: "analytics",
       admin: req.session.user,
     });
@@ -386,8 +386,8 @@ const getAnalytics = async (req, res) => {
 // GET Reports Page
 const getReports = async (req, res) => {
   try {
-    res.render("admin/reports", {
-      pageTitle: "Reports",
+    res.render("analytics/admin-financial-reports", {
+      pageTitle: "Admin Financial Reports",
       currentPage: "reports",
       admin: req.session.user,
     });
@@ -411,8 +411,8 @@ const exportReports = async (req, res) => {
 // GET Settings Page
 const getSettings = async (req, res) => {
   try {
-    res.render("admin/settings", {
-      pageTitle: "Settings",
+    res.render("settings/admin-system-settings", {
+      pageTitle: "Admin System Settings",
       currentPage: "settings",
       admin: req.session.user,
     });
@@ -433,6 +433,65 @@ const updateSettings = async (req, res) => {
   }
 };
 
+// GET Payment Gateway Settings Page
+const getPaymentGatewaySettings = async (req, res) => {
+  try {
+    res.render("settings/payment-gateway", {
+      user: req.session.user,
+      pageTitle: "Payment Gateway Settings - ZenoPay Admin"
+    });
+  } catch (error) {
+    console.error("Payment Gateway Settings error:", error);
+    res.status(500).send("Error loading payment gateway settings");
+  }
+};
+
+// Update Payment Gateway Settings
+const updatePaymentGatewaySettings = async (req, res) => {
+  try {
+    const {
+      environment,
+      apiKey,
+      secretKey,
+      merchantId,
+      webhookUrl,
+      successUrl,
+      failureUrl,
+      paymentMethods,
+      fees,
+      advancedSettings
+    } = req.body;
+
+    // Validate required fields
+    if (!apiKey || !secretKey || !merchantId) {
+      return res.status(400).json({
+        success: false,
+        message: "API Key, Secret Key, and Merchant ID are required"
+      });
+    }
+
+    // In production, save to database
+    // For now, return success
+    res.json({
+      success: true,
+      message: "Payment gateway settings updated successfully",
+      data: {
+        environment,
+        merchantId,
+        paymentMethodsEnabled: Object.keys(paymentMethods).filter(key => paymentMethods[key]),
+        feesConfigured: Object.keys(fees).length,
+        advancedSettingsCount: Object.keys(advancedSettings).filter(key => advancedSettings[key]).length
+      }
+    });
+  } catch (error) {
+    console.error("Update Payment Gateway Settings error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getDashboard,
   getDashboardData,
@@ -445,4 +504,6 @@ module.exports = {
   exportReports,
   getSettings,
   updateSettings,
+  getPaymentGatewaySettings,
+  updatePaymentGatewaySettings,
 };

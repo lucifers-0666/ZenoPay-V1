@@ -19,7 +19,7 @@ const getLogin = (req, res) => {
     successMessage = 'Password reset successful! You can now login with your new password.';
   }
   
-  res.render("auth/admin-login", {
+  res.render("auth/admin-authentication", {
     pageTitle: "ZenoPay Admin Login",
     error: null,
     success: successMessage,
@@ -33,7 +33,7 @@ const postLogin = async (req, res) => {
 
     // Validate input
     if (!zenoPayId || !password) {
-      return res.render("auth/admin-login", {
+      return res.render("auth/admin-authentication", {
         pageTitle: "ZenoPay Admin Login",
         error: "Admin ID/Email and Password are required",
       });
@@ -49,7 +49,7 @@ const postLogin = async (req, res) => {
     });
 
     if (!adminUser) {
-      return res.render("auth/admin-login", {
+      return res.render("auth/admin-authentication", {
         pageTitle: "ZenoPay Admin Login",
         error: "Invalid credentials or insufficient privileges",
       });
@@ -57,7 +57,7 @@ const postLogin = async (req, res) => {
 
     // Verify password (Note: You should use bcrypt for password hashing)
     if (adminUser.Password !== password) {
-      return res.render("auth/admin-login", {
+      return res.render("auth/admin-authentication", {
         pageTitle: "ZenoPay Admin Login",
         error: "Invalid credentials",
       });
@@ -77,7 +77,7 @@ const postLogin = async (req, res) => {
     res.redirect("/admin/dashboard");
   } catch (error) {
     console.error("Admin login error:", error);
-    res.render("auth/admin-login", {
+    res.render("auth/admin-authentication", {
       pageTitle: "ZenoPay Admin Login",
       error: "An error occurred. Please try again.",
     });
@@ -97,7 +97,7 @@ const logout = (req, res) => {
 
 // GET Forgot Password Page
 const getForgotPassword = (req, res) => {
-  res.render("auth/forgot-password", {
+  res.render("auth/admin-password-recovery", {
     pageTitle: "Admin Password Reset - ZenoPay",
     error: null,
     success: null,
@@ -112,7 +112,7 @@ const postForgotPassword = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.render("auth/forgot-password", {
+      return res.render("auth/admin-password-recovery", {
         pageTitle: "Admin Password Reset - ZenoPay",
         error: "Email address is required",
         success: null,
@@ -130,7 +130,7 @@ const postForgotPassword = async (req, res) => {
     // Always show success message (security best practice)
     // Don't reveal if email exists in system
     if (!adminUser) {
-      return res.render("auth/forgot-password", {
+      return res.render("auth/admin-password-recovery", {
         pageTitle: "Admin Password Reset - ZenoPay",
         error: null,
         success: null,
@@ -162,7 +162,7 @@ const postForgotPassword = async (req, res) => {
     );
 
     // Show success screen
-    res.render("auth/forgot-password", {
+    res.render("auth/admin-password-recovery", {
       pageTitle: "Admin Password Reset - ZenoPay",
       error: null,
       success: null,
@@ -171,7 +171,7 @@ const postForgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Forgot password error:", error);
-    res.render("auth/forgot-password", {
+    res.render("auth/admin-password-recovery", {
       pageTitle: "Admin Password Reset - ZenoPay",
       error: "An error occurred. Please try again later.",
       success: null,
@@ -189,7 +189,7 @@ const getResetPassword = (req, res) => {
   const tokenData = resetTokens.get(token);
 
   if (!tokenData || tokenData.expiry < Date.now()) {
-    return res.render("auth/reset-password", {
+    return res.render("auth/admin-password-reset", {
       pageTitle: "Reset Password - ZenoPay Admin",
       error: "Invalid or expired reset link. Please request a new one.",
       token: null,
@@ -197,7 +197,7 @@ const getResetPassword = (req, res) => {
     });
   }
 
-  res.render("auth/reset-password", {
+  res.render("auth/admin-password-reset", {
     pageTitle: "Reset Password - ZenoPay Admin",
     error: null,
     success: null,
@@ -216,7 +216,7 @@ const postResetPassword = async (req, res) => {
     const tokenData = resetTokens.get(token);
 
     if (!tokenData || tokenData.expiry < Date.now()) {
-      return res.render("auth/reset-password", {
+      return res.render("auth/admin-password-reset", {
         pageTitle: "Reset Password - ZenoPay Admin",
         error: "Invalid or expired reset link. Please request a new one.",
         success: null,
@@ -227,7 +227,7 @@ const postResetPassword = async (req, res) => {
 
     // Validate passwords
     if (!password || !confirmPassword) {
-      return res.render("auth/reset-password", {
+      return res.render("auth/admin-password-reset", {
         pageTitle: "Reset Password - ZenoPay Admin",
         error: "All fields are required",
         success: null,
@@ -237,7 +237,7 @@ const postResetPassword = async (req, res) => {
     }
 
     if (password !== confirmPassword) {
-      return res.render("auth/reset-password", {
+      return res.render("auth/admin-password-reset", {
         pageTitle: "Reset Password - ZenoPay Admin",
         error: "Passwords do not match",
         success: null,
@@ -247,7 +247,7 @@ const postResetPassword = async (req, res) => {
     }
 
     if (password.length < 8) {
-      return res.render("auth/reset-password", {
+      return res.render("auth/admin-password-reset", {
         pageTitle: "Reset Password - ZenoPay Admin",
         error: "Password must be at least 8 characters long",
         success: null,
@@ -263,7 +263,7 @@ const postResetPassword = async (req, res) => {
     });
 
     if (!adminUser) {
-      return res.render("auth/reset-password", {
+      return res.render("auth/admin-password-reset", {
         pageTitle: "Reset Password - ZenoPay Admin",
         error: "Admin account not found",
         success: null,
@@ -287,7 +287,7 @@ const postResetPassword = async (req, res) => {
     res.redirect("/admin/login?reset=success");
   } catch (error) {
     console.error("Reset password error:", error);
-    res.render("auth/reset-password", {
+    res.render("auth/admin-password-reset", {
       pageTitle: "Reset Password - ZenoPay Admin",
       error: "An error occurred. Please try again.",
       success: null,
@@ -634,7 +634,7 @@ async function sendPasswordChangedEmail(email, fullName) {
 
 // GET 2FA Setup Page
 const get2FASetup = (req, res) => {
-    res.render("auth/2fa-setup", {
+    res.render("auth/admin-two-factor-setup", {
     pageTitle: "Setup Two-Factor Authentication - ZenoPay Admin",
   });
 };
@@ -746,3 +746,4 @@ module.exports = {
   generate2FA,
   verify2FA,
 };
+

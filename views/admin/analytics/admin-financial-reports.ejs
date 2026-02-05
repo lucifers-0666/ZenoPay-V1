@@ -1,0 +1,88 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+  <div>
+    <h1 class="page-title">
+      <i class="fas fa-file-pdf" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+      Reports
+    </h1>
+    <p class="page-subtitle">Generate and download detailed reports</p>
+  </div>
+  <button class="btn btn-primary">
+    <i class="fas fa-plus"></i> Generate New Report
+  </button>
+</div>
+
+<!-- Report Templates -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-2xl);">
+  <div class="card">
+    <div class="card-body">
+      <h3 style="margin: 0 0 var(--spacing-sm) 0; font-size: var(--text-lg);">
+        <i class="fas fa-chart-line" style="color: var(--primary); margin-right: var(--spacing-sm);"></i>
+        Revenue Report
+      </h3>
+      <p style="margin: 0 0 var(--spacing-lg) 0; color: var(--text-light);">Monthly revenue breakdown</p>
+      <button class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Generate</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-body">
+      <h3 style="margin: 0 0 var(--spacing-sm) 0; font-size: var(--text-lg);">
+        <i class="fas fa-users" style="color: var(--emerald-500); margin-right: var(--spacing-sm);"></i>
+        User Report
+      </h3>
+      <p style="margin: 0 0 var(--spacing-lg) 0; color: var(--text-light);">User activity and growth</p>
+      <button class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Generate</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-body">
+      <h3 style="margin: 0 0 var(--spacing-sm) 0; font-size: var(--text-lg);">
+        <i class="fas fa-exchange-alt" style="color: var(--accent); margin-right: var(--spacing-sm);"></i>
+        Transaction Report
+      </h3>
+      <p style="margin: 0 0 var(--spacing-lg) 0; color: var(--text-light);">Transaction details and analytics</p>
+      <button class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">Generate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generated Reports -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Generated Reports</h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Report Name</th>
+          <th>Type</th>
+          <th>Generated Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Revenue Report - January 2024</td>
+          <td>Revenue</td>
+          <td>Feb 1, 2024</td>
+          <td><span class="badge badge-success">Ready</span></td>
+          <td>
+            <button class="btn btn-sm btn-primary">Download</button>
+          </td>
+        </tr>
+        <tr>
+          <td>User Activity Report - January 2024</td>
+          <td>User</td>
+          <td>Feb 1, 2024</td>
+          <td><span class="badge badge-success">Ready</span></td>
+          <td>
+            <button class="btn btn-sm btn-primary">Download</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

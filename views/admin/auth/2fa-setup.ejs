@@ -1,0 +1,39 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h1 style="text-align: center; margin-bottom: var(--spacing-base); color: var(--text-dark);">
+      Reset Password
+    </h1>
+    <p style="text-align: center; color: var(--text-light); margin-bottom: var(--spacing-xl);">
+      Enter your new password
+    </p>
+    
+    <% if (typeof errors !== 'undefined' && errors) { %>
+      <div class="alert alert-error">
+        <%= errors %>
+      </div>
+    <% } %>
+    
+    <form method="POST" action="/admin/auth/reset-password">
+      <input type="hidden" name="token" value="<%= typeof token !== 'undefined' ? token : '' %>">
+      
+      <div class="form-group">
+        <label for="password" class="form-label">New Password</label>
+        <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
+        <small class="form-help">Minimum 8 characters, include uppercase, lowercase, and numbers</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required placeholder="••••••••">
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+        <i class="fas fa-lock"></i> Reset Password
+      </button>
+      
+      <a href="/admin/auth/login" style="display: block; text-align: center; margin-top: var(--spacing-lg); color: var(--primary); text-decoration: none;">
+        Back to Login
+      </a>
+    </form>
+  </div>
+</div>

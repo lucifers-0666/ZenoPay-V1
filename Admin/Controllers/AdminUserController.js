@@ -33,8 +33,8 @@ const getAllUsers = async (req, res) => {
     const totalUsers = await ZenoPayUser.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalUsers / limit);
 
-    res.render("admin/users", {
-      pageTitle: "User Management",
+    res.render("users/admin-user-management", {
+      pageTitle: "Admin User Management",
       currentPage: "users",
       admin: req.session.user,
       users,
@@ -97,8 +97,8 @@ const getUserDetails = async (req, res) => {
       },
     ]);
 
-    res.render("admin/user-details", {
-      pageTitle: "User Details",
+    res.render("users/admin-user-details", {
+      pageTitle: "Admin User Details",
       currentPage: "users",
       admin: req.session.user,
       user,

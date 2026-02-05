@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Gateway Settings - ZenoPay Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* CSS VARIABLES - DESIGN SYSTEM */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    :root {
+      /* Colors */
+      --color-primary-blue: #6366F1;
+      --color-primary-purple: #8B5CF6;
+      --color-light-blue: #3B82F6;
+      --color-green: #10B981;
+      --color-yellow: #F59E0B;
+      --color-red: #EF4444;
+      --color-background: #F3F4F6;
+      --color-card: #FFFFFF;
+      --color-text-dark: #1F2937;
+      --color-text-gray: #6B7280;
+      --color-text-light: #9CA3AF;
+      --color-border: #E5E7EB;
+      --color-divider: #D1D5DB;
+
+      /* Gradients */
+      --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-blue-purple: linear-gradient(135deg, #6366F1, #8B5CF6);
+      --gradient-blue-accent: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      --gradient-green: linear-gradient(135deg, #10B981, #059669);
+      --gradient-orange: linear-gradient(135deg, #F59E0B, #D97706);
+      --gradient-purple: linear-gradient(135deg, #8B5CF6, #6D28D9);
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* GLOBAL STYLES */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--color-background);
+      color: var(--color-text-dark);
+      min-height: 100vh;
+      padding: 40px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* PAGE HEADER */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .page-header-left h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .page-header-left p {
+      font-size: 16px;
+      color: var(--color-text-gray);
+      font-weight: 400;
+    }
+
+    .page-header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-test {
+      background: var(--color-card);
+      border: 2px solid var(--color-primary-blue);
+      color: var(--color-primary-blue);
+      height: 48px;
+      padding: 0 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-test:hover {
+      background: var(--color-primary-blue);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-save {
+      background: var(--gradient-green);
+      border: none;
+      color: white;
+      height: 48px;
+      padding: 0 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* SECTION TITLES */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* PAYMENT METHODS GRID */
+    /* ════════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .payment-methods-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .payment-method-card {
+      background: var(--color-card);
+      border: 2px solid var(--color-border);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .payment-method-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .payment-method-card.active {
+      border-color: var(--color-green);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .payment-method-card.inactive {
+      border-color: var(--color-border);
+      opacity: 0.8;
+    }
+
+    .payment-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .payment-icon-container {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .payment-icon-container.blue {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    }
+
+    .payment-icon-container.light-blue {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    }
+
+    .payment-icon-container.gray {
+      background: linear-gradient(135deg, rgba(156, 163, 175, 0.1), rgba(107, 114, 128, 0.1));
+    }
+
+    .payment-icon-container.green {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    }
+
+    .payment-icon-container.purple {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1));
+    }
+
+    .toggle-switch {
+      width: 52px;
+      height: 28px;
+      border-radius: 28px;
+      background: var(--color-border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-switch.on {
+      background: var(--color-green);
+    }
+
+    .toggle-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: left 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle-switch.on .toggle-circle {
+      left: 26px;
+    }
+
+    .payment-card-body h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      margin-bottom: 8px;
+    }
+
+    .payment-description {
+      font-size: 14px;
+      color: var(--color-text-gray);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .payment-supported {
+      font-size: 13px;
+      color: var(--color-text-light);
+      margin-bottom: 16px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+      color: var(--color-green);
+    }
+
+    .badge.inactive {
+      background: rgba(156, 163, 175, 0.15);
+      color: var(--color-text-light);
+    }
+
+    .badge.premium {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.15));
+      color: var(--color-primary-purple);
+    }
+
+    .btn-configure {
+      background: var(--color-background);
+      border: 1.5px solid var(--color-border);
+      color: var(--color-text-dark);
+      height: 42px;
+      width: 100%;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-configure:hover {
+      background: var(--color-card);
+      border-color: var(--color-primary-blue);
+      color: var(--color-primary-blue);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* GATEWAY CONFIGURATION */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .card-container {
+      background: var(--color-card);
+      border: 2px solid var(--color-border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .env-toggle {
+      display: inline-flex;
+      background: var(--color-background);
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+      margin-bottom: 28px;
+      border: 1px solid var(--color-border);
+    }
+
+    .env-tab {
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      background: transparent;
+      color: var(--color-text-gray);
+      font-family: inherit;
+    }
+
+    .env-tab.active {
+      background: var(--color-yellow);
+      color: white;
+    }
+
+    .env-tab.active.live {
+      background: var(--gradient-green);
+    }
+
+    .form-fields {
+      display: grid;
+      gap: 24px;
+    }
+
+    .form-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-container {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .input-container input {
+      background: var(--color-background);
+      border: 2px solid var(--color-border);
+      height: 52px;
+      padding: 0 16px 0 48px;
+      border-radius: 12px;
+      font-size: 15px;
+      color: var(--color-text-dark);
+      width: 100%;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .input-container input::placeholder {
+      color: var(--color-text-light);
+    }
+
+    .input-container input:focus {
+      border-color: var(--color-primary-blue);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      outline: none;
+      background: var(--color-card);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-gray);
+    }
+
+    .input-readonly {
+      background: var(--color-background) !important;
+      border-style: dashed !important;
+      cursor: default;
+    }
+
+    .copy-button {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--color-primary-blue);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .copy-button:hover {
+      background: #4F46E5;
+    }
+
+    .copy-button.copied {
+      background: var(--color-green);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-gray);
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .toggle-password:hover {
+      color: var(--color-primary-blue);
+    }
+
+    .help-text {
+      font-size: 13px;
+      color: var(--color-text-gray);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+      border: 2px solid var(--color-yellow);
+      border-left-width: 6px;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .warning-box .icon {
+      flex-shrink: 0;
+      color: var(--color-yellow);
+    }
+
+    .warning-content h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      margin-bottom: 4px;
+    }
+
+    .warning-content p {
+      font-size: 14px;
+      color: var(--color-text-gray);
+    }
+
+    .btn-test-full {
+      background: transparent;
+      border: 2px solid var(--color-primary-blue);
+      color: var(--color-primary-blue);
+      height: 52px;
+      width: 100%;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .btn-test-full:hover {
+      background: var(--color-primary-blue);
+      color: white;
+    }
+
+    .test-result {
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .test-result.success {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+      border: 2px solid var(--color-green);
+      border-left-width: 6px;
+      color: var(--color-green);
+    }
+
+    .test-result.failure {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+      border: 2px solid var(--color-red);
+      border-left-width: 6px;
+      color: var(--color-red);
+    }
+
+    .test-result span {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* TRANSACTION FEES TABLE */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .table-container {
+      width: 100%;
+      border: 2px solid var(--color-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--color-background);
+      height: 56px;
+    }
+
+    th {
+      padding: 16px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: left;
+    }
+
+    th:nth-child(2),
+    th:nth-child(3),
+    th:nth-child(4) {
+      text-align: center;
+    }
+
+    th:last-child {
+      text-align: right;
+    }
+
+    tbody tr {
+      background: var(--color-card);
+      height: 64px;
+      border-top: 1px solid var(--color-border);
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: var(--color-background);
+    }
+
+    td {
+      padding: 16px 20px;
+      font-size: 15px;
+    }
+
+    td:first-child {
+      font-weight: 600;
+      color: var(--color-text-dark);
+    }
+
+    td:nth-child(2),
+    td:nth-child(3),
+    td:nth-child(4) {
+      text-align: center;
+      font-weight: 600;
+      color: var(--color-text-dark);
+    }
+
+    td:nth-child(4) {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-green);
+    }
+
+    td:last-child {
+      text-align: right;
+    }
+
+    .fee-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--color-background);
+      border: 1.5px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--color-text-gray);
+    }
+
+    .btn-icon:hover {
+      background: var(--color-primary-blue);
+      border-color: var(--color-primary-blue);
+      color: white;
+    }
+
+    .btn-icon.save {
+      background: var(--color-green);
+      border-color: var(--color-green);
+      color: white;
+    }
+
+    .btn-icon.cancel {
+      background: var(--color-background);
+      color: var(--color-text-gray);
+    }
+
+    .fee-input {
+      width: 80px;
+      height: 40px;
+      background: var(--color-background);
+      border: 2px solid var(--color-primary-blue);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-dark);
+      font-family: inherit;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+      border: 2px solid var(--color-light-blue);
+      border-left-width: 6px;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .info-box .icon {
+      flex-shrink: 0;
+      color: var(--color-light-blue);
+    }
+
+    .info-box p {
+      font-size: 14px;
+      color: var(--color-text-gray);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* ADVANCED SETTINGS */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-left {
+      flex: 1;
+    }
+
+    .setting-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-dark);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setting-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .setting-badge.recommended {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+      color: var(--color-green);
+    }
+
+    .setting-badge.premium {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(109, 40, 217, 0.15));
+      color: var(--color-primary-purple);
+    }
+
+    .setting-description {
+      font-size: 14px;
+      color: var(--color-text-gray);
+      line-height: 1.5;
+    }
+
+    .setting-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-switch-large {
+      width: 56px;
+      height: 30px;
+      border-radius: 30px;
+      background: var(--color-border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .toggle-switch-large.on {
+      background: var(--gradient-green);
+    }
+
+    .toggle-circle-large {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle-switch-large.on .toggle-circle-large {
+      left: 29px;
+    }
+
+    .sub-options {
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--color-background);
+      border-radius: 12px;
+      border: 1.5px solid var(--color-border);
+      display: none;
+    }
+
+    .sub-options.show {
+      display: block;
+    }
+
+    .sub-option-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-dark);
+      margin-bottom: 10px;
+    }
+
+    .sub-options select,
+    .sub-options input[type="number"] {
+      width: 100%;
+      height: 44px;
+      background: var(--color-card);
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 14px;
+      color: var(--color-text-dark);
+      cursor: pointer;
+      transition: border 0.3s;
+      font-family: inherit;
+    }
+
+    .sub-options input[type="number"] {
+      width: 150px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .sub-options select:focus,
+    .sub-options input[type="number"]:focus {
+      border-color: var(--color-primary-blue);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+      outline: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* ICONS */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .icon-24 {
+      width: 24px;
+      height: 24px;
+    }
+
+    .icon-32 {
+      width: 32px;
+      height: 32px;
+    }
+
+    .icon-14 {
+      width: 14px;
+      height: 14px;
+    }
+
+    .icon-16 {
+      width: 16px;
+      height: 16px;
+    }
+
+    .icon-18 {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* RESPONSIVE DESIGN */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    @media (max-width: 1024px) {
+      body {
+        padding: 32px;
+      }
+
+      .payment-methods-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .page-header-left h1 {
+        font-size: 28px;
+      }
+
+      .page-header-right {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .btn-test,
+      .btn-save {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .payment-methods-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .table-container {
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 12px 16px;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    /* UTILITIES */
+    /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+    
+    .hidden {
+      display: none !important;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    <!-- PAGE HEADER -->
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Payment Gateway Settings</h1>
+        <p>Configure payment methods, fees, and gateway integration</p>
+      </div>
+      <div class="page-header-right">
+        <button class="btn-test" onclick="testConnection()">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+          </svg>
+          Test Connection
+        </button>
+        <button class="btn-save" onclick="saveSettings()">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+          Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 2: PAYMENT METHODS GRID -->
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    
+    <h2 class="section-title">Payment Methods</h2>
+    
+    <div class="payment-methods-grid">
+      
+      <!-- Card 1: UPI Payments -->
+      <div class="payment-method-card active" id="card-upi">
+        <div class="payment-card-header">
+          <div class="payment-icon-container blue">
+            <svg class="icon-32" style="color: var(--color-primary-blue);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+            </svg>
+          </div>
+          <div class="toggle-switch on" onclick="togglePaymentMethod(this, 'upi')">
+            <div class="toggle-circle"></div>
+          </div>
+        </div>
+        <div class="payment-card-body">
+          <h3>UPI Payments</h3>
+          <p class="payment-description">Accept payments via UPI apps</p>
+          <p class="payment-supported">PhonePe, Google Pay, Paytm, and more</p>
+          <div class="badge-row">
+            <span class="badge active">
+              <svg class="icon-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Active
+            </span>
+          </div>
+          <button class="btn-configure" onclick="configureMethod('upi')">
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            Configure
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2: Card Payments -->
+      <div class="payment-method-card active" id="card-cards">
+        <div class="payment-card-header">
+          <div class="payment-icon-container light-blue">
+            <svg class="icon-32" style="color: var(--color-light-blue);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+            </svg>
+          </div>
+          <div class="toggle-switch on" onclick="togglePaymentMethod(this, 'cards')">
+            <div class="toggle-circle"></div>
+          </div>
+        </div>
+        <div class="payment-card-body">
+          <h3>Card Payments</h3>
+          <p class="payment-description">Credit and debit card payments</p>
+          <p class="payment-supported">Visa, Mastercard, RuPay, Amex</p>
+          <div class="badge-row">
+            <span class="badge active">
+              <svg class="icon-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Active
+            </span>
+          </div>
+          <button class="btn-configure" onclick="configureMethod('cards')">
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            Configure
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3: Net Banking -->
+      <div class="payment-method-card inactive" id="card-netbanking">
+        <div class="payment-card-header">
+          <div class="payment-icon-container gray">
+            <svg class="icon-32" style="color: var(--color-text-light);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+            </svg>
+          </div>
+          <div class="toggle-switch" onclick="togglePaymentMethod(this, 'netbanking')">
+            <div class="toggle-circle"></div>
+          </div>
+        </div>
+        <div class="payment-card-body">
+          <h3>Net Banking</h3>
+          <p class="payment-description">Direct bank transfer payments</p>
+          <p class="payment-supported">50+ banks supported</p>
+          <div class="badge-row">
+            <span class="badge inactive">
+              Inactive
+            </span>
+          </div>
+          <button class="btn-configure" onclick="configureMethod('netbanking')">
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            Configure
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 4: Digital Wallets -->
+      <div class="payment-method-card active" id="card-wallets">
+        <div class="payment-card-header">
+          <div class="payment-icon-container green">
+            <svg class="icon-32" style="color: var(--color-green);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+            </svg>
+          </div>
+          <div class="toggle-switch on" onclick="togglePaymentMethod(this, 'wallets')">
+            <div class="toggle-circle"></div>
+          </div>
+        </div>
+        <div class="payment-card-body">
+          <h3>Digital Wallets</h3>
+          <p class="payment-description">Mobile wallet payments</p>
+          <p class="payment-supported">Paytm, PhonePe, Google Pay</p>
+          <div class="badge-row">
+            <span class="badge active">
+              <svg class="icon-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              Active
+            </span>
+          </div>
+          <button class="btn-configure" onclick="configureMethod('wallets')">
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            Configure
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 5: EMI / Buy Now Pay Later -->
+      <div class="payment-method-card inactive" id="card-emi">
+        <div class="payment-card-header">
+          <div class="payment-icon-container purple">
+            <svg class="icon-32" style="color: var(--color-primary-purple);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z" />
+            </svg>
+          </div>
+          <div class="toggle-switch" onclick="togglePaymentMethod(this, 'emi')">
+            <div class="toggle-circle"></div>
+          </div>
+        </div>
+        <div class="payment-card-body">
+          <h3>EMI / Buy Now Pay Later</h3>
+          <p class="payment-description">0% EMI available</p>
+          <p class="payment-supported">3, 6, 9, 12 months EMI</p>
+          <div class="badge-row">
+            <span class="badge inactive">
+              Inactive
+            </span>
+            <span class="badge premium">
+              <svg class="icon-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+              </svg>
+              Premium
+            </span>
+          </div>
+          <button class="btn-configure" onclick="configureMethod('emi')">
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            Configure
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 3: GATEWAY CONFIGURATION -->
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    
+    <h2 class="section-title">
+      <svg class="icon-24" style="color: var(--color-primary-blue);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+      Gateway Configuration
+    </h2>
+    
+    <div class="card-container">
+      
+      <!-- Environment Toggle -->
+      <div class="env-toggle">
+        <button class="env-tab active" onclick="switchMode('test')">
+          <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 16a9.065 9.065 0 0 1-6.23-.693L5 15.3m14.8 0 .356.09c.356.09.6.43.6.801v1.309c0 .372-.244.711-.6.801l-.356.09m0 0v.391c0 .744-.331 1.45-.907 1.935M19.8 18.9v.391c0 .744-.331 1.45-.907 1.935M12 19.5v-.5M5.3 18.9l-.356.09a1.003 1.003 0 0 1-.6-.801v-1.309c0-.372.244-.711.6-.801l.356-.09m0 0v.391c0 .744.331 1.45.907 1.935M5.3 18.9v.391c0 .744.331 1.45.907 1.935m5.043 0a5.25 5.25 0 0 0 5.5 0" />
+          </svg>
+          Test Mode
+        </button>
+        <button class="env-tab" onclick="switchMode('live')">
+          <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+          </svg>
+          Live Mode
+        </button>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="form-fields">
+        
+        <!-- API Key -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+            </svg>
+            API Key
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+            </svg>
+            <input type="text" id="apiKey" placeholder="Enter your API key" value="test_api_key_1234567890">
+          </div>
+          <p class="help-text">Your payment gateway API key</p>
+        </div>
+
+        <!-- Secret Key -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+            Secret Key
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+            <input type="password" id="secretKey" value="••••••••••••••••••••">
+            <svg class="toggle-password icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" onclick="togglePassword('secretKey')">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+          </div>
+          <p class="help-text">Keep this secure. Never share publicly.</p>
+        </div>
+
+        <!-- Merchant ID -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l4.318-5.586a.75.75 0 0 1 .599-.299h7.908c.23 0 .449.099.599.299l4.318 5.586a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+            </svg>
+            Merchant ID
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l4.318-5.586a.75.75 0 0 1 .599-.299h7.908c.23 0 .449.099.599.299l4.318 5.586a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+            </svg>
+            <input type="text" id="merchantId" placeholder="MERCHANT_12345" value="MERCHANT_12345">
+          </div>
+        </div>
+
+        <!-- Webhook URL -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+            Webhook URL
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+            <input type="text" id="webhookUrl" class="input-readonly" readonly value="https://zenopay.com/webhooks/payment">
+            <button class="copy-button" onclick="copyToClipboard('webhookUrl')">
+              <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Success Callback URL -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Success Callback URL
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <input type="text" id="successUrl" placeholder="https://yourwebsite.com/payment/success">
+          </div>
+        </div>
+
+        <!-- Failure Callback URL -->
+        <div class="form-group">
+          <label>
+            <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Failure Callback URL
+          </label>
+          <div class="input-container">
+            <svg class="input-icon icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <input type="text" id="failureUrl" placeholder="https://yourwebsite.com/payment/failure">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Test Connection Button -->
+      <button class="btn-test-full" onclick="testGatewayConnection()">
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+        </svg>
+        Test Connection
+      </button>
+
+      <!-- Test Result (Hidden by default) -->
+      <div id="testResult" class="test-result success hidden">
+        <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        <span>Connection successful! Gateway is working properly.</span>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 4: TRANSACTION FEES & CHARGES -->
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    
+    <h2 class="section-title">
+      <svg class="icon-24" style="color: var(--color-green);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+      </svg>
+      Transaction Fees & Charges
+    </h2>
+    
+    <div class="card-container">
+      
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>PAYMENT METHOD</th>
+              <th>GATEWAY FEE (%)</th>
+              <th>PLATFORM FEE (%)</th>
+              <th>TOTAL FEE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UPI</td>
+              <td>0.5</td>
+              <td>1.0</td>
+              <td>1.5%</td>
+              <td>
+                <div class="fee-actions">
+                  <button class="btn-icon" onclick="editFee(this)">
+                    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Credit Card</td>
+              <td>2.0</td>
+              <td>0.5</td>
+              <td>2.5%</td>
+              <td>
+                <div class="fee-actions">
+                  <button class="btn-icon" onclick="editFee(this)">
+                    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Debit Card</td>
+              <td>1.5</td>
+              <td>0.5</td>
+              <td>2.0%</td>
+              <td>
+                <div class="fee-actions">
+                  <button class="btn-icon" onclick="editFee(this)">
+                    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Net Banking</td>
+              <td>1.8</td>
+              <td>0.7</td>
+              <td>2.5%</td>
+              <td>
+                <div class="fee-actions">
+                  <button class="btn-icon" onclick="editFee(this)">
+                    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Wallet</td>
+              <td>1.0</td>
+              <td>0.5</td>
+              <td>1.5%</td>
+              <td>
+                <div class="fee-actions">
+                  <button class="btn-icon" onclick="editFee(this)">
+                    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+        </svg>
+        <p>Fees are calculated as: (Transaction Amount × Fee %) + Fixed Fee. Merchants will see the final amount after fee deduction.</p>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    <!-- SECTION 5: ADVANCED SETTINGS -->
+    <!-- ═══════════════════════════════════════════════════════════════════════════════════════ -->
+    
+    <h2 class="section-title">
+      <svg class="icon-24" style="color: var(--color-primary-purple);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+      </svg>
+      Advanced Settings
+    </h2>
+    
+    <div class="card-container">
+      
+      <div class="settings-list">
+        
+        <!-- Setting 1: Auto Settlement -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              Auto Settlement
+              <span class="setting-badge recommended">Recommended</span>
+            </div>
+            <p class="setting-description">Automatically settle funds to merchant account</p>
+            <div class="sub-options show" id="suboption-settlement">
+              <label class="sub-option-label">Settlement Frequency</label>
+              <select>
+                <option value="daily" selected>Daily</option>
+                <option value="2days">Every 2 days</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large on" onclick="toggleSetting(this, 'settlement')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setting 2: Payment Retry -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              Payment Retry
+            </div>
+            <p class="setting-description">Allow customers to retry failed payments</p>
+            <div class="sub-options show" id="suboption-retry">
+              <label class="sub-option-label">Max Retry Attempts</label>
+              <input type="number" min="1" max="10" value="3">
+            </div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large on" onclick="toggleSetting(this, 'retry')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setting 3: Duplicate Transaction Check -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              Duplicate Transaction Check
+            </div>
+            <p class="setting-description">Prevent duplicate payments within specified timeframe</p>
+            <div class="sub-options show" id="suboption-duplicate">
+              <label class="sub-option-label">Check Window (minutes)</label>
+              <input type="number" min="1" max="60" value="5">
+            </div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large on" onclick="toggleSetting(this, 'duplicate')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setting 4: Payment Timeout -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              Payment Timeout
+            </div>
+            <p class="setting-description">Auto-cancel pending payments after timeout period</p>
+            <div class="sub-options show" id="suboption-timeout">
+              <label class="sub-option-label">Timeout Duration</label>
+              <select>
+                <option value="15">15 minutes</option>
+                <option value="30" selected>30 minutes</option>
+                <option value="60">1 hour</option>
+                <option value="120">2 hours</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large on" onclick="toggleSetting(this, 'timeout')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setting 5: 3D Secure Authentication -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              3D Secure Authentication
+              <span class="setting-badge recommended">Recommended</span>
+            </div>
+            <p class="setting-description">Enable 3D Secure authentication for card payments</p>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large on" onclick="toggleSetting(this, '3dsecure')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setting 6: International Payments -->
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-title">
+              International Payments
+              <span class="setting-badge premium">Premium</span>
+            </div>
+            <p class="setting-description">Accept payments from international credit/debit cards</p>
+          </div>
+          <div class="setting-right">
+            <div class="toggle-switch-large" onclick="toggleSetting(this, 'international')">
+              <div class="toggle-circle-large"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+    // JAVASCRIPT FUNCTIONALITY
+    // ═══════════════════════════════════════════════════════════════════════════════════════════
+
+    // Toggle Payment Method
+    function togglePaymentMethod(toggleEl, method) {
+      const card = document.getElementById('card-' + method);
+      toggleEl.classList.toggle('on');
+      
+      if (toggleEl.classList.contains('on')) {
+        card.classList.remove('inactive');
+        card.classList.add('active');
+        const badge = card.querySelector('.badge');
+        if (badge && badge.textContent.trim() === 'Inactive') {
+          badge.className = 'badge active';
+          badge.innerHTML = `
+            <svg class="icon-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Active
+          `;
+        }
+      } else {
+        card.classList.remove('active');
+        card.classList.add('inactive');
+        const badge = card.querySelector('.badge.active');
+        if (badge && !badge.classList.contains('premium')) {
+          badge.className = 'badge inactive';
+          badge.textContent = 'Inactive';
+        }
+      }
+    }
+
+    // Configure Method
+    function configureMethod(method) {
+      alert('Configure ' + method + ' settings');
+    }
+
+    // Test Connection (Header)
+    function testConnection() {
+      alert('Testing gateway connection...');
+    }
+
+    // Save Settings
+    function saveSettings() {
+      alert('Settings saved successfully!');
+    }
+
+    // Switch Mode (Test/Live)
+    function switchMode(mode) {
+      const tabs = document.querySelectorAll('.env-tab');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+        if (mode === 'live') {
+          tab.classList.remove('live');
+        }
+      });
+      
+      if (mode === 'test') {
+        tabs[0].classList.add('active');
+      } else {
+        tabs[1].classList.add('active', 'live');
+      }
+    }
+
+    // Toggle Password Visibility
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    // Copy to Clipboard
+    function copyToClipboard(inputId) {
+      const input = document.getElementById(inputId);
+      input.select();
+      document.execCommand('copy');
+      
+      const button = input.nextElementSibling;
+      button.classList.add('copied');
+      button.innerHTML = `
+        <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+        </svg>
+      `;
+      
+      setTimeout(() => {
+        button.classList.remove('copied');
+        button.innerHTML = `
+          <svg class="icon-18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+          </svg>
+        `;
+      }, 2000);
+    }
+
+    // Test Gateway Connection
+    function testGatewayConnection() {
+      const button = event.currentTarget;
+      const resultDiv = document.getElementById('testResult');
+      
+      // Show loading
+      button.innerHTML = `
+        <div class="spinner"></div>
+        Testing...
+      `;
+      button.disabled = true;
+      
+      // Simulate API call
+      setTimeout(() => {
+        button.innerHTML = `
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+          </svg>
+          Test Connection
+        `;
+        button.disabled = false;
+        
+        // Show success result
+        resultDiv.className = 'test-result success';
+        resultDiv.classList.remove('hidden');
+      }, 2000);
+    }
+
+    // Edit Fee
+    function editFee(button) {
+      const row = button.closest('tr');
+      const cells = row.querySelectorAll('td');
+      
+      // Get current values
+      const gatewayFee = cells[1].textContent;
+      const platformFee = cells[2].textContent;
+      
+      // Replace with inputs
+      cells[1].innerHTML = `<input type="number" class="fee-input" value="${gatewayFee}" step="0.1">`;
+      cells[2].innerHTML = `<input type="number" class="fee-input" value="${platformFee}" step="0.1">`;
+      
+      // Change button to save/cancel
+      const actionsCell = cells[4].querySelector('.fee-actions');
+      actionsCell.innerHTML = `
+        <button class="btn-icon save" onclick="saveFee(this)">
+          <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+        </button>
+        <button class="btn-icon cancel" onclick="cancelFee(this, '${gatewayFee}', '${platformFee}')">
+          <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `;
+    }
+
+    // Save Fee
+    function saveFee(button) {
+      const row = button.closest('tr');
+      const cells = row.querySelectorAll('td');
+      
+      // Get new values
+      const gatewayFee = parseFloat(cells[1].querySelector('input').value);
+      const platformFee = parseFloat(cells[2].querySelector('input').value);
+      const totalFee = (gatewayFee + platformFee).toFixed(1);
+      
+      // Update cells
+      cells[1].textContent = gatewayFee;
+      cells[2].textContent = platformFee;
+      cells[3].textContent = totalFee + '%';
+      
+      // Restore edit button
+      const actionsCell = cells[4].querySelector('.fee-actions');
+      actionsCell.innerHTML = `
+        <button class="btn-icon" onclick="editFee(this)">
+          <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          </svg>
+        </button>
+      `;
+    }
+
+    // Cancel Fee Edit
+    function cancelFee(button, gatewayFee, platformFee) {
+      const row = button.closest('tr');
+      const cells = row.querySelectorAll('td');
+      
+      // Restore original values
+      cells[1].textContent = gatewayFee;
+      cells[2].textContent = platformFee;
+      
+      // Restore edit button
+      const actionsCell = cells[4].querySelector('.fee-actions');
+      actionsCell.innerHTML = `
+        <button class="btn-icon" onclick="editFee(this)">
+          <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          </svg>
+        </button>
+      `;
+    }
+
+    // Toggle Advanced Setting
+    function toggleSetting(toggleEl, settingId) {
+      toggleEl.classList.toggle('on');
+      const subOptions = document.getElementById('suboption-' + settingId);
+      
+      if (subOptions) {
+        if (toggleEl.classList.contains('on')) {
+          subOptions.classList.add('show');
+        } else {
+          subOptions.classList.remove('show');
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

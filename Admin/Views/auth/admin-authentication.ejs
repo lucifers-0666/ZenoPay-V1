@@ -15,38 +15,39 @@
         }
         
         :root {
-            --bg-dark: #0F172A;
-            --bg-darker: #020617;
-            --card-bg: rgba(255, 255, 255, 0.06);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #F8FAFC;
-            --text-secondary: #CBD5E1;
-            --text-muted: #64748B;
-            --input-bg: rgba(255, 255, 255, 0.04);
-            --input-border: rgba(255, 255, 255, 0.08);
-            --primary: #0EA5E9;
-            --primary-dark: #0284C7;
-            --success: #10B981;
-            --error: #EF4444;
-            --gradient-1: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
-            --gradient-2: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
-        }
-        
-        [data-theme="light"] {
-            --bg-dark: #F1F5F9;
-            --bg-darker: #E2E8F0;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-border: rgba(15, 23, 42, 0.1);
-            --text-primary: #0F172A;
-            --text-secondary: #475569;
-            --text-muted: #94A3B8;
-            --input-bg: rgba(15, 23, 42, 0.04);
-            --input-border: rgba(15, 23, 42, 0.1);
+            /* Colors */
+            --color-primary-blue: #6366F1;
+            --color-primary-purple: #8B5CF6;
+            --color-light-blue: #3B82F6;
+            --color-green: #10B981;
+            --color-yellow: #F59E0B;
+            --color-red: #EF4444;
+            --color-background: #F3F4F6;
+            --color-card: #FFFFFF;
+            --color-text-dark: #1F2937;
+            --color-text-gray: #6B7280;
+            --color-text-light: #9CA3AF;
+            --color-border: #E5E7EB;
+            --color-divider: #D1D5DB;
+
+            /* Gradients */
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-blue-purple: linear-gradient(135deg, #6366F1, #8B5CF6);
+            --gradient-blue-accent: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            --gradient-green: linear-gradient(135deg, #10B981, #059669);
+            --gradient-orange: linear-gradient(135deg, #F59E0B, #D97706);
+            --gradient-purple: linear-gradient(135deg, #8B5CF6, #6D28D9);
+
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
         
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
+            background: var(--color-background);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -61,9 +62,9 @@
         .bg-gradient {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
             animation: gradientShift 15s ease infinite;
             z-index: 0;
         }
@@ -86,7 +87,7 @@
         .shape-1 {
             width: 300px;
             height: 300px;
-            background: var(--gradient-1);
+            background: var(--gradient-blue-purple);
             top: -100px;
             left: -100px;
             animation-delay: 0s;
@@ -95,7 +96,7 @@
         .shape-2 {
             width: 200px;
             height: 200px;
-            background: var(--gradient-2);
+            background: var(--gradient-blue-accent);
             bottom: -50px;
             right: -50px;
             animation-delay: 5s;
@@ -104,7 +105,7 @@
         .shape-3 {
             width: 150px;
             height: 150px;
-            background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            background: var(--gradient-orange);
             top: 50%;
             right: 10%;
             animation-delay: 10s;
@@ -126,12 +127,12 @@
             gap: 0;
             max-width: 1100px;
             width: 100%;
-            background: var(--card-bg);
+            background: var(--color-card);
             backdrop-filter: blur(40px) saturate(120%);
-            border: 1px solid var(--card-border);
-            border-radius: 32px;
+            border: 2px solid var(--color-border);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-xl);
             animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
@@ -142,7 +143,7 @@
         
         /* Left Side - Branding & Status */
         .brand-panel {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
             padding: 60px 40px;
             display: flex;
             flex-direction: column;
@@ -155,7 +156,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230EA5E9' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366F1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             opacity: 0.5;
         }
         
@@ -167,7 +168,7 @@
         .brand-logo {
             font-size: 24px;
             font-weight: 800;
-            color: var(--text-primary);
+            color: var(--color-text-dark);
             margin-bottom: 8px;
             display: flex;
             align-items: center;
@@ -177,7 +178,7 @@
         .logo-icon-small {
             width: 40px;
             height: 40px;
-            background: var(--gradient-2);
+            background: var(--gradient-blue-purple);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -188,7 +189,7 @@
         
         .brand-tagline {
             font-size: 13px;
-            color: var(--text-muted);
+            color: var(--color-text-gray);
             line-height: 1.6;
         }
         
@@ -203,9 +204,9 @@
             align-items: center;
             gap: 10px;
             padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--color-border);
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--color-text-gray);
         }
         
         .trust-item:last-child {
@@ -220,14 +221,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--success);
+            color: var(--color-green);
             font-size: 14px;
         }
         
         .status-pulse {
             width: 8px;
             height: 8px;
-            background: var(--success);
+            background: var(--color-green);
             border-radius: 50%;
             animation: pulse 2s ease infinite;
             margin-right: 6px;
@@ -254,8 +255,8 @@
             right: 30px;
             width: 44px;
             height: 44px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -263,11 +264,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 18px;
-            color: var(--text-secondary);
+            color: var(--color-text-gray);
         }
         
         .theme-toggle:hover {
-            background: var(--input-border);
+            background: var(--color-border);
             transform: rotate(180deg);
         }
         
@@ -282,14 +283,14 @@
         .shield-icon {
             width: 100%;
             height: 100%;
-            background: var(--gradient-2);
+            background: var(--gradient-blue-purple);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 36px;
             color: white;
-            filter: drop-shadow(0 10px 30px rgba(14, 165, 233, 0.4));
+            filter: drop-shadow(0 10px 30px rgba(99, 102, 241, 0.4));
             animation: breathe 3s ease-in-out infinite;
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
@@ -302,7 +303,7 @@
         
         .shield-icon.unlocked {
             animation: unlock 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            background: var(--gradient-green);
         }
         
         @keyframes breathe {
@@ -323,7 +324,7 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: var(--primary);
+            background: var(--color-primary-blue);
             border-radius: 50%;
             pointer-events: none;
             animation: particleFly 1s ease-out forwards;
@@ -342,21 +343,22 @@
         .form-title {
             font-size: 32px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--color-text-dark);
             margin-bottom: 8px;
             letter-spacing: -0.5px;
         }
         
         .form-subtitle {
             font-size: 15px;
-            color: var(--text-muted);
+            color: var(--color-text-gray);
         }
         
         /* Error Alert */
         .error-alert {
             background: rgba(239, 68, 68, 0.1);
-            border: 1.5px solid rgba(239, 68, 68, 0.3);
-            border-radius: 14px;
+            border: 2px solid var(--color-red);
+            border-left-width: 4px;
+            border-radius: 12px;
             padding: 14px 18px;
             margin-bottom: 24px;
             display: flex;
@@ -373,7 +375,7 @@
         
         .error-alert i {
             font-size: 20px;
-            color: var(--error);
+            color: var(--color-red);
         }
         
         .error-text {
@@ -411,29 +413,29 @@
         .form-input {
             width: 100%;
             height: 56px;
-            background: var(--input-bg);
-            border: 2px solid var(--input-border);
-            border-radius: 14px;
+            background: var(--color-background);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
             padding: 20px 18px 8px 18px;
             font-size: 16px;
-            color: var(--text-primary);
+            color: var(--color-text-dark);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             outline: none;
         }
         
         .form-input:focus {
-            border-color: var(--primary);
-            background: rgba(14, 165, 233, 0.05);
-            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            border-color: var(--color-primary-blue);
+            background: var(--color-card);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
         
         .form-input.valid {
-            border-color: var(--success);
+            border-color: var(--color-green);
             background: rgba(16, 185, 129, 0.05);
         }
         
         .form-input.error {
-            border-color: var(--error);
+            border-color: var(--color-red);
             background: rgba(239, 68, 68, 0.05);
             animation: shake 0.5s ease;
         }
@@ -457,7 +459,7 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 16px;
-            color: var(--text-muted);
+            color: var(--color-text-light);
             pointer-events: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -467,7 +469,7 @@
             top: 12px;
             font-size: 11px;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--color-primary-blue);
             transform: translateY(0);
         }
         
@@ -477,18 +479,18 @@
             right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-muted);
+            color: var(--color-text-gray);
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         .input-icon:hover {
-            color: var(--primary);
+            color: var(--color-primary-blue);
         }
         
         .input-icon.valid-check {
-            color: var(--success);
+            color: var(--color-green);
             animation: checkPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
@@ -516,7 +518,7 @@
         .custom-checkbox {
             width: 20px;
             height: 20px;
-            border: 2px solid var(--input-border);
+            border: 2px solid var(--color-border);
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -539,26 +541,26 @@
         }
         
         .custom-checkbox.checked {
-            background: var(--primary);
-            border-color: var(--primary);
+            background: var(--color-primary-blue);
+            border-color: var(--color-primary-blue);
         }
         
         .checkbox-label {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: var(--color-text-gray);
             user-select: none;
         }
         
         .forgot-link {
             font-size: 14px;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--color-primary-blue);
             text-decoration: none;
             transition: all 0.3s ease;
         }
         
         .forgot-link:hover {
-            color: var(--primary-dark);
+            color: var(--color-primary-purple);
             text-decoration: underline;
         }
         
@@ -566,9 +568,9 @@
         .btn-primary {
             width: 100%;
             height: 56px;
-            background: var(--gradient-2);
+            background: var(--gradient-blue-purple);
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 700;
             color: white;
@@ -576,7 +578,7 @@
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+            box-shadow: var(--shadow-md);
             margin-bottom: 16px;
             position: relative;
             overflow: hidden;
@@ -593,7 +595,7 @@
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.4);
+            box-shadow: var(--shadow-lg);
         }
         
         .btn-primary:hover::before {
@@ -637,14 +639,14 @@
         .divider-line {
             flex: 1;
             height: 1px;
-            background: var(--input-border);
+            background: var(--color-divider);
         }
         
         .divider-text {
             padding: 0 16px;
             font-size: 12px;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--color-text-light);
         }
         
         /* Biometric Button */
@@ -652,15 +654,15 @@
             width: 100%;
             height: 56px;
             background: transparent;
-            border: 2px solid var(--input-border);
-            border-radius: 14px;
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
             font-size: 15px;
             font-weight: 600;
-            color: var(--text-secondary);
+            color: var(--color-text-gray);
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
@@ -672,14 +674,14 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
             transform: scale(0);
             transition: transform 0.6s ease;
         }
         
         .btn-biometric:hover {
-            border-color: var(--primary);
-            background: rgba(14, 165, 233, 0.05);
+            border-color: var(--color-primary-blue);
+            background: rgba(99, 102, 241, 0.05);
         }
         
         .btn-biometric:hover::before {
@@ -701,14 +703,14 @@
             margin-top: 20px;
             text-align: center;
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--color-text-light);
         }
         
         .key-badge {
             display: inline-block;
             padding: 4px 8px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
+            background: var(--color-background);
+            border: 1px solid var(--color-border);
             border-radius: 6px;
             font-family: 'Courier New', monospace;
             font-size: 11px;
@@ -787,8 +789,8 @@
                         <i class="bi bi-shield-check"></i>
                     </div>
                     <div>
-                        <div style="font-weight: 600; color: var(--text-primary);">SSL Encrypted</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">256-bit encryption</div>
+                        <div style="font-weight: 600; color: var(--color-text-dark);">SSL Encrypted</div>
+                        <div style="font-size: 11px; color: var(--color-text-light);">256-bit encryption</div>
                     </div>
                 </div>
                 <div class="trust-item">
@@ -796,16 +798,16 @@
                         <i class="bi bi-patch-check"></i>
                     </div>
                     <div>
-                        <div style="font-weight: 600; color: var(--text-primary);">SOC 2 Compliant</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">Type II certified</div>
+                        <div style="font-weight: 600; color: var(--color-text-dark);">SOC 2 Compliant</div>
+                        <div style="font-size: 11px; color: var(--color-text-light);">Type II certified</div>
                     </div>
                 </div>
                 <div class="trust-item">
                     <div style="display: flex; align-items: center;">
                         <div class="status-pulse"></div>
-                        <span style="font-weight: 600; color: var(--text-primary);">System Status</span>
+                        <span style="font-weight: 600; color: var(--color-text-dark);">System Status</span>
                     </div>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-left: auto;">
+                    <div style="font-size: 11px; color: var(--color-text-light); margin-left: auto;">
                         All systems operational
                     </div>
                 </div>
@@ -843,9 +845,9 @@
             
             <!-- Success Alert -->
             <% if (typeof success !== 'undefined' && success) { %>
-            <div class="success-alert" style="background: rgba(16, 185, 129, 0.1); border: 1.5px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.5s ease;">
-                <i class="bi bi-check-circle-fill" style="font-size: 20px; color: var(--success);"></i>
-                <p style="font-size: 14px; color: #6EE7B7; margin: 0;"><%= success %></p>
+            <div class="success-alert" style="background: rgba(16, 185, 129, 0.1); border: 2px solid var(--color-green); border-left-width: 4px; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; animation: slideIn 0.5s ease;">
+                <i class="bi bi-check-circle-fill" style="font-size: 20px; color: var(--color-green);"></i>
+                <p style="font-size: 14px; color: #34D399; margin: 0;"><%= success %></p>
             </div>
             <% } %>
             

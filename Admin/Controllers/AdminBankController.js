@@ -28,8 +28,8 @@ const getAllBanks = async (req, res) => {
     const totalBanks = await Banks.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalBanks / limit);
 
-    res.render("admin/banks", {
-      pageTitle: "Bank Management",
+    res.render("banks/admin-bank-management", {
+      pageTitle: "Admin Bank Management",
       currentPage: "banks",
       admin: req.session.user,
       banks,
@@ -54,8 +54,8 @@ const getPendingBanks = async (req, res) => {
     const pendingBanks = await Banks.find({ IsApproved: false })
       .sort({ createdAt: -1 });
 
-    res.render("admin/banks-pending", {
-      pageTitle: "Pending Banks",
+    res.render("banks/admin-bank-approvals", {
+      pageTitle: "Admin Bank Approvals",
       currentPage: "banks",
       admin: req.session.user,
       banks: pendingBanks,
@@ -97,8 +97,8 @@ const getBankDetails = async (req, res) => {
 
     const totalBalance = balanceStats.length > 0 ? balanceStats[0].totalBalance : 0;
 
-    res.render("admin/bank-details", {
-      pageTitle: "Bank Details",
+    res.render("banks/admin-bank-details", {
+      pageTitle: "Admin Bank Details",
       currentPage: "banks",
       admin: req.session.user,
       bank,

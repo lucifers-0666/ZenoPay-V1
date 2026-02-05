@@ -1,0 +1,83 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-check-circle" style="color: var(--success); margin-right: var(--spacing-base);"></i>
+    Verify Merchant
+  </h1>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Verification Checklist</h2>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="/admin/merchants/<%= id %>/verify">
+      
+      <!-- Document Verification -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Documents</h3>
+      
+      <div style="background: var(--slate-50); padding: var(--spacing-lg); border-radius: var(--radius-base); margin-bottom: var(--spacing-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
+          <span>Business Registration Document</span>
+          <button type="button" class="btn btn-sm btn-outline">View</button>
+        </div>
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="businessDocVerified" required> Verified
+        </label>
+      </div>
+      
+      <div style="background: var(--slate-50); padding: var(--spacing-lg); border-radius: var(--radius-base); margin-bottom: var(--spacing-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
+          <span>Tax Identification Document</span>
+          <button type="button" class="btn btn-sm btn-outline">View</button>
+        </div>
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="taxDocVerified" required> Verified
+        </label>
+      </div>
+      
+      <div style="background: var(--slate-50); padding: var(--spacing-lg); border-radius: var(--radius-base); margin-bottom: var(--spacing-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
+          <span>Bank Verification</span>
+          <button type="button" class="btn btn-sm btn-outline">View</button>
+        </div>
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="bankVerified" required> Verified
+        </label>
+      </div>
+      
+      <!-- Owner Verification -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">Owner Information</h3>
+      
+      <div class="form-group">
+        <label for="ownerName" class="form-label">Owner Name</label>
+        <input type="text" id="ownerName" name="ownerName" class="form-input" value="John Smith" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="ownerEmail" class="form-label">Owner Email</label>
+        <input type="email" id="ownerEmail" name="ownerEmail" class="form-input" value="john@example.com" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" name="ownerVerified" required> Owner Identity Verified
+        </label>
+      </div>
+      
+      <!-- Notes -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">Admin Notes</h3>
+      
+      <div class="form-group">
+        <label for="notes" class="form-label">Verification Notes</label>
+        <textarea id="notes" name="notes" class="form-textarea" placeholder="Add any notes about this verification..."></textarea>
+      </div>
+      
+      <div class="card-footer" style="margin-top: var(--spacing-2xl); padding: 0;">
+        <a href="/admin/merchants/<%= id %>" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-check"></i> Approve Merchant
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

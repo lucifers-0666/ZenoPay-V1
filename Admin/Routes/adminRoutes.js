@@ -7,10 +7,10 @@ const { isAdmin, isAdminLoggedIn } = require("../Middleware/adminAuth");
 // Controllers
 const AdminAuthController = require("../Controllers/AdminAuthController");
 const AdminDashboardController = require("../Controllers/AdminDashboardController");
-const AdminUserController = require("../Controllers/AdminUserController");
 const AdminMerchantController = require("../Controllers/AdminMerchantController");
 const AdminBankController = require("../Controllers/AdminBankController");
 const AdminTransactionController = require("../Controllers/AdminTransactionController");
+const AdminPaymentGatewayController = require("../Controllers/AdminPaymentGatewayController");
 
 // ============ AUTHENTICATION ROUTES ============
 // TEMPORARILY DISABLED - All routes accessible without authentication
@@ -21,6 +21,15 @@ router.get("/logout", AdminAuthController.logout);
 // Password Reset Routes
 router.get("/forgot-password", AdminAuthController.getForgotPassword);
 router.post("/forgot-password", AdminAuthController.postForgotPassword);
+// Graceful fallback when token is missing to show the error state instead of a 404
+router.get("/reset-password", (req, res) => {
+	return res.status(400).render("auth/reset-password", {
+		pageTitle: "Reset Password - ZenoPay Admin",
+		error: "Reset link is missing. Please request a new link.",
+		token: null,
+		validToken: false,
+	});
+});
 router.get("/reset-password/:token", AdminAuthController.getResetPassword);
 router.post("/reset-password/:token", AdminAuthController.postResetPassword);
 
@@ -29,22 +38,12 @@ router.get("/2fa/setup", AdminAuthController.get2FASetup);
 router.post("/2fa/generate", AdminAuthController.generate2FA);
 router.post("/2fa/verify", AdminAuthController.verify2FA);
 
+
+
 // ============ DASHBOARD ROUTES ============
 router.get("/dashboard", AdminDashboardController.getDashboard);
-router.get("/dashboard/data", AdminDashboardController.getDashboardData);
-router.get("/statistics", AdminDashboardController.getStatistics);
-router.get("/statistics/data", AdminDashboardController.getStatisticsData);
-router.get("/activity-monitor", AdminDashboardController.getActivityMonitor);
-router.get("/activities/live", AdminDashboardController.getLiveActivities);
-router.get("/", (req, res) => res.redirect("/admin/dashboard"));
-
-// ============ USER MANAGEMENT ROUTES ============
-router.get("/users", AdminUserController.getUsersList);
-router.get("/users/data", AdminUserController.getUsersData);
-router.get("/users/:id", AdminUserController.getUserDetails);
-router.post("/users/:id/suspend", AdminUserController.suspendUser);
-router.post("/users/:id/activate", AdminUserController.activateUser);
-router.delete("/users/:id", AdminUserController.deleteUser);
+router.get("/dashboard/statistics", AdminDashboardController.getStatistics);
+router.get("/dashboard/activity-monitor", AdminDashboardController.getActivityMonitor);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
 router.get("/merchants", AdminMerchantController.getAllMerchants);
@@ -79,5 +78,14 @@ router.get("/reports/export", AdminDashboardController.exportReports);
 // ============ SETTINGS ROUTES ============
 router.get("/settings", AdminDashboardController.getSettings);
 router.post("/settings", AdminDashboardController.updateSettings);
+
+// ============ PAYMENT GATEWAY ROUTES ============
+router.get("/settings/payment-gateway", AdminPaymentGatewayController.getPaymentGatewaySettings);
+router.post("/settings/payment-gateway/test", AdminPaymentGatewayController.testGatewayConnection);
+router.post("/settings/payment-gateway/save", AdminPaymentGatewayController.savePaymentGatewayConfig);
+router.post("/settings/payment-gateway/fees", AdminPaymentGatewayController.updateTransactionFees);
+router.post("/settings/payment-gateway/toggle-method", AdminPaymentGatewayController.togglePaymentMethod);
+router.post("/settings/payment-gateway/advanced", AdminPaymentGatewayController.updateAdvancedSettings);
+router.get("/settings/payment-gateway/config", AdminPaymentGatewayController.getPaymentGatewayConfig);
 
 module.exports = router;

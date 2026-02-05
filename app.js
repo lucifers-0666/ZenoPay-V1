@@ -65,6 +65,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// Prevent favicon.ico 404 noise
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+
 // Admin static files
 app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));
 

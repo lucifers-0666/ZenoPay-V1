@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'ZenoPay Admin' %> | Admin Panel</title>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="/css/admin/admin-base.css">
+  <link rel="stylesheet" href="/css/admin/admin-layout.css">
+  <link rel="stylesheet" href="/css/admin/admin-components.css">
+  <link rel="stylesheet" href="/css/admin/admin-pages.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Additional Head Scripts -->
+  <%- typeof headScripts !== 'undefined' ? headScripts : '' %>
+</head>
+<body>
+  
+  <!-- Sidebar Navigation -->
+  <%- include('../partials/sidebar') %>
+  
+  <!-- Main Content Area -->
+  <div class="admin-main-content">
+    
+    <!-- Header -->
+    <%- include('../partials/header') %>
+    
+    <!-- Page Content -->
+    <main class="admin-content">
+      
+      <!-- Breadcrumb -->
+      <%- include('../partials/breadcrumb') %>
+      
+      <!-- Page Body -->
+      <%- body %>
+      
+    </main>
+    
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
+  </div>
+  
+  <!-- Global Scripts -->
+  <script src="/js/admin/admin-global.js"></script>
+  <script src="/js/admin/sidebar.js"></script>
+  <script src="/js/admin/header.js"></script>
+  <script src="/js/admin/charts.js"></script>
+  <script src="/js/admin/statistics.js"></script>
+  <script src="/js/admin/activity-monitor.js"></script>
+  
+  <!-- Footer Scripts -->
+  <%- typeof footerScripts !== 'undefined' ? footerScripts : '' %>
+  
+</body>
+</html>

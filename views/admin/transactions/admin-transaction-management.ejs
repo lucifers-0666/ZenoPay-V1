@@ -1,0 +1,97 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+  <div>
+    <h1 class="page-title">
+      <i class="fas fa-exchange-alt" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+      All Transactions
+    </h1>
+    <p class="page-subtitle">View and manage all transactions</p>
+  </div>
+  <a href="/admin/transactions/export" class="btn btn-outline">
+    <i class="fas fa-download"></i> Export
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="filters" style="margin-bottom: var(--spacing-2xl);">
+  <div class="filter-group">
+    <label>Type:</label>
+    <select class="form-input" style="max-width: 150px;">
+      <option>All</option>
+      <option>Transfer</option>
+      <option>Payment</option>
+      <option>Withdrawal</option>
+    </select>
+  </div>
+  
+  <div class="filter-group">
+    <label>Status:</label>
+    <select class="form-input" style="max-width: 150px;">
+      <option>All</option>
+      <option>Complete</option>
+      <option>Pending</option>
+      <option>Failed</option>
+    </select>
+  </div>
+  
+  <div class="filter-group" style="flex: 1;">
+    <input type="text" class="form-input" placeholder="Search by TXN ID, user...">
+  </div>
+  
+  <button class="btn btn-primary">
+    <i class="fas fa-search"></i> Search
+  </button>
+</div>
+
+<!-- Transactions Table -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>User</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TXN-2024-001</td>
+          <td>Transfer</td>
+          <td>₦50,000</td>
+          <td>John Doe</td>
+          <td>Feb 4, 2024</td>
+          <td><span class="badge badge-success">Complete</span></td>
+          <td>
+            <a href="/admin/transactions/TXN-2024-001" class="btn btn-sm btn-primary">View</a>
+          </td>
+        </tr>
+        <tr>
+          <td>TXN-2024-002</td>
+          <td>Payment</td>
+          <td>₦25,000</td>
+          <td>Jane Smith</td>
+          <td>Feb 4, 2024</td>
+          <td><span class="badge badge-success">Complete</span></td>
+          <td>
+            <a href="/admin/transactions/TXN-2024-002" class="btn btn-sm btn-primary">View</a>
+          </td>
+        </tr>
+        <tr>
+          <td>TXN-2024-003</td>
+          <td>Withdrawal</td>
+          <td>₦100,000</td>
+          <td>Bob Wilson</td>
+          <td>Feb 4, 2024</td>
+          <td><span class="badge badge-warning">Pending</span></td>
+          <td>
+            <a href="/admin/transactions/TXN-2024-003" class="btn btn-sm btn-primary">View</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

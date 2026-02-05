@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'ZenoPay Admin' %> | Admin Panel</title>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="/css/admin/admin-base.css">
+  <link rel="stylesheet" href="/css/admin/admin-components.css">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+    
+    .auth-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      padding: 3rem;
+      width: 100%;
+      max-width: 400px;
+    }
+  </style>
+  
+  <!-- Additional Head Scripts -->
+  <%- typeof headScripts !== 'undefined' ? headScripts : '' %>
+</head>
+<body>
+  
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Page Body -->
+      <%- body %>
+    </div>
+  </div>
+  
+  <!-- Global Scripts -->
+  <script src="/js/admin/admin-global.js"></script>
+  
+  <!-- Footer Scripts -->
+  <%- typeof footerScripts !== 'undefined' ? footerScripts : '' %>
+  
+</body>
+</html>

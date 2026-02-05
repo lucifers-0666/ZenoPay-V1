@@ -41,8 +41,8 @@ const getAllTransactions = async (req, res) => {
 
     const totalAmount = amountStats.length > 0 ? amountStats[0].totalAmount : 0;
 
-    res.render("admin/transactions", {
-      pageTitle: "Transaction Management",
+    res.render("transactions/admin-transaction-management", {
+      pageTitle: "Admin Transaction Management",
       currentPage: "transactions",
       admin: req.session.user,
       transactions,
@@ -68,8 +68,8 @@ const getFlaggedTransactions = async (req, res) => {
     const flaggedTransactions = await TransactionHistory.find({ IsFlagged: true })
       .sort({ TransactionTime: -1 });
 
-    res.render("admin/transactions-flagged", {
-      pageTitle: "Flagged Transactions",
+    res.render("transactions/admin-transaction-flagged", {
+      pageTitle: "Admin Transaction Flagged",
       currentPage: "transactions",
       admin: req.session.user,
       transactions: flaggedTransactions,
@@ -87,8 +87,8 @@ const getFailedTransactions = async (req, res) => {
     const failedTransactions = await TransactionHistory.find({ Status: "failed" })
       .sort({ TransactionTime: -1 });
 
-    res.render("admin/transactions-failed", {
-      pageTitle: "Failed Transactions",
+    res.render("transactions/admin-transaction-failed", {
+      pageTitle: "Admin Transaction Failed",
       currentPage: "transactions",
       admin: req.session.user,
       transactions: failedTransactions,
@@ -112,8 +112,8 @@ const getTransactionDetails = async (req, res) => {
       return res.status(404).send("Transaction not found");
     }
 
-    res.render("admin/transaction-details", {
-      pageTitle: "Transaction Details",
+    res.render("transactions/admin-transaction-details", {
+      pageTitle: "Admin Transaction Details",
       currentPage: "transactions",
       admin: req.session.user,
       transaction,

@@ -1,0 +1,130 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-user" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+    User Details
+  </h1>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl);">
+  <!-- User Info -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Personal Information</h2>
+    </div>
+    <div class="card-body">
+      <div style="display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-2xl);">
+        <img src="https://via.placeholder.com/80" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+        <div>
+          <h3 style="margin: 0; margin-bottom: var(--spacing-sm);">John Doe</h3>
+          <p style="margin: 0; color: var(--text-light); font-size: var(--text-sm);">john@example.com</p>
+          <span class="badge badge-success" style="margin-top: var(--spacing-sm);">Active</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <p style="margin: 0;">John Doe</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <p style="margin: 0;">john@example.com</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <p style="margin: 0;">+234 812 345 6789</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Account Type</label>
+        <p style="margin: 0;">Premium User</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Joined Date</label>
+        <p style="margin: 0;">January 15, 2024</p>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Last Login</label>
+        <p style="margin: 0;">2 hours ago</p>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <a href="/admin/users/<%= id %>/edit" class="btn btn-primary">
+        <i class="fas fa-edit"></i> Edit User
+      </a>
+      <button class="btn btn-error">
+        <i class="fas fa-ban"></i> Suspend Account
+      </button>
+    </div>
+  </div>
+  
+  <!-- Activity Summary -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Activity Summary</h2>
+    </div>
+    <div class="card-body">
+      <div style="margin-bottom: var(--spacing-lg);">
+        <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Total Transactions</p>
+        <div style="font-size: var(--text-2xl); font-weight: bold; color: var(--primary);">456</div>
+      </div>
+      
+      <div style="margin-bottom: var(--spacing-lg);">
+        <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Total Volume</p>
+        <div style="font-size: var(--text-2xl); font-weight: bold; color: var(--emerald-500);">₦5.2M</div>
+      </div>
+      
+      <div style="margin-bottom: var(--spacing-lg);">
+        <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Login Count</p>
+        <div style="font-size: var(--text-2xl); font-weight: bold; color: var(--blue-500);">234</div>
+      </div>
+      
+      <div style="margin-bottom: var(--spacing-lg);">
+        <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">KYC Status</p>
+        <div style="font-size: var(--text-lg); font-weight: bold; color: var(--success);">
+          <i class="fas fa-check-circle"></i> Verified
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="card" style="margin-top: var(--spacing-2xl);">
+  <div class="card-header">
+    <h2 class="card-title">Recent Transactions</h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TXN-2024-001</td>
+          <td>Transfer</td>
+          <td>₦50,000</td>
+          <td>Feb 4, 2024</td>
+          <td><span class="badge badge-success">Complete</span></td>
+        </tr>
+        <tr>
+          <td>TXN-2024-002</td>
+          <td>Payment</td>
+          <td>₦25,000</td>
+          <td>Feb 3, 2024</td>
+          <td><span class="badge badge-success">Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

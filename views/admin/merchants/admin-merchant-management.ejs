@@ -1,0 +1,87 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+  <div>
+    <h1 class="page-title">
+      <i class="fas fa-store" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+      Merchants Management
+    </h1>
+    <p class="page-subtitle">Manage merchant accounts and verifications</p>
+  </div>
+  <a href="/admin/merchants/create" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Add Merchant
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="filters" style="margin-bottom: var(--spacing-2xl);">
+  <div class="filter-group">
+    <label>Status:</label>
+    <select class="form-input" style="max-width: 150px;">
+      <option>All</option>
+      <option>Active</option>
+      <option>Pending</option>
+      <option>Verified</option>
+      <option>Suspended</option>
+    </select>
+  </div>
+  
+  <div class="filter-group" style="flex: 1;">
+    <input type="text" class="form-input" placeholder="Search by name, email...">
+  </div>
+  
+  <button class="btn btn-primary">
+    <i class="fas fa-search"></i> Search
+  </button>
+</div>
+
+<!-- Merchants Table -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Business Name</th>
+          <th>Contact</th>
+          <th>Verification Status</th>
+          <th>Registration Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Acme Store</td>
+          <td>contact@acmestore.com</td>
+          <td><span class="badge badge-success">Verified</span></td>
+          <td>Jan 10, 2024</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td>
+            <a href="/admin/merchants/1" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Edit</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Tech Solutions</td>
+          <td>support@techsol.com</td>
+          <td><span class="badge badge-pending">Pending</span></td>
+          <td>Feb 3, 2024</td>
+          <td><span class="badge badge-info">Pending Review</span></td>
+          <td>
+            <a href="/admin/merchants/2" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Review</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Fashion Hub</td>
+          <td>info@fashionhub.com</td>
+          <td><span class="badge badge-success">Verified</span></td>
+          <td>Jan 25, 2024</td>
+          <td><span class="badge badge-error">Suspended</span></td>
+          <td>
+            <a href="/admin/merchants/3" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

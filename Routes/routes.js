@@ -71,6 +71,16 @@ router.get("/logout", LoginController.logout);
 router.get("/forgot-password", LoginController.getForgotPassword);
 router.post("/forgot-password", LoginController.postForgotPassword);
 router.post("/forgot-password/resend", LoginController.postResendResetLink);
+// Fallback when no token is provided so users see the error state instead of a 404
+router.get("/reset-password", (req, res) => {
+  return res.status(400).render("reset-password", {
+    pageTitle: "Reset Password - ZenoPay",
+    isLoggedIn: false,
+    user: null,
+    tokenValid: false,
+    message: "Reset link is missing. Please use the link sent to your email or request a new one.",
+  });
+});
 router.get("/reset-password/:token", LoginController.getResetPassword);
 router.post("/reset-password", LoginController.postResetPassword);
 
@@ -139,7 +149,6 @@ router.post("/settings/notifications", SettingsController.updateNotificationPref
 router.post("/settings/deactivate", SettingsController.deactivateAccount);
 
 // Merchant
-router.get("/api-integration", MerchantController.getApiKeyPage);
 router.post("/api/merchant/register", MerchantController.registerMerchant);
 router.post("/api/merchant/regenerate-keys", MerchantController.regenerateApiKeys);
 router.post("/api/merchant/settings", MerchantController.updateMerchantSettings);
@@ -301,6 +310,9 @@ router.post("/api/legal/accept-terms", LegalPagesController.acceptTerms);
 // Contact Routes
 router.get("/contact", ContactController.getContactPage);
 router.post("/api/contact/submit", ContactController.upload.array('attachments', 3), ContactController.submitContactForm);
+
+// API Integration Page
+router.get("/api-integration", LegalPagesController.getAPIIntegrationPage);
 
 // Admin Contact Management Routes
 router.get("/api/admin/contact/submissions", ContactController.getAllSubmissions);

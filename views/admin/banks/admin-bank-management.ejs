@@ -1,0 +1,81 @@
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+  <div>
+    <h1 class="page-title">
+      <i class="fas fa-university" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+      Banks Management
+    </h1>
+    <p class="page-subtitle">Manage bank accounts and settings</p>
+  </div>
+  <a href="/admin/banks/create" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Add Bank
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="filters" style="margin-bottom: var(--spacing-2xl);">
+  <div class="filter-group">
+    <label>Status:</label>
+    <select class="form-input" style="max-width: 150px;">
+      <option>All</option>
+      <option>Active</option>
+      <option>Inactive</option>
+    </select>
+  </div>
+  
+  <div class="filter-group" style="flex: 1;">
+    <input type="text" class="form-input" placeholder="Search by bank name...">
+  </div>
+  
+  <button class="btn btn-primary">
+    <i class="fas fa-search"></i> Search
+  </button>
+</div>
+
+<!-- Banks Table -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Bank Name</th>
+          <th>Bank Code</th>
+          <th>Account</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>First Bank</td>
+          <td>011</td>
+          <td>1234567890</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td>
+            <a href="/admin/banks/1" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Edit</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Guaranty Trust Bank</td>
+          <td>058</td>
+          <td>0987654321</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td>
+            <a href="/admin/banks/2" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Edit</button>
+          </td>
+        </tr>
+        <tr>
+          <td>Zenith Bank</td>
+          <td>057</td>
+          <td>5678901234</td>
+          <td><span class="badge badge-info">Inactive</span></td>
+          <td>
+            <a href="/admin/banks/3" class="btn btn-sm btn-primary">View</a>
+            <button class="btn btn-sm btn-outline">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -31,8 +31,8 @@ const getAllMerchants = async (req, res) => {
     const totalMerchants = await Merchant.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalMerchants / limit);
 
-    res.render("admin/merchants", {
-      pageTitle: "Merchant Management",
+    res.render("merchants/admin-merchant-management", {
+      pageTitle: "Admin Merchant Management",
       currentPage: "merchants",
       admin: req.session.user,
       merchants,
@@ -57,8 +57,8 @@ const getPendingMerchants = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("ZenoPayId", "FullName Email Mobile");
 
-    res.render("admin/merchants-pending", {
-      pageTitle: "Pending Merchants",
+    res.render("merchants/admin-merchant-approvals", {
+      pageTitle: "Admin Merchant Approvals",
       currentPage: "merchants",
       admin: req.session.user,
       merchants: pendingMerchants,
@@ -91,8 +91,8 @@ const getMerchantDetails = async (req, res) => {
       failedTransactions: 0,
     };
 
-    res.render("admin/merchant-details", {
-      pageTitle: "Merchant Details",
+    res.render("merchants/admin-merchant-details", {
+      pageTitle: "Admin Merchant Details",
       currentPage: "merchants",
       admin: req.session.user,
       merchant,

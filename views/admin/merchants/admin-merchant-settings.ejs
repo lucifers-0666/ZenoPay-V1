@@ -1,0 +1,100 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-cog" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+    Merchant Settings
+  </h1>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" action="/admin/merchants/settings/update">
+      
+      <!-- Commission Settings -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Commission Settings</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="standardCommission" class="form-label">Standard Commission (%)</label>
+          <input type="number" id="standardCommission" name="standardCommission" class="form-input" value="2.5" step="0.1">
+        </div>
+        
+        <div class="form-group">
+          <label for="highValueCommission" class="form-label">High-Value Commission (%)</label>
+          <input type="number" id="highValueCommission" name="highValueCommission" class="form-input" value="2.0" step="0.1">
+        </div>
+      </div>
+      
+      <!-- Transaction Limits -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Transaction Limits</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="minTransaction" class="form-label">Minimum Transaction (₦)</label>
+          <input type="number" id="minTransaction" name="minTransaction" class="form-input" value="100">
+        </div>
+        
+        <div class="form-group">
+          <label for="maxTransaction" class="form-label">Maximum Transaction (₦)</label>
+          <input type="number" id="maxTransaction" name="maxTransaction" class="form-input" value="5000000">
+        </div>
+        
+        <div class="form-group">
+          <label for="dailyLimit" class="form-label">Daily Limit (₦)</label>
+          <input type="number" id="dailyLimit" name="dailyLimit" class="form-input" value="50000000">
+        </div>
+        
+        <div class="form-group">
+          <label for="monthlyLimit" class="form-label">Monthly Limit (₦)</label>
+          <input type="number" id="monthlyLimit" name="monthlyLimit" class="form-input" value="500000000">
+        </div>
+      </div>
+      
+      <!-- Features -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Features</h3>
+      
+      <div style="display: grid; gap: var(--spacing-base); margin-bottom: var(--spacing-2xl);">
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="apiAccess" checked> API Access
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="batchProcessing" checked> Batch Processing
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="advancedReports"> Advanced Reports
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="webhooks"> Webhooks
+        </label>
+      </div>
+      
+      <!-- Settlement -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Settlement Settings</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="settlementFrequency" class="form-label">Settlement Frequency</label>
+          <select id="settlementFrequency" name="settlementFrequency" class="form-input">
+            <option selected>Daily</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="settlementDay" class="form-label">Settlement Day</label>
+          <input type="number" id="settlementDay" name="settlementDay" class="form-input" value="1" min="1" max="31">
+        </div>
+      </div>
+      
+      <div class="card-footer" style="margin-top: var(--spacing-2xl); padding: 0;">
+        <button class="btn btn-outline">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Settings
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

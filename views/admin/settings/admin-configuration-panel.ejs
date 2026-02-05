@@ -1,0 +1,104 @@
+<div class="page-header">
+  <h1 class="page-title">
+    <i class="fas fa-sliders-h" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
+    System Configuration
+  </h1>
+  <p class="page-subtitle">Configure platform-wide system settings</p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" action="/admin/settings/system-config/update">
+      
+      <!-- Commission Settings -->
+      <h3 style="margin-bottom: var(--spacing-lg); font-size: var(--text-lg);">Commission Settings</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="baseCommission" class="form-label">Base Commission (%)</label>
+          <input type="number" id="baseCommission" name="baseCommission" class="form-input" value="2.5" step="0.1">
+        </div>
+        
+        <div class="form-group">
+          <label for="merchantCommission" class="form-label">Merchant Commission (%)</label>
+          <input type="number" id="merchantCommission" name="merchantCommission" class="form-input" value="2.0" step="0.1">
+        </div>
+      </div>
+      
+      <!-- Transaction Limits -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">Transaction Limits</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="minTransactionAmount" class="form-label">Minimum Transaction (₦)</label>
+          <input type="number" id="minTransactionAmount" name="minTransactionAmount" class="form-input" value="100">
+        </div>
+        
+        <div class="form-group">
+          <label for="maxTransactionAmount" class="form-label">Maximum Transaction (₦)</label>
+          <input type="number" id="maxTransactionAmount" name="maxTransactionAmount" class="form-input" value="5000000">
+        </div>
+      </div>
+      
+      <!-- System Features -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">System Features</h3>
+      
+      <div style="margin-bottom: var(--spacing-2xl);">
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+          <input type="checkbox" name="maintenanceMode"> Maintenance Mode
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+          <input type="checkbox" name="newUserRegistration" checked> Allow New User Registration
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+          <input type="checkbox" name="merchantRegistration" checked> Allow Merchant Registration
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="twoFactorRequired"> Require Two-Factor Authentication
+        </label>
+      </div>
+      
+      <!-- Email Configuration -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">Email Configuration</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+        <div class="form-group">
+          <label for="emailProvider" class="form-label">Email Provider</label>
+          <select id="emailProvider" name="emailProvider" class="form-input">
+            <option selected>SendGrid</option>
+            <option>AWS SES</option>
+            <option>Mailgun</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="senderEmail" class="form-label">Sender Email</label>
+          <input type="email" id="senderEmail" name="senderEmail" class="form-input" value="noreply@zenopay.com">
+        </div>
+      </div>
+      
+      <!-- KYC Settings -->
+      <h3 style="margin: var(--spacing-2xl) 0 var(--spacing-lg) 0; font-size: var(--text-lg);">KYC Settings</h3>
+      
+      <div style="margin-bottom: var(--spacing-2xl);">
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+          <input type="checkbox" name="kycRequired" checked> KYC Required for Users
+        </label>
+        
+        <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <input type="checkbox" name="automatedKycVerification" checked> Automated KYC Verification
+        </label>
+      </div>
+      
+      <div class="card-footer" style="padding: 0;">
+        <button class="btn btn-outline">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Configuration
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
