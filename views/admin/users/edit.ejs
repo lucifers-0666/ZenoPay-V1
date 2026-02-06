@@ -1,0 +1,457 @@
+<!-- Top Action Bar -->
+<div class="detail-action-bar">
+  <div class="action-bar-left">
+    <a href="/admin/users/<%= userId || '1' %>" class="btn-secondary btn-icon" id="backButton">
+      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Back to User Details
+    </a>
+  </div>
+  <div class="action-bar-right">
+    <button class="btn-secondary" id="cancelButton">Cancel</button>
+    <button class="btn-primary btn-icon" id="saveButton">
+      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+      Save Changes
+    </button>
+  </div>
+</div>
+
+<!-- Page Header -->
+<div class="page-header-detail">
+  <h1 class="page-title-large">Edit User</h1>
+  <p class="page-subtitle-detail">
+    <span id="userName">Rajesh Kumar</span> • <span id="userId">#USR-001</span>
+  </p>
+</div>
+
+<!-- Form Container -->
+<div class="edit-form-container">
+  <form id="userEditForm">
+
+    <!-- Section 1: Profile Photo -->
+    <div class="form-section">
+      <div class="profile-photo-section">
+        <img src="https://ui-avatars.com/api/?name=Rajesh+Kumar&background=4F46E5&color=fff&size=100" alt="User Avatar" class="profile-photo-preview" id="profilePhoto">
+        <div class="profile-photo-actions">
+          <input type="file" id="photoUpload" accept="image/jpeg,image/png" style="display: none;">
+          <button type="button" class="btn-secondary btn-icon" id="uploadPhotoBtn">
+            <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+            </svg>
+            Upload New Photo
+          </button>
+          <button type="button" class="btn-text-error" id="removePhotoBtn">
+            <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+            Remove
+          </button>
+          <p class="photo-helper-text">JPG, PNG (Max 2MB)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Personal Information -->
+    <div class="form-section">
+      <h2 class="section-title-form">Personal Information</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label-edit" for="firstName">First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" name="firstName" class="form-input-edit" placeholder="Enter first name" required>
+          <span class="field-error" id="firstName-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="lastName">Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" name="lastName" class="form-input-edit" placeholder="Enter last name" required>
+          <span class="field-error" id="lastName-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" class="form-input-edit" placeholder="email@example.com" required>
+          <span class="field-error" id="email-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="phone">Phone Number <span class="required">*</span></label>
+          <div class="phone-input-group">
+            <select class="phone-country-code" id="countryCode">
+              <option value="+91" selected>+91</option>
+              <option value="+1">+1</option>
+              <option value="+44">+44</option>
+              <option value="+61">+61</option>
+            </select>
+            <input type="tel" id="phone" name="phone" class="form-input-edit phone-input" placeholder="98765 43210" required>
+          </div>
+          <span class="field-error" id="phone-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="dob">Date of Birth</label>
+          <input type="date" id="dob" name="dob" class="form-input-edit">
+          <span class="field-error" id="dob-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="gender">Gender</label>
+          <select id="gender" name="gender" class="form-input-edit">
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <div class="form-field full-width">
+          <label class="form-label-edit" for="address1">Address Line 1</label>
+          <input type="text" id="address1" name="address1" class="form-input-edit" placeholder="Street address">
+        </div>
+
+        <div class="form-field full-width">
+          <label class="form-label-edit" for="address2">Address Line 2 <span class="optional">(Optional)</span></label>
+          <input type="text" id="address2" name="address2" class="form-input-edit" placeholder="Apartment, suite, etc.">
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="city">City</label>
+          <input type="text" id="city" name="city" class="form-input-edit" placeholder="City">
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="state">State</label>
+          <select id="state" name="state" class="form-input-edit">
+            <option value="">Select state</option>
+            <option value="AN">Andaman and Nicobar Islands</option>
+            <option value="AP">Andhra Pradesh</option>
+            <option value="AR">Arunachal Pradesh</option>
+            <option value="AS">Assam</option>
+            <option value="BR">Bihar</option>
+            <option value="CH">Chandigarh</option>
+            <option value="CT">Chhattisgarh</option>
+            <option value="DN">Dadra and Nagar Haveli</option>
+            <option value="DD">Daman and Diu</option>
+            <option value="DL">Delhi</option>
+            <option value="GA">Goa</option>
+            <option value="GJ">Gujarat</option>
+            <option value="HR">Haryana</option>
+            <option value="HP">Himachal Pradesh</option>
+            <option value="JK">Jammu and Kashmir</option>
+            <option value="JH">Jharkhand</option>
+            <option value="KA" selected>Karnataka</option>
+            <option value="KL">Kerala</option>
+            <option value="LA">Ladakh</option>
+            <option value="LD">Lakshadweep</option>
+            <option value="MP">Madhya Pradesh</option>
+            <option value="MH">Maharashtra</option>
+            <option value="MN">Manipur</option>
+            <option value="ML">Meghalaya</option>
+            <option value="MZ">Mizoram</option>
+            <option value="NL">Nagaland</option>
+            <option value="OR">Odisha</option>
+            <option value="PY">Puducherry</option>
+            <option value="PB">Punjab</option>
+            <option value="RJ">Rajasthan</option>
+            <option value="SK">Sikkim</option>
+            <option value="TN">Tamil Nadu</option>
+            <option value="TG">Telangana</option>
+            <option value="TR">Tripura</option>
+            <option value="UP">Uttar Pradesh</option>
+            <option value="UT">Uttarakhand</option>
+            <option value="WB">West Bengal</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="pinCode">PIN Code</label>
+          <input type="text" id="pinCode" name="pinCode" class="form-input-edit" placeholder="560034" maxlength="6">
+          <span class="field-error" id="pinCode-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="country">Country</label>
+          <select id="country" name="country" class="form-input-edit">
+            <option value="IN" selected>India</option>
+            <option value="US">United States</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Account Status -->
+    <div class="form-section">
+      <h2 class="section-title-form">Account Status</h2>
+      <div class="form-grid">
+        <div class="form-field full-width">
+          <label class="form-label-edit" for="accountStatus">Account Status</label>
+          <select id="accountStatus" name="accountStatus" class="form-input-edit">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+            <option value="blocked">Blocked</option>
+          </select>
+        </div>
+
+        <div class="form-field full-width" id="statusReasonField" style="display: none;">
+          <label class="form-label-edit" for="statusReason">Status Reason</label>
+          <textarea id="statusReason" name="statusReason" class="form-textarea-edit" rows="3" placeholder="Enter reason for status change..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: KYC Status -->
+    <div class="form-section">
+      <h2 class="section-title-form">KYC Verification</h2>
+      <div class="form-grid">
+        <div class="form-field full-width">
+          <label class="form-label-edit" for="kycStatus">KYC Status</label>
+          <select id="kycStatus" name="kycStatus" class="form-input-edit">
+            <option value="not_submitted">Not Submitted</option>
+            <option value="pending">Pending Review</option>
+            <option value="verified">Verified</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <div class="form-field full-width">
+          <label class="form-label-edit" for="verificationNotes">Verification Notes</label>
+          <textarea id="verificationNotes" name="verificationNotes" class="form-textarea-edit" rows="3" placeholder="Add notes about verification..."></textarea>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="verifiedDate">Verified Date</label>
+          <input type="date" id="verifiedDate" name="verifiedDate" class="form-input-edit" readonly>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="verifiedBy">Verified By</label>
+          <input type="text" id="verifiedBy" name="verifiedBy" class="form-input-edit" value="Admin User" readonly>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Account Limits -->
+    <div class="form-section">
+      <h2 class="section-title-form">Transaction Limits</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label-edit" for="dailyLimit">Daily Transaction Limit</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">₹</span>
+            <input type="number" id="dailyLimit" name="dailyLimit" class="form-input-edit with-prefix" placeholder="50000">
+          </div>
+          <span class="field-helper">Leave empty for default limit</span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="monthlyLimit">Monthly Transaction Limit</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">₹</span>
+            <input type="number" id="monthlyLimit" name="monthlyLimit" class="form-input-edit with-prefix" placeholder="500000">
+          </div>
+          <span class="field-helper">Leave empty for default limit</span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="maxSingleTransaction">Maximum Single Transaction</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">₹</span>
+            <input type="number" id="maxSingleTransaction" name="maxSingleTransaction" class="form-input-edit with-prefix" placeholder="25000">
+          </div>
+          <span class="field-helper">Leave empty for default limit</span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label-edit" for="dailyTransactionCount">Daily Transaction Count</label>
+          <input type="number" id="dailyTransactionCount" name="dailyTransactionCount" class="form-input-edit" placeholder="20">
+          <span class="field-helper">Leave empty for default limit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Permissions -->
+    <div class="form-section">
+      <h2 class="section-title-form">User Permissions</h2>
+      <div class="permissions-list">
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Send Money</span>
+            <label class="switch">
+              <input type="checkbox" id="canSendMoney" name="canSendMoney" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Receive Money</span>
+            <label class="switch">
+              <input type="checkbox" id="canReceiveMoney" name="canReceiveMoney" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Use QR Payments</span>
+            <label class="switch">
+              <input type="checkbox" id="canUseQR" name="canUseQR" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Add Payment Methods</span>
+            <label class="switch">
+              <input type="checkbox" id="canAddPaymentMethods" name="canAddPaymentMethods" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Request Money</span>
+            <label class="switch">
+              <input type="checkbox" id="canRequestMoney" name="canRequestMoney">
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Can Access API</span>
+            <label class="switch">
+              <input type="checkbox" id="canAccessAPI" name="canAccessAPI">
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: Security Settings -->
+    <div class="form-section">
+      <h2 class="section-title-form">Security Settings</h2>
+      <div class="security-settings">
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Two-Factor Authentication</span>
+            <label class="switch">
+              <input type="checkbox" id="twoFactorAuth" name="twoFactorAuth">
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">Email Notifications</span>
+            <label class="switch">
+              <input type="checkbox" id="emailNotifications" name="emailNotifications" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="permission-item">
+          <label class="switch-label">
+            <span class="switch-label-text">SMS Notifications</span>
+            <label class="switch">
+              <input type="checkbox" id="smsNotifications" name="smsNotifications" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </label>
+        </div>
+
+        <div class="security-actions">
+          <button type="button" class="btn-secondary btn-icon" id="resetPasswordBtn">
+            <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+            Reset Password
+          </button>
+          <button type="button" class="btn-secondary btn-icon" id="forceLogoutBtn">
+            <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+            </svg>
+            Force Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8: Admin Notes -->
+    <div class="form-section">
+      <h2 class="section-title-form">
+        Internal Notes 
+        <span class="info-tooltip" title="Only visible to admins">
+          <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          </svg>
+        </span>
+      </h2>
+      <div class="form-field full-width">
+        <textarea id="adminNotes" name="adminNotes" class="form-textarea-edit admin-notes" rows="4" placeholder="Add internal notes about this user..."></textarea>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- Sticky Bottom Action Bar -->
+<div class="bottom-action-bar">
+  <div class="bottom-action-buttons">
+    <button type="button" class="btn-secondary" id="cancelBottomBtn">Cancel</button>
+    <button type="button" class="btn-secondary-outline" id="saveDraftBtn">Save as Draft</button>
+    <button type="button" class="btn-primary btn-icon" id="saveBottomBtn">
+      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+      Save Changes
+    </button>
+  </div>
+</div>
+
+<!-- Unsaved Changes Modal -->
+<div class="modal-overlay" id="unsavedChangesModal" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Unsaved Changes</h3>
+      <button class="modal-close" id="closeUnsavedModal">
+        <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>You have unsaved changes. Are you sure you want to leave?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="stayOnPageBtn">Stay on Page</button>
+      <button class="btn-error-outline" id="leavePageBtn">Leave</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast" style="display: none;">
+  <div class="toast-icon" id="toastIcon"></div>
+  <div class="toast-message" id="toastMessage"></div>
+  <button class="toast-close" id="toastClose">
+    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>

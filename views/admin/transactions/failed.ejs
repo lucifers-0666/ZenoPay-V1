@@ -1,0 +1,100 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Failed Transactions - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Transactions', url: '/admin/transactions' },
+        { name: 'Failed', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Failed Transactions</h1>
+                <p class="page-subtitle">Transactions that failed during processing</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="failedCount">12</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: var(--error);">₹ 5.8L</div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-input" placeholder="Search by transaction ID..." onkeyup="filterFailedTransactions()">
+            <select id="failureReasonFilter" class="filter-select" onchange="filterFailedTransactions()">
+                <option value="">All Failure Reasons</option>
+                <option value="timeout">Timeout</option>
+                <option value="invalid-account">Invalid Account</option>
+                <option value="insufficient-balance">Insufficient Balance</option>
+                <option value="network-error">Network Error</option>
+                <option value="bank-rejected">Bank Rejected</option>
+                <option value="other">Other</option>
+            </select>
+            <select id="retryFilter" class="filter-select" onchange="filterFailedTransactions()">
+                <option value="">All Retry Status</option>
+                <option value="pending-retry">Pending Retry</option>
+                <option value="retried">Retried</option>
+                <option value="no-retry">No Retry Available</option>
+            </select>
+        </div>
+
+        <!-- Failed Transactions -->
+        <div class="card-modern">
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Failure Reason</th>
+                            <th>Failed Time</th>
+                            <th>Retry Status</th>
+                            <th>Retries</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="failedTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Details Modal -->
+        <div id="detailsModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Failed Transaction Details</h2>
+                    <button class="modal-close" onclick="closeDetailsModal()">×</button>
+                </div>
+
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                    <div id="detailedInfo"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeDetailsModal()">Close</button>
+                    <button class="btn-primary" id="retryBtn" style="display: none;" onclick="retryTransaction()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2-8.83"></path>
+                        </svg>
+                        Retry Transaction
+                    </button>
+                    <button class="btn-danger" id="refundBtn" onclick="refundTransaction()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 4h20v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4z"></path>
+                            <path d="M2 8h20"></path>
+                        </svg>
+                        Process Refund
+                    </button>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

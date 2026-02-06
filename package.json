@@ -3,19 +3,26 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js "
+    "start": "nodemon app.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest tests/",
+    "test:integration": "jest tests/controllers/ tests/services/",
+    "test:middleware": "jest tests/middleware/"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@azure/storage-blob": "^12.29.1",
+    "bcryptjs": "^2.4.3",
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
+    "express-validator": "^7.0.0",
     "merge-images": "^2.0.0",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
@@ -25,7 +32,13 @@
     "pdfkit": "^0.17.2",
     "qr-code-with-logo": "^1.1.0",
     "qrcode": "^1.5.4",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "nodemon": "^3.0.2"
   },
   "description": ""
 }

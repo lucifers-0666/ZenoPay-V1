@@ -1,14 +1,12 @@
 const ZenoPayUser = require("../../Models/ZenoPayUser");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const emailService = require("../../Services/EmailService");
 const speakeasy = require("speakeasy");
 const QRCode = require("qrcode");
 
-// Store reset tokens temporarily (in production, use database)
+// Store reset tokens in database (using MongoDB) - in production, use sessions
 const resetTokens = new Map();
-
-// Store 2FA secrets temporarily (in production, save to database)
-const twoFactorSecrets = new Map();
 
 // GET Admin Login Page
 const getLogin = (req, res) => {
@@ -26,7 +24,7 @@ const getLogin = (req, res) => {
   });
 };
 
-// POST Admin Login
+// POST Admin Login with proper password hashing
 const postLogin = async (req, res) => {
   try {
     const { zenoPayId, password } = req.body;
@@ -55,8 +53,9 @@ const postLogin = async (req, res) => {
       });
     }
 
-    // Verify password (Note: You should use bcrypt for password hashing)
-    if (adminUser.Password !== password) {
+    // Verify password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, adminUser.Password);
+    if (!isPasswordValid) {
       return res.render("auth/admin-authentication", {
         pageTitle: "ZenoPay Admin Login",
         error: "Invalid credentials",
@@ -256,7 +255,7 @@ const postResetPassword = async (req, res) => {
       });
     }
 
-    // Update password (Note: In production, use bcrypt for hashing)
+    // Update password with bcrypt hashing
     const adminUser = await ZenoPayUser.findOne({
       Email: tokenData.email,
       Role: "admin",
@@ -272,8 +271,9 @@ const postResetPassword = async (req, res) => {
       });
     }
 
-    // Update password
-    adminUser.Password = password; // TODO: Hash with bcrypt in production
+    // Hash password with bcrypt (10 salt rounds)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    adminUser.Password = hashedPassword;
     await adminUser.save();
 
     // Delete used token

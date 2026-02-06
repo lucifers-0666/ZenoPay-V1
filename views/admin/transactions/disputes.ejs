@@ -1,0 +1,119 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Transaction Disputes - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Transactions', url: '/admin/transactions' },
+        { name: 'Disputes', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Transaction Disputes</h1>
+                <p class="page-subtitle">Manage and resolve transaction disputes</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="disputeCount">6</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: var(--error);">₹ 1.2L</div>
+                    <div class="stat-label">In Dispute</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-input" placeholder="Search by dispute ID..." onkeyup="filterDisputes()">
+            <select id="statusFilter" class="filter-select" onchange="filterDisputes()">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="under-review">Under Review</option>
+                <option value="customer-credited">Customer Credited</option>
+                <option value="closed">Closed</option>
+            </select>
+            <select id="reasonFilter" class="filter-select" onchange="filterDisputes()">
+                <option value="">All Reasons</option>
+                <option value="duplicate">Duplicate Charge</option>
+                <option value="unauthorized">Unauthorized Transaction</option>
+                <option value="not-received">Amount Not Received</option>
+                <option value="service">Service Issue</option>
+            </select>
+        </div>
+
+        <!-- Disputes Table -->
+        <div class="card-modern">
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Dispute ID</th>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Days Open</th>
+                            <th>Updated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="disputesTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Dispute Details Modal -->
+        <div id="disputeModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Dispute Details</h2>
+                    <button class="modal-close" onclick="closeDisputeModal()">×</button>
+                </div>
+
+                <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                    <div id="disputeDetails"></div>
+
+                    <div class="form-group">
+                        <label class="form-label">Resolution Action *</label>
+                        <select id="resolutionAction" class="form-input-edit" onchange="updateReasonField()">
+                            <option value="">Select action...</option>
+                            <option value="accept">Accept Dispute & Credit Customer</option>
+                            <option value="reject">Reject Dispute</option>
+                            <option value="partial">Partial Credit</option>
+                            <option value="escalate">Escalate to Bank</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="creditAmountField" style="display: none;">
+                        <label class="form-label">Credit Amount (₹) *</label>
+                        <input type="number" id="creditAmount" class="form-input-edit" placeholder="Amount to credit">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Resolution Notes *</label>
+                        <textarea id="resolutionNotes" class="form-input-edit" rows="3" placeholder="Explain the resolution..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="notifyCustomer" checked>
+                            <span>Notify customer about resolution</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeDisputeModal()">Cancel</button>
+                    <button class="btn-primary" onclick="submitDisputeResolution()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Submit Resolution
+                    </button>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

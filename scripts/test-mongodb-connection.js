@@ -25,10 +25,11 @@ const maskedURI = MONGO_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
 console.log('📋 Connection String (masked):', maskedURI);
 console.log('');
 
-// Connection options
+// Connection options (matching app.js settings)
 const options = {
-  serverSelectionTimeoutMS: 10000,  // 10 seconds
+  serverSelectionTimeoutMS: 30000,  // 30 seconds (increased for Atlas)
   socketTimeoutMS: 45000,
+  connectTimeoutMS: 30000,
 };
 
 console.log('⏳ Attempting to connect...\n');

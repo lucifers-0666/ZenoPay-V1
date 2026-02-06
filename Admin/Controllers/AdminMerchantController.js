@@ -8,31 +8,45 @@ const getAllMerchants = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const search = req.query.search || "";
+    const status = req.query.status || "";
     const skip = (page - 1) * limit;
 
-    // Build search query
-    const searchQuery = search
-      ? {
-          $or: [
-            { BusinessName: { $regex: search, $options: "i" } },
-            { ZenoPayId: { $regex: search, $options: "i" } },
-            { BusinessWebsite: { $regex: search, $options: "i" } },
-          ],
-        }
-      : {};
+    let query = {};
+
+    if (search) {
+      query.$or = [
+        { BusinessName: { $regex: search, $options: "i" } },
+        { ZenoPayId: { $regex: search, $options: "i" } },
+        { BusinessWebsite: { $regex: search, $options: "i" } },
+        { Email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (status) {
+      query.Status = status;
+    }
 
     // Get merchants
-    const merchants = await Merchant.find(searchQuery)
+    const merchants = await Merchant.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("ZenoPayId", "FullName Email Mobile");
+      .populate("ZenoPayId", "-Password")
+      .lean();
 
-    const totalMerchants = await Merchant.countDocuments(searchQuery);
-    const totalPages = Math.ceil(totalMerchants / limit);
+    const total = await Merchant.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    if (req.query.api === "true") {
+      return res.json({
+        success: true,
+        data: merchants,
+        pagination: { currentPage: page, totalPages, total, limit },
+      });
+    }
 
     res.render("merchants/admin-merchant-management", {
-      pageTitle: "Admin Merchant Management",
+      pageTitle: "Merchant Management",
       currentPage: "merchants",
       admin: req.session.user,
       merchants,
@@ -40,13 +54,14 @@ const getAllMerchants = async (req, res) => {
         page,
         limit,
         totalPages,
-        totalMerchants,
+        total,
       },
       search,
+      status,
     });
   } catch (error) {
     console.error("Get all merchants error:", error);
-    res.status(500).send("Error loading merchants");
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 

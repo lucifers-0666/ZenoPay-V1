@@ -1,0 +1,172 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Reports - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Analytics', url: '/admin/analytics' },
+        { name: 'Reports', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Generate Reports</h1>
+                <p class="page-subtitle">Create and download analytics reports</p>
+            </div>
+        </div>
+
+        <!-- Report Generator -->
+        <div class="card-modern">
+            <div class="form-section">
+                <div class="section-title">Generate New Report</div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                    <div>
+                        <label class="form-label">Report Type *</label>
+                        <select id="reportType" class="form-input-edit" onchange="updateReportFields()">
+                            <option value="">Select report type...</option>
+                            <option value="transaction">Transaction Summary</option>
+                            <option value="user">User Activity</option>
+                            <option value="merchant">Merchant Performance</option>
+                            <option value="settlement">Settlement Report</option>
+                            <option value="financial">Financial Summary</option>
+                            <option value="compliance">Compliance Report</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Date Range *</label>
+                        <select class="form-input-edit" id="dateRange" onchange="updateDateFields()">
+                            <option value="today">Today</option>
+                            <option value="week">Last 7 Days</option>
+                            <option value="month">Last 30 Days</option>
+                            <option value="quarter">Last 90 Days</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;" id="customDateFields" style="display: none;">
+                    <div>
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-input-edit" id="startDate">
+                    </div>
+                    <div>
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-input-edit" id="endDate">
+                    </div>
+                </div>
+
+                <div id="advancedFilters" style="display: none;">
+                    <div class="form-divider"></div>
+
+                    <div class="section-title">Advanced Filters</div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                        <div>
+                            <label class="form-label">Status</label>
+                            <select class="form-input-edit">
+                                <option value="">All Status</option>
+                                <option value="success">Successful</option>
+                                <option value="failed">Failed</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-input-edit">
+                                <option value="">All Methods</option>
+                                <option value="bank">Bank Transfer</option>
+                                <option value="card">Card</option>
+                                <option value="wallet">Wallet</option>
+                                <option value="qr">QR Code</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                    <div>
+                        <label class="form-label">Format</label>
+                        <select class="form-input-edit" id="reportFormat">
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel (XLSX)</option>
+                            <option value="csv">CSV</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Include</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span style="font-size: 14px;">Detailed Data</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span style="font-size: 14px;">Charts & Graphs</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="generateReport()" style="width: 100%; padding: 12px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    Generate Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Previous Reports -->
+        <div class="card-modern">
+            <div class="details-section-title">Previous Reports</div>
+            
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Report Name</th>
+                            <th>Type</th>
+                            <th>Generated On</th>
+                            <th>Period</th>
+                            <th>Format</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <style>
+            .form-section { padding: 20px 0; }
+            .section-title {
+                font-weight: 700;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--slate-600);
+                letter-spacing: 0.5px;
+                margin-bottom: 16px;
+            }
+            .form-divider {
+                height: 1px;
+                background: var(--slate-200);
+                margin: 20px 0;
+            }
+            .details-section-title {
+                font-weight: 700;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--slate-600);
+                letter-spacing: 0.5px;
+                margin-bottom: 16px;
+                padding: 12px 0;
+            }
+        </style>
+    `
+}) %>

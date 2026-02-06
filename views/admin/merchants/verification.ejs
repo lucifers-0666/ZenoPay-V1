@@ -1,0 +1,292 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Merchant Verification - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Dashboard', url: '/admin' },
+        { name: 'Merchants', url: '/admin/merchants' },
+        { name: 'Verification', url: '' }
+    ],
+    content: `
+        <!-- Page Header -->
+        <div class="page-header-admin">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="btn-icon" onclick="history.back()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="page-title-admin">Complete Merchant Verification</h1>
+                    <p class="page-subtitle" id="merchantSubtitle">UrbanCart Retail Solutions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Progress -->
+        <div class="card-modern">
+            <div class="verification-progress">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Business Documents</div>
+                </div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Owner KYC</div>
+                </div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Bank Verification</div>
+                </div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Final Review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Form -->
+        <div class="details-grid-2col">
+            <!-- Left Column -->
+            <div class="details-column">
+                <!-- Business Documents -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Business Documents Verification</h3>
+                        <span class="badge-warning" id="docsStatus">Pending Review</span>
+                    </div>
+                    <div class="verification-checklist">
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="gstVerified" onchange="updateProgress()">
+                                <label for="gstVerified"><strong>GST Certificate</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('gst')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('gst')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('gst')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="panVerified" onchange="updateProgress()">
+                                <label for="panVerified"><strong>PAN Card</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('pan')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('pan')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('pan')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="licenseVerified" onchange="updateProgress()">
+                                <label for="licenseVerified"><strong>Business License</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('license')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('license')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('license')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="addressVerified" onchange="updateProgress()">
+                                <label for="addressVerified"><strong>Address Proof</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('address')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('address')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('address')">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner KYC Verification -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Owner KYC Verification</h3>
+                        <span class="badge-warning" id="kycStatus">Pending Review</span>
+                    </div>
+                    <div class="verification-checklist">
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="ownerPanVerified" onchange="updateProgress()">
+                                <label for="ownerPanVerified"><strong>Owner PAN Card</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('owner-pan')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('owner-pan')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('owner-pan')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="aadhaarVerified" onchange="updateProgress()">
+                                <label for="aadhaarVerified"><strong>Aadhaar Card</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('aadhaar')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('aadhaar')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('aadhaar')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="photoVerified" onchange="updateProgress()">
+                                <label for="photoVerified"><strong>Owner Photo</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('photo')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('photo')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('photo')">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Account Verification -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Bank Account Verification</h3>
+                        <span class="badge-warning" id="bankStatus">Pending Verification</span>
+                    </div>
+                    <div class="verification-checklist">
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="bankStatementVerified" onchange="updateProgress()">
+                                <label for="bankStatementVerified"><strong>Bank Statement</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('bank-statement')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('bank-statement')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('bank-statement')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="checklist-item-verification">
+                            <div class="checklist-header">
+                                <input type="checkbox" id="cancelledChequeVerified" onchange="updateProgress()">
+                                <label for="cancelledChequeVerified"><strong>Cancelled Cheque</strong></label>
+                            </div>
+                            <div class="document-preview">
+                                <button class="btn-text-small" onclick="viewDocument('cancelled-cheque')">View Document</button>
+                                <button class="btn-text-small text-success" onclick="verifyDocument('cancelled-cheque')">Verify</button>
+                                <button class="btn-text-small text-error" onclick="rejectDocument('cancelled-cheque')">Reject</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 16px;">
+                            <button class="btn-secondary" onclick="initiatePennyDrop()" style="width: 100%;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Initiate Penny Drop Verification
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="details-column">
+                <!-- Verification Summary -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Verification Summary</h3>
+                    </div>
+                    <div class="verification-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Overall Progress</div>
+                            <div class="summit-value">
+                                <strong id="progressPercentage">0%</strong>
+                                <div class="progress-bar-small">
+                                    <div class="progress-fill" id="progressBar" style="width: 0%; background: var(--success);"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Verified Documents</div>
+                            <div class="summary-value"><strong id="verifiedCount">0</strong> / 9</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Verification Status</div>
+                            <div class="summary-value"><span class="badge-warning" id="overallStatus">In Progress</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Merchant Basic Info -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Merchant Information</h3>
+                    </div>
+                    <div class="details-section">
+                        <div class="detail-row">
+                            <div class="detail-label">Business Name</div>
+                            <div class="detail-value">UrbanCart Retail Solutions</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Owner Name</div>
+                            <div class="detail-value">Rajesh Kumar Sharma</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">rajesh@urbancart.com</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value">+91 98765 43210</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Business Type</div>
+                            <div class="detail-value">Retail Store</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Notes -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Verification Notes</h3>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="verificationNotes" class="form-textarea" rows="6" placeholder="Add any notes or observations during verification..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Final Actions -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Final Decision</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
+                        <button class="btn-primary" onclick="completeVerification()" id="completeBtn" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Complete Verification & Approve
+                        </button>
+                        <button class="btn-danger" onclick="rejectVerification()" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Reject Application
+                        </button>
+                        <button class="btn-text" onclick="requestMoreInfo()" style="width: 100%;">
+                            Request More Information
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Reports - ZenoPay Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 28px;
+    }
+    
+    .content-section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 2px solid #ddd;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .chart-placeholder {
+      background: #f8f9fa;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 60px 20px;
+      text-align: center;
+      color: #999;
+      margin: 20px 0;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    
+    .back-link:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+    
+    <header>
+      <h1>💰 Financial Reports</h1>
+      <p>Detailed financial performance and revenue analysis</p>
+    </header>
+
+    <div class="content-section">
+      <h2 class="section-title">Monthly Revenue Report</h2>
+      <div class="chart-placeholder">
+        📈 Monthly revenue chart
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">Transaction Breakdown</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Transactions</th>
+            <th>Revenue</th>
+            <th>Fees Collected</th>
+            <th>Average Transaction</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>January 2026</td>
+            <td>8,456</td>
+            <td>₹524,200</td>
+            <td>₹8,387</td>
+            <td>₹61.95</td>
+          </tr>
+          <tr>
+            <td>December 2025</td>
+            <td>7,821</td>
+            <td>₹468,900</td>
+            <td>₹7,502</td>
+            <td>₹59.93</td>
+          </tr>
+          <tr>
+            <td>November 2025</td>
+            <td>6,324</td>
+            <td>₹387,450</td>
+            <td>₹6,199</td>
+            <td>₹61.28</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">Payment Method Comparison</h2>
+      <div class="chart-placeholder">
+        💳 Payment method distribution chart
+      </div>
+    </div>
+  </div>
+</body>
+</html>

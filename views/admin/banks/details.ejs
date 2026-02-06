@@ -1,0 +1,231 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Bank Details - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Banks', url: '/admin/banks' },
+        { name: 'Details', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin" id="bankName">Federal Bank</h1>
+                <p class="page-subtitle">Complete bank information and configuration</p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <span class="badge-status" id="bankStatus">Active</span>
+                <a href="/admin/banks" class="btn-secondary">Back to Banks</a>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="details-grid-2col">
+            <!-- Left Column: Bank Info -->
+            <div class="card-modern">
+                <div class="details-section-title">Basic Information</div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Bank Name</div>
+                    <div class="detail-value" id="detailBankName">Federal Bank</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">IFSC Code</div>
+                    <div class="detail-value"><code>FDRL0000001</code></div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">SWIFT Code</div>
+                    <div class="detail-value">FBININD21</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Registration Number</div>
+                    <div class="detail-value">RBI/2025/01234</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Registered On</div>
+                    <div class="detail-value">12 Jan 2025</div>
+                </div>
+
+                <div class="divider"></div>
+                
+                <div class="details-section-title">Contact Information</div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Contact Person</div>
+                    <div class="detail-value">Rajesh Kumar</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">rajesh@federalbank.com</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Phone</div>
+                    <div class="detail-value">+91 9876 543 210</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Support Email</div>
+                    <div class="detail-value">support@federalbank.com</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Support Phone</div>
+                    <div class="detail-value">+91 1234 567 890</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Settlement & Configuration -->
+            <div>
+                <div class="card-modern">
+                    <div class="details-section-title">Settlement Configuration</div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Settlement Cycle</div>
+                        <div class="detail-value">Daily</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Settlement Time</div>
+                        <div class="detail-value">3:00 PM IST</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Commission Rate</div>
+                        <div class="detail-value" style="font-weight: 700; color: var(--primary);">2.5%</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Minimum Transaction</div>
+                        <div class="detail-value">₹ 100</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Maximum Transaction</div>
+                        <div class="detail-value">₹ 50,00,000</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="details-section-title">Capabilities</div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked disabled>
+                            <span style="font-size: 14px;">Money Transfer</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked disabled>
+                            <span style="font-size: 14px;">Card Payments</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked disabled>
+                            <span style="font-size: 14px;">Mobile Wallet</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" checked disabled>
+                            <span style="font-size: 14px;">QR Payments</span>
+                        </label>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="details-section-title">Status & Actions</div>
+
+                    <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="editBank()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Edit Bank
+                    </button>
+
+                    <button class="btn-secondary" style="width: 100%; margin-bottom: 8px;" onclick="suspendBank()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        Suspend Bank
+                    </button>
+
+                    <button class="btn-danger" style="width: 100%;" onclick="deleteBank()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Delete Bank
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card-modern">
+            <div class="details-section-title">Recent Transactions</div>
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Settlement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TRX-2025-001</strong></td>
+                            <td>₹ 50,000</td>
+                            <td>Transfer</td>
+                            <td><span style="background: var(--success-light); color: var(--success); padding: 4px 8px; border-radius: 4px; font-size: 12px;">Success</span></td>
+                            <td>15 Jan 2025</td>
+                            <td>15 Jan 2025</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TRX-2025-002</strong></td>
+                            <td>₹ 25,500</td>
+                            <td>Card Payment</td>
+                            <td><span style="background: var(--success-light); color: var(--success); padding: 4px 8px; border-radius: 4px; font-size: 12px;">Success</span></td>
+                            <td>14 Jan 2025</td>
+                            <td>14 Jan 2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <style>
+            .details-section-title {
+                font-weight: 700;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--slate-600);
+                letter-spacing: 0.5px;
+                margin-bottom: 16px;
+                padding-top: 12px;
+            }
+
+            .badge-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                background: var(--success-light);
+                color: var(--success);
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .divider {
+                height: 1px;
+                background: var(--slate-200);
+                margin: 16px 0;
+            }
+        </style>
+    `
+}) %>

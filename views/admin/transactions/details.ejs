@@ -1,0 +1,243 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Transaction Details - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Transactions', url: '/admin/transactions' },
+        { name: 'Details', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin" id="transactionTitle">Transaction TRX-2025-0234</h1>
+                <p class="page-subtitle">Complete transaction information and timeline</p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <span class="badge-status" id="transactionStatus">Completed</span>
+                <a href="/admin/transactions" class="btn-secondary">Back</a>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="details-grid-2col">
+            <!-- Left Column: Transaction Info -->
+            <div class="card-modern">
+                <div class="details-section-title">Transaction Details</div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Transaction ID</div>
+                    <div class="detail-value"><code>TRX-2025-0234</code></div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Amount</div>
+                    <div class="detail-value" style="font-weight: 700; font-size: 18px; color: var(--success);">₹ 50,000</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Type</div>
+                    <div class="detail-value">Money Transfer</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value"><span style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Success</span></div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Initiated At</div>
+                    <div class="detail-value">15 Jan 2025, 2:30 PM IST</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Completed At</div>
+                    <div class="detail-value">15 Jan 2025, 2:35 PM IST</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Processing Time</div>
+                    <div class="detail-value">5 minutes 23 seconds</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="details-section-title">From Account</div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Sender Name</div>
+                    <div class="detail-value">Raj Kumar Singh</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Account Number</div>
+                    <div class="detail-value"><code>XXXX XXXX XXXX 5678</code></div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Bank</div>
+                    <div class="detail-value">HDFC Bank</div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">IFSC</div>
+                    <div class="detail-value">HDFC0000001</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Settlement & Recipient -->
+            <div>
+                <div class="card-modern">
+                    <div class="details-section-title">To Account</div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Recipient Name</div>
+                        <div class="detail-value">Priya Sharma</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Account Number</div>
+                        <div class="detail-value"><code>XXXX XXXX XXXX 4321</code></div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Bank</div>
+                        <div class="detail-value">Axis Bank</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">IFSC</div>
+                        <div class="detail-value">UTIB0000001</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Mobile Number</div>
+                        <div class="detail-value">+91 9876543210</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="details-section-title">Settlement Information</div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Settlement Status</div>
+                        <div class="detail-value"><span style="background: var(--success-light); color: var(--success); padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Settled</span></div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Settlement Date</div>
+                        <div class="detail-value">15 Jan 2025</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Settlement Amount</div>
+                        <div class="detail-value" style="font-weight: 700;">₹ 48,750</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Commission</div>
+                        <div class="detail-value" style="color: var(--error);">₹ 1,250 (2.5%)</div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="details-section-title">Actions</div>
+
+                    <button class="btn-secondary" style="width: 100%; margin-bottom: 8px;" onclick="downloadReceipt()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Receipt
+                    </button>
+
+                    <button class="btn-danger" style="width: 100%;" onclick="processRefund()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 4h20v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4z"></path>
+                            <path d="M2 8h20"></path>
+                        </svg>
+                        Process Refund
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card-modern">
+            <div class="details-section-title">Transaction Timeline</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; gap: 16px;">
+                    <div style="position: relative; min-width: 30px;">
+                        <div style="width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 3px solid var(--success-light); margin: 4px 0;"></div>
+                        <div style="width: 2px; height: 60px; background: var(--slate-200); position: absolute; left: 4px; top: 12px;"></div>
+                    </div>
+                    <div style="padding: 8px 0;">
+                        <div style="font-weight: 600; color: var(--text-dark);">Transaction Initiated</div>
+                        <small style="color: var(--slate-600);">15 Jan 2025, 2:30 PM IST</small>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px;">
+                    <div style="position: relative; min-width: 30px;">
+                        <div style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%; border: 3px solid var(--primary-light); margin: 4px 0;"></div>
+                        <div style="width: 2px; height: 60px; background: var(--slate-200); position: absolute; left: 4px; top: 12px;"></div>
+                    </div>
+                    <div style="padding: 8px 0;">
+                        <div style="font-weight: 600; color: var(--text-dark);">Sent to Bank</div>
+                        <small style="color: var(--slate-600);">15 Jan 2025, 2:31 PM IST</small>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px;">
+                    <div style="position: relative; min-width: 30px;">
+                        <div style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%; border: 3px solid var(--primary-light); margin: 4px 0;"></div>
+                        <div style="width: 2px; height: 60px; background: var(--slate-200); position: absolute; left: 4px; top: 12px;"></div>
+                    </div>
+                    <div style="padding: 8px 0;">
+                        <div style="font-weight: 600; color: var(--text-dark);">Bank Confirmed</div>
+                        <small style="color: var(--slate-600);">15 Jan 2025, 2:33 PM IST</small>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px;">
+                    <div style="min-width: 30px;">
+                        <div style="width: 12px; height: 12px; background: var(--success); border-radius: 50%; border: 3px solid var(--success-light); margin: 4px 0;"></div>
+                    </div>
+                    <div style="padding: 8px 0;">
+                        <div style="font-weight: 600; color: var(--text-dark);">Transaction Completed</div>
+                        <small style="color: var(--slate-600);">15 Jan 2025, 2:35 PM IST</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .details-section-title {
+                font-weight: 700;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--slate-600);
+                letter-spacing: 0.5px;
+                margin-bottom: 16px;
+                padding-top: 12px;
+            }
+
+            .badge-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                background: var(--success-light);
+                color: var(--success);
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .divider {
+                height: 1px;
+                background: var(--slate-200);
+                margin: 16px 0;
+            }
+        </style>
+    `
+}) %>

@@ -1,8 +1,8 @@
 <!-- Page Header -->
 <div class="page-header">
   <div class="page-header-content">
-    <h1 class="page-title">Users Management</h1>
-    <p class="page-subtitle">Manage and monitor all registered users</p>
+    <h1 class="page-title">Merchants Management</h1>
+    <p class="page-subtitle">Monitor and manage all registered merchants</p>
   </div>
 </div>
 
@@ -11,48 +11,48 @@
   <div class="stat-mini-card stat-primary">
     <div class="stat-mini-icon">
       <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2.25-2.25M3 12l2.25 2.25M3 12h18M21 12l-2.25-2.25M21 12l-2.25 2.25M6 6h12v12H6z" />
       </svg>
     </div>
     <div class="stat-mini-content">
-      <div class="stat-mini-value">24,583</div>
-      <div class="stat-mini-label">Total Users</div>
+      <div class="stat-mini-value" id="totalMerchants">1,284</div>
+      <div class="stat-mini-label">Total Merchants</div>
     </div>
   </div>
 
   <div class="stat-mini-card stat-success">
     <div class="stat-mini-icon">
       <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
     </div>
     <div class="stat-mini-content">
-      <div class="stat-mini-value">1,847</div>
-      <div class="stat-mini-label">Active Today</div>
+      <div class="stat-mini-value" id="activeMerchants">1,032</div>
+      <div class="stat-mini-label">Active Merchants</div>
     </div>
   </div>
 
   <div class="stat-mini-card stat-warning">
     <div class="stat-mini-icon">
       <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
       </svg>
     </div>
     <div class="stat-mini-content">
-      <div class="stat-mini-value">342</div>
-      <div class="stat-mini-label">KYC Pending</div>
+      <div class="stat-mini-value" id="pendingMerchants">148</div>
+      <div class="stat-mini-label">Pending Approval</div>
     </div>
   </div>
 
   <div class="stat-mini-card stat-error">
     <div class="stat-mini-icon">
       <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
       </svg>
     </div>
     <div class="stat-mini-content">
-      <div class="stat-mini-value">28</div>
-      <div class="stat-mini-label">Blocked Users</div>
+      <div class="stat-mini-value" id="suspendedMerchants">104</div>
+      <div class="stat-mini-label">Suspended</div>
     </div>
   </div>
 </div>
@@ -64,7 +64,7 @@
       <svg class="search-icon icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
       </svg>
-      <input type="text" class="search-input" id="userSearch" placeholder="Search users by name, email, phone...">
+      <input type="text" class="search-input" id="merchantSearch" placeholder="Search merchants by name, business, email...">
       <div class="search-spinner" id="searchSpinner" style="display: none;">
         <div class="spinner-small"></div>
       </div>
@@ -75,7 +75,7 @@
       <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
       </svg>
-      Filter
+      Filters
       <span class="badge-pill" id="filterBadge" style="display: none;">0</span>
     </button>
     <button class="btn-secondary btn-icon" id="exportBtn">
@@ -84,11 +84,11 @@
       </svg>
       Export CSV
     </button>
-    <button class="btn-primary btn-icon" id="addUserBtn">
+    <button class="btn-primary btn-icon" id="addMerchantBtn">
       <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
-      Add User
+      Add Merchant
     </button>
   </div>
 </div>
@@ -101,19 +101,29 @@
       <select class="filter-select" id="filterStatus">
         <option value="">All Status</option>
         <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
+        <option value="pending">Pending</option>
         <option value="suspended">Suspended</option>
-        <option value="blocked">Blocked</option>
+        <option value="rejected">Rejected</option>
       </select>
     </div>
 
     <div class="filter-item">
-      <label class="filter-label">KYC Status</label>
-      <select class="filter-select" id="filterKYC">
-        <option value="">All KYC Status</option>
+      <label class="filter-label">Business Type</label>
+      <select class="filter-select" id="filterBusinessType">
+        <option value="">All Types</option>
+        <option value="retail">Retail</option>
+        <option value="restaurant">Restaurant</option>
+        <option value="online">Online</option>
+        <option value="service">Service</option>
+      </select>
+    </div>
+
+    <div class="filter-item">
+      <label class="filter-label">Verification</label>
+      <select class="filter-select" id="filterVerification">
+        <option value="">All</option>
         <option value="verified">Verified</option>
-        <option value="pending">Pending</option>
-        <option value="rejected">Rejected</option>
+        <option value="unverified">Unverified</option>
       </select>
     </div>
 
@@ -125,14 +135,6 @@
         <input type="date" class="filter-input" id="filterDateTo" placeholder="To">
       </div>
     </div>
-
-    <div class="filter-item">
-      <label class="filter-label">Account Balance (₹0 - ₹100,000)</label>
-      <div class="range-slider-container">
-        <input type="range" class="range-slider" id="filterBalance" min="0" max="100000" value="100000" step="1000">
-        <div class="range-value" id="filterBalanceValue">₹100,000</div>
-      </div>
-    </div>
   </div>
 
   <div class="filter-actions">
@@ -141,61 +143,26 @@
   </div>
 </div>
 
-<!-- Users Table Card -->
+<!-- Merchants Table Card -->
 <div class="card table-card">
-  <!-- Bulk Actions Bar (Hidden by default) -->
-  <div class="bulk-actions-bar" id="bulkActionsBar" style="display: none;">
-    <div class="bulk-actions-left">
-      <span class="bulk-selected-count" id="bulkSelectedCount">0 users selected</span>
-    </div>
-    <div class="bulk-actions-right">
-      <button class="btn-secondary btn-sm" id="bulkExportBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        Export Selected
-      </button>
-      <button class="btn-warning btn-sm" id="bulkSuspendBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-        </svg>
-        Suspend Selected
-      </button>
-      <button class="btn-danger btn-sm" id="bulkDeleteBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-        </svg>
-        Delete Selected
-      </button>
-    </div>
-  </div>
-
-  <!-- Table -->
   <div class="table-responsive">
-    <table class="data-table" id="usersTable">
+    <table class="data-table" id="merchantsTable">
       <thead>
         <tr>
           <th class="th-checkbox">
             <input type="checkbox" class="checkbox" id="selectAll">
           </th>
-          <th class="th-sortable" data-sort="name">
-            User
-            <span class="sort-icons">
-              <svg class="icon-16 sort-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-              </svg>
-            </span>
-          </th>
-          <th class="th-sortable" data-sort="phone">Phone</th>
-          <th class="th-sortable" data-sort="status">Status</th>
-          <th class="th-sortable" data-sort="kyc">KYC Status</th>
-          <th class="th-sortable" data-sort="balance">Balance</th>
-          <th class="th-sortable" data-sort="registered">Registered Date</th>
-          <th class="th-sortable" data-sort="lastActive">Last Active</th>
+          <th>Merchant</th>
+          <th>Business Type</th>
+          <th>Status</th>
+          <th>Verification</th>
+          <th>Total Volume</th>
+          <th>Commission</th>
+          <th>Registered Date</th>
           <th class="th-actions">Actions</th>
         </tr>
       </thead>
-      <tbody id="usersTableBody">
+      <tbody id="merchantsTableBody">
         <!-- Table rows will be populated by JavaScript -->
       </tbody>
     </table>
@@ -203,9 +170,9 @@
     <!-- Empty State -->
     <div class="empty-state" id="emptyState" style="display: none;">
       <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2.25-2.25M3 12l2.25 2.25M3 12h18M21 12l-2.25-2.25M21 12l-2.25 2.25M6 6h12v12H6z" />
       </svg>
-      <h3 class="empty-title">No users found</h3>
+      <h3 class="empty-title">No merchants found</h3>
       <p class="empty-text">Try adjusting your filters or search query</p>
       <button class="btn-secondary" id="resetFiltersBtn">Reset Filters</button>
     </div>
@@ -214,10 +181,10 @@
   <!-- Pagination -->
   <div class="table-footer" id="tableFooter">
     <div class="pagination-info">
-      <span id="paginationInfo">Showing 1 to 15 of 24,583 users</span>
+      <span id="paginationInfo">Showing 1 to 10 of 1,284 merchants</span>
       <select class="rows-per-page-select" id="rowsPerPage">
-        <option value="10">10 per page</option>
-        <option value="25" selected>25 per page</option>
+        <option value="10" selected>10 per page</option>
+        <option value="25">25 per page</option>
         <option value="50">50 per page</option>
         <option value="100">100 per page</option>
       </select>
@@ -249,28 +216,28 @@
     </svg>
     View Details
   </button>
-  <button class="dropdown-item" data-action="edit">
+  <button class="dropdown-item" data-action="verify">
     <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
     </svg>
-    Edit User
+    Verify Merchant
   </button>
   <button class="dropdown-item" data-action="suspend">
     <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
     </svg>
-    Suspend Account
+    Suspend
   </button>
-  <button class="dropdown-item" data-action="block">
+  <button class="dropdown-item" data-action="edit">
     <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
     </svg>
-    Block User
+    Edit
   </button>
   <button class="dropdown-item dropdown-item-danger" data-action="delete">
     <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
     </svg>
-    Delete User
+    Delete
   </button>
 </div>

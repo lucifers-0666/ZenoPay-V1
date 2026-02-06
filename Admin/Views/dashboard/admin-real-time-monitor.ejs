@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-time Monitor - ZenoPay Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      font-size: 28px;
+    }
+    
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .monitor-card {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    
+    .monitor-card h3 {
+      color: #4dd0e1;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .monitor-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #444;
+    }
+    
+    .monitor-item:last-child {
+      border-bottom: none;
+    }
+    
+    .status-live {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #4dd0e1;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+    
+    .back-link:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+    
+    <header>
+      <h1>🔍 Real-time System Monitor</h1>
+      <p>Live monitoring of system performance and transactions</p>
+    </header>
+
+    <div class="monitor-grid">
+      <div class="monitor-card">
+        <h3><span class="status-live"></span> Database Connection</h3>
+        <div class="monitor-item">
+          <span>Status</span>
+          <span style="color: #4dd0e1;">Connected</span>
+        </div>
+        <div class="monitor-item">
+          <span>Response Time</span>
+          <span>12ms</span>
+        </div>
+        <div class="monitor-item">
+          <span>Active Connections</span>
+          <span>8</span>
+        </div>
+      </div>
+
+      <div class="monitor-card">
+        <h3><span class="status-live"></span> Transaction Processing</h3>
+        <div class="monitor-item">
+          <span>Processed</span>
+          <span>1,248</span>
+        </div>
+        <div class="monitor-item">
+          <span>Failed</span>
+          <span style="color: #ff6b6b;">3</span>
+        </div>
+        <div class="monitor-item">
+          <span>Success Rate</span>
+          <span>99.76%</span>
+        </div>
+      </div>
+
+      <div class="monitor-card">
+        <h3><span class="status-live"></span> API Services</h3>
+        <div class="monitor-item">
+          <span>Payment Gateway</span>
+          <span style="color: #4dd0e1;">Operational</span>
+        </div>
+        <div class="monitor-item">
+          <span>Email Service</span>
+          <span style="color: #4dd0e1;">Operational</span>
+        </div>
+        <div class="monitor-item">
+          <span>SMS Service</span>
+          <span style="color: #4dd0e1;">Operational</span>
+        </div>
+      </div>
+
+      <div class="monitor-card">
+        <h3><span class="status-live"></span> System Health</h3>
+        <div class="monitor-item">
+          <span>CPU Usage</span>
+          <span>34%</span>
+        </div>
+        <div class="monitor-item">
+          <span>Memory Usage</span>
+          <span>52%</span>
+        </div>
+        <div class="monitor-item">
+          <span>Uptime</span>
+          <span>48 days</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

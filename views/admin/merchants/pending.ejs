@@ -1,0 +1,336 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Pending Merchants - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Dashboard', url: '/admin' },
+        { name: 'Merchants', url: '/admin/merchants' },
+        { name: 'Pending Approvals', url: '' }
+    ],
+    content: `
+        <!-- Page Header -->
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Pending Merchant Approvals</h1>
+                <p class="page-subtitle">Review and approve new merchant applications</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="bulkReject()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Bulk Reject
+                </button>
+                <button class="btn-primary" onclick="bulkApprove()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Bulk Approve
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-mini-card">
+                <div class="stat-mini-icon" style="background: var(--warning-light); color: var(--warning);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-mini-content">
+                    <div class="stat-mini-label">Pending Review</div>
+                    <div class="stat-mini-value" id="pendingCount">0</div>
+                </div>
+            </div>
+
+            <div class="stat-mini-card">
+                <div class="stat-mini-icon" style="background: var(--error-light); color: var(--error);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <div class="stat-mini-content">
+                    <div class="stat-mini-label">Urgent</div>
+                    <div class="stat-mini-value" id="urgentCount">0</div>
+                </div>
+            </div>
+
+            <div class="stat-mini-card">
+                <div class="stat-mini-icon" style="background: var(--info-light); color: var(--info);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="stat-mini-content">
+                    <div class="stat-mini-label">Est. Revenue</div>
+                    <div class="stat-mini-value" id="estRevenue">₹0</div>
+                </div>
+            </div>
+
+            <div class="stat-mini-card">
+                <div class="stat-mini-icon" style="background: var(--slate-100); color: var(--slate-600);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <div class="stat-mini-content">
+                    <div class="stat-mini-label">Avg. Wait Time</div>
+                    <div class="stat-mini-value" id="avgWaitTime">0h</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="card-modern">
+            <div class="search-filter-bar">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by business name, owner, or email...">
+                    <div class="search-spinner" id="searchSpinner" style="display: none;"></div>
+                </div>
+
+                <button class="btn-secondary filter-toggle-btn" onclick="toggleFilters()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Filters
+                </button>
+            </div>
+
+            <!-- Filter Panel -->
+            <div class="filter-panel" id="filterPanel" style="display: none;">
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label class="filter-label">Priority</label>
+                        <select id="priorityFilter" class="filter-select">
+                            <option value="">All Priorities</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="normal">Normal</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label class="filter-label">Business Type</label>
+                        <select id="businessTypeFilter" class="filter-select">
+                            <option value="">All Types</option>
+                            <option value="retail">Retail Store</option>
+                            <option value="restaurant">Restaurant/Cafe</option>
+                            <option value="online">Online Store</option>
+                            <option value="service">Service Provider</option>
+                            <option value="grocery">Grocery/Supermarket</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label class="filter-label">Documents Status</label>
+                        <select id="docsFilter" class="filter-select">
+                            <option value="">All</option>
+                            <option value="complete">Complete</option>
+                            <option value="incomplete">Incomplete</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label class="filter-label">Applied Date</label>
+                        <input type="date" id="dateFromFilter" class="filter-input" placeholder="From">
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="btn-text" onclick="clearFilters()">Clear All</button>
+                    <button class="btn-primary" onclick="applyFilters()">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Merchants Table -->
+        <div class="card-modern">
+            <div class="table-header">
+                <div class="table-title">
+                    <span id="resultsCount">0</span> Pending Applications
+                </div>
+                <div class="table-actions">
+                    <button class="btn-text" onclick="exportPendingToCSV()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                            </th>
+                            <th>Merchant</th>
+                            <th>Business Type</th>
+                            <th>Priority</th>
+                            <th>Documents</th>
+                            <th>Est. Revenue</th>
+                            <th>Applied</th>
+                            <th>Wait Time</th>
+                            <th style="width: 100px; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="merchantsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <h3>All Caught Up!</h3>
+                <p>No pending merchant applications at the moment.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper" id="paginationWrapper">
+                <div class="pagination-info">
+                    Showing <span id="showingFrom">1</span> to <span id="showingTo">10</span> of <span id="totalRecords">0</span> entries
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="pagination-size">
+                    <select id="pageSizeSelect" onchange="changePageSize()">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approval Modal -->
+        <div class="modal-overlay" id="approvalModal" style="display: none;">
+            <div class="modal-dialog" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">Approve Merchant Application</h3>
+                    <button class="modal-close" onclick="closeApprovalModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="merchant-preview" id="approvalMerchantPreview">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="form-section" style="margin-top: 20px;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Verification Checklist</h4>
+                        <div class="checklist">
+                            <label class="checklist-item">
+                                <input type="checkbox" id="checkDocs">
+                                <span>All documents verified and authentic</span>
+                            </label>
+                            <label class="checklist-item">
+                                <input type="checkbox" id="checkBusiness">
+                                <span>Business details verified</span>
+                            </label>
+                            <label class="checklist-item">
+                                <input type="checkbox" id="checkOwner">
+                                <span>Owner identity verified (KYC)</span>
+                            </label>
+                            <label class="checklist-item">
+                                <input type="checkbox" id="checkBank">
+                                <span>Bank account details verified</span>
+                            </label>
+                            <label class="checklist-item">
+                                <input type="checkbox" id="checkCompliance">
+                                <span>Complies with platform policies</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Commission Rate (%)</label>
+                        <input type="number" id="commissionRate" class="form-input-edit" value="2.5" min="0" max="10" step="0.1">
+                        <small class="form-hint">Standard rate is 2.5%. Adjust if negotiated differently.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Approval Notes (Optional)</label>
+                        <textarea id="approvalNotes" class="form-textarea" rows="3" placeholder="Any special conditions or notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeApprovalModal()">Cancel</button>
+                    <button class="btn-primary" onclick="confirmApproval()" id="approveBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Approve Merchant
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejection Modal -->
+        <div class="modal-overlay" id="rejectionModal" style="display: none;">
+            <div class="modal-dialog" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">Reject Merchant Application</h3>
+                    <button class="modal-close" onclick="closeRejectionModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="merchant-preview" id="rejectionMerchantPreview">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Rejection Reason *</label>
+                        <select id="rejectionReason" class="form-input-edit" onchange="handleReasonChange()">
+                            <option value="">Select a reason...</option>
+                            <option value="incomplete_docs">Incomplete or Invalid Documents</option>
+                            <option value="business_unverified">Business Details Could Not Be Verified</option>
+                            <option value="kyc_failed">KYC Verification Failed</option>
+                            <option value="high_risk">High Risk Business Category</option>
+                            <option value="policy_violation">Violates Platform Policies</option>
+                            <option value="duplicate">Duplicate Application</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Details *</label>
+                        <textarea id="rejectionDetails" class="form-textarea" rows="4" placeholder="Provide detailed explanation for rejection..." required></textarea>
+                        <small class="form-hint">This will be sent to the merchant applicant.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checklist-item">
+                            <input type="checkbox" id="allowReapply">
+                            <span>Allow merchant to reapply after corrections</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeRejectionModal()">Cancel</button>
+                    <button class="btn-danger" onclick="confirmRejection()" id="rejectBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject Application
+                    </button>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

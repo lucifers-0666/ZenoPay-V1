@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #1a1a1a;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    .user-info {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-left: 4px solid #007bff;
+    }
+    
+    .stat-card.users {
+      border-left-color: #28a745;
+    }
+    
+    .stat-card.merchants {
+      border-left-color: #fd7e14;
+    }
+    
+    .stat-card.transactions {
+      border-left-color: #17a2b8;
+    }
+    
+    .stat-card h3 {
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    
+    .stat-card .subtitle {
+      color: #999;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    
+    .content-section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .menu-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .menu-link {
+      display: block;
+      padding: 15px;
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #007bff;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .menu-link:hover {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .message {
+      font-size: 14px;
+      color: #999;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    footer {
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+      margin-top: 40px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>🚀 ZenoPay Admin Dashboard</h1>
+      <p class="user-info">
+        Welcome, <strong><%= user?.FullName || 'Administrator' %></strong>
+      </p>
+    </header>
+
+    <!-- Quick Stats -->
+    <div class="dashboard-grid">
+      <div class="stat-card users">
+        <h3>Total Users</h3>
+        <div class="number">2,547</div>
+        <div class="subtitle">+12% from last month</div>
+      </div>
+
+      <div class="stat-card merchants">
+        <h3>Merchants</h3>
+        <div class="number">384</div>
+        <div class="subtitle">+8% from last month</div>
+      </div>
+
+      <div class="stat-card transactions">
+        <h3>Transactions</h3>
+        <div class="number">45,821</div>
+        <div class="subtitle">Processing smoothly</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Revenue</h3>
+        <div class="number">₹2.4M</div>
+        <div class="subtitle">Last 30 days</div>
+      </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="content-section">
+      <h2 class="section-title">📋 Admin Controls</h2>
+      
+      <div class="menu-links">
+        <a href="/admin/users" class="menu-link">👥 User Management</a>
+        <a href="/admin/merchants" class="menu-link">🏪 Merchant Management</a>
+        <a href="/admin/transactions" class="menu-link">💳 Transactions</a>
+        <a href="/admin/banks" class="menu-link">🏦 Bank Management</a>
+        <a href="/admin/analytics" class="menu-link">📊 Analytics</a>
+        <a href="/admin/reports" class="menu-link">📈 Reports</a>
+        <a href="/admin/settings/payment-gateway" class="menu-link">⚙️ Payment Gateway</a>
+        <a href="/admin/settings" class="menu-link">🔧 Settings</a>
+      </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="content-section">
+      <h2 class="section-title">✅ System Status</h2>
+      
+      <div class="alert alert-info">
+        <strong>✓ Database:</strong> Connected and operational
+      </div>
+      <div class="alert alert-info">
+        <strong>✓ Payment Gateway:</strong> All services active
+      </div>
+      <div class="alert alert-info">
+        <strong>✓ Email Service:</strong> Operational
+      </div>
+      <div class="alert alert-info">
+        <strong>✓ Session Store:</strong> MongoDB persistent storage
+      </div>
+    </div>
+
+    <!-- Quick Stats Information -->
+    <div class="content-section">
+      <h2 class="section-title">📊 Key Metrics</h2>
+      
+      <p style="margin-bottom: 15px; color: #666;">
+        <strong>Daily Active Users:</strong> 1,248 | 
+        <strong>Failed Transactions:</strong> 12 | 
+        <strong>Pending Approvals:</strong> 5
+      </p>
+      
+      <p style="color: #999; font-size: 14px;">
+        Last updated: <span id="update-time">Just now</span>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>ZenoPay Admin Dashboard © 2026 | All rights reserved</p>
+    </footer>
+  </div>
+
+  <script>
+    // Update time
+    function updateTime() {
+      const timeEl = document.getElementById('update-time');
+      if (timeEl) {
+        const now = new Date();
+        timeEl.textContent = now.toLocaleTimeString();
+      }
+    }
+    
+    // Update every 30 seconds
+    setInterval(updateTime, 30000);
+    updateTime();
+  </script>
+</body>
+</html>

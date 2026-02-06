@@ -1,0 +1,319 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Merchant Settings - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Dashboard', url: '/admin' },
+        { name: 'Merchants', url: '/admin/merchants' },
+        { name: 'Settings', url: '' }
+    ],
+    content: `
+        <!-- Page Header -->
+        <div class="page-header-admin">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="btn-icon" onclick="history.back()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="page-title-admin">Merchant Settings</h1>
+                    <p class="page-subtitle" id="merchantSubtitle">UrbanCart Retail Solutions</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="resetToDefaults()">Reset to Defaults</button>
+                <button class="btn-primary" onclick="saveSettings()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Form -->
+        <div class="details-grid-2col">
+            <!-- Left Column -->
+            <div class="details-column">
+                <!-- Commission & Fees -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Commission & Fees</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Commission Rate (%)</label>
+                            <input type="number" id="commissionRate" class="form-input-edit" value="2.5" min="0" max="10" step="0.1">
+                            <small class="form-hint">Percentage charged per successful transaction</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fixed Fee per Transaction (₹)</label>
+                            <input type="number" id="fixedFee" class="form-input-edit" value="0" min="0" step="1">
+                            <small class="form-hint">Additional fixed amount charged per transaction</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Settlement Fee (₹)</label>
+                            <input type="number" id="settlementFee" class="form-input-edit" value="0" min="0" step="1">
+                            <small class="form-hint">Fee charged per settlement cycle</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Refund Processing Fee (₹)</label>
+                            <input type="number" id="refundFee" class="form-input-edit" value="0" min="0" step="1">
+                            <small class="form-hint">Fee for processing refunds</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Limits --><div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Transaction Limits</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Daily Transaction Limit (₹)</label>
+                            <input type="number" id="dailyLimit" class="form-input-edit" value="500000" min="0" step="10000">
+                            <small class="form-hint">Maximum transaction volume per day</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Monthly Transaction Limit (₹)</label>
+                            <input type="number" id="monthlyLimit" class="form-input-edit" value="10000000" min="0" step="100000">
+                            <small class="form-hint">Maximum transaction volume per month</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Per Transaction Limit (₹)</label>
+                            <input type="number" id="perTxnLimit" class="form-input-edit" value="50000" min="0" step="1000">
+                            <small class="form-hint">Maximum amount per single transaction</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Minimum Transaction Amount (₹)</label>
+                            <input type="number" id="minTxnAmount" class="form-input-edit" value="10" min="1" step="1">
+                            <small class="form-hint">Minimum amount for transactions</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settlement Configuration -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Settlement Configuration</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Settlement Cycle</label>
+                            <select id="settlementCycle" class="form-input-edit">
+                                <option value="T+0">T+0 (Same Day)</option>
+                                <option value="T+1" selected>T+1 (Next Day)</option>
+                                <option value="T+2">T+2 (2 Days)</option>
+                                <option value="T+3">T+3 (3 Days)</option>
+                                <option value="weekly">Weekly</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Auto Settlement</label>
+                            <div class="switch-container">
+                                <input type="checkbox" id="autoSettlement" class="switch-input" checked>
+                                <label for="autoSettlement" class="switch-label"></label>
+                            </div>
+                            <small class="form-hint">Automatically process settlements</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Minimum Settlement Amount (₹)</label>
+                            <input type="number" id="minSettlementAmount" class="form-input-edit" value="1000" min="0" step="100">
+                            <small class="form-hint">Minimum amount to trigger settlement</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="details-column">
+                <!-- Features & Permissions -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Features & Permissions</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Accept Card Payments</strong>
+                                <small>Credit & Debit cards</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="cardPayments" class="switch-input" checked>
+                                <label for="cardPayments" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Accept UPI Payments</strong>
+                                <small>UPI & QR code payments</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="upiPayments" class="switch-input" checked>
+                                <label for="upiPayments" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Accept Net Banking</strong>
+                                <small>Bank transfer payments</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="netBanking" class="switch-input" checked>
+                                <label for="netBanking" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Accept Wallets</strong>
+                                <small>Digital wallet payments</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="walletPayments" class="switch-input" checked>
+                                <label for="walletPayments" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Process Refunds</strong>
+                                <small>Allow merchant to process refunds</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="refundsAllowed" class="switch-input" checked>
+                                <label for="refundsAllowed" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Dynamic QR Codes</strong>
+                                <small>Generate dynamic QR for payments</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="dynamicQR" class="switch-input" checked>
+                                <label for="dynamicQR" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>API Access</strong>
+                                <small>Access to payment APIs</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="apiAccess" class="switch-input" checked>
+                                <label for="apiAccess" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Webhook Notifications</strong>
+                                <small>Real-time event webhooks</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="webhooks" class="switch-input">
+                                <label for="webhooks" class="switch-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk & Security -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Risk & Security</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Risk Level</label>
+                            <select id="riskLevel" class="form-input-edit">
+                                <option value="low" selected>Low Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fraud Detection</label>
+                            <div class="switch-container">
+                                <input type="checkbox" id="fraudDetection" class="switch-input" checked>
+                                <label for="fraudDetection" class="switch-label"></label>
+                            </div>
+                            <small class="form-hint">Enable AI-based fraud detection</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Velocity Checks</label>
+                            <div class="switch-container">
+                                <input type="checkbox" id="velocityChecks" class="switch-input" checked>
+                                <label for="velocityChecks" class="switch-label"></label>
+                            </div>
+                            <small class="form-hint">Monitor transaction velocity</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Manual Review Threshold (₹)</label>
+                            <input type="number" id="manualReviewThreshold" class="form-input-edit" value="100000" min="0" step="10000">
+                            <small class="form-hint">Transactions above this require manual review</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Notification Settings</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Transaction Alerts</strong>
+                                <small>Email alerts for transactions</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="txnAlerts" class="switch-input" checked>
+                                <label for="txnAlerts" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Settlement Notifications</strong>
+                                <small>Notify on settlements</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="settlementAlerts" class="switch-input" checked>
+                                <label for="settlementAlerts" class="switch-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Dispute Alerts</strong>
+                                <small>Notify on new disputes</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="disputeAlerts" class="switch-input" checked>
+                                <label for="disputeAlerts" class="switch-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

@@ -14,52 +14,69 @@ const DB_PATH = process.env.MONGO_URI;
 
 app.set("trust proxy", 1);
 
-// Session store with fallback
-let store;
-try {
-  store = new MongoDBStore({
-    uri: DB_PATH,
-    collection: "sessions",
-    connectionOptions: {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    },
-  });
+// ============ SESSION STORE SETUP WITH FALLBACK ============
+let store = null;
+let usingMemoryStore = false;
 
-  store.on("error", (error) => {
-    console.error("❌ Session Store Error:", error.message);
-    console.error("⚠️  Sessions may not persist correctly");
-  });
+// Only use MongoDB store if connection string is valid
+if (DB_PATH && DB_PATH !== 'your_mongodb_connection_string') {
+  try {
+    store = new MongoDBStore({
+      uri: DB_PATH,
+      collection: "sessions",
+      connectionOptions: {
+        serverSelectionTimeoutMS: 30000, // Increased from 5000ms to 30000ms
+        socketTimeoutMS: 45000,
+      },
+    });
 
-  store.on("connected", () => {
-    console.log("✓ Session store connected to MongoDB");
-  });
-} catch (error) {
-  console.error("❌ Failed to initialize MongoDB session store:", error.message);
-  console.warn("⚠️  Falling back to memory store (sessions will not persist)");
-  store = null;
+    // Handle store errors gracefully without crashing
+    store.on("error", (error) => {
+      console.warn("⚠️  Session store error:", error.message);
+      console.warn("⚠️  Sessions using fallback memory store");
+      usingMemoryStore = true;
+    });
+
+    store.on("connected", () => {
+      console.log("✓ Session store: MongoDB persistent storage");
+      usingMemoryStore = false;
+    });
+  } catch (error) {
+    console.warn("⚠️  MongoDB session store initialization failed:", error.message);
+    console.warn("⚠️  Using memory store (sessions restart on server restart)");
+    store = null;
+    usingMemoryStore = true;
+  }
+} else {
+  console.warn("⚠️  No MongoDB URI configured. Using memory store for sessions.");
+  usingMemoryStore = true;
 }
 
 app.use(
   cors({})
 );
 
-app.use(
-  session({
-    name: "zenopay.sid",
-    secret: process.env.SESSION_SECRET || "default_secret",
-    resave: false,
-    saveUninitialized: false,
-    store,
-    proxy: true, 
-    cookie: {
-      httpOnly: true,       
-      secure: true,        
-      sameSite: "none",      
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  })
-);
+// Session configuration with automatic fallback
+const sessionConfig = {
+  name: "zenopay.sid",
+  secret: process.env.SESSION_SECRET || "zenopay_default_secret_change_in_production",
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+  },
+};
+
+// Add MongoDB store if available, otherwise use default memory store
+if (store) {
+  sessionConfig.store = store;
+}
+
+app.use(session(sessionConfig));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -80,6 +97,11 @@ app.set("views", [
   path.join(__dirname, "Admin/Views")
 ]);
 
+// Attach RBAC permissions to all requests
+const { attachPermissions } = require("./Admin/Middleware/rbacMiddleware");
+app.use(attachPermissions);
+
+// QR Code generation middleware
 app.use(async (req, res, next) => {
   if (req.session.user && !req.session.qrCode) {
     const user = req.session.user;
@@ -89,26 +111,19 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Admin routes - AUTHENTICATION TEMPORARILY DISABLED
-console.log("Debugging: Loading Admin Routes...");
-app.use("/admin", (req, res, next) => {
-  console.log(`[Admin Access] ${req.method} ${req.url}`);
-  
-  // Create fake admin session for all admin routes (TEMPORARY - FOR DESIGN REVIEW)
-  if (!req.session.user) {
-    req.session.isLoggedIn = true;
-    req.session.user = {
-      ZenoPayID: "ZP-ADMIN001",
-      FullName: "System Administrator",
-      Email: "admin@zenopay.com",
-      Role: "admin",
-      ImagePath: ""
-    };
-    console.log("[Admin Session] Fake session created for design review");
-  }
-  
-  next();
-}, require("./Admin/Routes/adminRoutes"));
+// ============ ROUTE MOUNTING ============
+
+// Admin routes (with proper authentication)
+app.use("/admin", require("./Admin/Routes/adminRoutes"));
+
+// Merchant routes (requires merchant role)
+try {
+  const merchantRoutes = require("./Merchant/Routes/merchantRoutes");
+  app.use("/merchant", merchantRoutes);
+  console.log("✓ Merchant routes loaded successfully");
+} catch (error) {
+  console.warn("⚠ Merchant routes not loaded:", error.message);
+}
 
 // User routes
 app.use(require("./Routes/routes"));
@@ -132,33 +147,49 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection with retry logic and graceful degradation
+// ============ MONGODB CONNECTION WITH RETRY LOGIC ============
 const connectDB = async () => {
-  const maxRetries = 5;
+  if (!DB_PATH || DB_PATH === 'your_mongodb_connection_string') {
+    console.error("⚠️  MongoDB URI not configured in .env file");
+    console.error("⚠️  Server starting without database (limited functionality)");
+    return false;
+  }
+
+  const maxRetries = 3;
   let retries = 0;
 
   while (retries < maxRetries) {
     try {
       await mongoose.connect(DB_PATH, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000, // Increased from 5000ms to 30000ms
         socketTimeoutMS: 45000,
+        connectTimeoutMS: 30000,
+        maxPoolSize: 10,
+        minPoolSize: 5,
       });
       console.log("✓ MongoDB Connected Successfully");
       return true;
     } catch (err) {
       retries++;
-      console.error(`❌ MongoDB connection attempt ${retries}/${maxRetries} failed:`, err.message);
+      console.error(`❌ MongoDB connection attempt ${retries}/${maxRetries} failed:`);
+      console.error(`   ${err.message}`);
       
       if (retries < maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, retries), 10000);
+        const delay = 2000 * retries; // 2s, 4s, 6s
         console.log(`⏳ Retrying in ${delay/1000}s...`);
         await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error("\n⚠️  MongoDB connection failed after", maxRetries, "attempts");
+        console.error("⚠️  Possible reasons:");
+        console.error("   • MongoDB Atlas IP whitelist not configured (add 0.0.0.0/0 for testing)");
+        console.error("   • Invalid credentials in MONGO_URI");
+        console.error("   • Network/firewall blocking connection");
+        console.error("   • MongoDB Atlas cluster paused/deleted");
+        console.error("\n⚠️  Server starting in DEGRADED MODE (database features disabled)\n");
       }
     }
   }
   
-  console.error("⚠️  Could not connect to MongoDB after", maxRetries, "attempts");
-  console.error("⚠️  Server starting in degraded mode - database features disabled");
   return false;
 };
 
@@ -175,13 +206,39 @@ mongoose.connection.on('reconnected', () => {
   console.log('✓ MongoDB reconnected');
 });
 
-// Start server with or without DB connection
+// ============ START SERVER ============
 (async () => {
+  console.log("\n" + "=".repeat(60));
+  console.log("🚀 ZenoPay Application Starting...");
+  console.log("=".repeat(60) + "\n");
+
   const dbConnected = await connectDB();
   
   app.listen(PORT, () => {
-    console.log(`\n🚀 Server running on port ${PORT}`);
-    console.log(`📊 Database status: ${dbConnected ? '✓ Connected' : '❌ Disconnected (degraded mode)'}`);
-    console.log(`🔒 Session store: ${dbConnected ? '✓ MongoDB' : '⚠️  Memory (not persistent)'}\n`);
+    console.log("\n" + "=".repeat(60));
+    console.log(`✅ Server Status: RUNNING`);
+    console.log(`🌐 URL: http://localhost:${PORT}`);
+    console.log(`📊 Database: ${dbConnected ? '✅ Connected to MongoDB' : '⚠️  Disconnected (degraded mode)'}`);
+    console.log(`🔒 Sessions: ${!usingMemoryStore && store ? '✅ MongoDB (persistent)' : '⚠️  Memory (clears on restart)'}`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log("=".repeat(60) + "\n");
+    
+    if (!dbConnected) {
+      console.log("⚠️  IMPORTANT: Running without database connection!");
+      console.log("⚠️  To fix: Check MongoDB URI in .env file\n");
+    }
   });
 })();
+
+// ============ GRACEFUL SHUTDOWN ============
+process.on('SIGTERM', async () => {
+  console.log('\n⏹️  SIGTERM received, shutting down gracefully...');
+  await mongoose.connection.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('\n⏹️  SIGINT received, shutting down gracefully...');
+  await mongoose.connection.close();
+  process.exit(0);
+});

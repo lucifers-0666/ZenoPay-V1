@@ -1,0 +1,238 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Admin Settings - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Dashboard', url: '/admin' },
+        { name: 'Settings', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Admin Settings</h1>
+                <p class="page-subtitle">Configure platform settings and preferences</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="saveAllSettings()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Save All Changes
+                </button>
+            </div>
+        </div>
+
+        <div class="details-grid-2col">
+            <div class="details-column">
+                <!-- Platform Settings -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Platform Settings</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Platform Name</label>
+                            <input type="text" class="form-input-edit" value="ZenoPay" id="platformName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Support Email</label>
+                            <input type="email" class="form-input-edit" value="support@zenopay.com" id="supportEmail">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Support Phone</label>
+                            <input type="text" class="form-input-edit" value="+91 1800-123-4567" id="supportPhone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Maintenance Mode</label>
+                            <div class="switch-container">
+                                <input type="checkbox" id="maintenanceMode" class="switch-input">
+                                <label for="maintenanceMode" class="switch-label"></label>
+                            </div>
+                            <small class="form-hint">Enable to put platform in maintenance mode</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Commission -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Default Commission Rates</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">UPI Transactions (%)</label>
+                            <input type="number" class="form-input-edit" value="1.5" min="0" max="10" step="0.1" id="upiCommission">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Card Transactions (%)</label>
+                            <input type="number" class="form-input-edit" value="2.5" min="0" max="10" step="0.1" id="cardCommission">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Net Banking (%)</label>
+                            <input type="number" class="form-input-edit" value="2.0" min="0" max="10" step="0.1" id="netbankingCommission">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Wallet Transactions (%)</label>
+                            <input type="number" class="form-input-edit" value="1.8" min="0" max="10" step="0.1" id="walletCommission">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Security Settings</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Two-Factor Authentication</strong>
+                                <small>Require 2FA for admin logins</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="require2FA" class="switch-input" checked>
+                                <label for="require2FA" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Session Timeout</strong>
+                                <small>Auto logout after inactivity</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="sessionTimeout" class="switch-input" checked>
+                                <label for="sessionTimeout" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Session Duration (minutes)</label>
+                            <input type="number" class="form-input-edit" value="30" min="5" max="120" id="sessionDuration">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Max Login Attempts</label>
+                            <input type="number" class="form-input-edit" value="3" min="1" max="10" id="maxLoginAttempts">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-column">
+                <!-- Email Notifications -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Email Notifications</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>New Merchant Registrations</strong>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="emailNewMerchant" class="switch-input" checked>
+                                <label for="emailNewMerchant" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>High Value Transactions</strong>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="emailHighValue" class="switch-input" checked>
+                                <label for="emailHighValue" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Failed Transactions</strong>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="emailFailed" class="switch-input">
+                                <label for="emailFailed" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Dispute Notifications</strong>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="emailDisputes" class="switch-input" checked>
+                                <label for="emailDisputes" class="switch-label"></label>
+                            </div>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Daily Summary Reports</strong>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="emailDailySummary" class="switch-input" checked>
+                                <label for="emailDailySummary" class="switch-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Gateway -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">Payment Gateway Configuration</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Primary Gateway</label>
+                            <select class="form-input-edit" id="primaryGateway">
+                                <option value="razorpay" selected>Razorpay</option>
+                                <option value="payu">PayU</option>
+                                <option value="stripe">Stripe</option>
+                                <option value="cashfree">Cashfree</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Backup Gateway</label>
+                            <select class="form-input-edit" id="backupGateway">
+                                <option value="payu">PayU</option>
+                                <option value="razorpay">Razorpay</option>
+                                <option value="stripe">Stripe</option>
+                                <option value="cashfree" selected>Cashfree</option>
+                            </select>
+                        </div>
+                        <div class="permission-item">
+                            <div class="permission-info">
+                                <strong>Auto Failover</strong>
+                                <small>Switch to backup if primary fails</small>
+                            </div>
+                            <div class="switch-container">
+                                <input type="checkbox" id="autoFailover" class="switch-input" checked>
+                                <label for="autoFailover" class="switch-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Limits -->
+                <div class="card-modern">
+                    <div class="card-header-section">
+                        <h3 class="card-title">System Limits</h3>
+                    </div>
+                    <div class="form-section-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Max Transaction Amount (₹)</label>
+                            <input type="number" class="form-input-edit" value="100000" min="1000" step="1000" id="maxTxnAmount">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Daily Platform Limit (₹)</label>
+                            <input type="number" class="form-input-edit" value="50000000" min="1000000" step="1000000" id="platformDailyLimit">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dispute Resolution Days</label>
+                            <input type="number" class="form-input-edit" value="30" min="7" max="90" id="disputeDays">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Settlement Processing Time</label>
+                            <select class="form-input-edit" id="settlementTime">
+                                <option value="T+0">Same Day (T+0)</option>
+                                <option value="T+1" selected>Next Day (T+1)</option>
+                                <option value="T+2">2 Days (T+2)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

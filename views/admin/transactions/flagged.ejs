@@ -1,0 +1,129 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Flagged Transactions - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Transactions', url: '/admin/transactions' },
+        { name: 'Flagged', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Flagged Transactions</h1>
+                <p class="page-subtitle">High-risk and suspicious transactions for review</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="flaggedCount">8</div>
+                    <div class="stat-label">Flagged</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" style="color: var(--error);">₹ 3.2L</div>
+                    <div class="stat-label">Total Amount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-input" placeholder="Search by transaction ID, user..." onkeyup="filterFlaggedTransactions()">
+            <select id="riskFilter" class="filter-select" onchange="filterFlaggedTransactions()">
+                <option value="">All Risk Levels</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select id="statusFilter" class="filter-select" onchange="filterFlaggedTransactions()">
+                <option value="">All Status</option>
+                <option value="pending">Pending Review</option>
+                <option value="approved">Approved</option>
+                <option value="declined">Declined</option>
+                <option value="blocked">Blocked</option>
+            </select>
+            <select id="reasonFilter" class="filter-select" onchange="filterFlaggedTransactions()">
+                <option value="">All Reasons</option>
+                <option value="velocity">High Velocity</option>
+                <option value="amount">Large Amount</option>
+                <option value="duplicate">Duplicate</option>
+                <option value="location">Location Mismatch</option>
+                <option value="unusual">Unusual Pattern</option>
+            </select>
+        </div>
+
+        <!-- Flagged Transactions -->
+        <div class="card-modern">
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Risk Level</th>
+                            <th>Reason</th>
+                            <th>Flagged On</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flaggedTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Review Modal -->
+        <div id="reviewModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Review Flagged Transaction</h2>
+                    <button class="modal-close" onclick="closeReviewModal()">×</button>
+                </div>
+
+                <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                    <div id="transactionInfo"></div>
+
+                    <div style="padding: 16px; background: var(--error-light); border-radius: 8px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--error); flex-shrink: 0; margin-top: 2px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <div>
+                                <strong>Risk Indicators</strong>
+                                <ul id="riskIndicators" style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px;"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Decision *</label>
+                        <select id="decisionSelect" class="form-input-edit">
+                            <option value="">Select action...</option>
+                            <option value="approved">Approve Transaction</option>
+                            <option value="declined">Decline Transaction</option>
+                            <option value="hold">Place on Hold</option>
+                            <option value="manual-review">Manual Review (5+ mins)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea id="reviewNotes" class="form-input-edit" rows="3" placeholder="Add review notes..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeReviewModal()">Cancel</button>
+                    <button class="btn-primary" onclick="submitReview()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Submit Decision
+                    </button>
+                </div>
+            </div>
+        </div>
+    `
+}) %>

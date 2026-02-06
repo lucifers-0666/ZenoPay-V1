@@ -1,0 +1,152 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Analytics Dashboard - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Dashboard', url: '/admin' },
+        { name: 'Analytics', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Analytics Dashboard</h1>
+                <p class="page-subtitle">Comprehensive business analytics and insights</p>
+            </div>
+            <div class="header-actions">
+                <select class="filter-select-small" id="periodFilter" onchange="updateAllCharts()">
+                    <option value="7">Last 7 Days</option>
+                    <option value="30" selected>Last 30 Days</option>
+                    <option value="90">Last 90 Days</option>
+                    <option value="365">Last Year</option>
+                </select>
+                <button class="btn-secondary" onclick="exportReport()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="stats-grid-4">
+            <div class="stat-card-large">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="totalRevenue">₹0</div>
+                <div class="stat-change positive">+12.5% from last period</div>
+            </div>
+            <div class="stat-card-large">
+                <div class="stat-label">Transaction Volume</div>
+                <div class="stat-value" id="txnVolume">0</div>
+                <div class="stat-change positive">+8.3% from last period</div>
+            </div>
+            <div class="stat-card-large">
+                <div class="stat-label">Active Merchants</div>
+                <div class="stat-value" id="activeMerchants">0</div>
+                <div class="stat-change positive">+5 new this month</div>
+            </div>
+            <div class="stat-card-large">
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-change negative">-0.2% from last period</div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-grid-2">
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Revenue Trend</h3>
+                    <button class="btn-text-small" onclick="toggleChartView('revenue')">Toggle View</button>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Transaction Success Rate</h3>
+                    <button class="btn-text-small" onclick="toggleChartView('success')">Toggle View</button>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="successRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="charts-grid-2">
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Payment Methods Distribution</h3>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Top Performing Merchants</h3>
+                    <button class="btn-text-small" onclick="viewAllMerchants()">View All</button>
+                </div>
+                <div class="merchants-ranking-list" id="topMerchantsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3 -->
+        <div class="charts-grid-3">
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Geographic Distribution</h3>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="geoChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Peak Hours</h3>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="peakHoursChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card-modern">
+                <div class="card-header-section">
+                    <h3 class="card-title">Customer Retention</h3>
+                </div>
+                <div class="metrics-list">
+                    <div class="metric-item">
+                        <span class="metric-label">New Customers</span>
+                        <span class="metric-value">1,245</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Returning Customers</span>
+                        <span class="metric-value">3,567</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Retention Rate</span>
+                        <span class="metric-value">74.1%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Avg. Transactions</span>
+                        <span class="metric-value">4.2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card-modern">
+            <div class="card-header-section">
+                <h3 class="card-title">Recent Activity</h3>
+                <button class="btn-text-small" onclick="viewAllActivity()">View All</button>
+            </div>
+            <div class="activity-feed" id="recentActivityFeed">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    `
+}) %>

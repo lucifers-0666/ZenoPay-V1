@@ -1,0 +1,146 @@
+<%- include('../layouts/admin-layout', { 
+    title: 'Pending Banks - ZenoPay Admin',
+    breadcrumb: [
+        { name: 'Banks', url: '/admin/banks' },
+        { name: 'Pending Approval', url: '' }
+    ],
+    content: `
+        <div class="page-header-admin">
+            <div>
+                <h1 class="page-title-admin">Banks Pending Verification</h1>
+                <p class="page-subtitle">Review and approve/reject bank integration requests</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="pendingCount">5</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="filter-input" placeholder="Search by bank name, code..." onkeyup="filterPendingBanks()">
+            <select id="statusFilter" class="filter-select" onchange="filterPendingBanks()">
+                <option value="">All Status</option>
+                <option value="documents-pending">Documents Pending</option>
+                <option value="verification-pending">Verification Pending</option>
+                <option value="awaiting-approval">Awaiting Approval</option>
+            </select>
+            <select id="priorityFilter" class="filter-select" onchange="filterPendingBanks()">
+                <option value="">All Priority</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+            </select>
+        </div>
+
+        <!-- Pending Banks Table -->
+        <div class="card-modern">
+            <div class="table-wrapper">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Bank Name</th>
+                            <th>Bank Code</th>
+                            <th>Status</th>
+                            <th>Documents</th>
+                            <th>Submitted</th>
+                            <th>Days Pending</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="banksTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Approve Modal -->
+        <div id="approveModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Approve Bank</h2>
+                    <button class="modal-close" onclick="closeApproveModal()">×</button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="bankApproveInfo"></div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Commission Rate (%)</label>
+                        <input type="number" class="form-input-edit" id="commissionRate" placeholder="2.5" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Settlement Cycle</label>
+                        <select class="form-input-edit">
+                            <option>Daily</option>
+                            <option>Weekly</option>
+                            <option>Bi-weekly</option>
+                            <option>Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input-edit" rows="3" placeholder="Approval notes..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeApproveModal()">Cancel</button>
+                    <button class="btn-success" onclick="approveBankRequest()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Approve Bank
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reject Modal -->
+        <div id="rejectModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Reject Bank Request</h2>
+                    <button class="modal-close" onclick="closeRejectModal()">×</button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="bankRejectInfo"></div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Rejection Reason *</label>
+                        <select class="form-input-edit" id="rejectionReason">
+                            <option value="">Select a reason</option>
+                            <option value="incomplete-docs">Incomplete Documentation</option>
+                            <option value="invalid-docs">Invalid Documents</option>
+                            <option value="failed-verification">Failed Verification</option>
+                            <option value="compliance">Compliance Issues</option>
+                            <option value="other">Other (specify below)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Details</label>
+                        <textarea class="form-input-edit" id="rejectionDetails" rows="3" placeholder="Explain why this request is being rejected..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                    <button class="btn-danger" onclick="rejectBankRequest()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    `
+}) %>
