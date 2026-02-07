@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 2rem 1rem; }
+    .page-container { max-width: 1400px; margin: 0 auto; }
+    
+    /* Page Header */
+    .page-header { background: white; border-radius: 24px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); }
+    .page-header h1 { font-size: 2.75rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; font-weight: 800; }
+    .page-header .subtitle { color: #718096; font-size: 1.125rem; line-height: 1.6; }
+    .header-actions { display: flex; gap: 1rem; margin-top: 1.75rem; flex-wrap: wrap; }
+    
+    /* Enhanced Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 20px; padding: 1.75rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); transition: all 0.3s; position: relative; overflow: hidden; }
+    .stat-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); opacity: 0; transition: opacity 0.3s; }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .stat-card.primary:hover { box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4); }
+    .stat-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; background: rgba(102, 126, 234, 0.1); color: #667eea; transition: transform 0.3s; flex-shrink: 0; }
+    .stat-card:hover .stat-icon { transform: scale(1.1) rotate(5deg); }
+    .stat-card.primary .stat-icon { background: rgba(255, 255, 255, 0.2); color: white; }
+    .stat-content { flex: 1; min-width: 0; }
+    .stat-label { font-size: 0.9375rem; color: #718096; margin-bottom: 0.5rem; font-weight: 500; display: block; }
+    .stat-card.primary .stat-label { color: rgba(255, 255, 255, 0.95); }
+    .stat-value { font-size: 2.125rem; font-weight: 800; color: #1a202c; display: block; line-height: 1; }
+    .stat-card.primary .stat-value { color: white; }
+    .stat-meta { font-size: 0.8125rem; color: #10b981; display: flex; align-items: center; gap: 0.375rem; margin-top: 0.5rem; font-weight: 600; }
+    .stat-meta i { font-size: 0.75rem; }
+    .stat-meta.negative { color: #ef4444; }
+    .stat-card.primary .stat-meta { color: rgba(255, 255, 255, 0.95); }
+    .stat-chart-container { position: absolute; bottom: 0; right: 0; width: 140px; height: 60px; opacity: 0.25; }
+    .stat-card:hover .stat-chart-container { opacity: 0.4; }
+    .stat-breakdown { font-size: 0.8125rem; color: #9ca3af; margin-top: 0.375rem; }
+    .stat-card.primary .stat-breakdown { color: rgba(255, 255, 255, 0.85); }
+    
+    /* Visual Timeline Filters */
+    .filter-section { background: white; border-radius: 20px; padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+    .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .filter-title { font-size: 1.25rem; font-weight: 700; color: #1a202c; display: flex; align-items: center; gap: 0.625rem; }
+    .filter-title i { color: #667eea; font-size: 1.125rem; }
+    .quick-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    
+    /* Year Selector Pills */
+    .year-selector { display: flex; gap: 0.625rem; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center; }
+    .year-selector-label { font-size: 0.875rem; font-weight: 600; color: #6b7280; margin-right: 0.5rem; }
+    .year-pill { padding: 0.625rem 1.5rem; border: 2px solid #e5e7eb; border-radius: 50px; background: white; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #4b5563; }
+    .year-pill:hover { border-color: #667eea; color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); }
+    .year-pill.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    
+    /* Calendar Month Grid */
+    .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .month-card { padding: 1rem; border: 2px solid #e5e7eb; border-radius: 12px; background: white; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; }
+    .month-card:hover { border-color: #667eea; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15); }
+    .month-card.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3); }
+    .month-card.disabled { opacity: 0.4; cursor: not-allowed; background: #f9fafb; }
+    .month-card.disabled:hover { transform: none; box-shadow: none; border-color: #e5e7eb; }
+    .month-name { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .month-badge { display: inline-block; padding: 0.125rem 0.5rem; background: rgba(102, 126, 234, 0.1); color: #667eea; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-top: 0.375rem; }
+    .month-card.active .month-badge { background: rgba(255, 255, 255, 0.3); color: white; }
+    .month-card.has-data::after { content: ''; position: absolute; top: 0.5rem; right: 0.5rem; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+    
+    /* Status Filter Pills */
+    .status-filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .status-filter-pill { padding: 0.625rem 1.25rem; border: 2px solid #e5e7eb; border-radius: 50px; background: white; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; color: #4b5563; }
+    .status-filter-pill:hover { border-color: #667eea; color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2); }
+    .status-filter-pill.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .status-badge { display: inline-block; padding: 0.125rem 0.5rem; background: #f3f4f6; color: #6b7280; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+    .status-filter-pill.active .status-badge { background: rgba(255, 255, 255, 0.3); color: white; }
+    
+    /* Statements Grid */
+    .statements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .statement-card { background: white; border-radius: 20px; border: 2px solid #e5e7eb; padding: 2rem; transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden; }
+    .statement-card:hover { border-color: transparent; box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2); transform: translateY(-5px); }
+    .statement-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); opacity: 0; transition: opacity 0.3s; z-index: -1; }
+    .statement-card:hover::before { opacity: 0.03; }
+    .statement-card:hover { border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1; }
+    
+    /* Statement Card Header */
+    .statement-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+    .statement-icon { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3); }
+    .statement-info { flex: 1; min-width: 0; }
+    .statement-period { font-size: 1.5rem; font-weight: 800; color: #1a202c; margin-bottom: 0.25rem; line-height: 1.2; }
+    .statement-daterange { font-size: 0.875rem; color: #9ca3af; display: flex; align-items: center; gap: 0.375rem; }
+    .statement-daterange i { font-size: 0.75rem; }
+    .statement-status { position: absolute; top: 1.5rem; right: 1.5rem; }
+    .status-badge-card { padding: 0.375rem 0.875rem; border-radius: 50px; font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-badge-card.ready { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
+    .status-badge-card.processing { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
+    .status-badge-card.failed { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
+    
+    /* Statement Stats Grid */
+    .statement-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; padding: 1.25rem; background: #f9fafb; border-radius: 16px; }
+    .statement-stat { text-align: center; }
+    .statement-stat-icon { font-size: 1.125rem; color: #667eea; margin-bottom: 0.375rem; }
+    .statement-stat.sent .statement-stat-icon { color: #ef4444; }
+    .statement-stat.received .statement-stat-icon { color: #10b981; }
+    .statement-stat.net .statement-stat-icon { color: #667eea; }
+    .statement-stat-label { font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.25rem; font-weight: 500; }
+    .statement-stat-value { font-size: 1.125rem; font-weight: 800; color: #1a202c; }
+    .statement-stat.sent .statement-stat-value { color: #ef4444; }
+    .statement-stat.received .statement-stat-value { color: #10b981; }
+    .statement-stat.net .statement-stat-value.positive { color: #10b981; }
+    .statement-stat.net .statement-stat-value.negative { color: #ef4444; }
+    
+    /* Divider */
+    .statement-divider { border: none; border-top: 2px dashed #e5e7eb; margin: 1.5rem 0; }
+    
+    /* Statement Actions */
+    .statement-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .statement-primary-btn { width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 0.9375rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .statement-primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+    .statement-secondary-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .statement-action-btn { padding: 0.75rem; border: 2px solid #e5e7eb; background: white; border-radius: 10px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 1rem; }
+    .statement-action-btn:hover { border-color: #667eea; color: #667eea; background: #f9fafb; transform: translateY(-2px); }
+    
+    /* Processing Card */
+    .statement-card.processing { border-color: #fbbf24; background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%); }
+    .processing-content { text-align: center; padding: 1rem 0; }
+    .processing-spinner { width: 64px; height: 64px; border: 4px solid #fef3c7; border-top-color: #fbbf24; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .processing-text { font-size: 1.125rem; font-weight: 700; color: #92400e; margin-bottom: 0.5rem; }
+    .processing-progress { width: 100%; height: 8px; background: #fef3c7; border-radius: 4px; overflow: hidden; margin: 1rem 0; }
+    .processing-progress-bar { height: 100%; background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%); border-radius: 4px; transition: width 0.3s; }
+    .processing-meta { font-size: 0.875rem; color: #92400e; margin-top: 0.5rem; }
+    
+    /* Failed Card */
+    .statement-card.failed { border-color: #ef4444; background: linear-gradient(135deg, #fee2e2 0%, #ffffff 100%); }
+    .failed-content { text-align: center; padding: 1rem 0; }
+    .failed-icon { font-size: 3rem; color: #ef4444; margin-bottom: 1rem; }
+    .failed-text { font-size: 1.125rem; font-weight: 700; color: #991b1b; margin-bottom: 0.5rem; }
+    .failed-reason { font-size: 0.875rem; color: #991b1b; margin-bottom: 1.5rem; }
+    .retry-btn { padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; border-radius: 12px; font-size: 0.9375rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+    .retry-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
+    
+    /* Enhanced Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; background: white; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); }
+    .empty-hero { margin-bottom: 2.5rem; }
+    .empty-icon-wrapper { position: relative; display: inline-block; margin-bottom: 2rem; }
+    .empty-icon-bg { width: 160px; height: 160px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3); animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+    .empty-icon { font-size: 5rem; color: white; }
+    .empty-state h3 { font-size: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.75rem; font-weight: 800; }
+    .empty-state p { color: #6b7280; font-size: 1.125rem; margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .empty-info-card { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-radius: 20px; padding: 2rem; margin: 2.5rem auto; max-width: 700px; text-align: left; }
+    .empty-info-card h4 { font-size: 1.25rem; color: #1a202c; margin-bottom: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.625rem; }
+    .empty-info-card h4 i { color: #667eea; font-size: 1.125rem; }
+    .empty-steps { list-style: none; }
+    .empty-steps li { padding: 1rem 0; color: #4b5563; display: flex; align-items: flex-start; gap: 1rem; line-height: 1.6; font-size: 1rem; border-bottom: 1px solid #e5e7eb; }
+    .empty-steps li:last-child { border-bottom: none; }
+    .empty-step-number { width: 36px; height: 36px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .empty-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2.5rem 0; }
+    .empty-feature { text-align: center; padding: 1.5rem; background: white; border-radius: 16px; border: 2px solid #e5e7eb; transition: all 0.3s; }
+    .empty-feature:hover { border-color: #667eea; transform: translateY(-5px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15); }
+    .empty-feature-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.75rem; box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3); }
+    .empty-feature-title { font-size: 1rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; }
+    .empty-feature-desc { font-size: 0.875rem; color: #6b7280; line-height: 1.5; }
+    .empty-cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2.5rem; }
+    
+    /* Buttons */
+    .btn { padding: 1rem 2rem; border: none; border-radius: 12px; font-size: 0.9375rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .btn-primary.large { padding: 1.125rem 2.25rem; font-size: 1.0625rem; }
+    .btn-secondary { background: white; border: 2px solid #e5e7eb; color: #4b5563; }
+    .btn-secondary:hover { border-color: #667eea; color: #667eea; background: #f9fafb; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+    .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
+    .btn-outline:hover { background: #667eea; color: white; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3); }
+    .btn-small { padding: 0.625rem 1.25rem; font-size: 0.875rem; }
+    
+    /* Modal Styles */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1000; padding: 2rem; overflow-y: auto; }
+    .modal.active { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-content { background: white; border-radius: 24px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3); animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header { padding: 2rem; border-bottom: 2px solid #f3f4f6; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .modal-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; margin-bottom: 1.25rem; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); }
+    .modal-header h2 { font-size: 1.875rem; color: #1a202c; font-weight: 800; margin-bottom: 0.5rem; }
+    .modal-header p { color: #6b7280; font-size: 1rem; }
+    .modal-body { padding: 2rem; }
+    .modal-footer { padding: 2rem; border-top: 2px solid #f3f4f6; display: flex; gap: 1rem; }
+    .close-btn { position: absolute; top: 1.5rem; right: 1.5rem; width: 44px; height: 44px; border: none; background: #f3f4f6; border-radius: 12px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; color: #6b7280; display: flex; align-items: center; justify-content: center; }
+    .close-btn:hover { background: #e5e7eb; transform: rotate(90deg); }
+    
+    /* Toast */
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1a202c; color: white; padding: 1.125rem 1.75rem; border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); display: none; align-items: center; gap: 1rem; z-index: 2000; max-width: 400px; animation: slideInRight 0.3s ease-out; }
+    @keyframes slideInRight { from { transform: translateX(400px); } to { transform: translateX(0); } }
+    .toast.show { display: flex; }
+    .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .toast.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .statements-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+      .month-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    }
+    
+    @media (max-width: 768px) {
+      body { padding: 1rem 0.75rem; }
+      .page-header { padding: 1.5rem; }
+      .page-header h1 { font-size: 2rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .statements-grid { grid-template-columns: 1fr; }
+      .month-grid { grid-template-columns: repeat(3, 1fr); }
+      .empty-features { grid-template-columns: 1fr; }
+      .statement-secondary-actions { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1>📊 Monthly Statements</h1>
+      <p class="subtitle">View, download, and analyze your comprehensive monthly financial statements with detailed transaction breakdowns</p>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openGenerateModal()">
+          <i class="fas fa-file-circle-plus"></i> Generate Statement
+        </button>
+        <button class="btn btn-secondary" onclick="downloadYearReport()">
+          <i class="fas fa-file-archive"></i> Year-End Report
+        </button>
+        <button class="btn btn-secondary" onclick="openSettingsModal()">
+          <i class="fas fa-gear"></i> Auto-Generate Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Enhanced Stats Grid -->
+    <div class="stats-grid">
+      <!-- This Month's Total with Comparison -->
+      <div class="stat-card primary">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">This Month's Total</span>
+          <span class="stat-value" id="total-counter">₹<%= currentMonthStats.totalSpent.toFixed(2) %></span>
+          <span class="stat-meta"><i class="fas fa-arrow-up"></i> +15% vs last month</span>
+        </div>
+        <canvas id="total-chart" class="stat-chart-container"></canvas>
+      </div>
+      
+      <!-- Money Sent -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Money Sent</span>
+          <span class="stat-value">₹<%= currentMonthStats.moneySent.amount.toFixed(2) %></span>
+          <span class="stat-breakdown"><%= currentMonthStats.moneySent.count %> transactions · 68% of total</span>
+          <span class="stat-meta negative"><i class="fas fa-arrow-down"></i> -5% from last month</span>
+        </div>
+        <canvas id="sent-chart" class="stat-chart-container"></canvas>
+      </div>
+      
+      <!-- Money Received -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Money Received</span>
+          <span class="stat-value">₹<%= currentMonthStats.moneyReceived.amount.toFixed(2) %></span>
+          <span class="stat-breakdown"><%= currentMonthStats.moneyReceived.count %> transactions · 32% of total</span>
+          <span class="stat-meta"><i class="fas fa-arrow-up"></i> +22% from last month</span>
+        </div>
+        <canvas id="received-chart" class="stat-chart-container"></canvas>
+      </div>
+      
+      <!-- Fees Paid with Savings -->
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-content">
+          <span class="stat-label">Fees Paid</span>
+          <span class="stat-value">₹<%= currentMonthStats.feesPaid.toFixed(2) %></span>
+          <span class="stat-breakdown">Average ₹1.16 per transaction</span>
+          <span class="stat-meta"><i class="fas fa-arrow-down"></i> 20% lower than last month</span>
+        </div>
+        <canvas id="fees-chart" class="stat-chart-container"></canvas>
+      </div>
+    </div>
+
+    <!-- Visual Timeline Filter Section -->
+    <div class="filter-section">
+      <div class="filter-header">
+        <h3 class="filter-title">
+          <i class="fas fa-calendar-days"></i>
+          Select Period
+        </h3>
+        <div class="quick-actions">
+          <button class="btn btn-small btn-outline" onclick="generateMissing()">
+            <i class="fas fa-magic"></i> Generate Missing
+          </button>
+        </div>
+      </div>
+      
+      <!-- Year Selector Pills -->
+      <div class="year-selector">
+        <span class="year-selector-label">Year:</span>
+        <button class="year-pill" onclick="selectYear(2024)">2024</button>
+        <button class="year-pill" onclick="selectYear(2025)">2025</button>
+        <button class="year-pill active" onclick="selectYear(2026)">2026</button>
+        <button class="year-pill" onclick="selectYear(2027)">2027</button>
+      </div>
+      
+      <!-- Calendar Month Grid -->
+      <div class="month-grid">
+        <div class="month-card has-data active" onclick="selectMonth(1)">
+          <div class="month-name">January</div>
+          <div class="month-badge">Ready</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">February</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">March</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">April</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">May</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">June</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">July</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">August</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">September</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">October</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">November</div>
+        </div>
+        <div class="month-card disabled">
+          <div class="month-name">December</div>
+        </div>
+      </div>
+      
+      <!-- Status Filter Pills -->
+      <div class="status-filters">
+        <button class="status-filter-pill active" onclick="filterStatus('all')">
+          <i class="fas fa-infinity"></i> All Statuses <span class="status-badge">12</span>
+        </button>
+        <button class="status-filter-pill" onclick="filterStatus('ready')">
+          <i class="fas fa-check-circle"></i> Ready <span class="status-badge">10</span>
+        </button>
+        <button class="status-filter-pill" onclick="filterStatus('processing')">
+          <i class="fas fa-spinner"></i> Processing <span class="status-badge">1</span>
+        </button>
+        <button class="status-filter-pill" onclick="filterStatus('failed')">
+          <i class="fas fa-exclamation-circle"></i> Failed <span class="status-badge">1</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Statements Grid -->
+    <div class="statements-grid" id="statements-grid">
+      <!-- Ready Statement Card -->
+      <div class="statement-card">
+        <div class="statement-status">
+          <span class="status-badge-card ready">Ready</span>
+        </div>
+        <div class="statement-header">
+          <div class="statement-icon">
+            <i class="fas fa-calendar"></i>
+          </div>
+          <div class="statement-info">
+            <div class="statement-period">January 2026</div>
+            <div class="statement-daterange">
+              <i class="fas fa-calendar-range"></i>
+              Jan 1 - Jan 31, 2026
+            </div>
+          </div>
+        </div>
+        
+        <div class="statement-stats">
+          <div class="statement-stat">
+            <div class="statement-stat-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="statement-stat-label">Total Transactions</div>
+            <div class="statement-stat-value">45</div>
+          </div>
+          <div class="statement-stat sent">
+            <div class="statement-stat-icon"><i class="fas fa-arrow-up"></i></div>
+            <div class="statement-stat-label">Amount Sent</div>
+            <div class="statement-stat-value">₹3,250.00</div>
+          </div>
+          <div class="statement-stat received">
+            <div class="statement-stat-icon"><i class="fas fa-arrow-down"></i></div>
+            <div class="statement-stat-label">Amount Received</div>
+            <div class="statement-stat-value">₹4,800.00</div>
+          </div>
+          <div class="statement-stat net">
+            <div class="statement-stat-icon"><i class="fas fa-balance-scale"></i></div>
+            <div class="statement-stat-label">Net Balance</div>
+            <div class="statement-stat-value positive">+₹1,550.00</div>
+          </div>
+        </div>
+        
+        <hr class="statement-divider">
+        
+        <div class="statement-actions">
+          <button class="statement-primary-btn" onclick="viewStatement()">
+            <i class="fas fa-eye"></i> View Statement
+          </button>
+          <div class="statement-secondary-actions">
+            <button class="statement-action-btn" onclick="downloadPDF()" title="Download PDF">
+              <i class="fas fa-download"></i>
+            </button>
+            <button class="statement-action-btn" onclick="emailStatement()" title="Email Statement">
+              <i class="fas fa-envelope"></i>
+            </button>
+            <button class="statement-action-btn" onclick="printStatement()" title="Print">
+              <i class="fas fa-print"></i>
+            </button>
+            <button class="statement-action-btn" onclick="shareStatement()" title="Share">
+              <i class="fas fa-share-nodes"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Processing Statement Card -->
+      <div class="statement-card processing">
+        <div class="statement-status">
+          <span class="status-badge-card processing">Processing</span>
+        </div>
+        <div class="processing-content">
+          <div class="processing-spinner"></div>
+          <div class="processing-text">Generating statement...</div>
+          <div class="processing-progress">
+            <div class="processing-progress-bar" style="width: 45%;"></div>
+          </div>
+          <div class="processing-meta">Usually takes 30-60 seconds · 45% complete</div>
+        </div>
+      </div>
+      
+      <!-- Failed Statement Card -->
+      <div class="statement-card failed">
+        <div class="statement-status">
+          <span class="status-badge-card failed">Failed</span>
+        </div>
+        <div class="failed-content">
+          <div class="failed-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="failed-text">Generation Failed</div>
+          <div class="failed-reason">Insufficient data for this period</div>
+          <button class="retry-btn" onclick="retryGeneration()">
+            <i class="fas fa-rotate-right"></i> Retry Generation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <div class="empty-hero">
+        <div class="empty-icon-wrapper">
+          <div class="empty-icon-bg">
+            <i class="fas fa-folder-open empty-icon"></i>
+          </div>
+        </div>
+        <h3>No Statements Available Yet</h3>
+        <p>Statements are generated automatically at the start of each month, covering all your transactions from the previous month.</p>
+      </div>
+      
+      <div class="empty-info-card">
+        <h4><i class="fas fa-info-circle"></i> How It Works</h4>
+        <ol class="empty-steps">
+          <li>
+            <div class="empty-step-number">1</div>
+            <div>
+              <strong>Automatic Generation:</strong> Statements are automatically created on the 1st of each month for the previous month's activity.
+            </div>
+          </li>
+          <li>
+            <div class="empty-step-number">2</div>
+            <div>
+              <strong>Complete Coverage:</strong> All transactions, fees, and balances are included in a comprehensive breakdown.
+            </div>
+          </li>
+          <li>
+            <div class="empty-step-number">3</div>
+            <div>
+              <strong>Instant Access:</strong> Download as PDF, email to yourself, or view online anytime with detailed analytics.
+            </div>
+          </li>
+        </ol>
+      </div>
+      
+      <div class="empty-features">
+        <div class="empty-feature">
+          <div class="empty-feature-icon">
+            <i class="fas fa-magic"></i>
+          </div>
+          <div class="empty-feature-title">Automatic Generation</div>
+          <div class="empty-feature-desc">No manual work needed. Statements generate automatically every month.</div>
+        </div>
+        <div class="empty-feature">
+          <div class="empty-feature-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <div class="empty-feature-title">Detailed Breakdown</div>
+          <div class="empty-feature-desc">Complete analysis with charts, graphs, and transaction details.</div>
+        </div>
+        <div class="empty-feature">
+          <div class="empty-feature-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="empty-feature-title">Export to PDF</div>
+          <div class="empty-feature-desc">Download professional PDF statements for your records.</div>
+        </div>
+      </div>
+      
+      <div class="empty-cta-buttons">
+        <button class="btn btn-primary large" onclick="generateCurrentMonth()">
+          <i class="fas fa-file-circle-plus"></i> Generate Current Month
+        </button>
+        <button class="btn btn-outline" onclick="openSettingsModal()">
+          <i class="fas fa-envelope-circle-check"></i> Set Up Auto-Email
+        </button>
+        <a href="/help/statements" class="btn btn-secondary">
+          <i class="fas fa-book"></i> Learn More
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generation Modal -->
+  <div class="modal" id="generate-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeGenerateModal()" style="position: absolute;">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon">
+          <i class="fas fa-file-circle-plus"></i>
+        </div>
+        <h2>Generate New Statement</h2>
+        <p>Create a detailed statement for any period with transaction breakdowns</p>
+      </div>
+      <div class="modal-body">
+        <!-- Modal content will be added by JavaScript -->
+        <p style="text-align: center; color: #6b7280; padding: 2rem;">Feature coming soon...</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" style="flex: 1;" onclick="confirmGenerate()">
+          <i class="fas fa-magic"></i> Generate Statement
+        </button>
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeGenerateModal()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initMiniCharts();
+      animateCounter();
+    });
+    
+    // Mini Charts
+    function initMiniCharts() {
+      // Total Chart
+      const totalCtx = document.getElementById('total-chart');
+      if (totalCtx) {
+        new Chart(totalCtx, {
+          type: 'line',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [2800, 3100, 2900, 3250, 3100, 3400, 3250],
+              borderColor: 'rgba(255, 255, 255, 0.8)',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+      
+      // Sent Chart
+      const sentCtx = document.getElementById('sent-chart');
+      if (sentCtx) {
+        new Chart(sentCtx, {
+          type: 'line',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [2000, 2200, 2100, 2300, 2150, 2400, 2250],
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+      
+      // Received Chart
+      const receivedCtx = document.getElementById('received-chart');
+      if (receivedCtx) {
+        new Chart(receivedCtx, {
+          type: 'line',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [1500, 1700, 1600, 1800, 1750, 1900, 1850],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+      
+      // Fees Chart
+      const feesCtx = document.getElementById('fees-chart');
+      if (feesCtx) {
+        new Chart(feesCtx, {
+          type: 'bar',
+          data: {
+            labels: ['', '', '', '', '', '', ''],
+            datasets: [{
+              data: [35, 38, 32, 40, 36, 42, 38],
+              backgroundColor: 'rgba(102, 126, 234, 0.3)',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { display: false }, y: { display: false } }
+          }
+        });
+      }
+    }
+    
+    // Counter Animation
+    function animateCounter() {
+      const counter = document.getElementById('total-counter');
+      if (!counter) return;
+      
+      const text = counter.textContent;
+      const value = parseFloat(text.replace(/[^0-9.]/g, ''));
+      const prefix = text.substring(0, text.indexOf(value.toString()));
+      
+      let current = 0;
+      const increment = value / 50;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= value) {
+          counter.textContent = prefix + value.toFixed(2);
+          clearInterval(timer);
+        } else {
+          counter.textContent = prefix + current.toFixed(2);
+        }
+      }, 30);
+    }
+    
+    // Year/Month Selection
+    function selectYear(year) {
+      document.querySelectorAll('.year-pill').forEach(pill => pill.classList.remove('active'));
+      event.target.classList.add('active');
+      showToast(`Switched to ${year}`, 'success');
+    }
+    
+    function selectMonth(month) {
+      const card = event.target.closest('.month-card');
+      if (card.classList.contains('disabled')) return;
+      
+      document.querySelectorAll('.month-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      showToast('Month selected', 'success');
+    }
+    
+    // Status Filters
+    function filterStatus(status) {
+      document.querySelectorAll('.status-filter-pill').forEach(pill => pill.classList.remove('active'));
+      event.target.classList.add('active');
+      showToast(`Filtering by: ${status}`, 'success');
+    }
+    
+    // Modal Functions
+    function openGenerateModal() {
+      document.getElementById('generate-modal').classList.add('active');
+    }
+    
+    function closeGenerateModal() {
+      document.getElementById('generate-modal').classList.remove('active');
+    }
+    
+    function confirmGenerate() {
+      closeGenerateModal();
+      showToast('Statement generation started...', 'success');
+    }
+    
+    // Action Functions
+    function viewStatement() {
+      showToast('Opening statement...', 'success');
+    }
+    
+    function downloadPDF() {
+      showToast('Downloading PDF...', 'success');
+    }
+    
+    function emailStatement() {
+      showToast('Email sent!', 'success');
+    }
+    
+    function printStatement() {
+      showToast('Opening print dialog...', 'success');
+    }
+    
+    function shareStatement() {
+      showToast('Share options...', 'success');
+    }
+    
+    function retryGeneration() {
+      showToast('Retrying generation...', 'success');
+    }
+    
+    function generateMissing() {
+      showToast('Generating missing statements...', 'success');
+    }
+    
+    function downloadYearReport() {
+      showToast('Preparing year-end report...', 'success');
+    }
+    
+    function openSettingsModal() {
+      showToast('Settings panel opening...', 'success');
+    }
+    
+    function generateCurrentMonth() {
+      showToast('Generating current month statement...', 'success');
+    }
+    
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.className = `toast show ${type}`;
+      toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

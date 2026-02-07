@@ -96,12 +96,48 @@
   }
 
   // ====================================
+  // 2.5 PRICING CARD CLICK HANDLER
+  // ====================================
+  function initPricingCardSelection() {
+    const pricingCards = document.querySelectorAll('.pricing-card');
+
+    pricingCards.forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        // Don't trigger if clicking a button
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        // Remove selected class from all cards
+        pricingCards.forEach(function(c) {
+          c.classList.remove('selected');
+        });
+
+        // Add selected class to clicked card
+        card.classList.add('selected');
+
+        // Show toast notification
+        const planName = card.querySelector('.pricing-plan-name');
+        if (planName && window.ZenoPayDashboard && window.ZenoPayDashboard.showToast) {
+          window.ZenoPayDashboard.showToast(planName.textContent + ' plan selected!', 'success');
+        }
+      });
+    });
+  }
+
+  // ====================================
   // 3. COUNTER ANIMATIONS
   // ====================================
   function animateCounter(element, target) {
     const duration = 2000; // 2 seconds
     const start = 0;
     const startTime = performance.now();
+
+    // Validate target is a number
+    if (isNaN(target) || target <= 0) {
+      element.textContent = '0';
+      return;
+    }
 
     function update(currentTime) {
       const elapsed = currentTime - startTime;
@@ -136,9 +172,15 @@
     const observer = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
-          const target = parseInt(entry.target.getAttribute('data-target'));
-          if (!isNaN(target)) {
+          const targetValue = entry.target.getAttribute('data-target');
+          const target = parseInt(targetValue, 10);
+          
+          // Validate the parsed number
+          if (!isNaN(target) && target > 0) {
             animateCounter(entry.target, target);
+          } else {
+            // Fallback: just set the text content as-is
+            entry.target.textContent = targetValue || '0';
           }
           observer.unobserve(entry.target);
         }
@@ -516,6 +558,7 @@
     // Initialize all features
     initMobileMenu();
     initFAQAccordion();
+    initPricingCardSelection();
     initCounterAnimations();
     initCopyToClipboard();
     initScrollAnimations();
