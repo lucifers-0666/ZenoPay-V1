@@ -4,7 +4,7 @@
  * counter animations, copy-to-clipboard, scroll animations
  */
 
-(function() {
+(function () {
   'use strict';
 
   // ====================================
@@ -19,29 +19,29 @@
     if (!mobileMenuBtn || !mobileMenuOverlay) return;
 
     // Open mobile menu
-    mobileMenuBtn.addEventListener('click', function() {
+    mobileMenuBtn.addEventListener('click', function () {
       mobileMenuOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     });
 
     // Close mobile menu
     if (mobileMenuClose) {
-      mobileMenuClose.addEventListener('click', function() {
+      mobileMenuClose.addEventListener('click', function () {
         mobileMenuOverlay.classList.remove('active');
         document.body.style.overflow = '';
       });
     }
 
     // Close menu when clicking nav links
-    mobileNavLinks.forEach(function(link) {
-      link.addEventListener('click', function() {
+    mobileNavLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
         mobileMenuOverlay.classList.remove('active');
         document.body.style.overflow = '';
       });
     });
 
     // Close menu when clicking overlay background
-    mobileMenuOverlay.addEventListener('click', function(e) {
+    mobileMenuOverlay.addEventListener('click', function (e) {
       if (e.target === mobileMenuOverlay) {
         mobileMenuOverlay.classList.remove('active');
         document.body.style.overflow = '';
@@ -49,7 +49,7 @@
     });
 
     // Close menu on escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && mobileMenuOverlay.classList.contains('active')) {
         mobileMenuOverlay.classList.remove('active');
         document.body.style.overflow = '';
@@ -63,17 +63,17 @@
   function initFAQAccordion() {
     const faqItems = document.querySelectorAll('.faq-item');
 
-    faqItems.forEach(function(item) {
+    faqItems.forEach(function (item) {
       const question = item.querySelector('.faq-question');
       const answer = item.querySelector('.faq-answer');
 
       if (!question || !answer) return;
 
-      question.addEventListener('click', function() {
+      question.addEventListener('click', function () {
         const isActive = item.classList.contains('active');
 
         // Close all other FAQs
-        faqItems.forEach(function(otherItem) {
+        faqItems.forEach(function (otherItem) {
           if (otherItem !== item) {
             otherItem.classList.remove('active');
             const otherAnswer = otherItem.querySelector('.faq-answer');
@@ -101,25 +101,38 @@
   function initPricingCardSelection() {
     const pricingCards = document.querySelectorAll('.pricing-card');
 
-    pricingCards.forEach(function(card) {
-      card.addEventListener('click', function(e) {
-        // Don't trigger if clicking a button
-        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+    pricingCards.forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        // Don't trigger if clicking a button or link
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button') ||
+          e.target.tagName === 'A' || e.target.closest('a')) {
           return;
         }
 
         // Remove selected class from all cards
-        pricingCards.forEach(function(c) {
+        pricingCards.forEach(function (c) {
           c.classList.remove('selected');
         });
 
         // Add selected class to clicked card
         card.classList.add('selected');
 
-        // Show toast notification
+        // Optional: Show console log for debugging
         const planName = card.querySelector('.pricing-plan-name');
-        if (planName && window.ZenoPayDashboard && window.ZenoPayDashboard.showToast) {
-          window.ZenoPayDashboard.showToast(planName.textContent + ' plan selected!', 'success');
+        if (planName) {
+          console.log(planName.textContent + ' plan selected!');
+        }
+      });
+
+      // Add keyboard accessibility
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'Select pricing plan');
+
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
         }
       });
     });
@@ -131,28 +144,37 @@
   function animateCounter(element, target) {
     const duration = 2000; // 2 seconds
     const start = 0;
-    const startTime = performance.now();
-
-    // Validate target is a number
-    if (isNaN(target) || target <= 0) {
-      element.textContent = '0';
+    
+    // Safety check - if target is invalid, do nothing
+    if (typeof target !== 'number' || isNaN(target)) {
       return;
     }
 
+    let startTime = null;
+
     function update(currentTime) {
+      if (!startTime) startTime = currentTime;
       const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
+      const progress = Math.min(Math.max(elapsed / duration, 0), 1);
+
       // Easing function (ease-out)
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      const current = Math.floor(start + (target - start) * easeOut);
       
+      // Calculate current value carefully
+      let current = Math.floor(start + (target - start) * easeOut);
+      
+      // Safety net for NaN during calculation
+      if (isNaN(current)) {
+        current = start;
+      }
+
       element.textContent = current.toLocaleString();
 
       if (progress < 1) {
         requestAnimationFrame(update);
       } else {
-        element.textContent = target.toLocaleString() + '+';
+        // Ensure final value is exactly target
+        element.textContent = target.toLocaleString();
       }
     }
 
@@ -160,34 +182,56 @@
   }
 
   function initCounterAnimations() {
+    // First, ensure all stat-number elements are visible with their text
+    const allStatNumbers = document.querySelectorAll('.stat-number');
+    allStatNumbers.forEach(function (element) {
+      // If element is empty or shows 0, and has no data-target, keep its existing content
+      const hasDataTarget = element.hasAttribute('data-target');
+      const currentText = element.textContent.trim();
+
+      if (!hasDataTarget && (!currentText || currentText === '0')) {
+        // This is a static number element that should display as-is
+        // Don't modify it
+      } else if (!hasDataTarget && currentText) {
+        // Static number with content - ensure it's visible
+        element.style.opacity = '1';
+      }
+    });
+
     const counters = document.querySelectorAll('.stat-number[data-target]');
-    
-    if (counters.length === 0) return;
+
+    if (counters.length === 0) {
+      return;
+    }
 
     const observerOptions = {
-      threshold: 0.5,
+      threshold: 0.3,
       rootMargin: '0px'
     };
 
-    const observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          const targetValue = entry.target.getAttribute('data-target');
+          const element = entry.target;
+          const targetValue = element.getAttribute('data-target');
           const target = parseInt(targetValue, 10);
-          
+
           // Validate the parsed number
           if (!isNaN(target) && target > 0) {
-            animateCounter(entry.target, target);
+            // Set initial value to 0 before animation
+            element.textContent = '0';
+            animateCounter(element, target);
           } else {
-            // Fallback: just set the text content as-is
-            entry.target.textContent = targetValue || '0';
+            // For non-numeric values, just display them as-is
+            // This handles cases like "$50M+", "99.9%", "<2sec"
+            element.textContent = targetValue || '0';
           }
-          observer.unobserve(entry.target);
+          observer.unobserve(element);
         }
       });
     }, observerOptions);
 
-    counters.forEach(function(counter) {
+    counters.forEach(function (counter) {
       observer.observe(counter);
     });
   }
@@ -198,8 +242,8 @@
   function initCopyToClipboard() {
     const copyButtons = document.querySelectorAll('.copy-code-btn');
 
-    copyButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
+    copyButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
         const targetId = button.getAttribute('data-copy-target');
         const targetElement = document.getElementById(targetId);
 
@@ -209,9 +253,9 @@
 
         // Try modern clipboard API first
         if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(textToCopy).then(function() {
+          navigator.clipboard.writeText(textToCopy).then(function () {
             showCopyFeedback(button);
-          }).catch(function(err) {
+          }).catch(function (err) {
             console.error('Failed to copy:', err);
             fallbackCopy(textToCopy, button);
           });
@@ -231,14 +275,14 @@
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    
+
     try {
       document.execCommand('copy');
       showCopyFeedback(button);
     } catch (err) {
       console.error('Fallback copy failed:', err);
     }
-    
+
     document.body.removeChild(textArea);
   }
 
@@ -248,7 +292,7 @@
     button.style.background = '#10B981';
     button.style.color = 'white';
 
-    setTimeout(function() {
+    setTimeout(function () {
       button.innerHTML = originalHTML;
       button.style.background = '';
       button.style.color = '';
@@ -260,7 +304,7 @@
   // ====================================
   function initScrollAnimations() {
     const revealElements = document.querySelectorAll('.feature-card, .pricing-card, .testimonial-card, .step-item');
-    
+
     if (revealElements.length === 0) return;
 
     const observerOptions = {
@@ -268,15 +312,15 @@
       rootMargin: '0px 0px -100px 0px'
     };
 
-    const observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('reveal', 'active');
         }
       });
     }, observerOptions);
 
-    revealElements.forEach(function(element) {
+    revealElements.forEach(function (element) {
       element.classList.add('reveal');
       observer.observe(element);
     });
@@ -288,21 +332,21 @@
   function initSmoothScroll() {
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
 
-    anchorLinks.forEach(function(link) {
-      link.addEventListener('click', function(e) {
+    anchorLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
         const href = link.getAttribute('href');
-        
+
         // Skip if it's just "#"
         if (href === '#') return;
 
         const targetElement = document.querySelector(href);
-        
+
         if (targetElement) {
           e.preventDefault();
-          
+
           const headerHeight = 72; // Height of fixed header
           const targetPosition = targetElement.offsetTop - headerHeight;
-          
+
           window.scrollTo({
             top: targetPosition,
             behavior: 'smooth'
@@ -321,7 +365,7 @@
 
     let lastScroll = 0;
 
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
       const currentScroll = window.pageYOffset;
 
       // Add shadow when scrolled
@@ -373,9 +417,9 @@
     document.body.appendChild(toast);
 
     // Remove after 3 seconds
-    setTimeout(function() {
+    setTimeout(function () {
       toast.style.animation = 'slideOutDown 0.3s ease-out';
-      setTimeout(function() {
+      setTimeout(function () {
         toast.remove();
       }, 300);
     }, 3000);
@@ -415,14 +459,14 @@
   function initFormValidation() {
     const forms = document.querySelectorAll('form[data-validate]');
 
-    forms.forEach(function(form) {
-      form.addEventListener('submit', function(e) {
+    forms.forEach(function (form) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         const inputs = form.querySelectorAll('input[required], textarea[required]');
         let isValid = true;
 
-        inputs.forEach(function(input) {
+        inputs.forEach(function (input) {
           if (!input.value.trim()) {
             isValid = false;
             input.style.borderColor = '#EF4444';
@@ -446,11 +490,11 @@
   // ====================================
   function initLazyLoading() {
     const images = document.querySelectorAll('img[data-src]');
-    
+
     if (images.length === 0 || !('IntersectionObserver' in window)) return;
 
-    const imageObserver = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
+    const imageObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           const img = entry.target;
           img.src = img.getAttribute('data-src');
@@ -460,7 +504,7 @@
       });
     });
 
-    images.forEach(function(img) {
+    images.forEach(function (img) {
       imageObserver.observe(img);
     });
   }
@@ -468,7 +512,7 @@
   // ====================================
   // 11. UTILITY FUNCTIONS
   // ====================================
-  
+
   // Debounce function for performance
   function debounce(func, wait) {
     let timeout;
@@ -476,7 +520,7 @@
       const context = this;
       const args = arguments;
       clearTimeout(timeout);
-      timeout = setTimeout(function() {
+      timeout = setTimeout(function () {
         func.apply(context, args);
       }, wait);
     };
@@ -485,13 +529,13 @@
   // Throttle function for scroll events
   function throttle(func, limit) {
     let inThrottle;
-    return function() {
+    return function () {
       const args = arguments;
       const context = this;
       if (!inThrottle) {
         func.apply(context, args);
         inThrottle = true;
-        setTimeout(function() {
+        setTimeout(function () {
           inThrottle = false;
         }, limit);
       }
@@ -514,8 +558,8 @@
   // ====================================
   function logPerformance() {
     if ('performance' in window) {
-      window.addEventListener('load', function() {
-        setTimeout(function() {
+      window.addEventListener('load', function () {
+        setTimeout(function () {
           const perfData = window.performance.timing;
           const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
           console.log('Page Load Time:', pageLoadTime + 'ms');
@@ -528,12 +572,12 @@
   // 13. ERROR HANDLING
   // ====================================
   function initErrorHandling() {
-    window.addEventListener('error', function(e) {
+    window.addEventListener('error', function (e) {
       console.error('Global error:', e.message);
       // You can send errors to analytics service here
     });
 
-    window.addEventListener('unhandledrejection', function(e) {
+    window.addEventListener('unhandledrejection', function (e) {
       console.error('Unhandled promise rejection:', e.reason);
     });
   }
@@ -544,7 +588,7 @@
   function init() {
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         initializeAll();
       });
     } else {
@@ -559,7 +603,11 @@
     initMobileMenu();
     initFAQAccordion();
     initPricingCardSelection();
+
+    // Ensure stat numbers are visible before animation
+    ensureStatNumbersAreVisible();
     initCounterAnimations();
+
     initCopyToClipboard();
     initScrollAnimations();
     initSmoothScroll();
@@ -568,7 +616,7 @@
     initLazyLoading();
     initErrorHandling();
     addToastAnimations();
-    
+
     // Performance monitoring (development only)
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       logPerformance();
@@ -577,17 +625,42 @@
     console.log('✓ ZenoPay Modern Dashboard initialized successfully');
   }
 
+  // ====================================
+  // ENSURE STAT NUMBERS ARE VISIBLE
+  // ====================================
+  function ensureStatNumbersAreVisible() {
+    // Fallback to ensure all stat numbers show their content immediately
+    const allStatNumbers = document.querySelectorAll('.stat-number');
+    allStatNumbers.forEach(function (element) {
+      const hasDataTarget = element.hasAttribute('data-target');
+      const currentText = element.textContent.trim();
+
+      if (hasDataTarget) {
+        // Will be animated, start with 0
+        if (!currentText || currentText === '') {
+          element.textContent = '0';
+        }
+      } else {
+        // Static content - ensure it's visible
+        if (currentText && currentText !== '0') {
+          element.style.visibility = 'visible';
+          element.style.opacity = '1';
+        }
+      }
+    });
+  }
+
   // Start initialization
   init();
 
-  // ====================================
-  // EXPORT PUBLIC API (IF NEEDED)
-  // ====================================
-  window.ZenoPayDashboard = {
-    showToast: showToast,
-    debounce: debounce,
-    throttle: throttle,
-    isInViewport: isInViewport
-  };
+// ====================================
+// EXPORT PUBLIC API (IF NEEDED)
+// ====================================
+window.ZenoPayDashboard = {
+  showToast: showToast,
+  debounce: debounce,
+  throttle: throttle,
+  isInViewport: isInViewport
+};
 
-})();
+}) ();

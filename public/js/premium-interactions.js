@@ -54,6 +54,8 @@
    * Count up numbers when they enter viewport
    */
   function initCounterAnimations() {
+    // Only animate counters that are NOT inside the main stats cards.
+    // The dashboard stats are fully handled by dashboard.js; animating here causes NaN/conflicts.
     const counters = document.querySelectorAll('.stat-number');
     
     const observer = new IntersectionObserver((entries) => {
@@ -65,21 +67,40 @@
       });
     }, { threshold: 0.5 });
 
-    counters.forEach(counter => observer.observe(counter));
+    counters.forEach(counter => {
+      // Skip anything in the dashboard stats section
+      if (counter.closest('.stats-section')) return;
+
+      // Skip counters already handled by dashboard.js (data-target)
+      if (counter.hasAttribute('data-target')) return;
+      
+      // Skip complex/static strings containing letters (M, sec, etc.)
+      const text = counter.textContent.trim();
+      if (/[a-zA-Z]/.test(text)) return;
+
+      observer.observe(counter);
+    });
   }
 
   function animateCounter(element) {
     const text = element.textContent.trim();
+    // Use regex that supports decimals too
+    const match = text.match(/[\d,.]+/); 
+    if (!match) return;
+    
+    // Remove commas but keep decimal points
+    const numericStr = match[0].replace(/,/g, '');
+    const targetValue = parseFloat(numericStr);
+    
+    if (isNaN(targetValue)) return;
+
     const hasPlus = text.includes('+');
     const hasDollar = text.includes('$');
     const hasPercent = text.includes('%');
     const hasLt = text.includes('<');
+
+    element.classList.add('counter-animated');
     
-    // Extract number
-    const match = text.match(/[\d,]+/);
-    if (!match) return;
-    
-    const targetValue = parseInt(match[0].replace(/,/g, ''));
     const duration = 2000;
     const startTime = performance.now();
     
@@ -89,19 +110,28 @@
       
       // Easing function
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      const currentValue = Math.floor(easeOutQuart * targetValue);
       
-      let displayValue = currentValue.toLocaleString();
+      // Calculate current value (handle decimals if input had decimal)
+      let currentValue;
+      if (numericStr.includes('.')) {
+         currentValue = (easeOutQuart * targetValue).toFixed(1); // Keep 1 decimal for rates
+      } else {
+         currentValue = Math.floor(easeOutQuart * targetValue);
+      }
+      
+      let displayValue = Number(currentValue).toLocaleString();
       if (hasDollar) displayValue = '$' + displayValue;
       if (hasPlus) displayValue += '+';
       if (hasPercent) displayValue += '%';
       if (hasLt) displayValue = '<' + displayValue;
       
       element.textContent = displayValue;
-      element.classList.add('counter-animated');
       
       if (progress < 1) {
         requestAnimationFrame(update);
+      } else {
+        // Ensure exact final text matches original format (re-construct it properly)
+        element.textContent = text; 
       }
     }
     

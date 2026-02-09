@@ -22,6 +22,11 @@ const getTransactionHistory = async (req, res) => {
         totalCredit: 0,
         totalDebit: 0,
         balance: 0,
+        totalTransactions: 0,
+        totalAmount: 0,
+        moneyIn: 0,
+        moneyOut: 0,
+        allTransactions: [],
       });
     }
 
@@ -38,6 +43,7 @@ const getTransactionHistory = async (req, res) => {
 
     // Group transactions by month
     const groupedTransactions = {};
+    const allTransactions = [];
 
     transactions.forEach((txn) => {
       const date = new Date(txn.TransactionTime);
@@ -66,7 +72,7 @@ const getTransactionHistory = async (req, res) => {
       }
 
       // Add transaction with formatted data
-      groupedTransactions[monthYear].transactions.push({
+      const formattedTransaction = {
         transactionId: `TXN-${txn.TransactionID}`,
         date: date.toLocaleDateString("en-US", {
           year: "numeric",
@@ -92,7 +98,10 @@ const getTransactionHistory = async (req, res) => {
         receiverName: txn.ReceiverHolderName,
         receiverAccountNumber: txn.ReceiverAccountNumber,
         receiverBank: txn.ReceiverBank,
-      });
+      };
+
+      groupedTransactions[monthYear].transactions.push(formattedTransaction);
+      allTransactions.push(formattedTransaction);
 
       groupedTransactions[monthYear].count++;
     });
@@ -176,6 +185,11 @@ const getTransactionHistory = async (req, res) => {
       totalCredit: totalCredit,
       totalDebit: totalDebit,
       balance: balance,
+      totalTransactions: totalCount,
+      totalAmount: totalCredit + totalDebit,
+      moneyIn: totalCredit,
+      moneyOut: totalDebit,
+      allTransactions: allTransactions,
     });
   } catch (error) {
     console.error("Error fetching transaction history:", error);
@@ -192,6 +206,11 @@ const getTransactionHistory = async (req, res) => {
       totalCredit: 0,
       totalDebit: 0,
       balance: 0,
+      totalTransactions: 0,
+      totalAmount: 0,
+      moneyIn: 0,
+      moneyOut: 0,
+      allTransactions: [],
       error: "Failed to load transaction history",
     });
   }

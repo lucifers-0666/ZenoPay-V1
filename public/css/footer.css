@@ -189,7 +189,7 @@
   width: 100%;
   border-top: 1px solid rgba(30, 41, 59, 0.2);
   border-bottom: 1px solid rgba(30, 41, 59, 0.2);
-  background: rgba(15, 23, 42, 0.5); /* Keep consistency with main bg */
+  background: #0F172A; /* Solid dark background for better contrast */
   padding: 60px 0;
   margin-bottom: 60px;
 }
@@ -203,14 +203,15 @@
   gap: 40px;
 }
 
-.stat-item {
+/* Scoped to avoid conflict with dashboard.css */
+.stats-bar-section .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.stat-icon-wrapper {
+.stats-bar-section .stat-icon-wrapper {
   font-size: 32px; /* Approx 48px icon container */
   margin-bottom: 16px;
   background: linear-gradient(135deg, #3B82F6, #8B5CF6);
@@ -219,9 +220,10 @@
   -webkit-text-fill-color: transparent;
   color: transparent;
   display: inline-block;
+  filter: brightness(1.2); /* Brighten icons for better visibility */
 }
 
-.stat-number-wrapper {
+.stats-bar-section .stat-number-wrapper {
   font-size: 42px; /* Approx 56px visual weight */
   font-weight: 800;
   color: white;
@@ -232,20 +234,30 @@
   justify-content: center;
 }
 
-.stat-currency {
+.stats-bar-section .stat-number {
+  font-size: 42px;
+  font-weight: 800;
+  color: #FFFFFF !important; /* Ensure white color for visibility */
+  line-height: 1;
+}
+
+.stats-bar-section .stat-currency {
   font-size: 28px;
   margin-right: 4px;
+  color: #FFFFFF;
+  font-weight: 800;
 }
 
-.stat-suffix {
+.stats-bar-section .stat-suffix {
   font-size: 28px;
   margin-left: 2px;
-  color: #94A3B8;
+  color: #CBD5E1; /* Lighter for better visibility */
+  font-weight: 700;
 }
 
-.stat-label {
+.stats-bar-section .stat-label {
   font-size: 14px;
-  color: #94A3B8;
+  color: #CBD5E1; /* Brighter for better visibility */
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;

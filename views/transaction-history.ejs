@@ -6,648 +6,11 @@
     <title>Transaction History - ZenoPay</title>
     <link rel="stylesheet" href="/css/header.css" />
     <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/transaction-history.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <style>
-      /* Modern Paytm-like Transaction History Styles */
-      .transaction-container {
-        padding: 0;
-        max-width: 75%;
-        ;
-        margin: 0;
-       
-        background: #f5f5f5;
-        min-height: 100vh;
-        padding-bottom: 100px;
-      }
-
-      /* Page Header */
-      .page-header {
-        background: linear-gradient(135deg, #018790 0%, #01a0ab 100%);
-        color: white;
-        padding: 1.5rem 1.5rem 2rem;
-        box-shadow: 0 2px 10px rgba(1, 135, 144, 0.2);
-      }
-
-      .page-header h1 {
-        font-size: 1.5rem;
-        margin: 0 0 0.5rem 0;
-        font-weight: 600;
-      }
-
-      .page-header p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.9rem;
-        margin: 0;
-      }
-
-
-
-      /* Filter Section */
-      .filter-section {
-        background: white;
-        margin: 1rem;
-        border-radius: 12px;
-        padding: 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      }
-
-      .filter-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-
-      .filter-header h3 {
-        font-size: 1rem;
-        color: #1b3c53;
-        margin: 0;
-        font-weight: 600;
-      }
-
-      .filter-toggle {
-        background: none;
-        border: none;
-        color: #018790;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-
-      .filter-content {
-        display: none;
-      }
-
-      .filter-content.active {
-        display: block;
-      }
-
-      .filter-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.8rem;
-        margin-bottom: 0.8rem;
-      }
-
-      .filter-group {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .filter-group label {
-        font-size: 0.8rem;
-        color: #666;
-        margin-bottom: 0.4rem;
-        font-weight: 500;
-      }
-
-      .filter-group input,
-      .filter-group select {
-        padding: 0.6rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        background: white;
-      }
-
-      .filter-group input:focus,
-      .filter-group select:focus {
-        outline: none;
-        border-color: #018790;
-      }
-
-      .filter-actions {
-        display: flex;
-        gap: 0.8rem;
-        margin-top: 1rem;
-      }
-
-      .filter-actions button {
-        flex: 1;
-        padding: 0.7rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 0.9rem;
-      }
-
-      .btn-apply {
-        background: #018790;
-        color: white;
-      }
-
-      .btn-reset {
-        background: #f0f0f0;
-        color: #666;
-      }
-
-      /* Search Bar */
-      .search-section {
-        padding: 0 1rem 1rem;
-      }
-
-      .search-wrapper {
-        position: relative;
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 0.8rem 1rem 0.8rem 2.8rem;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        background: white;
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: #018790;
-      }
-
-      .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #999;
-        font-size: 1rem;
-      }
-
-      /* Transaction List */
-      .transaction-list {
-        padding: 0 1rem 1rem;
-      }
-
-      .date-group {
-        margin-bottom: 1.5rem;
-      }
-
-      .month-header-section {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 0.8rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .date-header {
-        font-size: 0.95rem;
-        color: #1b3c53;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .month-info-section {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 0;
-        margin-bottom: 0.8rem;
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-      }
-
-      .month-info-section.expanded {
-        max-height: 200px;
-        padding: 0.8rem 1rem;
-      }
-
-      .month-stats {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-
-      .month-count {
-        font-size: 0.8rem;
-        color: #666;
-        font-weight: 600;
-      }
-
-      .month-totals {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .month-summary-inline {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-      }
-
-      .summary-credit {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #00a86b;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-
-      .summary-debit {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #ff6b6b;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-
-      .month-toggle-icon {
-        font-size: 1rem;
-        color: #666;
-        transition: transform 0.3s ease;
-      }
-
-      .month-toggle-icon.expanded {
-        transform: rotate(180deg);
-      }
-
-      .month-transactions {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-      }
-
-      .month-transactions.expanded {
-        max-height: 10000px;
-      }
-
-      .transaction-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 0.8rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        transition: transform 0.2s, box-shadow 0.2s;
-        cursor: pointer;
-      }
-
-      .transaction-card:active {
-        transform: scale(0.98);
-      }
-
-      .transaction-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      .transaction-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .transaction-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-      }
-
-      .transaction-icon.credit {
-        background: linear-gradient(135deg, #d4f4dd 0%, #b8e6c3 100%);
-        color: #00a86b;
-      }
-
-      .transaction-icon.debit {
-        background: linear-gradient(135deg, #ffe6e6 0%, #ffd1d1 100%);
-        color: #ff6b6b;
-      }
-
-      .transaction-icon.transfer {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        color: #2196f3;
-      }
-
-      .transaction-info {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .transaction-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1b3c53;
-        margin-bottom: 0.3rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .transaction-subtitle {
-        font-size: 0.75rem;
-        color: #999;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-      }
-
-      .transaction-subtitle span {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-
-      .transaction-subtitle i {
-        font-size: 0.7rem;
-      }
-
-      .transaction-amount {
-        text-align: right;
-        flex-shrink: 0;
-      }
-
-      .amount-value {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-      }
-
-      .amount-value.positive {
-        color: #00a86b;
-      }
-
-      .amount-value.negative {
-        color: #ff6b6b;
-      }
-
-      .transaction-status {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .status-success {
-        color: #00a86b;
-      }
-
-      .status-pending {
-        color: #ff9800;
-      }
-
-      .status-failed {
-        color: #ff6b6b;
-      }
-
-      /* Transaction Detail Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        animation: fadeIn 0.2s;
-      }
-
-      .modal.show {
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-      }
-
-      .modal-content {
-        background: white;
-        border-radius: 20px 20px 0 0;
-        width: 100%;
-        max-width: 600px;
-        max-height: 85vh;
-        overflow: hidden;
-        animation: slideUp 0.3s;
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      .modal-header {
-        padding: 1.2rem 1.5rem;
-        border-bottom: 1px solid #f0f0f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(135deg, #018790 0%, #01a0ab 100%);
-        color: white;
-      }
-
-      .modal-header h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-
-      .close-modal {
-        background: rgba(255, 255, 255, 0.2);
-        border: none;
-        color: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-      }
-
-      .modal-body {
-        padding: 1.5rem;
-        overflow-y: auto;
-        max-height: calc(85vh - 130px);
-      }
-
-      .detail-section {
-        margin-bottom: 1.5rem;
-      }
-
-      .detail-section h4 {
-        font-size: 0.85rem;
-        color: #999;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 1rem;
-        font-weight: 600;
-      }
-
-      .detail-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid #f5f5f5;
-      }
-
-      .detail-row:last-child {
-        border-bottom: none;
-      }
-
-      .detail-label {
-        font-size: 0.9rem;
-        color: #666;
-      }
-
-      .detail-value {
-        font-size: 0.9rem;
-        color: #1b3c53;
-        font-weight: 600;
-        text-align: right;
-      }
-
-      .detail-value.highlight {
-        font-size: 1.5rem;
-        color: #018790;
-      }
-
-      .modal-footer {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #f0f0f0;
-        background: #fafafa;
-      }
-
-      .modal-footer button {
-        width: 100%;
-        padding: 0.9rem;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 1rem;
-        background: #018790;
-        color: white;
-      }
-
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: white;
-        border-radius: 12px;
-        margin: 1rem;
-      }
-
-      .empty-state i {
-        font-size: 3.5rem;
-        color: #ddd;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state h3 {
-        color: #666;
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-      }
-
-      .empty-state p {
-        color: #999;
-        font-size: 0.9rem;
-      }
-
-      /* Desktop Responsive */
-      @media (min-width: 768px) {
-        .transaction-container {
-          padding: 2rem;
-          padding-bottom: 2rem;
-        }
-
-        .page-header {
-          border-radius: 15px;
-          margin-bottom: 2rem;
-        }
-
-        .summary-cards {
-          grid-template-columns: repeat(4, 1fr);
-          margin: 0 0 2rem 0;
-        }
-
-        .filter-section {
-          margin: 0 0 2rem 0;
-        }
-
-        .search-section {
-          padding: 0 0 2rem 0;
-        }
-
-        .transaction-list {
-          padding: 0;
-        }
-
-        .transaction-card {
-          padding: 1.2rem 1.5rem;
-        }
-
-        .modal-content {
-          border-radius: 20px;
-          max-width: 500px;
-        }
-
-        .modal.show {
-          align-items: center;
-        }
-      }
-
-      @media (max-width: 767px) {
-        .main-content {
-          padding: 0;
-        }
-
-        .transaction-container {
-          padding-top: 0;
-          max-width: 100%;
-        }
-
-        .page-header {
-          border-radius: 0;
-        }
-
-        .page-header h1 {
-          font-size: 1.3rem;
-        }
-
-        .summary-card .amount {
-          font-size: 1.2rem;
-        }
-
-        .filter-row {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
   </head>
   <body>
     <!-- Sidebar -->
@@ -655,43 +18,69 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Navigation Bar -->
-      <%- include('partials/navbar') %>
+     
 
       <div class="transaction-container">
         <!-- Page Header -->
         <div class="page-header">
-          <h1><i class="fas fa-history"></i> Transaction History</h1>
-          <p>View all your transactions</p>
+          <div class="page-header-content">
+            <div class="page-header-left">
+              <h1><i class="fas fa-history"></i> Transaction History</h1>
+              <p>View and manage all your payments</p>
+            </div>
+            <div class="page-header-right">
+              <button class="time-filter-pill" onclick="showTimeFilterOptions()">
+                <i class="fas fa-calendar-alt"></i> This Month <i class="fas fa-chevron-down"></i>
+              </button>
+              <button class="export-btn" onclick="exportTransactions()">
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Filter Section -->
-        <div class="filter-section">
-          <div class="filter-header">
-            <h3><i class="fas fa-filter"></i> Filter Transactions</h3>
-            <button class="filter-toggle" onclick="toggleFilters()">
-              <span id="filterToggleText">Show</span>
-              <i class="fas fa-chevron-down" id="filterToggleIcon"></i>
-            </button>
-          </div>
-          <div class="filter-content" id="filterContent">
-            <div class="filter-row">
-              <div class="filter-group">
-                <label for="dateFrom">From Date</label>
-                <input type="date" id="dateFrom" />
+        <div class="main-wrapper">
+          <!-- Summary Strip -->
+          <div class="summary-strip">
+            <div class="summary-card">
+              <div class="summary-card-icon blue">
+                <i class="fas fa-list"></i>
               </div>
-              <div class="filter-group">
-                <label for="dateTo">To Date</label>
-                <input type="date" id="dateTo" />
-              </div>
+              <div class="summary-card-value"><%= totalTransactions || 0 %></div>
+              <div class="summary-card-label">Total Transactions</div>
             </div>
-            <div class="filter-row">
+            <div class="summary-card">
+              <div class="summary-card-icon purple">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div class="summary-card-value">₹<%= (Number(totalAmount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-label">Total Amount</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card-icon green">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <div class="summary-card-value">₹<%= (Number(moneyIn) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-label">Money In</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-card-icon orange">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div class="summary-card-value">₹<%= (Number(moneyOut) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-label">Money Out</div>
+            </div>
+          </div>
+
+          <!-- Filter & Search Card -->
+          <div class="filter-section">
+            <div class="filter-row-main">
               <div class="filter-group">
                 <label for="transactionType">Type</label>
                 <select id="transactionType">
                   <option value="">All Types</option>
-                  <option value="credit">Credit</option>
-                  <option value="debit">Debit</option>
+                  <option value="credit">Receive</option>
+                  <option value="debit">Send</option>
                   <option value="transfer">Transfer</option>
                 </select>
               </div>
@@ -704,399 +93,165 @@
                   <option value="failed">Failed</option>
                 </select>
               </div>
+              <div class="filter-group">
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod">
+                  <option value="">All Methods</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="bank">Bank Transfer</option>
+                  <option value="wallet">Wallet</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="dateFrom">From Date</label>
+                <input type="date" id="dateFrom" />
+              </div>
             </div>
-            <div class="filter-actions">
-              <button class="btn-apply" onclick="applyFilters()">
-                <i class="fas fa-check"></i> Apply
-              </button>
-              <button class="btn-reset" onclick="resetFilters()">
+            <div class="filter-divider"></div>
+            <div class="filter-row-bottom">
+              <div class="search-wrapper">
+                <label for="searchInput">Search</label>
+                <i class="fas fa-search search-icon"></i>
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Search by name, ID, or note…"
+                  id="searchInput"
+                  oninput="searchTransactions()"
+                />
+              </div>
+              <button class="reset-btn" onclick="resetFilters()">
                 <i class="fas fa-undo"></i> Reset
               </button>
             </div>
           </div>
-        </div>
 
-        <!-- Search Bar -->
-        <div class="search-section">
-          <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search transactions..."
-              id="searchInput"
-              oninput="searchTransactions()"
-            />
-          </div>
-        </div>
+          <!-- Transaction Table -->
+          <div class="transaction-list">
+            <% if (hasTransactions) { %>
+              <div class="transactions-table-wrapper">
+                <table class="transactions-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px;"></th>
+                      <th>Date & Time</th>
+                      <th>Description</th>
+                      <th>Payment Method</th>
+                      <th style="text-align: right;">Amount</th>
+                      <th style="text-align: center;">Status</th>
+                      <th style="text-align: center; width: 50px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% Object.values(allTransactions || []).forEach(txn => { %>
+                      <tr class="transaction-row" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
+                        <td class="txn-icon-cell">
+                          <div class="txn-icon <%= txn.type || 'transfer' %>">
+                            <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
+                          </div>
+                        </td>
+                        <td>
+                          <div style="font-size: 0.85rem; font-weight: 600;">
+                            <%= txn.date %><br>
+                            <span style="color: #9CA3AF; font-size: 0.8rem;"><%= txn.time || 'N/A' %></span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="txn-description">
+                            <div class="txn-name"><%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %></div>
+                            <div class="txn-note"><%= txn.note || txn.reference || 'No note' %></div>
+                          </div>
+                        </td>
+                        <td class="txn-method"><%= txn.paymentMethod || 'Unknown' %></td>
+                        <td class="txn-amount <%= txn.isCredit ? 'positive' : 'negative' %>">
+                          <%= txn.isCredit ? '+' : '-' %>₹<%= (Number(txn.amount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
+                        </td>
+                        <td style="text-align: center;">
+                          <span class="status-badge status-<%= txn.status || 'pending' %>">
+                            <i class="fas <%= txn.status === 'success' ? 'fa-check-circle' : txn.status === 'pending' ? 'fa-clock' : 'fa-times-circle' %>"></i>
+                            <%= txn.status || 'pending' %>
+                          </span>
+                        </td>
+                        <td class="txn-actions" onclick="event.stopPropagation();">
+                          <button class="action-menu" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
+                            <i class="fas fa-ellipsis-v"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
 
-        <!-- Transaction List -->
-        <div class="transaction-list">
-          <% if (hasTransactions) { %>
-            <% let monthIndex = 0; %>
-            <% for (const [monthYear, data] of Object.entries(groupedTransactions)) { %>
-              <% const monthId = monthYear.toLowerCase().replace(/\s+/g, ''); %>
-              <% const isFirstMonth = monthIndex === 0; %>
-              <div class="date-group">
-                <div class="month-header-section" onclick="toggleMonth('<%= monthId %>')">
-                  <div class="date-header">
-                    <%= monthYear %>
-                  </div>
-                  <div class="month-summary-inline">
-                    <i class="fas fa-chevron-down month-toggle-icon <%= isFirstMonth ? 'expanded' : '' %>" id="toggle-<%= monthId %>"></i>
-                  </div>
-                </div>
-                <div class="month-info-section <%= isFirstMonth ? 'expanded' : '' %>" id="info-<%= monthId %>">
-                  <div class="month-stats">
-                    <span class="month-count"><%= data.count %> transaction<%= data.count !== 1 ? 's' : '' %></span>
-                    <div class="month-totals">
-                      <% if (data.totalCredit > 0) { %>
-                        <span class="summary-credit"><i class="fas fa-arrow-down"></i> +₹<%= data.totalCredit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
-                      <% } %>
-                      <% if (data.totalDebit > 0) { %>
-                        <span class="summary-debit"><i class="fas fa-arrow-up"></i> -₹<%= data.totalDebit.toLocaleString('en-IN', {maximumFractionDigits: 2}) %></span>
-                      <% } %>
-                    </div>
-                  </div>
-                </div>
-                <div class="month-transactions <%= isFirstMonth ? 'expanded' : '' %>" id="month-<%= monthId %>">
-                  <% data.transactions.forEach(txn => { %>
-                    <div class="transaction-card" onclick='viewTransaction(<%= JSON.stringify(txn) %>)'>
-                      <div class="transaction-row">
-                        <div class="transaction-icon <%= txn.type %>">
-                          <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
+              <!-- Mobile Stacked Cards View -->
+              <div class="transaction-cards-mobile">
+                <% Object.values(allTransactions || []).forEach(txn => { %>
+                  <div class="transaction-card-mobile" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
+                    <div class="transaction-card-mobile-header">
+                      <div class="txn-icon <%= txn.type || 'transfer' %>">
+                        <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
+                      </div>
+                      <div class="transaction-card-mobile-info">
+                        <div class="transaction-card-mobile-name"><%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %></div>
+                        <div class="transaction-card-mobile-date"><%= txn.date %></div>
+                      </div>
+                      <div class="transaction-card-mobile-amount">
+                        <div class="transaction-card-mobile-value <%= txn.isCredit ? 'positive' : 'negative' %>">
+                          <%= txn.isCredit ? '+' : '-' %>₹<%= (Number(txn.amount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
                         </div>
-                        <div class="transaction-info">
-                          <div class="transaction-title">
-                            <%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %>
-                          </div>
-                          <div class="transaction-subtitle">
-                            <span><%= txn.date %></span>
-                          </div>
-                        </div>
-                        <div class="transaction-amount">
-                          <div class="amount-value <%= txn.isCredit ? 'positive' : 'negative' %>">
-                            <%= txn.isCredit ? '+' : '-' %>₹<%= txn.amount.toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
-                          </div>
-                          <div class="transaction-status status-<%= txn.status %>">
-                            <%= txn.status %>
-                          </div>
-                        </div>
+                        <span class="transaction-card-mobile-status status-<%= txn.status || 'pending' %>">
+                          <%= txn.status || 'pending' %>
+                        </span>
                       </div>
                     </div>
-                  <% }); %>
-                </div>
+                  </div>
+                <% }); %>
               </div>
-              <% monthIndex++; %>
+            <% } else { %>
+              <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Transactions Yet</h3>
+                <p>Your transaction history will appear here once you start using ZenoPay</p>
+                <a href="/send-money" style="text-decoration: none;">
+                  <button class="empty-state-btn">
+                    <i class="fas fa-paper-plane"></i> Start Your First Payment
+                  </button>
+                </a>
+              </div>
             <% } %>
-          <% } else { %>
-            <div class="empty-state">
-              <i class="fas fa-receipt"></i>
-              <h3>No Transactions Yet</h3>
-              <p>Your transaction history will appear here</p>
-            </div>
-          <% } %>
+          </div>
         </div>
       </div>
     </main>
 
-    <!-- Transaction Detail Modal -->
-    <div id="transactionModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3><i class="fas fa-receipt"></i> Transaction Details</h3>
-          <button class="close-modal" onclick="closeModal()">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="modal-body" id="modalBody">
-          <!-- Content will be dynamically inserted -->
-        </div>
-        <div class="modal-footer">
-          <button onclick="closeModal()">
-            <i class="fas fa-check"></i> Close
-          </button>
-        </div>
+    <!-- Transaction Detail Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div id="transactionDrawer" class="transaction-drawer">
+      <div class="drawer-header">
+        <h3><i class="fas fa-receipt"></i> Transaction Details</h3>
+        <button class="drawer-close" onclick="closeDrawer()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="drawer-body" id="drawerBody">
+        <!-- Content will be dynamically inserted -->
+      </div>
+      <div class="drawer-footer">
+        <button class="drawer-btn drawer-btn-secondary" onclick="downloadReceipt()">
+          <i class="fas fa-download"></i> Receipt
+        </button>
+        <button class="drawer-btn drawer-btn-primary" onclick="raiseDispute()">
+          <i class="fas fa-flag"></i> Dispute
+        </button>
       </div>
     </div>
 
     <%- include('partials/MobileNav') %>
+    <%- include('partials/footer') %>
+
 
     <script src="/js/header.js"></script>
-    <script>
-      // Toggle Filters
-      function toggleFilters() {
-        const content = document.getElementById('filterContent');
-        const icon = document.getElementById('filterToggleIcon');
-        const text = document.getElementById('filterToggleText');
-        
-        content.classList.toggle('active');
-        
-        if (content.classList.contains('active')) {
-          icon.style.transform = 'rotate(180deg)';
-          text.textContent = 'Hide';
-        } else {
-          icon.style.transform = 'rotate(0deg)';
-          text.textContent = 'Show';
-        }
-      }
-
-      // Toggle Month Transactions
-      function toggleMonth(monthId) {
-        const monthTransactions = document.getElementById('month-' + monthId);
-        const monthInfo = document.getElementById('info-' + monthId);
-        const toggleIcon = document.getElementById('toggle-' + monthId);
-        
-        if (monthTransactions.classList.contains('expanded')) {
-          monthTransactions.classList.remove('expanded');
-          monthInfo.classList.remove('expanded');
-          toggleIcon.classList.remove('expanded');
-        } else {
-          monthTransactions.classList.add('expanded');
-          monthInfo.classList.add('expanded');
-          toggleIcon.classList.add('expanded');
-        }
-      }
-
-      // Apply Filters
-      function applyFilters() {
-        const dateFrom = document.getElementById('dateFrom').value;
-        const dateTo = document.getElementById('dateTo').value;
-        const type = document.getElementById('transactionType').value;
-        const status = document.getElementById('status').value;
-
-        const cards = document.querySelectorAll('.transaction-card');
-        const monthGroups = document.querySelectorAll('.date-group');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-          let showCard = true;
-          
-          // Get transaction data from the card
-          const transactionText = card.textContent;
-          const dateText = card.querySelector('.transaction-subtitle span').textContent;
-          const transactionType = card.querySelector('.transaction-icon').classList.contains('credit') ? 'credit' : 'debit';
-          
-          // Parse the transaction date
-          const transactionDate = new Date(dateText);
-          
-          // Filter by date range
-          if (dateFrom) {
-            const fromDate = new Date(dateFrom);
-            if (transactionDate < fromDate) {
-              showCard = false;
-            }
-          }
-          
-          if (dateTo) {
-            const toDate = new Date(dateTo);
-            toDate.setHours(23, 59, 59, 999); // End of day
-            if (transactionDate > toDate) {
-              showCard = false;
-            }
-          }
-          
-          // Filter by transaction type
-          if (type && transactionType !== type) {
-            showCard = false;
-          }
-          
-          // Filter by status (all are success for now)
-          if (status && status !== 'success') {
-            showCard = false;
-          }
-          
-          card.style.display = showCard ? 'block' : 'none';
-          if (showCard) visibleCount++;
-        });
-
-        // Hide month groups that have no visible transactions
-        monthGroups.forEach(group => {
-          const monthTransactions = group.querySelector('.month-transactions');
-          const visibleCards = Array.from(monthTransactions.querySelectorAll('.transaction-card'))
-            .filter(card => card.style.display !== 'none');
-          
-          if (visibleCards.length === 0) {
-            group.style.display = 'none';
-          } else {
-            group.style.display = 'block';
-          }
-        });
-
-        showToast(`Filters applied - ${visibleCount} transaction${visibleCount !== 1 ? 's' : ''} found`, 'success');
-      }
-
-      // Reset Filters
-      function resetFilters() {
-        document.getElementById('dateFrom').value = '';
-        document.getElementById('dateTo').value = '';
-        document.getElementById('transactionType').value = '';
-        document.getElementById('status').value = '';
-        
-        // Show all cards
-        const cards = document.querySelectorAll('.transaction-card');
-        cards.forEach(card => {
-          card.style.display = 'block';
-        });
-        
-        // Show all month groups
-        const monthGroups = document.querySelectorAll('.date-group');
-        monthGroups.forEach(group => {
-          group.style.display = 'block';
-        });
-        
-        // Reset search input
-        document.getElementById('searchInput').value = '';
-        
-        showToast('Filters reset', 'info');
-      }
-
-      // Search Transactions
-      function searchTransactions() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const cards = document.querySelectorAll('.transaction-card');
-        
-        cards.forEach(card => {
-          const text = card.textContent.toLowerCase();
-          if (text.includes(searchTerm)) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      }
-
-      // View Transaction Details
-      let currentTransaction = null;
-
-      function viewTransaction(txn) {
-        currentTransaction = txn;
-        const modal = document.getElementById('transactionModal');
-        const modalBody = document.getElementById('modalBody');
-
-        const statusColor = txn.status === 'success' ? '#00a86b' : txn.status === 'pending' ? '#ff9800' : '#ff6b6b';
-        const amountColor = txn.isCredit ? '#00a86b' : '#ff6b6b';
-
-        modalBody.innerHTML = `
-          <div class="detail-section">
-            <h4>Transaction Information</h4>
-            <div class="detail-row">
-              <span class="detail-label">Transaction ID</span>
-              <span class="detail-value">${txn.transactionId}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Date & Time</span>
-              <span class="detail-value">${txn.date} ${txn.time}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Type</span>
-              <span class="detail-value">${txn.type.charAt(0).toUpperCase() + txn.type.slice(1)}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Status</span>
-              <span class="detail-value" style="color: ${statusColor}">${txn.status.toUpperCase()}</span>
-            </div>
-          </div>
-
-          <div class="detail-section">
-            <h4>${txn.isCredit ? 'Received From' : 'Sent To'}</h4>
-            ${txn.isCredit && txn.senderName ? `
-            <div class="detail-row">
-              <span class="detail-label">Name</span>
-              <span class="detail-value">${txn.senderName}</span>
-            </div>
-            ` : ''}
-            ${!txn.isCredit && txn.receiverName ? `
-            <div class="detail-row">
-              <span class="detail-label">Name</span>
-              <span class="detail-value">${txn.receiverName}</span>
-            </div>
-            ` : ''}
-            ${txn.isCredit && txn.senderAccountNumber ? `
-            <div class="detail-row">
-              <span class="detail-label">Account Number</span>
-              <span class="detail-value">${txn.senderAccountNumber}</span>
-            </div>
-            ` : ''}
-            ${!txn.isCredit && txn.receiverAccountNumber ? `
-            <div class="detail-row">
-              <span class="detail-label">Account Number</span>
-              <span class="detail-value">${txn.receiverAccountNumber}</span>
-            </div>
-            ` : ''}
-            ${txn.isCredit && txn.senderBank ? `
-            <div class="detail-row">
-              <span class="detail-label">Bank</span>
-              <span class="detail-value">${txn.senderBank}</span>
-            </div>
-            ` : ''}
-            ${!txn.isCredit && txn.receiverBank ? `
-            <div class="detail-row">
-              <span class="detail-label">Bank</span>
-              <span class="detail-value">${txn.receiverBank}</span>
-            </div>
-            ` : ''}
-            ${txn.bank ? `
-            <div class="detail-row">
-              <span class="detail-label">Bank</span>
-              <span class="detail-value">${txn.bank}</span>
-            </div>
-            ` : ''}
-          </div>
-
-          <div class="detail-section">
-            <h4>Payment Details</h4>
-            <div class="detail-row">
-              <span class="detail-label">Description</span>
-              <span class="detail-value">${txn.description || 'N/A'}</span>
-            </div>
-            ${txn.paymentMethod ? `
-            <div class="detail-row">
-              <span class="detail-label">Payment Method</span>
-              <span class="detail-value">${txn.paymentMethod}</span>
-            </div>
-            ` : ''}
-            ${txn.reference ? `
-            <div class="detail-row">
-              <span class="detail-label">Reference</span>
-              <span class="detail-value">${txn.reference}</span>
-            </div>
-            ` : ''}
-            <div class="detail-row">
-              <span class="detail-label">Amount</span>
-              <span class="detail-value highlight" style="color: ${amountColor}">
-                ${txn.isCredit ? '+' : '-'}₹${txn.amount.toLocaleString('en-IN', {maximumFractionDigits: 2})}
-              </span>
-            </div>
-          </div>
-        `;
-
-        modal.classList.add('show');
-      }
-
-      // Close Modal
-      function closeModal() {
-        const modal = document.getElementById('transactionModal');
-        modal.classList.remove('show');
-      }
-
-      // Close modal when clicking outside
-      window.onclick = function(event) {
-        const modal = document.getElementById('transactionModal');
-        if (event.target === modal) {
-          closeModal();
-        }
-      };
-
-      // Toast Notification
-      function showToast(message, type = 'info') {
-        if (typeof window.showToast === 'function') {
-          window.showToast(message, type);
-        } else {
-          console.log(`Toast: ${message} (${type})`);
-        }
-      }
-    </script>
-    <script src="/js/header.js"></script>
+    <script src="/js/transaction-history.js"></script>
   </body>
 </html>
