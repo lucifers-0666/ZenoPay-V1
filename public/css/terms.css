@@ -89,6 +89,14 @@ body {
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -189,13 +197,17 @@ body {
   max-width: 1280px;
   margin: 0 auto;
   padding: 60px 40px;
+  position: relative;
+  overflow: visible;
 }
 
 .terms-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 48px;
-  align-items: start;
+  /* align-items: start; REMOVED to allow sidebar to stretch */
+  position: relative;
+  overflow: visible;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -204,16 +216,23 @@ body {
 
 .terms-sidebar {
   position: relative;
+  /* align-self: flex-start; REMOVED to allow sidebar to stretch */
 }
 
 .sidebar-sticky {
+  position: -webkit-sticky;
   position: sticky;
   top: 100px;
+  /* align-self removed - it conflicts with position: sticky */
+  height: auto;
+  overflow: visible;
   background: var(--bg-light);
   border-radius: 16px;
   padding: 24px;
   border: 1px solid var(--border-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  will-change: transform;
 }
 
 .sidebar-title {
@@ -314,6 +333,72 @@ body {
 
 .action-btn i {
   font-size: 14px;
+}
+
+/* Mobile TOC Toggle Button */
+.mobile-toc-toggle {
+  display: none;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: transform 0.2s ease;
+}
+
+.mobile-toc-toggle:hover {
+  transform: translateY(-2px);
+}
+
+.mobile-toc-toggle:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .mobile-toc-toggle {
+    display: block;
+  }
+  
+  .toc-nav.mobile-hidden {
+    display: none !important;
+  }
+}
+
+/* Section Animation Classes (No transform to avoid breaking sticky) */
+.section-animate {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.section-animate.section-visible {
+  opacity: 1;
+}
+
+/* Copy Link Tooltip */
+.copy-link-tooltip {
+  position: absolute;
+  background: #10B981;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+  animation: fadeInOut 2s ease;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-10px); }
+  15% { opacity: 1; transform: translateX(0); }
+  85% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(10px); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -684,7 +769,8 @@ body {
    RESPONSIVE DESIGN
    ═══════════════════════════════════════════════════════════════════ */
 
-@media (max-width: 1024px) {
+/* Keep sticky behavior until mobile/tablet sizes */
+@media (max-width: 768px) {
   .terms-layout {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -696,6 +782,7 @@ body {
 
   .sidebar-sticky {
     position: static;
+    top: auto;
   }
 
   .sidebar-actions {

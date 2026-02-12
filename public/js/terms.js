@@ -66,11 +66,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Remove active class from all links
     tocLinks.forEach(link => {
       link.classList.remove('active');
+      link.removeAttribute('aria-current');
     });
     
     // Add active class to current link
     if (activeLink) {
       activeLink.classList.add('active');
+      activeLink.setAttribute('aria-current', 'true');
     }
   }
   
@@ -124,47 +126,39 @@ document.addEventListener('DOMContentLoaded', function() {
   
   const sidebar = document.getElementById('termsSidebar');
   
-  if (sidebar && window.innerWidth < 1024) {
-    // Create toggle button for mobile
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'mobile-toc-toggle';
-    toggleBtn.innerHTML = '<i class="fas fa-bars"></i> Table of Contents';
-    toggleBtn.style.cssText = `
-      display: block;
-      width: 100%;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 16px;
-    `;
-    
-    const stickyContent = sidebar.querySelector('.sidebar-sticky');
-    const tocNav = sidebar.querySelector('.toc-nav');
-    
-    if (tocNav) {
-      // Hide TOC by default on mobile
-      tocNav.style.display = 'none';
+  // Only apply mobile behavior on actual mobile devices, not desktop
+  function setupMobileTOC() {
+    if (sidebar && window.innerWidth < 768) {
+      // Create toggle button for mobile using CSS classes instead of inline styles
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'mobile-toc-toggle';
+      toggleBtn.innerHTML = '<i class="fas fa-bars"></i> Table of Contents';
       
-      // Insert toggle button
-      stickyContent.insertBefore(toggleBtn, tocNav);
+      const stickyContent = sidebar.querySelector('.sidebar-sticky');
+      const tocNav = sidebar.querySelector('.toc-nav');
       
-      // Toggle TOC visibility
-      toggleBtn.addEventListener('click', function() {
-        if (tocNav.style.display === 'none') {
-          tocNav.style.display = 'flex';
-          toggleBtn.innerHTML = '<i class="fas fa-times"></i> Close';
-        } else {
-          tocNav.style.display = 'none';
-          toggleBtn.innerHTML = '<i class="fas fa-bars"></i> Table of Contents';
-        }
-      });
+      if (tocNav && !document.querySelector('.mobile-toc-toggle')) {
+        // Add class instead of inline style to avoid breaking sticky
+        tocNav.classList.add('mobile-hidden');
+        
+        // Insert toggle button
+        stickyContent.insertBefore(toggleBtn, tocNav);
+        
+        // Toggle TOC visibility
+        toggleBtn.addEventListener('click', function() {
+          tocNav.classList.toggle('mobile-hidden');
+          if (tocNav.classList.contains('mobile-hidden')) {
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i> Table of Contents';
+          } else {
+            toggleBtn.innerHTML = '<i class="fas fa-times"></i> Close';
+          }
+        });
+      }
     }
   }
+  
+  // Run on load
+  setupMobileTOC();
   
   // ═══════════════════════════════════════════════════════════════════
   // READING PROGRESS BAR (Optional)
@@ -206,19 +200,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const animateOnScrollCallback = (entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
+        // Use class-based animation instead of inline transform
+        // to avoid creating new containing block that breaks sticky
+        entry.target.classList.add('section-visible');
       }
     });
   };
   
   const animateObserver = new IntersectionObserver(animateOnScrollCallback, animateOnScrollOptions);
   
-  // Apply animation to sections
-  sections.forEach((section, index) => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(20px)';
-    section.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+  // Apply animation to sections using class instead of inline styles
+  sections.forEach((section) => {
+    section.classList.add('section-animate');
     animateObserver.observe(section);
   });
   
@@ -234,31 +227,34 @@ document.addEventListener('DOMContentLoaded', function() {
       title.style.cursor = 'pointer';
       title.title = 'Click to copy link to this section';
       
-      title.addEventListener('click', function() {
+      title.addEventListener('click', function(e) {
         const sectionUrl = `${window.location.origin}${window.location.pathname}#${section.id}`;
         
         // Copy to clipboard
         navigator.clipboard.writeText(sectionUrl).then(() => {
-          // Show tooltip
+          // Show tooltip using class-based positioning
           const tooltip = document.createElement('span');
+          tooltip.className = 'copy-link-tooltip';
           tooltip.textContent = '✓ Link copied!';
-          tooltip.style.cssText = `
-            position: absolute;
-            background: #10B981;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-left: 12px;
-            animation: fadeInOut 2s ease;
-          `;
           
+          // Position near cursor
+          const rect = title.getBoundingClientRect();
+          tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+          tooltip.style.top = (e.clientY - rect.top) + 'px';
+          
+          // Make title relative for tooltip positioning
+          const originalPosition = title.style.position;
           title.style.position = 'relative';
           title.appendChild(tooltip);
           
           setTimeout(() => {
             tooltip.remove();
+            // Restore original position if it was set
+            if (originalPosition) {
+              title.style.position = originalPosition;
+            } else {
+              title.style.removeProperty('position');
+            }
           }, 2000);
         }).catch(err => {
           console.error('Failed to copy link:', err);

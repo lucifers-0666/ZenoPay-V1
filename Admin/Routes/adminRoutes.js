@@ -13,6 +13,7 @@ const AdminBankController = require("../Controllers/AdminBankController");
 const AdminTransactionController = require("../Controllers/AdminTransactionController");
 const AdminPaymentGatewayController = require("../Controllers/AdminPaymentGatewayController");
 const AdminUserController = require("../Controllers/AdminUserController");
+const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyController");
 
 // ============ AUTHENTICATION ROUTES (Public) ============
 router.get("/login", AdminAuthController.getLogin);
@@ -103,5 +104,18 @@ router.post("/settings/payment-gateway/fees", requirePermission("payment_gateway
 router.post("/settings/payment-gateway/toggle-method", requirePermission("payment_gateway", "update"), AdminPaymentGatewayController.togglePaymentMethod);
 router.post("/settings/payment-gateway/advanced", requirePermission("payment_gateway", "update"), AdminPaymentGatewayController.updateAdvancedSettings);
 router.get("/settings/payment-gateway/config", requirePermission("payment_gateway", "view"), AdminPaymentGatewayController.getPaymentGatewayConfig);
+
+// ============ PRIVACY POLICY MANAGEMENT ROUTES ============
+router.get("/privacy-policy", requirePermission("settings", "view"), AdminPrivacyPolicyController.getPrivacyPolicyDashboard);
+router.get("/privacy-policy/create", requirePermission("settings", "update"), AdminPrivacyPolicyController.getCreatePolicyForm);
+router.post("/privacy-policy/create", requirePermission("settings", "update"), AdminPrivacyPolicyController.createPolicy);
+router.get("/privacy-policy/:id/edit", requirePermission("settings", "update"), AdminPrivacyPolicyController.getEditPolicyForm);
+router.put("/privacy-policy/:id", requirePermission("settings", "update"), AdminPrivacyPolicyController.updatePolicy);
+router.post("/privacy-policy/:id/publish", requirePermission("settings", "update"), AdminPrivacyPolicyController.publishPolicy);
+router.delete("/privacy-policy/:id", requirePermission("settings", "delete"), AdminPrivacyPolicyController.deletePolicy);
+router.post("/privacy-policy/:id/archive", requirePermission("settings", "update"), AdminPrivacyPolicyController.archivePolicy);
+router.get("/privacy-policy/:id/preview", requirePermission("settings", "view"), AdminPrivacyPolicyController.previewPolicy);
+router.get("/privacy-policy/compare", requirePermission("settings", "view"), AdminPrivacyPolicyController.compareVersions);
+router.get("/privacy-policy/:version/analytics", requirePermission("settings", "view"), AdminPrivacyPolicyController.getConsentAnalytics);
 
 module.exports = router;

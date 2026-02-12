@@ -30,6 +30,7 @@ const ReferralController = require("../Controllers/ReferralController");
 const EmailVerificationController = require("../Controllers/EmailVerificationController");
 const LegalPagesController = require("../Controllers/LegalPagesController");
 const ContactController = require("../Controllers/ContactController");
+const PrivacyPolicyController = require("../Controllers/PrivacyPolicyController");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -300,7 +301,13 @@ router.get("/ref/:code", ReferralController.handleReferralLink);
 
 // Legal Pages Routes
 router.get("/terms", LegalPagesController.getTermsPage);
-router.get("/privacy", LegalPagesController.getPrivacyPage);
+router.get("/privacy", PrivacyPolicyController.getPrivacyPolicy); // Dynamic Privacy Policy
+router.get("/privacy-policy", PrivacyPolicyController.getPrivacyPolicy); // Alias
+router.get("/privacy-policy/archive", PrivacyPolicyController.getPrivacyPolicyArchive);
+router.get("/privacy-policy/v/:version", PrivacyPolicyController.getPrivacyPolicyVersion);
+router.get("/privacy-policy/compare", PrivacyPolicyController.comparePrivacyPolicyVersions);
+router.get("/privacy-policy/download", PrivacyPolicyController.downloadPrivacyPolicyPDF);
+router.post("/api/privacy-policy/accept", PrivacyPolicyController.acceptPrivacyPolicy);
 router.get("/about", LegalPagesController.getAboutPage);
 router.get("/help", LegalPagesController.getHelpPage);
 router.get("/faq", LegalPagesController.getHelpPage); // Alias for /help
