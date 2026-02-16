@@ -8,6 +8,7 @@ const path = require("path");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
+const blogRoutes = require("./Routes/blogRoutes");
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
@@ -127,6 +128,9 @@ try {
 
 // User routes
 app.use(require("./Routes/routes"));
+
+// Blog routes
+app.use("/blog", blogRoutes);
 
 // Error handling middleware
 // 404 handler - must be after all other routes
