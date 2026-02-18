@@ -1,0 +1,1371 @@
+/* ═══════════════════════════════════════════════════════════════════
+   PRICING PAGE - ZENOPAY
+   Transparent, conversion-focused pricing page with blue color scheme
+   ═══════════════════════════════════════════════════════════════════ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Primary Colors */
+  --primary: #3B82F6;
+  --primary-dark: #2563EB;
+  --primary-light: #60A5FA;
+  --secondary: #8B5CF6;
+  --secondary-dark: #7C3AED;
+  
+  /* Success & Accent Colors */
+  --success: #10B981;
+  --success-dark: #059669;
+  --accent: #F59E0B;
+  --accent-dark: #D97706;
+  
+  /* Neutral Colors */
+  --white: #ffffff;
+  --slate-50: #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #1F2937;
+  
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 40px;
+  --spacing-2xl: 80px;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 40px rgba(59, 130, 246, 0.15);
+  --shadow-button: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--slate-600);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 1: HERO SECTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.pricing-hero {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  padding: 80px 40px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pricing-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.pricing-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.breadcrumb a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: white;
+}
+
+.breadcrumb-separator {
+  font-size: 10px;
+}
+
+.breadcrumb-current {
+  color: white;
+  font-weight: 600;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 12px 24px;
+  border-radius: 50px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.trust-badge i {
+  font-size: 18px;
+}
+
+/* Billing Toggle */
+.billing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.toggle-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.toggle-label.active {
+  color: white;
+}
+
+.savings-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 32px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: 0.4s;
+  border-radius: 34px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.toggle-input:checked + .toggle-slider:before {
+  transform: translateX(28px);
+  background-color: var(--primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 2: PRICING CARDS GRID
+   ═══════════════════════════════════════════════════════════════════ */
+
+.pricing-section {
+  background: var(--slate-50);
+  padding: 80px 20px;
+}
+
+.pricing-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+/* Individual Pricing Card */
+.pricing-card {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pricing-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+/* Popular Badge */
+.pricing-card.popular {
+  border: 2px solid var(--primary);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Recommended Badge */
+.pricing-card.recommended {
+  border: 2px solid var(--primary);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Card Header */
+.card-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.plan-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+}
+
+.starter-icon {
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+}
+
+.professional-icon {
+  background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+}
+
+.business-icon {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+}
+
+.enterprise-icon {
+  background: linear-gradient(135deg, #1F2937 0%, #4B5563 100%);
+}
+
+.plan-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: 8px;
+}
+
+.plan-description {
+  font-size: 14px;
+  color: var(--slate-500);
+}
+
+/* Pricing Display */
+.pricing-display {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.price-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.currency {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin-top: 8px;
+}
+
+.price {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--slate-900);
+  line-height: 1;
+}
+
+.period {
+  font-size: 16px;
+  color: var(--slate-500);
+  align-self: center;
+  margin-top: 12px;
+}
+
+.custom-pricing .custom-text {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.starting-price {
+  margin-top: 8px;
+}
+
+.starting-price p {
+  font-size: 14px;
+  color: var(--slate-600);
+}
+
+.yearly-info {
+  margin-top: 8px;
+}
+
+.yearly-total {
+  font-size: 18px;
+  color: var(--slate-600);
+  font-weight: 600;
+}
+
+.yearly-savings {
+  font-size: 14px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* Transaction Fees Box */
+.transaction-fees {
+  background: var(--slate-50);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--slate-600);
+}
+
+.transaction-fees i {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+/* Volume Limit */
+.volume-limit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--slate-500);
+  margin-bottom: 24px;
+  justify-content: center;
+}
+
+.volume-limit i {
+  color: var(--primary);
+}
+
+/* CTA Button */
+.cta-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  margin-bottom: 32px;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+  box-shadow: var(--shadow-button);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.secondary-btn {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.secondary-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Features List */
+.features-list {
+  border-top: 1px solid var(--slate-200);
+  padding-top: 24px;
+  flex-grow: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.feature-item i {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.feature-item.included i {
+  color: var(--success);
+}
+
+.feature-item.included span {
+  color: var(--slate-600);
+}
+
+.feature-item.not-included i {
+  color: var(--slate-300);
+}
+
+.feature-item.not-included span {
+  color: var(--slate-400);
+  text-decoration: line-through;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 3: GST BENEFITS BANNER
+   ═══════════════════════════════════════════════════════════════════ */
+
+.gst-benefits-section {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  padding: 60px 40px;
+  margin: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.gst-benefits-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.gst-benefits-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.gst-icon-side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gst-badge-illustration {
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.gst-badge-illustration i {
+  font-size: 80px;
+  color: white;
+}
+
+.gst-check {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 50px;
+  height: 50px;
+  background: var(--success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid white;
+}
+
+.gst-check i {
+  font-size: 24px;
+  color: white;
+}
+
+.gst-content-side {
+  color: white;
+}
+
+.gst-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.gst-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 24px;
+}
+
+.gst-benefits-list {
+  margin-bottom: 32px;
+}
+
+.gst-benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: white;
+}
+
+.gst-benefit-item i {
+  font-size: 20px;
+  color: var(--success);
+  background: white;
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.gst-cta-button {
+  background: white;
+  color: var(--primary);
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.gst-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 4: DETAILED COMPARISON TABLE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.comparison-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.comparison-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.comparison-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--slate-900);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.table-wrapper {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.comparison-table thead tr {
+  background: var(--slate-50);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.comparison-table th {
+  padding: 20px;
+  font-weight: 700;
+  color: var(--slate-900);
+  border-bottom: 2px solid var(--slate-200);
+  text-align: center;
+}
+
+.comparison-table th.feature-column {
+  text-align: left;
+  width: 40%;
+}
+
+.comparison-table th.popular-column {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  color: var(--primary);
+  border-left: 2px solid var(--primary);
+  border-right: 2px solid var(--primary);
+}
+
+.comparison-table tbody tr {
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.comparison-table tbody tr:nth-child(even) {
+  background: var(--slate-50);
+}
+
+.comparison-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.comparison-table td {
+  padding: 16px 20px;
+  text-align: center;
+  color: var(--slate-600);
+}
+
+.comparison-table td.feature-name {
+  text-align: left;
+  font-weight: 500;
+  color: var(--slate-700);
+}
+
+.category-header td {
+  background: #EFF6FF !important;
+  font-weight: 700;
+  color: var(--slate-900);
+  padding: 12px 20px;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-muted {
+  color: var(--slate-300);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 5: FAQ SECTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.faq-section {
+  background: var(--slate-50);
+  padding: 80px 20px;
+}
+
+.faq-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--slate-900);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faq-item {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.faq-question {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--slate-900);
+  user-select: none;
+}
+
+.faq-question i {
+  color: var(--primary);
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.faq-item.active .faq-question i {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 24px;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  padding: 0 24px 24px;
+}
+
+.faq-answer p {
+  font-size: 16px;
+  color: var(--slate-600);
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 6: ENTERPRISE CONTACT SECTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.enterprise-contact-section {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  padding: 80px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.enterprise-contact-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.enterprise-contact-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.enterprise-title {
+  font-size: 40px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.enterprise-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 32px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.enterprise-cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.enterprise-btn {
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.enterprise-btn.primary {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.enterprise-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.enterprise-btn.secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.enterprise-btn.secondary:hover {
+  background: white;
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.trust-indicators {
+  margin-top: 32px;
+}
+
+.trust-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 7: TRUST & SECURITY SECTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trust-security-section {
+  background: white;
+  padding: 60px 20px;
+}
+
+.trust-security-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trust-security-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--slate-900);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.security-feature {
+  text-align: center;
+}
+
+.security-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+}
+
+.security-feature-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--slate-900);
+  margin-bottom: 8px;
+}
+
+.security-feature-desc {
+  font-size: 14px;
+  color: var(--slate-600);
+  line-height: 1.6;
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--slate-700);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.trust-badge-item i {
+  font-size: 20px;
+  color: var(--primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 8: BOTTOM CTA SECTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+.bottom-cta-section {
+  background: var(--slate-50);
+  padding: 60px 20px 140px;
+  border-top: 1px solid var(--slate-200);
+}
+
+.bottom-cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bottom-cta-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: 12px;
+}
+
+.bottom-cta-subtitle {
+  font-size: 18px;
+  color: var(--slate-600);
+  margin-bottom: 32px;
+}
+
+.bottom-cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bottom-cta-btn {
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.bottom-cta-btn.primary {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+  box-shadow: var(--shadow-button);
+}
+
+.bottom-cta-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.bottom-cta-btn.secondary {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.bottom-cta-btn.secondary:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Laptop (1024px - 1200px) */
+@media (max-width: 1200px) {
+  .pricing-grid {
+    gap: 24px;
+  }
+  
+  .pricing-card {
+    padding: 32px 24px;
+  }
+  
+  .comparison-container {
+    padding: 0 20px;
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 40px;
+  }
+  
+  .hero-subtitle {
+    font-size: 18px;
+  }
+  
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .security-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gst-benefits-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+  
+  .gst-icon-side {
+    order: 2;
+  }
+  
+  .gst-content-side {
+    order: 1;
+  }
+  
+  .comparison-title {
+    font-size: 32px;
+  }
+  
+  .enterprise-title {
+    font-size: 36px;
+  }
+}
+
+/* Mobile (<768px) */
+@media (max-width: 768px) {
+  .pricing-hero {
+    padding: 60px 20px 80px;
+    min-height: 350px;
+  }
+  
+  .hero-title {
+    font-size: 32px;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+  }
+  
+  .trust-badge {
+    font-size: 12px;
+    padding: 10px 20px;
+  }
+  
+  .billing-toggle {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .pricing-section {
+    padding: 60px 16px;
+  }
+  
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .pricing-card {
+    padding: 32px 24px;
+  }
+  
+  .price {
+    font-size: 42px;
+  }
+  
+  .currency {
+    font-size: 28px;
+  }
+  
+  .gst-benefits-section {
+    padding: 40px 20px;
+    margin: 60px 0;
+  }
+  
+  .gst-title {
+    font-size: 28px;
+  }
+  
+  .gst-subtitle {
+    font-size: 16px;
+  }
+  
+  .gst-badge-illustration {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .gst-badge-illustration i {
+    font-size: 60px;
+  }
+  
+  .comparison-section {
+    padding: 60px 16px;
+  }
+  
+  .comparison-title {
+    font-size: 28px;
+    margin-bottom: 32px;
+  }
+  
+  .table-wrapper {
+    border-radius: var(--radius-md);
+  }
+  
+  .comparison-table {
+    font-size: 12px;
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    padding: 12px 8px;
+  }
+  
+  .faq-section {
+    padding: 60px 16px;
+  }
+  
+  .faq-title {
+    font-size: 28px;
+  }
+  
+  .faq-question {
+    font-size: 16px;
+    padding: 16px 20px;
+  }
+  
+  .faq-answer p {
+    font-size: 14px;
+  }
+  
+  .enterprise-contact-section {
+    padding: 60px 20px;
+  }
+  
+  .enterprise-title {
+    font-size: 28px;
+  }
+  
+  .enterprise-subtitle {
+    font-size: 16px;
+  }
+  
+  .enterprise-cta-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .enterprise-btn {
+    width: 100%;
+  }
+  
+  .trust-security-section {
+    padding: 60px 16px;
+  }
+  
+  .security-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .trust-badges {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .bottom-cta-section {
+    padding: 60px 16px 120px;
+  }
+  
+  .bottom-cta-title {
+    font-size: 28px;
+  }
+  
+  .bottom-cta-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .bottom-cta-btn {
+    width: 100%;
+  }
+}
+
+/* Extra Small Mobile (<480px) */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 28px;
+  }
+  
+  .price {
+    font-size: 36px;
+  }
+  
+  .currency {
+    font-size: 24px;
+  }
+  
+  .enterprise-title {
+    font-size: 24px;
+  }
+  
+  .comparison-title,
+  .faq-title,
+  .trust-security-title,
+  .bottom-cta-title {
+    font-size: 24px;
+  }
+}

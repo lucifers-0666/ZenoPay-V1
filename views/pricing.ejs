@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= pageTitle || 'Pricing - ZenoPay' %>
+  </title>
+  <meta name="description"
+    content="Transparent pricing for ZenoPay payment gateway. Choose from Starter, Professional, Business, or Enterprise plans. No hidden fees.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/pricing.css">
+  <link rel="stylesheet" href="/css/premium-animations.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+  <%- include('partials/header') %>
+
+  <!-- SECTION 1: Hero Section -->
+  <div class="pricing-hero">
+    <div class="pricing-hero-content">
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+        <span class="breadcrumb-current">Pricing</span>
+      </nav>
+
+      <h1 class="hero-title">Simple, Transparent Pricing</h1>
+      <p class="hero-subtitle">Choose the perfect plan for your business. No hidden fees, no surprises.</p>
+
+      <div class="trust-badge">
+        <i class="fas fa-shield-check"></i>
+        <span>Trusted by 50,000+ businesses across India</span>
+      </div>
+
+      <!-- Billing Toggle -->
+      <div class="billing-toggle">
+        <span class="toggle-label" id="monthlyLabel">Monthly</span>
+        <div class="toggle-switch">
+          <input type="checkbox" id="billingToggle" class="toggle-input">
+          <label for="billingToggle" class="toggle-slider"></label>
+        </div>
+        <span class="toggle-label active" id="yearlyLabel">
+          Yearly
+          <span class="savings-badge">Save up to 17%</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Pricing Cards Grid -->
+  <section class="pricing-section">
+    <div class="pricing-container">
+      <div class="pricing-grid">
+
+                    <!-- PLAN 1: Starter -->
+                    <div class="pricing-card">
+                      <div class="card-header">
+                        <div class="plan-icon starter-icon">
+                          <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="plan-name">Starter</h3>
+                        <p class="plan-description">For Individuals & Freelancers</p>
+                      </div>
+
+                      <div class="pricing-display">
+                        <div class="price-wrapper">
+                          <span class="currency">₹</span>
+                          <span class="price monthly-price">299</span>
+                          <span class="price yearly-price" style="display: none;">249</span>
+                          <span class="period">/month</span>
+                        </div>
+                        <div class="yearly-info" style="display: none;">
+                          <p class="yearly-total">₹2,999/year</p>
+                          <p class="yearly-savings">Save ₹600</p>
+                        </div>
+                      </div>
+
+                      <div class="transaction-fees">
+                        <i class="fas fa-percentage"></i>
+                        <span>From 2.5% + ₹3 per transaction</span>
+                      </div>
+
+                      <div class="volume-limit">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Up to ₹5 lakhs/month</span>
+                      </div>
+
+                      <button class="cta-button primary-btn">Get Started</button>
+
+                      <div class="features-list">
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>200 transactions per month</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Payment links & QR codes</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Basic analytics dashboard</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Email support (48-hour response)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Standard payout (T+3 days)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Accept UPI, cards, wallets</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Basic fraud detection</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Mobile app access</span>
+                        </div>
+                        <div class="feature-item not-included">
+                          <i class="fas fa-times-circle"></i>
+                          <span>No custom branding</span>
+                        </div>
+                        <div class="feature-item not-included">
+                          <i class="fas fa-times-circle"></i>
+                          <span>No API access</span>
+                        </div>
+                        <div class="feature-item not-included">
+                          <i class="fas fa-times-circle"></i>
+                          <span>No dedicated manager</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- PLAN 2: Professional -->
+                    <div class="pricing-card popular">
+                      <div class="popular-badge">MOST POPULAR</div>
+
+                      <div class="card-header">
+                        <div class="plan-icon professional-icon">
+                          <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="plan-name">Professional</h3>
+                        <p class="plan-description">For Small Businesses</p>
+                      </div>
+
+                      <div class="pricing-display">
+                        <div class="price-wrapper">
+                          <span class="currency">₹</span>
+                          <span class="price monthly-price">999</span>
+                          <span class="price yearly-price" style="display: none;">833</span>
+                          <span class="period">/month</span>
+                        </div>
+                        <div class="yearly-info" style="display: none;">
+                          <p class="yearly-total">₹9,999/year</p>
+                          <p class="yearly-savings">Save ₹2,000</p>
+                        </div>
+                      </div>
+
+                      <div class="transaction-fees">
+                        <i class="fas fa-percentage"></i>
+                        <span>From 2.0% + ₹2 per transaction</span>
+                      </div>
+
+                      <div class="volume-limit">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Up to ₹25 lakhs/month</span>
+                      </div>
+
+                      <button class="cta-button primary-btn">Get Started</button>
+
+                      <div class="features-list">
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>1,000 transactions per month</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Everything in Starter, plus:</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>API access (REST & Webhooks)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Custom payment page branding</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Advanced analytics & reports</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Priority email (24-hour response)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Faster payouts (T+2 days)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Recurring/subscription payments</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Refund management portal</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Multiple user accounts (up to 3)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>GST invoicing</span>
+                        </div>
+                        <div class="feature-item not-included">
+                          <i class="fas fa-times-circle"></i>
+                          <span>No phone support</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- PLAN 3: Business -->
+                    <div class="pricing-card recommended">
+                      <div class="recommended-badge">RECOMMENDED</div>
+
+                      <div class="card-header">
+                        <div class="plan-icon business-icon">
+                          <i class="fas fa-building"></i>
+                        </div>
+                        <h3 class="plan-name">Business</h3>
+                        <p class="plan-description">For Established Companies</p>
+                      </div>
+
+                      <div class="pricing-display">
+                        <div class="price-wrapper">
+                          <span class="currency">₹</span>
+                          <span class="price monthly-price">2,999</span>
+                          <span class="price yearly-price" style="display: none;">2,499</span>
+                          <span class="period">/month</span>
+                        </div>
+                        <div class="yearly-info" style="display: none;">
+                          <p class="yearly-total">₹29,999/year</p>
+                          <p class="yearly-savings">Save ₹6,000</p>
+                        </div>
+                      </div>
+
+                      <div class="transaction-fees">
+                        <i class="fas fa-percentage"></i>
+                        <span>From 1.75% + ₹2 per transaction</span>
+                      </div>
+
+                      <div class="volume-limit">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Up to ₹1 crore/month</span>
+                      </div>
+
+                      <button class="cta-button primary-btn">Get Started</button>
+
+                      <div class="features-list">
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Unlimited transactions</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Everything in Professional, plus:</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Phone support (9 AM - 6 PM)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Dedicated account manager</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Same-day payouts (T+1)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Advanced fraud prevention (AI)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Custom reporting & analytics</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Multiple user accounts (up to 10)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Priority dispute resolution</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>White-label payment pages</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Settlement to multiple banks</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Auto-reconciliation</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- PLAN 4: Enterprise -->
+                    <div class="pricing-card enterprise">
+                      <div class="card-header">
+                        <div class="plan-icon enterprise-icon">
+                          <i class="fas fa-crown"></i>
+                        </div>
+                        <h3 class="plan-name">Enterprise</h3>
+                        <p class="plan-description">For Large Organizations</p>
+                      </div>
+
+                      <div class="pricing-display">
+                        <div class="price-wrapper custom-pricing">
+                          <span class="custom-text">Custom</span>
+                        </div>
+                        <div class="starting-price">
+                          <p>Starting at ₹10,000/month</p>
+                        </div>
+                      </div>
+
+                      <div class="transaction-fees">
+                        <i class="fas fa-percentage"></i>
+                        <span>Custom rates (as low as 1.2%)</span>
+                      </div>
+
+                      <div class="volume-limit">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Unlimited volume</span>
+                      </div>
+
+                      <button class="cta-button secondary-btn">Contact Sales</button>
+
+                      <div class="features-list">
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Unlimited transactions</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Everything in Business, plus:</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>24/7 premium support</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Dedicated technical team</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Instant payouts (within hours)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Custom API development</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Advanced security (tokenization)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Custom integrations (ERP, CRM)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Unlimited user accounts</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>SLA guarantees (99.9% uptime)</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Quarterly business reviews</span>
+                        </div>
+                        <div class="feature-item included">
+                          <i class="fas fa-check-circle"></i>
+                          <span>Multi-entity support</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 3: GST Benefits Banner -->
+              <section class="gst-benefits-section">
+                <div class="gst-benefits-container">
+                  <div class="gst-icon-side">
+                    <div class="gst-badge-illustration">
+                      <i class="fas fa-file-invoice"></i>
+                      <div class="gst-check">
+                        <i class="fas fa-check"></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="gst-content-side">
+                    <h2 class="gst-title">Have a GST Number? Get Extra Savings!</h2>
+                    <p class="gst-subtitle">Reduce transaction fees and claim input tax credit</p>
+
+                    <div class="gst-benefits-list">
+                      <div class="gst-benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Up to 0.25% discount on transaction fees</span>
+                      </div>
+                      <div class="gst-benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Input tax credit on subscription fees (18% GST)</span>
+                      </div>
+                      <div class="gst-benefit-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Save up to ₹2.5 lakhs annually on high volumes</span>
+                      </div>
+                    </div>
+
+                    <button class="gst-cta-button">Learn More About GST Benefits</button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 4: Detailed Comparison Table -->
+              <section class="comparison-section">
+                <div class="comparison-container">
+                  <h2 class="comparison-title">Compare All Features</h2>
+
+                  <div class="table-wrapper">
+                    <table class="comparison-table">
+                      <thead>
+                        <tr>
+                          <th class="feature-column">Feature</th>
+                          <th>Starter</th>
+                          <th class="popular-column">Professional</th>
+                          <th>Business</th>
+                          <th>Enterprise</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="category-header">
+                          <td colspan="5">PAYMENT FEATURES</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Monthly Volume Limit</td>
+                          <td>Up to ₹5L</td>
+                          <td>Up to ₹25L</td>
+                          <td>Up to ₹1 Cr</td>
+                          <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Transaction Limit</td>
+                          <td>200/month</td>
+                          <td>1,000/month</td>
+                          <td>Unlimited</td>
+                          <td>Unlimited</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Domestic Transaction Fee</td>
+                          <td>2.5% + ₹3</td>
+                          <td>2.0% + ₹2</td>
+                          <td>1.75% + ₹2</td>
+                          <td>Custom (1.2%+)</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">UPI Fee</td>
+                          <td>1.5%</td>
+                          <td>1.0%</td>
+                          <td>0.8%</td>
+                          <td>0.5%</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Payout Speed</td>
+                          <td>T+3 days</td>
+                          <td>T+2 days</td>
+                          <td>T+1 day</td>
+                          <td>Instant</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Payment Links & QR Codes</td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Recurring Payments</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+
+                        <tr class="category-header">
+                          <td colspan="5">API & INTEGRATION</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">API Access</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Webhooks</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Custom API Development</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">ERP/CRM Integration</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+
+                        <tr class="category-header">
+                          <td colspan="5">ANALYTICS & REPORTING</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Basic Dashboard</td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Advanced Analytics</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Custom Reports</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Export Data (CSV, Excel)</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+
+                        <tr class="category-header">
+                          <td colspan="5">SUPPORT</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Email Support</td>
+                          <td>48-hour</td>
+                          <td>24-hour</td>
+                          <td>24-hour</td>
+                          <td>Priority</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Phone Support</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td>9 AM - 6 PM</td>
+                          <td>24/7</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Dedicated Account Manager</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Dedicated Technical Team</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+
+                        <tr class="category-header">
+                          <td colspan="5">BRANDING & CUSTOMIZATION</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Custom Branding</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">White-label Pages</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">User Accounts</td>
+                          <td>1</td>
+                          <td>Up to 3</td>
+                          <td>Up to 10</td>
+                          <td>Unlimited</td>
+                        </tr>
+
+                        <tr class="category-header">
+                          <td colspan="5">SECURITY & COMPLIANCE</td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">Basic Fraud Detection</td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">AI-Powered Fraud Prevention</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                          <td><i class="fas fa-check text-success"></i></td>
+                        </tr>
+                        <tr>
+                          <td class="feature-name">SLA Guarantee</td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td><i class="fas fa-times text-muted"></i></td>
+                          <td>99.9% Uptime</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 5: FAQ Section -->
+              <section class="faq-section">
+                <div class="faq-container">
+                  <h2 class="faq-title">Frequently Asked Questions</h2>
+
+                  <div class="faq-list">
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>What payment methods do you support?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>We support UPI, credit/debit cards (Visa, Mastercard, RuPay, Amex), net banking (50+ banks),
+                          digital
+                          wallets (Paytm, PhonePe, Google Pay), and BNPL options.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Are there any setup or hidden fees?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>No setup fees, no annual maintenance charges, and no hidden costs. You only pay the monthly
+                          subscription and per-transaction fees listed above.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Can I upgrade or downgrade my plan anytime?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>Yes! You can upgrade immediately. Downgrades take effect at the end of your current billing
+                          cycle.
+                          Pro-rated credits are applied.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>How does the GST discount work?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>Upload your GST certificate during onboarding. Once verified (within 24 hours), you'll
+                          automatically
+                          receive reduced transaction fees on all future transactions.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>What is the payout schedule?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>Starter: T+3 days, Professional: T+2 days, Business: T+1 day, Enterprise: Same day or instant
+                          (custom
+                          arrangement).</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Do you charge for failed transactions?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>No, you're only charged for successful transactions. Failed or declined transactions are
+                          free.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Is there a contract or lock-in period?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>No lock-in period for monthly plans. Yearly plans require 12-month commitment but offer 17%
+                          savings.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>What happens if I exceed my monthly volume?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>You'll receive a notification at 80% usage. You can upgrade anytime or pay overage fees:
+                          Starter +0.5%,
+                          Professional +0.3%, Business - custom rate negotiation.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Do you offer refunds?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>Subscription fees are non-refundable, but you can cancel anytime. Unused months on yearly
+                          plans are
+                          pro-rated.</p>
+                      </div>
+                    </div>
+
+                    <div class="faq-item">
+                      <div class="faq-question">
+                        <span>Can I try before I buy?</span>
+                        <i class="fas fa-chevron-down"></i>
+                      </div>
+                      <div class="faq-answer">
+                        <p>Yes! We offer a 14-day free trial on all plans (no credit card required). Test all features
+                          before
+                          committing.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 6: Enterprise Contact Section -->
+              <section class="enterprise-contact-section">
+                <div class="enterprise-contact-content">
+                  <h2 class="enterprise-title">Need a Custom Solution?</h2>
+                  <p class="enterprise-subtitle">Let's discuss your requirements and create a tailored plan for your
+                    business.</p>
+
+                  <div class="enterprise-cta-buttons">
+                    <button class="enterprise-btn primary">Contact Sales</button>
+                    <button class="enterprise-btn secondary">Schedule a Demo</button>
+                  </div>
+
+                  <div class="trust-indicators">
+                    <p class="trust-text">Used by leading enterprises across India</p>
+                  </div>
+                </div>
+              </section>
+
+              <!-- SECTION 7: Trust & Security Section -->
+              <section class="trust-security-section">
+                <div class="trust-security-container">
+                  <h2 class="trust-security-title">Your Security is Our Priority</h2>
+
+                  <div class="security-grid">
+                    <div class="security-feature">
+                      <div class="security-icon">
+                        <i class="fas fa-shield-alt"></i>
+                      </div>
+                      <h3 class="security-feature-title">PCI DSS Compliant</h3>
+                      <p class="security-feature-desc">Bank-grade security for all transactions</p>
+                    </div>
+
+                    <div class="security-feature">
+                      <div class="security-icon">
+                        <i class="fas fa-lock"></i>
+                      </div>
+                      <h3 class="security-feature-title">256-bit SSL Encryption</h3>
+                      <p class="security-feature-desc">Your data is encrypted end-to-end</p>
+                    </div>
+
+                    <div class="security-feature">
+                      <div class="security-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                      </div>
+                      <h3 class="security-feature-title">Two-Factor Authentication</h3>
+                      <p class="security-feature-desc">Extra layer of account security</p>
+                    </div>
+
+                    <div class="security-feature">
+                      <div class="security-icon">
+                        <i class="fas fa-server"></i>
+                      </div>
+                      <h3 class="security-feature-title">99.9% Uptime SLA</h3>
+                      <p class="security-feature-desc">Reliable service you can count on</p>
+                    </div>
+                  </div>
+
+                  <div class="trust-badges">
+                    <div class="trust-badge-item">
+                      <i class="fas fa-certificate"></i>
+                      <span>RBI Authorized</span>
+                    </div>
+                    <div class="trust-badge-item">
+                      <i class="fas fa-award"></i>
+                      <span>ISO Certified</span>
+                    </div>
+                    <div class="trust-badge-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span>SOC 2 Compliant</span>
+                    </div>
+                    <div class="trust-badge-item">
+                      <i class="fas fa-globe"></i>
+                      <span>GDPR Ready</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              
+
+              <!-- SECTION 8: Call-to-Action (Bottom) -->
+              <section class="bottom-cta-section">
+                <div class="bottom-cta-content">
+                  <h2 class="bottom-cta-title">Ready to Get Started?</h2>
+                  <p class="bottom-cta-subtitle">Join 50,000+ businesses already using ZenoPay</p>
+
+                  <div class="bottom-cta-buttons">
+                    <button class="bottom-cta-btn primary">Start Free Trial</button>
+                    <button class="bottom-cta-btn secondary">View Documentation</button>
+                  </div>
+                </div>
+              </section>
+
+              <%- include('partials/footer') %>
+
+              <script src="/js/pricing.js"></script>
+              <script src="/js/header.js"></script>
+              <script src="/js/premium-interactions.js"></script>
+</body>
+
+</html>

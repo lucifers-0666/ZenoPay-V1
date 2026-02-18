@@ -31,6 +31,7 @@ const EmailVerificationController = require("../Controllers/EmailVerificationCon
 const LegalPagesController = require("../Controllers/LegalPagesController");
 const ContactController = require("../Controllers/ContactController");
 const PrivacyPolicyController = require("../Controllers/PrivacyPolicyController");
+const PricingController = require("../Controllers/PricingController");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -313,6 +314,11 @@ router.get("/help", LegalPagesController.getHelpPage);
 router.get("/faq", LegalPagesController.getHelpPage); // Alias for /help
 router.get("/api/legal/terms-version", LegalPagesController.getTermsVersion);
 router.post("/api/legal/accept-terms", LegalPagesController.acceptTerms);
+
+// Pricing Routes
+router.get("/pricing", PricingController.getPricingPage);
+router.post("/api/pricing/calculate-quote", PricingController.calculateCustomQuote);
+router.get("/api/pricing/compare", PricingController.comparePlans);
 
 // Contact Routes
 router.get("/contact", ContactController.getContactPage);
