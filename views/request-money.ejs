@@ -1,327 +1,1767 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Request Money - ZenoPay</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.5.3/qrcode.min.js"></script>
-  <link rel="stylesheet" href="/css/request-money.css">
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --primary: #3B82F6;
+      --primary-dark: #2563EB;
+      --accent: #8B5CF6;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --shadow-sm: 0 4px 16px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 18px rgba(15, 23, 42, 0.08);
+      --focus: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .header-title {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .header-sub {
+      margin: 4px 0 0;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .info-pill {
+      margin-top: 14px;
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #EFF6FF;
+      color: #1E40AF;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(59,130,246,0.2);
+    }
+
+    .layout {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15,23,42,.1);
+    }
+
+    .form-card {
+      padding: 28px 28px 24px;
+    }
+
+    .form-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .head-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .head-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 17px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    .head-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .minute-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .section-label {
+      margin: 24px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted-2);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+      flex-shrink: 0;
+    }
+
+    .section-label::after {
+      content: '';
+      height: 1px;
+      background: #F1F5F9;
+      flex: 1;
+      margin-left: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .field-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .link-btn:hover { text-decoration: underline; }
+
+    .recipient-combo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .recipient-input-wrap {
+      flex: 1;
+      position: relative;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px 0 10px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .recipient-input-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: var(--focus);
+    }
+
+    .recipient-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(59,130,246,.12);
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      margin-right: 8px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .recipient-input {
+      border: 0;
+      background: transparent;
+      width: 100%;
+      font-size: 14px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
+
+    .add-btn {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 10px;
+      border: 0;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+
+    .recent-list {
+      margin-top: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      display: none;
+      gap: 4px;
+    }
+
+    .recent-list.open { display: grid; }
+
+    .recent-item {
+      border: 0;
+      background: #F8FAFC;
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: left;
+      color: #475569;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+
+    .recent-item:hover { background: #EFF6FF; color: var(--primary); }
+
+    .chips-wrap {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .chips-wrap::-webkit-scrollbar { height: 6px; }
+    .chips-wrap::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: #EFF6FF;
+      color: #1F2937;
+      border: 1px solid #DBEAFE;
+      padding: 6px 10px;
+      white-space: nowrap;
+      animation: chipIn .2s ease-out;
+    }
+
+    @keyframes chipIn {
+      from { transform: scale(.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .chip-initial {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      background: #BFDBFE;
+      color: #1E3A8A;
+    }
+
+    .chip-remove {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 0;
+      background: transparent;
+      color: #64748B;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+    }
+
+    .chip-remove:hover { background: rgba(15,23,42,.08); color: #EF4444; }
+
+    .chips-empty {
+      margin-top: 10px;
+      border: 1px dashed #CBD5E1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #64748B;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+    }
+
+    .small-link {
+      margin-top: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .small-link:hover { text-decoration: underline; }
+
+    .amount-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      display: inline-block;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #CBD5E1;
+      transition: .2s;
+      cursor: pointer;
+    }
+
+    .slider:before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      transition: .2s;
+    }
+
+    .switch input:checked + .slider { background: var(--primary); }
+    .switch input:checked + .slider:before { transform: translateX(18px); }
+
+    .amount-highlight {
+      background: #F0F7FF;
+      border: 1.5px solid #BFDBFE;
+      border-radius: 14px;
+      padding: 16px 20px;
+      transition: all .2s ease;
+    }
+
+    .amount-highlight:focus-within {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.10);
+    }
+
+    .amount-input-row {
+      display: grid;
+      grid-template-columns: 80px minmax(0,1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .currency-select,
+    .input,
+    .select,
+    .textarea {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+      color: var(--text);
+    }
+
+    .currency-select,
+    .input,
+    .select {
+      height: 48px;
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .currency-select:focus,
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: var(--primary);
+      box-shadow: var(--focus);
+    }
+
+    .amount-input {
+      height: 60px;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      padding: 0 14px;
+    }
+
+    .amount-input::placeholder { color: #CBD5E1; }
+
+    .amount-input:focus { transform: scale(1.01); }
+
+    .error-line {
+      margin-top: 6px;
+      border-top: 2px solid var(--error);
+      display: none;
+    }
+
+    .error-text {
+      margin-top: 4px;
+      color: #DC2626;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .error-on .error-line,
+    .error-on .error-text {
+      display: flex;
+    }
+
+    .split-panel {
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px dashed #CBD5E1;
+      padding: 12px 16px;
+      background: #F8FAFC;
+      display: none;
+    }
+
+    .split-panel.open { display: block; }
+
+    .split-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .step-btn {
+      width: 30px;
+      height: 30px;
+      border: 0;
+      background: #fff;
+      color: #475569;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .step-btn:hover { background: #F1F5F9; color: var(--primary); }
+
+    .step-value {
+      min-width: 38px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 13px;
+      border-inline: 1px solid #E2E8F0;
+      line-height: 30px;
+    }
+
+    .muted-note {
+      font-size: 12px;
+      color: #64748B;
+      margin-left: 8px;
+    }
+
+    .focus-tip {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(-2px);
+      transition: .15s ease;
+      min-height: 14px;
+    }
+
+    .focus-tip.show { opacity: 1; transform: translateY(0); }
+
+    .textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 12px 14px;
+      resize: vertical;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .counter {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted-2);
+      text-align: right;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 16px;
+    }
+
+    .field-wrap {
+      position: relative;
+    }
+
+    .field-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted-2);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .field-wrap .input,
+    .field-wrap .select {
+      padding-left: 36px;
+      width: 100%;
+    }
+
+    .toggle-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .toggle-meta {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .toggle-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #F1F5F9;
+      color: #475569;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      margin-top: 1px;
+    }
+
+    .toggle-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .toggle-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted-2);
+    }
+
+    .inline-actions {
+      margin-top: 12px;
+      display: none;
+      gap: 10px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .inline-actions.show { display: flex; }
+
+    .inline-actions .btn-outline { flex: 1; justify-content: center; }
+
+    .btn-outline-qr {
+      border-color: #CBD5E1;
+      color: #475569;
+    }
+
+    .btn-outline-qr:hover {
+      background: #F1F5F9;
+      border-color: #94A3B8;
+      color: #334155;
+    }
+
+    .btn-outline {
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      background: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .btn-outline:hover { background: #EFF6FF; transform: translateY(-1px); }
+
+    .bar {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .templates-wrap {
+      background: #F8FAFC;
+      border: 1px dashed #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .templates-label {
+      font-size: 11px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .templates {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tpl-chip {
+      border: 1px solid #E2E8F0;
+      background: #FFFFFF;
+      color: #475569;
+      height: 32px;
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tpl-chip:hover {
+      background: #EFF6FF;
+      border-color: #3B82F6;
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .tpl-rent i { color: #3B82F6; }
+    .tpl-utilities i { color: #F59E0B; }
+    .tpl-freelance i { color: #8B5CF6; }
+
+    .bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .btn {
+      height: 48px;
+      border-radius: 10px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .btn-draft {
+      height: 48px;
+      padding: 0 24px;
+      border-color: #E2E8F0;
+      background: #fff;
+      color: #475569;
+      border-width: 1.5px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-draft:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      height: 48px;
+      padding: 0 32px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .btn[disabled] {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .preview-card {
+      padding: 24px 24px 20px;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 96px;
+      overflow: hidden;
+    }
+
+    .preview-bg {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      font-size: 80px;
+      color: rgba(148,163,184,.08);
+      pointer-events: none;
+    }
+
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .preview-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .view-toggle {
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 999px;
+      padding: 2px;
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .view-opt {
+      border: 0;
+      background: transparent;
+      color: #64748B;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .view-opt.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 1px 4px rgba(15,23,42,.09);
+    }
+
+    .preview-amount {
+      margin: 8px 0 4px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      color: #CBD5E1;
+      transition: color .2s ease;
+    }
+
+    .preview-amount.active { color: #1F2937; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .preview-amount-updated {
+      animation: fadeInUp .18s ease-out;
+    }
+
+    .preview-sub {
+      margin: 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .preview-desc {
+      margin: 12px 0 0;
+      color: #64748B;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 38px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .badges {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid transparent;
+    }
+
+    .badge-blue {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border-color: #BFDBFE;
+    }
+
+    .badge-slate {
+      background: #F1F5F9;
+      color: #475569;
+      border-color: #E2E8F0;
+    }
+
+    .recipient-sum {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .recipient-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .avatars {
+      display: flex;
+      align-items: center;
+    }
+
+    .av {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #1E3A8A;
+      background: #DBEAFE;
+      border: 2px solid #fff;
+      margin-left: -6px;
+    }
+
+    .av:first-child { margin-left: 0; }
+
+    .preview-btn {
+      margin-top: 14px;
+      width: 100%;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--primary);
+      background: #fff;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .preview-btn:hover { background: #EFF6FF; transform: translateY(-1px); }
+
+    .history-link {
+      margin-top: 10px;
+      display: inline-block;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .history-link:hover { text-decoration: underline; }
+
+    .preview-next {
+      margin-top: 16px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 12px;
+    }
+
+    .preview-next-title {
+      margin: 0 0 6px;
+      font-size: 12px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+    }
+
+    .preview-next-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .preview-next-step i {
+      font-size: 14px;
+      color: #3B82F6;
+      width: 14px;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 1300;
+      background: #0F172A;
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .screen-toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 1400;
+      background: #0F172A;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .screen-toast.show { display: inline-flex; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      display: none;
+      place-items: center;
+      background: rgba(15,23,42,.5);
+      padding: 16px;
+    }
+
+    .modal.open { display: grid; }
+
+    .modal-card {
+      width: min(360px, 100%);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(15,23,42,.2);
+    }
+
+    .close-modal {
+      margin-top: 12px;
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #fff;
+      color: #334155;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .spin { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes pulseBorder {
+      0% { box-shadow: 0 0 0 0 rgba(59,130,246,.25); }
+      100% { box-shadow: 0 0 0 10px rgba(59,130,246,0); }
+    }
+
+    .field-just-updated {
+      animation: pulseBorder .4s ease-out;
+    }
+
+    @media (max-width: 1024px) {
+      .layout { gap: 16px; }
+      .preview-card { top: 84px; }
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .preview-card {
+        position: static;
+        top: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-wrap { padding: 24px 16px; }
+      .header-title { font-size: 26px; }
+      .form-card { padding: 20px; }
+      .preview-card { padding: 20px; }
+      .amount-input { font-size: 24px; }
+      .two-col { grid-template-columns: 1fr; }
+      .bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .bar-actions {
+        width: 100%;
+        margin-left: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      #sendRequestBtn { order: -1; }
+      .btn,
+      .btn-draft,
+      .btn-primary { width: 100%; justify-content: center; }
+    }
+  </style>
 </head>
-<body>
-  <div class="page-wrapper">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-content">
-        <div class="breadcrumb">
-          <a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
-          <span class="divider">/</span>
-          <span>Payments</span>
-          <span class="divider">/</span>
-          <span class="active">Request Money</span>
-        </div>
-        <h1 class="page-title">Request Money</h1>
-        <p class="page-subtitle">Create a payment request, share it, and track responses.</p>
-      </div>
-      <div class="header-actions">
-        <a href="/dashboard" class="btn btn-outline"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="/Transaction-History" class="btn btn-outline"><i class="fas fa-history"></i> View History</a>
-      </div>
-    </header>
+<body data-user-name="<%= (user && user.FullName) ? user.FullName : 'Demo User' %>">
+  <div class="page-wrap">
+    <nav class="breadcrumb">
+      <a href="/dashboard">Dashboard</a> &gt; <a href="#">Payments</a> &gt; Request Money
+    </nav>
 
-    <!-- Main Content -->
-    <main class="main-container">
-      <div class="content-grid">
-        <!-- Left Panel - Form -->
-        <div class="form-panel">
-          <form id="request-form" class="request-form">
-            <!-- Recipients Section -->
-            <div class="form-section">
-              <h3 class="section-title">Request From</h3>
-              <p class="section-desc">Add one or more recipients for this payment request.</p>
-              <div class="form-group">
-                <div class="recipient-input-wrapper">
-                  <input 
-                    type="text" 
-                    id="recipient-input" 
-                    class="form-input" 
-                    placeholder="Email or phone number"
-                    autocomplete="off"
-                  >
-                  <button type="button" class="btn btn-secondary" id="add-recipient">
-                    <i class="fas fa-user-plus"></i> Add
-                  </button>
-                </div>
-                <p class="help-text">Press Enter or click Add to add multiple recipients</p>
-                <div class="recipient-chips" id="recipient-list">
-                  <p class="empty-state"><i class="fas fa-users"></i> No recipients added yet</p>
-                </div>
-                <span class="error-message" id="recipient-error" hidden></span>
-              </div>
-            </div>
+    <h1 class="header-title">Request Money</h1>
+    <p class="header-sub">Create a payment request, share it, and track responses.</p>
+    <div class="info-pill"><i class="fas fa-lock"></i> Visible to recipients as a secure payment link</div>
 
-            <!-- Amount Section -->
-            <div class="form-section">
-              <h3 class="section-title">Amount</h3>
-              <div class="form-group amount-group">
-                <div class="amount-input-wrapper">
-                  <select id="currency" class="form-select">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="INR" selected>INR</option>
-                    <option value="GBP">GBP</option>
-                  </select>
-                  <input 
-                    type="number" 
-                    id="amount" 
-                    class="form-input amount-field" 
-                    placeholder="0.00" 
-                    min="0" 
-                    step="0.01"
-                    required
-                  >
-                </div>
-                <span class="error-message" id="amount-error" hidden></span>
-              </div>
-
-              <!-- Split Toggle -->
-              <div class="split-section">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="split-toggle" class="checkbox">
-                  <span>Split this request</span>
-                </label>
-                <div class="split-control" id="split-control" hidden>
-                  <span class="split-text">Split among</span>
-                  <input type="number" id="split-count" class="form-input split-input" min="1" value="2">
-                  <span class="split-text">people</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Description Section -->
-            <div class="form-section">
-              <div class="section-header">
-                <h3 class="section-title">Description / Note</h3>
-                <span class="char-count">0/500</span>
-              </div>
-              <div class="form-group">
-                <textarea 
-                  id="description" 
-                  class="form-textarea" 
-                  rows="3" 
-                  placeholder="Add a note for your recipients..."
-                  maxlength="500"
-                ></textarea>
-              </div>
-            </div>
-
-            <!-- Due Date Section -->
-            <div class="form-section">
-              <h3 class="section-title">
-                Due Date <span class="optional">(optional)</span>
-              </h3>
-              <div class="form-group">
-                <input 
-                  type="date" 
-                  id="due-date" 
-                  class="form-input"
-                >
-                <p class="due-info" id="due-info" hidden></p>
-              </div>
-            </div>
-
-            <!-- Category Section -->
-            <div class="form-section">
-              <h3 class="section-title">
-                Category / Tag <span class="optional">(optional)</span>
-              </h3>
-              <div class="form-group">
-                <select id="category" class="form-select">
-                  <option value="">Select a category</option>
-                  <option value="rent">Rent</option>
-                  <option value="utilities">Utilities</option>
-                  <option value="subscription">Subscription</option>
-                  <option value="freelance">Freelance</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Send Options -->
-            <div class="form-section">
-              <h3 class="section-title">Send Options</h3>
-              <div class="form-group">
-                <div class="checkbox-group">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="send-email" checked class="checkbox">
-                    <span>Send via Email</span>
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="send-sms" class="checkbox">
-                    <span>Send via SMS</span>
-                  </label>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="generate-link" checked class="checkbox">
-                    <span>Generate shareable link</span>
-                  </label>
-                </div>
-              </div>
-              <div class="action-buttons">
-                <button type="button" class="btn btn-outline" id="copy-link" disabled>
-                  <i class="fas fa-link"></i> Copy Link
-                </button>
-                <button type="button" class="btn btn-outline" id="show-qr" disabled>
-                  <i class="fas fa-qrcode"></i> Show QR Code
-                </button>
-              </div>
-            </div>
-
-            <!-- Templates Section -->
-            <div class="form-section">
-              <h3 class="section-title">Quick Templates</h3>
-              <p class="section-desc">Click any template to auto-fill the form.</p>
-              <div class="templates-grid">
-                <button type="button" class="template-card" data-amount="5000" data-title="Rent" data-category="rent" data-note="Monthly rent payment">
-                  <div class="template-icon"><i class="fas fa-home"></i></div>
-                  <div class="template-info">
-                    <span class="template-title">Rent</span>
-                    <span class="template-amount">₹5,000</span>
-                  </div>
-                  <span class="template-badge"><i class="fas fa-bolt"></i> Quick Fill</span>
-                </button>
-                <button type="button" class="template-card" data-amount="2000" data-title="Utilities" data-category="utilities" data-note="Monthly utilities">
-                  <div class="template-icon"><i class="fas fa-lightbulb"></i></div>
-                  <div class="template-info">
-                    <span class="template-title">Utilities</span>
-                    <span class="template-amount">₹2,000</span>
-                  </div>
-                  <span class="template-badge"><i class="fas fa-bolt"></i> Quick Fill</span>
-                </button>
-                <button type="button" class="template-card" data-amount="10000" data-title="Freelance" data-category="freelance" data-note="Project payment">
-                  <div class="template-icon"><i class="fas fa-code"></i></div>
-                  <div class="template-info">
-                    <span class="template-title">Freelance</span>
-                    <span class="template-amount">₹10,000</span>
-                  </div>
-                  <span class="template-badge"><i class="fas fa-bolt"></i> Quick Fill</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="form-actions">
-              <button type="button" class="btn btn-outline" id="save-draft">
-                <i class="fas fa-save"></i> Save as Draft
-              </button>
-              <button type="submit" class="btn btn-primary" id="send-request">
-                <i class="fas fa-paper-plane"></i> Send Request
-              </button>
-            </div>
-          </form>
+    <div class="layout">
+      <section class="card form-card">
+        <div class="form-head">
+          <div class="head-left">
+            <div class="head-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <h2 class="head-title">Request Details</h2>
+          </div>
+          <span class="minute-pill"><i class="fas fa-clock"></i> Takes less than 1 minute</span>
         </div>
 
-        <!-- Right Panel - Preview -->
-        <div class="preview-panel">
-          <div class="preview-card sticky">
-            <div class="preview-header">
-              <h3>Preview</h3>
-              <p class="preview-subtitle">This is how recipients will see it</p>
-              <div class="preview-status-badge" id="preview-status">Draft</div>
+        <div class="section-label">Recipient</div>
+        <div class="row">
+          <span class="field-label">Request From</span>
+          <button type="button" class="link-btn" id="recentBtn"><i class="fas fa-clock"></i> Recent</button>
+        </div>
+
+        <div class="recipient-combo">
+          <div class="recipient-input-wrap" id="recipientWrap">
+            <span class="recipient-icon"><i class="fas fa-user"></i></span>
+            <input id="recipientInput" class="recipient-input" placeholder="Email, phone number, or UPI ID" />
+          </div>
+          <button type="button" class="add-btn" id="addRecipientBtn"><i class="fas fa-user-plus"></i> Add</button>
+        </div>
+
+        <div class="recent-list" id="recentList">
+          <button type="button" class="recent-item" data-recipient="priya@zenopay.com">priya@zenopay.com</button>
+          <button type="button" class="recent-item" data-recipient="+91 98765 43210">+91 98765 43210</button>
+          <button type="button" class="recent-item" data-recipient="ravi@upi">ravi@upi</button>
+        </div>
+
+        <div class="chips-wrap" id="chipsWrap"></div>
+        <div class="chips-empty" id="chipsEmpty"><i class="fas fa-info-circle"></i> No recipients added yet</div>
+        <button type="button" class="small-link" id="addAnotherBtn"><i class="fas fa-plus"></i> Add another recipient</button>
+
+        <div class="section-label">Amount</div>
+        <div class="amount-row-head">
+          <span class="field-label">Amount</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:#64748B;font-weight:600;">Split request</span>
+            <label class="switch"><input type="checkbox" id="splitToggle" /><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div id="amountBlock">
+          <div class="amount-highlight">
+            <div class="amount-input-row">
+              <select id="currency" class="currency-select">
+                <option>INR</option>
+                <option>USD</option>
+                <option>EUR</option>
+                <option>AED</option>
+              </select>
+              <input id="amount" type="number" min="0" step="0.01" class="amount-input input" placeholder="0.00" />
             </div>
+          </div>
+          <div class="error-line"></div>
+          <div class="error-text"><i class="fas fa-exclamation-circle"></i> Enter an amount greater than 0</div>
+        </div>
 
-            <!-- Phone Frame Mockup -->
-            <div class="phone-frame">
-              <div class="phone-content">
-                <div class="preview-amount" id="preview-amount">₹0.00</div>
-                <p class="preview-sender">Requested by <strong id="preview-name">You</strong></p>
-                <p class="preview-description" id="preview-desc">Add a description so your recipients know what this is for.</p>
-                
-                <div class="preview-badges-section">
-                  <div class="badge-group" id="preview-due-badge" hidden>
-                    <span class="badge badge-warning"><i class="fas fa-calendar"></i> <span id="preview-due">Due soon</span></span>
-                  </div>
-                  <div class="badge-group" id="preview-category-badge" hidden>
-                    <span class="badge badge-primary"><i class="fas fa-tag"></i> <span id="preview-category">—</span></span>
-                  </div>
-                </div>
-
-                <div class="preview-meta">
-                  <div class="meta-item">
-                    <i class="fas fa-users"></i>
-                    <span id="preview-recipients">0 recipients</span>
-                  </div>
-                  <div class="meta-item" id="preview-per-person-item" hidden>
-                    <i class="fas fa-divide"></i>
-                    <span id="preview-per-person">—</span>
-                  </div>
-                </div>
-
-                <button type="button" class="btn btn-secondary" id="preview-qr-btn" hidden>
-                  <i class="fas fa-qrcode"></i> View QR Code
-                </button>
-
-                <a href="/Transaction-History" class="preview-link">
-                  <i class="fas fa-history"></i> View request history
-                </a>
+        <div class="split-panel" id="splitPanel">
+          <div class="split-inner">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:13px;color:#475569;font-weight:600;">Split among</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" id="minusSplit"><i class="fas fa-minus"></i></button>
+                <span class="step-value" id="splitCount">2</span>
+                <button type="button" class="step-btn" id="plusSplit"><i class="fas fa-plus"></i></button>
               </div>
+              <span style="font-size:13px;color:#475569;font-weight:600;">people</span>
             </div>
+            <span class="muted-note" id="perPerson">₹0.00 per person</span>
+          </div>
+        </div>
 
-            <!-- Success State -->
-            <div class="success-state" id="success-box" hidden>
-              <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-              </div>
-              <h3>Request Sent Successfully!</h3>
-              <p id="success-message">Your request has been sent to all recipients.</p>
-              <div class="success-actions">
-                <button type="button" class="btn btn-primary" id="send-another">
-                  <i class="fas fa-plus"></i> Send Another
-                </button>
-                <a href="/Transaction-History" class="btn btn-outline">
-                  <i class="fas fa-list"></i> View Requests
-                </a>
-                <a href="/dashboard" class="btn btn-ghost">
-                  <i class="fas fa-home"></i> Dashboard
-                </a>
-              </div>
+        <div class="section-label">Details &amp; Schedule</div>
+        <p class="focus-tip" id="descTip">Recipients will see this description</p>
+        <label class="field-label" for="description">Description / Note</label>
+        <textarea id="description" class="textarea" maxlength="500" placeholder="E.g. February freelance invoice, shared rent, utilities…"></textarea>
+        <div class="counter"><span id="charCount">0</span>/500</div>
+
+        <div class="two-col" style="margin-top:10px;">
+          <div>
+            <label class="field-label" for="dueDate">Due Date</label>
+            <div class="field-wrap">
+              <i class="fas fa-calendar-alt"></i>
+              <input id="dueDate" type="date" class="input" />
+            </div>
+          </div>
+          <div>
+            <label class="field-label" for="category">Category</label>
+            <div class="field-wrap">
+              <i class="fas fa-tag"></i>
+              <select id="category" class="select">
+                <option value="">Select category</option>
+                <option value="Rent">Rent</option>
+                <option value="Salary">Salary</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
 
-  <!-- Toast Notifications -->
-  <div class="toast-container" id="toast-container"></div>
+        <div class="section-label">Delivery &amp; Options</div>
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-icon"><i class="fas fa-envelope"></i></span>
+              <div><p class="toggle-title">Send via Email</p><p class="toggle-sub">Send a request link to the recipient’s email</p></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="sendEmail" checked /><span class="slider"></span></label>
+          </div>
 
-  <!-- QR Code Modal -->
-  <div class="modal" id="qr-modal" hidden>
-    <div class="modal-overlay" id="modal-overlay"></div>
-    <div class="modal-content">
-      <button type="button" class="btn-icon" id="close-qr">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="modal-body">
-        <h3>Payment Request QR Code</h3>
-        <p>Scan this QR code to open the payment request link</p>
-        <div class="qr-container">
-          <div id="qr-image"></div>
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-icon"><i class="fas fa-sms"></i></span>
+              <div><p class="toggle-title">Send via SMS</p><p class="toggle-sub">Send a short link as an SMS</p></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="sendSms" /><span class="slider"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-icon"><i class="fas fa-link"></i></span>
+              <div><p class="toggle-title">Generate Shareable Link</p><p class="toggle-sub">Copy link and share anywhere</p></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="genLink" checked /><span class="slider"></span></label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-icon"><i class="fas fa-qrcode"></i></span>
+              <div><p class="toggle-title">Generate QR Code</p><p class="toggle-sub">Recipients can scan to pay</p></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="genQr" /><span class="slider"></span></label>
+          </div>
         </div>
-        <p class="qr-hint">Use any QR code scanner or your phone camera</p>
-      </div>
+
+        <div class="inline-actions" id="inlineActions">
+          <button type="button" class="btn-outline" id="copyLinkBtn"><i class="fas fa-copy"></i> Copy Link</button>
+          <button type="button" class="btn-outline btn-outline-qr" id="showQrBtn"><i class="fas fa-qrcode"></i> Show QR Code</button>
+        </div>
+
+        <div class="bar">
+          <div class="templates-wrap">
+            <div class="templates-label"><i class="fas fa-bolt"></i> QUICK FILL</div>
+            <div class="templates">
+              <button class="tpl-chip tpl-rent" type="button" data-amount="5000" data-desc="Monthly rent payment" data-category="Rent"><i class="fas fa-home"></i> Rent ₹5,000</button>
+              <button class="tpl-chip tpl-utilities" type="button" data-amount="2000" data-desc="Monthly utility split" data-category="Utilities"><i class="fas fa-bolt"></i> Utilities ₹2,000</button>
+              <button class="tpl-chip tpl-freelance" type="button" data-amount="10000" data-desc="Freelance invoice payment" data-category="Freelance"><i class="fas fa-code"></i> Freelance ₹10,000</button>
+            </div>
+          </div>
+
+          <div class="bar-actions">
+            <button type="button" class="btn btn-draft" id="saveDraftBtn"><i class="fas fa-save"></i> Save as Draft</button>
+            <button type="button" class="btn btn-primary" id="sendRequestBtn"><i class="fas fa-paper-plane"></i> Send Request</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card preview-card" id="previewCard">
+        <i class="fas fa-receipt preview-bg"></i>
+        <div class="preview-top">
+          <h3 class="preview-title">Preview</h3>
+          <div class="view-toggle">
+            <button type="button" class="view-opt active">Form view</button>
+            <button type="button" class="view-opt">Recipient view</button>
+          </div>
+        </div>
+
+        <div class="preview-amount" id="previewAmount">₹0.00</div>
+        <p class="preview-sub">Requested by <span id="previewBy"><%= (user && user.FullName) ? user.FullName : 'Demo User' %></span></p>
+        <p class="preview-desc" id="previewDesc">Add a description so recipients understand this request.</p>
+
+        <div class="badges" id="previewBadges">
+          <span class="badge badge-slate"><i class="fas fa-shield-alt"></i> Secure link</span>
+        </div>
+
+        <div class="recipient-sum">
+          <span class="recipient-inline" id="recipientSummary"><i class="fas fa-user"></i> No recipients yet</span>
+          <div class="avatars" id="avatarStack"></div>
+        </div>
+
+        <button type="button" class="preview-btn"><i class="fas fa-link"></i> View Payment Link</button>
+        <a href="/Transaction-History" class="history-link">View request history</a>
+
+        <div class="preview-next">
+          <p class="preview-next-title">What happens next?</p>
+          <div class="preview-next-step"><i class="fas fa-paper-plane"></i> Request sent to recipient</div>
+          <div class="preview-next-step"><i class="fas fa-mouse-pointer"></i> Recipient clicks the link</div>
+          <div class="preview-next-step"><i class="fas fa-check-circle"></i> You receive the payment</div>
+        </div>
+      </aside>
     </div>
   </div>
 
-  <!-- Context Data -->
-  <script>
-    window.APP_CONFIG = {
-      userName: "<%= (user && user.FullName) ? user.FullName.replace(/\"/g, '\\\"') : 'You' %>",
-      userId: "<%= (user && user._id) ? user._id : '' %>",
-      baseUrl: "<%= process.env.BASE_URL || 'http://localhost:3000' %>"
-    };
-  </script>
+  <div class="screen-toast" id="screenToast"></div>
+  <div class="toast" id="targetToast"></div>
 
-  <script src="/js/request-money.js"></script>
+  <div class="modal" id="qrModal">
+    <div class="modal-card">
+      <h3 style="margin:0 0 6px;">Request QR Code</h3>
+      <p style="margin:0 0 12px;color:#64748B;font-size:13px;">Scan to open this payment request</p>
+      <div id="qrBox" style="display:grid;place-items:center;"></div>
+      <button type="button" class="close-modal" id="closeQr">Close</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const appUser = document.body.dataset.userName || 'Demo User';
+
+      const state = {
+        recipients: [],
+        splitCount: 2,
+      };
+
+      const recipientInput = document.getElementById('recipientInput');
+      const addRecipientBtn = document.getElementById('addRecipientBtn');
+      const chipsWrap = document.getElementById('chipsWrap');
+      const chipsEmpty = document.getElementById('chipsEmpty');
+      const addAnotherBtn = document.getElementById('addAnotherBtn');
+      const recentBtn = document.getElementById('recentBtn');
+      const recentList = document.getElementById('recentList');
+      const amountInput = document.getElementById('amount');
+      const currency = document.getElementById('currency');
+      const splitToggle = document.getElementById('splitToggle');
+      const splitPanel = document.getElementById('splitPanel');
+      const splitCount = document.getElementById('splitCount');
+      const minusSplit = document.getElementById('minusSplit');
+      const plusSplit = document.getElementById('plusSplit');
+      const perPerson = document.getElementById('perPerson');
+      const amountBlock = document.getElementById('amountBlock');
+      const description = document.getElementById('description');
+      const descTip = document.getElementById('descTip');
+      const charCount = document.getElementById('charCount');
+      const dueDate = document.getElementById('dueDate');
+      const category = document.getElementById('category');
+      const sendEmail = document.getElementById('sendEmail');
+      const sendSms = document.getElementById('sendSms');
+      const genLink = document.getElementById('genLink');
+      const genQr = document.getElementById('genQr');
+      const inlineActions = document.getElementById('inlineActions');
+      const copyLinkBtn = document.getElementById('copyLinkBtn');
+      const showQrBtn = document.getElementById('showQrBtn');
+      const saveDraftBtn = document.getElementById('saveDraftBtn');
+      const sendRequestBtn = document.getElementById('sendRequestBtn');
+
+      const previewAmount = document.getElementById('previewAmount');
+      const previewBy = document.getElementById('previewBy');
+      const previewDesc = document.getElementById('previewDesc');
+      const previewBadges = document.getElementById('previewBadges');
+      const recipientSummary = document.getElementById('recipientSummary');
+      const avatarStack = document.getElementById('avatarStack');
+
+      const screenToast = document.getElementById('screenToast');
+      const targetToast = document.getElementById('targetToast');
+      const qrModal = document.getElementById('qrModal');
+      const qrBox = document.getElementById('qrBox');
+      const closeQr = document.getElementById('closeQr');
+
+      const requestLink = () => `${window.location.origin}/pay/request/preview-${Date.now()}`;
+
+      const formatMoney = (num) => {
+        const n = Number(num || 0);
+        const curr = currency.value === 'INR' ? '₹' : `${currency.value} `;
+        return `${curr}${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      };
+
+      const showScreenToast = (message, icon = 'fa-check') => {
+        screenToast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+        screenToast.classList.add('show');
+        window.clearTimeout(window.__screenToastTimer);
+        window.__screenToastTimer = window.setTimeout(() => screenToast.classList.remove('show'), 1800);
+      };
+
+      const showTargetToast = (target, message) => {
+        const rect = target.getBoundingClientRect();
+        targetToast.textContent = message;
+        targetToast.style.left = `${Math.max(8, rect.left + (rect.width / 2) - 30)}px`;
+        targetToast.style.top = `${Math.max(8, rect.top - 34)}px`;
+        targetToast.classList.add('show');
+        window.clearTimeout(window.__targetToastTimer);
+        window.__targetToastTimer = window.setTimeout(() => targetToast.classList.remove('show'), 1200);
+      };
+
+      const updateSendState = () => {
+        const valid = state.recipients.length > 0 && Number(amountInput.value) > 0;
+        sendRequestBtn.disabled = !valid;
+      };
+
+      const validateAmount = () => {
+        const amount = Number(amountInput.value || 0);
+        amountBlock.classList.toggle('error-on', amount <= 0 && amountInput.value !== '');
+      };
+
+      const updatePerPerson = () => {
+        const amount = Number(amountInput.value || 0);
+        const each = state.splitCount > 0 ? amount / state.splitCount : amount;
+        perPerson.textContent = `${formatMoney(each)} per person`;
+      };
+
+      const updatePreviewAmount = () => {
+        previewAmount.textContent = formatMoney(amountInput.value || 0);
+        previewAmount.classList.toggle('active', Number(amountInput.value || 0) > 0);
+        previewAmount.classList.remove('preview-amount-updated');
+        void previewAmount.offsetWidth;
+        previewAmount.classList.add('preview-amount-updated');
+      };
+
+      const shortDate = (value) => {
+        if (!value) return '';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+      };
+
+      const updatePreview = () => {
+        updatePreviewAmount();
+        previewBy.textContent = appUser;
+
+        const descText = description.value.trim();
+        previewDesc.textContent = descText || 'Add a description so recipients understand this request.';
+
+        previewBadges.innerHTML = '<span class="badge badge-slate"><i class="fas fa-shield-alt"></i> Secure link</span>';
+
+        const due = shortDate(dueDate.value);
+        if (due) {
+          previewBadges.insertAdjacentHTML('beforeend', `<span class="badge badge-blue"><i class="fas fa-clock"></i> Due ${due}</span>`);
+        }
+
+        if (splitToggle.checked) {
+          previewBadges.insertAdjacentHTML('beforeend', `<span class="badge badge-slate"><i class="fas fa-users"></i> Split among ${state.splitCount}</span>`);
+        }
+
+        if (state.recipients.length === 0) {
+          recipientSummary.innerHTML = '<i class="fas fa-user"></i> No recipients yet';
+          avatarStack.innerHTML = '';
+        } else {
+          recipientSummary.innerHTML = `<i class="fas fa-user"></i> ${state.recipients.length} recipient${state.recipients.length > 1 ? 's' : ''}`;
+          avatarStack.innerHTML = state.recipients.slice(0, 4).map((r) => `<span class="av">${(r[0] || 'U').toUpperCase()}</span>`).join('');
+        }
+
+        updateSendState();
+      };
+
+      const renderChips = () => {
+        chipsWrap.innerHTML = '';
+
+        if (state.recipients.length === 0) {
+          chipsEmpty.style.display = 'inline-flex';
+        } else {
+          chipsEmpty.style.display = 'none';
+        }
+
+        state.recipients.forEach((recipient, idx) => {
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.innerHTML = `
+            <span class="chip-initial">${(recipient[0] || 'U').toUpperCase()}</span>
+            <span>${recipient}</span>
+            <button type="button" class="chip-remove" data-index="${idx}"><i class="fas fa-times"></i></button>
+          `;
+          chipsWrap.appendChild(chip);
+        });
+
+        updatePreview();
+      };
+
+      const addRecipient = (value) => {
+        const v = String(value || '').trim();
+        if (!v) return;
+        if (state.recipients.includes(v)) return;
+        state.recipients.push(v);
+        recipientInput.value = '';
+        renderChips();
+      };
+
+      addRecipientBtn.addEventListener('click', () => addRecipient(recipientInput.value));
+      addAnotherBtn.addEventListener('click', () => recipientInput.focus());
+
+      recipientInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addRecipient(recipientInput.value);
+        }
+      });
+
+      chipsWrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-index]');
+        if (!btn) return;
+        const i = Number(btn.dataset.index);
+        state.recipients.splice(i, 1);
+        renderChips();
+      });
+
+      recentBtn.addEventListener('click', () => recentList.classList.toggle('open'));
+      recentList.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-recipient]');
+        if (!btn) return;
+        addRecipient(btn.dataset.recipient);
+        recentList.classList.remove('open');
+      });
+
+      amountInput.addEventListener('input', () => {
+        validateAmount();
+        updatePerPerson();
+        updatePreview();
+      });
+
+      currency.addEventListener('change', () => {
+        updatePerPerson();
+        updatePreview();
+      });
+
+      splitToggle.addEventListener('change', () => {
+        splitPanel.classList.toggle('open', splitToggle.checked);
+        updatePerPerson();
+        updatePreview();
+      });
+
+      minusSplit.addEventListener('click', () => {
+        state.splitCount = Math.max(2, state.splitCount - 1);
+        splitCount.textContent = String(state.splitCount);
+        updatePerPerson();
+        updatePreview();
+      });
+
+      plusSplit.addEventListener('click', () => {
+        state.splitCount += 1;
+        splitCount.textContent = String(state.splitCount);
+        updatePerPerson();
+        updatePreview();
+      });
+
+      description.addEventListener('focus', () => descTip.classList.add('show'));
+      description.addEventListener('blur', () => descTip.classList.remove('show'));
+      description.addEventListener('input', () => {
+        charCount.textContent = String(description.value.length);
+        updatePreview();
+      });
+
+      dueDate.addEventListener('input', updatePreview);
+      category.addEventListener('change', updatePreview);
+
+      const updateInlineActions = () => {
+        const show = genLink.checked || genQr.checked;
+        inlineActions.classList.toggle('show', show);
+        copyLinkBtn.style.display = genLink.checked ? 'inline-flex' : 'none';
+        showQrBtn.style.display = genQr.checked ? 'inline-flex' : 'none';
+      };
+
+      [sendEmail, sendSms, genLink, genQr].forEach((t) => t.addEventListener('change', updateInlineActions));
+
+      document.querySelectorAll('.tpl-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          amountInput.value = btn.dataset.amount || '';
+          description.value = btn.dataset.desc || '';
+          category.value = btn.dataset.category || '';
+          charCount.textContent = String(description.value.length);
+
+          [amountInput, description, category].forEach((el) => {
+            el.classList.remove('field-just-updated');
+            void el.offsetWidth;
+            el.classList.add('field-just-updated');
+          });
+
+          validateAmount();
+          updatePerPerson();
+          updatePreview();
+        });
+      });
+
+      const copyLinkAction = async (targetButton) => {
+        const link = requestLink();
+        try {
+          await navigator.clipboard.writeText(link);
+          showTargetToast(targetButton, 'Copied');
+        } catch {
+          window.prompt('Copy link', link);
+        }
+      };
+
+      copyLinkBtn.addEventListener('click', () => copyLinkAction(copyLinkBtn));
+
+      const openQr = () => {
+        qrModal.classList.add('open');
+        qrBox.innerHTML = '';
+        new QRCode(qrBox, {
+          text: requestLink(),
+          width: 180,
+          height: 180,
+          colorDark: '#1F2937',
+          colorLight: '#ffffff',
+        });
+      };
+
+      showQrBtn.addEventListener('click', () => {
+        openQr();
+        showTargetToast(showQrBtn, 'QR opened');
+      });
+
+      closeQr.addEventListener('click', () => qrModal.classList.remove('open'));
+      qrModal.addEventListener('click', (e) => {
+        if (e.target === qrModal) qrModal.classList.remove('open');
+      });
+
+      const submitRequest = async (saveAsDraft) => {
+        const payload = {
+          recipients: state.recipients,
+          amount: Number(amountInput.value || 0),
+          currency: currency.value,
+          description: description.value.trim(),
+          dueDate: dueDate.value || null,
+          category: category.value || '',
+          sendEmail: sendEmail.checked,
+          sendSMS: sendSms.checked,
+          generateLink: genLink.checked,
+          splitCount: splitToggle.checked ? state.splitCount : 1,
+          saveAsDraft,
+        };
+
+        if (!saveAsDraft && (payload.recipients.length === 0 || payload.amount <= 0)) {
+          validateAmount();
+          updateSendState();
+          showScreenToast('Add recipient and valid amount', 'fa-exclamation-circle');
+          return;
+        }
+
+        const btn = saveAsDraft ? saveDraftBtn : sendRequestBtn;
+        const old = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner spin"></i> ${saveAsDraft ? 'Saving...' : 'Sending...'}`;
+
+        try {
+          const res = await fetch('/request-money', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Request failed');
+
+          showScreenToast(saveAsDraft ? 'Draft saved successfully' : 'Request sent successfully');
+        } catch (err) {
+          showScreenToast(err.message || 'Something went wrong', 'fa-triangle-exclamation');
+        } finally {
+          btn.innerHTML = old;
+          btn.disabled = false;
+          updateSendState();
+        }
+      };
+
+      saveDraftBtn.addEventListener('click', () => submitRequest(true));
+      sendRequestBtn.addEventListener('click', () => submitRequest(false));
+
+      updateInlineActions();
+      renderChips();
+      updatePerPerson();
+      updatePreview();
+      updateSendState();
+    })();
+  </script>
 </body>
 </html>
