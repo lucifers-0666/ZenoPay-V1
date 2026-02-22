@@ -248,7 +248,13 @@ function showActionMenu(event, txn) {
   if (event) {
     event.stopPropagation();
   }
-  showToast('Action menu for transaction', 'info');
+  const transactionRef = String(txn?.transactionId || '').replace(/^TXN-/i, '').trim();
+  if (!transactionRef) {
+    showToast('Unable to open transaction details', 'error');
+    return;
+  }
+
+  window.location.href = `/transaction/${encodeURIComponent(transactionRef)}`;
 }
 
 /**

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --orange: #F59E0B;
+      --red: #EF4444;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 40px 0;
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .breadcrumb a { color: var(--blue); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: transform 0.3s ease;
+    }
+    .back-link:hover { transform: translateX(-4px); }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .title-row h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .txn-badge {
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .hero {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    .hero-strip {
+      height: 8px;
+      background: linear-gradient(135deg, #10B981, #059669);
+    }
+
+    .hero-strip-success { background: linear-gradient(135deg, #10B981, #059669); }
+    .hero-strip-pending { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .hero-strip-failed { background: linear-gradient(135deg, #EF4444, #DC2626); }
+
+    .hero-body {
+      padding: 36px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .amount-label {
+      margin: 0 0 8px;
+      font-size: 12px;
+      color: var(--muted-2);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .amount {
+      margin: 0;
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .fee {
+      margin-top: 8px;
+      color: var(--muted-2);
+      font-size: 14px;
+    }
+
+    .status-pill {
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1.5px solid;
+    }
+    .status-success { background: rgba(16,185,129,0.1); color: #059669; border-color: #10B981; }
+    .status-pending { background: rgba(245,158,11,0.1); color: #D97706; border-color: #F59E0B; }
+    .status-failed { background: rgba(239,68,68,0.1); color: #DC2626; border-color: #EF4444; }
+
+    .hero-divider { height: 1px; background: #F1F5F9; margin: 0 36px; }
+
+    .meta-strip {
+      padding: 20px 36px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .meta i { font-size: 20px; color: var(--muted-2); margin-bottom: 6px; }
+    .meta-label {
+      font-size: 12px;
+      color: var(--muted-2);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .meta-value { font-size: 15px; font-weight: 600; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .section-card { padding: 28px; margin-bottom: 24px; }
+
+    .section-title {
+      margin: 0 0 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title i { color: var(--blue); }
+
+    .transfer {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .party { flex: 1; }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .party-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .party-account { font-size: 13px; color: var(--muted-2); font-family: 'Courier New', monospace; margin-bottom: 4px; }
+    .party-bank { font-size: 13px; color: var(--muted); }
+
+    .arrow {
+      font-size: 28px;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .label {
+      font-size: 12px;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 52px;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 4px;
+      bottom: 8px;
+      border-left: 2px solid var(--border);
+    }
+
+    .t-item {
+      position: relative;
+      padding-bottom: 28px;
+    }
+    .t-item:last-child { padding-bottom: 0; }
+
+    .t-dot {
+      position: absolute;
+      left: -42px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+    }
+
+    .dot-completed { border-color: #10B981; color: #10B981; }
+    .dot-active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      animation: pulse 1.3s infinite;
+    }
+    .dot-pending { border-color: #E2E8F0; color: #E2E8F0; }
+
+    .t-title { font-size: 15px; font-weight: 600; }
+    .t-desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .t-time { font-size: 12px; color: var(--muted-2); margin-top: 4px; }
+
+    .sidebar-card { padding: 24px; margin-bottom: 24px; }
+    .sidebar-title {
+      margin: 0 0 16px;
+      font-size: 16px;
+      font-weight: 700;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .action-btn {
+      width: 100%;
+      height: 44px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+      cursor: pointer;
+      transition: all .3s ease;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: #475569;
+      margin-bottom: 10px;
+      text-decoration: none;
+    }
+
+    .action-btn:hover { transform: translateY(-2px); }
+
+    .action-primary {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      border: none;
+    }
+    .action-primary:hover { box-shadow: 0 8px 20px rgba(59,130,246,.3); }
+
+    .action-outline:hover { border-color: #3B82F6; color: #3B82F6; background: #EFF6FF; }
+    .action-dispute { border-color: #F59E0B; color: #D97706; }
+    .action-dispute:hover { background: #FFFBEB; border-color: #F59E0B; color: #D97706; }
+    .action-danger { border-color: #EF4444; color: #DC2626; }
+    .action-danger:hover { background: #FEF2F2; border-color: #EF4444; color: #DC2626; }
+
+    .verify-card {
+      background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.04));
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .verify-card i { font-size: 28px; color: #3B82F6; margin-bottom: 12px; }
+    .verify-card h4 { margin: 0 0 8px; font-size: 15px; font-weight: 700; }
+    .verify-card p { margin: 0; font-size: 13px; color: #6B7280; line-height: 1.5; }
+    .verify-hash { margin-top: 12px; font-size: 11px; font-family: 'Courier New', monospace; color: #94A3B8; }
+
+    .help-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .help-card i { font-size: 24px; color: #3B82F6; }
+    .help-card h4 { margin: 10px 0 6px; font-size: 15px; font-weight: 700; }
+    .help-card p { margin: 0; font-size: 13px; color: #6B7280; }
+    .help-card a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      color: #3B82F6;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+      100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 24px 0; }
+      .wrapper { padding: 0 16px; }
+      .hero-body { grid-template-columns: 1fr; padding: 24px; }
+      .amount { font-size: 36px; }
+      .meta-strip { grid-template-columns: repeat(2, 1fr); padding: 20px 24px; }
+      .hero-divider { margin: 0 24px; }
+      .transfer { flex-direction: column; align-items: flex-start; }
+      .arrow { transform: rotate(90deg); }
+      .info-grid { grid-template-columns: 1fr; }
+      .timeline { padding-left: 42px; }
+      .timeline::before { left: 14px; }
+      .t-dot { left: -32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/dashboard">Dashboard</a> &gt; <a href="/Transaction-History">Transactions</a> &gt; Transaction Details
+    </div>
+
+    <a href="/Transaction-History" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Transactions
+    </a>
+
+    <div class="title-row">
+      <h1>Transaction Details</h1>
+      <div class="txn-badge"><i class="fas fa-hashtag"></i> <%= breadcrumbId %></div>
+    </div>
+
+    <section class="card hero">
+      <div class="hero-strip hero-strip-<%= status.key %>"></div>
+      <div class="hero-body">
+        <div>
+          <p class="amount-label">Transaction Amount</p>
+          <p class="amount">₹<%= Number(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+          <div class="fee">Fee: ₹<%= Number(fee || 0).toFixed(2) %> + GST: ₹<%= Number(gst || 0).toFixed(2) %></div>
+        </div>
+        <div>
+          <span class="status-pill status-<%= status.key %>">
+            <i class="fas <%= status.icon %>"></i>
+            <%= status.text %>
+          </span>
+        </div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="meta-strip">
+        <div class="meta">
+          <i class="fas fa-calendar-alt"></i>
+          <div class="meta-label">Date & Time</div>
+          <div class="meta-value"><%= meta.dateTime %></div>
+        </div>
+        <div class="meta">
+          <i class="fas fa-credit-card"></i>
+          <div class="meta-label">Payment Method</div>
+          <div class="meta-value"><%= meta.paymentMethod %></div>
+        </div>
+        <div class="meta">
+          <i class="fas fa-exchange-alt"></i>
+          <div class="meta-label">Type</div>
+          <div class="meta-value"><%= meta.type %></div>
+        </div>
+        <div class="meta">
+          <i class="fas fa-building"></i>
+          <div class="meta-label">Bank</div>
+          <div class="meta-value"><%= meta.bank %></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-exchange-alt"></i> Sender & Receiver</h2>
+          <div class="transfer">
+            <div class="party">
+              <div class="avatar"><%= parties.sender.initials %></div>
+              <div class="party-name"><%= parties.sender.name %></div>
+              <div class="party-account"><%= parties.sender.account %></div>
+              <div class="party-bank"><%= parties.sender.bank %></div>
+            </div>
+            <i class="fas fa-long-arrow-alt-right arrow"></i>
+            <div class="party">
+              <div class="avatar"><%= parties.receiver.initials %></div>
+              <div class="party-name"><%= parties.receiver.name %></div>
+              <div class="party-account"><%= parties.receiver.account %></div>
+              <div class="party-bank"><%= parties.receiver.bank %></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-file-invoice"></i> Transaction Info</h2>
+          <div class="info-grid">
+            <% infoFields.forEach(function(field){ %>
+              <div>
+                <div class="label"><%= field.label %></div>
+                <div class="value"><%= field.value %></div>
+              </div>
+            <% }); %>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-history"></i> Transaction Timeline</h2>
+          <div class="timeline">
+            <% timeline.forEach(function(item){ %>
+              <div class="t-item">
+                <div class="t-dot dot-<%= item.state %>">
+                  <i class="fas <%= item.state === 'completed' ? 'fa-check' : item.state === 'active' ? 'fa-circle' : 'fa-dot-circle' %>"></i>
+                </div>
+                <div class="t-title"><%= item.title %></div>
+                <div class="t-desc"><%= item.desc %></div>
+                <div class="t-time"><%= item.timestamp %></div>
+              </div>
+            <% }); %>
+          </div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="card sidebar-card">
+          <h3 class="sidebar-title">Quick Actions</h3>
+          <button class="action-btn action-primary" id="downloadReceiptBtn"><i class="fas fa-download"></i> Download Receipt</button>
+          <button class="action-btn action-outline" id="printReceiptBtn"><i class="fas fa-print"></i> Print Receipt</button>
+          <button class="action-btn action-outline" id="shareReceiptBtn"><i class="fas fa-share-alt"></i> Share Receipt</button>
+          <a class="action-btn action-dispute" href="/disputes"><i class="fas fa-exclamation-triangle"></i> Raise Dispute</a>
+          <a class="action-btn action-danger" href="/report-issue?transactionId=<%= transactionId %>"><i class="fas fa-flag"></i> Report Issue</a>
+        </section>
+
+        <section class="verify-card">
+          <i class="fas fa-shield-alt"></i>
+          <h4>Verified Transaction</h4>
+          <p>This transaction was verified and secured by ZenoPay's fraud protection system.</p>
+          <div class="verify-hash">SHA256: <%= securityHash %></div>
+        </section>
+
+        <section class="help-card">
+          <i class="fas fa-headset"></i>
+          <h4>Need Help?</h4>
+          <p>Having issues with this transaction?</p>
+          <a href="/support">Contact Support <i class="fas fa-arrow-right"></i></a>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const txId = '<%= breadcrumbId %>';
+      const shareUrl = `${window.location.origin}/transaction/<%= transactionId %>`;
+
+      document.getElementById('printReceiptBtn')?.addEventListener('click', () => window.print());
+
+      document.getElementById('shareReceiptBtn')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          const original = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          setTimeout(() => (btn.innerHTML = original), 1400);
+        } catch {
+          window.prompt('Copy this link:', shareUrl);
+        }
+      });
+
+      document.getElementById('downloadReceiptBtn')?.addEventListener('click', () => {
+        const content = [
+          'ZenoPay Transaction Receipt',
+          '--------------------------',
+          `Transaction: ${txId}`,
+          `Amount: ₹<%= Number(amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>`,
+          `Status: <%= status.text %>`,
+          `Sender: <%= parties.sender.name %> (<%= parties.sender.account %>)`,
+          `Receiver: <%= parties.receiver.name %> (<%= parties.receiver.account %>)`,
+          `Date/Time: <%= meta.dateTime %>`,
+          `Method: <%= meta.paymentMethod %>`,
+          `Hash: <%= securityHash %>`
+        ].join('\n');
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${txId}-details.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+      });
+    })();
+  </script>
+</body>
+</html>

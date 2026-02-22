@@ -688,21 +688,41 @@ body {
   background: linear-gradient(135deg, #3B82F6, #8B5CF6);
   color: white;
   border: none;
-  padding: 0.85rem 1.6rem;
-  border-radius: 999px;
+  padding: 0.62rem 1.15rem;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   transition: all 0.3s;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 8px 18px rgba(59, 130, 246, 0.35);
+  width: auto !important;
+  max-width: max-content;
+  min-height: 40px;
 }
 
 .empty-state-btn:hover {
   background: #2563EB;
   transform: translateY(-2px);
+}
+
+/* Page-specific footer spacing fixes */
+.modern-footer {
+  margin-top: 52px;
+}
+
+.modern-footer .newsletter-section {
+  margin-top: -18px;
+  padding-top: 0;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.modern-footer .newsletter-container {
+  margin-bottom: 48px;
+  max-width: 1400px;
 }
 
 /* Responsive Design */
@@ -857,6 +877,29 @@ body {
   .transaction-drawer {
     width: 100%;
     right: -100%;
+  }
+
+  .empty-state-btn {
+    width: auto !important;
+    max-width: max-content;
+    min-height: 38px;
+    padding: 0.58rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .modern-footer {
+    margin-top: 56px;
+  }
+
+  .modern-footer .newsletter-section {
+    margin-top: -12px;
+    padding-top: 0;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modern-footer .newsletter-container {
+    margin-bottom: 40px;
   }
 
   .page-header {

@@ -215,6 +215,7 @@ router.get(
 
 // Transaction History
 router.get("/Transaction-History", TransactionInfoController.getTransactionHistory);
+router.get("/transaction/:transactionId", TransactionInfoController.getTransactionDetails);
 
 // KYC Verification
 router.get("/kyc", KYCController.getKYCVerification);
@@ -284,6 +285,8 @@ router.post("/api/receipts/bulk-download", ReceiptsController.downloadBulkReceip
 
 // Public receipt verification
 router.get("/verify-receipt/:receipt_number", ReceiptsController.verifyReceipt);
+router.get("/receipt/verify", ReceiptsController.getReceiptVerificationPage);
+router.get("/api/receipt/verify/:receiptId", ReceiptsController.verifyReceiptApi);
 
 // Referral Program Routes
 router.get("/referral", ReferralController.getReferralPage);

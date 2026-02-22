@@ -4,6 +4,71 @@ const TransactionHistory = require('../Models/TransactionHistory');
 const Receipt = require('../Models/Receipt');
 const receiptPdfGenerator = require('../Services/receiptPdfGenerator');
 const EmailService = require('../Services/EmailService');
+const crypto = require('crypto');
+
+const RECEIPT_ID_REGEX = /^ZP-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+
+const formatReceiptId = (raw = '') => {
+  const cleaned = String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 14);
+  if (cleaned.length <= 2) return cleaned;
+
+  const body = cleaned.startsWith('ZP') ? cleaned.slice(2) : cleaned;
+  const parts = [];
+  for (let i = 0; i < body.length; i += 4) {
+    parts.push(body.slice(i, i + 4));
+  }
+  return `ZP-${parts.join('-')}`.replace(/-$/, '');
+};
+
+const maskAccount = (value = '') => {
+  const str = String(value || '').replace(/\s+/g, '');
+  if (!str) return 'XXXX XXXX 0000';
+  const last4 = str.slice(-4);
+  return `XXXX XXXX ${last4.padStart(4, '0')}`;
+};
+
+const normalizeStatus = (status = '') => {
+  const map = {
+    success: 'COMPLETED',
+    pending: 'PENDING',
+    failed: 'FAILED'
+  };
+  return map[String(status).toLowerCase()] || String(status || 'UNKNOWN').toUpperCase();
+};
+
+const mapReceiptForVerification = (receipt) => {
+  const totalAmount = Number(receipt.total_amount || 0);
+  const fee = Number(receipt.fee || 0);
+  const gst = Number((fee * 0.18).toFixed(2));
+  const netAmount = Number((totalAmount - fee - gst).toFixed(2));
+  const transactionDate = receipt.transaction_date ? new Date(receipt.transaction_date) : new Date();
+
+  return {
+    receiptId: receipt.receipt_number,
+    sender: {
+      name: receipt.sender_name || 'N/A',
+      account: maskAccount(receipt.sender_id)
+    },
+    recipient: {
+      name: receipt.recipient_name || 'N/A',
+      account: maskAccount(receipt.recipient_id)
+    },
+    amount: totalAmount,
+    fee,
+    gst,
+    netAmount,
+    currency: 'INR',
+    method: receipt.payment_method || 'ZenoPay Wallet',
+    status: normalizeStatus(receipt.status),
+    transactionDate,
+    reference: receipt.transaction_hash || `REF${String(receipt._id).slice(-9).toUpperCase()}`,
+    securityHash: crypto
+      .createHash('sha256')
+      .update(`${receipt.receipt_number}:${receipt.transaction_hash || ''}:${transactionDate.toISOString()}`)
+      .digest('hex')
+      .slice(0, 12)
+  };
+};
 
 // GET /receipts - Main receipts page
 exports.getReceiptsPage = async (req, res) => {
@@ -298,28 +363,67 @@ exports.searchReceipts = async (req, res) => {
 // GET /verify-receipt/:receipt_number - Public receipt verification
 exports.verifyReceipt = async (req, res) => {
   try {
-    const { receipt_number } = req.params;
-
-    const receipt = await Receipt.findOne({ receipt_number: receipt_number })
-      .select('receipt_number transaction_date status total_amount verification_status')
-      .lean();
-
-    if (!receipt) {
-      return res.render('receipt-verification', {
-        pageTitle: 'Receipt Verification - ZenoPay',
-        found: false,
-        receipt_number: receipt_number
-      });
-    }
-
     res.render('receipt-verification', {
       pageTitle: 'Receipt Verification - ZenoPay',
-      found: true,
-      receipt: receipt
+      prefilledReceiptId: formatReceiptId(req.params.receipt_number || '')
     });
   } catch (error) {
     console.error('[Receipts] Error verifying receipt:', error);
     res.status(500).render('error-500');
+  }
+};
+
+// GET /receipt/verify?id=XXX - Public verification page with optional query prefill
+exports.getReceiptVerificationPage = async (req, res) => {
+  try {
+    const queryId = req.query?.id || '';
+
+    return res.render('receipt-verification', {
+      pageTitle: 'Receipt Verification - ZenoPay',
+      prefilledReceiptId: formatReceiptId(queryId)
+    });
+  } catch (error) {
+    console.error('[Receipts] Error loading verification page:', error);
+    res.status(500).render('error-500');
+  }
+};
+
+// GET /api/receipt/verify/:receiptId - Public API to verify receipt authenticity
+exports.verifyReceiptApi = async (req, res) => {
+  try {
+    const formattedId = formatReceiptId(req.params.receiptId || '');
+
+    if (!RECEIPT_ID_REGEX.test(formattedId)) {
+      return res.status(400).json({
+        verified: false,
+        reason: 'Receipt ID format is invalid',
+        code: 'INVALID_RECEIPT_FORMAT'
+      });
+    }
+
+    const receipt = await Receipt.findOne({
+      receipt_number: { $regex: `^${formattedId}$`, $options: 'i' }
+    }).lean();
+
+    if (!receipt || receipt.verification_status === 'failed') {
+      return res.status(404).json({
+        verified: false,
+        reason: 'Receipt not found',
+        code: 'RECEIPT_NOT_FOUND'
+      });
+    }
+
+    return res.json({
+      verified: true,
+      receipt: mapReceiptForVerification(receipt)
+    });
+  } catch (error) {
+    console.error('[Receipts] Error in verifyReceiptApi:', error);
+    res.status(500).json({
+      verified: false,
+      reason: 'Internal server error',
+      code: 'INTERNAL_ERROR'
+    });
   }
 };
 

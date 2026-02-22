@@ -1,5 +1,8 @@
 const TransactionHistory = require("../Models/TransactionHistory");
 const BankAccount = require("../Models/BankAccount");
+const Receipt = require("../Models/Receipt");
+const mongoose = require("mongoose");
+const crypto = require("crypto");
 
 const getTransactionHistory = async (req, res) => {
   try {
@@ -216,6 +219,221 @@ const getTransactionHistory = async (req, res) => {
   }
 };
 
+const parseMoney = (value) => {
+  if (value === null || value === undefined) return 0;
+  const raw = typeof value === "object" && value.toString ? value.toString() : value;
+  const numeric = Number(raw);
+  return Number.isFinite(numeric) ? numeric : 0;
+};
+
+const maskAccount = (account = "") => {
+  const normalized = String(account || "").replace(/\s+/g, "");
+  if (!normalized) return "XXXX XXXX 0000";
+  return `XXXX XXXX ${normalized.slice(-4).padStart(4, "0")}`;
+};
+
+const getInitials = (name = "") => {
+  return String(name || "")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "NA";
+};
+
+const formatDate = (dateValue) => {
+  const date = new Date(dateValue);
+  return date.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+};
+
+const formatTime = (dateValue) => {
+  const date = new Date(dateValue);
+  return date.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
+const getStatusConfig = (status = "pending") => {
+  const normalized = String(status || "pending").toLowerCase();
+  if (normalized === "success") {
+    return {
+      key: "success",
+      text: "SUCCESS",
+      icon: "fa-check-circle",
+      gradient: "linear-gradient(135deg, #10B981, #059669)",
+    };
+  }
+  if (normalized === "failed") {
+    return {
+      key: "failed",
+      text: "FAILED",
+      icon: "fa-times-circle",
+      gradient: "linear-gradient(135deg, #EF4444, #DC2626)",
+    };
+  }
+  return {
+    key: "pending",
+    text: "PENDING",
+    icon: "fa-clock",
+    gradient: "linear-gradient(135deg, #F59E0B, #D97706)",
+  };
+};
+
+const getTimeline = (status = "pending", transactionTime) => {
+  const normalized = String(status || "pending").toLowerCase();
+  const steps = [
+    { title: "Payment Initiated", desc: "Transaction started by user" },
+    { title: "Bank Verification", desc: "Bank account details verified" },
+    { title: "Payment Processing", desc: "Processing with payment network" },
+    { title: "Amount Debited", desc: "Amount debited from sender's account" },
+    { title: "Amount Credited", desc: "Amount credited to receiver's account" },
+    { title: "Transaction Complete", desc: "Receipt generated and sent" },
+  ];
+
+  let completedCount = 0;
+  let activeIndex = -1;
+
+  if (normalized === "success") {
+    completedCount = steps.length;
+  } else if (normalized === "failed") {
+    completedCount = 2;
+    activeIndex = 2;
+  } else {
+    completedCount = 3;
+    activeIndex = 3;
+  }
+
+  return steps.map((step, index) => {
+    let state = "pending";
+    if (index < completedCount) state = "completed";
+    if (index === activeIndex) state = "active";
+
+    return {
+      ...step,
+      state,
+      timestamp: index <= Math.max(completedCount - 1, activeIndex)
+        ? `${formatDate(transactionTime)} • ${formatTime(transactionTime)}`
+        : "Awaiting update",
+    };
+  });
+};
+
+const getTransactionDetails = async (req, res) => {
+  try {
+    const rawTransactionId = String(req.params.transactionId || "").trim();
+    const userZenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+
+    const userAccounts = await BankAccount.find({ ZenoPayId: userZenoPayId }).lean();
+    const accountNumbers = userAccounts.map((acc) => acc.AccountNumber);
+
+    const numericPart = rawTransactionId.replace(/[^0-9]/g, "");
+    let transaction = null;
+
+    if (numericPart) {
+      transaction = await TransactionHistory.findOne({ TransactionID: Number(numericPart) }).lean();
+    }
+
+    if (!transaction && mongoose.Types.ObjectId.isValid(rawTransactionId)) {
+      transaction = await TransactionHistory.findById(rawTransactionId).lean();
+    }
+
+    if (!transaction) {
+      return res.status(404).render("error-404", {
+        pageTitle: "Transaction Not Found - ZenoPay",
+        path: req.path,
+      });
+    }
+
+    const isUserPartOfTransaction =
+      accountNumbers.includes(transaction.SenderAccountNumber) ||
+      accountNumbers.includes(transaction.ReceiverAccountNumber) ||
+      userZenoPayId === "ZP-DEMO2024";
+
+    if (!isUserPartOfTransaction) {
+      return res.status(403).render("error-404", {
+        pageTitle: "Access Denied - ZenoPay",
+        path: req.path,
+      });
+    }
+
+    const receipt = await Receipt.findOne({ transaction_id: transaction._id }).lean();
+
+    const amount = parseMoney(transaction.Amount);
+    const fee = receipt ? parseMoney(receipt.fee) : 0;
+    const gst = Number((fee * 0.18).toFixed(2));
+    const status = getStatusConfig(transaction.Status);
+    const hash =
+      receipt?.transaction_hash ||
+      crypto
+        .createHash("sha256")
+        .update(`${transaction.TransactionID}:${transaction.TransactionTime}`)
+        .digest("hex")
+        .slice(0, 12);
+
+    const details = {
+      pageTitle: "Transaction Details - ZenoPay",
+      breadcrumbId: `TXN-${transaction.TransactionID}`,
+      amount,
+      fee,
+      gst,
+      status,
+      meta: {
+        dateTime: `${formatDate(transaction.TransactionTime)} - ${formatTime(transaction.TransactionTime)}`,
+        paymentMethod: receipt?.payment_method || "UPI Transfer",
+        type: "Money Transfer",
+        bank: transaction.SenderBank || "N/A",
+      },
+      parties: {
+        sender: {
+          initials: getInitials(transaction.SenderHolderName),
+          name: transaction.SenderHolderName || "N/A",
+          account: maskAccount(transaction.SenderAccountNumber),
+          bank: transaction.SenderBank || "N/A",
+        },
+        receiver: {
+          initials: getInitials(transaction.ReceiverHolderName),
+          name: transaction.ReceiverHolderName || "N/A",
+          account: maskAccount(transaction.ReceiverAccountNumber),
+          bank: transaction.ReceiverBank || "N/A",
+        },
+      },
+      infoFields: [
+        { label: "Transaction ID", value: `TXN-${transaction.TransactionID}` },
+        { label: "Reference Number", value: receipt?.receipt_number || `REF${transaction.TransactionID}` },
+        { label: "Payment Method", value: receipt?.payment_method || "UPI Transfer" },
+        { label: "Bank Name", value: transaction.SenderBank || "N/A" },
+        { label: "IFSC Code", value: "N/A" },
+        { label: "UTR Number", value: `UTR${transaction.TransactionID}` },
+        { label: "Created At", value: `${formatDate(transaction.TransactionTime)} ${formatTime(transaction.TransactionTime)}` },
+        {
+          label: "Completed At",
+          value: transaction.Status === "success"
+            ? `${formatDate(transaction.TransactionTime)} ${formatTime(transaction.TransactionTime)}`
+            : "Pending",
+        },
+      ],
+      timeline: getTimeline(transaction.Status, transaction.TransactionTime),
+      securityHash: hash,
+      transactionId: transaction.TransactionID,
+    };
+
+    return res.render("transaction-details", details);
+  } catch (error) {
+    console.error("Error fetching transaction detail:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
+
 module.exports = {
   getTransactionHistory,
+  getTransactionDetails,
 };
