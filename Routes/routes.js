@@ -32,6 +32,7 @@ const LegalPagesController = require("../Controllers/LegalPagesController");
 const ContactController = require("../Controllers/ContactController");
 const PrivacyPolicyController = require("../Controllers/PrivacyPolicyController");
 const PricingController = require("../Controllers/PricingController");
+const BeneficiaryController = require("../Controllers/BeneficiaryController");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -121,6 +122,9 @@ router.get("/api/cart", ShopController.getCart);
 router.post("/api/cart/add", ShopController.addToCart);
 router.put("/api/cart/update/:id", ShopController.updateCartItem);
 router.delete("/api/cart/remove/:id", ShopController.removeFromCart);
+
+// Beneficiary Management
+router.get("/beneficiaries", BeneficiaryController.getBeneficiariesPage);
 
 // Checkout & Orders
 router.post("/api/checkout", ShopController.processCheckout);

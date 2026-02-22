@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle || 'Beneficiaries - ZenoPay' %></title>
+    <link rel="stylesheet" href="/css/header.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/beneficiary-management.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body class="beneficiary-page">
+    <%- include('partials/header') %>
+
+    <main class="main-content">
+      <div class="beneficiary-wrapper">
+        <nav class="beneficiary-breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span class="crumb-separator">&gt;</span>
+          <a href="/">Dashboard</a>
+          <span class="crumb-separator">&gt;</span>
+          <span aria-current="page">Beneficiaries</span>
+        </nav>
+
+        <div class="beneficiary-header-row">
+          <div>
+            <h1>Beneficiaries</h1>
+            <p>Manage your saved contacts for quick money transfers</p>
+          </div>
+          <button class="add-beneficiary-btn" id="openBeneficiaryModalBtn" type="button">
+            <i class="fas fa-plus"></i>
+            Add Beneficiary
+          </button>
+        </div>
+
+        <section class="beneficiary-stats-strip" aria-label="Beneficiary Statistics">
+          <article class="beneficiary-stat-item">
+            <i class="fas fa-users"></i>
+            <div class="beneficiary-stat-value" id="statsTotalCount"><%= stats?.total || 0 %></div>
+            <div class="beneficiary-stat-label">Total Beneficiaries</div>
+          </article>
+          <article class="beneficiary-stat-item">
+            <i class="fas fa-star"></i>
+            <div class="beneficiary-stat-value" id="statsFavouriteCount"><%= stats?.favourites || 0 %></div>
+            <div class="beneficiary-stat-label">Favourite</div>
+          </article>
+          <article class="beneficiary-stat-item">
+            <i class="fas fa-exchange-alt"></i>
+            <div class="beneficiary-stat-value" id="statsTransfersMonthCount"><%= stats?.transfersThisMonth || 0 %></div>
+            <div class="beneficiary-stat-label">Transfers This Month</div>
+          </article>
+          <article class="beneficiary-stat-item">
+            <i class="fas fa-clock"></i>
+            <div class="beneficiary-stat-value" id="statsRecentAddedCount"><%= stats?.recentlyAdded || 0 %></div>
+            <div class="beneficiary-stat-label">Recently Added</div>
+          </article>
+        </section>
+
+        <section class="beneficiary-filter-bar">
+          <div class="beneficiary-search-wrap">
+            <i class="fas fa-search"></i>
+            <input
+              id="beneficiarySearchInput"
+              type="text"
+              placeholder="Search by name, bank, account, or UPI"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="beneficiary-filter-tabs" role="tablist" aria-label="Beneficiary type filters">
+            <button class="beneficiary-filter-tab active" data-filter="all" type="button">All</button>
+            <button class="beneficiary-filter-tab" data-filter="favourite" type="button">Favourite</button>
+            <button class="beneficiary-filter-tab" data-filter="bank" type="button">Bank Transfer</button>
+            <button class="beneficiary-filter-tab" data-filter="upi" type="button">UPI</button>
+          </div>
+
+          <div class="beneficiary-sort-wrap">
+            <label for="beneficiarySort">Sort:</label>
+            <select id="beneficiarySort" class="sort-dropdown">
+              <option value="az">A-Z</option>
+              <option value="za">Z-A</option>
+              <option value="recent">Recent First</option>
+              <option value="most-used">Most Used</option>
+            </select>
+          </div>
+        </section>
+
+        <% if (hasBeneficiaries) { %>
+          <section class="beneficiary-grid" id="beneficiaryGrid">
+            <% beneficiaries.forEach(beneficiary => { %>
+              <article
+                class="beneficiary-card"
+                data-name="<%= beneficiary.name.toLowerCase() %>"
+                data-bank="<%= beneficiary.bankName.toLowerCase() %>"
+                data-account="<%= beneficiary.accountMasked.toLowerCase() %>"
+                data-upi="<%= (beneficiary.upiOrType || '').toLowerCase() %>"
+                data-type="<%= beneficiary.typeKey %>"
+                data-favourite="<%= beneficiary.isFavourite ? 'true' : 'false' %>"
+                data-last-transfer="<%= beneficiary.lastTransfer %>"
+                data-added-at="<%= beneficiary.addedAt || '' %>"
+                data-transfer-count="<%= beneficiary.transferCount || 0 %>"
+              >
+                <button
+                  class="favourite-toggle <%= beneficiary.isFavourite ? 'active' : '' %>"
+                  type="button"
+                  title="Toggle favourite"
+                  aria-label="Toggle favourite"
+                >
+                  <i class="fas fa-star"></i>
+                </button>
+
+                <div class="beneficiary-avatar-wrap">
+                  <% if (beneficiary.avatarUrl) { %>
+                    <img src="<%= beneficiary.avatarUrl %>" alt="<%= beneficiary.name %>" class="beneficiary-avatar" />
+                  <% } else { %>
+                    <div class="beneficiary-avatar"><%= beneficiary.initials || 'NA' %></div>
+                  <% } %>
+
+                  <span class="beneficiary-bank-badge" aria-hidden="true">
+                    <i class="fas fa-university"></i>
+                  </span>
+                </div>
+
+                <h3><%= beneficiary.name %></h3>
+                <p class="beneficiary-bank-line">
+                  <span><%= beneficiary.bankName %></span>
+                  <code><%= beneficiary.accountMasked %></code>
+                </p>
+                <span class="beneficiary-type-badge"><%= beneficiary.transferType %></span>
+                <div class="beneficiary-history">
+                  <i class="fas fa-history"></i>
+                  Last transfer: <%= beneficiary.lastTransfer %>
+                </div>
+
+                <div class="beneficiary-divider"></div>
+
+                <div class="beneficiary-card-actions">
+                  <button class="send-money-btn" type="button">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Money
+                  </button>
+
+                  <div class="beneficiary-more-wrap">
+                    <button class="beneficiary-more-btn" type="button" aria-label="More options">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="beneficiary-more-menu" role="menu">
+                      <button type="button" role="menuitem"><i class="fas fa-pen"></i> Edit</button>
+                      <button type="button" role="menuitem"><i class="fas fa-trash"></i> Delete</button>
+                      <button type="button" role="menuitem"><i class="fas fa-clock-rotate-left"></i> View History</button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            <% }); %>
+          </section>
+
+          <section class="beneficiary-empty-state hidden" id="beneficiaryNoResults">
+            <i class="fas fa-users"></i>
+            <h3>No matching beneficiaries</h3>
+            <p>Try changing your search or filter to find saved contacts.</p>
+          </section>
+        <% } else { %>
+          <section class="beneficiary-empty-state">
+            <i class="fas fa-users"></i>
+            <h3>No Beneficiaries Yet</h3>
+            <p>
+              Add your first beneficiary to send money quickly without entering details every time.
+            </p>
+            <button class="add-beneficiary-btn" id="openBeneficiaryModalEmptyBtn" type="button">
+              <i class="fas fa-plus"></i>
+              Add Beneficiary
+            </button>
+          </section>
+        <% } %>
+      </div>
+    </main>
+
+    <div class="beneficiary-modal-overlay" id="beneficiaryModalOverlay" aria-hidden="true">
+      <div class="beneficiary-modal" role="dialog" aria-modal="true" aria-labelledby="beneficiaryModalTitle">
+        <div class="beneficiary-modal-header">
+          <h2 id="beneficiaryModalTitle">Add New Beneficiary</h2>
+          <button class="beneficiary-modal-close" id="closeBeneficiaryModalBtn" aria-label="Close modal" type="button">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="beneficiary-modal-tabs" role="tablist">
+          <button class="beneficiary-modal-tab active" data-tab="bank" type="button">Bank Account</button>
+          <button class="beneficiary-modal-tab" data-tab="upi" type="button">UPI ID</button>
+          <button class="beneficiary-modal-tab" data-tab="mobile" type="button">Mobile Number</button>
+        </div>
+
+        <div class="beneficiary-modal-body">
+          <form class="beneficiary-tab-panel active" id="beneficiaryBankTab">
+            <div class="beneficiary-form-group">
+              <label for="holderName">Account Holder Name *</label>
+              <input id="holderName" type="text" placeholder="Enter full name" required />
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="accountNumber">Account Number *</label>
+              <input id="accountNumber" class="mono" type="text" placeholder="Enter account number" required />
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="confirmAccountNumber">Confirm Account Number</label>
+              <input id="confirmAccountNumber" class="mono" type="text" placeholder="Re-enter account number" />
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="bankName">Bank Name</label>
+              <select id="bankName">
+                <option>HDFC Bank</option>
+                <option>ICICI Bank</option>
+                <option>SBI</option>
+                <option>Axis Bank</option>
+                <option>Kotak Bank</option>
+              </select>
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="ifsc">IFSC Code</label>
+              <input id="ifsc" class="mono" type="text" placeholder="e.g. HDFC0001234" />
+            </div>
+            <div class="beneficiary-form-group">
+              <label>Account Type</label>
+              <div class="beneficiary-radio-row">
+                <label><input type="radio" name="accountType" checked /> Savings</label>
+                <label><input type="radio" name="accountType" /> Current</label>
+              </div>
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="bankNickname">Nickname (optional)</label>
+              <input id="bankNickname" type="text" placeholder="e.g. Mom, Rent, Office" />
+            </div>
+          </form>
+
+          <form class="beneficiary-tab-panel" id="beneficiaryUpiTab">
+            <div class="beneficiary-form-group">
+              <label for="upiId">UPI ID</label>
+              <div class="beneficiary-inline-input">
+                <input id="upiId" type="text" placeholder="name@bank" />
+                <button type="button" class="beneficiary-inline-btn">Verify UPI</button>
+              </div>
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="upiNickname">Nickname (optional)</label>
+              <input id="upiNickname" type="text" placeholder="e.g. Grocery, Friend" />
+            </div>
+          </form>
+
+          <form class="beneficiary-tab-panel" id="beneficiaryMobileTab">
+            <div class="beneficiary-form-group">
+              <label for="mobileNumber">Mobile Number</label>
+              <input id="mobileNumber" type="tel" placeholder="+91 XXXXX XXXXX" />
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="registeredName">Registered Name</label>
+              <input id="registeredName" type="text" placeholder="Auto-fetched name" />
+            </div>
+            <div class="beneficiary-form-group">
+              <label for="mobileNickname">Nickname (optional)</label>
+              <input id="mobileNickname" type="text" placeholder="e.g. Driver, Vendor" />
+            </div>
+          </form>
+        </div>
+
+        <div class="beneficiary-modal-footer">
+          <button class="beneficiary-cancel-btn" id="cancelBeneficiaryModalBtn" type="button">Cancel</button>
+          <button class="beneficiary-save-btn" id="saveBeneficiaryBtn" type="button">
+            <i class="fas fa-check"></i>
+            Save Beneficiary
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <%- include('partials/MobileNav') %>
+    <%- include('partials/footer') %>
+
+    <script src="/js/header.js"></script>
+    <script src="/js/beneficiary-management.js"></script>
+  </body>
+</html>
