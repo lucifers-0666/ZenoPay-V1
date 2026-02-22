@@ -171,6 +171,26 @@ const getAPIIntegrationPage = (req, res) => {
   }
 };
 
+// Get Public API Docs page
+const getAPIDocsPage = (req, res) => {
+  try {
+    res.render('api-docs', {
+      pageTitle: 'API Documentation - ZenoPay',
+      isLoggedIn: req.session?.isLoggedIn || false,
+      user: req.session?.user || null,
+      userData: req.session?.user || null
+    });
+  } catch (error) {
+    console.error('Error rendering API docs page:', error);
+    res.status(500).render('error-500', {
+      pageTitle: 'Error - ZenoPay',
+      error: 'Failed to load API Documentation page',
+      isLoggedIn: false,
+      user: null
+    });
+  }
+};
+
 module.exports = {
   getTermsPage,
   getPrivacyPage,
@@ -178,6 +198,7 @@ module.exports = {
   getHelpPage,
   getContactPage,
   getAPIIntegrationPage,
+  getAPIDocsPage,
   getTermsVersion,
   acceptTerms
 };

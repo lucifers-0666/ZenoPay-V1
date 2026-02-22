@@ -2,6 +2,48 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 
+const statusConfig = {
+  open: { key: 'open', label: 'Open', stripClass: 'strip-open', pillClass: 'status-open' },
+  'under-review': { key: 'under-review', label: 'Under Review', stripClass: 'strip-open', pillClass: 'status-open' },
+  'evidence-requested': { key: 'evidence-requested', label: 'Evidence Requested', stripClass: 'strip-open', pillClass: 'status-open' },
+  escalated: { key: 'escalated', label: 'Escalated', stripClass: 'strip-escalated', pillClass: 'status-escalated' },
+  resolved: { key: 'resolved', label: 'Resolved', stripClass: 'strip-resolved', pillClass: 'status-resolved' },
+  won: { key: 'won', label: 'Won', stripClass: 'strip-resolved', pillClass: 'status-resolved' },
+  closed: { key: 'closed', label: 'Closed', stripClass: 'strip-closed', pillClass: 'status-closed' },
+  lost: { key: 'lost', label: 'Lost', stripClass: 'strip-closed', pillClass: 'status-closed' },
+};
+
+const getStatusMeta = (statusKey) => statusConfig[statusKey] || statusConfig.open;
+
+const disputeSteps = [
+  'Submitted',
+  'Under Review',
+  'Evidence Requested',
+  'Decision Made',
+  'Resolved',
+];
+
+const resolveStepIndex = (statusKey) => {
+  switch (statusKey) {
+    case 'open':
+      return 0;
+    case 'under-review':
+      return 1;
+    case 'evidence-requested':
+    case 'escalated':
+      return 2;
+    case 'decision-made':
+      return 3;
+    case 'resolved':
+    case 'won':
+    case 'closed':
+    case 'lost':
+      return 4;
+    default:
+      return 0;
+  }
+};
+
 // Mock disputes data
 const mockDisputes = [
   {
@@ -84,14 +126,107 @@ exports.getDisputesPage = async (req, res) => {
 exports.getDisputeDetail = async (req, res) => {
   try {
     const { disputeId } = req.params;
-    
+    const format = req.query.format || '';
+
     const dispute = mockDisputes.find(d => d.disputeId === disputeId);
-    
+
     if (!dispute) {
-      return res.status(404).json({ success: false, message: 'Dispute not found' });
+      if (format === 'json' || req.accepts('json')) {
+        return res.status(404).json({ success: false, message: 'Dispute not found' });
+      }
+      return res.status(404).send('Dispute not found');
     }
-    
-    res.json({ success: true, dispute });
+
+    if (format === 'json' || req.accepts('json')) {
+      return res.json({ success: true, dispute });
+    }
+
+    const statusMeta = getStatusMeta(dispute.status);
+    const createdAt = dispute.submittedDate || new Date();
+    const expectedResolution = new Date(createdAt);
+    expectedResolution.setDate(expectedResolution.getDate() + 14);
+
+    const evidence = dispute.evidence?.length
+      ? dispute.evidence
+      : [
+          { filename: 'payment_receipt.pdf', uploadDate: new Date('2026-02-16'), size: '1.2 MB', type: 'pdf' },
+          { filename: 'chat_screenshot.png', uploadDate: new Date('2026-02-17'), size: '600 KB', type: 'image' },
+        ];
+
+    const timeline = [
+      {
+        actor: 'you',
+        title: 'Dispute Submitted',
+        time: 'Feb 15, 2026 • 10:05 AM',
+        content: 'You filed the dispute with a description of the unauthorized transaction.',
+      },
+      {
+        actor: 'zeno',
+        title: 'Case Assigned',
+        time: 'Feb 15, 2026 • 12:30 PM',
+        content: 'ZenoPay support assigned a dispute specialist to review your case.',
+      },
+      {
+        actor: 'system',
+        title: 'Evidence Requested',
+        time: 'Feb 16, 2026 • 09:00 AM',
+        content: 'We requested supporting documents to proceed with the investigation.',
+      },
+      {
+        actor: 'you',
+        title: 'Evidence Submitted',
+        time: 'Feb 16, 2026 • 04:20 PM',
+        content: 'You submitted two files to support your claim.',
+        attachments: ['payment_receipt.pdf', 'chat_screenshot.png'],
+      },
+      {
+        actor: 'zeno',
+        title: 'Under Review',
+        time: 'Feb 18, 2026 • 11:45 AM',
+        content: 'The dispute specialist is reviewing the evidence and contacting the merchant.',
+      },
+    ];
+
+    const transaction = {
+      id: dispute.transactionId || 'ZP-TRX-2026-8821',
+      amount: dispute.amount || 15000,
+      date: 'Feb 12, 2026 • 04:18 PM',
+      type: 'Card Payment',
+      from: 'You',
+      to: dispute.merchantName || 'ZenoPay Merchant',
+      reference: 'REF-90218-2026',
+    };
+
+    const caseSummary = {
+      id: dispute.disputeId,
+      type: dispute.reason || 'Unauthorized Transaction',
+      amount: dispute.amount || 15000,
+      reason: dispute.reason || 'Unauthorized Transaction',
+      filedOn: createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      updatedOn: dispute.lastUpdated
+        ? dispute.lastUpdated.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+        : createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      assignedAgent: 'Aditi Sharma',
+    };
+
+    const importantDates = [
+      { label: 'Filed', date: caseSummary.filedOn },
+      { label: 'Evidence Deadline', date: 'Feb 22, 2026', overdue: false },
+      { label: 'Expected Decision', date: expectedResolution.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) },
+    ];
+
+    res.render('dispute-details-timeline', {
+      pageTitle: 'Dispute Case - ZenoPay',
+      dispute,
+      statusMeta,
+      steps: disputeSteps,
+      activeStep: resolveStepIndex(dispute.status),
+      transaction,
+      evidence,
+      timeline,
+      caseSummary,
+      importantDates,
+    });
   } catch (error) {
     console.error('Error loading dispute detail:', error);
     res.status(500).json({ success: false, message: 'Failed to load dispute' });

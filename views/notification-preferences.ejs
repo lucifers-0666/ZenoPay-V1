@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Notification Preferences - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --purple: #8B5CF6;
+      --orange: #F59E0B;
+      --yellow: #EAB308;
+      --slate: #475569;
+      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      --shadow-hover: 0 12px 24px rgba(37, 99, 235, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 120px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .breadcrumb a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .page-header {
+      margin-bottom: 20px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .title-row i {
+      color: var(--blue);
+      font-size: 28px;
+    }
+
+    .title-row h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .master-card {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.06));
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      gap: 16px;
+    }
+
+    .master-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .master-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(59,130,246,0.12);
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .master-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .master-note {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .card-inner {
+      padding: 28px;
+    }
+
+    .card-title {
+      margin: 0 0 18px;
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i { color: var(--blue); }
+
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .channel-card {
+      background: #F8FAFC;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.25s ease;
+    }
+
+    .channel-card.active {
+      border-color: var(--blue);
+      background: rgba(59,130,246,0.04);
+    }
+
+    .channel-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 12px;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .icon-email { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .icon-sms { background: linear-gradient(135deg, #10B981, #059669); }
+    .icon-push { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+    .icon-whatsapp { background: linear-gradient(135deg, #22C55E, #16A34A); }
+
+    .channel-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-flex;
+      width: 46px;
+      height: 26px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #CBD5E1;
+      border-radius: 999px;
+      transition: all 0.25s ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: all 0.25s ease;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--blue); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    .toggle.large { width: 60px; height: 34px; }
+    .toggle.large .toggle-slider::before { width: 26px; height: 26px; top: 4px; left: 4px; }
+    .toggle.large input:checked + .toggle-slider::before { transform: translateX(26px); }
+
+    .category-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .category-header {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .category-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .category-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .cat-tx { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .cat-security { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+    .cat-requests { background: linear-gradient(135deg, #10B981, #059669); }
+    .cat-offers { background: linear-gradient(135deg, #F59E0B, #EA580C); }
+    .cat-reminders { background: linear-gradient(135deg, #EAB308, #CA8A04); }
+
+    .category-name {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .category-desc {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .category-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .chevron {
+      color: #94A3B8;
+      transition: transform 0.25s ease;
+    }
+
+    .category-card.expanded .chevron { transform: rotate(180deg); }
+
+    .category-body {
+      padding: 8px 24px 20px;
+      display: none;
+    }
+
+    .category-card.expanded .category-body { display: block; }
+
+    .notification-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .notification-row:last-child { border-bottom: 0; }
+
+    .row-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .row-description {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--muted-2);
+    }
+
+    .row-channels {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .channel-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 0;
+      background: #F1F5F9;
+      color: #CBD5E1;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .channel-btn.active {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 14px rgba(37, 99, 235, 0.2);
+    }
+
+    .channel-btn:hover { transform: translateY(-1px); }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .setting-row:last-of-type { border-bottom: 0; }
+
+    .setting-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .setting-sub {
+      margin: 4px 0 0;
+      color: var(--muted-2);
+      font-size: 13px;
+    }
+
+    .time-pickers {
+      display: none;
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F8FAFC;
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .time-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      height: 40px;
+      padding: 0 10px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+
+    .save-bar {
+      background: #fff;
+      border-top: 1px solid var(--border);
+      padding: 20px 0;
+    }
+
+    .save-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      height: 44px;
+      padding: 0 16px;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-outline {
+      border: 1.5px solid #94A3B8;
+      background: #fff;
+      color: #475569;
+    }
+
+    .btn-outline:hover {
+      border-color: #64748B;
+      color: #334155;
+      transform: translateY(-1px);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(37,99,235,0.25);
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .disabled-all {
+      opacity: 0.55;
+      pointer-events: none;
+      filter: grayscale(0.2);
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 1200;
+      background: #0F172A;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      .channels-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper { padding: 28px 16px 110px; }
+      .title-row h1 { font-size: 26px; }
+      .card-inner { padding: 22px; }
+      .master-card { padding: 18px; }
+      .master-left { align-items: flex-start; }
+      .category-header { padding: 16px; }
+      .category-body { padding: 6px 16px 16px; }
+      .notification-row { align-items: flex-start; }
+      .row-channels { margin-top: 4px; justify-content: flex-start; }
+      .time-grid { grid-template-columns: 1fr; }
+
+      .save-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        box-shadow: 0 -8px 24px rgba(15,23,42,0.08);
+      }
+
+      .save-inner { padding: 0 16px; }
+    }
+
+    @media (max-width: 600px) {
+      .channels-grid { grid-template-columns: 1fr; }
+      .save-inner { flex-direction: column-reverse; align-items: stretch; }
+      .save-inner .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <nav class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/settings">Settings</a> &gt; Notifications
+    </nav>
+
+    <header class="page-header">
+      <div class="title-row">
+        <i class="fas fa-bell" aria-hidden="true"></i>
+        <h1>Notification Preferences</h1>
+      </div>
+      <p class="subtitle">Control exactly how and when ZenoPay contacts you</p>
+    </header>
+
+    <section class="master-card">
+      <div class="master-left">
+        <div class="master-icon"><i class="fas fa-bell-slash"></i></div>
+        <div>
+          <h2 class="master-title">All Notifications</h2>
+          <p class="master-note">Turn off to pause all notifications temporarily</p>
+        </div>
+      </div>
+      <label class="toggle large" aria-label="Toggle all notifications">
+        <input id="masterToggle" type="checkbox" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </section>
+
+    <section class="card" id="channelsCard">
+      <div class="card-inner">
+        <h2 class="card-title"><i class="fas fa-broadcast-tower"></i> Notification Channels</h2>
+
+        <div class="channels-grid">
+          <article class="channel-card active" data-channel="email">
+            <div class="channel-icon icon-email"><i class="fas fa-envelope"></i></div>
+            <h3 class="channel-name">Email</h3>
+            <label class="toggle" aria-label="Email channel">
+              <input class="channel-toggle" data-channel="email" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </article>
+
+          <article class="channel-card active" data-channel="sms">
+            <div class="channel-icon icon-sms"><i class="fas fa-sms"></i></div>
+            <h3 class="channel-name">SMS</h3>
+            <label class="toggle" aria-label="SMS channel">
+              <input class="channel-toggle" data-channel="sms" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </article>
+
+          <article class="channel-card active" data-channel="push">
+            <div class="channel-icon icon-push"><i class="fas fa-bell"></i></div>
+            <h3 class="channel-name">Push</h3>
+            <label class="toggle" aria-label="Push channel">
+              <input class="channel-toggle" data-channel="push" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </article>
+
+          <article class="channel-card" data-channel="whatsapp">
+            <div class="channel-icon icon-whatsapp"><i class="fab fa-whatsapp"></i></div>
+            <h3 class="channel-name">WhatsApp</h3>
+            <label class="toggle" aria-label="WhatsApp channel">
+              <input class="channel-toggle" data-channel="whatsapp" type="checkbox" />
+              <span class="toggle-slider"></span>
+            </label>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="categoriesWrap">
+      <article class="category-card expanded" data-category="transactions">
+        <header class="category-header">
+          <div class="category-left">
+            <div class="category-icon cat-tx"><i class="fas fa-exchange-alt"></i></div>
+            <div>
+              <h3 class="category-name">Transactions</h3>
+              <p class="category-desc">Money movement alerts and payment status updates</p>
+            </div>
+          </div>
+          <div class="category-right">
+            <label class="toggle" aria-label="Transactions category toggle">
+              <input class="category-toggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+        </header>
+        <div class="category-body">
+          <div class="notification-row" data-row="Money Sent">
+            <div><p class="row-title">Money Sent</p><p class="row-description">When you send funds to any beneficiary</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email" title="Email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn active" data-channel="sms" title="SMS"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push" title="Push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn" data-channel="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+          <div class="notification-row" data-row="Money Received">
+            <div><p class="row-title">Money Received</p><p class="row-description">Incoming transfer confirmation and source details</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+          <div class="notification-row" data-row="Payment Failed">
+            <div><p class="row-title">Payment Failed</p><p class="row-description">Notifies when a payment could not be completed</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+          <div class="notification-row" data-row="Payment Pending">
+            <div><p class="row-title">Payment Pending</p><p class="row-description">Reminders for pending transfer completion</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+          <div class="notification-row" data-row="Large Transaction Alert">
+            <div><p class="row-title">Large Transaction Alert (above ₹10,000)</p><p class="row-description">High value movement alert for additional security</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+          <div class="notification-row" data-row="Refund Processed">
+            <div><p class="row-title">Refund Processed</p><p class="row-description">Confirmation when your refund has been credited</p></div>
+            <div class="row-channels">
+              <button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button>
+              <button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button>
+              <button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button>
+              <button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="category-card" data-category="security">
+        <header class="category-header">
+          <div class="category-left">
+            <div class="category-icon cat-security"><i class="fas fa-shield-alt"></i></div>
+            <div>
+              <h3 class="category-name">Account &amp; Security</h3>
+              <p class="category-desc">Login, profile changes, and risk alerts</p>
+            </div>
+          </div>
+          <div class="category-right">
+            <label class="toggle" aria-label="Account and Security category toggle">
+              <input class="category-toggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+        </header>
+        <div class="category-body">
+          <div class="notification-row"><div><p class="row-title">Login from New Device</p><p class="row-description">Instant alert when your account logs in from an unknown device</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Password Changed</p><p class="row-description">Notifies when account password is updated</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">2FA Enabled/Disabled</p><p class="row-description">Security setting modifications on your profile</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Account Locked</p><p class="row-description">Critical lock/temporary hold status changes</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Profile Updated</p><p class="row-description">Alerts whenever important profile data changes</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Suspicious Activity Detected</p><p class="row-description">Immediate warning on potentially fraudulent activity</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+        </div>
+      </article>
+
+      <article class="category-card" data-category="requests-disputes">
+        <header class="category-header">
+          <div class="category-left">
+            <div class="category-icon cat-requests"><i class="fas fa-hand-holding-usd"></i></div>
+            <div>
+              <h3 class="category-name">Requests &amp; Disputes</h3>
+              <p class="category-desc">Request lifecycle and dispute status updates</p>
+            </div>
+          </div>
+          <div class="category-right">
+            <label class="toggle" aria-label="Requests and disputes category toggle">
+              <input class="category-toggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+        </header>
+        <div class="category-body">
+          <div class="notification-row"><div><p class="row-title">New Money Request Received</p><p class="row-description">When someone asks you for money</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Your Request Paid</p><p class="row-description">Confirmation when your request gets paid</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Your Request Expired</p><p class="row-description">Reminder when a pending request expires</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Dispute Filed</p><p class="row-description">Notification when a dispute is submitted</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Dispute Update</p><p class="row-description">Any status/message update on your case</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Dispute Resolved</p><p class="row-description">Final outcome of dispute investigation</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+        </div>
+      </article>
+
+      <article class="category-card" data-category="offers">
+        <header class="category-header">
+          <div class="category-left">
+            <div class="category-icon cat-offers"><i class="fas fa-tag"></i></div>
+            <div>
+              <h3 class="category-name">Offers &amp; Promotions</h3>
+              <p class="category-desc">Rewards, offers, and product communication</p>
+            </div>
+          </div>
+          <div class="category-right">
+            <label class="toggle" aria-label="Offers and promotions category toggle">
+              <input class="category-toggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+        </header>
+        <div class="category-body">
+          <div class="notification-row"><div><p class="row-title">New Cashback Offer</p><p class="row-description">Latest cashback opportunities on transactions</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Referral Bonus Earned</p><p class="row-description">When you earn rewards from referrals</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Special Promotions</p><p class="row-description">Festival and campaign-specific promotions</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Monthly Account Summary</p><p class="row-description">Monthly highlights and spending overview</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Product Updates &amp; News</p><p class="row-description">Platform features and release notes</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+        </div>
+      </article>
+
+      <article class="category-card" data-category="reminders">
+        <header class="category-header">
+          <div class="category-left">
+            <div class="category-icon cat-reminders"><i class="fas fa-bell"></i></div>
+            <div>
+              <h3 class="category-name">Reminders</h3>
+              <p class="category-desc">Due reminders and account health nudges</p>
+            </div>
+          </div>
+          <div class="category-right">
+            <label class="toggle" aria-label="Reminders category toggle">
+              <input class="category-toggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+        </header>
+        <div class="category-body">
+          <div class="notification-row"><div><p class="row-title">Scheduled Payment Due</p><p class="row-description">Upcoming scheduled payment alerts</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">KYC Expiry Reminder</p><p class="row-description">Reminder to keep your verification documents updated</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Low Balance Alert</p><p class="row-description">When your balance drops below your threshold</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn active" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+          <div class="notification-row"><div><p class="row-title">Bill Due Reminder</p><p class="row-description">Before due date reminders for linked bills</p></div><div class="row-channels"><button class="channel-btn active" data-channel="email"><i class="fas fa-envelope"></i></button><button class="channel-btn active" data-channel="sms"><i class="fas fa-sms"></i></button><button class="channel-btn active" data-channel="push"><i class="fas fa-bell"></i></button><button class="channel-btn" data-channel="whatsapp"><i class="fab fa-whatsapp"></i></button></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="card-inner">
+        <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Digest Settings</h2>
+
+        <div class="setting-row">
+          <div>
+            <p class="setting-title">Enable Quiet Hours</p>
+            <p class="setting-sub">No notifications during these hours</p>
+          </div>
+          <label class="toggle" aria-label="Enable quiet hours">
+            <input id="quietHoursToggle" type="checkbox" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div id="quietHoursPanel" class="time-pickers">
+          <div class="time-grid">
+            <div class="time-group">
+              <label for="quietFrom">From</label>
+              <select id="quietFrom">
+                <option>10:00 PM</option>
+                <option>10:30 PM</option>
+                <option>11:00 PM</option>
+                <option>11:30 PM</option>
+                <option>12:00 AM</option>
+              </select>
+            </div>
+            <div class="time-group">
+              <label for="quietTo">To</label>
+              <select id="quietTo">
+                <option>7:00 AM</option>
+                <option>7:30 AM</option>
+                <option>8:00 AM</option>
+                <option>8:30 AM</option>
+                <option>9:00 AM</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <p class="setting-title">Receive Daily Summary</p>
+            <p class="setting-sub">Digest includes: Summary of all transactions</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <select id="dailyDigestTime" aria-label="Daily summary time" style="width:110px;">
+              <option>9:00 AM</option>
+              <option>9:30 AM</option>
+              <option>10:00 AM</option>
+              <option>10:30 AM</option>
+            </select>
+            <label class="toggle" aria-label="Receive daily summary">
+              <input id="dailyDigestToggle" type="checkbox" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div>
+            <p class="setting-title">Receive Weekend Notifications</p>
+            <p class="setting-sub">Get alerts on Saturday and Sunday</p>
+          </div>
+          <label class="toggle" aria-label="Receive weekend notifications">
+            <input id="weekendToggle" type="checkbox" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="save-bar">
+    <div class="save-inner">
+      <button class="btn btn-outline" id="resetBtn" type="button">
+        <i class="fas fa-undo"></i>
+        Reset to Default
+      </button>
+      <button class="btn btn-save" id="saveBtn" type="button">
+        <i class="fas fa-save"></i>
+        Save Preferences
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      const stateDefaults = {
+        master: true,
+        channels: { email: true, sms: true, push: true, whatsapp: false },
+        quietHours: true,
+        dailyDigest: true,
+        weekend: true,
+        digestTime: '9:00 AM'
+      };
+
+      const masterToggle = document.getElementById('masterToggle');
+      const channelsCard = document.getElementById('channelsCard');
+      const channelToggles = Array.from(document.querySelectorAll('.channel-toggle'));
+      const categoryCards = Array.from(document.querySelectorAll('.category-card'));
+      const quietHoursToggle = document.getElementById('quietHoursToggle');
+      const quietHoursPanel = document.getElementById('quietHoursPanel');
+      const dailyDigestToggle = document.getElementById('dailyDigestToggle');
+      const dailyDigestTime = document.getElementById('dailyDigestTime');
+      const weekendToggle = document.getElementById('weekendToggle');
+      const resetBtn = document.getElementById('resetBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const toastEl = document.getElementById('toast');
+
+      const notify = (message) => {
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        window.clearTimeout(window.__toastTimer);
+        window.__toastTimer = window.setTimeout(() => toastEl.classList.remove('show'), 2200);
+      };
+
+      const refreshChannelCards = () => {
+        channelToggles.forEach((toggle) => {
+          const card = toggle.closest('.channel-card');
+          card.classList.toggle('active', toggle.checked);
+        });
+      };
+
+      const syncCategoryMaster = (card) => {
+        const allButtons = Array.from(card.querySelectorAll('.channel-btn'));
+        const activeButtons = allButtons.filter((btn) => btn.classList.contains('active'));
+        const categoryToggle = card.querySelector('.category-toggle');
+        categoryToggle.checked = activeButtons.length > 0;
+      };
+
+      const applyMaster = () => {
+        const on = masterToggle.checked;
+        const managedSections = [channelsCard, ...categoryCards, document.querySelector('.card:last-of-type')];
+        managedSections.forEach((section) => {
+          section.classList.toggle('disabled-all', !on);
+        });
+      };
+
+      const syncRowsWithChannels = () => {
+        const enabledChannels = {};
+        channelToggles.forEach((toggle) => {
+          enabledChannels[toggle.dataset.channel] = toggle.checked;
+        });
+
+        document.querySelectorAll('.channel-btn').forEach((btn) => {
+          const channel = btn.dataset.channel;
+          if (!enabledChannels[channel]) {
+            btn.classList.remove('active');
+          }
+        });
+
+        categoryCards.forEach(syncCategoryMaster);
+      };
+
+      categoryCards.forEach((card) => {
+        const header = card.querySelector('.category-header');
+        const categoryToggle = card.querySelector('.category-toggle');
+
+        header.addEventListener('click', (event) => {
+          if (event.target.closest('.toggle')) return;
+          card.classList.toggle('expanded');
+        });
+
+        categoryToggle.addEventListener('change', () => {
+          const rowButtons = Array.from(card.querySelectorAll('.channel-btn'));
+          rowButtons.forEach((btn) => {
+            const channelEnabled = document.querySelector(`.channel-toggle[data-channel="${btn.dataset.channel}"]`)?.checked;
+            btn.classList.toggle('active', categoryToggle.checked && !!channelEnabled);
+          });
+        });
+
+        card.querySelectorAll('.channel-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const channelEnabled = document.querySelector(`.channel-toggle[data-channel="${btn.dataset.channel}"]`)?.checked;
+            if (!channelEnabled) {
+              notify('Enable this channel first in Notification Channels.');
+              return;
+            }
+            btn.classList.toggle('active');
+            syncCategoryMaster(card);
+          });
+        });
+      });
+
+      channelToggles.forEach((toggle) => {
+        toggle.addEventListener('change', () => {
+          refreshChannelCards();
+          syncRowsWithChannels();
+        });
+      });
+
+      masterToggle.addEventListener('change', applyMaster);
+
+      quietHoursToggle.addEventListener('change', () => {
+        quietHoursPanel.style.display = quietHoursToggle.checked ? 'block' : 'none';
+      });
+
+      resetBtn.addEventListener('click', () => {
+        masterToggle.checked = stateDefaults.master;
+        channelToggles.forEach((toggle) => {
+          toggle.checked = !!stateDefaults.channels[toggle.dataset.channel];
+        });
+
+        document.querySelectorAll('.channel-btn').forEach((btn) => {
+          const channel = btn.dataset.channel;
+          btn.classList.toggle('active', stateDefaults.channels[channel]);
+        });
+
+        categoryCards.forEach((card) => {
+          card.classList.remove('expanded');
+          const toggle = card.querySelector('.category-toggle');
+          toggle.checked = true;
+          syncCategoryMaster(card);
+        });
+
+        categoryCards[0]?.classList.add('expanded');
+        quietHoursToggle.checked = stateDefaults.quietHours;
+        dailyDigestToggle.checked = stateDefaults.dailyDigest;
+        weekendToggle.checked = stateDefaults.weekend;
+        dailyDigestTime.value = stateDefaults.digestTime;
+
+        quietHoursPanel.style.display = quietHoursToggle.checked ? 'block' : 'none';
+        refreshChannelCards();
+        applyMaster();
+        notify('Preferences reset to default.');
+      });
+
+      saveBtn.addEventListener('click', () => {
+        notify('Notification preferences saved successfully.');
+      });
+
+      quietHoursPanel.style.display = quietHoursToggle.checked ? 'block' : 'none';
+      refreshChannelCards();
+      syncRowsWithChannels();
+      applyMaster();
+    })();
+  </script>
+</body>
+</html>

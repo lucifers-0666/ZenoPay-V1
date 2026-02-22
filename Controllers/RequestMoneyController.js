@@ -1,5 +1,19 @@
 const ZenoPayUser = require("../Models/ZenoPayUser");
 
+const statusConfig = {
+  pending: { key: "pending", text: "Pending", icon: "fa-hourglass-half" },
+  paid: { key: "paid", text: "Paid", icon: "fa-circle-check" },
+  expired: { key: "expired", text: "Expired", icon: "fa-calendar-xmark" },
+  cancelled: { key: "cancelled", text: "Cancelled", icon: "fa-ban" },
+};
+
+const getSafeStatus = (statusKey) => statusConfig[statusKey] || statusConfig.pending;
+
+const getDaysBetween = (startDate, endDate) => {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.max(0, Math.ceil((endDate - startDate) / msPerDay));
+};
+
 // GET: Request Money page
 const getRequestMoneyPage = async (req, res) => {
   try {
@@ -94,7 +108,103 @@ const createRequestMoney = async (req, res) => {
   }
 };
 
+// GET: Request Money Details page
+const getRequestMoneyDetailsPage = async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const user = await ZenoPayUser.findOne({ ZenoPayID: zenoPayId });
+
+    if (!user) {
+      return res.redirect("/login");
+    }
+
+    const { requestId } = req.params;
+    const statusKey = getSafeStatus(req.query.status)?.key || "pending";
+    const status = getSafeStatus(statusKey);
+
+    const now = new Date();
+    const createdAt = new Date(now);
+    createdAt.setDate(createdAt.getDate() - 8);
+    const lastReminderAt = new Date(now);
+    lastReminderAt.setDate(lastReminderAt.getDate() - 3);
+    const expiresAt = new Date(now);
+    expiresAt.setDate(expiresAt.getDate() + 6);
+
+    const amount = 5000;
+    const paymentLink = `${req.protocol}://${req.get("host")}/pay/request/${requestId}`;
+    const partialReceived = 2000;
+    const partialEnabled = true;
+    const expiryDays = getDaysBetween(now, expiresAt);
+    const totalWindow = getDaysBetween(createdAt, expiresAt) || 1;
+    const elapsed = Math.min(totalWindow, totalWindow - expiryDays);
+    const expiryProgress = Math.min(100, Math.max(0, Math.round((elapsed / totalWindow) * 100)));
+
+    const request = {
+      id: requestId,
+      amount,
+      currency: "INR",
+      note: "Monthly rent for workspace and utilities",
+      requestedFrom: "Priya Mehta",
+      requestType: "By Link",
+      via: "Payment Link",
+      paymentLink,
+      createdAt,
+      lastReminderAt,
+      expiresAt,
+      reminders: 2,
+      partialEnabled,
+      partialReceived,
+      partialPayments: [
+        { name: "Priya Mehta", amount: 1000, date: "Feb 18, 2026" },
+        { name: "Priya Mehta", amount: 1000, date: "Feb 20, 2026" },
+      ],
+    };
+
+    const meta = {
+      requestedFrom: request.requestedFrom,
+      requestedOn: createdAt.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" }),
+      expiresOn: expiresAt.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" }),
+      via: request.via,
+    };
+
+    const detailFields = [
+      { label: "Request ID", value: request.id, mono: true },
+      { label: "Request Type", value: request.requestType },
+      { label: "Payment Link", value: request.paymentLink, isLink: true },
+      { label: "QR Code", value: "Generate QR", isQr: true },
+      { label: "Created At", value: meta.requestedOn },
+      { label: "Last Reminder Sent", value: lastReminderAt.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" }) },
+      { label: "Number of Reminders", value: request.reminders },
+      { label: "Partial Payment Allowed", value: request.partialEnabled ? "Yes" : "No", badge: true },
+    ];
+
+    const timeline = [
+      { state: "completed", title: "Request Created", desc: `Payment request sent to ${request.requestedFrom}`, time: "Feb 14, 2026" },
+      { state: "completed", title: "Reminder Sent", desc: "First reminder sent via email", time: "Feb 18, 2026" },
+      { state: "completed", title: "Link Opened", desc: "Recipient viewed the payment link", time: "Feb 20, 2026" },
+      { state: status.key === "paid" ? "completed" : "active", title: "Payment Pending", desc: "Waiting for payment", time: "Today" },
+    ];
+
+    res.render("request-money-details", {
+      pageTitle: "Money Request Details",
+      isLoggedIn: true,
+      user,
+      request,
+      status,
+      meta,
+      detailFields,
+      timeline,
+      expiryDays,
+      expiryProgress,
+    });
+  } catch (error) {
+    console.error("Error loading request money details page:", error);
+    res.status(500).send("Unable to load Request Money details");
+  }
+};
+
 module.exports = {
   getRequestMoneyPage,
   createRequestMoney,
+  getRequestMoneyDetailsPage,
 };

@@ -33,6 +33,7 @@ const ContactController = require("../Controllers/ContactController");
 const PrivacyPolicyController = require("../Controllers/PrivacyPolicyController");
 const PricingController = require("../Controllers/PricingController");
 const BeneficiaryController = require("../Controllers/BeneficiaryController");
+const SystemStatusController = require("../Controllers/SystemStatusController");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -134,6 +135,7 @@ router.post("/api/orders/:id/cancel", ShopController.cancelOrder);
 
 router.get("/request-money", RequestMoneyController.getRequestMoneyPage);
 router.post("/request-money", RequestMoneyController.createRequestMoney);
+router.get("/request-money/:requestId", RequestMoneyController.getRequestMoneyDetailsPage);
 router.get("/qr-payment", QRPaymentController.getQRPaymentPage);
 router.post("/qr-payment/generate", QRPaymentController.generateDynamicQR);
 router.get("/payment-methods", PaymentMethodsController.getPaymentMethodsPage);
@@ -146,6 +148,9 @@ router.post("/add-card", AddCardController.addCard);
 // Settings
 router.get("/settings", SettingsController.getSettings);
 router.get("/account-settings", SettingsController.getAccountSettings);
+router.get("/notification-preferences", SettingsController.getNotificationPreferences);
+router.get("/system-status", SystemStatusController.getSystemStatusPage);
+router.get("/maintenance", SystemStatusController.getMaintenancePage);
 router.get("/change-password", SettingsController.getChangePassword);
 router.post("/change-password", SettingsController.changePassword);
 router.post("/settings/personal-info", SettingsController.updatePersonalInfo);
@@ -333,6 +338,7 @@ router.post("/api/contact/submit", ContactController.upload.array('attachments',
 
 // API Integration Page
 router.get("/api-integration", LegalPagesController.getAPIIntegrationPage);
+router.get("/api-docs", LegalPagesController.getAPIDocsPage);
 
 // Admin Contact Management Routes
 router.get("/api/admin/contact/submissions", ContactController.getAllSubmissions);

@@ -89,6 +89,23 @@ const getChangePassword = async (req, res) => {
   }
 };
 
+// GET Notification Preferences Page (Granular)
+const getNotificationPreferences = async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const user = await ZenoPayUser.findOne({ ZenoPayID: zenoPayId });
+
+    res.render("notification-preferences", {
+      pageTitle: "Notification Preferences - ZenoPay",
+      user,
+      isLoggedIn: true,
+    });
+  } catch (error) {
+    console.error("Error loading notification preferences page:", error);
+    res.status(500).send("Error loading notification preferences page");
+  }
+};
+
 // Update Personal Information
 const updatePersonalInfo = async (req, res) => {
   try {
@@ -295,6 +312,7 @@ const deactivateAccount = async (req, res) => {
 module.exports = {
   getSettings,
   getAccountSettings,
+  getNotificationPreferences,
   getChangePassword,
   updatePersonalInfo,
   changePassword,

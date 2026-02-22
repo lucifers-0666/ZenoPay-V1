@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --orange: #F59E0B;
+      --red: #EF4444;
+      --slate: #475569;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 40px 0;
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .breadcrumb a { color: var(--blue); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: transform 0.3s ease;
+    }
+    .back-link:hover { transform: translateX(-4px); }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .title-row h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .case-badge {
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      color: var(--slate);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .hero {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    .hero-strip { height: 8px; }
+    .strip-open { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .strip-resolved { background: linear-gradient(135deg, #10B981, #059669); }
+    .strip-closed { background: linear-gradient(135deg, #6B7280, #475569); }
+    .strip-escalated { background: linear-gradient(135deg, #EF4444, #DC2626); }
+
+    .hero-body {
+      padding: 36px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1E40AF;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.3);
+      padding: 6px 12px;
+      border-radius: 999px;
+      letter-spacing: .08em;
+    }
+
+    .case-title {
+      margin: 12px 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .amount {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .meta-inline {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status-pill {
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1.5px solid;
+    }
+    .status-open { background: rgba(245,158,11,0.1); color: #D97706; border-color: #F59E0B; }
+    .status-resolved { background: rgba(16,185,129,0.1); color: #059669; border-color: #10B981; }
+    .status-closed { background: rgba(107,114,128,0.12); color: #475569; border-color: #6B7280; }
+    .status-escalated { background: rgba(239,68,68,0.1); color: #DC2626; border-color: #EF4444; }
+
+    .progress-wrap {
+      border-top: 1px solid #F1F5F9;
+      padding: 24px 36px;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      padding: 0 6px;
+    }
+
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      right: -50%;
+      width: 100%;
+      height: 2px;
+      background: #E2E8F0;
+      z-index: 0;
+    }
+
+    .step.completed:not(:last-child)::after {
+      background: #10B981;
+    }
+
+    .step-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 8px;
+      position: relative;
+      z-index: 1;
+      font-size: 10px;
+      color: #94A3B8;
+    }
+
+    .step.completed .step-dot {
+      background: #10B981;
+      border-color: #10B981;
+      color: #fff;
+    }
+
+    .step.active .step-dot {
+      background: #3B82F6;
+      border-color: #3B82F6;
+      color: #fff;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .section-card { padding: 24px; margin-bottom: 24px; }
+
+    .section-title {
+      margin: 0 0 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title i { color: var(--blue); }
+
+    .txn-mini {
+      display: grid;
+      gap: 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .txn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+    .txn-label { color: var(--muted-2); }
+    .txn-value { font-weight: 600; color: var(--text); }
+
+    .view-link {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .evidence-item {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .file-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(59,130,246,0.12);
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      font-size: 20px;
+    }
+
+    .file-info {
+      flex: 1;
+    }
+
+    .file-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .file-meta {
+      font-size: 13px;
+      color: var(--muted-2);
+      margin-top: 4px;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .file-action {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #fff;
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .file-action:hover { background: #EFF6FF; border-color: #3B82F6; }
+
+    .upload-area {
+      border: 2px dashed #CBD5E1;
+      border-radius: 12px;
+      padding: 28px;
+      text-align: center;
+      background: #F8FAFC;
+      color: var(--muted);
+      transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+      border-color: #3B82F6;
+      background: #EFF6FF;
+      color: #1E40AF;
+    }
+
+    .upload-area i { font-size: 36px; color: var(--muted-2); margin-bottom: 8px; }
+    .upload-small { font-size: 12px; color: var(--muted-2); margin-top: 6px; }
+
+    .timeline {
+      position: relative;
+      padding-left: 48px;
+      border-left: 2px solid #E2E8F0;
+    }
+
+    .event {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .event-dot {
+      position: absolute;
+      left: -58px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #CBD5E1;
+    }
+
+    .dot-zeno { background: #3B82F6; }
+    .dot-you { background: #10B981; }
+    .dot-system { background: #94A3B8; }
+    .dot-escalation { background: #EF4444; }
+
+    .event-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .actor-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .actor-zeno { background: rgba(59,130,246,0.12); color: #1E40AF; }
+    .actor-you { background: rgba(16,185,129,0.12); color: #065F46; }
+    .actor-system { background: rgba(148,163,184,0.2); color: #475569; }
+    .actor-escalation { background: rgba(239,68,68,0.12); color: #B91C1C; }
+
+    .event-time { font-size: 12px; color: var(--muted-2); }
+    .event-content { font-size: 14px; color: var(--slate); margin-top: 8px; line-height: 1.6; }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid #E2E8F0;
+      color: var(--slate);
+      background: #F8FAFC;
+    }
+
+    .response-area textarea {
+      width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      padding: 16px;
+      resize: vertical;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .response-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .counter { font-size: 12px; color: var(--muted-2); }
+
+    .outline-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 8px 14px;
+      border: 1.5px solid var(--blue);
+      color: var(--blue);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .outline-btn:hover { background: #EFF6FF; }
+
+    .submit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 10px 18px;
+      border: none;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      transition: all 0.3s ease;
+    }
+    .submit-btn:hover { box-shadow: 0 8px 20px rgba(59,130,246,.3); }
+
+    .sidebar-card { padding: 22px; margin-bottom: 24px; }
+    .sidebar-title {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 700;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--slate);
+      margin-bottom: 8px;
+    }
+
+    .mini-steps {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mini-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+    }
+
+    .mini-step.completed .mini-dot { background: #10B981; border-color: #10B981; }
+    .mini-step.active .mini-dot { background: #3B82F6; border-color: #3B82F6; }
+
+    .date-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: var(--slate);
+    }
+
+    .date-overdue { color: #DC2626; font-weight: 600; }
+
+    .support-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .support-card i { font-size: 24px; color: var(--blue); }
+    .support-card h4 { margin: 10px 0 6px; font-size: 15px; font-weight: 700; }
+    .support-card p { margin: 0; font-size: 13px; color: var(--muted); }
+    .support-card a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 24px 0; }
+      .wrapper { padding: 0 16px; }
+      .hero-body { grid-template-columns: 1fr; padding: 24px; }
+      .progress-wrap { padding: 20px 24px; }
+      .meta-inline { margin-top: 6px; }
+      .steps { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .step { text-align: left; display: flex; align-items: center; gap: 10px; padding: 0; }
+      .step:not(:last-child)::after { display: none; }
+      .step-dot { margin: 0; }
+      .step-label { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="breadcrumb">
+      <a href="/">Home</a> &gt; <a href="/dashboard">Dashboard</a> &gt; <a href="/disputes">Disputes</a> &gt; Dispute Details
+    </div>
+
+    <a href="/disputes" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Disputes
+    </a>
+
+    <div class="title-row">
+      <h1>Dispute Case</h1>
+      <div class="case-badge"><i class="fas fa-hashtag"></i> <%= caseSummary.id %></div>
+    </div>
+
+    <section class="card hero">
+      <div class="hero-strip <%= statusMeta.stripClass %>"></div>
+      <div class="hero-body">
+        <div>
+          <span class="type-badge"><%= (caseSummary.type || '').toUpperCase() %></span>
+          <div class="case-title">Dispute for Transaction #<%= transaction.id %></div>
+          <div class="amount">₹<%= Number(caseSummary.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></div>
+          <div class="meta-inline">Opened: <%= caseSummary.filedOn %> &nbsp;|&nbsp; Expected resolution: <%= importantDates[2]?.date %></div>
+        </div>
+        <div>
+          <span class="status-pill <%= statusMeta.pillClass %>">
+            <i class="fas fa-shield"></i>
+            <%= statusMeta.label %>
+          </span>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="steps">
+          <% steps.forEach(function(step, index){ %>
+            <div class="step <%= index < activeStep ? 'completed' : index === activeStep ? 'active' : '' %>">
+              <div class="step-dot">
+                <% if (index < activeStep) { %>
+                  <i class="fas fa-check"></i>
+                <% } else { %>
+                  <i class="fas fa-circle"></i>
+                <% } %>
+              </div>
+              <div class="step-label"><%= step %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-receipt"></i> Disputed Transaction</h2>
+          <div class="txn-mini">
+            <div class="txn-row"><span class="txn-label">Amount</span><span class="txn-value">₹<%= Number(transaction.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></span></div>
+            <div class="txn-row"><span class="txn-label">Date</span><span class="txn-value"><%= transaction.date %></span></div>
+            <div class="txn-row"><span class="txn-label">Type</span><span class="txn-value"><%= transaction.type %></span></div>
+            <div class="txn-row"><span class="txn-label">From</span><span class="txn-value"><%= transaction.from %></span></div>
+            <div class="txn-row"><span class="txn-label">To</span><span class="txn-value"><%= transaction.to %></span></div>
+            <div class="txn-row"><span class="txn-label">Reference</span><span class="txn-value"><%= transaction.reference %></span></div>
+          </div>
+          <a class="view-link" href="/transaction/<%= transaction.id %>">View Full Transaction <i class="fas fa-arrow-right"></i></a>
+        </section>
+
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-paperclip"></i> Evidence Submitted</h2>
+          <% evidence.forEach(function(file){ %>
+            <div class="evidence-item">
+              <div class="file-icon">
+                <i class="fas <%= file.type === 'image' ? 'fa-image' : file.type === 'pdf' ? 'fa-file-pdf' : 'fa-file-alt' %>"></i>
+              </div>
+              <div class="file-info">
+                <div class="file-name"><%= file.filename %></div>
+                <div class="file-meta"><%= file.size || '1.0 MB' %> • Uploaded <%= new Date(file.uploadDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) %></div>
+              </div>
+              <div class="file-actions">
+                <button class="file-action" title="View"><i class="fas fa-eye"></i></button>
+                <button class="file-action" title="Download"><i class="fas fa-download"></i></button>
+              </div>
+            </div>
+          <% }); %>
+
+          <div class="upload-area" role="button" aria-label="Upload more evidence">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <div>Drag files here or click to upload</div>
+            <div class="upload-small">PDF, JPG, PNG — Max 10MB</div>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <h2 class="section-title"><i class="fas fa-stream"></i> Case Timeline</h2>
+          <div class="timeline">
+            <% timeline.forEach(function(item){ %>
+              <div class="event">
+                <div class="event-dot <%= item.actor === 'zeno' ? 'dot-zeno' : item.actor === 'you' ? 'dot-you' : item.actor === 'escalation' ? 'dot-escalation' : 'dot-system' %>"></div>
+                <div class="event-card">
+                  <div class="event-header">
+                    <span class="actor-badge <%= item.actor === 'zeno' ? 'actor-zeno' : item.actor === 'you' ? 'actor-you' : item.actor === 'escalation' ? 'actor-escalation' : 'actor-system' %>">
+                      <%= item.actor === 'zeno' ? 'ZenoPay Team' : item.actor === 'you' ? 'You' : item.actor === 'escalation' ? 'Escalation' : 'System' %>
+                    </span>
+                    <span class="event-time"><%= item.time %></span>
+                  </div>
+                  <div class="event-content"><strong><%= item.title %>:</strong> <%= item.content %></div>
+                  <% if (item.attachments) { %>
+                    <% item.attachments.forEach(function(file){ %>
+                      <div class="file-chip"><i class="fas fa-paperclip"></i> <%= file %></div>
+                    <% }); %>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </section>
+
+        <section class="card section-card response-area">
+          <h2 class="section-title"><i class="fas fa-reply"></i> Add Response</h2>
+          <textarea id="responseText" maxlength="500" placeholder="Share additional details or respond to the dispute team..."></textarea>
+          <div class="response-actions">
+            <div class="counter" id="responseCounter">0/500</div>
+            <div>
+              <button class="outline-btn" type="button"><i class="fas fa-paperclip"></i> Attach File</button>
+              <button class="submit-btn" type="button"><i class="fas fa-paper-plane"></i> Submit Response</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="card sidebar-card">
+          <h3 class="sidebar-title">Case Summary</h3>
+          <div class="summary-item"><span>Case ID</span><strong><%= caseSummary.id %></strong></div>
+          <div class="summary-item"><span>Dispute Type</span><strong><%= caseSummary.type %></strong></div>
+          <div class="summary-item"><span>Transaction Amount</span><strong>₹<%= Number(caseSummary.amount || 0).toLocaleString('en-IN') %></strong></div>
+          <div class="summary-item"><span>Dispute Reason</span><strong><%= caseSummary.reason %></strong></div>
+          <div class="summary-item"><span>Filed On</span><strong><%= caseSummary.filedOn %></strong></div>
+          <div class="summary-item"><span>Last Updated</span><strong><%= caseSummary.updatedOn %></strong></div>
+          <div class="summary-item"><span>Assigned Agent</span><strong><%= caseSummary.assignedAgent %></strong></div>
+
+          <div class="mini-steps">
+            <% steps.forEach(function(step, index){ %>
+              <div class="mini-step <%= index < activeStep ? 'completed' : index === activeStep ? 'active' : '' %>">
+                <span class="mini-dot"></span>
+                <span><%= step %></span>
+              </div>
+            <% }); %>
+          </div>
+        </section>
+
+        <section class="card sidebar-card">
+          <h3 class="sidebar-title">Important Dates</h3>
+          <% importantDates.forEach(function(item){ %>
+            <div class="date-item <%= item.overdue ? 'date-overdue' : '' %>">
+              <span><%= item.label %></span>
+              <strong><%= item.date %></strong>
+            </div>
+          <% }); %>
+        </section>
+
+        <section class="support-card">
+          <i class="fas fa-headset"></i>
+          <h4>Need Help With This Case?</h4>
+          <p>Share your dispute case ID when contacting support.</p>
+          <a href="/support">Contact Support <i class="fas fa-arrow-right"></i></a>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const field = document.getElementById('responseText');
+      const counter = document.getElementById('responseCounter');
+      if (!field || !counter) return;
+      const update = () => {
+        counter.textContent = `${field.value.length}/500`;
+      };
+      field.addEventListener('input', update);
+      update();
+    })();
+  </script>
+</body>
+</html>
