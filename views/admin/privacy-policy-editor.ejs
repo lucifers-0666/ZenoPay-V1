@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Privacy Policy Editor' %></title>
+</head>
+<body>
+  <h1><%= isEdit ? 'Edit Privacy Policy' : 'Create Privacy Policy' %></h1>
+  <form method="post" action="<%= isEdit && policy ? ('/admin/privacy-policy/' + policy._id) : '/admin/privacy-policy/create' %>">
+    <label>Version</label>
+    <input type="text" name="version" value="<%= suggestedVersion || (policy && policy.version) || '' %>" />
+    <br />
+    <label>Change Summary</label>
+    <textarea name="changeSummary"><%= (policy && policy.changeSummary) || '' %></textarea>
+    <br />
+    <button type="submit">Save</button>
+  </form>
+</body>
+</html>

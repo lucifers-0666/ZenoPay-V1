@@ -55,7 +55,7 @@ const getAllUsers = async (req, res) => {
       });
     }
 
-    res.render("users/admin-user-management", {
+    res.render("admin/users/admin-user-management", {
       pageTitle: "User Management",
       currentPage: "users",
       admin: req.session.user,
@@ -115,7 +115,7 @@ const getUserDetails = async (req, res) => {
       });
     }
 
-    res.render("users/user-details", {
+    res.render("admin/users/admin-user-details", {
       pageTitle: "User Details",
       user: userProfile,
       admin: req.session.user,

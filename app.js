@@ -92,12 +92,6 @@ app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Add admin views path
-app.set("views", [
-  path.join(__dirname, "views"),
-  path.join(__dirname, "Admin/Views")
-]);
-
 // Attach RBAC permissions to all requests
 const { attachPermissions } = require("./Admin/Middleware/rbacMiddleware");
 app.use(attachPermissions);

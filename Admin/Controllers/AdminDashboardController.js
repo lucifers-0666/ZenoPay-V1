@@ -8,7 +8,7 @@ const Banks = require("../../Models/Banks");
 const getDashboard = async (req, res) => {
   try {
     // Render the new modern dashboard
-    res.render("dashboard/admin-dashboard-overview", {
+    res.render("admin/dashboard/admin-dashboard-overview", {
       user: req.session.user,
       pageTitle: "Admin Dashboard Overview - ZenoPay"
     });
@@ -197,7 +197,7 @@ function getTimeAgo(date) {
 // GET Statistics Page
 const getStatistics = async (req, res) => {
   try {
-    res.render("dashboard/admin-dashboard-analytics", {
+    res.render("admin/dashboard/admin-dashboard-analytics", {
       user: req.session.user,
       pageTitle: "Admin Dashboard Analytics - ZenoPay"
     });
@@ -309,7 +309,7 @@ const getStatisticsData = async (req, res) => {
 // GET Activity Monitor Page
 const getActivityMonitor = async (req, res) => {
   try {
-    res.render("dashboard/admin-real-time-monitor", {
+    res.render("admin/dashboard/admin-real-time-monitor", {
       user: req.session.user,
       pageTitle: "Admin Real-Time Monitor - ZenoPay"
     });
@@ -372,7 +372,7 @@ const getLiveActivities = async (req, res) => {
 const getAnalytics = async (req, res) => {
   try {
     // Add analytics logic here
-    res.render("analytics/admin-business-analytics", {
+    res.render("admin/analytics/admin-business-analytics", {
       pageTitle: "Admin Business Analytics",
       currentPage: "analytics",
       admin: req.session.user,
@@ -386,7 +386,7 @@ const getAnalytics = async (req, res) => {
 // GET Reports Page
 const getReports = async (req, res) => {
   try {
-    res.render("analytics/admin-financial-reports", {
+    res.render("admin/analytics/admin-financial-reports", {
       pageTitle: "Admin Financial Reports",
       currentPage: "reports",
       admin: req.session.user,
@@ -411,7 +411,7 @@ const exportReports = async (req, res) => {
 // GET Settings Page
 const getSettings = async (req, res) => {
   try {
-    res.render("settings/admin-system-settings", {
+    res.render("admin/settings/admin-system-settings", {
       pageTitle: "Admin System Settings",
       currentPage: "settings",
       admin: req.session.user,
@@ -436,7 +436,7 @@ const updateSettings = async (req, res) => {
 // GET Payment Gateway Settings Page
 const getPaymentGatewaySettings = async (req, res) => {
   try {
-    res.render("settings/payment-gateway", {
+    res.render("admin/settings/admin-payment-gateway", {
       user: req.session.user,
       pageTitle: "Payment Gateway Settings - ZenoPay Admin"
     });

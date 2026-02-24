@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blog Comments</title></head>
+<body>
+  <h1>Blog Comments</h1>
+  <ul>
+    <% (comments || []).forEach(function(comment){ %>
+      <li><%= comment.author_name || 'Anonymous' %>: <%= comment.comment_text || '' %></li>
+    <% }) %>
+  </ul>
+</body></html>

@@ -25,7 +25,7 @@ router.get("/forgot-password", AdminAuthController.getForgotPassword);
 router.post("/forgot-password", AdminAuthController.postForgotPassword);
 // Graceful fallback when token is missing to show the error state instead of a 404
 router.get("/reset-password", (req, res) => {
-	return res.status(400).render("auth/reset-password", {
+	return res.status(400).render("admin/auth/reset-password", {
 		pageTitle: "Reset Password - ZenoPay Admin",
 		error: "Reset link is missing. Please request a new link.",
 		token: null,
