@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Withdraw Funds - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --amber-dark: #D97706;
+      --red: #EF4444;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      text-decoration: none;
+      color: var(--blue);
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .title-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .title-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .title-left h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .title-left p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: #6B7280;
+    }
+
+    .balance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .balance-pill i {
+      color: #3B82F6;
+      font-size: 14px;
+    }
+
+    .balance-pill .ok { color: #047857; }
+    .balance-pill .zero { color: #B91C1C; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-card { padding: 32px; }
+
+    .section-label {
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #F59E0B, #D97706);
+      flex-shrink: 0;
+    }
+
+    .section-label::after {
+      content: '';
+      height: 1px;
+      background: #F1F5F9;
+      flex: 1;
+      margin-left: 8px;
+    }
+
+    .amount-wrap {
+      background: #FFFBEB;
+      border: 1.5px solid #FDE68A;
+      border-radius: 14px;
+      padding: 16px 20px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .amount-wrap:focus-within {
+      border-color: #F59E0B;
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.12);
+    }
+
+    .amount-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .currency-badge {
+      height: 50px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .amount-input {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      height: 50px;
+      font-size: 36px;
+      font-weight: 800;
+      color: #1F2937;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      outline: none;
+      min-width: 0;
+    }
+
+    .amount-input::placeholder { color: #CBD5E1; }
+
+    .chips {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      border-radius: 999px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .chip:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+    }
+
+    .chip.all {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+      color: #B45309;
+    }
+
+    .chip.active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    .amount-error {
+      margin-top: 8px;
+      color: #DC2626;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .amount-error.show { display: inline-flex; }
+
+    .account-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .account-item {
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .account-item.active {
+      border-color: #3B82F6;
+      border-left: 4px solid #3B82F6;
+      background: rgba(59,130,246,0.04);
+      color: #1D4ED8;
+      padding-left: 11px;
+    }
+
+    .account-item .bank-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .acc-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .acc-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    .add-account {
+      border: 1.5px dashed #BFDBFE;
+      color: #3B82F6;
+      background: #F8FBFF;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .selected-box {
+      margin-top: 12px;
+      background: #F0F7FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .selected-box.show { display: flex; }
+
+    .selected-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .sel-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1E3A8A;
+    }
+
+    .sel-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.4;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mode {
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      background: #F8FAFC;
+      padding: 14px 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: .2s ease;
+      position: relative;
+    }
+
+    .mode.active {
+      border-color: #3B82F6;
+      background: rgba(59,130,246,0.04);
+    }
+
+    .mode-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .mode-icon.upi { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .mode-icon.imps { background: linear-gradient(135deg, #10B981, #059669); }
+    .mode-icon.neft { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+
+    .mode-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .mode-sub {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1.35;
+    }
+
+    .mode-detail {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #475569;
+      display: grid;
+      gap: 4px;
+    }
+
+    .mode-detail span { display: inline-flex; align-items: center; gap: 7px; }
+
+    .note-wrap textarea {
+      width: 100%;
+      min-height: 80px;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1F2937;
+      resize: vertical;
+      outline: none;
+    }
+
+    .note-wrap textarea:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .counter {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #94A3B8;
+      text-align: right;
+    }
+
+    .pin-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+
+    .pin-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .forgot-pin {
+      font-size: 13px;
+      color: #3B82F6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-pin:hover { text-decoration: underline; }
+
+    .pin-input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      text-align: center;
+      letter-spacing: .5em;
+      font-size: 22px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      outline: none;
+      padding-left: .5em;
+    }
+
+    .pin-input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .warn-box {
+      margin-top: 18px;
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      color: #78350F;
+      font-size: 13px;
+      line-height: 1.5;
+      align-items: flex-start;
+    }
+
+    .warn-box i {
+      margin-top: 2px;
+      color: #F59E0B;
+      flex-shrink: 0;
+    }
+
+    .withdraw-btn {
+      margin-top: 14px;
+      width: 100%;
+      height: 50px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: .2s ease;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.30);
+    }
+
+    .withdraw-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(245,158,11,0.40);
+    }
+
+    .withdraw-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .summary {
+      padding: 24px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .summary-title {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .summary-title i { color: #3B82F6; }
+
+    .divider {
+      margin: 14px 0;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .sum-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .sum-row .label { color: #6B7280; }
+    .sum-row .value { color: #1F2937; font-weight: 600; }
+
+    .sum-row.total {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .sum-row.total .label,
+    .sum-row.total .value { font-weight: 800; }
+
+    .extra-note {
+      margin-top: 12px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      background: #F8FAFC;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #475569;
+      display: grid;
+      gap: 6px;
+    }
+
+    .extra-note span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .spin { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .summary { position: static; top: auto; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 24px 16px; }
+      .title-left h1 { font-size: 28px; }
+      .form-card { padding: 20px; }
+      .summary { padding: 20px; }
+      .amount-input { font-size: 28px; }
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <% const available = Number(balance || 2450); %>
+  <% const accountList = (accounts && accounts.length) ? accounts : [
+    { id: 'acc1', bankName: 'HDFC Bank', holder: 'Rahul Sharma', accountMasked: 'XXXX XXXX 8834', ifsc: 'HDFC0001234' },
+    { id: 'acc2', bankName: 'ICICI Bank', holder: 'Rahul Sharma', accountMasked: 'XXXX XXXX 1209', ifsc: 'ICIC0000789' }
+  ]; %>
+
+  <main class="page">
+    <nav class="breadcrumb"><a href="/dashboard">Dashboard</a> &gt; Withdraw Funds</nav>
+
+    <section class="title-row">
+      <div class="title-left">
+        <div class="title-icon"><i class="fas fa-arrow-up"></i></div>
+        <div>
+          <h1>Withdraw Funds</h1>
+          <p>Transfer your ZenoPay balance to your bank account</p>
+        </div>
+      </div>
+
+      <div class="balance-pill"><i class="fas fa-wallet"></i> Available to Withdraw: <span id="availText" class="<%= available > 0 ? 'ok' : 'zero' %>"></span></div>
+    </section>
+
+    <section class="layout">
+      <article class="card form-card">
+        <div class="section-label">Withdraw Amount</div>
+        <div class="amount-wrap">
+          <div class="amount-row">
+            <span class="currency-badge">₹ INR</span>
+            <input id="amountInput" class="amount-input" type="number" min="1" step="1" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="chips" id="chipRow">
+          <button class="chip" type="button" data-amount="500">₹500</button>
+          <button class="chip" type="button" data-amount="1000">₹1,000</button>
+          <button class="chip" type="button" data-amount="2000">₹2,000</button>
+          <button class="chip all" type="button" data-amount="all">All</button>
+        </div>
+
+        <div class="amount-error" id="amountError"><i class="fas fa-exclamation-circle"></i> Amount exceeds your available balance</div>
+
+        <div class="section-label">Withdraw To</div>
+        <div class="account-list" id="accountList">
+          <% accountList.forEach((acc) => { %>
+            <button class="account-item" type="button" data-id="<%= acc.id %>" data-bank="<%= acc.bankName %>" data-holder="<%= acc.holder %>" data-mask="<%= acc.accountMasked %>" data-ifsc="<%= acc.ifsc %>">
+              <span class="bank-dot"><i class="fas fa-university"></i></span>
+              <span>
+                <p class="acc-name"><%= acc.bankName %></p>
+                <p class="acc-sub"><%= acc.accountMasked %> • <%= acc.holder %></p>
+              </span>
+            </button>
+          <% }) %>
+
+          <button class="account-item add-account" type="button" id="addNewAccountBtn"><i class="fas fa-plus"></i> Add New Account</button>
+        </div>
+
+        <div class="selected-box" id="selectedBox">
+          <span class="selected-icon"><i class="fas fa-university"></i></span>
+          <span>
+            <p class="sel-name" id="selBank"></p>
+            <p class="sel-sub" id="selMeta"></p>
+          </span>
+        </div>
+
+        <div class="section-label">Transfer Mode</div>
+        <div class="mode-grid" id="modeGrid">
+          <button class="mode" type="button" data-mode="upi">
+            <span class="mode-icon upi"><i class="fas fa-bolt"></i></span>
+            <p class="mode-title">UPI</p>
+            <p class="mode-sub">Instant, free</p>
+          </button>
+          <button class="mode" type="button" data-mode="imps">
+            <span class="mode-icon imps"><i class="fas fa-exchange-alt"></i></span>
+            <p class="mode-title">IMPS</p>
+            <p class="mode-sub">Instant, ₹5 fee</p>
+          </button>
+          <button class="mode" type="button" data-mode="neft">
+            <span class="mode-icon neft"><i class="fas fa-university"></i></span>
+            <p class="mode-title">NEFT</p>
+            <p class="mode-sub">2–4 hours, free</p>
+          </button>
+        </div>
+
+        <div class="mode-detail" id="modeDetail">
+          <span><i class="fas fa-clock"></i> Estimated arrival: —</span>
+          <span><i class="fas fa-receipt"></i> Fee: ₹0.00</span>
+        </div>
+
+        <div class="section-label">Withdrawal Note</div>
+        <div class="note-wrap">
+          <textarea id="noteInput" maxlength="200" placeholder="Purpose of withdrawal..."></textarea>
+          <div class="counter"><span id="noteCount">0</span>/200</div>
+        </div>
+
+        <div class="section-label">Confirm PIN</div>
+        <div class="pin-row">
+          <span class="pin-label">Enter Transaction PIN</span>
+          <a href="/change-password" class="forgot-pin">Forgot PIN</a>
+        </div>
+        <input id="pinInput" class="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="••••••" />
+
+        <div class="warn-box"><i class="fas fa-exclamation-triangle"></i> Withdrawals cannot be reversed once processed. Please verify your bank details.</div>
+
+        <button id="withdrawBtn" class="withdraw-btn" type="button" disabled><i class="fas fa-arrow-up"></i> Withdraw ₹0.00</button>
+      </article>
+
+      <aside class="card summary">
+        <h3 class="summary-title"><i class="fas fa-receipt"></i> Summary</h3>
+        <div class="divider"></div>
+
+        <div class="sum-row"><span class="label">Withdraw Amount</span><span class="value" id="sumAmount">₹0.00</span></div>
+        <div class="sum-row"><span class="label">Transfer Fee</span><span class="value" id="sumFee">₹0.00</span></div>
+        <div class="sum-row"><span class="label">GST on Fee</span><span class="value" id="sumGst">₹0.00</span></div>
+        <div class="divider"></div>
+        <div class="sum-row total"><span class="label">Net Received</span><span class="value" id="sumNet">₹0.00</span></div>
+
+        <div class="extra-note">
+          <span><b>Remaining Balance:</b> <span id="remainBal">₹0.00</span></span>
+          <span><b>Estimated Arrival:</b> <span id="sumArrival">—</span></span>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const available = Number('<%= available %>') || 0;
+      const modeMeta = {
+        upi: { fee: 0, gstRate: 0, arrival: 'Instant' },
+        imps: { fee: 5, gstRate: 0.18, arrival: 'Instant' },
+        neft: { fee: 0, gstRate: 0, arrival: '2–4 hours' },
+      };
+
+      const formatINR = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      const amountInput = document.getElementById('amountInput');
+      const chips = Array.from(document.querySelectorAll('.chip'));
+      const amountError = document.getElementById('amountError');
+      const accountItems = Array.from(document.querySelectorAll('.account-item[data-id]'));
+      const selectedBox = document.getElementById('selectedBox');
+      const selBank = document.getElementById('selBank');
+      const selMeta = document.getElementById('selMeta');
+      const modes = Array.from(document.querySelectorAll('.mode'));
+      const modeDetail = document.getElementById('modeDetail');
+      const noteInput = document.getElementById('noteInput');
+      const noteCount = document.getElementById('noteCount');
+      const pinInput = document.getElementById('pinInput');
+      const withdrawBtn = document.getElementById('withdrawBtn');
+
+      const availText = document.getElementById('availText');
+      const sumAmount = document.getElementById('sumAmount');
+      const sumFee = document.getElementById('sumFee');
+      const sumGst = document.getElementById('sumGst');
+      const sumNet = document.getElementById('sumNet');
+      const remainBal = document.getElementById('remainBal');
+      const sumArrival = document.getElementById('sumArrival');
+
+      let selectedAccount = null;
+      let selectedMode = '';
+
+      availText.textContent = formatINR(available);
+
+      const amount = () => {
+        const raw = Number(amountInput.value || 0);
+        if (!Number.isFinite(raw)) return 0;
+        return Math.max(0, raw);
+      };
+
+      const validPin = () => {
+        const pin = pinInput.value.replace(/\D/g, '');
+        return pin.length === 4 || pin.length === 6;
+      };
+
+      const update = () => {
+        const amt = amount();
+        const mode = selectedMode ? modeMeta[selectedMode] : { fee: 0, gstRate: 0, arrival: '—' };
+        const fee = mode.fee;
+        const gst = fee * mode.gstRate;
+        const net = Math.max(0, amt - fee - gst);
+        const remaining = available - amt;
+
+        const exceeds = amt > available;
+        amountError.classList.toggle('show', exceeds);
+
+        sumAmount.textContent = formatINR(amt);
+        sumFee.textContent = formatINR(fee);
+        sumGst.textContent = formatINR(gst);
+        sumNet.textContent = formatINR(net);
+        remainBal.textContent = formatINR(Math.max(0, remaining));
+        sumArrival.textContent = mode.arrival;
+
+        modeDetail.innerHTML = `<span><i class="fas fa-clock"></i> Estimated arrival: ${mode.arrival}</span><span><i class="fas fa-receipt"></i> Fee: ${formatINR(fee)}${gst > 0 ? ` + GST (${formatINR(gst)})` : ''}</span>`;
+
+        withdrawBtn.innerHTML = `<i class="fas fa-arrow-up"></i> Withdraw ${formatINR(amt)}`;
+
+        const ready = amt > 0 && !exceeds && selectedAccount && selectedMode && validPin();
+        withdrawBtn.disabled = !ready;
+      };
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chips.forEach((c) => c.classList.remove('active'));
+          chip.classList.add('active');
+          if (chip.dataset.amount === 'all') {
+            amountInput.value = String(Math.max(0, available));
+          } else {
+            amountInput.value = chip.dataset.amount || '0';
+          }
+          update();
+        });
+      });
+
+      amountInput.addEventListener('input', () => {
+        chips.forEach((c) => c.classList.remove('active'));
+        update();
+      });
+
+      accountItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          accountItems.forEach((x) => x.classList.remove('active'));
+          item.classList.add('active');
+          selectedAccount = {
+            bank: item.dataset.bank,
+            holder: item.dataset.holder,
+            mask: item.dataset.mask,
+            ifsc: item.dataset.ifsc,
+          };
+
+          selBank.textContent = `${selectedAccount.bank} • ${selectedAccount.holder}`;
+          selMeta.textContent = `${selectedAccount.mask} • IFSC: ${selectedAccount.ifsc}`;
+          selectedBox.classList.add('show');
+          update();
+        });
+      });
+
+      document.getElementById('addNewAccountBtn').addEventListener('click', () => {
+        window.location.href = '/add-card';
+      });
+
+      modes.forEach((mode) => {
+        mode.addEventListener('click', () => {
+          modes.forEach((x) => x.classList.remove('active'));
+          mode.classList.add('active');
+          selectedMode = mode.dataset.mode;
+          update();
+        });
+      });
+
+      noteInput.addEventListener('input', () => {
+        noteCount.textContent = String(noteInput.value.length);
+      });
+
+      pinInput.addEventListener('input', () => {
+        pinInput.value = pinInput.value.replace(/\D/g, '').slice(0, 6);
+        update();
+      });
+
+      withdrawBtn.addEventListener('click', () => {
+        if (withdrawBtn.disabled) return;
+        withdrawBtn.disabled = true;
+        withdrawBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Processing withdrawal...';
+        window.setTimeout(() => {
+          window.location.href = '/payment/pending?type=Withdrawal&method=' + encodeURIComponent(selectedMode.toUpperCase()) + '&amount=' + encodeURIComponent(amount());
+        }, 900);
+      });
+
+      update();
+    })();
+  </script>
+</body>
+</html>

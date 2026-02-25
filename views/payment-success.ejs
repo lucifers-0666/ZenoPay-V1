@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Payment Successful - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --slate: #475569;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --green-dark: #059669;
+      --warn: #F59E0B;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .state {
+      display: none;
+      width: 100%;
+    }
+
+    .state.active { display: block; }
+
+    .loading-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 60px 40px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    .loader {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 4px solid #E2E8F0;
+      border-top: 4px solid #3B82F6;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-title {
+      margin: 24px 0 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .loading-sub {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    .success-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      padding: 48px 40px 36px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.06);
+      top: -80px;
+      left: -70px;
+    }
+
+    .hero::after {
+      width: 160px;
+      height: 160px;
+      background: rgba(255,255,255,0.04);
+      right: -50px;
+      bottom: -60px;
+    }
+
+    .success-icon-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.3);
+      margin: 0 auto 20px;
+      display: grid;
+      place-items: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #fff;
+      display: grid;
+      place-items: center;
+    }
+
+    .success-icon i {
+      font-size: 28px;
+      color: #10B981;
+      animation: bounceIn 0.5s ease-out 0.2s both;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+      50% { box-shadow: 0 0 0 16px rgba(255,255,255,0); }
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .hero-title {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .hero-sub {
+      margin: 0;
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+    }
+
+    .amount-pill {
+      margin-top: 20px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 12px;
+      padding: 12px 24px;
+      display: inline-block;
+    }
+
+    .amount-value {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      line-height: 1.2;
+    }
+
+    .amount-to {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .summary {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-title {
+      margin: 0 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .section-title i { font-size: 12px; }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F8FAFC;
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    .detail-label i {
+      width: 14px;
+      text-align: center;
+      color: #94A3B8;
+      font-size: 14px;
+    }
+
+    .detail-value {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+      word-break: break-word;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      letter-spacing: 0.01em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16,185,129,0.1);
+      color: #059669;
+      border: 1px solid #10B981;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .totals {
+      background: #F8FAFC;
+      padding: 20px 32px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .total-row .label { color: #6B7280; }
+    .total-row .value { color: #1F2937; font-weight: 600; }
+
+    .total-row.mt { margin-top: 8px; }
+    .total-divider {
+      border-top: 1px solid #E2E8F0;
+      margin: 14px 0;
+    }
+
+    .total-row.final .label {
+      color: #1F2937;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .total-row.final .value {
+      color: #1F2937;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .actions {
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .btn:focus-visible,
+    .action-btn:focus-visible,
+    .quick-link:focus-visible,
+    .stay-link:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      height: 50px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 15px;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .btn-outline {
+      height: 46px;
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-outline:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .action-btn {
+      height: 42px;
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn i { font-size: 13px; }
+
+    .action-btn:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #fff;
+    }
+
+    .security {
+      background: linear-gradient(135deg, rgba(59,130,246,0.04), rgba(139,92,246,0.02));
+      border-top: 1px solid #F1F5F9;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #94A3B8;
+      font-size: 12px;
+    }
+
+    .security i {
+      color: #3B82F6;
+      font-size: 14px;
+    }
+
+    .quick-links {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .quick-link:hover { text-decoration: underline; }
+    .quick-link.history { color: #3B82F6; }
+    .quick-link.dispute { color: #F59E0B; }
+    .quick-link.support { color: #6B7280; }
+
+    .redirect-strip {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 0;
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-top: 1px solid #E2E8F0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      z-index: 25;
+    }
+
+    .redirect-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .redirect-copy {
+      font-size: 13px;
+      color: #6B7280;
+      white-space: nowrap;
+    }
+
+    .redirect-copy i {
+      margin-right: 6px;
+    }
+
+    .progress-track {
+      width: 200px;
+      height: 4px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 100%;
+      background: #3B82F6;
+      transform-origin: left center;
+      animation: drain 10s linear forwards;
+    }
+
+    @keyframes drain {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    .stay-link {
+      border: 0;
+      background: transparent;
+      color: #3B82F6;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+    }
+
+    .stay-link:hover { text-decoration: underline; }
+
+    @media (max-width: 639px) {
+      body {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .page {
+        padding: 0;
+        max-width: none;
+      }
+
+      .loading-card {
+        margin: 16px;
+        border-radius: 20px;
+        padding: 44px 24px;
+      }
+
+      .success-card {
+        border-radius: 20px 20px 0 0;
+      }
+
+      .hero {
+        padding: 36px 24px 28px;
+      }
+
+      .amount-value {
+        font-size: 26px;
+      }
+
+      .summary,
+      .totals,
+      .actions,
+      .security {
+        padding-inline: 24px;
+      }
+
+      .detail-row {
+        padding: 8px 0;
+      }
+
+      .quick-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin: 20px 0 24px;
+      }
+
+      .action-row {
+        grid-template-columns: 1fr;
+      }
+
+      .redirect-strip {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <% const transaction = tx || {}; %>
+
+  <main class="page">
+    <section id="loadingState" class="state active" aria-live="polite" aria-busy="true">
+      <div class="loading-card">
+        <div class="loader" aria-hidden="true"></div>
+        <p class="loading-title">Confirming your payment...</p>
+        <p class="loading-sub">Please do not close this window</p>
+      </div>
+    </section>
+
+    <section id="successState" class="state" aria-live="polite" aria-hidden="true">
+      <article class="success-card">
+        <header class="hero">
+          <div class="success-icon-ring">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+          </div>
+          <h1 class="hero-title">Payment Successful!</h1>
+          <p class="hero-sub">Your money has been sent successfully</p>
+
+          <div class="amount-pill">
+            <p class="amount-value"><%= transaction.amountSentFormatted || '₹5,000.00' %></p>
+            <p class="amount-to">to <%= transaction.paidTo || 'Priya Mehta' %></p>
+          </div>
+        </header>
+
+        <section class="summary">
+          <h2 class="section-title"><i class="fas fa-receipt"></i> Transaction Details</h2>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-hashtag"></i> Transaction ID</span>
+            <span class="detail-value mono"><%= transaction.id || 'ZP-2024-8X7K-9M2P' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-user"></i> Paid To</span>
+            <span class="detail-value"><%= transaction.paidTo || 'Priya Mehta' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-university"></i> To Account</span>
+            <span class="detail-value"><%= transaction.toAccountMasked || 'XXXX XXXX 8934' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-credit-card"></i> Payment Method</span>
+            <span class="detail-value"><%= transaction.paymentMethod || 'UPI Transfer' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-calendar-alt"></i> Date &amp; Time</span>
+            <span class="detail-value"><%= transaction.dateTimeFormatted || 'Feb 24, 2026 - 11:10 AM' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-tag"></i> Type</span>
+            <span class="detail-value"><%= transaction.type || 'Money Transfer' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-percent"></i> Transaction Fee</span>
+            <span class="detail-value"><%= transaction.feeFormatted || '₹12.50' %></span>
+          </div>
+
+          <div class="detail-row">
+            <span class="detail-label"><i class="fas fa-shield-alt"></i> Status</span>
+            <span class="detail-value">
+              <span class="status-badge"><i class="fas fa-check-circle"></i> Completed</span>
+            </span>
+          </div>
+        </section>
+
+        <section class="totals">
+          <div class="total-row">
+            <span class="label">Amount Sent</span>
+            <span class="value"><%= transaction.amountSentFormatted || '₹5,000.00' %></span>
+          </div>
+          <div class="total-row mt">
+            <span class="label">Transaction Fee</span>
+            <span class="value" style="color:#6B7280;"><%= transaction.feeFormatted || '₹14.75' %></span>
+          </div>
+          <div class="total-divider"></div>
+          <div class="total-row final">
+            <span class="label">Total Debited</span>
+            <span class="value"><%= transaction.totalDebitedFormatted || '₹5,014.75' %></span>
+          </div>
+        </section>
+
+        <section class="actions">
+          <button type="button" class="btn btn-primary" id="downloadReceiptBtn"><i class="fas fa-download"></i> Download Receipt</button>
+          <button type="button" class="btn btn-outline" id="shareReceiptBtn"><i class="fas fa-share-alt"></i> Share Receipt</button>
+
+          <div class="action-row">
+            <a class="action-btn" href="/send-to"><i class="fas fa-redo"></i> Send Again</a>
+            <a class="action-btn" href="/dashboard"><i class="fas fa-home"></i> Go to Dashboard</a>
+          </div>
+        </section>
+
+        <footer class="security">
+          <i class="fas fa-shield-alt"></i>
+          <span>Secured by ZenoPay - Bank-level encryption</span>
+        </footer>
+      </article>
+
+      <div class="quick-links">
+        <a class="quick-link history" href="/Transaction-History"><i class="fas fa-history"></i> View Transaction History</a>
+        <a class="quick-link dispute" href="/disputes"><i class="fas fa-exclamation-triangle"></i> Raise a Dispute</a>
+        <a class="quick-link support" href="/support"><i class="fas fa-headset"></i> Contact Support</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="redirect-strip" id="redirectStrip" role="status" aria-live="polite">
+    <div class="redirect-left">
+      <span class="redirect-copy" id="redirectText"><i class="fas fa-clock"></i> Redirecting to Dashboard in 10 seconds...</span>
+      <div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+    </div>
+    <button type="button" class="stay-link" id="stayOnPageBtn">Stay on this page</button>
+  </div>
+
+  <script>
+    (function () {
+      const loadingState = document.getElementById('loadingState');
+      const successState = document.getElementById('successState');
+      const redirectStrip = document.getElementById('redirectStrip');
+      const redirectText = document.getElementById('redirectText');
+      const stayOnPageBtn = document.getElementById('stayOnPageBtn');
+      const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
+      const shareReceiptBtn = document.getElementById('shareReceiptBtn');
+
+      const receiptUrl = '<%= transaction.receiptUrl || "/receipts" %>';
+      const shareText = 'Payment successful on ZenoPay. Transaction ID: <%= transaction.id || "ZP-2024-8X7K-9M2P" %>';
+
+      const loadingMs = Number('<%= typeof loadingMs !== "undefined" ? loadingMs : 1400 %>') || 1400;
+      const redirectSeconds = Number('<%= typeof redirectSeconds !== "undefined" ? redirectSeconds : 10 %>') || 10;
+      let secondsLeft = redirectSeconds;
+      let countdownTimer = null;
+      let redirectTimer = null;
+
+      const showSuccess = () => {
+        loadingState.classList.remove('active');
+        loadingState.setAttribute('aria-hidden', 'true');
+        successState.classList.add('active');
+        successState.setAttribute('aria-hidden', 'false');
+      };
+
+      const stopRedirect = () => {
+        if (countdownTimer) window.clearInterval(countdownTimer);
+        if (redirectTimer) window.clearTimeout(redirectTimer);
+        redirectStrip.remove();
+      };
+
+      const startRedirect = () => {
+        if (window.matchMedia('(max-width: 639px)').matches) {
+          redirectStrip.style.display = 'none';
+          return;
+        }
+
+        redirectText.innerHTML = `<i class="fas fa-clock"></i> Redirecting to Dashboard in ${secondsLeft} seconds...`;
+        countdownTimer = window.setInterval(() => {
+          secondsLeft -= 1;
+          if (secondsLeft <= 0) {
+            window.clearInterval(countdownTimer);
+            return;
+          }
+          redirectText.innerHTML = `<i class="fas fa-clock"></i> Redirecting to Dashboard in ${secondsLeft} seconds...`;
+        }, 1000);
+
+        redirectTimer = window.setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, redirectSeconds * 1000);
+      };
+
+      stayOnPageBtn.addEventListener('click', stopRedirect);
+
+      downloadReceiptBtn.addEventListener('click', () => {
+        window.location.href = receiptUrl;
+      });
+
+      shareReceiptBtn.addEventListener('click', async () => {
+        try {
+          if (navigator.share) {
+            await navigator.share({
+              title: 'ZenoPay Receipt',
+              text: shareText,
+              url: window.location.href,
+            });
+            return;
+          }
+
+          await navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+          shareReceiptBtn.innerHTML = '<i class="fas fa-check"></i> Copied to Clipboard';
+          window.setTimeout(() => {
+            shareReceiptBtn.innerHTML = '<i class="fas fa-share-alt"></i> Share Receipt';
+          }, 1400);
+        } catch (_) {
+          window.prompt('Copy this receipt link', window.location.href);
+        }
+      });
+
+      window.setTimeout(() => {
+        showSuccess();
+        startRedirect();
+      }, loadingMs);
+    })();
+  </script>
+</body>
+</html>

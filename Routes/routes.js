@@ -34,6 +34,7 @@ const PrivacyPolicyController = require("../Controllers/PrivacyPolicyController"
 const PricingController = require("../Controllers/PricingController");
 const BeneficiaryController = require("../Controllers/BeneficiaryController");
 const SystemStatusController = require("../Controllers/SystemStatusController");
+const Invoice = require("../Models/Invoice");
 
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 
@@ -144,6 +145,460 @@ router.post("/payment-methods/remove", PaymentMethodsController.removePaymentMet
 router.post("/payment-methods/disconnect-wallet", PaymentMethodsController.disconnectWallet);
 router.get("/add-card", AddCardController.getAddCardPage);
 router.post("/add-card", AddCardController.addCard);
+router.get("/payment/success", (req, res) => {
+  const amount = Number(req.query.amount || 5000);
+  const fee = Number(req.query.fee || 14.75);
+  const paidTo = req.query.to || "Priya Mehta";
+  const now = new Date();
+
+  const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  const tx = {
+    id: req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+    paidTo,
+    toAccountMasked: req.query.toAccount || "XXXX XXXX 8934",
+    paymentMethod: req.query.method || "UPI Transfer",
+    dateTimeFormatted: now.toLocaleString("en-IN", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).replace(",", " -"),
+    type: req.query.type || "Money Transfer",
+    feeFormatted: formatINR(fee),
+    amountSentFormatted: formatINR(amount),
+    totalDebitedFormatted: formatINR(amount + fee),
+    receiptUrl: req.query.receiptUrl || "/receipts",
+  };
+
+  return res.render("payment-success", {
+    pageTitle: "Payment Successful - ZenoPay",
+    isLoggedIn: true,
+    user: req.session.user || null,
+    tx,
+    loadingMs: Number(req.query.loadingMs || 1400),
+    redirectSeconds: Number(req.query.redirect || 10),
+  });
+});
+router.get("/payment/failed", (req, res) => {
+  const amount = Number(req.query.amount || 5000);
+  const now = new Date();
+
+  const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  const tx = {
+    id: req.query.attemptId || `ZP-FAIL-${now.getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`,
+    intendedFor: req.query.to || "Priya Mehta",
+    method: req.query.method || "UPI Transfer",
+    attemptedAt: now.toLocaleString("en-IN", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).replace(",", " -"),
+    amount: formatINR(amount),
+    errorCode: req.query.errorCode || "INSUFFICIENT_FUNDS",
+    failureReason: req.query.reason || "Your bank declined this transaction. This usually happens due to insufficient balance, incorrect PIN, or bank security restrictions.",
+  };
+
+  return res.render("payment-failed", {
+    pageTitle: "Payment Failed - ZenoPay",
+    isLoggedIn: true,
+    user: req.session.user || null,
+    tx,
+  });
+});
+router.get("/payment/pending", (req, res) => {
+  const amount = Number(req.query.amount || 5000);
+  const now = new Date();
+
+  const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  const tx = {
+    id: req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+    sendingTo: req.query.to || "Priya Mehta",
+    method: req.query.method || "NEFT Transfer",
+    submittedAt: now.toLocaleString("en-IN", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).replace(",", " -"),
+    amountFormatted: formatINR(amount),
+    eta: req.query.eta || "5–30 minutes",
+    step1Time: req.query.step1 || "11:09 AM",
+    step2Time: req.query.step2 || "11:10 AM",
+    step3Time: req.query.step3 || "In progress now",
+  };
+
+  return res.render("payment-pending", {
+    pageTitle: "Payment Processing - ZenoPay",
+    isLoggedIn: true,
+    user: req.session.user || null,
+    tx,
+  });
+});
+router.get("/security-settings", (req, res) => {
+  const score = Math.max(0, Math.min(100, Number(req.query.score || 85)));
+  const twoFAEnabled = String(req.query.twoFA || "true") === "true";
+
+  const security = {
+    score,
+    twoFAEnabled,
+    levelTitle: score >= 80 ? "Good Security Level" : score >= 60 ? "Moderate Security Level" : "Security Needs Attention",
+    subtitle: score >= 100 ? "Excellent! Your account is fully secured." : "Enable 2FA to reach 100% protection",
+    methods: [
+      {
+        id: "authenticator",
+        iconClass: "auth",
+        icon: "fa-clock",
+        title: "Authenticator App",
+        description: "Google Authenticator / Authy",
+        active: true,
+      },
+      {
+        id: "sms",
+        iconClass: "sms",
+        icon: "fa-sms",
+        title: "SMS OTP",
+        description: "Sent to +91 98765 XXXXX",
+        active: false,
+      },
+      {
+        id: "email",
+        iconClass: "email",
+        icon: "fa-envelope",
+        title: "Email OTP",
+        description: "Sent to user@example.com",
+        active: false,
+      },
+    ],
+  };
+
+  const sessions = [
+    {
+      deviceType: "desktop",
+      icon: "fa-desktop",
+      deviceName: "Windows PC • Chrome 132",
+      location: "Mumbai, IN",
+      ip: "122.161.45.90",
+      browser: "Chrome",
+      lastActive: "Just now",
+      current: true,
+    },
+    {
+      deviceType: "mobile",
+      icon: "fa-mobile-alt",
+      deviceName: "iPhone 15 Pro • Safari",
+      location: "Pune, IN",
+      ip: "117.221.88.41",
+      browser: "Safari",
+      lastActive: "13 minutes ago",
+      current: false,
+    },
+    {
+      deviceType: "tablet",
+      icon: "fa-tablet-alt",
+      deviceName: "iPad Air • ZenoPay App",
+      location: "Bengaluru, IN",
+      ip: "106.76.22.17",
+      browser: "In-app browser",
+      lastActive: "2 hours ago",
+      current: false,
+    },
+  ];
+
+  const loginHistory = [
+    { status: "success", statusLabel: "Success", dateTime: "Feb 25, 2026 • 09:12 AM", device: "Chrome on Windows", location: "Mumbai, IN", ip: "122.161.45.90" },
+    { status: "failed", statusLabel: "Failed", dateTime: "Feb 24, 2026 • 11:44 PM", device: "Unknown Android", location: "Delhi, IN", ip: "49.36.91.22" },
+    { status: "blocked", statusLabel: "Blocked", dateTime: "Feb 24, 2026 • 11:45 PM", device: "Unknown Android", location: "Delhi, IN", ip: "49.36.91.22" },
+    { status: "success", statusLabel: "Success", dateTime: "Feb 24, 2026 • 06:31 PM", device: "Safari on iPhone", location: "Pune, IN", ip: "117.221.88.41" },
+  ];
+
+  const preferences = [
+    { icon: "fa-bell", title: "Login Notifications", description: "Get notified whenever a new login is detected.", enabled: true },
+    { icon: "fa-lock", title: "Auto-Lock after 15 minutes", description: "Automatically lock the app after inactivity.", enabled: true },
+    { icon: "fa-eye-slash", title: "Hide Balance by default", description: "Mask account balances until manually revealed.", enabled: false },
+    { icon: "fa-envelope", title: "Email on every withdrawal", description: "Receive an email for each withdrawal transaction.", enabled: true },
+    { icon: "fa-exclamation-triangle", title: "Suspicious Activity Alerts", description: "Get instant alerts for unusual account activity.", enabled: true },
+    { icon: "fa-fingerprint", title: "Biometric unlock", description: "Use fingerprint/face unlock where supported.", enabled: false },
+  ];
+
+  return res.render("security-settings", {
+    pageTitle: "Security Settings - ZenoPay",
+    isLoggedIn: true,
+    user: req.session.user || null,
+    security,
+    sessions,
+    loginHistory,
+    preferences,
+  });
+});
+router.get("/onboarding", (req, res) => {
+  const user = req.session.user || null;
+  const prefilledPhone = req.query.phone || user?.Mobile || user?.PhoneNumber || "+91 98765 43210";
+
+  return res.render("onboarding", {
+    pageTitle: "Welcome to ZenoPay",
+    isLoggedIn: true,
+    user,
+    prefilledPhone,
+  });
+});
+router.get("/add-money", (req, res) => {
+  const user = req.session.user || null;
+  const balance = Number(req.query.balance || 2450);
+
+  return res.render("add-money", {
+    pageTitle: "Add Money - ZenoPay",
+    isLoggedIn: true,
+    user,
+    balance,
+  });
+});
+router.get("/withdraw", (req, res) => {
+  const user = req.session.user || null;
+  const balance = Number(req.query.balance || 2450);
+
+  const accounts = [
+    { id: "acc1", bankName: "HDFC Bank", holder: user?.FullName || "Rahul Sharma", accountMasked: "XXXX XXXX 8834", ifsc: "HDFC0001234" },
+    { id: "acc2", bankName: "ICICI Bank", holder: user?.FullName || "Rahul Sharma", accountMasked: "XXXX XXXX 1209", ifsc: "ICIC0000789" },
+  ];
+
+  return res.render("withdraw", {
+    pageTitle: "Withdraw Funds - ZenoPay",
+    isLoggedIn: true,
+    user,
+    balance,
+    accounts,
+  });
+});
+router.get("/scheduled-payments", (req, res) => {
+  const payments = [];
+  const beneficiaries = [];
+
+  return res.render("scheduled-payments", {
+    pageTitle: "Scheduled Payments - ZenoPay",
+    isLoggedIn: true,
+    user: req.session.user || null,
+    payments,
+    beneficiaries,
+  });
+});
+router.get("/invoices", async (req, res) => {
+  const user = req.session.user || null;
+  const userId = user?.ZenoPayID || null;
+
+  try {
+    let invoices = [];
+
+    if (userId) {
+      const storedInvoices = await Invoice.find({ user_id: userId })
+        .sort({ issue_date: -1, createdAt: -1 })
+        .lean();
+
+      invoices = storedInvoices.map((invoice) => {
+        return {
+          id: String(invoice._id),
+          invoiceNo: `#${invoice.invoice_number || `INV-${String(invoice._id).slice(-6).toUpperCase()}`}`,
+          client: invoice.client_name || "N/A",
+          issueDate: invoice.issue_date ? new Date(invoice.issue_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+          dueDate: invoice.due_date ? new Date(invoice.due_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+          amount: Number(invoice.amount || 0),
+          status: String(invoice.status || "draft").toLowerCase(),
+        };
+      });
+    }
+
+    return res.render("invoices", {
+      pageTitle: "Invoices - ZenoPay",
+      isLoggedIn: true,
+      user,
+      invoices,
+    });
+  } catch (error) {
+    console.error("[Invoices] Error loading invoice data:", error);
+    return res.render("invoices", {
+      pageTitle: "Invoices - ZenoPay",
+      isLoggedIn: true,
+      user,
+      invoices: [],
+    });
+  }
+});
+
+router.post("/api/invoices", async (req, res) => {
+  try {
+    const userId = req.session?.user?.ZenoPayID;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please login to create invoices." });
+    }
+
+    const { client, amount, dueDate, status, notes } = req.body || {};
+    const normalizedClient = String(client || "").trim();
+    const parsedAmount = Number(amount);
+    const parsedDueDate = new Date(dueDate);
+    const normalizedStatus = ["paid", "pending", "overdue", "draft"].includes(String(status || "").toLowerCase())
+      ? String(status).toLowerCase()
+      : "pending";
+
+    if (!normalizedClient) {
+      return res.status(400).json({ success: false, message: "Client name is required." });
+    }
+
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: "Amount must be greater than 0." });
+    }
+
+    if (Number.isNaN(parsedDueDate.getTime())) {
+      return res.status(400).json({ success: false, message: "Valid due date is required." });
+    }
+
+    const invoiceNumber = await Invoice.generateInvoiceNumber();
+
+    const created = await Invoice.create({
+      invoice_number: invoiceNumber,
+      user_id: userId,
+      client_name: normalizedClient,
+      issue_date: new Date(),
+      due_date: parsedDueDate,
+      amount: parsedAmount,
+      status: normalizedStatus,
+      notes: String(notes || "").trim(),
+    });
+
+    return res.json({
+      success: true,
+      invoice: {
+        id: String(created._id),
+        invoiceNo: `#${created.invoice_number}`,
+        client: created.client_name,
+        issueDate: new Date(created.issue_date).toISOString().split("T")[0],
+        dueDate: new Date(created.due_date).toISOString().split("T")[0],
+        amount: Number(created.amount || 0),
+        status: String(created.status || "pending").toLowerCase(),
+      },
+    });
+  } catch (error) {
+    console.error("[Invoices] Error creating invoice:", error);
+    return res.status(500).json({ success: false, message: "Unable to create invoice right now." });
+  }
+});
+
+router.get("/invoice/:id", async (req, res) => {
+  try {
+    const user = req.session.user || null;
+    const userId = user?.ZenoPayID || null;
+    const invoiceId = req.params.id;
+
+    if (!userId) {
+      return res.redirect("/login");
+    }
+
+    const storedInvoice = await Invoice.findOne({
+      _id: invoiceId,
+      user_id: userId,
+    }).lean();
+
+    if (!storedInvoice) {
+      return res.status(404).render("error-404", {
+        pageTitle: "Invoice Not Found - ZenoPay",
+        path: req.path,
+      });
+    }
+
+    const formatDate = (date) => {
+      const d = new Date(date);
+      return d.toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    };
+
+    const invoice = {
+      id: String(storedInvoice._id),
+      invoiceNo: `#${storedInvoice.invoice_number || `INV-${String(storedInvoice._id).slice(-6).toUpperCase()}`}`,
+      client: storedInvoice.client_name || "N/A",
+      clientEmail: storedInvoice.client_email || null,
+      clientAddress: storedInvoice.client_address || null,
+      issueDate: formatDate(storedInvoice.issue_date || new Date()),
+      dueDate: formatDate(storedInvoice.due_date || new Date()),
+      amount: Number(storedInvoice.amount || 0),
+      subtotal: Number(storedInvoice.amount || 0),
+      status: String(storedInvoice.status || "draft").toLowerCase(),
+      notes: storedInvoice.notes || "",
+      items: storedInvoice.items || null,
+      paymentInfo: storedInvoice.payment_info || null,
+    };
+
+    return res.render("invoice-detail", {
+      pageTitle: `Invoice ${invoice.invoiceNo} - ZenoPay`,
+      isLoggedIn: true,
+      user,
+      invoice,
+    });
+  } catch (error) {
+    console.error("[Invoices] Error loading invoice detail:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+});
+
+router.post("/api/invoices/:id/mark-paid", async (req, res) => {
+  try {
+    const userId = req.session?.user?.ZenoPayID;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please login." });
+    }
+
+    const invoiceId = req.params.id;
+
+    const invoice = await Invoice.findOne({
+      _id: invoiceId,
+      user_id: userId,
+    });
+
+    if (!invoice) {
+      return res.status(404).json({ success: false, message: "Invoice not found." });
+    }
+
+    invoice.status = "paid";
+    invoice.payment_info = {
+      datePaid: new Date().toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      }),
+      method: "Manual Entry",
+      transactionId: `TXN-${Date.now().toString(36).toUpperCase()}`,
+    };
+
+    await invoice.save();
+
+    return res.json({ success: true, message: "Invoice marked as paid." });
+  } catch (error) {
+    console.error("[Invoices] Error marking invoice as paid:", error);
+    return res.status(500).json({ success: false, message: "Unable to update invoice." });
+  }
+});
 
 // Settings
 router.get("/settings", SettingsController.getSettings);
@@ -151,6 +606,23 @@ router.get("/account-settings", SettingsController.getAccountSettings);
 router.get("/notification-preferences", SettingsController.getNotificationPreferences);
 router.get("/system-status", SystemStatusController.getSystemStatusPage);
 router.get("/maintenance", SystemStatusController.getMaintenancePage);
+router.post("/api/maintenance/notify", async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !String(email).includes('@')) {
+      return res.status(400).json({ success: false, message: 'Valid email is required.' });
+    }
+
+    // TODO: Store email in database for notification list
+    console.log(`[Maintenance] Notification requested: ${email}`);
+
+    return res.json({ success: true, message: 'Notification subscription confirmed.' });
+  } catch (error) {
+    console.error('[Maintenance] Notify error:', error);
+    return res.status(500).json({ success: false, message: 'Unable to subscribe.' });
+  }
+});
+
 router.get("/change-password", SettingsController.getChangePassword);
 router.post("/change-password", SettingsController.changePassword);
 router.post("/settings/personal-info", SettingsController.updatePersonalInfo);

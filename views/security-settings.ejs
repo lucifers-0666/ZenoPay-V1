@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Security Settings - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --purple: #8B5CF6;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --amber-dark: #D97706;
+      --red: #EF4444;
+      --red-dark: #DC2626;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: #fff;
+      font-size: 32px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1F2937;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .header p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: #6B7280;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .card-title i {
+      color: #3B82F6;
+      font-size: 20px;
+    }
+
+    .card-sub {
+      margin: -8px 0 18px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    /* Score card */
+    .score-card {
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 28px;
+    }
+
+    .score-ring-wrap {
+      width: 96px;
+      height: 96px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .score-ring {
+      width: 96px;
+      height: 96px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: #E2E8F0;
+      stroke-width: 8;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 251.2;
+      transition: stroke-dashoffset .4s ease;
+    }
+
+    .score-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .score-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .score-max {
+      font-size: 13px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    .score-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .score-main h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .score-main p {
+      margin: 6px 0 12px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    .score-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #E2E8F0;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+    }
+
+    .btn {
+      border: 0;
+      text-decoration: none;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all .25s ease;
+    }
+
+    .btn:focus-visible,
+    .toggle:focus-visible,
+    .method-card:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(59,130,246,0.35);
+    }
+
+    .btn-outline {
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 0 14px;
+    }
+
+    .btn-outline:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .btn-outline.red {
+      border-color: #FECACA;
+      color: #DC2626;
+      background: #fff;
+    }
+
+    .btn-outline.red:hover {
+      background: #FEF2F2;
+      border-color: #EF4444;
+      color: #DC2626;
+    }
+
+    /* 2FA */
+    .twofa-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid #F1F5F9;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+
+    .twofa-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .twofa-title i {
+      font-size: 24px;
+      color: #3B82F6;
+    }
+
+    .toggle {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      border-radius: 999px;
+      background: #CBD5E1;
+      border: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      transition: .2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .toggle.on {
+      background: #3B82F6;
+    }
+
+    .toggle.on::after {
+      left: 27px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .status-badge.enabled {
+      background: rgba(16,185,129,0.1);
+      color: #059669;
+      border: 1px solid #10B981;
+    }
+
+    .status-badge.disabled {
+      background: rgba(239,68,68,0.1);
+      color: #DC2626;
+      border: 1px solid #EF4444;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .method-card {
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      text-align: left;
+      transition: .2s ease;
+      width: 100%;
+    }
+
+    .method-card.active {
+      border-color: #3B82F6;
+      background: rgba(59,130,246,0.04);
+    }
+
+    .method-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .method-icon.auth { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .method-icon.sms { background: linear-gradient(135deg, #10B981, #059669); }
+    .method-icon.email { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+
+    .method-name {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .method-sub {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.45;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Sessions */
+    .session-item {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .session-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .session-icon.desktop { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .session-icon.mobile { background: linear-gradient(135deg, #10B981, #059669); }
+    .session-icon.tablet { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+
+    .session-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .session-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .session-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .current-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid #10B981;
+      background: rgba(16,185,129,0.1);
+      color: #059669;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .meta-line {
+      margin: 2px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #6B7280;
+    }
+
+    .meta-line.dim {
+      color: #94A3B8;
+    }
+
+    .revoke-btn {
+      height: 32px;
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .revoke-all {
+      width: 100%;
+      margin-top: 4px;
+      height: 40px;
+    }
+
+    /* Login table */
+    .table-wrap {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: #F8FAFC;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 12px;
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 700;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    tbody td {
+      font-size: 14px;
+      color: #334155;
+      padding: 14px 16px;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    tbody tr:hover { background: #F8FAFC; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot.success { background: #10B981; }
+    .dot.failed { background: #EF4444; }
+    .dot.blocked { background: #F59E0B; }
+
+    .link-view {
+      color: #3B82F6;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .link-view:hover { text-decoration: underline; }
+
+    /* Preferences */
+    .pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    .pref-row:last-child { border-bottom: none; }
+
+    .pref-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .pref-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      display: grid;
+      place-items: center;
+      color: #64748B;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .pref-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .pref-sub {
+      margin: 3px 0 0;
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 768px) {
+      .page { padding: 24px 16px; }
+
+      .header h1 { font-size: 28px; }
+
+      .score-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn-primary { width: 100%; }
+
+      .method-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .session-item {
+        padding: 14px 14px;
+        align-items: flex-start;
+      }
+
+      .session-item .btn-outline {
+        margin-left: auto;
+      }
+
+      .btn-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <% const score = security?.score ?? 85; %>
+  <% const ringLength = 251.2; %>
+  <% const ringOffset = ringLength - ((Math.max(0, Math.min(100, score)) / 100) * ringLength); %>
+  <% const scoreClass = score >= 80 ? 'good' : (score >= 60 ? 'warn' : 'risk'); %>
+  <% const scoreColor = score >= 80 ? '#10B981' : (score >= 60 ? '#F59E0B' : '#EF4444'); %>
+
+  <main class="page">
+    <nav class="breadcrumb"><a href="/dashboard">Dashboard</a> &gt; <a href="/settings">Settings</a> &gt; Security</nav>
+
+    <header class="header">
+      <div class="header-icon"><i class="fas fa-shield-alt"></i></div>
+      <div>
+        <h1>Security Settings</h1>
+        <p>Manage your account security, login sessions, and two-factor authentication</p>
+      </div>
+    </header>
+
+    <section class="card score-card">
+      <div class="score-ring-wrap">
+        <svg class="score-ring" viewBox="0 0 96 96" aria-hidden="true">
+          <circle class="ring-bg" cx="48" cy="48" r="40"></circle>
+          <circle class="ring-progress" cx="48" cy="48" r="40" style="stroke:<%= scoreColor %>;stroke-dashoffset:<%= ringOffset %>;"></circle>
+        </svg>
+        <div class="score-center">
+          <div class="score-value"><%= score %></div>
+          <div class="score-max">/ 100</div>
+        </div>
+      </div>
+
+      <div class="score-main">
+        <h3><%= security?.levelTitle || 'Good Security Level' %></h3>
+        <p><%= security?.subtitle || 'Enable 2FA to reach 100% protection' %></p>
+        <div class="score-bar"><div class="score-fill" style="width:<%= score %>%;background:<%= scoreColor %>;"></div></div>
+      </div>
+
+      <button type="button" class="btn btn-primary"><i class="fas fa-mobile-alt"></i> Enable 2FA Now</button>
+    </section>
+
+    <section class="card" id="twoFaCard" data-enabled="<%= security?.twoFAEnabled ? 'true' : 'false' %>">
+      <div class="twofa-head">
+        <h2 class="twofa-title"><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h2>
+        <button id="twoFaToggle" class="toggle <%= security?.twoFAEnabled ? 'on' : '' %>" type="button" aria-label="Toggle Two-Factor Authentication"></button>
+      </div>
+
+      <div id="twoFaStatus" class="status-badge <%= security?.twoFAEnabled ? 'enabled' : 'disabled' %>">
+        <i class="fas <%= security?.twoFAEnabled ? 'fa-check-circle' : 'fa-times-circle' %>"></i>
+        <span><%= security?.twoFAEnabled ? '2FA ENABLED' : '2FA DISABLED' %></span>
+      </div>
+
+      <div class="method-grid">
+        <% (security?.methods || []).forEach((method) => { %>
+          <button type="button" class="method-card <%= method.active ? 'active' : '' %>" data-method="<%= method.id %>">
+            <div class="method-icon <%= method.iconClass %>"><i class="fas <%= method.icon %>"></i></div>
+            <p class="method-name"><%= method.title %></p>
+            <p class="method-sub"><%= method.description %></p>
+          </button>
+        <% }) %>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-outline"><i class="fas fa-plus"></i> Setup Authenticator App</button>
+        <button type="button" class="btn btn-outline"><i class="fas fa-key"></i> View Backup Codes</button>
+        <button type="button" class="btn btn-outline red" id="disable2faBtn" style="display:<%= security?.twoFAEnabled ? 'inline-flex' : 'none' %>;"><i class="fas fa-times"></i> Disable 2FA</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title-row">
+        <h2 class="card-title"><i class="fas fa-desktop"></i> Active Sessions</h2>
+      </div>
+      <p class="card-sub">Devices currently signed in to your account</p>
+
+      <% (sessions || []).forEach((session) => { %>
+        <div class="session-item">
+          <div class="session-icon <%= session.deviceType %>"><i class="fas <%= session.icon %>"></i></div>
+
+          <div class="session-info">
+            <div class="session-top">
+              <span class="session-name"><%= session.deviceName %></span>
+              <% if (session.current) { %>
+                <span class="current-badge">Current Device</span>
+              <% } %>
+            </div>
+
+            <div class="meta-line"><i class="fas fa-map-marker-alt"></i> <%= session.location %> • <%= session.ip %></div>
+            <div class="meta-line dim"><i class="fas fa-clock"></i> <%= session.browser %> • Last active <%= session.lastActive %></div>
+          </div>
+
+          <% if (!session.current) { %>
+            <button type="button" class="btn btn-outline red revoke-btn"><i class="fas fa-sign-out-alt"></i> Revoke</button>
+          <% } %>
+        </div>
+      <% }) %>
+
+      <button type="button" class="btn btn-outline red revoke-all"><i class="fas fa-sign-out-alt"></i> Revoke All Sessions</button>
+    </section>
+
+    <section class="card">
+      <div class="card-title-row">
+        <h2 class="card-title"><i class="fas fa-history"></i> Recent Login History</h2>
+        <a href="#" class="link-view">View All</a>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Date &amp; Time</th>
+                <th>Device</th>
+                <th>Location</th>
+                <th>IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (loginHistory || []).forEach((row) => { %>
+                <tr>
+                  <td>
+                    <span class="status">
+                      <span class="dot <%= row.status.toLowerCase() %>"></span>
+                      <%= row.statusLabel %>
+                    </span>
+                  </td>
+                  <td><%= row.dateTime %></td>
+                  <td><%= row.device %></td>
+                  <td><%= row.location %></td>
+                  <td><%= row.ip %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title-row">
+        <h2 class="card-title"><i class="fas fa-sliders-h"></i> Preferences</h2>
+      </div>
+
+      <% (preferences || []).forEach((pref) => { %>
+        <div class="pref-row">
+          <div class="pref-left">
+            <span class="pref-icon"><i class="fas <%= pref.icon %>"></i></span>
+            <div>
+              <p class="pref-title"><%= pref.title %></p>
+              <p class="pref-sub"><%= pref.description %></p>
+            </div>
+          </div>
+
+          <button type="button" class="toggle <%= pref.enabled ? 'on' : '' %>" aria-label="Toggle <%= pref.title %>"></button>
+        </div>
+      <% }) %>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const twoFaCard = document.getElementById('twoFaCard');
+      const twoFaToggle = document.getElementById('twoFaToggle');
+      const twoFaStatus = document.getElementById('twoFaStatus');
+      const disable2faBtn = document.getElementById('disable2faBtn');
+
+      const setTwoFAState = (enabled) => {
+        twoFaCard.dataset.enabled = enabled ? 'true' : 'false';
+        twoFaToggle.classList.toggle('on', enabled);
+        twoFaStatus.classList.toggle('enabled', enabled);
+        twoFaStatus.classList.toggle('disabled', !enabled);
+        twoFaStatus.innerHTML = enabled
+          ? '<i class="fas fa-check-circle"></i><span>2FA ENABLED</span>'
+          : '<i class="fas fa-times-circle"></i><span>2FA DISABLED</span>';
+        disable2faBtn.style.display = enabled ? 'inline-flex' : 'none';
+      };
+
+      twoFaToggle.addEventListener('click', () => {
+        const currentlyOn = twoFaCard.dataset.enabled === 'true';
+        setTwoFAState(!currentlyOn);
+      });
+
+      document.querySelectorAll('.method-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.method-card').forEach((x) => x.classList.remove('active'));
+          card.classList.add('active');
+        });
+      });
+
+      document.querySelectorAll('.pref-row .toggle').forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          toggle.classList.toggle('on');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

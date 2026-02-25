@@ -141,16 +141,22 @@ const getSystemStatusPage = (req, res) => {
 
 const getMaintenancePage = (req, res) => {
   try {
-    res.render('system-status', {
-      pageTitle: 'Maintenance - ZenoPay',
-      mode: 'maintenance',
-      maintenanceTitle: 'Scheduled Maintenance',
-      maintenanceMessage: "We're upgrading our systems to serve you better. We'll be back shortly.",
-      completionText: 'Expected completion: Feb 22, 2026 at 2:00 PM IST',
-      completionISO: '2026-02-22T14:00:00+05:30',
-      updatesUrl: 'https://twitter.com',
-      isLoggedIn: false,
-      user: null,
+    const targetDate = new Date(Date.now() + 2 * 60 * 60 * 1000); // Default 2 hours from now
+    const etaDate = new Intl.DateTimeFormat('en-IN', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata',
+    }).format(targetDate).replace(',', ' at') + ' IST';
+
+    res.render('maintenance', {
+      pageTitle: 'Scheduled Maintenance - ZenoPay',
+      etaDate,
+      lastUpdate: '1 hour ago',
+      targetDate: targetDate.toISOString(),
     });
   } catch (error) {
     console.error('Error rendering maintenance page:', error);

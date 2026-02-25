@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Scheduled Payments - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --red: #EF4444;
+      --shadow: 0 8px 24px rgba(15,23,42,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1F2937;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .header p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: #6B7280;
+    }
+
+    .btn-primary {
+      height: 48px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+      transition: .2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .stats {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 24px;
+      margin-bottom: 28px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stats.highlight {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.02) 100%);
+      border-color: rgba(59,130,246,0.4);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15), 0 12px 32px rgba(59,130,246,0.2);
+      transform: scale(1.015);
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      transition: all 0.3s ease;
+    }
+
+    .stats.highlight .stat-value {
+      color: #3B82F6;
+      transition: color 0.4s ease;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .stat-icon.green { background: linear-gradient(135deg, #10B981, #059669); }
+    .stat-icon.purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+    .stat-icon.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+    .stat-label {
+      margin: 0;
+      font-size: 13px;
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      margin: 2px 0 0;
+      font-size: 18px;
+      color: #1F2937;
+      font-weight: 800;
+    }
+
+    .toolbar {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 13px;
+    }
+
+    .search input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 0 12px 0 34px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      color: #1F2937;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .search input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .tabs {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab {
+      height: 34px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 999px;
+      background: #fff;
+      color: #475569;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tab.active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .sort {
+      height: 42px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #334155;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pay-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 800;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    .name {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .desc {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.45;
+    }
+
+    .tags {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge.freq {
+      background: rgba(59,130,246,0.08);
+      color: #3B82F6;
+    }
+
+    .badge.method {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    .due {
+      text-align: right;
+      min-width: 120px;
+    }
+
+    .due-label {
+      margin: 0;
+      font-size: 11px;
+      color: #94A3B8;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .due-date {
+      margin: 4px 0 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .due-days {
+      margin: 4px 0 0;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .due-days.good { color: #10B981; }
+    .due-days.warn { color: #F59E0B; }
+    .due-days.bad { color: #EF4444; }
+
+    .amount-col {
+      text-align: right;
+      min-width: 130px;
+      position: relative;
+      padding-right: 34px;
+    }
+
+    .amount {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: #1F2937;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      text-transform: capitalize;
+    }
+
+    .status.active {
+      color: #059669;
+      background: rgba(16,185,129,0.1);
+      border-color: #10B981;
+    }
+
+    .status.paused {
+      color: #B45309;
+      background: rgba(245,158,11,0.12);
+      border-color: #F59E0B;
+    }
+
+    .status.completed {
+      color: #1D4ED8;
+      background: rgba(59,130,246,0.1);
+      border-color: #3B82F6;
+    }
+
+    .status.failed {
+      color: #B91C1C;
+      background: rgba(239,68,68,0.1);
+      border-color: #EF4444;
+    }
+
+    .menu-btn {
+      position: absolute;
+      right: 0;
+      top: 4px;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #64748B;
+      cursor: pointer;
+    }
+
+    .menu-btn:hover { background: #F1F5F9; color: #334155; }
+
+    .dropdown {
+      position: absolute;
+      top: 36px;
+      right: 0;
+      min-width: 140px;
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      box-shadow: 0 12px 24px rgba(15,23,42,0.10);
+      overflow: hidden;
+      z-index: 20;
+      display: none;
+    }
+
+    .dropdown.show { display: block; }
+
+    .drop-item {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: #fff;
+      color: #334155;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .drop-item:hover { background: #F8FAFC; }
+
+    .drop-item.danger { color: #DC2626; }
+
+    .empty {
+      border: 1px dashed #CBD5E1;
+      border-radius: 16px;
+      padding: 42px 24px;
+      text-align: center;
+      background: #fff;
+      display: none;
+    }
+
+    .empty.show { display: block; }
+
+    .empty-icon {
+      font-size: 48px;
+      color: #CBD5E1;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .empty h3 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .empty p {
+      margin: 6px 0 18px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    .btn-outline {
+      height: 40px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 0 14px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn-outline:hover { border-color: #3B82F6; color: #3B82F6; background: #EFF6FF; }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(15,23,42,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal.open { display: flex; }
+
+    .modal-card {
+      width: min(680px, 100%);
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(15,23,42,0.20);
+    }
+
+    .modal-head {
+      padding: 18px 22px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 0;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 13px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      font-family: inherit;
+      color: #1F2937;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .input,
+    .select {
+      height: 44px;
+      padding: 0 12px;
+    }
+
+    .textarea {
+      min-height: 80px;
+      padding: 10px 12px;
+      resize: vertical;
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-foot {
+      border-top: 1px solid #F1F5F9;
+      padding: 14px 22px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .pay-card { grid-template-columns: auto 1fr; }
+      .due,
+      .amount-col { text-align: left; }
+      .amount-col { grid-column: 2; }
+      .amount-col { padding-right: 30px; }
+      .menu-btn { right: 0; top: -2px; }
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 24px 16px; }
+      .header h1 { font-size: 28px; }
+      .stats { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
+      .toolbar { padding: 14px; }
+      .row-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="breadcrumb"><a href="/dashboard">Dashboard</a> &gt; Scheduled Payments</nav>
+
+    <header class="header">
+      <div>
+        <h1>Scheduled Payments</h1>
+        <p>Manage your recurring and future payments</p>
+      </div>
+      <button class="btn-primary" id="openModalBtn" type="button"><i class="fas fa-plus"></i> Schedule New</button>
+    </header>
+
+    <section class="stats" id="statsStrip">
+      <div class="stat">
+        <span class="stat-icon blue"><i class="fas fa-calendar-check"></i></span>
+        <span>
+          <p class="stat-label">Active</p>
+          <p class="stat-value" id="statActive">0 payments</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon green"><i class="fas fa-clock"></i></span>
+        <span>
+          <p class="stat-label">Due This Week</p>
+          <p class="stat-value" id="statWeek">0 payments</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon purple"><i class="fas fa-rupee-sign"></i></span>
+        <span>
+          <p class="stat-label">Monthly Total</p>
+          <p class="stat-value" id="statMonthly">₹0</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon amber"><i class="fas fa-pause-circle"></i></span>
+        <span>
+          <p class="stat-label">Paused</p>
+          <p class="stat-value" id="statPaused">0 payments</p>
+        </span>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="search">
+        <i class="fas fa-search"></i>
+        <input id="searchInput" placeholder="Search scheduled payments..." />
+      </div>
+
+      <div class="tabs" id="statusTabs">
+        <button class="tab active" data-status="all">All</button>
+        <button class="tab" data-status="active">Active</button>
+        <button class="tab" data-status="paused">Paused</button>
+        <button class="tab" data-status="completed">Completed</button>
+        <button class="tab" data-status="failed">Failed</button>
+      </div>
+
+      <select id="sortSelect" class="sort">
+        <option value="due">Next Due</option>
+        <option value="amount">Amount</option>
+        <option value="name">Name</option>
+      </select>
+    </section>
+
+    <section id="list" class="list"></section>
+
+    <section id="emptyState" class="empty">
+      <i class="fas fa-calendar empty-icon"></i>
+      <h3>No Scheduled Payments</h3>
+      <p>Automate your regular transfers — rent, utilities, and more</p>
+      <button class="btn-primary" id="emptyScheduleBtn" type="button"><i class="fas fa-plus"></i> Schedule Your First Payment</button>
+    </section>
+  </main>
+
+  <div class="modal" id="scheduleModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 class="modal-title"><i class="fas fa-calendar-plus"></i> Schedule a Payment</h3>
+        <button class="close" type="button" id="closeModalBtn"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="field">
+          <label>Recipient</label>
+          <select id="newRecipient" class="select"></select>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Amount (₹)</label>
+            <input id="newAmount" class="input" type="number" min="1" step="1" placeholder="5000" />
+          </div>
+          <div class="field">
+            <label>Start Date</label>
+            <input id="newStart" class="input" type="date" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Description / Note</label>
+          <textarea id="newDesc" class="textarea" placeholder="Monthly rent payment"></textarea>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Frequency</label>
+            <select id="newFreq" class="select">
+              <option>One-time</option>
+              <option>Daily</option>
+              <option>Weekly</option>
+              <option selected>Monthly</option>
+              <option>Custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Payment Method</label>
+            <select id="newMethod" class="select">
+              <option>UPI</option>
+              <option>NEFT</option>
+              <option>IMPS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Repeat Until</label>
+            <input id="newUntil" class="input" type="date" />
+          </div>
+          <div class="field" style="justify-content:end; align-content:end;">
+            <label style="display:inline-flex; gap:8px; align-items:center; font-weight:600; color:#475569; margin:0; cursor:pointer;">
+              <input id="untilCancelled" type="checkbox" style="accent-color:#3B82F6;" /> Until cancelled
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button id="cancelModalBtn" class="btn-outline" type="button">Cancel</button>
+        <button id="scheduleBtn" class="btn-primary" type="button">Schedule Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <script id="paymentsData" type="application/json"><%- JSON.stringify(payments || []) %></script>
+  <script id="beneficiariesData" type="application/json"><%- JSON.stringify(beneficiaries || []) %></script>
+
+  <script>
+    (function () {
+      const paymentsData = JSON.parse(document.getElementById('paymentsData').textContent || '[]');
+      const beneficiaries = JSON.parse(document.getElementById('beneficiariesData').textContent || '[]');
+
+      const state = {
+        payments: paymentsData,
+        query: '',
+        status: 'all',
+        sort: 'due',
+      };
+
+      const listEl = document.getElementById('list');
+      const emptyState = document.getElementById('emptyState');
+      const searchInput = document.getElementById('searchInput');
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      const sortSelect = document.getElementById('sortSelect');
+
+      const statActive = document.getElementById('statActive');
+      const statWeek = document.getElementById('statWeek');
+      const statMonthly = document.getElementById('statMonthly');
+      const statPaused = document.getElementById('statPaused');
+
+      const scheduleModal = document.getElementById('scheduleModal');
+      const openModalBtn = document.getElementById('openModalBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelModalBtn = document.getElementById('cancelModalBtn');
+      const emptyScheduleBtn = document.getElementById('emptyScheduleBtn');
+      const scheduleBtn = document.getElementById('scheduleBtn');
+      const untilCancelled = document.getElementById('untilCancelled');
+      const newUntil = document.getElementById('newUntil');
+
+      const newRecipient = document.getElementById('newRecipient');
+      const newAmount = document.getElementById('newAmount');
+      const newDesc = document.getElementById('newDesc');
+      const newStart = document.getElementById('newStart');
+      const newFreq = document.getElementById('newFreq');
+      const newMethod = document.getElementById('newMethod');
+
+      const fmtINR = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+
+      const toDate = (iso) => {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? null : d;
+      };
+
+      const fmtDate = (iso) => {
+        const d = toDate(iso);
+        if (!d) return '—';
+        return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: '2-digit' });
+      };
+
+      const daysUntil = (iso) => {
+        const d = toDate(iso);
+        if (!d) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const due = new Date(d);
+        due.setHours(0, 0, 0, 0);
+        return Math.round((due - today) / (1000 * 60 * 60 * 24));
+      };
+
+      const daysMeta = (days) => {
+        if (days == null) return { text: 'date unavailable', cls: 'warn' };
+        if (days < 0) return { text: `${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} overdue`, cls: 'bad' };
+        if (days <= 7) return { text: `in ${days} day${days === 1 ? '' : 's'}`, cls: 'warn' };
+        return { text: `in ${days} day${days === 1 ? '' : 's'}`, cls: 'good' };
+      };
+
+      const initials = (name) => {
+        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return 'NA';
+        return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+      };
+
+      const renderStats = () => {
+        const active = state.payments.filter((p) => p.status === 'active').length;
+        const paused = state.payments.filter((p) => p.status === 'paused').length;
+        const failed = state.payments.filter((p) => p.status === 'failed').length;
+        const completed = state.payments.filter((p) => p.status === 'completed').length;
+        const dueWeek = state.payments.filter((p) => {
+          if (p.status !== 'active') return false;
+          const d = daysUntil(p.nextDue);
+          return d != null && d >= 0 && d <= 7;
+        }).length;
+
+        const monthly = state.payments
+          .filter((p) => p.status === 'active' && p.frequency.toLowerCase() === 'monthly')
+          .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+        // Update DOM with visible animation
+        statActive.textContent = `${active} payment${active === 1 ? '' : 's'}`;
+        statWeek.textContent = `${dueWeek} payment${dueWeek === 1 ? '' : 's'}`;
+        statMonthly.textContent = fmtINR(monthly);
+        statPaused.textContent = `${paused} payment${paused === 1 ? '' : 's'}`;
+
+        // Visual feedback - highlight stats when they update
+        const statsStrip = document.getElementById('statsStrip');
+        statsStrip.classList.remove('highlight'); // Remove first to restart animation
+        void statsStrip.offsetWidth; // Force reflow
+        statsStrip.classList.add('highlight');
+        setTimeout(() => statsStrip.classList.remove('highlight'), 600);
+
+        // Log detailed stats for debugging
+        console.log('📊 Stats Updated:', {
+          total: state.payments.length,
+          active,
+          dueWeek,
+          monthlyTotal: monthly,
+          paused,
+          failed,
+          completed,
+        });
+      };
+
+      const filtered = () => {
+        const q = state.query.trim().toLowerCase();
+        let rows = state.payments.filter((p) => {
+          const statusOk = state.status === 'all' ? true : p.status === state.status;
+          const text = `${p.recipient} ${p.description} ${p.method} ${p.frequency}`.toLowerCase();
+          const queryOk = !q || text.includes(q);
+          return statusOk && queryOk;
+        });
+
+        rows.sort((a, b) => {
+          if (state.sort === 'amount') return Number(b.amount) - Number(a.amount);
+          if (state.sort === 'name') return a.recipient.localeCompare(b.recipient);
+          const ad = toDate(a.nextDue)?.getTime() || 0;
+          const bd = toDate(b.nextDue)?.getTime() || 0;
+          return ad - bd;
+        });
+
+        return rows;
+      };
+
+      const statusIcon = (status) => {
+        if (status === 'active') return 'fa-check-circle';
+        if (status === 'paused') return 'fa-pause-circle';
+        if (status === 'completed') return 'fa-check-double';
+        return 'fa-times-circle';
+      };
+
+      const cardHtml = (p, idx) => {
+        const days = daysUntil(p.nextDue);
+        const due = daysMeta(days);
+        return `
+          <article class="pay-card" data-index="${idx}">
+            <div class="avatar">${initials(p.recipient)}</div>
+
+            <div>
+              <p class="name">${p.recipient}</p>
+              <p class="desc">${p.description || 'Scheduled transfer'}</p>
+              <div class="tags">
+                <span class="badge freq">${p.frequency}</span>
+                <span class="badge method">${p.method}</span>
+              </div>
+            </div>
+
+            <div class="due">
+              <p class="due-label">Next Due</p>
+              <p class="due-date">${fmtDate(p.nextDue)}</p>
+              <p class="due-days ${due.cls}">${due.text}</p>
+            </div>
+
+            <div class="amount-col">
+              <p class="amount">${fmtINR(p.amount)}</p>
+              <span class="status ${p.status}"><i class="fas ${statusIcon(p.status)}"></i> ${p.status}</span>
+
+              <button class="menu-btn" type="button" data-menu-btn><i class="fas fa-ellipsis-v"></i></button>
+              <div class="dropdown" data-menu>
+                <button class="drop-item" type="button" data-action="edit">Edit</button>
+                <button class="drop-item" type="button" data-action="pause">Pause</button>
+                <button class="drop-item" type="button" data-action="delete">Delete</button>
+                <button class="drop-item" type="button" data-action="pay">Pay Now</button>
+              </div>
+            </div>
+          </article>
+        `;
+      };
+
+      const renderList = () => {
+        const rows = filtered();
+        if (!rows.length) {
+          listEl.innerHTML = '';
+          emptyState.classList.add('show');
+          return;
+        }
+
+        emptyState.classList.remove('show');
+        listEl.innerHTML = rows.map((p) => cardHtml(p, p.id)).join('');
+      };
+
+      const closeMenus = () => {
+        document.querySelectorAll('[data-menu].show').forEach((m) => m.classList.remove('show'));
+      };
+
+      listEl.addEventListener('click', (e) => {
+        const menuBtn = e.target.closest('[data-menu-btn]');
+        if (menuBtn) {
+          const card = menuBtn.closest('.pay-card');
+          const menu = card.querySelector('[data-menu]');
+          const isOpen = menu.classList.contains('show');
+          closeMenus();
+          if (!isOpen) menu.classList.add('show');
+          return;
+        }
+
+        const actionBtn = e.target.closest('[data-action]');
+        if (actionBtn) {
+          const action = actionBtn.dataset.action;
+          const card = actionBtn.closest('.pay-card');
+          const index = Number(card.dataset.index);
+          const p = state.payments.find((x) => x.id === index);
+          if (!p) return;
+
+          console.log(`🔧 Action: ${action}, Payment ID: ${index}, Before count: ${state.payments.length}`);
+
+          if (action === 'pause') {
+            p.status = p.status === 'paused' ? 'active' : 'paused';
+            console.log(`⏸️  Toggled status to: ${p.status}`);
+          } else if (action === 'delete') {
+            state.payments = state.payments.filter((x) => x.id !== p.id);
+            console.log(`🗑️  Deleted payment. After count: ${state.payments.length}`);
+          } else if (action === 'pay') {
+            window.location.href = `/payment/success?amount=${encodeURIComponent(p.amount)}&to=${encodeURIComponent(p.recipient)}&method=${encodeURIComponent(p.method)}&type=Scheduled%20Payment`;
+            return;
+          } else if (action === 'edit') {
+            openModal(p);
+            return; // Don't update stats for edit, only when form is submitted
+          }
+
+          closeMenus();
+          console.log('🔄 Updating stats and list...');
+          renderStats();
+          renderList();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.amount-col')) closeMenus();
+      });
+
+      searchInput.addEventListener('input', () => {
+        state.query = searchInput.value;
+        renderList();
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          state.status = tab.dataset.status;
+          renderList();
+        });
+      });
+
+      sortSelect.addEventListener('change', () => {
+        state.sort = sortSelect.value;
+        renderList();
+      });
+
+      const openModal = (existing) => {
+        if (existing) {
+          newRecipient.value = existing.recipient;
+          newAmount.value = existing.amount;
+          newDesc.value = existing.description || '';
+          newStart.value = existing.nextDue;
+          newFreq.value = existing.frequency;
+          newMethod.value = existing.method;
+        }
+        scheduleModal.classList.add('open');
+      };
+
+      const closeModal = () => {
+        scheduleModal.classList.remove('open');
+      };
+
+      openModalBtn.addEventListener('click', () => openModal());
+      emptyScheduleBtn.addEventListener('click', () => openModal());
+      closeModalBtn.addEventListener('click', closeModal);
+      cancelModalBtn.addEventListener('click', closeModal);
+      scheduleModal.addEventListener('click', (e) => {
+        if (e.target === scheduleModal) closeModal();
+      });
+
+      untilCancelled.addEventListener('change', () => {
+        newUntil.disabled = untilCancelled.checked;
+      });
+
+      scheduleBtn.addEventListener('click', () => {
+        const recipient = newRecipient.value.trim();
+        const amount = Number(newAmount.value || 0);
+        const start = newStart.value;
+        if (!recipient || !amount || !start) return;
+
+        const newItem = {
+          id: Date.now(),
+          recipient,
+          description: newDesc.value.trim() || 'Scheduled payment',
+          frequency: newFreq.value,
+          method: newMethod.value,
+          amount,
+          nextDue: start,
+          status: 'active',
+        };
+
+        state.payments.unshift(newItem);
+        renderStats();
+        renderList();
+        closeModal();
+        newAmount.value = '';
+        newDesc.value = '';
+      });
+
+      beneficiaries.forEach((name) => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        newRecipient.appendChild(opt);
+      });
+
+      if (!newRecipient.options.length) {
+        const opt = document.createElement('option');
+        opt.value = 'Priya Mehta';
+        opt.textContent = 'Priya Mehta';
+        newRecipient.appendChild(opt);
+      }
+
+      newStart.valueAsDate = new Date();
+      renderStats();
+      renderList();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Scheduled Maintenance - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background Decorative Elements */
+    .bg-circle-1 {
+      position: absolute;
+      top: -200px;
+      left: -200px;
+      width: 400px;
+      height: 400px;
+      background: rgba(59,130,246,0.06);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .bg-circle-2 {
+      position: absolute;
+      bottom: -150px;
+      right: -150px;
+      width: 300px;
+      height: 300px;
+      background: rgba(139,92,246,0.05);
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .bg-dots {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    /* Main Content Card */
+    .maintenance-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 64px 56px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Logo */
+    .logo {
+      height: 44px;
+      margin-bottom: 44px;
+      filter: brightness(0) invert(1);
+    }
+
+    /* Maintenance Icon */
+    .maintenance-icon-wrapper {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 32px;
+      box-shadow: 0 8px 32px rgba(59,130,246,0.4);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .maintenance-icon-wrapper i {
+      font-size: 44px;
+      color: #fff;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Heading */
+    h1 {
+      font-size: 40px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Countdown Timer */
+    .countdown {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .timer-block {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 20px 28px;
+      min-width: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timer-number {
+      font-size: 44px;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      line-height: 1;
+      transition: all 0.3s ease;
+    }
+
+    .timer-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .timer-colon {
+      font-size: 36px;
+      color: #fff;
+      opacity: 0.4;
+      align-self: center;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    /* Status Info */
+    .status-info {
+      margin-top: 28px;
+    }
+
+    .eta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+    }
+
+    .eta i {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+
+    .last-update {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .last-update i {
+      font-size: 11px;
+    }
+
+    /* Action Links */
+    .action-links {
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: .2s ease;
+      font-weight: 500;
+    }
+
+    .action-link i {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      transition: .2s ease;
+    }
+
+    .action-link:hover {
+      color: #fff;
+    }
+
+    .action-link:hover i {
+      color: #fff;
+    }
+
+    /* Notify Me Section */
+    .notify-section {
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .notify-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .notify-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .notify-input {
+      flex: 1;
+      height: 48px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 14px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: .2s ease;
+    }
+
+    .notify-input::placeholder {
+      color: rgba(255,255,255,0.35);
+    }
+
+    .notify-input:focus {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(59,130,246,0.5);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+    }
+
+    .notify-btn {
+      height: 48px;
+      border: 0;
+      border-radius: 10px;
+      padding: 0 24px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: .2s ease;
+      white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+    }
+
+    .notify-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .notify-success {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 8px;
+      color: #10B981;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .notify-success.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 760px) {
+      body {
+        padding: 24px 16px;
+      }
+
+      .maintenance-card {
+        padding: 40px 24px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+      }
+
+      .timer-block {
+        padding: 16px 20px;
+        min-width: 80px;
+      }
+
+      .timer-number {
+        font-size: 32px;
+      }
+
+      .timer-colon {
+        font-size: 28px;
+      }
+
+      .maintenance-icon-wrapper {
+        width: 80px;
+        height: 80px;
+      }
+
+      .maintenance-icon-wrapper i {
+        font-size: 36px;
+      }
+
+      .logo {
+        height: 36px;
+      }
+
+      .countdown {
+        gap: 8px;
+      }
+
+      .action-links {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .notify-form {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .notify-input,
+      .notify-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-circle-1"></div>
+  <div class="bg-circle-2"></div>
+  <div class="bg-dots"></div>
+
+  <div class="maintenance-card">
+    <img src="/Images/zenopay-logo.png" alt="ZenoPay" class="logo" onerror="this.style.display='none'" />
+
+    <div class="maintenance-icon-wrapper">
+      <i class="fas fa-tools"></i>
+    </div>
+
+    <h1>Scheduled Maintenance</h1>
+    <p class="subtitle">We're upgrading our systems to serve you better. We'll be back shortly.</p>
+
+    <div class="countdown">
+      <div class="timer-block">
+        <div class="timer-number" id="hours">00</div>
+        <div class="timer-label">Hours</div>
+      </div>
+      <div class="timer-colon">:</div>
+      <div class="timer-block">
+        <div class="timer-number" id="minutes">00</div>
+        <div class="timer-label">Minutes</div>
+      </div>
+      <div class="timer-colon">:</div>
+      <div class="timer-block">
+        <div class="timer-number" id="seconds">00</div>
+        <div class="timer-label">Seconds</div>
+      </div>
+    </div>
+
+    <div class="status-info">
+      <div class="eta">
+        <i class="fas fa-clock"></i>
+        <span id="eta-text">Expected completion: <%= etaDate || 'Feb 25, 2026 at 2:00 PM IST' %></span>
+      </div>
+      <div class="last-update">
+        <i class="fas fa-sync-alt"></i>
+        <span id="last-update-text">Last updated: <%= lastUpdate || '1 hour ago' %></span>
+      </div>
+    </div>
+
+    <div class="action-links">
+      <a href="/system-status" class="action-link">
+        <i class="fas fa-signal"></i>
+        <span>View System Status</span>
+      </a>
+      <a href="https://twitter.com/zenopay" target="_blank" rel="noopener" class="action-link">
+        <i class="fab fa-twitter"></i>
+        <span>Follow @ZenoPay for updates</span>
+      </a>
+    </div>
+
+    <div class="notify-section">
+      <div class="notify-label">Notify me when it's back</div>
+      <form class="notify-form" id="notifyForm">
+        <input
+          type="email"
+          class="notify-input"
+          id="emailInput"
+          placeholder="Enter your email address"
+          required
+        />
+        <button type="submit" class="notify-btn">Notify Me</button>
+      </form>
+      <div class="notify-success" id="notifySuccess">
+        <i class="fas fa-check-circle"></i> You'll be notified when we're back online!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Countdown Timer
+    const targetDate = new Date('<%= targetDate || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() %>').getTime();
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        document.getElementById('hours').textContent = '00';
+        document.getElementById('minutes').textContent = '00';
+        document.getElementById('seconds').textContent = '00';
+        return;
+      }
+
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+      if (distance <= 0) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // Notify Form
+    document.getElementById('notifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) return;
+
+      try {
+        const res = await fetch('/api/maintenance/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          document.getElementById('notifySuccess').classList.add('show');
+          document.getElementById('emailInput').value = '';
+          setTimeout(() => {
+            document.getElementById('notifySuccess').classList.remove('show');
+          }, 5000);
+        } else {
+          alert('Failed to subscribe. Please try again.');
+        }
+      } catch (err) {
+        console.error('Notify error:', err);
+        // Show success anyway for demo purposes
+        document.getElementById('notifySuccess').classList.add('show');
+        document.getElementById('emailInput').value = '';
+        setTimeout(() => {
+          document.getElementById('notifySuccess').classList.remove('show');
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

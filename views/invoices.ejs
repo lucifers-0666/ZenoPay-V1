@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Invoices - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --red: #EF4444;
+      --slate: #64748B;
+      --shadow: 0 8px 24px rgba(15,23,42,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1F2937;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .header p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: #6B7280;
+    }
+
+    .btn-primary {
+      height: 48px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+      transition: .2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .stats {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px 28px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .stat-icon.green { background: linear-gradient(135deg, #10B981, #059669); }
+    .stat-icon.amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    .stat-icon.red { background: linear-gradient(135deg, #EF4444, #DC2626); }
+
+    .stat-label {
+      margin: 0;
+      font-size: 13px;
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      margin: 2px 0 0;
+      font-size: 18px;
+      color: #1F2937;
+      font-weight: 800;
+    }
+
+    .toolbar {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 13px;
+    }
+
+    .search input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 0 12px 0 34px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      color: #1F2937;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .search input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .tabs {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tab {
+      height: 34px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 999px;
+      background: #fff;
+      color: #475569;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .tab.active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .sort {
+      height: 42px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #334155;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .table-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 960px;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      background: #F8FAFC;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      padding: 14px 20px;
+      border-bottom: 1px solid #F1F5F9;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 16px 20px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 14px;
+      color: #334155;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover { background: #F8FAFC; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .inv-no {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      color: #3B82F6;
+      font-weight: 700;
+    }
+
+    .client {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .amt {
+      font-weight: 700;
+      color: #1F2937;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      text-transform: capitalize;
+    }
+
+    .status.paid {
+      color: #059669;
+      background: rgba(16,185,129,0.1);
+      border-color: #10B981;
+    }
+
+    .status.pending {
+      color: #B45309;
+      background: rgba(245,158,11,0.12);
+      border-color: #F59E0B;
+    }
+
+    .status.overdue {
+      color: #B91C1C;
+      background: rgba(239,68,68,0.1);
+      border-color: #EF4444;
+    }
+
+    .status.draft {
+      color: #475569;
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+    }
+
+    .actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      width: 24px;
+      height: 24px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #94A3B8;
+      font-size: 16px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .icon-btn:hover {
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .empty {
+      border: 1px dashed #CBD5E1;
+      border-radius: 16px;
+      padding: 42px 24px;
+      text-align: center;
+      background: #fff;
+      display: none;
+      margin-top: 14px;
+    }
+
+    .empty.show { display: block; }
+
+    .empty .empty-icon {
+      font-size: 64px;
+      color: #CBD5E1;
+      margin-bottom: 12px;
+    }
+
+    .empty h3 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .empty p {
+      margin: 6px 0 18px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 24px 16px; }
+      .header h1 { font-size: 28px; }
+      .stats { grid-template-columns: 1fr; padding: 16px; gap: 14px; }
+      .toolbar { padding: 14px; }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.25s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #6B7280;
+      font-size: 18px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .modal-close:hover {
+      background: #F1F5F9;
+      color: #1F2937;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1F2937;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .btn-secondary {
+      height: 44px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 0 16px;
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="breadcrumb"><a href="/dashboard">Dashboard</a> &gt; Invoices</nav>
+
+    <header class="header">
+      <div>
+        <h1>Invoices</h1>
+        <p>Create and manage professional invoices</p>
+      </div>
+      <button class="btn-primary" id="createInvoiceBtn" type="button"><i class="fas fa-plus"></i> Create Invoice</button>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <span class="stat-icon blue"><i class="fas fa-file-invoice"></i></span>
+        <span>
+          <p class="stat-label">Total</p>
+          <p class="stat-value" id="statTotal">0 invoices</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon green"><i class="fas fa-check-circle"></i></span>
+        <span>
+          <p class="stat-label">Paid</p>
+          <p class="stat-value" id="statPaid">0 invoices</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon amber"><i class="fas fa-clock"></i></span>
+        <span>
+          <p class="stat-label">Pending</p>
+          <p class="stat-value" id="statPending">0 invoices</p>
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon red"><i class="fas fa-times-circle"></i></span>
+        <span>
+          <p class="stat-label">Overdue</p>
+          <p class="stat-value" id="statOverdue">0 invoices</p>
+        </span>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="search">
+        <i class="fas fa-search"></i>
+        <input id="searchInput" placeholder="Search by invoice #, client name..." />
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-status="all">All</button>
+        <button class="tab" data-status="paid">Paid</button>
+        <button class="tab" data-status="pending">Pending</button>
+        <button class="tab" data-status="overdue">Overdue</button>
+        <button class="tab" data-status="draft">Draft</button>
+      </div>
+
+      <select id="sortSelect" class="sort">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="amount-desc">Amount High-Low</option>
+        <option value="due">Due Date</option>
+      </select>
+    </section>
+
+    <section id="tableCard" class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Client</th>
+              <th>Issue Date</th>
+              <th>Due Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="emptyState" class="empty">
+      <i class="fas fa-file-invoice empty-icon"></i>
+      <h3>No Invoices Yet</h3>
+      <p>Create professional invoices and get paid faster</p>
+      <button class="btn-primary" id="emptyCreateBtn" type="button"><i class="fas fa-plus"></i> Create First Invoice</button>
+    </section>
+
+    <div id="createModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create New Invoice</h2>
+          <button class="modal-close" type="button"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="createForm" class="modal-body">
+          <div class="form-group">
+            <label>Client Name <span style="color:#ef4444;">*</span></label>
+            <input type="text" id="clientInput" placeholder="e.g. Priya Mehta" required />
+          </div>
+          <div class="form-group">
+            <label>Amount (₹) <span style="color:#ef4444;">*</span></label>
+            <input type="number" id="amountInput" placeholder="5000" min="0" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label>Due Date <span style="color:#ef4444;">*</span></label>
+            <input type="date" id="dueDateInput" required />
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="statusInput">
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Notes (optional)</label>
+            <textarea id="notesInput" rows="3" placeholder="Add any additional details..."></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+            <button type="submit" class="btn-primary"><i class="fas fa-check"></i> Create Invoice</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script id="invoicesData" type="application/json"><%- JSON.stringify(invoices || []) %></script>
+  <script>
+    (function () {
+      const invoices = JSON.parse(document.getElementById('invoicesData').textContent || '[]');
+      const state = {
+        rows: invoices,
+        query: '',
+        status: 'all',
+        sort: 'newest',
+      };
+
+      const tbody = document.getElementById('tbody');
+      const searchInput = document.getElementById('searchInput');
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      const sortSelect = document.getElementById('sortSelect');
+      const tableCard = document.getElementById('tableCard');
+      const emptyState = document.getElementById('emptyState');
+      const createInvoiceBtn = document.getElementById('createInvoiceBtn');
+      const emptyCreateBtn = document.getElementById('emptyCreateBtn');
+
+      const statTotal = document.getElementById('statTotal');
+      const statPaid = document.getElementById('statPaid');
+      const statPending = document.getElementById('statPending');
+      const statOverdue = document.getElementById('statOverdue');
+
+      const fmtINR = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+
+      const toDate = (iso) => {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? null : d;
+      };
+
+      const fmtDate = (iso) => {
+        const d = toDate(iso);
+        if (!d) return '—';
+        return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: '2-digit' });
+      };
+
+      const initials = (name) => {
+        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return 'NA';
+        return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+      };
+
+      const updateStats = () => {
+        const total = state.rows.length;
+        const paid = state.rows.filter((x) => x.status === 'paid').length;
+        const pending = state.rows.filter((x) => x.status === 'pending').length;
+        const overdue = state.rows.filter((x) => x.status === 'overdue').length;
+
+        statTotal.textContent = `${total} invoice${total === 1 ? '' : 's'}`;
+        statPaid.textContent = `${paid} invoice${paid === 1 ? '' : 's'}`;
+        statPending.textContent = `${pending} invoice${pending === 1 ? '' : 's'}`;
+        statOverdue.textContent = `${overdue} invoice${overdue === 1 ? '' : 's'}`;
+      };
+
+      const filtered = () => {
+        const q = state.query.trim().toLowerCase();
+        let rows = state.rows.filter((inv) => {
+          const statusOk = state.status === 'all' ? true : inv.status === state.status;
+          const text = `${inv.invoiceNo} ${inv.client} ${inv.status}`.toLowerCase();
+          const queryOk = !q || text.includes(q);
+          return statusOk && queryOk;
+        });
+
+        rows.sort((a, b) => {
+          if (state.sort === 'amount-desc') return Number(b.amount) - Number(a.amount);
+          if (state.sort === 'oldest') {
+            const ad = toDate(a.issueDate)?.getTime() || 0;
+            const bd = toDate(b.issueDate)?.getTime() || 0;
+            return ad - bd;
+          }
+          if (state.sort === 'due') {
+            const ad = toDate(a.dueDate)?.getTime() || 0;
+            const bd = toDate(b.dueDate)?.getTime() || 0;
+            return ad - bd;
+          }
+          const ad = toDate(a.issueDate)?.getTime() || 0;
+          const bd = toDate(b.issueDate)?.getTime() || 0;
+          return bd - ad;
+        });
+
+        return rows;
+      };
+
+      const rowHtml = (inv) => `
+        <tr data-id="${String(inv.id)}">
+          <td><span class="inv-no">${inv.invoiceNo}</span></td>
+          <td>
+            <span class="client">
+              <span class="avatar">${initials(inv.client)}</span>
+              <span>${inv.client}</span>
+            </span>
+          </td>
+          <td>${fmtDate(inv.issueDate)}</td>
+          <td>${fmtDate(inv.dueDate)}</td>
+          <td><span class="amt">${fmtINR(inv.amount)}</span></td>
+          <td><span class="status ${inv.status}">${inv.status}</span></td>
+          <td>
+            <span class="actions">
+              <button class="icon-btn" type="button" title="View" data-action="view"><i class="fas fa-eye"></i></button>
+              <button class="icon-btn" type="button" title="Download PDF" data-action="download"><i class="fas fa-download"></i></button>
+              <button class="icon-btn" type="button" title="Send Reminder" data-action="remind"><i class="fas fa-paper-plane"></i></button>
+              <button class="icon-btn" type="button" title="More" data-action="more"><i class="fas fa-ellipsis-v"></i></button>
+            </span>
+          </td>
+        </tr>
+      `;
+
+      const render = () => {
+        const rows = filtered();
+        if (!rows.length) {
+          tbody.innerHTML = '';
+          tableCard.style.display = 'none';
+          emptyState.classList.add('show');
+          return;
+        }
+
+        tableCard.style.display = 'block';
+        emptyState.classList.remove('show');
+        tbody.innerHTML = rows.map(rowHtml).join('');
+      };
+
+      searchInput.addEventListener('input', () => {
+        state.query = searchInput.value;
+        render();
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          state.status = tab.dataset.status;
+          render();
+        });
+      });
+
+      sortSelect.addEventListener('change', () => {
+        state.sort = sortSelect.value;
+        render();
+      });
+
+      tbody.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const row = btn.closest('tr');
+        const id = String(row.dataset.id || '');
+        const inv = state.rows.find((x) => String(x.id) === id);
+        if (!inv) return;
+
+        if (btn.dataset.action === 'view') {
+          window.location.href = `/invoice/${id}`;
+          return;
+        }
+
+        if (btn.dataset.action === 'download') {
+          alert(`Downloading PDF for ${inv.invoiceNo}`);
+          return;
+        }
+
+        if (btn.dataset.action === 'remind') {
+          alert(`Reminder sent to ${inv.client}`);
+          return;
+        }
+
+        if (btn.dataset.action === 'more') {
+          alert(`More actions for ${inv.invoiceNo}`);
+        }
+      });
+
+      const openCreate = () => {
+        const modal = document.getElementById('createModal');
+        modal.classList.add('show');
+        document.getElementById('clientInput').focus();
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 7);
+        document.getElementById('dueDateInput').value = tomorrow.toISOString().split('T')[0];
+      };
+
+      const closeCreate = () => {
+        document.getElementById('createModal').classList.remove('show');
+        document.getElementById('createForm').reset();
+      };
+
+      createInvoiceBtn.addEventListener('click', openCreate);
+      emptyCreateBtn.addEventListener('click', openCreate);
+
+      document.getElementById('cancelBtn').addEventListener('click', closeCreate);
+      document.querySelector('.modal-close').addEventListener('click', closeCreate);
+
+      document.getElementById('createModal').addEventListener('click', (e) => {
+        if (e.target.id === 'createModal') closeCreate();
+      });
+
+      document.getElementById('createForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const client = document.getElementById('clientInput').value.trim();
+        const amount = Number(document.getElementById('amountInput').value);
+        const dueDate = document.getElementById('dueDateInput').value;
+        const status = document.getElementById('statusInput').value;
+        const notes = document.getElementById('notesInput').value.trim();
+
+        if (!client || !amount || amount <= 0 || !dueDate) {
+          alert('Please fill in all required fields.');
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/invoices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ client, amount, dueDate, status, notes }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || !data.success) {
+            alert(data.message || 'Failed to create invoice. Please try again.');
+            return;
+          }
+
+          state.rows.push(data.invoice);
+          updateStats();
+          render();
+          closeCreate();
+
+          alert(`Invoice ${data.invoice.invoiceNo} created successfully!`);
+        } catch (err) {
+          console.error('Create invoice error:', err);
+          alert('Network error. Please check your connection and try again.');
+        }
+      });
+
+      updateStats();
+      render();
+    })();
+  </script>
+</body>
+</html>

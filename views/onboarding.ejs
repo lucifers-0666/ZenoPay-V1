@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Welcome to ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --bg-2: #EFF6FF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --purple: #8B5CF6;
+      --green: #10B981;
+      --green-dark: #059669;
+      --amber: #F59E0B;
+      --red: #EF4444;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --card: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      padding: 24px 0;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 680px;
+      padding: 40px 24px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #1F2937;
+    }
+
+    .logo i {
+      font-size: 24px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .progress-wrap {
+      margin-bottom: 40px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .step-count {
+      font-size: 13px;
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: #E2E8F0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 25%;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      transition: width .35s ease;
+    }
+
+    .step-labels {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94A3B8;
+    }
+
+    .step-label.done,
+    .step-label.active {
+      color: #3B82F6;
+    }
+
+    .step-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 24px;
+      padding: 48px 48px 36px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      animation: slideIn .35s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .step-pane { display: none; }
+    .step-pane.active { display: block; }
+
+    .step-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 32px;
+    }
+
+    .icon-profile { background: linear-gradient(135deg, #3B82F6, #8B5CF6); }
+    .icon-kyc { background: linear-gradient(135deg, #10B981, #059669); }
+    .icon-bank { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .icon-pref { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+
+    .step-title {
+      margin: 0;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      color: #1F2937;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .step-subtitle {
+      margin: 8px 0 36px;
+      text-align: center;
+      font-size: 15px;
+      color: #6B7280;
+      line-height: 1.5;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 14px;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field i {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .input,
+    .select {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 0 14px 0 38px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1F2937;
+      background: #fff;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      outline: none;
+    }
+
+    .input:focus,
+    .select:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .input:disabled {
+      background: #F8FAFC;
+      color: #94A3B8;
+      cursor: not-allowed;
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+
+    .photo-wrap {
+      margin-top: 16px;
+      display: grid;
+      place-items: center;
+    }
+
+    .photo-upload {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px dashed #CBD5E1;
+      display: grid;
+      place-items: center;
+      color: #94A3B8;
+      cursor: pointer;
+      overflow: hidden;
+      transition: .2s ease;
+      background: #fff;
+    }
+
+    .photo-upload:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+    }
+
+    .photo-upload i { font-size: 28px; }
+
+    .photo-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hidden { display: none !important; }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .doc-card {
+      background: #F8FAFC;
+      border: 1.5px dashed #CBD5E1;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      transition: .2s ease;
+      min-height: 212px;
+      cursor: pointer;
+    }
+
+    .doc-card:hover {
+      border-color: #3B82F6;
+      background: #F8FAFF;
+    }
+
+    .doc-card .upload-icon {
+      font-size: 36px;
+      color: #94A3B8;
+      margin-bottom: 10px;
+    }
+
+    .doc-card .doc-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .doc-card .doc-sub {
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .doc-preview {
+      display: none;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 10px;
+      position: relative;
+    }
+
+    .doc-card.uploaded .doc-preview { display: block; }
+    .doc-card.uploaded .doc-upload-content { display: none; }
+
+    .thumb {
+      width: 100%;
+      height: 84px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #F1F5F9;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .file-name {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1F2937;
+      word-break: break-all;
+      line-height: 1.35;
+    }
+
+    .file-size {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .check-badge {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #10B981;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .remove-file {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      border: 0;
+      background: rgba(239,68,68,0.1);
+      color: #DC2626;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+    }
+
+    .skip-later {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: #94A3B8;
+    }
+
+    .skip-later a {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .skip-later a:hover {
+      color: #6B7280;
+      text-decoration: underline;
+    }
+
+    .ifsc-note {
+      margin-top: 10px;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ifsc-note.show { display: flex; }
+
+    .ifsc-note.loading {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+
+    .ifsc-note.success {
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+    }
+
+    .ifsc-note.error {
+      background: #FEF2F2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+
+    .spin { animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .pill-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      border-radius: 999px;
+      height: 38px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .pill.active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .pref-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .pref-item {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #F8FAFC;
+    }
+
+    .pref-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .pref-left i {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      color: #64748B;
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      flex-shrink: 0;
+    }
+
+    .pref-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pref-text {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .recommended {
+      background: rgba(59,130,246,0.1);
+      color: #3B82F6;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .switch {
+      width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      background: #CBD5E1;
+      position: relative;
+      border: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .switch::after {
+      content: '';
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: .2s ease;
+    }
+
+    .switch.on { background: #3B82F6; }
+    .switch.on::after { left: 23px; }
+
+    .nav-row {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-back,
+    .btn-continue {
+      border: 0;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: .2s ease;
+      text-decoration: none;
+    }
+
+    .btn-back {
+      height: 46px;
+      padding: 0 24px;
+      border-radius: 12px;
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-back:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .btn-continue {
+      margin-left: auto;
+      height: 50px;
+      padding: 0 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.30);
+    }
+
+    .btn-continue:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.40);
+    }
+
+    .btn-continue:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .skip-link {
+      border: 0;
+      background: transparent;
+      color: #94A3B8;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .skip-link:hover { color: #64748B; text-decoration: underline; }
+
+    .help-line {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: #94A3B8;
+    }
+
+    .help-line a {
+      color: #3B82F6;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .help-line a:hover { text-decoration: underline; }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 28px 16px; }
+
+      .step-card {
+        padding: 30px 22px 24px;
+        border-radius: 20px;
+      }
+
+      .step-title { font-size: 24px; }
+
+      .grid-2,
+      .doc-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .btn-back,
+      .btn-continue,
+      .skip-link {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn-continue { margin-left: 0; }
+
+      .step-labels {
+        gap: 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="logo-wrap">
+      <div class="logo"><i class="fas fa-wallet"></i> ZenoPay</div>
+    </div>
+
+    <section class="progress-wrap">
+      <div class="progress-top"><span class="step-count" id="stepCount">Step 1 of 4</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step-labels" id="stepLabels">
+        <span class="step-label">Profile</span>
+        <span class="step-label">KYC</span>
+        <span class="step-label">Bank Account</span>
+        <span class="step-label">Preferences</span>
+      </div>
+    </section>
+
+    <section class="step-card" id="stepCard">
+      <div class="step-pane active" data-step="1">
+        <div class="step-icon icon-profile"><i class="fas fa-user"></i></div>
+        <h1 class="step-title">Let's Set Up Your Profile</h1>
+        <p class="step-subtitle">Tell us a bit about yourself to personalize your experience</p>
+
+        <div class="grid-2">
+          <div class="field full">
+            <i class="fas fa-user"></i>
+            <input class="input" id="fullName" placeholder="Full Name" required />
+          </div>
+          <div class="field">
+            <i class="fas fa-at"></i>
+            <input class="input" id="displayName" placeholder="Display Name / Username" />
+          </div>
+          <div class="field">
+            <i class="fas fa-calendar-alt"></i>
+            <input class="input" id="dob" type="date" />
+          </div>
+          <div class="field full">
+            <i class="fas fa-phone"></i>
+            <input class="input" id="phone" value="<%= prefilledPhone || '+91 98765 43210' %>" disabled />
+          </div>
+        </div>
+
+        <div class="photo-wrap">
+          <label class="photo-upload" id="photoUpload" for="photoInput">
+            <i class="fas fa-camera" id="photoIcon"></i>
+            <img id="photoPreview" class="hidden" alt="Profile preview" />
+          </label>
+          <input id="photoInput" type="file" accept="image/*" class="hidden" />
+        </div>
+      </div>
+
+      <div class="step-pane" data-step="2">
+        <div class="step-icon icon-kyc"><i class="fas fa-id-card"></i></div>
+        <h1 class="step-title">Verify Your Identity</h1>
+        <p class="step-subtitle">Required for transactions above ₹10,000</p>
+
+        <div class="doc-grid">
+          <div class="doc-card" data-doc="aadhaar">
+            <div class="doc-upload-content">
+              <i class="fas fa-cloud-upload-alt upload-icon"></i>
+              <p class="doc-title">Upload Aadhaar</p>
+              <p class="doc-sub">JPG, PNG or PDF - Max 5MB</p>
+            </div>
+            <div class="doc-preview">
+              <button type="button" class="remove-file"><i class="fas fa-times"></i></button>
+              <img class="thumb hidden" alt="Aadhaar preview" />
+              <p class="file-name"></p>
+              <p class="file-size"></p>
+              <div class="check-badge"><i class="fas fa-check-circle"></i> Uploaded</div>
+            </div>
+            <input type="file" class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
+          </div>
+
+          <div class="doc-card" data-doc="pan">
+            <div class="doc-upload-content">
+              <i class="fas fa-cloud-upload-alt upload-icon"></i>
+              <p class="doc-title">Upload PAN</p>
+              <p class="doc-sub">JPG, PNG or PDF - Max 5MB</p>
+            </div>
+            <div class="doc-preview">
+              <button type="button" class="remove-file"><i class="fas fa-times"></i></button>
+              <img class="thumb hidden" alt="PAN preview" />
+              <p class="file-name"></p>
+              <p class="file-size"></p>
+              <div class="check-badge"><i class="fas fa-check-circle"></i> Uploaded</div>
+            </div>
+            <input type="file" class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
+          </div>
+        </div>
+
+        <div class="skip-later">
+          <a href="#" id="skipKycInline">Skip — I'll verify later</a>
+          <div class="hint">Some features will be limited until verified</div>
+        </div>
+      </div>
+
+      <div class="step-pane" data-step="3">
+        <div class="step-icon icon-bank"><i class="fas fa-university"></i></div>
+        <h1 class="step-title">Link Your Bank Account</h1>
+        <p class="step-subtitle">For withdrawals and NEFT/IMPS transfers</p>
+
+        <div class="grid-2">
+          <div class="field full">
+            <i class="fas fa-user"></i>
+            <input class="input" id="accHolder" placeholder="Account Holder Name" required />
+          </div>
+          <div class="field">
+            <i class="fas fa-credit-card"></i>
+            <input class="input mono" id="accNo" placeholder="Account Number" required />
+          </div>
+          <div class="field">
+            <i class="fas fa-check-circle"></i>
+            <input class="input mono" id="accNoConfirm" placeholder="Confirm Account Number" required />
+          </div>
+          <div class="field">
+            <i class="fas fa-university"></i>
+            <input class="input" id="bankName" list="bankList" placeholder="Bank Name" required />
+            <datalist id="bankList">
+              <option>HDFC Bank</option>
+              <option>ICICI Bank</option>
+              <option>State Bank of India</option>
+              <option>Axis Bank</option>
+              <option>Kotak Mahindra Bank</option>
+            </datalist>
+          </div>
+          <div class="field">
+            <i class="fas fa-code-branch"></i>
+            <input class="input mono" id="ifsc" maxlength="11" placeholder="IFSC Code" required />
+          </div>
+          <div class="field">
+            <i class="fas fa-building"></i>
+            <div class="pill-group" id="accTypePills">
+              <button type="button" class="pill active" data-type="Savings">Savings</button>
+              <button type="button" class="pill" data-type="Current">Current</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ifsc-note" id="ifscNote"></div>
+      </div>
+
+      <div class="step-pane" data-step="4">
+        <div class="step-icon icon-pref"><i class="fas fa-sliders-h"></i></div>
+        <h1 class="step-title">Customize Your Experience</h1>
+        <p class="step-subtitle">You can always change these in settings later</p>
+
+        <div class="pref-list">
+          <div class="pref-item">
+            <div class="pref-left">
+              <i class="fas fa-bell"></i>
+              <p class="pref-text">Email me for every transaction</p>
+            </div>
+            <button type="button" class="switch on"></button>
+          </div>
+
+          <div class="pref-item">
+            <div class="pref-left">
+              <i class="fas fa-shield-alt"></i>
+              <div class="pref-title-wrap">
+                <p class="pref-text">Enable 2FA for extra security</p>
+                <span class="recommended">Recommended</span>
+              </div>
+            </div>
+            <button type="button" class="switch"></button>
+          </div>
+
+          <div class="pref-item">
+            <div class="pref-left">
+              <i class="fas fa-moon"></i>
+              <p class="pref-text">Default dark mode</p>
+            </div>
+            <button type="button" class="switch"></button>
+          </div>
+
+          <div class="pref-item">
+            <div class="pref-left">
+              <i class="fas fa-language"></i>
+              <p class="pref-text">Language</p>
+            </div>
+            <select class="select" style="max-width: 170px; padding-left: 12px;">
+              <option>English</option>
+              <option>हिन्दी</option>
+              <option>ગુજરાતી</option>
+              <option>தமிழ்</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back hidden" id="backBtn" type="button"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="skip-link" id="skipBtn" type="button">Skip this step</button>
+        <button class="btn-continue" id="continueBtn" type="button">Continue <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+
+    <div class="help-line">Need help? <a href="/support"><i class="fas fa-headset"></i> Contact Support</a></div>
+  </main>
+
+  <script>
+    (function () {
+      const totalSteps = 4;
+      let currentStep = 1;
+      let selectedAccountType = 'Savings';
+      let ifscValid = false;
+      let ifscTimer = null;
+
+      const stepCard = document.getElementById('stepCard');
+      const panes = Array.from(document.querySelectorAll('.step-pane'));
+      const stepCount = document.getElementById('stepCount');
+      const progressFill = document.getElementById('progressFill');
+      const stepLabels = Array.from(document.querySelectorAll('.step-label'));
+      const backBtn = document.getElementById('backBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      const continueBtn = document.getElementById('continueBtn');
+      const skipKycInline = document.getElementById('skipKycInline');
+
+      const fullName = document.getElementById('fullName');
+      const accHolder = document.getElementById('accHolder');
+      const accNo = document.getElementById('accNo');
+      const accNoConfirm = document.getElementById('accNoConfirm');
+      const bankName = document.getElementById('bankName');
+      const ifsc = document.getElementById('ifsc');
+      const ifscNote = document.getElementById('ifscNote');
+
+      const photoInput = document.getElementById('photoInput');
+      const photoIcon = document.getElementById('photoIcon');
+      const photoPreview = document.getElementById('photoPreview');
+
+      const toSize = (bytes) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+      };
+
+      const render = () => {
+        panes.forEach((pane) => {
+          pane.classList.toggle('active', Number(pane.dataset.step) === currentStep);
+        });
+
+        stepCount.textContent = `Step ${currentStep} of ${totalSteps}`;
+        progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+        stepLabels.forEach((label, i) => {
+          label.classList.remove('done', 'active');
+          if (i + 1 < currentStep) label.classList.add('done');
+          if (i + 1 === currentStep) label.classList.add('active');
+        });
+
+        backBtn.classList.toggle('hidden', currentStep === 1);
+        skipBtn.classList.toggle('hidden', currentStep === 1 || currentStep === 4);
+
+        continueBtn.innerHTML = currentStep === 4
+          ? 'Finish Setup <i class="fas fa-arrow-right"></i>'
+          : 'Continue <i class="fas fa-arrow-right"></i>';
+
+        continueBtn.disabled = !canContinue();
+
+        stepCard.style.animation = 'none';
+        void stepCard.offsetWidth;
+        stepCard.style.animation = 'slideIn .35s ease-out';
+      };
+
+      const canContinue = () => {
+        if (currentStep === 1) {
+          return fullName.value.trim().length > 1;
+        }
+
+        if (currentStep === 3) {
+          return (
+            accHolder.value.trim().length > 1 &&
+            accNo.value.trim().length >= 8 &&
+            accNo.value.trim() === accNoConfirm.value.trim() &&
+            bankName.value.trim().length > 1 &&
+            ifscValid
+          );
+        }
+
+        return true;
+      };
+
+      const nextStep = () => {
+        if (currentStep < totalSteps) {
+          currentStep += 1;
+          render();
+          return;
+        }
+
+        continueBtn.disabled = true;
+        continueBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Finishing...';
+        window.setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 800);
+      };
+
+      const prevStep = () => {
+        if (currentStep > 1) {
+          currentStep -= 1;
+          render();
+        }
+      };
+
+      backBtn.addEventListener('click', prevStep);
+
+      skipBtn.addEventListener('click', () => {
+        nextStep();
+      });
+
+      continueBtn.addEventListener('click', () => {
+        if (!canContinue()) return;
+        nextStep();
+      });
+
+      [fullName, accHolder, accNo, accNoConfirm, bankName, ifsc].forEach((el) => {
+        el.addEventListener('input', () => {
+          continueBtn.disabled = !canContinue();
+        });
+      });
+
+      photoInput.addEventListener('change', () => {
+        const file = photoInput.files && photoInput.files[0];
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        photoPreview.src = url;
+        photoPreview.classList.remove('hidden');
+        photoIcon.classList.add('hidden');
+      });
+
+      document.querySelectorAll('.doc-card').forEach((card) => {
+        const input = card.querySelector('input[type="file"]');
+        const removeBtn = card.querySelector('.remove-file');
+        const thumb = card.querySelector('.thumb');
+        const fileName = card.querySelector('.file-name');
+        const fileSize = card.querySelector('.file-size');
+
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.remove-file')) return;
+          input.click();
+        });
+
+        input.addEventListener('change', () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+
+          fileName.textContent = file.name;
+          fileSize.textContent = toSize(file.size);
+
+          const isImage = file.type.startsWith('image/');
+          if (isImage) {
+            thumb.src = URL.createObjectURL(file);
+            thumb.classList.remove('hidden');
+          } else {
+            thumb.classList.add('hidden');
+          }
+
+          card.classList.add('uploaded');
+        });
+
+        removeBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          input.value = '';
+          thumb.src = '';
+          card.classList.remove('uploaded');
+        });
+      });
+
+      skipKycInline.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentStep === 2) nextStep();
+      });
+
+      document.querySelectorAll('#accTypePills .pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('#accTypePills .pill').forEach((x) => x.classList.remove('active'));
+          pill.classList.add('active');
+          selectedAccountType = pill.dataset.type;
+          void selectedAccountType;
+        });
+      });
+
+      const ifscMap = {
+        HDFC0001234: 'HDFC Bank • Andheri West Branch',
+        SBIN0000456: 'State Bank of India • MG Road Branch',
+        ICIC0000789: 'ICICI Bank • Koramangala Branch',
+        UTIB0000123: 'Axis Bank • Salt Lake Branch',
+      };
+
+      const setIfscState = (type, message, icon) => {
+        ifscNote.className = `ifsc-note show ${type}`;
+        ifscNote.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+      };
+
+      ifsc.addEventListener('input', () => {
+        const value = ifsc.value.trim().toUpperCase();
+        ifsc.value = value;
+        ifscValid = false;
+        ifscNote.className = 'ifsc-note';
+
+        if (ifscTimer) window.clearTimeout(ifscTimer);
+        if (value.length !== 11) {
+          continueBtn.disabled = !canContinue();
+          return;
+        }
+
+        setIfscState('loading', 'Fetching branch details...', 'fa-spinner spin');
+
+        ifscTimer = window.setTimeout(() => {
+          if (ifscMap[value]) {
+            ifscValid = true;
+            setIfscState('success', ifscMap[value], 'fa-check-circle');
+          } else {
+            ifscValid = false;
+            setIfscState('error', 'Invalid IFSC code', 'fa-times-circle');
+          }
+          continueBtn.disabled = !canContinue();
+        }, 750);
+      });
+
+      document.querySelectorAll('.switch').forEach((sw) => {
+        sw.addEventListener('click', () => {
+          sw.classList.toggle('on');
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Payment Failed - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --slate: #475569;
+      --red: #EF4444;
+      --red-dark: #DC2626;
+      --amber: #F59E0B;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 560px;
+      padding: 40px 24px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+      padding: 48px 40px 36px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.07);
+      top: -80px;
+      left: -70px;
+    }
+
+    .hero::after {
+      width: 160px;
+      height: 160px;
+      background: rgba(255,255,255,0.04);
+      right: -50px;
+      bottom: -60px;
+    }
+
+    .icon-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.3);
+      margin: 0 auto 20px;
+      display: grid;
+      place-items: center;
+    }
+
+    .fail-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      animation: shakeIn 0.5s ease-out 0.1s both;
+    }
+
+    .fail-icon i {
+      font-size: 28px;
+      color: #EF4444;
+    }
+
+    @keyframes shakeIn {
+      0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+      50% { transform: scale(1.1) rotate(5deg); }
+      75% { transform: scale(0.95) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .hero-title {
+      margin: 0;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .hero-sub {
+      margin: 8px 0 0;
+      color: rgba(255,255,255,0.85);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .error-pill {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.2);
+      color: #fff;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    }
+
+    .reason {
+      margin: 24px 32px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .reason i {
+      font-size: 18px;
+      color: #EF4444;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .reason-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #DC2626;
+    }
+
+    .reason-text {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.6;
+    }
+
+    .summary {
+      padding: 0 32px 20px;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .section-title i { font-size: 12px; }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F8FAFC;
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #6B7280;
+    }
+
+    .detail-label i {
+      width: 14px;
+      text-align: center;
+      color: #94A3B8;
+      font-size: 14px;
+    }
+
+    .detail-value {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+      word-break: break-word;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      letter-spacing: .01em;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.1);
+      color: #DC2626;
+      border: 1px solid #EF4444;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .actions {
+      padding: 20px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn,
+    .grid-btn {
+      width: 100%;
+      border-radius: 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:focus-visible,
+    .grid-btn:focus-visible,
+    .quick-link:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      border: 0;
+      height: 50px;
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(239,68,68,0.30);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(239,68,68,0.40);
+    }
+
+    .btn-outline {
+      height: 46px;
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-outline:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-btn {
+      height: 42px;
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+    }
+
+    .grid-btn.cancel:hover {
+      border-color: #EF4444;
+      color: #DC2626;
+      background: #FEF2F2;
+    }
+
+    .grid-btn.support:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+    }
+
+    .security {
+      background: linear-gradient(135deg, rgba(59,130,246,0.04), rgba(139,92,246,0.02));
+      border-top: 1px solid #F1F5F9;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #94A3B8;
+      font-size: 12px;
+    }
+
+    .security i {
+      color: #3B82F6;
+      font-size: 14px;
+    }
+
+    .quick-links {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .quick-link:hover { text-decoration: underline; }
+    .quick-link.history { color: #3B82F6; }
+    .quick-link.dispute { color: #F59E0B; }
+    .quick-link.support { color: #6B7280; }
+
+    @media (max-width: 639px) {
+      body {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .page {
+        padding: 0;
+        max-width: none;
+      }
+
+      .card {
+        border-radius: 20px 20px 0 0;
+      }
+
+      .hero {
+        padding: 36px 24px 28px;
+      }
+
+      .reason,
+      .summary,
+      .actions,
+      .security {
+        margin-inline: 24px;
+      }
+
+      .summary,
+      .actions,
+      .security {
+        padding-inline: 0;
+      }
+
+      .reason {
+        margin-block: 20px;
+        padding: 14px 16px;
+      }
+
+      .detail-row {
+        padding: 8px 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin: 20px 0 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <% const attempt = tx || {}; %>
+
+  <main class="page">
+    <article class="card">
+      <header class="hero">
+        <div class="icon-ring">
+          <div class="fail-icon"><i class="fas fa-times"></i></div>
+        </div>
+
+        <h1 class="hero-title">Payment Failed</h1>
+        <p class="hero-sub">We couldn't process your payment</p>
+
+        <div class="error-pill">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>Error: <%= attempt.errorCode || 'INSUFFICIENT_FUNDS' %></span>
+        </div>
+      </header>
+
+      <section class="reason">
+        <i class="fas fa-info-circle"></i>
+        <div>
+          <p class="reason-title">Why did this fail?</p>
+          <p class="reason-text"><%= attempt.failureReason || "Your bank declined this transaction. This usually happens due to insufficient balance, incorrect PIN, or bank security restrictions." %></p>
+        </div>
+      </section>
+
+      <section class="summary">
+        <h2 class="section-title"><i class="fas fa-receipt"></i> Attempted Transaction</h2>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-hashtag"></i> Attempt ID</span>
+          <span class="detail-value mono"><%= attempt.id || 'ZP-FAIL-2024-0042' %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-user"></i> Intended For</span>
+          <span class="detail-value"><%= attempt.intendedFor || 'Priya Mehta' %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-credit-card"></i> Method Used</span>
+          <span class="detail-value"><%= attempt.method || 'UPI Transfer' %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-calendar-alt"></i> Attempted At</span>
+          <span class="detail-value"><%= attempt.attemptedAt || 'Feb 24, 2026 - 11:10 AM' %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-rupee-sign"></i> Amount</span>
+          <span class="detail-value"><%= attempt.amount || '₹5,000.00' %></span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-times-circle"></i> Status</span>
+          <span class="detail-value"><span class="status-badge"><i class="fas fa-times-circle"></i> Failed</span></span>
+        </div>
+      </section>
+
+      <section class="actions">
+        <a href="/send-to" class="btn btn-primary"><i class="fas fa-redo"></i> Try Again</a>
+        <a href="/payment-methods" class="btn btn-outline"><i class="fas fa-credit-card"></i> Try Different Method</a>
+
+        <div class="grid">
+          <a href="/dashboard" class="grid-btn cancel"><i class="fas fa-ban"></i> Cancel Payment</a>
+          <a href="/support" class="grid-btn support"><i class="fas fa-headset"></i> Contact Support</a>
+        </div>
+      </section>
+
+      <footer class="security">
+        <i class="fas fa-shield-alt"></i>
+        <span>No amount was debited from your account</span>
+      </footer>
+    </article>
+
+    <div class="quick-links">
+      <a class="quick-link history" href="/Transaction-History"><i class="fas fa-history"></i> View Transaction History</a>
+      <a class="quick-link dispute" href="/disputes"><i class="fas fa-exclamation-triangle"></i> Raise a Dispute</a>
+      <a class="quick-link support" href="/support"><i class="fas fa-headset"></i> Contact Support</a>
+    </div>
+  </main>
+</body>
+</html>

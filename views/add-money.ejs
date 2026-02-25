@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Add Money - ZenoPay' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --muted-2: #94A3B8;
+      --border: #E2E8F0;
+      --line: #F1F5F9;
+      --blue: #3B82F6;
+      --blue-dark: #2563EB;
+      --purple: #8B5CF6;
+      --green: #10B981;
+      --amber: #F59E0B;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breadcrumb a {
+      text-decoration: none;
+      color: var(--blue);
+    }
+
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .title-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .title-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .title-left h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      color: #1F2937;
+    }
+
+    .title-left p {
+      margin: 6px 0 0;
+      font-size: 15px;
+      color: #6B7280;
+    }
+
+    .balance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1F2937;
+      white-space: nowrap;
+    }
+
+    .balance-pill i {
+      color: #3B82F6;
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-card {
+      padding: 32px;
+    }
+
+    .form-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .head-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .head-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 18px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    }
+
+    .head-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .head-pill {
+      border-radius: 999px;
+      border: 1px solid #BFDBFE;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+    }
+
+    .section-label {
+      margin: 24px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+      flex-shrink: 0;
+    }
+
+    .section-label::after {
+      content: '';
+      height: 1px;
+      background: #F1F5F9;
+      flex: 1;
+      margin-left: 8px;
+    }
+
+    .amount-wrap {
+      background: #F0F7FF;
+      border: 1.5px solid #BFDBFE;
+      border-radius: 14px;
+      padding: 16px 20px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .amount-wrap:focus-within {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+    }
+
+    .amount-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .currency-badge {
+      height: 50px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .amount-input {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      height: 50px;
+      font-size: 36px;
+      font-weight: 800;
+      color: #1F2937;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      outline: none;
+      min-width: 0;
+    }
+
+    .amount-input::placeholder { color: #CBD5E1; }
+
+    .chips {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1.5px solid #E2E8F0;
+      background: #fff;
+      color: #475569;
+      border-radius: 999px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .chip:hover {
+      border-color: #3B82F6;
+      color: #3B82F6;
+    }
+
+    .chip.active {
+      border-color: #3B82F6;
+      color: #3B82F6;
+      background: #EFF6FF;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    .amount-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .method {
+      position: relative;
+      border: 1.5px solid #E2E8F0;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: .2s ease;
+      text-align: left;
+      width: 100%;
+    }
+
+    .method.active {
+      border-color: #3B82F6;
+      background: rgba(59,130,246,0.04);
+    }
+
+    .method-radio {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #CBD5E1;
+      background: #fff;
+    }
+
+    .method.active .method-radio {
+      border-color: #3B82F6;
+      background: radial-gradient(circle at center, #3B82F6 0 40%, #fff 45%);
+    }
+
+    .method-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .method-icon.upi { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .method-icon.card { background: linear-gradient(135deg, #10B981, #059669); }
+    .method-icon.net { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+    .method-icon.bank { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+    .method-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .method-sub {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    .detail-box {
+      margin-top: 14px;
+      display: none;
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    .detail-box.show { display: flex; }
+
+    .field {
+      position: relative;
+    }
+
+    .field i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 0 12px 0 36px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1F2937;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.12);
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+
+    .inline-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .verify-btn {
+      height: 50px;
+      border: 1.5px solid #3B82F6;
+      color: #3B82F6;
+      background: #fff;
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .verify-btn:hover { background: #EFF6FF; }
+
+    .verified-note {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #047857;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .verified-note.show { display: inline-flex; }
+
+    .inline-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .save-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .save-card input { accent-color: #3B82F6; }
+
+    .action-bar {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .proceed-btn {
+      width: 100%;
+      height: 50px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: .2s ease;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.3);
+    }
+
+    .proceed-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.4);
+    }
+
+    .proceed-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .summary {
+      padding: 24px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .summary-title {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .summary-title i { color: #3B82F6; }
+
+    .divider {
+      margin: 14px 0;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .sum-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .sum-row .label { color: #6B7280; }
+    .sum-row .value { color: #1F2937; font-weight: 600; }
+
+    .sum-row.total {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .sum-row.total .label,
+    .sum-row.total .value {
+      color: #1F2937;
+      font-weight: 800;
+    }
+
+    .method-badge {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #DBEAFE;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .wallet-after {
+      margin-top: 14px;
+      background: rgba(16,185,129,0.06);
+      border: 1px solid #D1FAE5;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #065F46;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .wallet-after i { color: #10B981; }
+
+    .security-note {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .security-note i { color: #94A3B8; }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .summary {
+        position: static;
+        top: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 24px 16px; }
+      .title-left h1 { font-size: 28px; }
+      .form-card { padding: 20px; }
+      .summary { padding: 20px; }
+      .method-grid,
+      .inline-2 { grid-template-columns: 1fr; }
+      .amount-input { font-size: 28px; }
+      .inline-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <% const currentBalance = Number(balance || 2450); %>
+
+  <main class="page">
+    <nav class="breadcrumb"><a href="/dashboard">Dashboard</a> &gt; Add Money</nav>
+
+    <section class="title-row">
+      <div class="title-left">
+        <div class="title-icon"><i class="fas fa-plus-circle"></i></div>
+        <div>
+          <h1>Add Money</h1>
+          <p>Top up your ZenoPay wallet instantly</p>
+        </div>
+      </div>
+
+      <div class="balance-pill"><i class="fas fa-wallet"></i> Current Balance: <span id="balanceValue"></span></div>
+    </section>
+
+    <section class="layout">
+      <article class="card form-card">
+        <div class="form-head">
+          <div class="head-left">
+            <div class="head-icon"><i class="fas fa-plus-circle"></i></div>
+            <h2 class="head-title">Top Up Details</h2>
+          </div>
+          <span class="head-pill">Instant - Secure</span>
+        </div>
+
+        <div class="section-label">Amount</div>
+        <div class="amount-wrap" id="amountWrap">
+          <div class="amount-row">
+            <span class="currency-badge">₹ INR</span>
+            <input id="amountInput" class="amount-input" type="number" min="100" max="100000" step="1" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="chips" id="chipsRow">
+          <button class="chip" type="button" data-amount="500">₹500</button>
+          <button class="chip" type="button" data-amount="1000">₹1,000</button>
+          <button class="chip" type="button" data-amount="2000">₹2,000</button>
+          <button class="chip" type="button" data-amount="5000">₹5,000</button>
+          <button class="chip" type="button" data-amount="10000">₹10,000</button>
+        </div>
+
+        <div class="amount-note">Min ₹100 - Max ₹1,00,000 per transaction</div>
+
+        <div class="section-label">Payment Method</div>
+        <div class="method-grid" id="methodGrid">
+          <button class="method" type="button" data-method="upi">
+            <span class="method-radio"></span>
+            <span class="method-icon upi"><i class="fas fa-mobile-alt"></i></span>
+            <span>
+              <p class="method-title">UPI</p>
+              <p class="method-sub">Instant, free</p>
+            </span>
+          </button>
+
+          <button class="method" type="button" data-method="card">
+            <span class="method-radio"></span>
+            <span class="method-icon card"><i class="fas fa-credit-card"></i></span>
+            <span>
+              <p class="method-title">Card</p>
+              <p class="method-sub">Visa / Mastercard / RuPay</p>
+            </span>
+          </button>
+
+          <button class="method" type="button" data-method="netbanking">
+            <span class="method-radio"></span>
+            <span class="method-icon net"><i class="fas fa-university"></i></span>
+            <span>
+              <p class="method-title">Net Banking</p>
+              <p class="method-sub">All major banks</p>
+            </span>
+          </button>
+
+          <button class="method" type="button" data-method="imps">
+            <span class="method-radio"></span>
+            <span class="method-icon bank"><i class="fas fa-exchange-alt"></i></span>
+            <span>
+              <p class="method-title">IMPS / NEFT</p>
+              <p class="method-sub">2–4 hours</p>
+            </span>
+          </button>
+        </div>
+
+        <div class="detail-box" id="upiBox">
+          <div class="inline-row">
+            <div class="field">
+              <i class="fas fa-mobile-alt"></i>
+              <input class="input" id="upiInput" placeholder="yourname@upi" />
+            </div>
+            <button class="verify-btn" id="verifyUpiBtn" type="button">Verify</button>
+          </div>
+          <div class="verified-note" id="upiVerified"><i class="fas fa-check-circle"></i> HDFC Bank - Rahul Sharma</div>
+        </div>
+
+        <div class="detail-box" id="cardBox">
+          <div class="field">
+            <i class="fas fa-credit-card"></i>
+            <input class="input mono" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" />
+          </div>
+          <div class="inline-2">
+            <div class="field">
+              <i class="fas fa-calendar-alt"></i>
+              <input class="input mono" id="cardExpiry" maxlength="5" placeholder="MM/YY" />
+            </div>
+            <div class="field">
+              <i class="fas fa-lock"></i>
+              <input class="input mono" id="cardCvv" maxlength="3" placeholder="CVV" />
+            </div>
+          </div>
+          <label class="save-card"><input type="checkbox" /> Save for future use</label>
+        </div>
+
+        <div class="action-bar">
+          <button class="proceed-btn" id="proceedBtn" type="button" disabled>Proceed to Add ₹0.00 <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </article>
+
+      <aside class="card summary">
+        <h3 class="summary-title"><i class="fas fa-receipt"></i> Summary</h3>
+        <div class="divider"></div>
+
+        <div class="sum-row"><span class="label">Amount</span><span class="value" id="sumAmount">₹0.00</span></div>
+        <div class="sum-row"><span class="label">Processing Fee</span><span class="value" id="sumFee">₹0.00</span></div>
+        <div class="sum-row"><span class="label">GST on Fee</span><span class="value" id="sumGst">₹0.00</span></div>
+        <div class="divider"></div>
+        <div class="sum-row total"><span class="label">You Pay</span><span class="value" id="sumTotal">₹0.00</span></div>
+
+        <div class="method-badge" id="methodBadge"><i class="fas fa-circle"></i> Select payment method</div>
+
+        <div class="wallet-after"><i class="fas fa-wallet"></i> New Balance: <span id="newBalance">₹0.00</span></div>
+
+        <div class="security-note"><i class="fas fa-lock"></i> 256-bit SSL encrypted</div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const balance = Number('<%= currentBalance %>') || 2450;
+      const methodMeta = {
+        upi: { icon: 'fa-mobile-alt', label: 'UPI', feeRate: 0 },
+        card: { icon: 'fa-credit-card', label: 'Card', feeRate: 0.012 },
+        netbanking: { icon: 'fa-university', label: 'Net Banking', feeRate: 0.005 },
+        imps: { icon: 'fa-exchange-alt', label: 'IMPS / NEFT', feeRate: 0.0 },
+      };
+
+      const amountInput = document.getElementById('amountInput');
+      const chips = Array.from(document.querySelectorAll('.chip'));
+      const methods = Array.from(document.querySelectorAll('.method'));
+      const upiBox = document.getElementById('upiBox');
+      const cardBox = document.getElementById('cardBox');
+      const upiInput = document.getElementById('upiInput');
+      const verifyUpiBtn = document.getElementById('verifyUpiBtn');
+      const upiVerified = document.getElementById('upiVerified');
+      const cardNumber = document.getElementById('cardNumber');
+      const cardExpiry = document.getElementById('cardExpiry');
+      const cardCvv = document.getElementById('cardCvv');
+
+      const proceedBtn = document.getElementById('proceedBtn');
+      const sumAmount = document.getElementById('sumAmount');
+      const sumFee = document.getElementById('sumFee');
+      const sumGst = document.getElementById('sumGst');
+      const sumTotal = document.getElementById('sumTotal');
+      const methodBadge = document.getElementById('methodBadge');
+      const newBalance = document.getElementById('newBalance');
+      const balanceValue = document.getElementById('balanceValue');
+
+      let selectedMethod = '';
+
+      const formatINR = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      balanceValue.textContent = formatINR(balance);
+
+      const getAmount = () => {
+        const raw = Number(amountInput.value || 0);
+        if (!Number.isFinite(raw)) return 0;
+        return Math.max(0, Math.min(100000, raw));
+      };
+
+      const isUpiVerifiedIfNeeded = () => {
+        if (selectedMethod !== 'upi') return true;
+        return upiVerified.classList.contains('show');
+      };
+
+      const isCardValidIfNeeded = () => {
+        if (selectedMethod !== 'card') return true;
+        const numberOk = cardNumber.value.replace(/\s/g, '').length >= 16;
+        const expiryOk = /^\d{2}\/\d{2}$/.test(cardExpiry.value);
+        const cvvOk = /^\d{3}$/.test(cardCvv.value);
+        return numberOk && expiryOk && cvvOk;
+      };
+
+      const update = () => {
+        const amount = getAmount();
+        const feeRate = selectedMethod ? methodMeta[selectedMethod].feeRate : 0;
+        const fee = amount * feeRate;
+        const gst = fee * 0.18;
+        const total = amount + fee + gst;
+
+        sumAmount.textContent = formatINR(amount);
+        sumFee.textContent = formatINR(fee);
+        sumGst.textContent = formatINR(gst);
+        sumTotal.textContent = formatINR(total);
+        newBalance.textContent = formatINR(balance + amount);
+
+        if (selectedMethod) {
+          methodBadge.innerHTML = `<i class="fas ${methodMeta[selectedMethod].icon}"></i> ${methodMeta[selectedMethod].label}`;
+        } else {
+          methodBadge.innerHTML = '<i class="fas fa-circle"></i> Select payment method';
+        }
+
+        proceedBtn.innerHTML = `Proceed to Add ${formatINR(amount)} <i class="fas fa-arrow-right"></i>`;
+
+        const amountValid = amount >= 100 && amount <= 100000;
+        proceedBtn.disabled = !(amountValid && selectedMethod && isUpiVerifiedIfNeeded() && isCardValidIfNeeded());
+      };
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const amount = chip.dataset.amount || '0';
+          amountInput.value = amount;
+          chips.forEach((c) => c.classList.remove('active'));
+          chip.classList.add('active');
+          update();
+        });
+      });
+
+      amountInput.addEventListener('input', () => {
+        chips.forEach((c) => c.classList.remove('active'));
+        update();
+      });
+
+      methods.forEach((methodEl) => {
+        methodEl.addEventListener('click', () => {
+          methods.forEach((m) => m.classList.remove('active'));
+          methodEl.classList.add('active');
+          selectedMethod = methodEl.dataset.method;
+
+          upiBox.classList.toggle('show', selectedMethod === 'upi');
+          cardBox.classList.toggle('show', selectedMethod === 'card');
+
+          if (selectedMethod !== 'upi') {
+            upiVerified.classList.remove('show');
+          }
+
+          update();
+        });
+      });
+
+      verifyUpiBtn.addEventListener('click', () => {
+        const upi = upiInput.value.trim();
+        if (!upi.includes('@') || upi.length < 5) {
+          upiVerified.classList.remove('show');
+          verifyUpiBtn.textContent = 'Invalid UPI';
+          window.setTimeout(() => { verifyUpiBtn.textContent = 'Verify'; }, 1000);
+          update();
+          return;
+        }
+
+        verifyUpiBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Verifying';
+        verifyUpiBtn.disabled = true;
+        window.setTimeout(() => {
+          upiVerified.classList.add('show');
+          verifyUpiBtn.disabled = false;
+          verifyUpiBtn.textContent = 'Verified';
+          update();
+        }, 700);
+      });
+
+      cardNumber.addEventListener('input', () => {
+        const raw = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+        cardNumber.value = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+        update();
+      });
+
+      cardExpiry.addEventListener('input', () => {
+        const raw = cardExpiry.value.replace(/\D/g, '').slice(0, 4);
+        cardExpiry.value = raw.length > 2 ? `${raw.slice(0, 2)}/${raw.slice(2)}` : raw;
+        update();
+      });
+
+      cardCvv.addEventListener('input', () => {
+        cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 3);
+        update();
+      });
+
+      proceedBtn.addEventListener('click', () => {
+        if (proceedBtn.disabled) return;
+        proceedBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Processing...';
+        proceedBtn.disabled = true;
+        window.setTimeout(() => {
+          window.location.href = '/payment/success?type=Wallet%20Top-up&method=' + encodeURIComponent(methodMeta[selectedMethod].label) + '&amount=' + encodeURIComponent(getAmount()) + '&to=ZenoPay%20Wallet';
+        }, 900);
+      });
+
+      update();
+    })();
+  </script>
+</body>
+</html>
