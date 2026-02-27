@@ -134,6 +134,31 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
       type: Boolean,
       default: false,
     },
+    pauseAll: {
+      type: Boolean,
+      default: false,
+    },
+    digestFrequency: {
+      type: String,
+      enum: ["real-time", "daily", "weekly"],
+      default: "real-time",
+    },
+    quietHours: {
+      type: Boolean,
+      default: false,
+    },
+    quietFrom: {
+      type: String,
+      default: "22:00",
+    },
+    quietTo: {
+      type: String,
+      default: "07:00",
+    },
+    dynamicState: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
 
   AccountStatus: {
@@ -184,6 +209,16 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
   },
 
   KYCRejectedAt: {
+    type: Date,
+    required: false,
+  },
+
+  KYCResubmissionRequested: {
+    type: Boolean,
+    default: false,
+  },
+
+  KYCResubmissionRequestedAt: {
     type: Date,
     required: false,
   },

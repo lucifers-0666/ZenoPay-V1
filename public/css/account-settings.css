@@ -4,6 +4,7 @@
    ======================================== */
 
 :root {
+    color-scheme: light;
     /* Premium Fintech Color System */
     --primary: #3B82F6;
     --primary-dark: #2563EB;
@@ -107,6 +108,7 @@ body {
 
 .account-settings-container {
     width: 100%;
+    max-width: 1320px;
     margin: 0 auto;
     padding: var(--space-xl);
     animation: fadeIn 0.6s ease-out;
@@ -469,10 +471,20 @@ body {
     color: var(--error-red);
     margin-top: var(--space-xs);
     font-weight: 500;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.24);
+    border-radius: 6px;
+    padding: 6px 8px;
 }
 
 .error-message.show {
     display: block;
+}
+
+.form-input.has-error {
+    border-color: var(--error-red);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14);
+    background: rgba(254, 242, 242, 0.5);
 }
 
 /* ========================================
@@ -981,7 +993,9 @@ body {
 }
 
 .toast {
-    background: white;
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
     border-radius: 8px;
     padding: var(--space-md) var(--space-lg);
     margin-bottom: var(--space-md);
@@ -997,10 +1011,12 @@ body {
 
 .toast.success {
     border-left: 4px solid var(--success-green);
+    background: #ECFDF5;
 }
 
 .toast.error {
     border-left: 4px solid var(--error-red);
+    background: #FEF2F2;
 }
 
 .toast i {
@@ -1173,42 +1189,8 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --text-primary: #F9FAFB;
-        --text-secondary: #D1D5DB;
-        --text-light: #9CA3AF;
-        --bg-primary: #1F2937;
-        --bg-secondary: #111827;
-        --bg-tertiary: #374151;
-        --border-light: #4B5563;
-        --border-medium: #6B7280;
-    }
-
     body {
         background: var(--bg-secondary);
-    }
-
-    .settings-card {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-    }
-
-    .form-input {
-        background: var(--bg-secondary);
-        border-color: var(--border-light);
-    }
-
-    .form-input:focus {
-        background: rgba(79, 70, 229, 0.1);
-        border-color: var(--primary-light);
-    }
-
-    .session-item,
-    .login-item {
-        background: var(--bg-secondary);
-    }
-
-    .modal-content {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 }
 

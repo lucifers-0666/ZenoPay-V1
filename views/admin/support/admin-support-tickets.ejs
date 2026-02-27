@@ -1,0 +1,11 @@
+<%- include('../layouts/admin-layout', {
+  title: pageTitle || 'Support Tickets - ZenoPay Admin',
+  currentPage: currentPage || 'support',
+  user: (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null),
+  breadcrumb: breadcrumb || [
+    { name: 'Admin', url: '/admin/dashboard' },
+    { name: 'Support', url: '/admin/support' },
+    { name: 'Tickets', url: '/admin/support' }
+  ],
+  body: include('./admin-support-tickets-body', { stats: stats, tickets: tickets })
+}) %>

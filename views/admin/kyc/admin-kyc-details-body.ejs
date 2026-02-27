@@ -1,0 +1,411 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">KYC Details</h1>
+    <p class="page-subtitle">Full individual KYC case review with extracted data and admin decision tools</p>
+  </div>
+  <a href="/admin/kyc" class="btn-secondary btn-icon"><i class="fas fa-arrow-left"></i> Back to Management</a>
+</div>
+
+<div class="kyc-details-layout">
+  <div class="kyc-main-col">
+    <section class="kyc-card identity-card">
+      <div class="identity-top">
+        <div class="identity-avatar"><%= details.avatarInitial || 'U' %></div>
+        <div class="identity-text">
+          <h2><%= details.fullName %></h2>
+          <p><%= details.email %> • <%= details.phone %></p>
+          <code><%= details.zenoPayId %></code>
+        </div>
+        <span class="status-pill <%= details.status %>"><i class="fas <%= details.status === 'approved' ? 'fa-check-circle' : details.status === 'rejected' ? 'fa-times-circle' : details.status === 'resubmission' ? 'fa-redo' : 'fa-clock' %>"></i> <%= details.status.charAt(0).toUpperCase() + details.status.slice(1) %></span>
+      </div>
+
+      <div class="identity-grid">
+        <div><span>Account Created</span><strong><%= details.accountCreated %></strong></div>
+        <div><span>Verification Level</span><strong><%= details.verificationLevel %></strong></div>
+        <div><span>Total Transactions</span><strong><%= details.totalTransactions %></strong></div>
+        <div><span>Last Login</span><strong><%= details.lastLogin %></strong></div>
+      </div>
+    </section>
+
+    <section class="kyc-card doc-view-card">
+      <div class="card-head">
+        <h3><i class="fas fa-id-card"></i> Document Viewer</h3>
+      </div>
+
+      <div class="doc-tabs" id="docTabs"></div>
+
+      <div class="doc-viewer" id="docViewer">
+        <img id="docImage" alt="Document preview" />
+        <div class="doc-empty" id="docEmpty">No document available for this tab.</div>
+        <span class="marker ok" id="docMarkerOk" style="top:18%;left:22%;"><i class="fas fa-check"></i></span>
+        <span class="marker warn" id="docMarkerWarn" style="top:62%;left:61%;"><i class="fas fa-times"></i></span>
+      </div>
+
+      <div class="doc-toolbar">
+        <button type="button" class="btn-secondary" id="zoomBtn"><i class="fas fa-search-plus"></i> Zoom</button>
+        <button type="button" class="btn-secondary" id="fullBtn"><i class="fas fa-expand"></i> Fullscreen</button>
+        <a class="btn-secondary" id="downloadBtn" href="#" download><i class="fas fa-download"></i> Download</a>
+      </div>
+    </section>
+
+    <section class="kyc-card extracted-card">
+      <div class="card-head">
+        <h3><i class="fas fa-file-alt"></i> Extracted Document Data</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table extracted-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Document Value</th>
+              <th>User-Provided</th>
+              <th>Match</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% (details.extractedRows || []).forEach((row) => { %>
+              <tr class="<%= row.match ? '' : 'mismatch' %>">
+                <td><strong><%= row.field %></strong></td>
+                <td><%= row.documentValue %></td>
+                <td><%= row.userValue %></td>
+                <td>
+                  <% if (row.match) { %>
+                    <span class="match yes"><i class="fas fa-check"></i></span>
+                  <% } else { %>
+                    <span class="match no"><i class="fas fa-times"></i></span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="kyc-side-col">
+    <section class="kyc-card">
+      <div class="card-head">
+        <h3><i class="fas fa-shield-alt"></i> Risk Analysis</h3>
+      </div>
+
+      <div class="risk-gauge-wrap">
+        <svg viewBox="0 0 220 130" class="risk-gauge" aria-hidden="true">
+          <path d="M 25 110 A 85 85 0 0 1 195 110" fill="none" stroke="#E2E8F0" stroke-width="16" stroke-linecap="round"></path>
+          <path d="M 25 110 A 85 85 0 0 1 88 30" fill="none" stroke="#10B981" stroke-width="16" stroke-linecap="round"></path>
+          <path d="M 88 30 A 85 85 0 0 1 132 30" fill="none" stroke="#F59E0B" stroke-width="16" stroke-linecap="round"></path>
+          <path d="M 132 30 A 85 85 0 0 1 195 110" fill="none" stroke="#EF4444" stroke-width="16" stroke-linecap="round"></path>
+          <g id="gaugeNeedle" transform="rotate(0 110 110)">
+            <line x1="110" y1="110" x2="110" y2="36" stroke="#0F172A" stroke-width="4" stroke-linecap="round"></line>
+            <circle cx="110" cy="110" r="7" fill="#0F172A"></circle>
+          </g>
+        </svg>
+        <div class="risk-score-num" id="riskScoreNum"><%= details.riskScore %></div>
+      </div>
+
+      <div class="risk-flag-list">
+        <% (details.riskFlagsDetailed || []).forEach((flag) => { %>
+          <div class="risk-flag-item <%= flag.severity %>">
+            <i class="fas <%= flag.icon %>"></i>
+            <span><%= flag.text %></span>
+            <span class="severity-pill <%= flag.severity %>"><%= flag.severity %></span>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="kyc-card decision-card">
+      <div class="card-head">
+        <h3><i class="fas fa-gavel"></i> Admin Decision</h3>
+      </div>
+
+      <div class="decision-actions">
+        <button class="decision-btn approve" type="button" data-action="approve"><i class="fas fa-check-circle"></i> Approve KYC</button>
+        <button class="decision-btn reject" type="button" data-action="reject"><i class="fas fa-times-circle"></i> Reject KYC</button>
+        <button class="decision-btn resubmit" type="button" data-action="resubmission"><i class="fas fa-redo"></i> Request Resubmission</button>
+      </div>
+
+      <label class="input-label" for="adminNote">Add Note (Internal)</label>
+      <textarea id="adminNote" class="filter-input" rows="5" placeholder="This will not be visible to the user"><%= details.adminNotes || '' %></textarea>
+      <p class="note-hint">This will not be visible to the user</p>
+
+      <div class="reject-reason" id="rejectReasonWrap" style="display:none;">
+        <label class="input-label" for="rejectReason">Rejection Reason</label>
+        <select id="rejectReason" class="filter-select">
+          <option value="">Select reason</option>
+          <option>Blurry image</option>
+          <option>Expired document</option>
+          <option>Name mismatch</option>
+          <option>Suspected fraud</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="kyc-card timeline-card">
+      <div class="card-head between">
+        <h3>KYC Activity Log</h3>
+        <a href="#" class="link-primary">View All</a>
+      </div>
+      <div class="timeline-list">
+        <% (details.timeline || []).forEach((event, idx) => { %>
+          <div class="timeline-item">
+            <span class="timeline-dot"></span>
+            <% if (idx !== (details.timeline || []).length - 1) { %><span class="timeline-line"></span><% } %>
+            <div class="timeline-content">
+              <div class="timeline-time"><%= event.timestamp %></div>
+              <div class="timeline-action"><%= event.action %></div>
+              <div class="timeline-actor"><%= event.actor %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="doc-lightbox" id="docLightbox">
+  <button type="button" class="lightbox-close" id="docLightboxClose"><i class="fas fa-times"></i></button>
+  <img id="docLightboxImage" alt="Full document" />
+</div>
+
+<script id="kycDetailsData" type="application/json"><%- JSON.stringify(details || {}) %></script>
+
+<style>
+  .kyc-details-layout { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 24px; }
+  .kyc-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04); margin-bottom: 20px; }
+  .identity-card { padding: 28px; margin-bottom: 24px; }
+  .identity-top { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; }
+  .identity-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#3B82F6,#8B5CF6); color: #fff; font-size: 24px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+  .identity-text { flex: 1; }
+  .identity-text h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; color: #1F2937; }
+  .identity-text p { margin: 0 0 8px; font-size: 14px; color: #6B7280; }
+  .identity-text code { font-size: 13px; color: #94A3B8; }
+  .identity-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+  .identity-grid span { display:block; font-size: 12px; color: #94A3B8; margin-bottom: 4px; }
+  .identity-grid strong { font-size: 15px; color: #1F2937; }
+
+  .card-head { margin-bottom: 14px; }
+  .card-head h3 { margin: 0; font-size: 17px; color: #1F2937; display:flex; align-items:center; gap:8px; }
+  .card-head.between { display:flex; justify-content:space-between; align-items:center; }
+
+  .doc-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .doc-tab { border: 1px solid #CBD5E1; border-radius: 999px; background: #fff; color: #475569; height: 34px; padding: 0 14px; font-size: 13px; font-weight: 600; }
+  .doc-tab.active { border-color: #3B82F6; color: #1D4ED8; background: #EFF6FF; }
+  .doc-viewer { position: relative; border: 1.5px dashed #E2E8F0; border-radius: 12px; background: #F8FAFC; height: 300px; display:flex; align-items:center; justify-content:center; overflow: hidden; }
+  .doc-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; transform: scale(1); transition: transform .2s ease; }
+  .doc-empty { color: #94A3B8; font-size: 14px; }
+  .marker { position:absolute; width: 24px; height: 24px; border-radius: 999px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size: 12px; }
+  .marker.ok { background: #16A34A; }
+  .marker.warn { background: #DC2626; }
+  .doc-toolbar { margin-top: 12px; display:flex; gap: 10px; flex-wrap: wrap; }
+
+  .extracted-table th { background: #F8FAFC; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .extracted-table td { padding: 14px 16px; }
+  .extracted-table tr.mismatch { background: #FFFBEB; }
+  .match { display:inline-flex; width: 24px; height: 24px; border-radius: 999px; align-items:center; justify-content:center; }
+  .match.yes { background: #DCFCE7; color: #15803D; }
+  .match.no { background: #FEE2E2; color: #DC2626; }
+
+  .risk-gauge-wrap { text-align: center; margin-bottom: 16px; }
+  .risk-gauge { width: 100%; max-width: 240px; height: auto; }
+  .risk-score-num { margin-top: -6px; font-size: 28px; font-weight: 800; color: #1F2937; }
+  .risk-flag-list { display: grid; gap: 10px; }
+  .risk-flag-item { border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 12px; display:flex; align-items:center; gap:10px; }
+  .risk-flag-item.high i { color: #DC2626; }
+  .risk-flag-item.medium i { color: #D97706; }
+  .risk-flag-item.low i { color: #16A34A; }
+  .severity-pill { margin-left:auto; text-transform:capitalize; border-radius:999px; font-size:11px; font-weight:700; padding:4px 8px; }
+  .severity-pill.high { background:#FEE2E2; color:#B91C1C; }
+  .severity-pill.medium { background:#FEF3C7; color:#B45309; }
+  .severity-pill.low { background:#DCFCE7; color:#166534; }
+
+  .decision-card { border: 1.5px solid #3B82F6; }
+  .decision-card .card-head h3 { font-size: 18px; font-weight: 700; }
+  .decision-actions { display:grid; gap: 12px; margin-bottom: 14px; }
+  .decision-btn { border:none; height:48px; border-radius: 10px; color:#fff; font-weight:700; font-size:15px; }
+  .decision-btn.approve { background: linear-gradient(135deg,#22C55E,#16A34A); }
+  .decision-btn.reject { background: linear-gradient(135deg,#EF4444,#DC2626); }
+  .decision-btn.resubmit { background: linear-gradient(135deg,#3B82F6,#2563EB); }
+  .input-label { display:block; font-size:13px; color:#334155; margin:8px 0 6px; font-weight:600; }
+  .note-hint { margin: 6px 0 0; font-size: 12px; color: #64748B; }
+
+  .extracted-card { border-radius: 14px; }
+  .timeline-card { border-radius: 14px; }
+
+  .timeline-list { position: relative; }
+  .timeline-item { position: relative; padding-left: 26px; min-height: 50px; }
+  .timeline-dot { position:absolute; left:0; top:5px; width:10px; height:10px; border-radius:50%; background:#3B82F6; }
+  .timeline-line { position:absolute; left:4px; top:15px; width:2px; height:calc(100% - 10px); background:#E2E8F0; }
+  .timeline-time { font-size:12px; color:#94A3B8; }
+  .timeline-action { font-size:14px; color:#1F2937; font-weight:600; }
+  .timeline-actor { font-size:12px; color:#64748B; }
+
+  .status-pill.pending { background: #FEF3C7; color: #D97706; }
+  .status-pill.approved { background: #DCFCE7; color: #15803D; }
+  .status-pill.rejected { background: #FEE2E2; color: #DC2626; }
+  .status-pill.resubmission { background: #DBEAFE; color: #2563EB; }
+
+  .doc-lightbox { position: fixed; inset: 0; background: rgba(2,6,23,.86); z-index: 250; display:none; align-items:center; justify-content:center; }
+  .doc-lightbox.open { display:flex; }
+  .doc-lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 10px; }
+  .lightbox-close { position: fixed; top: 18px; right: 18px; width: 40px; height: 40px; border: none; border-radius: 999px; background: rgba(255,255,255,.15); color: #fff; }
+
+  @media (max-width: 1200px) {
+    .kyc-details-layout { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  (function () {
+    const payloadNode = document.getElementById('kycDetailsData');
+    const details = payloadNode?.textContent ? JSON.parse(payloadNode.textContent) : {};
+
+    const els = {
+      tabs: document.getElementById('docTabs'),
+      docImage: document.getElementById('docImage'),
+      docEmpty: document.getElementById('docEmpty'),
+      zoomBtn: document.getElementById('zoomBtn'),
+      fullBtn: document.getElementById('fullBtn'),
+      downloadBtn: document.getElementById('downloadBtn'),
+      note: document.getElementById('adminNote'),
+      rejectWrap: document.getElementById('rejectReasonWrap'),
+      rejectReason: document.getElementById('rejectReason'),
+      lightbox: document.getElementById('docLightbox'),
+      lightboxImg: document.getElementById('docLightboxImage'),
+      lightboxClose: document.getElementById('docLightboxClose'),
+      needle: document.getElementById('gaugeNeedle'),
+      markerOk: document.getElementById('docMarkerOk'),
+      markerWarn: document.getElementById('docMarkerWarn')
+    };
+
+    const tabs = Array.isArray(details.documentTabs) ? details.documentTabs : [];
+    let activeDoc = tabs[0] || null;
+    let zoom = 1;
+
+    const setNeedle = () => {
+      const score = Math.max(0, Math.min(100, Number(details.riskScore || 0)));
+      const angle = -90 + (score / 100) * 180;
+      if (els.needle) {
+        els.needle.setAttribute('transform', `rotate(${angle} 110 110)`);
+      }
+    };
+
+    const renderTabs = () => {
+      els.tabs.innerHTML = tabs.map((tab) => `
+        <button type="button" class="doc-tab ${activeDoc && activeDoc.key === tab.key ? 'active' : ''}" data-doc="${tab.key}">${tab.label}</button>
+      `).join('');
+
+      els.tabs.querySelectorAll('[data-doc]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeDoc = tabs.find((x) => x.key === btn.dataset.doc) || tabs[0] || null;
+          zoom = 1;
+          renderTabs();
+          renderDocument();
+        });
+      });
+    };
+
+    const renderDocument = () => {
+      const src = activeDoc?.src || '';
+      if (!src) {
+        els.docImage.style.display = 'none';
+        els.docEmpty.style.display = 'block';
+        if (els.markerOk) els.markerOk.style.display = 'none';
+        if (els.markerWarn) els.markerWarn.style.display = 'none';
+        els.downloadBtn.setAttribute('href', '#');
+        els.downloadBtn.setAttribute('download', '');
+        return;
+      }
+
+      els.docImage.style.display = 'block';
+      els.docImage.src = src;
+      els.docImage.style.transform = `scale(${zoom})`;
+      els.docEmpty.style.display = 'none';
+      if (els.markerOk) els.markerOk.style.display = 'inline-flex';
+      if (els.markerWarn) els.markerWarn.style.display = 'inline-flex';
+      els.downloadBtn.setAttribute('href', src);
+      els.downloadBtn.setAttribute('download', `${activeDoc.key}.jpg`);
+    };
+
+    const toast = (message, isError) => {
+      const node = document.createElement('div');
+      node.className = `status-pill ${isError ? 'rejected' : 'approved'}`;
+      node.style.position = 'fixed';
+      node.style.right = '18px';
+      node.style.bottom = '18px';
+      node.style.zIndex = '280';
+      node.style.boxShadow = '0 10px 24px rgba(2,6,23,.16)';
+      node.innerHTML = `${isError ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>'} ${message}`;
+      document.body.appendChild(node);
+      setTimeout(() => node.remove(), 2800);
+    };
+
+    const applyDecision = async (action) => {
+      try {
+        let reason = (els.note.value || '').trim();
+
+        if (action === 'reject') {
+          els.rejectWrap.style.display = 'block';
+          if (els.rejectReason.value) {
+            reason = reason ? `${els.rejectReason.value}: ${reason}` : els.rejectReason.value;
+          }
+          if (!reason) {
+            toast('Please provide rejection reason', true);
+            return;
+          }
+        }
+
+        if (action === 'resubmission' && !reason) {
+          toast('Please provide resubmission note', true);
+          return;
+        }
+
+        if (action !== 'reject') {
+          els.rejectWrap.style.display = 'none';
+        }
+
+        const endpoint = `/admin/kyc/${encodeURIComponent(details.zenoPayId)}/${action}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(action === 'approve' ? {} : { reason })
+        });
+        const out = await res.json().catch(() => ({}));
+
+        if (!res.ok || !out.success) {
+          throw new Error(out.message || 'Action failed');
+        }
+
+        toast(out.message || 'KYC updated');
+      } catch (error) {
+        toast(error.message || 'Failed to update KYC', true);
+      }
+    };
+
+    document.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', () => applyDecision(btn.dataset.action));
+    });
+
+    els.zoomBtn.addEventListener('click', () => {
+      zoom = zoom >= 2 ? 1 : Number((zoom + 0.25).toFixed(2));
+      renderDocument();
+    });
+
+    els.fullBtn.addEventListener('click', () => {
+      const src = activeDoc?.src;
+      if (!src) return;
+      els.lightboxImg.src = src;
+      els.lightbox.classList.add('open');
+    });
+
+    els.lightboxClose.addEventListener('click', () => els.lightbox.classList.remove('open'));
+    els.lightbox.addEventListener('click', (e) => {
+      if (e.target === els.lightbox) els.lightbox.classList.remove('open');
+    });
+
+    setNeedle();
+    renderTabs();
+    renderDocument();
+  })();
+</script>

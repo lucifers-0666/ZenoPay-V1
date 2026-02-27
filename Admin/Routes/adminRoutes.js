@@ -14,6 +14,8 @@ const AdminTransactionController = require("../Controllers/AdminTransactionContr
 const AdminPaymentGatewayController = require("../Controllers/AdminPaymentGatewayController");
 const AdminUserController = require("../Controllers/AdminUserController");
 const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyController");
+const AdminKYCController = require("../Controllers/AdminKYCController");
+const AdminOperationsController = require("../Controllers/AdminOperationsController");
 
 // ============ AUTHENTICATION ROUTES (Public) ============
 router.get("/login", AdminAuthController.getLogin);
@@ -61,6 +63,20 @@ router.post("/users/:id/suspend", requirePermission("users", "suspend"), AdminUs
 router.post("/users/:id/activate", requirePermission("users", "suspend"), AdminUserController.activateUser);
 router.delete("/users/:id", requirePermission("users", "delete"), AdminUserController.deleteUser);
 router.post("/users/:id/reset-password", requirePermission("users", "update"), AdminUserController.resetUserPassword);
+
+// ============ KYC MANAGEMENT ROUTES ============
+router.get("/kyc", requirePermission("users", "view"), AdminKYCController.getKYCManagement);
+router.get("/kyc/:id", requirePermission("users", "view"), AdminKYCController.getKYCDetails);
+router.post("/kyc/:zenoPayId/approve", requirePermission("users", "update"), AdminKYCController.approveSubmission);
+router.post("/kyc/:zenoPayId/reject", requirePermission("users", "update"), AdminKYCController.rejectSubmission);
+router.post("/kyc/:zenoPayId/resubmission", requirePermission("users", "update"), AdminKYCController.requestResubmission);
+
+// ============ SUPPORT & OPERATIONS ROUTES ============
+router.get("/support", requirePermission("users", "view"), AdminOperationsController.getSupportTickets);
+router.get("/support/:id", requirePermission("users", "view"), AdminOperationsController.getSupportTicketDetails);
+router.get("/notifications", requirePermission("settings", "view"), AdminOperationsController.getNotificationsCenter);
+router.get("/pricing", requirePermission("settings", "view"), AdminOperationsController.getPricingManagement);
+router.get("/audit-logs", requirePermission("reports", "view"), AdminOperationsController.getAuditLogs);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
 router.get("/merchants", requirePermission("merchants", "view"), AdminMerchantController.getAllMerchants);

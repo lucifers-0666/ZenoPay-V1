@@ -1,0 +1,119 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Notifications Center</h1>
+    <p class="page-subtitle">Create and send system-wide or targeted push, email, and SMS notifications</p>
+  </div>
+</div>
+
+<div class="notify-layout">
+  <section class="notify-card compose-card">
+    <div class="compose-head"><span class="head-icon"><i class="fas fa-paper-plane"></i></span><div><h2>Compose Notification</h2></div></div>
+
+    <label class="section-label">Target Audience</label>
+    <div class="audience-grid" id="audienceGrid">
+      <button type="button" class="aud-card active" data-aud="all"><i class="fas fa-users"></i><strong>All Users</strong><small>Send to entire platform</small></button>
+      <button type="button" class="aud-card" data-aud="verified"><i class="fas fa-user-check"></i><strong>Verified Users</strong><small>KYC-approved only</small></button>
+      <button type="button" class="aud-card" data-aud="segment"><i class="fas fa-user-tag"></i><strong>Specific Segment</strong><small>By tag or filter</small></button>
+      <button type="button" class="aud-card" data-aud="single"><i class="fas fa-user"></i><strong>Single User</strong><small>Enter user ID/email</small></button>
+    </div>
+    <div id="singleUserWrap" style="display:none;margin-top:10px"><input class="filter-input" placeholder="Enter user ID or email..." /></div>
+
+    <label class="section-label">Channels</label>
+    <div class="toggle-row"><span><i class="fas fa-bell"></i> In-App Notification</span><label class="switch"><input type="checkbox" checked><span></span></label></div>
+    <div class="toggle-row"><span><i class="fas fa-envelope"></i> Email</span><label class="switch"><input type="checkbox"><span></span></label></div>
+    <div class="toggle-row"><span><i class="fas fa-sms"></i> SMS</span><label class="switch"><input type="checkbox"><span></span></label></div>
+
+    <label class="section-label">Content</label>
+    <div class="field"><input id="nTitle" class="filter-input" maxlength="80" placeholder="Notification title..." /><small id="titleCount">0/80</small></div>
+    <div class="field"><textarea id="nBody" class="filter-input" rows="5" maxlength="500" placeholder="Write your message..."></textarea><small id="bodyCount">0/500</small></div>
+    <div class="field"><select class="filter-select"><option>Insert variable</option><option>{{user_name}}</option><option>{{amount}}</option><option>{{date}}</option></select></div>
+    <div class="field"><input class="filter-input" placeholder="https://... or internal path" /></div>
+
+    <div class="priority-row">
+      <button type="button" class="pill-radio active">Normal</button>
+      <button type="button" class="pill-radio">High</button>
+      <button type="button" class="pill-radio">Urgent</button>
+    </div>
+    <p class="urgent-note" id="urgentNote" style="display:none">This will override quiet hours</p>
+
+    <div class="schedule-row"><label><input type="radio" name="sched" checked> Send Now</label><label><input type="radio" name="sched"> Schedule for Later</label></div>
+
+    <div class="preview-box"><strong>Preview</strong><p id="previewTitle">Notification title...</p><p id="previewBody">Write your message...</p></div>
+
+    <button class="btn-primary btn-icon send-btn" type="button" id="sendNotificationBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>
+  </section>
+
+  <section class="notify-card history-card">
+    <div class="history-head"><h3><i class="fas fa-history"></i> Sent Notifications</h3></div>
+    <div class="history-tabs"><button class="tab active">All</button><button class="tab">Scheduled</button><button class="tab">Sent</button><button class="tab">Failed</button></div>
+    <div class="history-list">
+      <% (history || []).forEach((item) => { %>
+        <article class="history-item">
+          <h4><%= item.title %></h4>
+          <div class="chip-row"><span class="mini-pill"><%= item.audience %></span><span class="mini-pill"><%= (item.channels || []).join(' + ') %></span></div>
+          <p class="muted"><%= item.sentAt %></p>
+          <p class="delivered"><%= item.delivered %></p>
+          <div class="item-foot"><span class="status-pill <%= item.status.toLowerCase() %>"><%= item.status %></span><span class="icon-actions"><i class="fas fa-eye"></i> <i class="fas fa-redo"></i> <i class="fas fa-times"></i></span></div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</div>
+
+<style>
+.notify-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}
+.notify-card{background:#fff;border:1px solid #E2E8F0;border-radius:20px;box-shadow:0 10px 24px rgba(15,23,42,.04)}
+.compose-card{padding:32px}.history-card{padding:24px}
+.compose-head{display:flex;align-items:center;gap:12px;margin-bottom:22px}.head-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3B82F6,#8B5CF6);color:#fff;display:inline-flex;align-items:center;justify-content:center}
+.compose-head h2{margin:0;font-size:20px;color:#1F2937}
+.section-label{display:block;margin:18px 0 10px;font-size:12px;text-transform:uppercase;color:#64748B;font-weight:700;letter-spacing:.08em}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.aud-card{border:1px solid #E2E8F0;border-radius:12px;background:#fff;padding:12px;text-align:left;display:grid;gap:4px}.aud-card i{color:#3B82F6}.aud-card strong{font-size:14px;color:#1F2937}.aud-card small{font-size:12px;color:#64748B}.aud-card.active{border-color:#3B82F6;background:#EFF6FF}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid #E2E8F0;border-radius:10px;margin-bottom:8px}.toggle-row span{font-size:14px;color:#334155;display:flex;gap:8px;align-items:center}
+.switch{position:relative;width:44px;height:24px}.switch input{display:none}.switch span{position:absolute;inset:0;background:#CBD5E1;border-radius:999px}.switch span:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:all .2s}.switch input:checked + span{background:#3B82F6}.switch input:checked + span:before{transform:translateX(20px)}
+.field{display:grid;gap:6px;margin-bottom:10px}.field small{font-size:11px;color:#94A3B8;text-align:right}
+.priority-row{display:flex;gap:8px;margin:8px 0}.pill-radio{border:1px solid #CBD5E1;background:#fff;border-radius:999px;padding:6px 12px;font-size:12px}.pill-radio.active{border-color:#3B82F6;color:#1D4ED8;background:#EFF6FF}
+.urgent-note{font-size:12px;color:#B91C1C;margin:0 0 8px}
+.schedule-row{display:flex;gap:18px;font-size:13px;color:#475569;margin:10px 0}
+.preview-box{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px;margin-bottom:12px}.preview-box strong{font-size:13px;color:#334155}.preview-box p{margin:6px 0 0;font-size:13px;color:#64748B}
+.send-btn{width:100%;height:50px;background:linear-gradient(135deg,#2563EB,#3B82F6);border:none}
+.history-head h3{margin:0;font-size:18px;color:#1F2937;display:flex;gap:8px;align-items:center}
+.history-tabs{display:flex;gap:8px;margin:14px 0}.history-tabs .tab{border:1px solid #E2E8F0;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px}.history-tabs .tab.active{background:#EFF6FF;border-color:#3B82F6;color:#1D4ED8}
+.history-item{padding:14px 0;border-bottom:1px solid #F1F5F9}.history-item:last-child{border-bottom:none}.history-item h4{margin:0 0 8px;font-size:14px;color:#1F2937}.chip-row{display:flex;gap:6px;flex-wrap:wrap}.mini-pill{font-size:11px;background:#EEF2F7;color:#475569;border-radius:999px;padding:4px 8px}.muted{margin:8px 0 4px;font-size:12px;color:#94A3B8}.delivered{margin:0 0 6px;font-size:12px;color:#16A34A}.item-foot{display:flex;justify-content:space-between;align-items:center}.icon-actions{color:#94A3B8;display:inline-flex;gap:10px}
+.status-pill.sent{background:#DCFCE7;color:#166534}.status-pill.scheduled{background:#DBEAFE;color:#1D4ED8}.status-pill.failed{background:#FEE2E2;color:#B91C1C}
+@media (max-width:1200px){.notify-layout{grid-template-columns:1fr}}
+</style>
+
+<script>
+(() => {
+  const title = document.getElementById('nTitle');
+  const body = document.getElementById('nBody');
+  const titleCount = document.getElementById('titleCount');
+  const bodyCount = document.getElementById('bodyCount');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewBody = document.getElementById('previewBody');
+  const urgentNote = document.getElementById('urgentNote');
+
+  title?.addEventListener('input', () => { titleCount.textContent = `${title.value.length}/80`; previewTitle.textContent = title.value || 'Notification title...'; });
+  body?.addEventListener('input', () => { bodyCount.textContent = `${body.value.length}/500`; previewBody.textContent = body.value || 'Write your message...'; });
+
+  document.querySelectorAll('.aud-card').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.aud-card').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('singleUserWrap').style.display = btn.dataset.aud === 'single' ? 'block' : 'none';
+  }));
+
+  document.querySelectorAll('.pill-radio').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.pill-radio').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    urgentNote.style.display = btn.textContent.trim() === 'Urgent' ? 'block' : 'none';
+  }));
+
+  document.getElementById('sendNotificationBtn')?.addEventListener('click', () => {
+    const toast = document.createElement('div');
+    toast.className = 'status-pill sent';
+    toast.style.position='fixed'; toast.style.right='18px'; toast.style.bottom='18px'; toast.style.zIndex='260';
+    toast.innerHTML = '<i class="fas fa-check-circle"></i> Notification queued';
+    document.body.appendChild(toast); setTimeout(() => toast.remove(), 2200);
+  });
+})();
+</script>

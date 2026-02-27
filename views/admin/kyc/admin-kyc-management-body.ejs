@@ -1,0 +1,694 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">KYC Management</h1>
+    <p class="page-subtitle">Review and verify user identity documents</p>
+  </div>
+</div>
+
+<!-- Stats Strip -->
+<div class="stats-cards-row kyc-stats-row">
+  <div class="stat-mini-card stat-slate">
+    <div class="stat-mini-icon"><i class="fas fa-inbox"></i></div>
+    <div class="stat-mini-content">
+      <div class="stat-mini-value" id="statTotal"><%= stats.total %></div>
+      <div class="stat-mini-label">Total Submissions</div>
+    </div>
+  </div>
+
+  <div class="stat-mini-card stat-warning" id="pendingCard">
+    <div class="stat-mini-icon"><i class="fas fa-clock"></i></div>
+    <div class="stat-mini-content">
+      <div class="stat-mini-value"><span id="statPending"><%= stats.pending %></span> <span class="pending-dot" id="pendingDot"><%= stats.pending > 0 ? '!' : '' %></span></div>
+      <div class="stat-mini-label">Pending Review</div>
+    </div>
+  </div>
+
+  <div class="stat-mini-card stat-success">
+    <div class="stat-mini-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-mini-content">
+      <div class="stat-mini-value" id="statApproved"><%= stats.approved %></div>
+      <div class="stat-mini-label">Approved</div>
+    </div>
+  </div>
+
+  <div class="stat-mini-card stat-error">
+    <div class="stat-mini-icon"><i class="fas fa-times-circle"></i></div>
+    <div class="stat-mini-content">
+      <div class="stat-mini-value" id="statRejected"><%= stats.rejected %></div>
+      <div class="stat-mini-label">Rejected</div>
+    </div>
+  </div>
+
+  <div class="stat-mini-card stat-primary">
+    <div class="stat-mini-icon"><i class="fas fa-redo"></i></div>
+    <div class="stat-mini-content">
+      <div class="stat-mini-value" id="statResub"><%= stats.resubmission %></div>
+      <div class="stat-mini-label">Resubmission Requested</div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter / Search -->
+<div class="kyc-filter-bar">
+  <div class="search-input-wrapper">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" class="search-input" id="kycSearch" placeholder="Search by name, email, or user ID..." />
+  </div>
+
+  <select class="filter-select" id="statusFilter">
+    <option value="all">All</option>
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="rejected">Rejected</option>
+    <option value="resubmission">Resubmission</option>
+  </select>
+
+  <select class="filter-select" id="docFilter">
+    <option value="all">All</option>
+    <option value="aadhaar">Aadhaar</option>
+    <option value="pan">PAN</option>
+    <option value="passport">Passport</option>
+    <option value="driving">Driving Licence</option>
+  </select>
+
+  <div class="date-range-inputs">
+    <div class="date-filter-wrap">
+      <i class="fas fa-calendar-alt"></i>
+      <input type="date" class="filter-input" id="dateFrom" />
+    </div>
+    <span class="date-separator">to</span>
+    <input type="date" class="filter-input" id="dateTo" />
+  </div>
+
+  <button class="btn-secondary btn-icon" id="exportCsvBtn" type="button">
+    <i class="fas fa-download"></i>
+    Export CSV
+  </button>
+</div>
+
+<!-- Table -->
+<div class="table-card kyc-table-wrap">
+  <div class="table-responsive">
+    <table class="data-table" id="kycTable">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Document Type</th>
+          <th>Submitted</th>
+          <th>Risk Score</th>
+          <th>Status</th>
+          <th class="th-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="kycTableBody"></tbody>
+    </table>
+    <div class="empty-state" id="kycEmpty" style="display:none;">
+      <h3 class="empty-title">No KYC submissions found</h3>
+      <p class="empty-text">Try adjusting search or filters.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-in Quick Action Panel -->
+<div class="kyc-panel-overlay" id="kycPanelOverlay"></div>
+<aside class="kyc-quick-panel" id="kycQuickPanel">
+  <div class="kyc-panel-head">
+    <div>
+      <h3 id="panelName">User Name</h3>
+      <p id="panelEmail">user@example.com</p>
+    </div>
+    <div class="panel-head-right">
+      <span class="badge" id="panelStatusBadge">Pending</span>
+      <button class="actions-btn" id="panelCloseBtn" type="button"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <div class="kyc-panel-section">
+    <h4>Document Thumbnails</h4>
+    <div class="doc-grid" id="panelDocs"></div>
+  </div>
+
+  <div class="kyc-panel-section">
+    <h4>Extracted Data</h4>
+    <div class="panel-list" id="panelExtracted"></div>
+  </div>
+
+  <div class="kyc-panel-section">
+    <h4>Risk Flags</h4>
+    <ul class="risk-flags" id="panelFlags"></ul>
+  </div>
+
+  <div class="kyc-panel-section">
+    <h4>Admin Notes</h4>
+    <textarea id="panelNotes" class="filter-input panel-notes" rows="4" placeholder="Add internal review notes..."></textarea>
+  </div>
+
+  <div class="kyc-panel-actions">
+    <button class="btn-primary" type="button" id="panelApproveBtn"><i class="fas fa-check-circle"></i> Approve</button>
+    <button class="btn-danger" type="button" id="panelRejectBtn"><i class="fas fa-times-circle"></i> Reject</button>
+    <button class="btn-secondary" type="button" id="panelResubmitBtn"><i class="fas fa-redo"></i> Request Resubmission</button>
+  </div>
+</aside>
+
+<div class="kyc-lightbox" id="kycLightbox">
+  <button type="button" class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+  <img id="lightboxImage" alt="KYC Document Preview" />
+</div>
+
+<script id="kycSubmissionsData" type="application/json"><%- JSON.stringify(submissions || []) %></script>
+
+<style>
+  .kyc-stats-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .stat-mini-card.stat-slate .stat-mini-icon { background: rgba(100,116,139,.12); color: #475569; }
+  .pending-dot {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; border-radius: 999px;
+    background: #F59E0B; color: #fff; font-size: 11px; font-weight: 700; margin-left: 6px;
+  }
+  .pending-attention { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,.35); }
+
+  .kyc-filter-bar {
+    background: #fff; border: 1px solid var(--slate-200); border-radius: 12px;
+    padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .kyc-filter-bar .search-input-wrapper { min-width: 260px; flex: 1; max-width: 360px; }
+  .date-filter-wrap {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px;
+    border: 1px solid var(--slate-200); border-radius: 8px; background: #fff;
+  }
+  .date-filter-wrap i { color: #94A3B8; }
+  .date-filter-wrap .filter-input { border: none; padding: 0; }
+
+  .kyc-table-wrap { border-radius: 16px; overflow: hidden; }
+  .kyc-table-wrap .data-table th {
+    background: #F8FAFC; color: #94A3B8; letter-spacing: .08em; font-size: 12px; text-transform: uppercase;
+    padding: 14px 20px; border-bottom: 1px solid #E2E8F0;
+  }
+  .kyc-table-wrap .data-table td { padding: 16px 20px; border-bottom: 1px solid #F1F5F9; }
+  .kyc-table-wrap .data-table tbody tr:hover { background: #FAFAFA; }
+  .kyc-table-wrap .data-table tbody tr { cursor: pointer; }
+
+  .user-inline { display: flex; align-items: center; gap: 10px; }
+  .avatar-initial {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    color: #fff; font-weight: 700; font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .user-meta-name { font-size: 15px; font-weight: 600; color: #1F2937; margin: 0 0 2px 0; }
+  .user-meta-email { font-size: 13px; color: #94A3B8; margin: 0; }
+
+  .doc-pill {
+    display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600;
+  }
+  .doc-pill.slate { background: #EEF2F7; color: #475569; }
+  .doc-pill.amber { background: #FEF3C7; color: #B45309; }
+  .doc-pill.green { background: #DCFCE7; color: #166534; }
+
+  .submitted-date { font-size: 14px; color: #1F2937; font-weight: 500; }
+  .submitted-ago { font-size: 12px; color: #94A3B8; }
+
+  .risk-wrap { display: flex; align-items: center; gap: 10px; }
+  .risk-bar { width: 80px; height: 8px; border-radius: 4px; background: #E2E8F0; overflow: hidden; }
+  .risk-fill { height: 100%; border-radius: 4px; }
+  .risk-fill.low { background: #10B981; }
+  .risk-fill.mid { background: #F59E0B; }
+  .risk-fill.high { background: #EF4444; }
+  .risk-score { font-size: 14px; font-weight: 700; min-width: 30px; }
+  .risk-score.low { color: #10B981; }
+  .risk-score.mid { color: #D97706; }
+  .risk-score.high { color: #DC2626; }
+
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; }
+  .status-pill.pending { background: #FEF3C7; color: #D97706; }
+  .status-pill.approved { background: #DCFCE7; color: #15803D; }
+  .status-pill.rejected { background: #FEE2E2; color: #DC2626; }
+  .status-pill.resubmission { background: #DBEAFE; color: #2563EB; }
+
+  .review-btn {
+    border: none; height: 30px; padding: 0 10px; border-radius: 999px; background: #DBEAFE;
+    color: #1D4ED8; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .actions-cell { display: inline-flex; align-items: center; gap: 6px; position: relative; }
+  .action-menu-trigger { width: 30px; height: 30px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; color: #64748B; }
+  .action-menu {
+    position: absolute; right: 0; top: 36px; background: #fff; border: 1px solid #E2E8F0;
+    border-radius: 10px; box-shadow: 0 12px 24px rgba(0,0,0,.08); min-width: 190px; z-index: 20; display: none;
+  }
+  .action-menu.open { display: block; }
+  .action-menu button {
+    width: 100%; border: none; background: transparent; text-align: left; font-size: 13px;
+    padding: 10px 12px; color: #334155; display: flex; align-items: center; gap: 8px;
+  }
+  .action-menu button:hover { background: #F8FAFC; }
+
+  .kyc-panel-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .28); z-index: 190; opacity: 0;
+    visibility: hidden; transition: all .2s ease;
+  }
+  .kyc-panel-overlay.open { opacity: 1; visibility: visible; }
+
+  .kyc-quick-panel {
+    position: fixed; top: 0; right: -420px; width: 400px; max-width: 92vw; height: 100vh;
+    background: #fff; border-left: 1px solid #E2E8F0; box-shadow: -12px 0 30px rgba(2, 6, 23, .15);
+    z-index: 200; transition: right .25s ease; overflow-y: auto;
+  }
+  .kyc-quick-panel.open { right: 0; }
+  .kyc-panel-head {
+    position: sticky; top: 0; background: #fff; border-bottom: 1px solid #E2E8F0;
+    padding: 18px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  }
+  .kyc-panel-head h3 { margin: 0; font-size: 18px; color: #1F2937; }
+  .kyc-panel-head p { margin: 4px 0 0; font-size: 13px; color: #64748B; }
+  .panel-head-right { display: flex; align-items: center; gap: 8px; }
+
+  .kyc-panel-section { padding: 16px; border-bottom: 1px solid #F1F5F9; }
+  .kyc-panel-section h4 { margin: 0 0 10px; font-size: 14px; color: #334155; }
+
+  .doc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .doc-thumb {
+    border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; background: #F8FAFC; cursor: pointer;
+    aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center;
+  }
+  .doc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .doc-fallback { font-size: 12px; color: #94A3B8; }
+
+  .panel-list { display: grid; gap: 8px; }
+  .panel-list div { font-size: 13px; color: #334155; display: flex; justify-content: space-between; gap: 10px; }
+  .panel-list strong { color: #0F172A; }
+
+  .risk-flags { margin: 0; padding-left: 18px; color: #DC2626; font-size: 13px; }
+  .risk-flags li { margin-bottom: 6px; }
+
+  .panel-notes { width: 100%; resize: vertical; min-height: 88px; }
+  .kyc-panel-actions { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+  .kyc-lightbox {
+    position: fixed; inset: 0; background: rgba(2,6,23,.85); display: none; align-items: center; justify-content: center;
+    z-index: 250;
+  }
+  .kyc-lightbox.open { display: flex; }
+  .kyc-lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 10px; }
+  .lightbox-close {
+    position: fixed; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 999px; border: none;
+    background: rgba(255,255,255,.15); color: #fff;
+  }
+
+  @media (max-width: 1280px) {
+    .kyc-stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 900px) {
+    .kyc-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .kyc-stats-row { grid-template-columns: 1fr; }
+    .kyc-filter-bar { padding: 14px; }
+  }
+</style>
+
+<script>
+  (function () {
+    const dataNode = document.getElementById('kycSubmissionsData');
+    const submissions = dataNode?.textContent ? JSON.parse(dataNode.textContent) : [];
+
+    const state = {
+      all: submissions,
+      filtered: [...submissions],
+      selected: null,
+      filters: {
+        search: '',
+        status: 'all',
+        doc: 'all',
+        from: '',
+        to: ''
+      }
+    };
+
+    const els = {
+      body: document.getElementById('kycTableBody'),
+      empty: document.getElementById('kycEmpty'),
+      search: document.getElementById('kycSearch'),
+      status: document.getElementById('statusFilter'),
+      doc: document.getElementById('docFilter'),
+      from: document.getElementById('dateFrom'),
+      to: document.getElementById('dateTo'),
+      exportBtn: document.getElementById('exportCsvBtn'),
+      statTotal: document.getElementById('statTotal'),
+      statPending: document.getElementById('statPending'),
+      statApproved: document.getElementById('statApproved'),
+      statRejected: document.getElementById('statRejected'),
+      statResub: document.getElementById('statResub'),
+      pendingCard: document.getElementById('pendingCard'),
+      pendingDot: document.getElementById('pendingDot'),
+      panel: document.getElementById('kycQuickPanel'),
+      panelOverlay: document.getElementById('kycPanelOverlay'),
+      panelCloseBtn: document.getElementById('panelCloseBtn'),
+      panelName: document.getElementById('panelName'),
+      panelEmail: document.getElementById('panelEmail'),
+      panelStatusBadge: document.getElementById('panelStatusBadge'),
+      panelDocs: document.getElementById('panelDocs'),
+      panelExtracted: document.getElementById('panelExtracted'),
+      panelFlags: document.getElementById('panelFlags'),
+      panelNotes: document.getElementById('panelNotes'),
+      approveBtn: document.getElementById('panelApproveBtn'),
+      rejectBtn: document.getElementById('panelRejectBtn'),
+      resubmitBtn: document.getElementById('panelResubmitBtn'),
+      lightbox: document.getElementById('kycLightbox'),
+      lightboxImage: document.getElementById('lightboxImage'),
+      lightboxClose: document.getElementById('lightboxClose')
+    };
+
+    const statusMeta = {
+      pending: { label: 'Pending', icon: 'fa-clock' },
+      approved: { label: 'Approved', icon: 'fa-check-circle' },
+      rejected: { label: 'Rejected', icon: 'fa-times-circle' },
+      resubmission: { label: 'Resubmission', icon: 'fa-redo' }
+    };
+
+    const fmtDate = (v) => new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    const riskTone = (score) => {
+      if (score > 70) return 'high';
+      if (score >= 30) return 'mid';
+      return 'low';
+    };
+
+    const updateStats = () => {
+      const total = state.all.length;
+      const pending = state.all.filter((x) => x.status === 'pending').length;
+      const approved = state.all.filter((x) => x.status === 'approved').length;
+      const rejected = state.all.filter((x) => x.status === 'rejected').length;
+      const resub = state.all.filter((x) => x.status === 'resubmission').length;
+
+      els.statTotal.textContent = total;
+      els.statPending.textContent = pending;
+      els.statApproved.textContent = approved;
+      els.statRejected.textContent = rejected;
+      els.statResub.textContent = resub;
+      els.pendingDot.textContent = pending > 0 ? '!' : '';
+      els.pendingCard.classList.toggle('pending-attention', pending > 0);
+    };
+
+    const applyFilters = () => {
+      const q = state.filters.search.toLowerCase();
+
+      state.filtered = state.all.filter((item) => {
+        const searchHit = !q || [item.fullName, item.email, item.zenoPayId].some((v) => String(v || '').toLowerCase().includes(q));
+        const statusHit = state.filters.status === 'all' || item.status === state.filters.status;
+        const docHit = state.filters.doc === 'all' || (item.documentKinds || []).includes(state.filters.doc);
+
+        const submitted = new Date(item.submittedAt);
+        const fromHit = !state.filters.from || submitted >= new Date(state.filters.from + 'T00:00:00');
+        const toHit = !state.filters.to || submitted <= new Date(state.filters.to + 'T23:59:59');
+
+        return searchHit && statusHit && docHit && fromHit && toHit;
+      });
+
+      renderTable();
+    };
+
+    const renderRow = (item, index) => {
+      const tone = riskTone(item.riskScore);
+      const status = statusMeta[item.status] || statusMeta.pending;
+
+      return `
+        <tr data-index="${index}" class="kyc-row">
+          <td>
+            <div class="user-inline">
+              <span class="avatar-initial">${item.avatarInitial || 'U'}</span>
+              <div>
+                <p class="user-meta-name">${item.fullName}</p>
+                <p class="user-meta-email">${item.email}</p>
+              </div>
+            </div>
+          </td>
+          <td><span class="doc-pill ${item.documentTone || 'slate'}">${item.documentType}</span></td>
+          <td>
+            <div class="submitted-date">${item.submittedFormatted || fmtDate(item.submittedAt)}</div>
+            <div class="submitted-ago">${item.daysAgo} day${item.daysAgo === 1 ? '' : 's'} ago</div>
+          </td>
+          <td>
+            <div class="risk-wrap">
+              <div class="risk-bar"><div class="risk-fill ${tone}" style="width:${item.riskScore}%"></div></div>
+              <div class="risk-score ${tone}">${item.riskScore}</div>
+            </div>
+          </td>
+          <td><span class="status-pill ${item.status}"><i class="fas ${status.icon}"></i> ${status.label}</span></td>
+          <td class="td-actions" onclick="event.stopPropagation()">
+            <div class="actions-cell">
+              <button type="button" class="review-btn" data-review="${index}"><i class="fas fa-eye"></i> Review</button>
+              <button type="button" class="action-menu-trigger" data-menu-trigger="${index}"><i class="fas fa-ellipsis-v"></i></button>
+              <div class="action-menu" data-menu="${index}">
+                <button type="button" data-action="approve" data-index="${index}"><i class="fas fa-check-circle"></i> Approve</button>
+                <button type="button" data-action="reject" data-index="${index}"><i class="fas fa-times-circle"></i> Reject</button>
+                <button type="button" data-action="resubmission" data-index="${index}"><i class="fas fa-redo"></i> Request Resubmission</button>
+                <button type="button" data-action="view-user" data-index="${index}"><i class="fas fa-user"></i> View User</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    };
+
+    const renderTable = () => {
+      if (!state.filtered.length) {
+        els.body.innerHTML = '';
+        els.empty.style.display = 'block';
+        return;
+      }
+
+      els.empty.style.display = 'none';
+      els.body.innerHTML = state.filtered.map((item, idx) => renderRow(item, idx)).join('');
+      bindRowEvents();
+    };
+
+    const closeMenus = () => {
+      document.querySelectorAll('.action-menu.open').forEach((m) => m.classList.remove('open'));
+    };
+
+    const bindRowEvents = () => {
+      document.querySelectorAll('.kyc-row').forEach((row) => {
+        row.addEventListener('click', () => {
+          const i = Number(row.dataset.index);
+          openPanel(state.filtered[i]);
+        });
+      });
+
+      document.querySelectorAll('[data-review]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const i = Number(btn.dataset.review);
+          const item = state.filtered[i];
+          if (!item?.zenoPayId) return;
+          window.location.href = `/admin/kyc/${encodeURIComponent(item.zenoPayId)}`;
+        });
+      });
+
+      document.querySelectorAll('[data-menu-trigger]').forEach((trigger) => {
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const index = trigger.dataset.menuTrigger;
+          const menu = document.querySelector(`[data-menu="${index}"]`);
+          const isOpen = menu.classList.contains('open');
+          closeMenus();
+          if (!isOpen) menu.classList.add('open');
+        });
+      });
+
+      document.querySelectorAll('[data-action]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const action = btn.dataset.action;
+          const item = state.filtered[Number(btn.dataset.index)];
+          closeMenus();
+          if (!item) return;
+
+          if (action === 'view-user') {
+            window.location.href = `/admin/users?search=${encodeURIComponent(item.zenoPayId)}`;
+            return;
+          }
+
+          let reason = '';
+          if (action !== 'approve') {
+            reason = window.prompt(action === 'reject' ? 'Enter rejection reason:' : 'Enter resubmission note:', item.adminNotes || '') || '';
+            if (!reason.trim()) return;
+          }
+
+          await updateStatus(item, action, reason);
+        });
+      });
+    };
+
+    const panelStatusBadge = (status) => {
+      const meta = statusMeta[status] || statusMeta.pending;
+      return `<span class="status-pill ${status}"><i class="fas ${meta.icon}"></i> ${meta.label}</span>`;
+    };
+
+    const openPanel = (item) => {
+      state.selected = item;
+      els.panelName.textContent = item.fullName;
+      els.panelEmail.textContent = `${item.email} • ${item.zenoPayId}`;
+      els.panelStatusBadge.outerHTML = panelStatusBadge(item.status);
+
+      const refreshedBadge = document.querySelector('.panel-head-right .status-pill');
+      if (refreshedBadge) refreshedBadge.id = 'panelStatusBadge';
+
+      els.panelDocs.innerHTML = [
+        { label: 'ID Front', src: item.docs?.identityFront },
+        { label: 'ID Back', src: item.docs?.identityBack },
+        { label: 'Address', src: item.docs?.addressDocument },
+        { label: 'Selfie', src: item.docs?.selfie }
+      ].map((doc) => {
+        if (!doc.src) return `<div class="doc-thumb"><div class="doc-fallback">${doc.label} unavailable</div></div>`;
+        return `<div class="doc-thumb" data-lightbox="${doc.src}"><img src="${doc.src}" alt="${doc.label}" /></div>`;
+      }).join('');
+
+      els.panelExtracted.innerHTML = `
+        <div><span>Name</span><strong>${item.extracted?.name || 'N/A'}</strong></div>
+        <div><span>DOB</span><strong>${item.extracted?.dob || 'N/A'}</strong></div>
+        <div><span>Document No.</span><strong>${item.extracted?.documentNumber || 'N/A'}</strong></div>
+      `;
+
+      const flags = item.riskFlags && item.riskFlags.length ? item.riskFlags : ['No major risk flags detected'];
+      els.panelFlags.innerHTML = flags.map((f) => `<li>${f}</li>`).join('');
+      els.panelNotes.value = item.adminNotes || '';
+
+      els.panel.classList.add('open');
+      els.panelOverlay.classList.add('open');
+
+      bindDocLightbox();
+    };
+
+    const closePanel = () => {
+      els.panel.classList.remove('open');
+      els.panelOverlay.classList.remove('open');
+      state.selected = null;
+    };
+
+    const bindDocLightbox = () => {
+      els.panelDocs.querySelectorAll('[data-lightbox]').forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+          const src = thumb.dataset.lightbox;
+          els.lightboxImage.src = src;
+          els.lightbox.classList.add('open');
+        });
+      });
+    };
+
+    const updateStatus = async (item, action, reason = '') => {
+      try {
+        const endpoint = `/admin/kyc/${encodeURIComponent(item.zenoPayId)}/${action === 'resubmission' ? 'resubmission' : action}`;
+        const body = action === 'approve' ? {} : { reason };
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.success) {
+          throw new Error(out.message || 'Action failed');
+        }
+
+        const mappedStatus = action === 'approve' ? 'approved' : (action === 'reject' ? 'rejected' : 'resubmission');
+        const target = state.all.find((x) => x.zenoPayId === item.zenoPayId);
+        if (target) {
+          target.status = mappedStatus;
+          if (reason) target.adminNotes = reason;
+        }
+
+        updateStats();
+        applyFilters();
+        if (state.selected && state.selected.zenoPayId === item.zenoPayId) {
+          openPanel(target || item);
+        }
+
+        toast(out.message || 'Updated successfully');
+      } catch (error) {
+        toast(error.message || 'Failed to update KYC status', true);
+      }
+    };
+
+    const toast = (message, isError = false) => {
+      const el = document.createElement('div');
+      el.className = 'status-pill ' + (isError ? 'rejected' : 'approved');
+      el.style.position = 'fixed';
+      el.style.right = '18px';
+      el.style.bottom = '18px';
+      el.style.zIndex = '260';
+      el.style.padding = '10px 12px';
+      el.style.boxShadow = '0 10px 24px rgba(2,6,23,.16)';
+      el.innerHTML = `${isError ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>'} ${message}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2800);
+    };
+
+    const exportCsv = () => {
+      const rows = state.filtered.map((x) => ({
+        userId: x.zenoPayId,
+        name: x.fullName,
+        email: x.email,
+        documentType: x.documentType,
+        submittedDate: x.submittedFormatted || fmtDate(x.submittedAt),
+        riskScore: x.riskScore,
+        status: x.status
+      }));
+
+      const header = Object.keys(rows[0] || { userId: '', name: '', email: '', documentType: '', submittedDate: '', riskScore: '', status: '' });
+      const csv = [header.join(',')].concat(rows.map((r) => header.map((k) => `"${String(r[k] ?? '').replaceAll('"', '""')}"`).join(','))).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kyc-submissions-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    els.search.addEventListener('input', () => { state.filters.search = els.search.value.trim(); applyFilters(); });
+    els.status.addEventListener('change', () => { state.filters.status = els.status.value; applyFilters(); });
+    els.doc.addEventListener('change', () => { state.filters.doc = els.doc.value; applyFilters(); });
+    els.from.addEventListener('change', () => { state.filters.from = els.from.value; applyFilters(); });
+    els.to.addEventListener('change', () => { state.filters.to = els.to.value; applyFilters(); });
+    els.exportBtn.addEventListener('click', exportCsv);
+
+    els.panelCloseBtn.addEventListener('click', closePanel);
+    els.panelOverlay.addEventListener('click', closePanel);
+
+    els.approveBtn.addEventListener('click', () => {
+      if (!state.selected) return;
+      updateStatus(state.selected, 'approve');
+    });
+
+    els.rejectBtn.addEventListener('click', () => {
+      if (!state.selected) return;
+      const reason = (els.panelNotes.value || '').trim();
+      if (!reason) return toast('Please add rejection reason in notes', true);
+      updateStatus(state.selected, 'reject', reason);
+    });
+
+    els.resubmitBtn.addEventListener('click', () => {
+      if (!state.selected) return;
+      const reason = (els.panelNotes.value || '').trim();
+      if (!reason) return toast('Please add resubmission note in notes', true);
+      updateStatus(state.selected, 'resubmission', reason);
+    });
+
+    els.lightboxClose.addEventListener('click', () => els.lightbox.classList.remove('open'));
+    els.lightbox.addEventListener('click', (e) => {
+      if (e.target === els.lightbox) els.lightbox.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.actions-cell')) closeMenus();
+    });
+
+    updateStats();
+    renderTable();
+  })();
+</script>

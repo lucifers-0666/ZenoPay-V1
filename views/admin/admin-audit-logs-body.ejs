@@ -1,0 +1,70 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Audit Logs</h1>
+    <p class="page-subtitle">Complete activity record of all admin actions — retained for 90 days</p>
+  </div>
+</div>
+
+<div class="stats-cards-row audit-stats-row">
+  <div class="stat-mini-card stat-slate"><div class="stat-mini-icon"><i class="fas fa-list"></i></div><div class="stat-mini-content"><div class="stat-mini-value"><%= stats.totalToday %></div><div class="stat-mini-label">Total Actions (Today)</div></div></div>
+  <div class="stat-mini-card stat-primary"><div class="stat-mini-icon"><i class="fas fa-user-shield"></i></div><div class="stat-mini-content"><div class="stat-mini-value"><%= stats.activeAdmins %></div><div class="stat-mini-label">Active Admins</div></div></div>
+  <div class="stat-mini-card stat-warning"><div class="stat-mini-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-mini-content"><div class="stat-mini-value"><%= stats.flagged %></div><div class="stat-mini-label">Flagged Actions</div></div></div>
+  <div class="stat-mini-card stat-slate"><div class="stat-mini-icon"><i class="fas fa-clock"></i></div><div class="stat-mini-content"><div class="stat-mini-value"><%= stats.lastAction %></div><div class="stat-mini-label">Last Action</div></div></div>
+</div>
+
+<div class="audit-filter-bar">
+  <div class="search-input-wrapper" style="min-width:300px;flex:1"><i class="fas fa-search search-icon"></i><input class="search-input" placeholder="Search by action, admin, or resource ID..." /></div>
+  <input type="date" class="filter-input" />
+  <input type="date" class="filter-input" />
+  <select class="filter-select"><option>All Admins</option><option>System Administrator</option><option>Payments Lead</option></select>
+  <select class="filter-select"><option>All</option><option>Create</option><option>Update</option><option>Delete</option><option>Login</option><option>Export</option><option>Approve</option><option>Reject</option></select>
+  <select class="filter-select"><option>All</option><option>Info</option><option>Warning</option><option>Critical</option></select>
+  <button class="btn-secondary btn-icon" type="button"><i class="fas fa-download"></i> Export Logs</button>
+  <a href="#" class="link-primary">Clear Filters</a>
+</div>
+
+<div class="view-toggle"><button class="pill active">Table View</button><button class="pill">Timeline View</button></div>
+
+<div class="table-card audit-table-wrap">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead><tr><th>Timestamp</th><th>Admin</th><th>Action</th><th>Resource</th><th>IP Address</th><th>Severity</th></tr></thead>
+      <tbody>
+        <% (logs || []).forEach((l) => { %>
+          <tr class="<%= l.severity === 'critical' ? 'critical-row' : '' %>">
+            <td><span class="mono"><%= l.timeLabel %></span></td>
+            <td><div class="mini-user"><span class="mini-avatar"><%= l.adminInitial %></span><span><%= l.adminName %></span></div></td>
+            <td><span class="action-pill <%= l.action.toLowerCase() %>"><%= l.action %></span> <span class="action-text"><%= l.actionText %></span></td>
+            <td><span class="resource-chip"><%= l.resource %></span></td>
+            <td><span class="mono muted"><%= l.ip %></span></td>
+            <td><span class="severity <%= l.severity %>"><%= l.severity %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<section class="flagged-panel">
+  <h3><i class="fas fa-exclamation-triangle"></i> Flagged Actions</h3>
+  <% (flagged || []).forEach((f) => { %>
+    <div class="flagged-item"><div><strong><%= f.adminName %></strong> — <%= f.actionText %><p>Reason: auto-flagged based on policy threshold.</p></div><div><button class="btn-secondary" type="button">Dismiss Flag</button><button class="btn-error-outline" type="button">Investigate</button></div></div>
+  <% }) %>
+</section>
+
+<section class="retention-note"><i class="fas fa-info-circle"></i><p>Audit logs are retained for 90 days. Export logs regularly for long-term compliance records.</p><button class="btn-warning btn-icon" type="button"><i class="fas fa-download"></i> Export All Logs</button></section>
+
+<style>
+.audit-stats-row{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:22px}
+.audit-filter-bar{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:16px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.view-toggle{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}.pill{border:1px solid #E2E8F0;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px}.pill.active{border-color:#3B82F6;background:#EFF6FF;color:#1D4ED8}
+.audit-table-wrap{border-radius:16px;overflow:hidden;margin-bottom:18px}.audit-table-wrap th{background:#F8FAFC;color:#94A3B8;font-size:12px;text-transform:uppercase;letter-spacing:.08em;padding:14px 20px;border-bottom:1px solid #E2E8F0}.audit-table-wrap td{padding:14px 20px;border-bottom:1px solid #F1F5F9}
+.mini-user{display:flex;align-items:center;gap:8px}.mini-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas}.muted{color:#94A3B8}
+.action-pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}.action-pill.approve{background:#DCFCE7;color:#166534}.action-pill.reject,.action-pill.delete{background:#FEE2E2;color:#B91C1C}.action-pill.export{background:#FEF3C7;color:#B45309}.action-pill.update{background:#DBEAFE;color:#1D4ED8}
+.action-text{font-size:14px;color:#1F2937}.resource-chip{font-size:13px;color:#2563EB}.severity{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;text-transform:capitalize}.severity.info{background:#E2E8F0;color:#475569}.severity.warning{background:#FEF3C7;color:#B45309}.severity.critical{background:#FEE2E2;color:#B91C1C}
+.critical-row{background:rgba(239,68,68,.04)}
+.flagged-panel{background:#fff;border-left:4px solid #EF4444;border-radius:14px;padding:24px;box-shadow:0 10px 24px rgba(15,23,42,.04);margin-bottom:16px}.flagged-panel h3{margin:0 0 12px;color:#1F2937;display:flex;gap:8px;align-items:center}.flagged-panel i{color:#DC2626}
+.flagged-item{display:flex;justify-content:space-between;gap:16px;align-items:center;background:rgba(239,68,68,.03);padding:12px 14px;border-radius:10px;margin-bottom:10px}.flagged-item p{margin:4px 0 0;font-size:12px;color:#64748B}.flagged-item div:last-child{display:flex;gap:8px}
+.retention-note{display:flex;align-items:center;gap:12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:16px 20px}.retention-note i{color:#F59E0B}.retention-note p{margin:0;flex:1;color:#92400E;font-size:13px}
+</style>

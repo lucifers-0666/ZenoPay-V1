@@ -1,0 +1,10 @@
+<%- include('./layouts/admin-layout', {
+  title: pageTitle || 'Audit Logs - ZenoPay Admin',
+  currentPage: currentPage || 'audit-logs',
+  user: (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null),
+  breadcrumb: breadcrumb || [
+    { name: 'Admin', url: '/admin/dashboard' },
+    { name: 'Audit Logs', url: '/admin/audit-logs' }
+  ],
+  body: include('./admin-audit-logs-body', { stats: stats, logs: logs, flagged: flagged })
+}) %>

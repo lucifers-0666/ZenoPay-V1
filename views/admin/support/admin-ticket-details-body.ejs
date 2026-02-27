@@ -1,0 +1,183 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Ticket Details</h1>
+    <p class="page-subtitle">Full ticket thread with conversation history, attachments, and admin response panel</p>
+  </div>
+  <a href="/admin/support" class="btn-secondary btn-icon"><i class="fas fa-arrow-left"></i> Back to Tickets</a>
+</div>
+
+<div class="ticket-details-layout">
+  <div>
+    <section class="ticket-card ticket-header-card">
+      <div class="head-row top">
+        <span class="ticket-no"><%= details.ticketNo %></span>
+        <div class="head-badges">
+          <span class="status-pill <%= details.status === 'in_progress' ? 'in-progress' : details.status %>"><i class="fas <%= details.statusMeta.icon %>"></i> <%= details.statusMeta.label %></span>
+          <span class="priority-pill <%= details.priorityMeta.tone %>"><i class="fas <%= details.priorityMeta.icon %>"></i> <%= details.priorityMeta.label %></span>
+        </div>
+      </div>
+      <div class="head-row mid">
+        <h2 class="ticket-subject"><%= details.subject %></h2>
+        <div class="meta-inline"><span class="category-pill"><%= details.category %></span><span class="created-at"><%= details.createdAt %></span></div>
+      </div>
+      <div class="head-row info">
+        <span><i class="fas fa-user"></i> <%= details.user.name %> • <%= details.user.email %></span>
+        <span><i class="fas fa-clock"></i> <%= details.createdAgo %></span>
+        <span><i class="fas fa-reply"></i> <%= details.lastResponse %></span>
+        <span><i class="fas fa-headset"></i> <%= details.assignedAgent ? details.assignedAgent.name : 'Unassigned' %></span>
+      </div>
+      <div class="action-bar">
+        <button class="btn-error-outline btn-icon" type="button"><i class="fas fa-times"></i> Close Ticket</button>
+        <button class="btn-success-outline btn-icon" type="button"><i class="fas fa-check"></i> Resolve</button>
+        <select class="filter-select"><option>Change Priority</option><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select>
+        <select class="filter-select"><option>Assign Agent</option><option>Support Lead</option><option>Ops Admin</option><option>Risk Manager</option></select>
+      </div>
+    </section>
+
+    <section class="thread-wrap">
+      <% (details.thread || []).forEach((msg) => { %>
+        <% if (msg.type === 'system') { %>
+          <div class="system-event"><%= msg.text %></div>
+        <% } %>
+        <% if (msg.type === 'user') { %>
+          <article class="msg-bubble user-msg">
+            <div class="msg-head"><div class="name-wrap"><span class="avatar"><%= msg.avatarInitial %></span><span><%= msg.name %></span><span class="role-pill">User</span></div><span class="time"><%= msg.timestamp %></span></div>
+            <p class="msg-body"><%= msg.body %></p>
+            <% if (msg.attachments && msg.attachments.length) { %>
+              <div class="attach-row">
+                <% msg.attachments.forEach((a) => { %>
+                  <span class="file-chip"><i class="fas fa-paperclip"></i> <%= a.name %> <small><%= a.size %></small></span>
+                <% }) %>
+              </div>
+            <% } %>
+          </article>
+        <% } %>
+        <% if (msg.type === 'admin') { %>
+          <article class="msg-bubble admin-msg">
+            <div class="msg-head"><div class="name-wrap"><span class="avatar admin"><%= msg.avatarInitial %></span><span><%= msg.name %></span></div><span class="time"><%= msg.timestamp %></span></div>
+            <p class="msg-body"><%= msg.body %></p>
+          </article>
+        <% } %>
+      <% }) %>
+    </section>
+
+    <section class="ticket-card reply-card">
+      <div class="format-bar"><button type="button"><b>B</b></button><button type="button"><i>I</i></button><button type="button"><i class="fas fa-link"></i></button><button type="button"><i class="fas fa-list-ul"></i></button></div>
+      <textarea id="replyBox" class="reply-box" placeholder="Type your response to the user..."></textarea>
+      <div class="quick-chip-row">
+        <button type="button" class="quick-chip">Thank you for reaching out</button>
+        <button type="button" class="quick-chip">We're looking into this</button>
+        <button type="button" class="quick-chip">Issue has been resolved</button>
+      </div>
+      <div class="reply-actions">
+        <label class="toggle-label"><input type="checkbox" checked> Notify user via Email</label>
+        <label class="toggle-label"><input type="checkbox"> Mark as Resolved after reply</label>
+        <div class="send-wrap">
+          <button class="btn-secondary btn-icon" type="button"><i class="fas fa-paperclip"></i> Attach File</button>
+          <button class="btn-primary btn-icon" type="button" id="sendReplyBtn"><i class="fas fa-paper-plane"></i> Send Reply</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div>
+    <section class="ticket-card">
+      <div class="profile-head"><span class="profile-avatar"><%= details.user.avatarInitial %></span><div><h3><%= details.user.name %></h3><p><%= details.user.email %></p></div></div>
+      <div class="info-list">
+        <div><i class="fas fa-calendar"></i><span>Account age</span><strong><%= details.user.accountAge %></strong></div>
+        <div><i class="fas fa-id-card"></i><span>KYC status</span><strong><%= details.user.kycStatus %></strong></div>
+        <div><i class="fas fa-exchange-alt"></i><span>Total transactions</span><strong><%= details.user.totalTransactions %></strong></div>
+        <div><i class="fas fa-wallet"></i><span>Wallet balance</span><strong><%= details.user.walletBalance %></strong></div>
+      </div>
+      <div class="quick-links"><a href="/admin/users">View Full Profile</a><a href="/admin/transactions">View Transactions</a></div>
+    </section>
+
+    <section class="ticket-card small-card">
+      <h3><i class="fas fa-exchange-alt"></i> Related Transactions</h3>
+      <div class="tx-list">
+        <% (details.relatedTransactions || []).forEach((tx) => { %>
+          <div class="tx-item"><div><strong><%= tx.amount %></strong><p><%= tx.description %></p></div><div><span><%= tx.date %></span><small class="status <%= tx.status %>"><%= tx.status %></small></div></div>
+        <% }) %>
+      </div>
+      <a href="/admin/transactions" class="link-primary">View All</a>
+    </section>
+
+    <section class="ticket-card small-card">
+      <h3>Ticket Info</h3>
+      <div class="meta-list">
+        <div><span>Created</span><strong><%= details.createdAt %></strong></div>
+        <div><span>Last updated</span><strong><%= details.updatedAt %></strong></div>
+        <div><span>Response count</span><strong><%= details.metadata.responseCount %></strong></div>
+        <div><span>Category</span><strong><%= details.category %></strong></div>
+        <div><span>Priority</span><strong><%= details.priorityMeta.label %></strong></div>
+        <div><span>Assigned to</span><strong><%= details.assignedAgent ? details.assignedAgent.name : 'Unassigned' %></strong></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style>
+.ticket-details-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px}
+.ticket-card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:24px;box-shadow:0 10px 24px rgba(15,23,42,.04);margin-bottom:20px}
+.ticket-header-card .head-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.ticket-no{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas; color:#3B82F6;font-size:16px;font-weight:700}
+.ticket-subject{margin:0;font-size:22px;font-weight:800;color:#1F2937}
+.meta-inline{display:flex;align-items:center;gap:10px;font-size:13px;color:#94A3B8}
+.category-pill{background:#EEF2F7;color:#475569;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:600}
+.head-row.info{font-size:13px;color:#64748B;margin:10px 0 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap}
+.status-pill,.priority-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.status-pill.open{background:#DBEAFE;color:#1D4ED8}.status-pill.in-progress{background:#FEF3C7;color:#B45309}.status-pill.resolved{background:#DCFCE7;color:#166534}.status-pill.closed{background:#E2E8F0;color:#475569}
+.priority-pill.urgent{background:#FEE2E2;color:#B91C1C}.priority-pill.high{background:#FFEDD5;color:#C2410C}.priority-pill.medium{background:#FEF3C7;color:#B45309}.priority-pill.low{background:#E2E8F0;color:#475569}
+.thread-wrap{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.msg-bubble{max-width:85%;padding:20px 24px;border-radius:16px}
+.user-msg{background:#F0F7FF;border:1px solid #BFDBFE;border-top-left-radius:4px;align-self:flex-start}
+.admin-msg{background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(139,92,246,.04));border:1px solid #E2E8F0;border-top-right-radius:4px;align-self:flex-end}
+.msg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.name-wrap{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#1F2937}.time{font-size:12px;color:#94A3B8}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.avatar.admin{background:linear-gradient(135deg,#2563EB,#6366F1)}
+.role-pill{background:#E2E8F0;color:#475569;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600}
+.msg-body{margin:0;font-size:15px;line-height:1.7;color:#1F2937}
+.attach-row{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.file-chip{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border:1px solid #E2E8F0;border-radius:999px;font-size:12px;color:#475569}
+.system-event{text-align:center;font-size:12px;font-style:italic;color:#94A3B8}
+.reply-card{border:1.5px solid #3B82F6}
+.format-bar{display:flex;gap:8px;margin-bottom:10px}.format-bar button{width:30px;height:30px;border:1px solid #E2E8F0;border-radius:8px;background:#fff}
+.reply-box{width:100%;height:140px;border:1px solid #E2E8F0;border-radius:12px;padding:12px 14px;font-size:14px;resize:vertical}
+.quick-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.quick-chip{border:1px solid #E2E8F0;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;color:#334155}
+.reply-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.toggle-label{font-size:13px;color:#475569;display:inline-flex;align-items:center;gap:6px}.send-wrap{display:flex;gap:10px}
+.profile-head{display:flex;gap:12px;align-items:center;margin-bottom:12px}.profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800}
+.profile-head h3{margin:0;font-size:18px;color:#1F2937}.profile-head p{margin:4px 0 0;font-size:13px;color:#64748B}
+.info-list{display:grid;gap:10px}.info-list div{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;font-size:14px;color:#475569}.info-list strong{color:#1F2937}
+.quick-links{display:flex;gap:16px;margin-top:12px}.quick-links a{font-size:13px;color:#2563EB;text-decoration:none}
+.small-card{border-radius:14px;padding:20px}
+.tx-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9}.tx-item:last-child{border-bottom:none}
+.tx-item p{margin:4px 0 0;font-size:12px;color:#64748B}.tx-item span{font-size:12px;color:#94A3B8}
+.status.success{color:#16A34A}.status.pending{color:#D97706}.status.failed{color:#DC2626}
+.meta-list{display:grid;gap:10px}.meta-list div{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#64748B}.meta-list strong{color:#1F2937}
+@media (max-width:1200px){.ticket-details-layout{grid-template-columns:1fr}}
+</style>
+
+<script>
+(() => {
+  document.querySelectorAll('.quick-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const box = document.getElementById('replyBox');
+      box.value = (box.value ? `${box.value}\n\n` : '') + btn.textContent.trim();
+      box.focus();
+    });
+  });
+
+  document.getElementById('sendReplyBtn')?.addEventListener('click', () => {
+    const box = document.getElementById('replyBox');
+    const text = (box.value || '').trim();
+    if (!text) return;
+    const toast = document.createElement('div');
+    toast.className = 'status-pill resolved';
+    toast.style.position = 'fixed'; toast.style.right = '18px'; toast.style.bottom = '18px'; toast.style.zIndex = '260';
+    toast.innerHTML = '<i class="fas fa-check-circle"></i> Reply queued successfully';
+    document.body.appendChild(toast); setTimeout(() => toast.remove(), 2200);
+    box.value = '';
+  });
+})();
+</script>

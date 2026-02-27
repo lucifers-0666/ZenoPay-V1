@@ -1,3 +1,11 @@
+<%
+  const adminUser =
+    (typeof user !== 'undefined' && user) ||
+    (typeof admin !== 'undefined' && admin) ||
+    (typeof locals !== 'undefined' && locals && (locals.user || locals.admin)) ||
+    null;
+%>
+
 <!-- Admin Header -->
 <header class="admin-header">
   
@@ -95,10 +103,10 @@
       <button class="profile-btn" id="profileBtn">
         <img src="/Images/admin-avatar.jpg" alt="Admin" class="profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="profile-avatar" style="display: none; background: var(--primary); color: white; font-weight: 700; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px;">
-          <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'A' %>
+          <%= adminUser && adminUser.name ? adminUser.name.charAt(0).toUpperCase() : 'A' %>
         </div>
         <div class="profile-info">
-          <span class="profile-name"><%= user && user.name ? user.name : 'Admin User' %></span>
+          <span class="profile-name"><%= adminUser && adminUser.name ? adminUser.name : 'Admin User' %></span>
           <span class="profile-role">Super Admin</span>
         </div>
         <svg class="profile-arrow" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -111,11 +119,11 @@
         <div class="profile-dropdown-header">
           <img src="/Images/admin-avatar.jpg" alt="Admin" class="dropdown-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="dropdown-avatar" style="display: none; background: var(--primary); color: white; font-weight: 700; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 10px;">
-            <%= user && user.name ? user.name.charAt(0).toUpperCase() : 'A' %>
+            <%= adminUser && adminUser.name ? adminUser.name.charAt(0).toUpperCase() : 'A' %>
           </div>
           <div>
-            <div class="dropdown-name"><%= user && user.name ? user.name : 'Admin User' %></div>
-            <div class="dropdown-email"><%= user && user.email ? user.email : 'admin@zenopay.com' %></div>
+            <div class="dropdown-name"><%= adminUser && adminUser.name ? adminUser.name : 'Admin User' %></div>
+            <div class="dropdown-email"><%= adminUser && adminUser.email ? adminUser.email : 'admin@zenopay.com' %></div>
           </div>
         </div>
         
@@ -159,31 +167,3 @@
   </div>
   
 </header>
-      </div>
-    </div>
-    
-  </div>
-  
-</header>
-
-<script>
-  // Notification dropdown toggle
-  document.getElementById('notificationBtn')?.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const dropdown = document.getElementById('notificationDropdown');
-    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-  });
-  
-  // User menu dropdown toggle
-  document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const dropdown = document.getElementById('userDropdown');
-    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-  });
-  
-  // Close dropdowns when clicking outside
-  document.addEventListener('click', function() {
-    document.getElementById('notificationDropdown').style.display = 'none';
-    document.getElementById('userDropdown').style.display = 'none';
-  });
-</script>

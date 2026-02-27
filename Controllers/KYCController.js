@@ -61,6 +61,10 @@ const submitKYCDocuments = async (req, res) => {
     // Update user with KYC data
     user.KYCStatus = "pending";
     user.KYCSubmittedAt = new Date();
+    user.KYCResubmissionRequested = false;
+    user.KYCResubmissionRequestedAt = null;
+    user.KYCRejectionReason = null;
+    user.KYCRejectedAt = null;
     user.KYCDocuments = {
       identityType: step1.identityType,
       identityFront: step1.frontFile,

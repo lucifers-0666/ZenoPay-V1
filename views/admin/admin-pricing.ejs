@@ -1,0 +1,10 @@
+<%- include('./layouts/admin-layout', {
+  title: pageTitle || 'Pricing Management - ZenoPay Admin',
+  currentPage: currentPage || 'pricing',
+  user: (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null),
+  breadcrumb: breadcrumb || [
+    { name: 'Admin', url: '/admin/dashboard' },
+    { name: 'Pricing Management', url: '/admin/pricing' }
+  ],
+  body: include('./admin-pricing-body', { plans: plans, gst: gst, revenue: revenue })
+}) %>

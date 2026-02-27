@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/account-settings.css">
 </head>
 <body>
-    <div class="account-settings-container">
+    <div class="account-settings-container" data-zenopay-id="<%= user.ZenoPayID %>">
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Account Settings</h1>
@@ -355,7 +355,7 @@
                                     <p class="notification-description">Get notified for every transaction</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-transactions" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-transactions" <%= user.NotificationPreferences?.transactionAlerts ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -365,7 +365,7 @@
                                     <p class="notification-description">Important updates about your account</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-updates" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-updates" <%= user.NotificationPreferences?.emailNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -375,7 +375,7 @@
                                     <p class="notification-description">Alerts about suspicious activity</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-security" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-security" <%= user.NotificationPreferences?.emailNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -385,7 +385,7 @@
                                     <p class="notification-description">Promotions, updates, and tips</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-marketing">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="email-marketing" <%= user.NotificationPreferences?.promotionalEmails ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -402,7 +402,7 @@
                                     <p class="notification-description">Get SMS for every transaction</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-transactions" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-transactions" <%= user.NotificationPreferences?.smsNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -412,7 +412,7 @@
                                     <p class="notification-description">SMS alerts for security events</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-security" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-security" <%= user.NotificationPreferences?.smsNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -422,7 +422,7 @@
                                     <p class="notification-description">SMS for important account changes</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-updates">
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="sms-updates" <%= user.NotificationPreferences?.smsNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -439,7 +439,7 @@
                                     <p class="notification-description">In-app notification for transactions</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-transactions" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-transactions" <%= user.NotificationPreferences?.transactionAlerts ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>
@@ -449,7 +449,7 @@
                                     <p class="notification-description">Push notifications for account updates</p>
                                 </div>
                                 <label class="toggle-switch">
-                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-updates" checked>
+                                    <input type="checkbox" class="toggle-input notification-toggle" data-type="push-updates" <%= user.NotificationPreferences?.emailNotifications ? 'checked' : '' %>>
                                     <span class="toggle-slider"></span>
                                 </label>
                             </div>

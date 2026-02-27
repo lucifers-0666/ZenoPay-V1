@@ -1,0 +1,10 @@
+<%- include('../layouts/admin-layout', {
+  title: pageTitle || 'KYC Management - ZenoPay Admin',
+  currentPage: currentPage || 'kyc',
+  user: (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null),
+  breadcrumb: breadcrumb || [
+    { name: 'KYC', url: '/admin/kyc' },
+    { name: 'Management', url: '/admin/kyc' }
+  ],
+  body: include('./admin-kyc-management-body', { stats: stats, submissions: submissions })
+}) %>

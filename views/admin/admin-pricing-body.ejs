@@ -1,0 +1,91 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Pricing Management</h1>
+    <p class="page-subtitle">Manage subscription plans, pricing, and feature access</p>
+  </div>
+</div>
+
+<div class="pricing-grid" id="plansGrid">
+  <% (plans || []).forEach((p) => { %>
+    <article class="plan-card <%= p.highlighted ? 'highlighted' : '' %>">
+      <div class="plan-head"><h3><%= p.name %></h3><span class="status-pill <%= p.status.toLowerCase() === 'active' ? 'resolved' : p.status.toLowerCase() === 'beta' ? 'open' : 'closed' %>"><%= p.status %></span></div>
+      <label class="mini-toggle"><input type="checkbox" checked> <span>Show plan</span></label>
+      <div class="price-line">₹<%= p.monthly %> <small>/ month</small></div>
+      <div class="year-line">₹<%= p.yearly %> / year</div>
+      <div class="stat-row"><span>Active subscribers: <strong><%= p.subscribers %></strong></span><span class="green">Revenue: <%= p.revenue %></span></div>
+      <ul class="feature-list"><% (p.features || []).slice(0,5).forEach((f) => { %><li><i class="fas fa-check"></i> <%= f %></li><% }) %></ul>
+      <button class="btn-secondary btn-icon edit-plan" type="button" data-plan="<%= p.id %>"><i class="fas fa-edit"></i> Edit Plan</button>
+      <button class="link-danger" type="button">Archive Plan</button>
+    </article>
+  <% }) %>
+</div>
+
+<section class="pricing-card drawer" id="planDrawer">
+  <div class="drawer-head"><h3>Edit — Personal Plan</h3><button type="button" id="drawerClose" class="dot-btn"><i class="fas fa-times"></i></button></div>
+  <div class="form-grid">
+    <label>Name<input class="filter-input" /></label>
+    <label>Tagline<input class="filter-input" /></label>
+    <label class="full">Description<textarea class="filter-input" rows="3"></textarea></label>
+    <label>Monthly Price<input type="number" class="filter-input" /></label>
+    <label>Annual Price<input type="number" class="filter-input" /></label>
+    <label>Discount %<input type="number" class="filter-input" /></label>
+    <label>Monthly Tx Limit<input type="number" class="filter-input" /></label>
+    <label>Daily Transfer Limit<input type="number" class="filter-input" /></label>
+    <label>API Calls/Day<input type="number" class="filter-input" /></label>
+    <label class="full">Features<textarea class="filter-input" rows="4" placeholder="One feature per line"></textarea></label>
+    <label class="full mini-toggle"><input type="checkbox" checked> <span>Show on pricing page</span></label>
+    <label class="full mini-toggle"><input type="checkbox"> <span>Highlight as Popular</span></label>
+    <label class="full mini-toggle"><input type="checkbox"> <span>Best Value badge</span></label>
+    <button class="btn-primary save-btn full" type="button">Save Changes</button>
+  </div>
+</section>
+
+<section class="pricing-card gst-card">
+  <h3><i class="fas fa-percent"></i> GST & Discount Settings</h3>
+  <div class="gst-grid">
+    <label class="mini-toggle"><input type="checkbox" <%= gst.enabled ? 'checked' : '' %>> <span>Apply GST on all plans</span></label>
+    <label>GST Rate<input type="number" class="filter-input" value="<%= gst.rate %>" /></label>
+    <label>GST registration number<input class="filter-input" value="<%= gst.gstNumber %>" /></label>
+    <label>Annual discount %<input type="number" class="filter-input" value="<%= gst.annualDiscount %>" /></label>
+    <label class="mini-toggle"><input type="checkbox" <%= gst.studentDiscountEnabled ? 'checked' : '' %>> <span>Student discount</span></label>
+    <label>Student discount %<input type="number" class="filter-input" value="<%= gst.studentDiscount %>" /></label>
+  </div>
+</section>
+
+<section class="pricing-card revenue-card">
+  <h3>Revenue Snapshot</h3>
+  <div class="bar-wrap"><% (revenue.chart || []).forEach((n) => { %><span data-height="<%= n %>"></span><% }) %></div>
+  <div class="rev-stats"><div><span>Total MRR</span><strong><%= revenue.mrr %></strong></div><div><span>Total ARR</span><strong><%= revenue.arr %></strong></div><div><span>Churn rate</span><strong><%= revenue.churn %></strong></div><div><span>New this month</span><strong><%= revenue.newThisMonth %></strong></div></div>
+</section>
+
+<style>
+.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-bottom:32px}
+.plan-card{background:#fff;border:1px solid #E2E8F0;border-radius:20px;padding:28px;box-shadow:0 10px 24px rgba(15,23,42,.04);position:relative}
+.plan-card.highlighted{border-top:4px solid #3B82F6;box-shadow:0 14px 32px rgba(37,99,235,.12)}
+.plan-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.plan-head h3{margin:0;font-size:22px;color:#1F2937;font-weight:800}
+.mini-toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#475569;margin:10px 0}
+.price-line{font-size:32px;font-weight:800;color:#1F2937}.price-line small{font-size:14px;color:#64748B;font-weight:600}.year-line{font-size:14px;color:#16A34A;margin-bottom:10px}
+.stat-row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:#475569}.green{color:#16A34A}
+.feature-list{margin:12px 0 14px;padding:0;list-style:none;display:grid;gap:8px}.feature-list li{font-size:13px;color:#334155;display:flex;gap:8px;align-items:center}.feature-list i{color:#16A34A}
+.edit-plan{width:100%;margin-bottom:8px}.link-danger{width:100%;border:none;background:transparent;color:#DC2626;font-size:12px}
+.pricing-card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:24px;box-shadow:0 10px 24px rgba(15,23,42,.04);margin-bottom:20px}
+.drawer{position:fixed;right:-540px;top:0;width:520px;max-width:95vw;height:100vh;overflow:auto;border-left:1px solid #E2E8F0;border-radius:0;z-index:300;transition:right .25s ease}
+.drawer.open{right:0}.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid .full{grid-column:1/-1}.save-btn{height:46px;background:linear-gradient(135deg,#2563EB,#3B82F6);border:none}
+.gst-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.revenue-card .bar-wrap{height:140px;display:flex;align-items:flex-end;gap:10px;padding:10px;border:1px solid #E2E8F0;border-radius:12px;background:#F8FAFC;margin:10px 0}.bar-wrap span{flex:1;background:linear-gradient(180deg,#60A5FA,#2563EB);border-radius:6px 6px 0 0}
+.rev-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.rev-stats span{display:block;font-size:12px;color:#64748B}.rev-stats strong{font-size:15px;color:#1F2937}
+@media (max-width:1200px){.pricing-grid{grid-template-columns:1fr}.gst-grid,.rev-stats{grid-template-columns:1fr 1fr}}
+</style>
+
+<script>
+(() => {
+  const drawer = document.getElementById('planDrawer');
+  document.querySelectorAll('.edit-plan').forEach(btn => btn.addEventListener('click', () => drawer.classList.add('open')));
+  document.getElementById('drawerClose')?.addEventListener('click', () => drawer.classList.remove('open'));
+  document.querySelectorAll('.bar-wrap span[data-height]').forEach((bar) => {
+    const h = Number(bar.dataset.height || 0);
+    bar.style.height = `${Math.max(0, Math.min(100, h))}%`;
+  });
+})();
+</script>

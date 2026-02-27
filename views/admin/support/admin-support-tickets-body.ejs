@@ -1,0 +1,226 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Support Tickets</h1>
+    <p class="page-subtitle">Admin inbox for user support requests, disputes reports, and contact submissions</p>
+  </div>
+</div>
+
+<div class="stats-cards-row support-stats-row">
+  <div class="stat-mini-card stat-slate">
+    <div class="stat-mini-icon"><i class="fas fa-inbox"></i></div>
+    <div class="stat-mini-content"><div class="stat-mini-value" id="statTotal"><%= stats.totalTickets || 0 %></div><div class="stat-mini-label">Total Tickets</div></div>
+  </div>
+  <div class="stat-mini-card stat-error" id="openCard">
+    <div class="stat-mini-icon"><i class="fas fa-fire"></i></div>
+    <div class="stat-mini-content"><div class="stat-mini-value" id="statOpen"><%= stats.openTickets || 0 %></div><div class="stat-mini-label">Open Tickets</div></div>
+  </div>
+  <div class="stat-mini-card stat-warning">
+    <div class="stat-mini-icon"><i class="fas fa-hourglass-half"></i></div>
+    <div class="stat-mini-content"><div class="stat-mini-value"><%= stats.avgResponseHours || '4.2 hours' %></div><div class="stat-mini-label">Avg. Response Time</div></div>
+  </div>
+  <div class="stat-mini-card stat-success">
+    <div class="stat-mini-icon"><i class="fas fa-check-double"></i></div>
+    <div class="stat-mini-content"><div class="stat-mini-value"><%= stats.resolvedToday || 0 %></div><div class="stat-mini-label">Resolved Today</div></div>
+  </div>
+</div>
+
+<div class="support-filter-bar">
+  <div class="search-input-wrapper support-search">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" class="search-input" id="ticketSearch" placeholder="Search by ticket #, user name, subject..." />
+  </div>
+  <select class="filter-select" id="statusFilter">
+    <option value="all">All</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+  </select>
+  <select class="filter-select" id="priorityFilter">
+    <option value="all">All</option><option value="urgent">Urgent</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+  </select>
+  <select class="filter-select" id="categoryFilter">
+    <option value="all">All</option><option value="Payment">Payment</option><option value="KYC">KYC</option><option value="Technical">Technical</option><option value="Refund">Refund</option><option value="Other">Other</option>
+  </select>
+  <select class="filter-select" id="assigneeFilter">
+    <option value="all">All agents</option>
+    <option value="me">Assigned to me</option>
+  </select>
+  <select class="filter-select" id="sortFilter">
+    <option value="newest">Newest</option>
+    <option value="priority">Priority</option>
+    <option value="response">Response time</option>
+  </select>
+  <button class="btn-secondary btn-icon" id="assignMeBtn" type="button"><i class="fas fa-user-plus"></i> Assign to Me</button>
+</div>
+
+<div class="table-card support-table-wrap">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Ticket #</th><th>User</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Last Updated</th><th>Assigned</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="ticketTableBody"></tbody>
+    </table>
+    <div class="support-empty" id="ticketsEmpty" style="display:none;">
+      <i class="fas fa-inbox"></i>
+      <h3>No Support Tickets</h3>
+      <p>No tickets match your filters</p>
+    </div>
+  </div>
+</div>
+
+<script id="supportTicketsData" type="application/json"><%- JSON.stringify(tickets || []) %></script>
+
+<style>
+  .support-stats-row{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:22px}
+  .support-filter-bar{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+  .support-search{min-width:320px;flex:1}
+  .support-table-wrap{border-radius:16px;overflow:hidden}
+  .support-table-wrap th{background:#F8FAFC;color:#94A3B8;font-size:12px;text-transform:uppercase;letter-spacing:.08em;padding:14px 20px;border-bottom:1px solid #E2E8F0}
+  .support-table-wrap td{padding:16px 20px;border-bottom:1px solid #F1F5F9}
+  .support-table-wrap tbody tr:hover{background:#FAFAFA}
+  .ticket-no{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;color:#3B82F6;font-weight:600}
+  .mini-user{display:flex;align-items:center;gap:10px}
+  .mini-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+  .mini-user p{margin:0}
+  .mini-name{font-size:13px;color:#1F2937;font-weight:600}
+  .mini-email{font-size:12px;color:#94A3B8}
+  .subject-cell{font-size:14px;color:#1F2937;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .category-pill{display:inline-flex;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:600;background:#EEF2F7;color:#475569}
+  .priority-pill,.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .priority-pill.urgent{background:#FEE2E2;color:#B91C1C}.priority-pill.high{background:#FFEDD5;color:#C2410C}.priority-pill.medium{background:#FEF3C7;color:#B45309}.priority-pill.low{background:#E2E8F0;color:#475569}
+  .status-pill.open{background:#DBEAFE;color:#1D4ED8}.status-pill.in-progress{background:#FEF3C7;color:#B45309}.status-pill.resolved{background:#DCFCE7;color:#166534}.status-pill.closed{background:#E2E8F0;color:#475569}
+  .updated-cell{font-size:13px;color:#94A3B8}
+  .assigned-chip{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;border-radius:999px;background:#EEF2F7;color:#334155;font-size:12px}
+  .assigned-unset{display:inline-flex;align-items:center;padding:6px 10px;border:1px dashed #F59E0B;color:#D97706;border-radius:999px;font-size:12px;background:rgba(245,158,11,.08)}
+  .action-wrap{display:inline-flex;align-items:center;gap:6px;position:relative}
+  .view-btn{height:30px;border:none;border-radius:999px;padding:0 12px;background:#DBEAFE;color:#1D4ED8;font-size:12px;font-weight:600}
+  .dot-btn{width:30px;height:30px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;color:#64748B}
+  .menu{position:absolute;right:0;top:34px;min-width:170px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 12px 24px rgba(0,0,0,.08);display:none;z-index:10}
+  .menu.open{display:block}.menu button{width:100%;border:none;background:transparent;text-align:left;padding:10px 12px;font-size:13px;color:#334155}
+  .menu button:hover{background:#F8FAFC}
+  .support-empty{padding:48px 20px;text-align:center}
+  .support-empty i{font-size:64px;color:#CBD5E1;margin-bottom:12px}
+  .support-empty h3{margin:0 0 8px;color:#334155}
+  .support-empty p{margin:0;color:#94A3B8}
+  .open-alert{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.28)}
+</style>
+
+<script>
+(() => {
+  const tickets = JSON.parse(document.getElementById('supportTicketsData').textContent || '[]');
+  const state = { all: tickets, filtered: [...tickets], filters: { q:'', status:'all', priority:'all', category:'all', assignee:'all', sort:'newest' } };
+
+  const els = {
+    body: document.getElementById('ticketTableBody'),
+    empty: document.getElementById('ticketsEmpty'),
+    q: document.getElementById('ticketSearch'),
+    status: document.getElementById('statusFilter'),
+    priority: document.getElementById('priorityFilter'),
+    category: document.getElementById('categoryFilter'),
+    assignee: document.getElementById('assigneeFilter'),
+    sort: document.getElementById('sortFilter'),
+    assignBtn: document.getElementById('assignMeBtn'),
+    openCard: document.getElementById('openCard')
+  };
+
+  const normStatusClass = (s) => s === 'in_progress' ? 'in-progress' : s;
+
+  const row = (t, i) => `
+    <tr>
+      <td><span class="ticket-no">${t.ticketNo}</span></td>
+      <td><div class="mini-user"><span class="mini-avatar">${t.avatarInitial || 'U'}</span><div><p class="mini-name">${t.userName}</p><p class="mini-email">${t.userEmail}</p></div></div></td>
+      <td><div class="subject-cell" title="${t.subjectFull || t.subject}">${t.subject}</div></td>
+      <td><span class="category-pill">${t.category}</span></td>
+      <td><span class="priority-pill ${t.priorityMeta?.tone || 'medium'}"><i class="fas ${t.priorityMeta?.icon || 'fa-minus'}"></i>${t.priorityMeta?.label || 'Medium'}</span></td>
+      <td><span class="status-pill ${normStatusClass(t.status)}"><i class="fas ${t.statusMeta?.icon || 'fa-envelope-open'}"></i>${t.statusMeta?.label || 'Open'}</span></td>
+      <td><span class="updated-cell">${t.lastUpdatedAgo}</span></td>
+      <td>${t.assigned ? `<span class="assigned-chip"><span class="mini-avatar" style="width:20px;height:20px;font-size:10px;">${t.assigned.initial}</span>${t.assigned.name}</span>` : '<span class="assigned-unset">Unassigned</span>'}</td>
+      <td>
+        <div class="action-wrap">
+          <button type="button" class="view-btn" data-view="${t.id}">View</button>
+          <button type="button" class="dot-btn" data-trigger="${i}"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="menu" data-menu="${i}">
+            <button type="button" data-act="assign" data-id="${t.id}">Assign</button>
+            <button type="button" data-act="close" data-id="${t.id}">Close</button>
+            <button type="button" data-act="urgent" data-id="${t.id}">Mark Urgent</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+
+  const applyFilters = () => {
+    const q = state.filters.q.toLowerCase();
+    state.filtered = state.all.filter((t) => {
+      const qHit = !q || [t.ticketNo, t.userName, t.subject].some(v => String(v || '').toLowerCase().includes(q));
+      const sHit = state.filters.status === 'all' || t.status === state.filters.status;
+      const pHit = state.filters.priority === 'all' || t.priority === state.filters.priority;
+      const cHit = state.filters.category === 'all' || t.category === state.filters.category;
+      const aHit = state.filters.assignee === 'all' || (state.filters.assignee === 'me' ? !!t.assigned : true);
+      return qHit && sHit && pHit && cHit && aHit;
+    });
+
+    if (state.filters.sort === 'priority') {
+      const rank = { urgent: 0, high: 1, medium: 2, low: 3 };
+      state.filtered.sort((a,b) => (rank[a.priority] ?? 9) - (rank[b.priority] ?? 9));
+    }
+
+    render();
+  };
+
+  const render = () => {
+    if (!state.filtered.length) {
+      els.body.innerHTML = '';
+      els.empty.style.display = 'block';
+      return;
+    }
+    els.empty.style.display = 'none';
+    els.body.innerHTML = state.filtered.map(row).join('');
+    bindRows();
+  };
+
+  const closeMenus = () => document.querySelectorAll('.menu.open').forEach(x => x.classList.remove('open'));
+
+  const bindRows = () => {
+    document.querySelectorAll('[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => window.location.href = `/admin/support/${encodeURIComponent(btn.dataset.view)}`);
+    });
+    document.querySelectorAll('[data-trigger]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = document.querySelector(`[data-menu="${btn.dataset.trigger}"]`);
+        const open = menu.classList.contains('open');
+        closeMenus();
+        if (!open) menu.classList.add('open');
+      });
+    });
+    document.querySelectorAll('[data-act]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeMenus();
+      });
+    });
+  };
+
+  els.q.addEventListener('input', () => { state.filters.q = els.q.value.trim(); applyFilters(); });
+  els.status.addEventListener('change', () => { state.filters.status = els.status.value; applyFilters(); });
+  els.priority.addEventListener('change', () => { state.filters.priority = els.priority.value; applyFilters(); });
+  els.category.addEventListener('change', () => { state.filters.category = els.category.value; applyFilters(); });
+  els.assignee.addEventListener('change', () => { state.filters.assignee = els.assignee.value; applyFilters(); });
+  els.sort.addEventListener('change', () => { state.filters.sort = els.sort.value; applyFilters(); });
+
+  document.addEventListener('click', (e) => { if (!e.target.closest('.action-wrap')) closeMenus(); });
+  els.assignBtn.addEventListener('click', () => {
+    const unassigned = state.filtered.filter(t => !t.assigned).length;
+    const toast = document.createElement('div');
+    toast.className = 'status-pill open';
+    toast.style.position = 'fixed'; toast.style.right = '18px'; toast.style.bottom = '18px'; toast.style.zIndex = '260';
+    toast.innerHTML = `<i class="fas fa-user-plus"></i> ${unassigned} ticket(s) queued for assignment`;
+    document.body.appendChild(toast); setTimeout(() => toast.remove(), 2400);
+  });
+
+  if ((Number(document.getElementById('statOpen').textContent) || 0) > 10) {
+    els.openCard.classList.add('open-alert');
+  }
+
+  render();
+})();
+</script>

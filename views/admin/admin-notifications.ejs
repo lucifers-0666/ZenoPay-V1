@@ -1,0 +1,10 @@
+<%- include('./layouts/admin-layout', {
+  title: pageTitle || 'Notifications Center - ZenoPay Admin',
+  currentPage: currentPage || 'notifications',
+  user: (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null),
+  breadcrumb: breadcrumb || [
+    { name: 'Admin', url: '/admin/dashboard' },
+    { name: 'Notifications Center', url: '/admin/notifications' }
+  ],
+  body: include('./admin-notifications-body', { history: history })
+}) %>
