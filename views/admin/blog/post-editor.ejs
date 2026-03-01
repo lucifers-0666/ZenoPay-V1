@@ -1,6 +1,67 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Post Editor</title></head>
-<body>
-  <h1><%= isNew ? 'Create Post' : 'Edit Post' %></h1>
-  <p>This editor is now wired and ready.</p>
-</body></html>
+<!-- Blog Post Editor -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><%= isNew ? 'Create New Post' : 'Edit Post' %></h1>
+    <p class="page-subtitle"><%= isNew ? 'Write and publish a new blog article.' : 'Update the blog article.' %></p>
+  </div>
+  <div class="page-actions">
+    <a href="/blog/admin/posts" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back to Posts</a>
+  </div>
+</div>
+
+<% if (typeof errors !== 'undefined' && errors && errors.length) { %>
+<div class="alert alert-error">
+  <ul style="margin:0;padding-left:20px;">
+    <% errors.forEach(e => { %><li><%= e.msg %></li><% }); %>
+  </ul>
+</div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" action="<%= isNew ? '/blog/admin/posts' : '/blog/admin/posts/' + post._id + '?_method=PUT' %>">
+
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" name="title" class="form-input" value="<%= post?.title || '' %>" required placeholder="Post title">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Excerpt *</label>
+        <textarea name="excerpt" class="form-input" rows="2" required placeholder="Short description (max 300 chars)"><%= post?.excerpt || '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Content *</label>
+        <textarea name="content" class="form-input" rows="12" required placeholder="Post content (HTML or Markdown)"><%= post?.content || '' %></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-lg);">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select name="category_id" class="form-input" required>
+            <option value="">— Select category —</option>
+            <% (categories || []).forEach(function(cat) { %>
+            <option value="<%= cat._id %>" <%= post?.category_id?.toString() === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Featured Image URL *</label>
+          <input type="url" name="featured_image_url" class="form-input" value="<%= post?.featured_image_url || '' %>" required placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tags (comma-separated)</label>
+        <input type="text" name="tags" class="form-input" value="<%= (post?.tags || []).join(', ') %>" placeholder="tag1, tag2, tag3">
+      </div>
+
+      <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-xl);">
+        <button type="submit" name="action" value="save" class="btn-secondary"><i class="fas fa-save"></i> Save Draft</button>
+        <button type="submit" name="action" value="publish" class="btn-primary"><i class="fas fa-paper-plane"></i> Save &amp; Publish</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,10 +1,86 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blog Categories</title></head>
-<body>
-  <h1>Blog Categories</h1>
-  <ul>
-    <% (categories || []).forEach(function(category){ %>
-      <li><%= category.name %></li>
-    <% }) %>
-  </ul>
-</body></html>
+<!-- Blog Categories -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Blog Categories</h1>
+    <p class="page-subtitle">Organise your blog posts into categories.</p>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-xl);">
+  <!-- Category List -->
+  <div class="card">
+    <div class="card-header"><h2 class="card-title">All Categories</h2></div>
+    <div class="card-body">
+      <% if (categories && categories.length) { %>
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Slug</th><th>Posts</th><th>Actions</th></tr></thead>
+        <tbody>
+          <% categories.forEach(function(cat) { %>
+          <tr>
+            <td><strong><%= cat.name %></strong></td>
+            <td><code style="font-size:var(--text-xs);background:var(--bg-secondary);padding:2px 6px;border-radius:4px;"><%= cat.slug %></code></td>
+            <td><%= cat.post_count || 0 %></td>
+            <td style="display:flex;gap:6px;">
+              <button onclick="editCategory('<%= cat._id %>', '<%= cat.name %>', '<%= cat.description || '' %>')" class="btn-icon-sm"><i class="fas fa-edit"></i></button>
+              <button onclick="deleteCategory('<%= cat._id %>')" class="btn-icon-sm btn-danger-sm"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } else { %>
+      <p class="empty-state">No categories yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Add / Edit Category -->
+  <div class="card">
+    <div class="card-header"><h2 class="card-title" id="formTitle">Add New Category</h2></div>
+    <div class="card-body">
+      <form id="catForm" method="POST" action="/blog/admin/categories">
+        <input type="hidden" id="catId" name="_id">
+        <input type="hidden" id="catMethod" name="_method" value="">
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input type="text" id="catName" name="name" class="form-input" required placeholder="Category name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="catDesc" name="description" class="form-input" rows="3" placeholder="Optional description"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save</button>
+          <button type="button" onclick="resetForm()" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function editCategory(id, name, desc) {
+  document.getElementById('formTitle').textContent = 'Edit Category';
+  document.getElementById('catId').value = id;
+  document.getElementById('catName').value = name;
+  document.getElementById('catDesc').value = desc;
+  document.getElementById('catMethod').value = 'PUT';
+  document.getElementById('catForm').action = '/blog/admin/categories/' + id;
+}
+function resetForm() {
+  document.getElementById('formTitle').textContent = 'Add New Category';
+  document.getElementById('catId').value = '';
+  document.getElementById('catName').value = '';
+  document.getElementById('catDesc').value = '';
+  document.getElementById('catMethod').value = '';
+  document.getElementById('catForm').action = '/blog/admin/categories';
+}
+async function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  try {
+    const res = await fetch('/blog/admin/categories/' + id, { method: 'DELETE' });
+    if (res.ok) window.location.reload();
+    else alert('Failed to delete category.');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+</script>

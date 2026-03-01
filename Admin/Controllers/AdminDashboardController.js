@@ -10,6 +10,10 @@ const getDashboard = async (req, res) => {
     // Render the new modern dashboard
     res.render("admin/dashboard/admin-dashboard-overview", {
       user: req.session.user,
+      title: "Dashboard",
+      page: "dashboard",
+      kycPending: 0,
+      supportOpen: 0,
       pageTitle: "Admin Dashboard Overview - ZenoPay"
     });
   } catch (error) {

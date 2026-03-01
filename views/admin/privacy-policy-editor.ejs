@@ -1,20 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= pageTitle || 'Privacy Policy Editor' %></title>
-</head>
-<body>
-  <h1><%= isEdit ? 'Edit Privacy Policy' : 'Create Privacy Policy' %></h1>
-  <form method="post" action="<%= isEdit && policy ? ('/admin/privacy-policy/' + policy._id) : '/admin/privacy-policy/create' %>">
-    <label>Version</label>
-    <input type="text" name="version" value="<%= suggestedVersion || (policy && policy.version) || '' %>" />
-    <br />
-    <label>Change Summary</label>
-    <textarea name="changeSummary"><%= (policy && policy.changeSummary) || '' %></textarea>
-    <br />
-    <button type="submit">Save</button>
-  </form>
-</body>
-</html>
+<!-- Privacy Policy Editor -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><%= isEdit ? 'Edit Privacy Policy' : 'Create New Privacy Policy' %></h1>
+    <p class="page-subtitle"><%= isEdit ? 'Update an existing policy version.' : 'Draft a new version of the privacy policy.' %></p>
+  </div>
+  <div class="page-actions">
+    <a href="/admin/privacy-policy" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" action="<%= isEdit && policy ? ('/admin/privacy-policy/' + policy._id + '?_method=PUT') : '/admin/privacy-policy/create' %>">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-lg);">
+        <div class="form-group">
+          <label class="form-label">Version *</label>
+          <input type="text" name="version" class="form-input" value="<%= suggestedVersion || (policy && policy.version) || '' %>" required placeholder="e.g. 2.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Effective Date</label>
+          <input type="date" name="effectiveDate" class="form-input" value="<%= policy && policy.effectiveDate ? new Date(policy.effectiveDate).toISOString().split('T')[0] : '' %>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Change Summary *</label>
+        <textarea name="changeSummary" class="form-input" rows="3" required placeholder="Briefly describe what changed in this version"><%= (policy && policy.changeSummary) || '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Policy Content *</label>
+        <textarea name="content" class="form-input" rows="20" required placeholder="Full privacy policy text (HTML allowed)"><%= (policy && policy.content) || '' %></textarea>
+      </div>
+
+      <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-xl);">
+        <button type="submit" name="action" value="draft" class="btn-secondary"><i class="fas fa-save"></i> Save as Draft</button>
+        <button type="submit" name="action" value="publish" class="btn-primary"><i class="fas fa-paper-plane"></i> Save &amp; Publish</button>
+      </div>
+    </form>
+  </div>
+</div>

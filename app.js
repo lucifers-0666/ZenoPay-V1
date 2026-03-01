@@ -9,6 +9,7 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
 const blogRoutes = require("./Routes/blogRoutes");
+const expressLayouts = require("express-ejs-layouts");
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
@@ -91,6 +92,10 @@ app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+// EJS Layouts - admin routes set res.locals.layout in their router middleware
+// Non-admin routes use the pass-through views/layout.ejs (just <%- body %>)
+app.use(expressLayouts);
 
 // Attach RBAC permissions to all requests
 const { attachPermissions } = require("./Admin/Middleware/rbacMiddleware");

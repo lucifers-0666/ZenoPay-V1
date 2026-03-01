@@ -3,96 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title : 'ZenoPay Admin' %> | Admin Panel</title>
-  
-  <!-- CSS Files -->
+  <title><%= typeof title !== 'undefined' ? title : 'Admin' %> — ZenoPay Admin</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Admin CSS (NEW — no old files) -->
   <link rel="stylesheet" href="/css/admin/admin-base.css">
-  <link rel="stylesheet" href="/css/admin/admin-layout.css">
   <link rel="stylesheet" href="/css/admin/admin-components.css">
   <link rel="stylesheet" href="/css/admin/admin-pages.css">
-  
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Additional Head Scripts -->
-  <%- typeof headScripts !== 'undefined' ? headScripts : '' %>
+
+  <%- typeof extraCSS !== 'undefined' ? extraCSS : '' %>
 </head>
-<body>
-  
-  <!-- Sidebar Navigation -->
+
+<body class="admin-body">
+<div class="admin-layout" id="adminLayout">
+
+  <!-- SIDEBAR -->
   <%- include('../partials/sidebar') %>
-  
-  <!-- Main Content Area -->
-  <div class="admin-main-content">
-    
-    <!-- Header -->
+
+  <!-- MAIN -->
+  <div class="admin-main">
+
+    <!-- HEADER -->
     <%- include('../partials/header') %>
-    
-    <!-- Page Content -->
+
+    <!-- PAGE CONTENT -->
     <main class="admin-content">
-      
-      <!-- Breadcrumb -->
       <%- include('../partials/breadcrumb') %>
-      
-      <!-- Page Body -->
       <%- body %>
-      
     </main>
-    
-    <!-- Footer -->
-    <%- include('../partials/footer') %>
+
   </div>
-  
-  <!-- Global Scripts -->
-  <script src="/js/admin/admin-global.js"></script>
-  <script src="/js/admin/sidebar.js"></script>
-  <script src="/js/admin/header.js"></script>
-  <script src="/js/admin/charts.js"></script>
-  <script src="/js/admin/statistics.js"></script>
-  <script src="/js/admin/activity-monitor.js"></script>
-  
-  <!-- Users Scripts -->
-  <script src="/js/admin/users.js"></script>
-  <script src="/js/admin/user-details.js"></script>
-  <script src="/js/admin/user-edit.js"></script>
-  
-  <!-- Merchants Scripts -->
-  <script src="/js/admin/merchants.js"></script>
-  <script src="/js/admin/merchants-pending.js"></script>
-  <script src="/js/admin/merchant-details.js"></script>
-  <script src="/js/admin/merchant-verification.js"></script>
-  <script src="/js/admin/merchant-settings.js"></script>
-  
-  <!-- Authentication Scripts -->
-  <script src="/js/admin/forgot-password.js"></script>
-  <script src="/js/admin/reset-password.js"></script>
-  <script src="/js/admin/2fa-setup.js"></script>
-  
-  <!-- Banks Scripts -->
-  <script src="/js/admin/banks.js"></script>
-  <script src="/js/admin/banks-pending.js"></script>
-  <script src="/js/admin/bank-details.js"></script>
-  <script src="/js/admin/bank-edit.js"></script>
-  
-  <!-- Transactions Scripts -->
-  <script src="/js/admin/transactions.js"></script>
-  <script src="/js/admin/transactions-flagged.js"></script>
-  <script src="/js/admin/transactions-failed.js"></script>
-  <script src="/js/admin/transaction-details.js"></script>
-  <script src="/js/admin/transaction-disputes.js"></script>
-  
-  <!-- Analytics Scripts -->
-  <script src="/js/admin/analytics.js"></script>
-  <script src="/js/admin/reports.js"></script>
-  
-  <!-- Settings Scripts -->
-  <script src="/js/admin/admin-settings.js"></script>
-  <script src="/js/admin/system-config.js"></script>
-  
-  <%- typeof footerScripts !== 'undefined' ? footerScripts : '' %>
-  
+</div>
+
+<!-- Toast container -->
+<div class="admin-toast-container" id="toastContainer"></div>
+
+<!-- Admin JS (NEW — no old files) -->
+<script src="/js/admin/admin-core.js"></script>
+<script src="/js/admin/admin-charts.js"></script>
+<%- typeof extraJS !== 'undefined' ? extraJS : '' %>
 </body>
 </html>

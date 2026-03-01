@@ -17,16 +17,29 @@ const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyC
 const AdminKYCController = require("../Controllers/AdminKYCController");
 const AdminOperationsController = require("../Controllers/AdminOperationsController");
 
+// ============ LAYOUT MIDDLEWARE ============
+// Default layout for all admin routes (auth routes override below)
+router.use((req, res, next) => {
+	res.locals.layout = "admin/layouts/admin-layout";
+	next();
+});
+
+// Helper middleware that switches to the auth layout
+const useAuthLayout = (req, res, next) => {
+	res.locals.layout = "admin/layouts/auth-layout";
+	next();
+};
+
 // ============ AUTHENTICATION ROUTES (Public) ============
-router.get("/login", AdminAuthController.getLogin);
-router.post("/login", AdminAuthController.postLogin);
+router.get("/login", useAuthLayout, AdminAuthController.getLogin);
+router.post("/login", useAuthLayout, AdminAuthController.postLogin);
 router.get("/logout", AdminAuthController.logout);
 
 // Password Reset Routes
-router.get("/forgot-password", AdminAuthController.getForgotPassword);
-router.post("/forgot-password", AdminAuthController.postForgotPassword);
+router.get("/forgot-password", useAuthLayout, AdminAuthController.getForgotPassword);
+router.post("/forgot-password", useAuthLayout, AdminAuthController.postForgotPassword);
 // Graceful fallback when token is missing to show the error state instead of a 404
-router.get("/reset-password", (req, res) => {
+router.get("/reset-password", useAuthLayout, (req, res) => {
 	return res.status(400).render("admin/auth/reset-password", {
 		pageTitle: "Reset Password - ZenoPay Admin",
 		error: "Reset link is missing. Please request a new link.",
@@ -34,13 +47,13 @@ router.get("/reset-password", (req, res) => {
 		validToken: false,
 	});
 });
-router.get("/reset-password/:token", AdminAuthController.getResetPassword);
-router.post("/reset-password/:token", AdminAuthController.postResetPassword);
+router.get("/reset-password/:token", useAuthLayout, AdminAuthController.getResetPassword);
+router.post("/reset-password/:token", useAuthLayout, AdminAuthController.postResetPassword);
 
 // 2FA Routes
-router.get("/2fa/setup", AdminAuthController.get2FASetup);
-router.post("/2fa/generate", AdminAuthController.generate2FA);
-router.post("/2fa/verify", AdminAuthController.verify2FA);
+router.get("/2fa/setup", useAuthLayout, AdminAuthController.get2FASetup);
+router.post("/2fa/generate", useAuthLayout, AdminAuthController.generate2FA);
+router.post("/2fa/verify", useAuthLayout, AdminAuthController.verify2FA);
 
 // ============ PROTECTED ROUTES (Require Admin Role) ============
 // First, apply admin authentication (creates fake session for testing)

@@ -88,6 +88,12 @@ router.get("/newsletter/unsubscribe/:token", BlogController.unsubscribeNewslette
 // ============ ADMIN BLOG ROUTES ============
 // These require authentication - should be protected by middleware in main routes.js
 
+// Set admin layout for all blog admin routes
+router.use("/admin", (req, res, next) => {
+  res.locals.layout = "admin/layouts/admin-layout";
+  next();
+});
+
 router.get("/admin/dashboard", AdminBlogController.getDashboard);
 
 // Posts management

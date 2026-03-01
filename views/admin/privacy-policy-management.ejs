@@ -1,13 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= pageTitle || 'Privacy Policy Management' %></title>
-</head>
-<body>
-  <h1>Privacy Policy Management</h1>
-  <p>Current policy: <%= currentPolicy ? currentPolicy.version : 'none' %></p>
-  <a href="/admin/privacy-policy/create">Create new policy</a>
-</body>
-</html>
+<!-- Privacy Policy Management -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Privacy Policy Management</h1>
+    <p class="page-subtitle">Manage, version, and publish the platform privacy policy.</p>
+  </div>
+  <div class="page-actions">
+    <a href="/admin/privacy-policy/create" class="btn-primary"><i class="fas fa-plus"></i> Create New Version</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Current Policy</h2></div>
+  <div class="card-body">
+    <% if (currentPolicy) { %>
+    <table class="data-table">
+      <thead><tr><th>Version</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong><%= currentPolicy.version %></strong></td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td><%= currentPolicy.publishedAt ? new Date(currentPolicy.publishedAt).toLocaleDateString() : '—' %></td>
+          <td style="display:flex;gap:6px;">
+            <a href="/admin/privacy-policy/<%= currentPolicy._id %>/edit" class="btn-icon-sm"><i class="fas fa-edit"></i></a>
+            <a href="/admin/privacy-policy/<%= currentPolicy._id %>/preview" class="btn-icon-sm"><i class="fas fa-eye"></i></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <% } else { %>
+    <p class="empty-state">No policy published yet. <a href="/admin/privacy-policy/create">Create your first version</a>.</p>
+    <% } %>
+  </div>
+</div>
+
+<% if (typeof allPolicies !== 'undefined' && allPolicies && allPolicies.length > 1) { %>
+<div class="card" style="margin-top:var(--spacing-xl);">
+  <div class="card-header"><h2 class="card-title">Version History</h2></div>
+  <div class="card-body">
+    <table class="data-table">
+      <thead><tr><th>Version</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% allPolicies.forEach(function(p) { %>
+        <tr>
+          <td><%= p.version %></td>
+          <td><span class="badge badge-<%= p.status === 'published' ? 'success' : 'warning' %>"><%= p.status %></span></td>
+          <td><%= p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—' %></td>
+          <td style="display:flex;gap:6px;">
+            <a href="/admin/privacy-policy/<%= p._id %>/edit" class="btn-icon-sm"><i class="fas fa-edit"></i></a>
+            <a href="/admin/privacy-policy/<%= p._id %>/preview" class="btn-icon-sm"><i class="fas fa-eye"></i></a>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<% } %>
