@@ -214,10 +214,10 @@
 
         <!-- Approval Modal -->
         <div class="modal-overlay" id="approvalModal" style="display: none;">
-            <div class="modal-dialog" style="max-width: 600px;">
+            <div class="modal-dialog modal-card" style="max-width: 600px;">
                 <div class="modal-header">
                     <h3 class="modal-title">Approve Merchant Application</h3>
-                    <button class="modal-close" onclick="closeApprovalModal()">×</button>
+                    <button type="button" class="modal-close" data-close-modal="approvalModal">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="merchant-preview" id="approvalMerchantPreview">
@@ -262,7 +262,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeApprovalModal()">Cancel</button>
+                    <button type="button" class="btn-secondary" data-close-modal="approvalModal">Cancel</button>
                     <button class="btn-primary" onclick="confirmApproval()" id="approveBtn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="20 6 9 17 4 12"></polyline>
@@ -275,10 +275,10 @@
 
         <!-- Rejection Modal -->
         <div class="modal-overlay" id="rejectionModal" style="display: none;">
-            <div class="modal-dialog" style="max-width: 600px;">
+            <div class="modal-dialog modal-card" style="max-width: 600px;">
                 <div class="modal-header">
                     <h3 class="modal-title">Reject Merchant Application</h3>
-                    <button class="modal-close" onclick="closeRejectionModal()">×</button>
+                    <button type="button" class="modal-close" data-close-modal="rejectionModal">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="merchant-preview" id="rejectionMerchantPreview">
@@ -313,7 +313,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeRejectionModal()">Cancel</button>
+                    <button type="button" class="btn-secondary" data-close-modal="rejectionModal">Cancel</button>
                     <button class="btn-danger" onclick="confirmRejection()" id="rejectBtn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>

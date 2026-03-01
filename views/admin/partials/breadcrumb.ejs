@@ -1,15 +1,17 @@
-<div class="admin-breadcrumb">
-  <nav class="breadcrumb-nav">
-    <a href="/admin/dashboard" class="breadcrumb-item">Dashboard</a>
-    <% if (typeof breadcrumb !== 'undefined' && breadcrumb && breadcrumb.length > 0) { %>
-      <% breadcrumb.forEach((item, index) => { %>
-        <span class="breadcrumb-separator">/</span>
-        <% if (index === breadcrumb.length - 1) { %>
-          <span class="breadcrumb-item active"><%= item.name %></span>
-        <% } else { %>
-          <a href="<%= item.url %>" class="breadcrumb-item"><%= item.name %></a>
-        <% } %>
-      <% }) %>
-    <% } %>
-  </nav>
-</div>
+<% if (!(typeof hideBreadcrumb !== 'undefined' && hideBreadcrumb)) { %>
+  <div class="admin-breadcrumb">
+    <nav class="breadcrumb-nav">
+      <a href="/admin/dashboard" class="breadcrumb-item">Dashboard</a>
+      <% if (typeof breadcrumb !== 'undefined' && breadcrumb && breadcrumb.length > 0) { %>
+        <% breadcrumb.forEach((item, index) => { %>
+          <span class="breadcrumb-separator">/</span>
+          <% if (index === breadcrumb.length - 1) { %>
+            <span class="breadcrumb-item active"><%= item.name %></span>
+          <% } else { %>
+            <a href="<%= item.url %>" class="breadcrumb-item"><%= item.name %></a>
+          <% } %>
+        <% }) %>
+      <% } %>
+    </nav>
+  </div>
+<% } %>

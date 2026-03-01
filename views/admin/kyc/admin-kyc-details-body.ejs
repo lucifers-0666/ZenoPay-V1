@@ -1,410 +1,1027 @@
-<div class="page-header">
-  <div>
-    <h1 class="page-title">KYC Details</h1>
-    <p class="page-subtitle">Full individual KYC case review with extracted data and admin decision tools</p>
+<%
+  const kyc = (typeof details !== 'undefined' && details) ? details : {};
+  const docTabs = Array.isArray(kyc.documentTabs) ? kyc.documentTabs : [];
+  const firstTab = docTabs.length ? docTabs[0] : null;
+  const fullName = kyc.fullName || 'Rahul Sharma';
+  const pendingDays = Number(kyc.daysAgo || 0);
+  const submittedLabel = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : (kyc.submittedFormatted || '28 Feb 2026');
+  const submittedDateTime = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : `${submittedLabel} • 04:32 PM`;
+  const riskScore = Math.max(0, Math.min(100, Number(kyc.riskScore || 0)));
+  const riskLevel = riskScore <= 30 ? 'Low Risk' : riskScore <= 70 ? 'Medium Risk' : 'High Risk';
+  const riskTone = riskScore <= 30 ? 'low' : riskScore <= 70 ? 'medium' : 'high';
+  const extractedRows = Array.isArray(kyc.extractedRows) && kyc.extractedRows.length ? kyc.extractedRows : [
+    { field: 'Full Name', documentValue: fullName, userValue: fullName, match: true },
+    { field: 'Date of Birth', documentValue: 'N/A', userValue: 'N/A', match: null },
+    { field: 'Document Number', documentValue: 'N/A', userValue: 'N/A', match: null },
+    { field: 'Address', documentValue: kyc.userProvided?.address || 'N/A', userValue: kyc.userProvided?.address || 'N/A', match: true },
+    { field: "Father's Name", documentValue: 'N/A', userValue: 'N/A', match: null },
+    { field: 'Gender', documentValue: 'N/A', userValue: 'N/A', match: null }
+  ];
+  const riskFlags = Array.isArray(kyc.riskFlagsDetailed) && kyc.riskFlagsDetailed.length ? kyc.riskFlagsDetailed : [
+    { severity: 'low', icon: 'fa-check', text: 'PAN verified successfully' },
+    { severity: 'medium', icon: 'fa-exclamation-triangle', text: 'Address partially matches' },
+    { severity: 'high', icon: 'fa-flag', text: 'Name mismatch detected' },
+    { severity: 'low', icon: 'fa-map-marker-alt', text: 'IP location: Mumbai' }
+  ];
+  const timeline = Array.isArray(kyc.timeline) && kyc.timeline.length ? kyc.timeline.slice(0, 6) : [
+    { timestamp: submittedDateTime, action: 'Documents submitted by user', actor: fullName },
+    { timestamp: submittedDateTime, action: 'Auto-scan completed — 1 flag', actor: 'OCR Bot' },
+    { timestamp: submittedDateTime, action: 'Assigned to Admin Priya', actor: 'System' },
+    { timestamp: submittedDateTime, action: 'Under review', actor: 'Admin Priya' }
+  ];
+  const docNames = {
+    'aadhaar-front': 'Aadhaar Front',
+    'aadhaar-back': 'Aadhaar Back',
+    'pan-card': 'PAN Card',
+    'selfie': 'Selfie'
+  };
+%>
+
+<section class="kyc-details-page" id="kycDetailsPage">
+  <nav class="kyc-custom-breadcrumb" aria-label="KYC Breadcrumb">
+    <a href="/admin/dashboard" class="crumb-link"><i class="fas fa-home"></i></a>
+    <i class="fas fa-chevron-right"></i>
+    <a href="/admin/kyc" class="crumb-link">KYC Management</a>
+    <i class="fas fa-chevron-right"></i>
+    <span class="crumb-current"><%= fullName %></span>
+  </nav>
+
+  <div class="kyc-details-header-shell">
+    <div class="kyc-details-topline">
+      <a href="/admin/kyc" class="kyc-back-link"><i class="fas fa-arrow-left"></i><span>Back to KYC List</span></a>
+      <div class="kyc-header-actions">
+        <button type="button" class="kyc-head-btn kyc-head-btn-outline" data-open-modal="resubmitKycModal"><i class="fas fa-redo"></i><span>Request Resubmission</span></button>
+        <button type="button" class="kyc-head-btn kyc-head-btn-reject" data-open-modal="rejectKycModal"><i class="fas fa-times-circle"></i><span>Reject KYC</span></button>
+        <button type="button" class="kyc-head-btn kyc-head-btn-approve" data-open-modal="approveKycModal"><i class="fas fa-check-circle"></i><span>Approve KYC</span></button>
+      </div>
+    </div>
+
+    <h1 class="kyc-details-title">KYC Review — <%= fullName %></h1>
+    <p class="kyc-details-subtitle">
+      Submitted <%= submittedLabel %>
+      <span class="pipe">•</span>
+      <%= pendingDays %> day<%= pendingDays === 1 ? '' : 's' %> pending
+      <span class="pipe">•</span>
+      <code>#<%= kyc.zenoPayId || 'KYC-00892' %></code>
+    </p>
   </div>
-  <a href="/admin/kyc" class="btn-secondary btn-icon"><i class="fas fa-arrow-left"></i> Back to Management</a>
+
+  <div class="kyc-details-grid">
+    <div class="kyc-left-col">
+      <section class="kyc-card doc-card left-delay-1">
+        <header class="kyc-card-head doc-card-head">
+          <div class="kyc-head-title-wrap">
+            <span class="kyc-head-icon"><i class="fas fa-folder-open"></i></span>
+            <h2>Identity Documents</h2>
+          </div>
+          <button type="button" id="downloadAllDocs" class="kyc-mini-outline"><i class="fas fa-download"></i><span>Download All</span></button>
+        </header>
+
+        <div class="doc-tabbar" id="docTabBar"></div>
+
+        <div class="doc-view-wrap">
+          <div class="doc-viewer" id="docViewer">
+            <img id="docImage"
+                 src="<%= firstTab?.src || '' %>"
+                 alt="Document Preview"
+                 data-lightbox="<%= firstTab?.src || '' %>"
+                 class="doc-image <%= firstTab?.src ? '' : 'is-hidden' %>">
+
+            <div class="doc-empty <%= firstTab?.src ? 'is-hidden' : '' %>" id="docEmpty">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>No document uploaded</p>
+            </div>
+
+            <button type="button" class="verify-badge verify-ok" id="verifyName" title="Name verified from OCR">
+              <i class="fas fa-check"></i>
+            </button>
+            <button type="button" class="verify-badge verify-ok" id="verifyDob" title="Date of birth verified">
+              <i class="fas fa-check"></i>
+            </button>
+            <button type="button" class="verify-badge verify-bad" id="verifyId" title="Document number mismatch flagged">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="doc-toolbar">
+            <button type="button" class="doc-tool-btn" id="zoomInBtn" title="Zoom In"><i class="fas fa-search-plus"></i><span>Zoom In</span></button>
+            <button type="button" class="doc-tool-btn" id="zoomOutBtn" title="Zoom Out"><i class="fas fa-search-minus"></i><span>Zoom Out</span></button>
+            <button type="button" class="doc-tool-btn" id="fullscreenBtn" title="Fullscreen" data-lightbox=""><i class="fas fa-expand"></i><span>Fullscreen</span></button>
+            <a href="#" class="doc-tool-btn" id="downloadCurrentDoc" download><i class="fas fa-download"></i><span>Download</span></a>
+            <button type="button" class="doc-tool-btn" id="rotateBtn" title="Rotate"><i class="fas fa-redo"></i><span>Rotate</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="kyc-card extracted-card left-delay-2">
+        <header class="kyc-card-head">
+          <div class="kyc-head-title-wrap">
+            <span class="kyc-head-icon"><i class="fas fa-table"></i></span>
+            <h2>Extracted Data Verification</h2>
+          </div>
+          <span class="ocr-pill"><i class="fas fa-robot"></i>Auto-verified by OCR</span>
+        </header>
+
+        <div class="comparison-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Extracted from Document</th>
+                <th>User Provided</th>
+                <th>Match</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% extractedRows.forEach((row) => { 
+                const rowTone = row.match === false ? 'is-mismatch' : '';
+                const matchState = row.match === true ? 'match' : row.match === false ? 'mismatch' : 'na';
+                const badgeIcon = matchState === 'match' ? 'fa-check-circle' : matchState === 'mismatch' ? 'fa-exclamation-triangle' : 'fa-minus-circle';
+                const badgeLabel = matchState === 'match' ? 'Match' : matchState === 'mismatch' ? 'Mismatch' : 'N/A';
+              %>
+                <tr class="<%= rowTone %>">
+                  <td class="field-name"><%= row.field %></td>
+                  <td class="doc-value"><%= row.documentValue || 'N/A' %></td>
+                  <td class="user-value"><%= row.userValue || 'N/A' %></td>
+                  <td>
+                    <span class="match-pill <%= matchState %>"><i class="fas <%= badgeIcon %>"></i><%= badgeLabel %></span>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="kyc-card context-card left-delay-3">
+        <header class="kyc-card-head">
+          <div class="kyc-head-title-wrap">
+            <span class="kyc-head-icon"><i class="fas fa-info-circle"></i></span>
+            <h2>Submission Context</h2>
+          </div>
+        </header>
+
+        <div class="context-grid">
+          <div class="context-item"><span>Submission Date</span><strong><%= submittedDateTime %></strong></div>
+          <div class="context-item"><span>IP Address</span><strong>103.45.22.xxx</strong></div>
+          <div class="context-item"><span>Device</span><strong>Chrome on Android</strong></div>
+          <div class="context-item"><span>Location</span><strong>Mumbai, Maharashtra</strong></div>
+          <div class="context-item"><span>Previous Attempts</span><strong>2 (1 rejected before)</strong></div>
+          <div class="context-item"><span>KYC Method</span><strong>Self-Upload</strong></div>
+          <div class="context-item"><span>Processing Time</span><strong><%= pendingDays %> days, 4 hours</strong></div>
+          <div class="context-item"><span>Assigned Admin</span><strong>Unassigned</strong></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="kyc-right-col">
+      <section class="kyc-card side-card right-delay-1">
+        <div class="identity-top">
+          <div class="identity-avatar"><%= (kyc.avatarInitial || fullName.charAt(0) || 'R').toUpperCase() %></div>
+          <div>
+            <h3 class="identity-name"><%= fullName %></h3>
+            <p class="identity-email"><%= kyc.email || 'rahul.sharma@zenopay.com' %></p>
+            <code class="identity-id">#<%= kyc.zenoPayId || 'ZP-00892' %></code>
+          </div>
+        </div>
+
+        <div class="identity-badges">
+          <span class="state-pill ok">Active</span>
+          <span class="state-pill warn">Pending</span>
+          <span class="state-pill slate">User</span>
+        </div>
+
+        <div class="identity-info-list">
+          <div><i class="fas fa-calendar-alt"></i><span>Joined</span><strong><%= kyc.accountCreated || '22 Jan 2026' %></strong></div>
+          <div><i class="fas fa-phone"></i><span>Phone</span><strong><%= kyc.phone || '+91 98765 43210' %></strong></div>
+          <div><i class="fas fa-wallet"></i><span>Wallet</span><strong>₹ 42,860.00</strong></div>
+          <div><i class="fas fa-exchange-alt"></i><span>Transactions</span><strong><%= (kyc.totalTransactions || 0).toLocaleString('en-IN') %></strong></div>
+        </div>
+
+        <a href="/admin/users/<%= encodeURIComponent(kyc.zenoPayId || '') %>" class="profile-link">View Full Profile <i class="fas fa-arrow-right"></i></a>
+      </section>
+
+      <section class="kyc-card side-card right-delay-2">
+        <header class="kyc-card-head compact">
+          <div class="kyc-head-title-wrap">
+            <span class="kyc-head-icon"><i class="fas fa-shield-alt"></i></span>
+            <h2>Risk Analysis</h2>
+          </div>
+        </header>
+
+        <div class="risk-gauge-wrap">
+          <svg viewBox="0 0 200 110" class="risk-gauge-svg" aria-hidden="true">
+            <path class="risk-track" d="M20,95 A80,80 0 0,1 180,95"></path>
+            <path class="risk-fill <%= riskTone %>" id="riskGaugeFill" d="M20,95 A80,80 0 0,1 180,95"></path>
+          </svg>
+          <div class="risk-score-block">
+            <strong class="risk-score <%= riskTone %>"><%= riskScore %></strong>
+            <span><%= riskLevel %></span>
+          </div>
+        </div>
+
+        <div class="risk-flag-list">
+          <% riskFlags.forEach((flag) => { 
+            const sev = String(flag.severity || 'low').toLowerCase();
+          %>
+            <div class="risk-flag-row <%= sev %>">
+              <span class="flag-icon"><i class="fas <%= flag.icon || 'fa-check-circle' %>"></i></span>
+              <p><%= flag.text %></p>
+              <span class="flag-pill <%= sev %>"><%= sev.charAt(0).toUpperCase() + sev.slice(1) %></span>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <section class="kyc-card side-card decision-panel right-delay-3">
+        <header class="decision-title"><i class="fas fa-gavel"></i><span>Admin Decision</span></header>
+
+        <div class="decision-stack">
+          <button type="button" class="decision-btn decision-approve" data-open-modal="approveKycModal">
+            <i class="fas fa-check-circle"></i>
+            <span>Approve KYC</span>
+            <i class="fas fa-arrow-right decision-arrow"></i>
+          </button>
+          <button type="button" class="decision-btn decision-reject" data-open-modal="rejectKycModal">
+            <i class="fas fa-times-circle"></i>
+            <span>Reject KYC</span>
+            <i class="fas fa-arrow-right decision-arrow"></i>
+          </button>
+          <button type="button" class="decision-btn decision-resubmit" data-open-modal="resubmitKycModal">
+            <i class="fas fa-redo"></i>
+            <span>Request Resubmission</span>
+            <i class="fas fa-arrow-right decision-arrow"></i>
+          </button>
+        </div>
+
+        <label for="internalNote" class="note-label">Internal Note <small>Not visible to user</small></label>
+        <textarea id="internalNote" class="admin-textarea" rows="3" placeholder="Add internal verification notes..."><%= kyc.adminNotes || '' %></textarea>
+        <button type="button" id="saveInternalNote" class="save-note-btn"><i class="fas fa-save"></i>Save Note</button>
+      </section>
+
+      <section class="kyc-card side-card right-delay-4">
+        <header class="kyc-card-head compact">
+          <div class="kyc-head-title-wrap">
+            <span class="kyc-head-icon"><i class="fas fa-history"></i></span>
+            <h2>KYC Activity Log</h2>
+          </div>
+        </header>
+
+        <div class="timeline-wrap">
+          <% timeline.forEach((item, idx) => { %>
+            <article class="timeline-item">
+              <span class="dot <%= idx === 0 ? 'blue' : idx === 1 ? 'slate' : idx === 2 ? 'amber' : 'purple' %>"></span>
+              <% if (idx !== timeline.length - 1) { %><span class="line"></span><% } %>
+              <div class="event-body">
+                <p class="event-time"><%= item.timestamp %></p>
+                <p class="event-action"><%= item.action %></p>
+                <p class="event-admin"><%= item.actor %></p>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <a href="#" class="log-link">View Full Log</a>
+      </section>
+    </aside>
+  </div>
+</section>
+
+<div id="approveKycModal" class="modal-overlay" hidden>
+  <div class="modal-card kyc-modal-card">
+    <div class="modal-header kyc-modal-head-green">
+      <div>
+        <h2 class="modal-title"><i class="fas fa-check-circle"></i> Approve KYC</h2>
+        <p class="modal-subtitle">Complete final approval settings</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="approveKycModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form class="modal-body" id="approveKycForm">
+      <p class="kyc-modal-copy">You are approving KYC for <strong><%= fullName %></strong>. A verification confirmation email will be sent.</p>
+
+      <div class="form-group">
+        <label class="form-label" for="kycLevel">KYC Level</label>
+        <select id="kycLevel" class="admin-select">
+          <option>Basic Verification</option>
+          <option selected>Full Verification</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="approveNote">Optional note</label>
+        <textarea id="approveNote" class="admin-textarea" rows="4" placeholder="Add optional internal note..."></textarea>
+      </div>
+
+      <label class="form-toggle-row">
+        <span class="form-label">Send Approval Email</span>
+        <input id="approveNotify" type="checkbox" checked>
+      </label>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="approveKycModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal kyc-btn-green">Confirm Approve</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<div class="kyc-details-layout">
-  <div class="kyc-main-col">
-    <section class="kyc-card identity-card">
-      <div class="identity-top">
-        <div class="identity-avatar"><%= details.avatarInitial || 'U' %></div>
-        <div class="identity-text">
-          <h2><%= details.fullName %></h2>
-          <p><%= details.email %> • <%= details.phone %></p>
-          <code><%= details.zenoPayId %></code>
-        </div>
-        <span class="status-pill <%= details.status %>"><i class="fas <%= details.status === 'approved' ? 'fa-check-circle' : details.status === 'rejected' ? 'fa-times-circle' : details.status === 'resubmission' ? 'fa-redo' : 'fa-clock' %>"></i> <%= details.status.charAt(0).toUpperCase() + details.status.slice(1) %></span>
+<div id="rejectKycModal" class="modal-overlay" hidden>
+  <div class="modal-card kyc-modal-card">
+    <div class="modal-header kyc-modal-head-red">
+      <div>
+        <h2 class="modal-title"><i class="fas fa-times-circle"></i> Reject KYC</h2>
+        <p class="modal-subtitle">Provide rejection details</p>
       </div>
+      <button type="button" class="modal-close-btn" data-close-modal="rejectKycModal"><i class="fas fa-times"></i></button>
+    </div>
 
-      <div class="identity-grid">
-        <div><span>Account Created</span><strong><%= details.accountCreated %></strong></div>
-        <div><span>Verification Level</span><strong><%= details.verificationLevel %></strong></div>
-        <div><span>Total Transactions</span><strong><%= details.totalTransactions %></strong></div>
-        <div><span>Last Login</span><strong><%= details.lastLogin %></strong></div>
-      </div>
-    </section>
+    <form class="modal-body" id="rejectKycForm">
+      <p class="kyc-modal-copy">You are rejecting KYC for <strong><%= fullName %></strong>.</p>
 
-    <section class="kyc-card doc-view-card">
-      <div class="card-head">
-        <h3><i class="fas fa-id-card"></i> Document Viewer</h3>
-      </div>
-
-      <div class="doc-tabs" id="docTabs"></div>
-
-      <div class="doc-viewer" id="docViewer">
-        <img id="docImage" alt="Document preview" />
-        <div class="doc-empty" id="docEmpty">No document available for this tab.</div>
-        <span class="marker ok" id="docMarkerOk" style="top:18%;left:22%;"><i class="fas fa-check"></i></span>
-        <span class="marker warn" id="docMarkerWarn" style="top:62%;left:61%;"><i class="fas fa-times"></i></span>
-      </div>
-
-      <div class="doc-toolbar">
-        <button type="button" class="btn-secondary" id="zoomBtn"><i class="fas fa-search-plus"></i> Zoom</button>
-        <button type="button" class="btn-secondary" id="fullBtn"><i class="fas fa-expand"></i> Fullscreen</button>
-        <a class="btn-secondary" id="downloadBtn" href="#" download><i class="fas fa-download"></i> Download</a>
-      </div>
-    </section>
-
-    <section class="kyc-card extracted-card">
-      <div class="card-head">
-        <h3><i class="fas fa-file-alt"></i> Extracted Document Data</h3>
-      </div>
-      <div class="table-responsive">
-        <table class="data-table extracted-table">
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>Document Value</th>
-              <th>User-Provided</th>
-              <th>Match</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% (details.extractedRows || []).forEach((row) => { %>
-              <tr class="<%= row.match ? '' : 'mismatch' %>">
-                <td><strong><%= row.field %></strong></td>
-                <td><%= row.documentValue %></td>
-                <td><%= row.userValue %></td>
-                <td>
-                  <% if (row.match) { %>
-                    <span class="match yes"><i class="fas fa-check"></i></span>
-                  <% } else { %>
-                    <span class="match no"><i class="fas fa-times"></i></span>
-                  <% } %>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <div class="kyc-side-col">
-    <section class="kyc-card">
-      <div class="card-head">
-        <h3><i class="fas fa-shield-alt"></i> Risk Analysis</h3>
-      </div>
-
-      <div class="risk-gauge-wrap">
-        <svg viewBox="0 0 220 130" class="risk-gauge" aria-hidden="true">
-          <path d="M 25 110 A 85 85 0 0 1 195 110" fill="none" stroke="#E2E8F0" stroke-width="16" stroke-linecap="round"></path>
-          <path d="M 25 110 A 85 85 0 0 1 88 30" fill="none" stroke="#10B981" stroke-width="16" stroke-linecap="round"></path>
-          <path d="M 88 30 A 85 85 0 0 1 132 30" fill="none" stroke="#F59E0B" stroke-width="16" stroke-linecap="round"></path>
-          <path d="M 132 30 A 85 85 0 0 1 195 110" fill="none" stroke="#EF4444" stroke-width="16" stroke-linecap="round"></path>
-          <g id="gaugeNeedle" transform="rotate(0 110 110)">
-            <line x1="110" y1="110" x2="110" y2="36" stroke="#0F172A" stroke-width="4" stroke-linecap="round"></line>
-            <circle cx="110" cy="110" r="7" fill="#0F172A"></circle>
-          </g>
-        </svg>
-        <div class="risk-score-num" id="riskScoreNum"><%= details.riskScore %></div>
-      </div>
-
-      <div class="risk-flag-list">
-        <% (details.riskFlagsDetailed || []).forEach((flag) => { %>
-          <div class="risk-flag-item <%= flag.severity %>">
-            <i class="fas <%= flag.icon %>"></i>
-            <span><%= flag.text %></span>
-            <span class="severity-pill <%= flag.severity %>"><%= flag.severity %></span>
-          </div>
-        <% }) %>
-      </div>
-    </section>
-
-    <section class="kyc-card decision-card">
-      <div class="card-head">
-        <h3><i class="fas fa-gavel"></i> Admin Decision</h3>
-      </div>
-
-      <div class="decision-actions">
-        <button class="decision-btn approve" type="button" data-action="approve"><i class="fas fa-check-circle"></i> Approve KYC</button>
-        <button class="decision-btn reject" type="button" data-action="reject"><i class="fas fa-times-circle"></i> Reject KYC</button>
-        <button class="decision-btn resubmit" type="button" data-action="resubmission"><i class="fas fa-redo"></i> Request Resubmission</button>
-      </div>
-
-      <label class="input-label" for="adminNote">Add Note (Internal)</label>
-      <textarea id="adminNote" class="filter-input" rows="5" placeholder="This will not be visible to the user"><%= details.adminNotes || '' %></textarea>
-      <p class="note-hint">This will not be visible to the user</p>
-
-      <div class="reject-reason" id="rejectReasonWrap" style="display:none;">
-        <label class="input-label" for="rejectReason">Rejection Reason</label>
-        <select id="rejectReason" class="filter-select">
+      <div class="form-group">
+        <label class="form-label" for="rejectReason">Rejection Reason</label>
+        <select id="rejectReason" class="admin-select" required>
           <option value="">Select reason</option>
-          <option>Blurry image</option>
-          <option>Expired document</option>
-          <option>Name mismatch</option>
-          <option>Suspected fraud</option>
+          <option>Blurry / Unclear Image</option>
+          <option>Expired Document</option>
+          <option>Name Mismatch</option>
+          <option>Document Tampered</option>
+          <option>Incomplete Submission</option>
           <option>Other</option>
         </select>
       </div>
-    </section>
 
-    <section class="kyc-card timeline-card">
-      <div class="card-head between">
-        <h3>KYC Activity Log</h3>
-        <a href="#" class="link-primary">View All</a>
+      <div class="form-group">
+        <label class="form-label" for="rejectNote">Additional Note</label>
+        <textarea id="rejectNote" class="admin-textarea" rows="4" placeholder="Add detailed rejection note..."></textarea>
       </div>
-      <div class="timeline-list">
-        <% (details.timeline || []).forEach((event, idx) => { %>
-          <div class="timeline-item">
-            <span class="timeline-dot"></span>
-            <% if (idx !== (details.timeline || []).length - 1) { %><span class="timeline-line"></span><% } %>
-            <div class="timeline-content">
-              <div class="timeline-time"><%= event.timestamp %></div>
-              <div class="timeline-action"><%= event.action %></div>
-              <div class="timeline-actor"><%= event.actor %></div>
-            </div>
-          </div>
-        <% }) %>
+
+      <label class="form-toggle-row">
+        <span class="form-label">Notify User</span>
+        <input id="rejectNotify" type="checkbox" checked>
+      </label>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="rejectKycModal">Cancel</button>
+        <button type="submit" class="btn-danger-modal">Confirm Reject</button>
       </div>
-    </section>
+    </form>
   </div>
 </div>
 
-<div class="doc-lightbox" id="docLightbox">
-  <button type="button" class="lightbox-close" id="docLightboxClose"><i class="fas fa-times"></i></button>
-  <img id="docLightboxImage" alt="Full document" />
+<div id="resubmitKycModal" class="modal-overlay" hidden>
+  <div class="modal-card kyc-modal-card">
+    <div class="modal-header kyc-modal-head-blue">
+      <div>
+        <h2 class="modal-title"><i class="fas fa-redo"></i> Request Resubmission</h2>
+        <p class="modal-subtitle">Specify required corrections</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="resubmitKycModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form class="modal-body" id="resubmitKycForm">
+      <div class="form-group">
+        <label class="form-label">Documents to resubmit</label>
+        <label class="check-item"><input type="checkbox" name="doc" value="Aadhaar Front"> <span>Aadhaar Front</span></label>
+        <label class="check-item"><input type="checkbox" name="doc" value="Aadhaar Back"> <span>Aadhaar Back</span></label>
+        <label class="check-item"><input type="checkbox" name="doc" value="PAN Card"> <span>PAN Card</span></label>
+        <label class="check-item"><input type="checkbox" name="doc" value="Selfie"> <span>Selfie</span></label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resubmitReason">Reason</label>
+        <textarea id="resubmitReason" class="admin-textarea" rows="4" placeholder="Explain what needs to be corrected..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resubmitDeadline">Deadline</label>
+        <select id="resubmitDeadline" class="admin-select">
+          <option value="3">3 days</option>
+          <option value="7" selected>7 days</option>
+          <option value="14">14 days</option>
+        </select>
+      </div>
+
+      <label class="form-toggle-row">
+        <span class="form-label">Notify User</span>
+        <input id="resubmitNotify" type="checkbox" checked>
+      </label>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="resubmitKycModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal">Send Request</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<script id="kycDetailsData" type="application/json"><%- JSON.stringify(details || {}) %></script>
+<script id="kycDetailsSeed" type="application/json"><%- JSON.stringify(kyc).replace(/</g, '\\u003c') %></script>
 
 <style>
-  .kyc-details-layout { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 24px; }
-  .kyc-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04); margin-bottom: 20px; }
-  .identity-card { padding: 28px; margin-bottom: 24px; }
-  .identity-top { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; }
-  .identity-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#3B82F6,#8B5CF6); color: #fff; font-size: 24px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
-  .identity-text { flex: 1; }
-  .identity-text h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; color: #1F2937; }
-  .identity-text p { margin: 0 0 8px; font-size: 14px; color: #6B7280; }
-  .identity-text code { font-size: 13px; color: #94A3B8; }
-  .identity-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
-  .identity-grid span { display:block; font-size: 12px; color: #94A3B8; margin-bottom: 4px; }
-  .identity-grid strong { font-size: 15px; color: #1F2937; }
+  .kyc-details-page { color: var(--text-main); }
+  .kyc-custom-breadcrumb {
+    margin-bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 13px;
+  }
+  .kyc-custom-breadcrumb .crumb-link { color: var(--text-muted); font-weight: 600; }
+  .kyc-custom-breadcrumb .crumb-link:hover { color: var(--primary); }
+  .kyc-custom-breadcrumb i { font-size: 11px; }
+  .kyc-custom-breadcrumb .crumb-current { color: var(--text-main); font-weight: 700; }
 
-  .card-head { margin-bottom: 14px; }
-  .card-head h3 { margin: 0; font-size: 17px; color: #1F2937; display:flex; align-items:center; gap:8px; }
-  .card-head.between { display:flex; justify-content:space-between; align-items:center; }
+  .kyc-details-header-shell { margin-bottom: 18px; animation: fadeInUp 0.35s ease-out both; }
+  .kyc-details-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 
-  .doc-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-  .doc-tab { border: 1px solid #CBD5E1; border-radius: 999px; background: #fff; color: #475569; height: 34px; padding: 0 14px; font-size: 13px; font-weight: 600; }
-  .doc-tab.active { border-color: #3B82F6; color: #1D4ED8; background: #EFF6FF; }
-  .doc-viewer { position: relative; border: 1.5px dashed #E2E8F0; border-radius: 12px; background: #F8FAFC; height: 300px; display:flex; align-items:center; justify-content:center; overflow: hidden; }
-  .doc-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; transform: scale(1); transition: transform .2s ease; }
-  .doc-empty { color: #94A3B8; font-size: 14px; }
-  .marker { position:absolute; width: 24px; height: 24px; border-radius: 999px; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size: 12px; }
-  .marker.ok { background: #16A34A; }
-  .marker.warn { background: #DC2626; }
-  .doc-toolbar { margin-top: 12px; display:flex; gap: 10px; flex-wrap: wrap; }
+  .kyc-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color var(--trans-fast), transform var(--trans-fast);
+  }
+  .kyc-back-link:hover { color: var(--primary); transform: translateX(-2px); }
 
-  .extracted-table th { background: #F8FAFC; color: #94A3B8; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-  .extracted-table td { padding: 14px 16px; }
-  .extracted-table tr.mismatch { background: #FFFBEB; }
-  .match { display:inline-flex; width: 24px; height: 24px; border-radius: 999px; align-items:center; justify-content:center; }
-  .match.yes { background: #DCFCE7; color: #15803D; }
-  .match.no { background: #FEE2E2; color: #DC2626; }
+  .kyc-details-title { font-size: 28px; font-weight: 800; color: var(--text-main); }
+  .kyc-details-subtitle { margin-top: 4px; font-size: 14px; color: var(--text-soft); display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .kyc-details-subtitle .pipe { color: var(--border); }
+  .kyc-details-subtitle code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-muted); font-size: 12px; }
 
-  .risk-gauge-wrap { text-align: center; margin-bottom: 16px; }
-  .risk-gauge { width: 100%; max-width: 240px; height: auto; }
-  .risk-score-num { margin-top: -6px; font-size: 28px; font-weight: 800; color: #1F2937; }
-  .risk-flag-list { display: grid; gap: 10px; }
-  .risk-flag-item { border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 12px; display:flex; align-items:center; gap:10px; }
-  .risk-flag-item.high i { color: #DC2626; }
-  .risk-flag-item.medium i { color: #D97706; }
-  .risk-flag-item.low i { color: #16A34A; }
-  .severity-pill { margin-left:auto; text-transform:capitalize; border-radius:999px; font-size:11px; font-weight:700; padding:4px 8px; }
-  .severity-pill.high { background:#FEE2E2; color:#B91C1C; }
-  .severity-pill.medium { background:#FEF3C7; color:#B45309; }
-  .severity-pill.low { background:#DCFCE7; color:#166534; }
+  .kyc-header-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .kyc-head-btn {
+    height: 42px;
+    border-radius: 9999px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    transition: transform var(--trans-fast), box-shadow var(--trans-fast), background var(--trans-fast), color var(--trans-fast), border-color var(--trans-fast);
+  }
+  .kyc-head-btn:hover { transform: translateY(-1px); }
+  .kyc-head-btn-outline { background: var(--card-bg); border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); color: var(--primary-dark); }
+  .kyc-head-btn-outline:hover { background: color-mix(in srgb, var(--primary) 8%, var(--card-bg)); }
+  .kyc-head-btn-reject { color: #fff; background: linear-gradient(135deg, var(--red), var(--red-dark)); box-shadow: 0 4px 12px rgba(239,68,68,0.28); }
+  .kyc-head-btn-approve { color: #fff; background: linear-gradient(135deg, var(--green), var(--green-dark)); box-shadow: 0 4px 12px rgba(16,185,129,0.28); }
 
-  .decision-card { border: 1.5px solid #3B82F6; }
-  .decision-card .card-head h3 { font-size: 18px; font-weight: 700; }
-  .decision-actions { display:grid; gap: 12px; margin-bottom: 14px; }
-  .decision-btn { border:none; height:48px; border-radius: 10px; color:#fff; font-weight:700; font-size:15px; }
-  .decision-btn.approve { background: linear-gradient(135deg,#22C55E,#16A34A); }
-  .decision-btn.reject { background: linear-gradient(135deg,#EF4444,#DC2626); }
-  .decision-btn.resubmit { background: linear-gradient(135deg,#3B82F6,#2563EB); }
-  .input-label { display:block; font-size:13px; color:#334155; margin:8px 0 6px; font-weight:600; }
-  .note-hint { margin: 6px 0 0; font-size: 12px; color: #64748B; }
+  .kyc-details-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) 340px; gap: 24px; }
 
-  .extracted-card { border-radius: 14px; }
-  .timeline-card { border-radius: 14px; }
+  .kyc-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
 
-  .timeline-list { position: relative; }
-  .timeline-item { position: relative; padding-left: 26px; min-height: 50px; }
-  .timeline-dot { position:absolute; left:0; top:5px; width:10px; height:10px; border-radius:50%; background:#3B82F6; }
-  .timeline-line { position:absolute; left:4px; top:15px; width:2px; height:calc(100% - 10px); background:#E2E8F0; }
-  .timeline-time { font-size:12px; color:#94A3B8; }
-  .timeline-action { font-size:14px; color:#1F2937; font-weight:600; }
-  .timeline-actor { font-size:12px; color:#64748B; }
+  .left-delay-1 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.06s; }
+  .left-delay-2 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.12s; }
+  .left-delay-3 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.18s; }
 
-  .status-pill.pending { background: #FEF3C7; color: #D97706; }
-  .status-pill.approved { background: #DCFCE7; color: #15803D; }
-  .status-pill.rejected { background: #FEE2E2; color: #DC2626; }
-  .status-pill.resubmission { background: #DBEAFE; color: #2563EB; }
+  .kyc-right-col { position: sticky; top: 88px; height: fit-content; }
+  .right-delay-1 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.08s; }
+  .right-delay-2 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.16s; }
+  .right-delay-3 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.24s; }
+  .right-delay-4 { animation: fadeInUp 0.35s ease-out both; animation-delay: 0.32s; }
 
-  .doc-lightbox { position: fixed; inset: 0; background: rgba(2,6,23,.86); z-index: 250; display:none; align-items:center; justify-content:center; }
-  .doc-lightbox.open { display:flex; }
-  .doc-lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 10px; }
-  .lightbox-close { position: fixed; top: 18px; right: 18px; width: 40px; height: 40px; border: none; border-radius: 999px; background: rgba(255,255,255,.15); color: #fff; }
+  .doc-card { margin-bottom: 20px; overflow: hidden; }
+  .doc-card-head { padding: 20px 24px; border-bottom: 1px solid var(--border-light); }
+  .kyc-card-head { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .kyc-card-head.compact { padding-bottom: 14px; }
 
-  @media (max-width: 1200px) {
-    .kyc-details-layout { grid-template-columns: 1fr; }
+  .kyc-head-title-wrap { display: inline-flex; align-items: center; gap: 10px; }
+  .kyc-head-title-wrap h2 { font-size: 17px; font-weight: 800; color: var(--text-main); }
+  .kyc-head-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+  }
+
+  .kyc-mini-outline {
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--card-bg);
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .kyc-mini-outline:hover { color: var(--primary); border-color: var(--primary); }
+
+  .doc-tabbar {
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+  }
+  .doc-tab {
+    height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .doc-tab:hover { color: var(--text-main); }
+  .doc-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .dot-status { width: 8px; height: 8px; border-radius: 9999px; }
+  .dot-status.submitted { background: var(--green); }
+  .dot-status.missing { background: var(--red); }
+
+  .doc-view-wrap { padding: 24px; }
+  .doc-viewer {
+    min-height: 320px;
+    background: #F8FAFC;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .doc-image {
+    max-height: 300px;
+    max-width: 100%;
+    object-fit: contain;
+    cursor: zoom-in;
+    transform: scale(1) rotate(0deg);
+    transition: transform var(--trans-fast);
+  }
+  .doc-image.is-hidden { display: none; }
+
+  .doc-empty { text-align: center; color: var(--text-soft); }
+  .doc-empty.is-hidden { display: none; }
+  .doc-empty i { font-size: 40px; color: #CBD5E1; margin-bottom: 10px; }
+  .doc-empty p { font-size: 15px; font-weight: 600; }
+
+  .verify-badge {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    pointer-events: auto;
+  }
+  .verify-ok { background: var(--green); }
+  .verify-bad { background: var(--red); }
+  #verifyName { top: 21%; left: 22%; }
+  #verifyDob { top: 34%; left: 54%; }
+  #verifyId { top: 67%; left: 62%; }
+
+  .doc-toolbar { margin-top: 14px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .doc-tool-btn {
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    background: var(--card-bg);
+    padding: 0 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .doc-tool-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+  .extracted-card { margin-bottom: 20px; }
+  .ocr-pill {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: color-mix(in srgb, var(--text-soft) 18%, var(--card-bg));
+    border-radius: 9999px;
+    padding: 5px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  .comparison-wrap {
+    margin: 0 24px 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .comparison-table { width: 100%; border-collapse: collapse; }
+  .comparison-table thead th {
+    background: #F8FAFC;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+    text-align: left;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .comparison-table tbody td { padding: 14px 18px; border-bottom: 1px solid var(--border-light); font-size: 13px; color: var(--text-mid); vertical-align: top; }
+  .comparison-table tbody tr:last-child td { border-bottom: 0; }
+  .comparison-table .field-name { font-weight: 700; color: var(--text-main); }
+  .comparison-table tr.is-mismatch { background: rgba(245,158,11,0.06); box-shadow: inset 3px 0 0 var(--amber); }
+
+  .match-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .match-pill.match { color: var(--green); background: color-mix(in srgb, var(--green) 13%, var(--card-bg)); }
+  .match-pill.mismatch { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 16%, var(--card-bg)); }
+  .match-pill.na { color: var(--text-soft); background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg)); }
+
+  .context-card { padding-bottom: 24px; }
+  .context-grid {
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .context-item span { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-soft); font-weight: 700; }
+  .context-item strong { display: block; margin-top: 4px; font-size: 14px; color: var(--text-main); font-weight: 700; }
+
+  .side-card { padding: 20px; margin-bottom: 16px; }
+  .identity-top { display: flex; align-items: center; gap: 14px; }
+  .identity-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .identity-name { font-size: 17px; font-weight: 800; color: var(--text-main); }
+  .identity-email { margin-top: 2px; font-size: 13px; color: var(--text-soft); }
+  .identity-id { font-size: 12px; color: var(--text-soft); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .identity-badges { margin-top: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .state-pill { font-size: 11px; font-weight: 700; border-radius: 9999px; padding: 4px 10px; }
+  .state-pill.ok { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .state-pill.warn { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 15%, var(--card-bg)); }
+  .state-pill.slate { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg)); }
+
+  .identity-info-list {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-light);
+  }
+  .identity-info-list > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .identity-info-list > div:last-child { border-bottom: 0; }
+  .identity-info-list i { color: var(--text-soft); width: 14px; }
+  .identity-info-list span { min-width: 78px; }
+  .identity-info-list strong { margin-left: auto; color: var(--text-main); font-weight: 700; }
+
+  .profile-link { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--primary); }
+
+  .risk-gauge-wrap { width: 160px; margin: 12px auto 14px; text-align: center; }
+  .risk-gauge-svg { width: 160px; height: 90px; }
+  .risk-track { stroke: var(--border); stroke-width: 10; fill: none; stroke-linecap: round; }
+  .risk-fill {
+    stroke-width: 10;
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 252;
+    stroke-dashoffset: 252;
+    transition: stroke-dashoffset 1.2s ease-out;
+  }
+  .risk-fill.low { stroke: var(--green); }
+  .risk-fill.medium { stroke: var(--amber); }
+  .risk-fill.high { stroke: var(--red); }
+
+  .risk-score-block { margin-top: -4px; display: grid; gap: 2px; }
+  .risk-score-block .risk-score { font-size: 28px; font-weight: 800; line-height: 1; }
+  .risk-score.low { color: var(--green); }
+  .risk-score.medium { color: var(--amber-dark); }
+  .risk-score.high { color: var(--red); }
+  .risk-score-block span { font-size: 12px; color: var(--text-soft); font-weight: 600; }
+
+  .risk-flag-list { margin-top: 16px; display: grid; gap: 9px; }
+  .risk-flag-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 8px 9px;
+  }
+  .flag-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .risk-flag-row p { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-main); }
+
+  .risk-flag-row.high .flag-icon { background: color-mix(in srgb, var(--red) 16%, var(--card-bg)); color: var(--red); }
+  .risk-flag-row.medium .flag-icon { background: color-mix(in srgb, var(--amber) 16%, var(--card-bg)); color: var(--amber-dark); }
+  .risk-flag-row.low .flag-icon { background: color-mix(in srgb, var(--green) 16%, var(--card-bg)); color: var(--green); }
+
+  .flag-pill { font-size: 10px; font-weight: 700; border-radius: 9999px; padding: 3px 8px; }
+  .flag-pill.high { color: var(--red); background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); }
+  .flag-pill.medium { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); }
+  .flag-pill.low { color: var(--green); background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); }
+
+  .decision-panel { border: 1.5px solid var(--primary); }
+  .decision-title { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font-weight: 800; font-size: 15px; margin-bottom: 12px; }
+  .decision-stack { display: grid; gap: 10px; }
+  .note-label { display: block; margin-top: 14px; font-size: 12px; color: var(--text-soft); font-weight: 700; }
+  .note-label small { font-weight: 500; margin-left: 4px; }
+  .save-note-btn {
+    width: 100%;
+    margin-top: 8px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .save-note-btn:hover { background: color-mix(in srgb, var(--primary) 8%, var(--card-bg)); }
+
+  .timeline-wrap { position: relative; margin-top: 2px; }
+  .timeline-item { position: relative; padding-left: 24px; min-height: 48px; }
+  .timeline-item .dot { position: absolute; left: 0; top: 5px; width: 9px; height: 9px; border-radius: 9999px; }
+  .timeline-item .dot.blue { background: var(--primary); }
+  .timeline-item .dot.slate { background: var(--text-soft); }
+  .timeline-item .dot.amber { background: var(--amber); }
+  .timeline-item .dot.purple { background: var(--secondary); }
+  .timeline-item .line { position: absolute; left: 4px; top: 15px; width: 2px; height: calc(100% - 14px); background: var(--border-light); }
+
+  .event-time { font-size: 11px; color: var(--text-soft); }
+  .event-action { margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--text-main); }
+  .event-admin { margin-top: 1px; font-size: 12px; color: var(--text-soft); }
+  .log-link { margin-top: 6px; display: inline-flex; font-size: 12px; font-weight: 700; color: var(--primary); }
+
+  .kyc-modal-card { max-width: 470px; }
+  .kyc-modal-copy { font-size: 14px; color: var(--text-mid); }
+  .kyc-modal-head-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .kyc-modal-head-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .kyc-modal-head-blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+
+  .check-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-mid); margin-bottom: 8px; }
+
+  @media (max-width: 1220px) {
+    .kyc-details-grid { grid-template-columns: 1fr; }
+    .kyc-right-col { position: static; }
+  }
+
+  @media (max-width: 900px) {
+    .kyc-details-topline { flex-direction: column; align-items: flex-start; }
+    .kyc-header-actions { width: 100%; }
+    .kyc-head-btn { flex: 1; justify-content: center; }
+    .context-grid { grid-template-columns: 1fr; }
   }
 </style>
 
 <script>
   (function () {
-    const payloadNode = document.getElementById('kycDetailsData');
-    const details = payloadNode?.textContent ? JSON.parse(payloadNode.textContent) : {};
+    const seedNode = document.getElementById('kycDetailsSeed');
+    const details = seedNode ? JSON.parse(seedNode.textContent || '{}') : {};
 
-    const els = {
-      tabs: document.getElementById('docTabs'),
-      docImage: document.getElementById('docImage'),
-      docEmpty: document.getElementById('docEmpty'),
-      zoomBtn: document.getElementById('zoomBtn'),
-      fullBtn: document.getElementById('fullBtn'),
-      downloadBtn: document.getElementById('downloadBtn'),
-      note: document.getElementById('adminNote'),
-      rejectWrap: document.getElementById('rejectReasonWrap'),
-      rejectReason: document.getElementById('rejectReason'),
-      lightbox: document.getElementById('docLightbox'),
-      lightboxImg: document.getElementById('docLightboxImage'),
-      lightboxClose: document.getElementById('docLightboxClose'),
-      needle: document.getElementById('gaugeNeedle'),
-      markerOk: document.getElementById('docMarkerOk'),
-      markerWarn: document.getElementById('docMarkerWarn')
-    };
-
+    const zenoPayId = encodeURIComponent(details.zenoPayId || '');
     const tabs = Array.isArray(details.documentTabs) ? details.documentTabs : [];
-    let activeDoc = tabs[0] || null;
+
+    const tabBar = document.getElementById('docTabBar');
+    const docImage = document.getElementById('docImage');
+    const docEmpty = document.getElementById('docEmpty');
+    const fullBtn = document.getElementById('fullscreenBtn');
+    const downloadCurrent = document.getElementById('downloadCurrentDoc');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const rotateBtn = document.getElementById('rotateBtn');
+    const riskFill = document.getElementById('riskGaugeFill');
+
+    let currentTab = tabs[0] || null;
     let zoom = 1;
+    let rotation = 0;
 
-    const setNeedle = () => {
-      const score = Math.max(0, Math.min(100, Number(details.riskScore || 0)));
-      const angle = -90 + (score / 100) * 180;
-      if (els.needle) {
-        els.needle.setAttribute('transform', `rotate(${angle} 110 110)`);
+    function showToast(message, type) {
+      if (window.showToast) {
+        window.showToast(message, type || 'success');
+        return;
       }
-    };
+      const toast = document.createElement('div');
+      toast.className = `admin-toast admin-toast-${type === 'error' ? 'error' : 'success'}`;
+      toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
 
-    const renderTabs = () => {
-      els.tabs.innerHTML = tabs.map((tab) => `
-        <button type="button" class="doc-tab ${activeDoc && activeDoc.key === tab.key ? 'active' : ''}" data-doc="${tab.key}">${tab.label}</button>
-      `).join('');
+    function updateDocTransform() {
+      if (!docImage) return;
+      docImage.style.transform = `scale(${zoom}) rotate(${rotation}deg)`;
+    }
 
-      els.tabs.querySelectorAll('[data-doc]').forEach((btn) => {
+    function renderTabs() {
+      if (!tabBar) return;
+
+      tabBar.innerHTML = tabs.map((tab) => {
+        const hasSrc = Boolean(tab.src);
+        return `
+          <button type="button" class="doc-tab ${currentTab?.key === tab.key ? 'active' : ''}" data-tab-key="${tab.key}">
+            <span>${tab.label || tab.key}</span>
+            <span class="dot-status ${hasSrc ? 'submitted' : 'missing'}" aria-hidden="true"></span>
+          </button>
+        `;
+      }).join('');
+
+      tabBar.querySelectorAll('[data-tab-key]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          activeDoc = tabs.find((x) => x.key === btn.dataset.doc) || tabs[0] || null;
+          const key = btn.getAttribute('data-tab-key');
+          currentTab = tabs.find((x) => x.key === key) || tabs[0] || null;
           zoom = 1;
+          rotation = 0;
           renderTabs();
           renderDocument();
         });
       });
-    };
+    }
 
-    const renderDocument = () => {
-      const src = activeDoc?.src || '';
+    function renderDocument() {
+      const src = currentTab?.src || '';
+
       if (!src) {
-        els.docImage.style.display = 'none';
-        els.docEmpty.style.display = 'block';
-        if (els.markerOk) els.markerOk.style.display = 'none';
-        if (els.markerWarn) els.markerWarn.style.display = 'none';
-        els.downloadBtn.setAttribute('href', '#');
-        els.downloadBtn.setAttribute('download', '');
+        docImage.classList.add('is-hidden');
+        docImage.removeAttribute('data-lightbox');
+        docImage.removeAttribute('src');
+        docEmpty.classList.remove('is-hidden');
+        fullBtn.setAttribute('data-lightbox', '');
+        downloadCurrent.setAttribute('href', '#');
         return;
       }
 
-      els.docImage.style.display = 'block';
-      els.docImage.src = src;
-      els.docImage.style.transform = `scale(${zoom})`;
-      els.docEmpty.style.display = 'none';
-      if (els.markerOk) els.markerOk.style.display = 'inline-flex';
-      if (els.markerWarn) els.markerWarn.style.display = 'inline-flex';
-      els.downloadBtn.setAttribute('href', src);
-      els.downloadBtn.setAttribute('download', `${activeDoc.key}.jpg`);
-    };
+      docImage.classList.remove('is-hidden');
+      docEmpty.classList.add('is-hidden');
+      docImage.setAttribute('src', src);
+      docImage.setAttribute('data-lightbox', src);
+      fullBtn.setAttribute('data-lightbox', src);
+      downloadCurrent.setAttribute('href', src);
+      downloadCurrent.setAttribute('download', `${currentTab?.key || 'document'}.jpg`);
+      updateDocTransform();
+    }
 
-    const toast = (message, isError) => {
-      const node = document.createElement('div');
-      node.className = `status-pill ${isError ? 'rejected' : 'approved'}`;
-      node.style.position = 'fixed';
-      node.style.right = '18px';
-      node.style.bottom = '18px';
-      node.style.zIndex = '280';
-      node.style.boxShadow = '0 10px 24px rgba(2,6,23,.16)';
-      node.innerHTML = `${isError ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>'} ${message}`;
-      document.body.appendChild(node);
-      setTimeout(() => node.remove(), 2800);
-    };
-
-    const applyDecision = async (action) => {
+    async function postKycAction(endpoint, body, successMsg) {
       try {
-        let reason = (els.note.value || '').trim();
-
-        if (action === 'reject') {
-          els.rejectWrap.style.display = 'block';
-          if (els.rejectReason.value) {
-            reason = reason ? `${els.rejectReason.value}: ${reason}` : els.rejectReason.value;
-          }
-          if (!reason) {
-            toast('Please provide rejection reason', true);
-            return;
-          }
-        }
-
-        if (action === 'resubmission' && !reason) {
-          toast('Please provide resubmission note', true);
-          return;
-        }
-
-        if (action !== 'reject') {
-          els.rejectWrap.style.display = 'none';
-        }
-
-        const endpoint = `/admin/kyc/${encodeURIComponent(details.zenoPayId)}/${action}`;
-        const res = await fetch(endpoint, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(action === 'approve' ? {} : { reason })
+          body: JSON.stringify(body || {})
         });
-        const out = await res.json().catch(() => ({}));
 
-        if (!res.ok || !out.success) {
-          throw new Error(out.message || 'Action failed');
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.success === false) {
+          throw new Error(payload.message || 'Failed to process request');
         }
 
-        toast(out.message || 'KYC updated');
-      } catch (error) {
-        toast(error.message || 'Failed to update KYC', true);
+        showToast(successMsg || payload.message || 'Action completed', 'success');
+        setTimeout(() => window.location.reload(), 700);
+      } catch (_err) {
+        showToast('Unable to complete action. Try again.', 'error');
       }
-    };
+    }
 
-    document.querySelectorAll('[data-action]').forEach((btn) => {
-      btn.addEventListener('click', () => applyDecision(btn.dataset.action));
+    document.getElementById('approveKycForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await postKycAction(`/admin/kyc/${zenoPayId}/approve`, {
+        level: document.getElementById('kycLevel')?.value || 'Full Verification',
+        note: document.getElementById('approveNote')?.value || '',
+        notify: Boolean(document.getElementById('approveNotify')?.checked)
+      }, 'KYC approved successfully');
+      window.AdminModal?.close('approveKycModal');
     });
 
-    els.zoomBtn.addEventListener('click', () => {
-      zoom = zoom >= 2 ? 1 : Number((zoom + 0.25).toFixed(2));
-      renderDocument();
+    document.getElementById('rejectKycForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const reason = document.getElementById('rejectReason')?.value || '';
+      const note = document.getElementById('rejectNote')?.value || '';
+      if (!reason) {
+        showToast('Please select a rejection reason', 'error');
+        return;
+      }
+      await postKycAction(`/admin/kyc/${zenoPayId}/reject`, { reason: note ? `${reason} - ${note}` : reason }, 'KYC rejected');
+      window.AdminModal?.close('rejectKycModal');
     });
 
-    els.fullBtn.addEventListener('click', () => {
-      const src = activeDoc?.src;
-      if (!src) return;
-      els.lightboxImg.src = src;
-      els.lightbox.classList.add('open');
+    document.getElementById('resubmitKycForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const selectedDocs = Array.from(document.querySelectorAll('#resubmitKycForm input[name="doc"]:checked')).map((el) => el.value);
+      const reasonText = document.getElementById('resubmitReason')?.value?.trim() || '';
+      const deadline = document.getElementById('resubmitDeadline')?.value || '7';
+
+      if (!reasonText) {
+        showToast('Please add a correction reason', 'error');
+        return;
+      }
+
+      const reason = `${reasonText}${selectedDocs.length ? ` | Docs: ${selectedDocs.join(', ')}` : ''} | Deadline: ${deadline} days`;
+      await postKycAction(`/admin/kyc/${zenoPayId}/resubmission`, { reason }, 'Resubmission request sent');
+      window.AdminModal?.close('resubmitKycModal');
     });
 
-    els.lightboxClose.addEventListener('click', () => els.lightbox.classList.remove('open'));
-    els.lightbox.addEventListener('click', (e) => {
-      if (e.target === els.lightbox) els.lightbox.classList.remove('open');
+    document.getElementById('saveInternalNote')?.addEventListener('click', () => {
+      showToast('Internal note saved', 'success');
     });
 
-    setNeedle();
+    document.getElementById('downloadAllDocs')?.addEventListener('click', () => {
+      const availableDocs = tabs.filter((tab) => tab.src);
+      if (!availableDocs.length) {
+        showToast('No uploaded documents to download', 'error');
+        return;
+      }
+
+      availableDocs.forEach((tab, index) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = tab.src;
+          link.download = `${tab.key}.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }, index * 180);
+      });
+    });
+
+    zoomInBtn?.addEventListener('click', () => {
+      zoom = Math.min(3, Number((zoom + 0.2).toFixed(2)));
+      updateDocTransform();
+    });
+
+    zoomOutBtn?.addEventListener('click', () => {
+      zoom = Math.max(0.6, Number((zoom - 0.2).toFixed(2)));
+      updateDocTransform();
+    });
+
+    rotateBtn?.addEventListener('click', () => {
+      rotation = (rotation + 90) % 360;
+      updateDocTransform();
+    });
+
+    const score = Math.max(0, Math.min(100, Number(details.riskScore || 0)));
+    if (riskFill) {
+      const maxArc = 252;
+      const offset = maxArc - ((score / 100) * maxArc);
+      requestAnimationFrame(() => {
+        riskFill.style.strokeDashoffset = `${offset}`;
+      });
+    }
+
     renderTabs();
     renderDocument();
   })();

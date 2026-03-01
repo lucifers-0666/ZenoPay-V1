@@ -1,694 +1,1271 @@
-<!-- Page Header -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title">KYC Management</h1>
-    <p class="page-subtitle">Review and verify user identity documents</p>
-  </div>
-</div>
+<%
+  page = (typeof currentPage !== 'undefined' && currentPage) ? currentPage : ((typeof adminPage !== 'undefined' && adminPage) ? adminPage : 'kyc');
+  const _stats = (typeof stats !== 'undefined' && stats) ? stats : {};
+  const _submissions = (typeof submissions !== 'undefined' && Array.isArray(submissions)) ? submissions : [];
+  const pendingCount = Number(_stats.pending || 0);
+  const totalCount = Number(_stats.total || _submissions.length || 0);
+  const approvedCount = Number(_stats.approved || 0);
+  const rejectedCount = Number(_stats.rejected || 0);
+  const resubmissionCount = Number(_stats.resubmission || 0);
+  const approvedToday = Math.max(0, Math.min(approvedCount, 24));
+%>
 
-<!-- Stats Strip -->
-<div class="stats-cards-row kyc-stats-row">
-  <div class="stat-mini-card stat-slate">
-    <div class="stat-mini-icon"><i class="fas fa-inbox"></i></div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value" id="statTotal"><%= stats.total %></div>
-      <div class="stat-mini-label">Total Submissions</div>
+<section class="kyc-page" id="kycPage">
+  <header class="kyc-header">
+    <div>
+      <h1 class="kyc-title">KYC Management</h1>
+      <p class="kyc-subtitle">Review and verify user identity documents</p>
     </div>
-  </div>
-
-  <div class="stat-mini-card stat-warning" id="pendingCard">
-    <div class="stat-mini-icon"><i class="fas fa-clock"></i></div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value"><span id="statPending"><%= stats.pending %></span> <span class="pending-dot" id="pendingDot"><%= stats.pending > 0 ? '!' : '' %></span></div>
-      <div class="stat-mini-label">Pending Review</div>
+    <div class="kyc-header-actions">
+      <button class="kyc-btn kyc-btn-outline" id="exportKycCsvBtn" type="button"><i class="fas fa-download"></i><span>Export CSV</span></button>
+      <button class="kyc-btn kyc-btn-outline" id="refreshKycBtn" type="button"><i class="fas fa-sync-alt"></i><span>Refresh</span></button>
     </div>
-  </div>
+  </header>
 
-  <div class="stat-mini-card stat-success">
-    <div class="stat-mini-icon"><i class="fas fa-check-circle"></i></div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value" id="statApproved"><%= stats.approved %></div>
-      <div class="stat-mini-label">Approved</div>
+  <section class="kyc-stats">
+    <article class="kyc-stat-card kyc-delay-0">
+      <div class="kyc-stat-icon kyc-icon-slate"><i class="fas fa-inbox"></i></div>
+      <div class="kyc-stat-body">
+        <p class="kyc-stat-label">Total Submissions</p>
+        <h3 class="kyc-stat-value"><%= totalCount.toLocaleString('en-IN') %></h3>
+      </div>
+    </article>
+
+    <article class="kyc-stat-card kyc-stat-pending kyc-delay-1 <%= pendingCount > 0 ? 'has-pending' : '' %>">
+      <div class="kyc-stat-icon kyc-icon-amber"><i class="fas fa-clock"></i></div>
+      <div class="kyc-stat-body">
+        <p class="kyc-stat-label">Pending Review</p>
+        <h3 class="kyc-stat-value">
+          <% if (pendingCount > 0) { %><span class="kyc-pulse-dot" aria-hidden="true"></span><% } %>
+          <%= pendingCount.toLocaleString('en-IN') %>
+        </h3>
+      </div>
+    </article>
+
+    <article class="kyc-stat-card kyc-delay-2">
+      <div class="kyc-stat-icon kyc-icon-green"><i class="fas fa-check-circle"></i></div>
+      <div class="kyc-stat-body">
+        <p class="kyc-stat-label">Approved</p>
+        <h3 class="kyc-stat-value"><%= approvedCount.toLocaleString('en-IN') %></h3>
+        <span class="kyc-mini-pill kyc-mini-pill-green">+<%= approvedToday %> today</span>
+      </div>
+    </article>
+
+    <article class="kyc-stat-card kyc-delay-3">
+      <div class="kyc-stat-icon kyc-icon-red"><i class="fas fa-times-circle"></i></div>
+      <div class="kyc-stat-body">
+        <p class="kyc-stat-label">Rejected</p>
+        <h3 class="kyc-stat-value"><%= rejectedCount.toLocaleString('en-IN') %></h3>
+      </div>
+    </article>
+
+    <article class="kyc-stat-card kyc-delay-4">
+      <div class="kyc-stat-icon kyc-icon-blue"><i class="fas fa-redo"></i></div>
+      <div class="kyc-stat-body">
+        <p class="kyc-stat-label">Resubmission Requested</p>
+        <h3 class="kyc-stat-value"><%= resubmissionCount.toLocaleString('en-IN') %></h3>
+      </div>
+    </article>
+  </section>
+
+  <section class="kyc-priority-alert <%= pendingCount > 50 ? '' : 'is-hidden' %>" id="priorityAlert">
+    <div class="kyc-alert-left">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p><strong><span id="pendingAlertCount"><%= pendingCount.toLocaleString('en-IN') %></span></strong> submissions are waiting for review — oldest is <span id="oldestAgeText">4 days old</span></p>
     </div>
-  </div>
+    <button class="kyc-btn kyc-btn-amber" id="reviewOldestBtn" type="button"><i class="fas fa-arrow-right"></i><span>Review Oldest First</span></button>
+  </section>
 
-  <div class="stat-mini-card stat-error">
-    <div class="stat-mini-icon"><i class="fas fa-times-circle"></i></div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value" id="statRejected"><%= stats.rejected %></div>
-      <div class="stat-mini-label">Rejected</div>
+  <section class="kyc-filter-card">
+    <div class="kyc-search-wrap">
+      <i class="fas fa-search"></i>
+      <input id="kycSearch" type="text" placeholder="Search by name, email, or user ID...">
     </div>
-  </div>
 
-  <div class="stat-mini-card stat-primary">
-    <div class="stat-mini-icon"><i class="fas fa-redo"></i></div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value" id="statResub"><%= stats.resubmission %></div>
-      <div class="stat-mini-label">Resubmission Requested</div>
+    <select id="kycStatusFilter" class="kyc-select">
+      <option value="">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="rejected">Rejected</option>
+      <option value="resubmission">Resubmission</option>
+    </select>
+
+    <select id="kycDocumentFilter" class="kyc-select">
+      <option value="">All Documents</option>
+      <option value="aadhaar">Aadhaar</option>
+      <option value="pan">PAN Card</option>
+      <option value="passport">Passport</option>
+      <option value="driving">Driving Licence</option>
+    </select>
+
+    <select id="kycRiskFilter" class="kyc-select">
+      <option value="">All Risk</option>
+      <option value="low">Low Risk</option>
+      <option value="medium">Medium Risk</option>
+      <option value="high">High Risk</option>
+    </select>
+
+    <div class="kyc-date-wrap">
+      <label class="kyc-date-input"><i class="fas fa-calendar-alt"></i><input id="kycFromDate" type="date" aria-label="From"></label>
+      <label class="kyc-date-input"><i class="fas fa-calendar-alt"></i><input id="kycToDate" type="date" aria-label="To"></label>
     </div>
-  </div>
-</div>
 
-<!-- Filter / Search -->
-<div class="kyc-filter-bar">
-  <div class="search-input-wrapper">
-    <i class="fas fa-search search-icon"></i>
-    <input type="text" class="search-input" id="kycSearch" placeholder="Search by name, email, or user ID..." />
-  </div>
+    <select id="kycAssignedFilter" class="kyc-select">
+      <option value="">All Admins</option>
+      <option value="me">Assigned to Me</option>
+      <option value="unassigned">Unassigned</option>
+    </select>
 
-  <select class="filter-select" id="statusFilter">
-    <option value="all">All</option>
-    <option value="pending">Pending</option>
-    <option value="approved">Approved</option>
-    <option value="rejected">Rejected</option>
-    <option value="resubmission">Resubmission</option>
-  </select>
+    <button id="kycClearFilters" class="kyc-clear-filters" type="button" hidden><i class="fas fa-times"></i><span>Clear Filters</span></button>
+  </section>
 
-  <select class="filter-select" id="docFilter">
-    <option value="all">All</option>
-    <option value="aadhaar">Aadhaar</option>
-    <option value="pan">PAN</option>
-    <option value="passport">Passport</option>
-    <option value="driving">Driving Licence</option>
-  </select>
-
-  <div class="date-range-inputs">
-    <div class="date-filter-wrap">
-      <i class="fas fa-calendar-alt"></i>
-      <input type="date" class="filter-input" id="dateFrom" />
+  <section class="kyc-results-bar">
+    <p class="kyc-results-text" id="kycResultsMeta">Showing 1–20 of <%= pendingCount.toLocaleString('en-IN') %> pending submissions</p>
+    <div class="kyc-view-toggle" role="group" aria-label="View mode">
+      <button type="button" class="kyc-view-btn active" data-view="table"><i class="fas fa-list"></i><span>Table</span></button>
+      <button type="button" class="kyc-view-btn" data-view="card"><i class="fas fa-th-large"></i><span>Card View</span></button>
     </div>
-    <span class="date-separator">to</span>
-    <input type="date" class="filter-input" id="dateTo" />
-  </div>
+  </section>
 
-  <button class="btn-secondary btn-icon" id="exportCsvBtn" type="button">
-    <i class="fas fa-download"></i>
-    Export CSV
-  </button>
-</div>
-
-<!-- Table -->
-<div class="table-card kyc-table-wrap">
-  <div class="table-responsive">
-    <table class="data-table" id="kycTable">
+  <section class="kyc-table-shell" id="kycTableSection">
+    <table class="kyc-table" id="kycTable">
       <thead>
         <tr>
-          <th>User</th>
-          <th>Document Type</th>
-          <th>Submitted</th>
-          <th>Risk Score</th>
-          <th>Status</th>
-          <th class="th-actions">Actions</th>
+          <th class="kyc-col-check"><label class="kyc-checkbox"><input id="kycSelectAll" type="checkbox"><span class="kyc-checkbox-ui"><i class="fas fa-check"></i></span></label></th>
+          <th class="kyc-sortable" data-sort="user">USER <i class="fas fa-sort"></i></th>
+          <th class="kyc-sortable" data-sort="documents">DOCUMENTS <i class="fas fa-sort"></i></th>
+          <th class="kyc-sortable" data-sort="submitted">SUBMITTED <i class="fas fa-sort"></i></th>
+          <th class="kyc-sortable" data-sort="risk">RISK SCORE <i class="fas fa-sort"></i></th>
+          <th class="kyc-sortable" data-sort="assigned">ASSIGNED TO <i class="fas fa-sort"></i></th>
+          <th class="kyc-sortable" data-sort="status">STATUS <i class="fas fa-sort"></i></th>
+          <th>ACTIONS</th>
         </tr>
       </thead>
       <tbody id="kycTableBody"></tbody>
     </table>
-    <div class="empty-state" id="kycEmpty" style="display:none;">
-      <h3 class="empty-title">No KYC submissions found</h3>
-      <p class="empty-text">Try adjusting search or filters.</p>
+  </section>
+
+  <section class="kyc-card-grid is-hidden" id="kycCardSection"></section>
+
+  <section class="kyc-empty is-hidden" id="kycEmptyState">
+    <i class="fas fa-id-card kyc-empty-icon" id="kycEmptyIcon"></i>
+    <h3 class="kyc-empty-title" id="kycEmptyTitle">No KYC submissions found</h3>
+    <p class="kyc-empty-subtitle" id="kycEmptySubtitle">Try adjusting your filters</p>
+    <button class="kyc-btn kyc-btn-outline" id="kycClearFiltersEmpty" type="button">Clear Filters</button>
+  </section>
+
+  <footer class="kyc-pagination">
+    <p class="kyc-pagination-meta" id="kycPaginationMeta">Showing 1–20 of <%= pendingCount.toLocaleString('en-IN') %> pending</p>
+    <div class="kyc-pagination-center" id="kycPaginationCenter"></div>
+    <label class="kyc-rows-wrap">Rows
+      <select id="kycRowsPerPage" class="kyc-rows-select">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+  </footer>
+</section>
+
+<div class="bulk-action-bar" id="kycBulkBar" hidden>
+  <p class="bulk-action-count" id="kycBulkCount">0 selected</p>
+  <button class="bulk-action-btn bulk-action-btn-success" id="bulkApproveBtn" type="button"><i class="fas fa-check-circle"></i>Approve Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-red" id="bulkRejectBtn" type="button"><i class="fas fa-times-circle"></i>Reject Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-primary" id="bulkResubBtn" type="button"><i class="fas fa-redo"></i>Request Resubmission</button>
+  <button class="bulk-action-btn bulk-action-btn-light" id="bulkAssignBtn" type="button"><i class="fas fa-user-check"></i>Assign to Me</button>
+  <button class="bulk-action-close" id="kycBulkClose" type="button" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+</div>
+
+<div class="modal-overlay" id="quickApproveModal" style="display:none;">
+  <div class="modal-card kyc-quick-modal">
+    <div class="modal-header kyc-modal-head-green">
+      <div>
+        <h2 class="modal-title"><i class="fas fa-check-circle"></i> Approve KYC</h2>
+        <p class="modal-subtitle">Confirm approval for this submission</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="quickApproveModal"><i class="fas fa-times"></i></button>
     </div>
+    <form class="modal-body" id="quickApproveForm">
+      <p class="kyc-modal-copy">You are approving KYC for <strong id="approveTargetName">this user</strong>. This will send them a verification email.</p>
+      <label class="kyc-field-wrap">
+        <span>Admin note (optional)</span>
+        <textarea id="approveNote" rows="4" placeholder="Add a note for internal records..."></textarea>
+      </label>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="quickApproveModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal kyc-btn-green">Confirm Approve</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- Slide-in Quick Action Panel -->
-<div class="kyc-panel-overlay" id="kycPanelOverlay"></div>
-<aside class="kyc-quick-panel" id="kycQuickPanel">
-  <div class="kyc-panel-head">
-    <div>
-      <h3 id="panelName">User Name</h3>
-      <p id="panelEmail">user@example.com</p>
+<div class="modal-overlay" id="quickRejectModal" style="display:none;">
+  <div class="modal-card kyc-quick-modal">
+    <div class="modal-header kyc-modal-head-red">
+      <div>
+        <h2 class="modal-title"><i class="fas fa-times-circle"></i> Reject KYC</h2>
+        <p class="modal-subtitle">Provide rejection details</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="quickRejectModal"><i class="fas fa-times"></i></button>
     </div>
-    <div class="panel-head-right">
-      <span class="badge" id="panelStatusBadge">Pending</span>
-      <button class="actions-btn" id="panelCloseBtn" type="button"><i class="fas fa-times"></i></button>
-    </div>
+    <form class="modal-body" id="quickRejectForm">
+      <p class="kyc-modal-copy">You are rejecting KYC for <strong id="rejectTargetName">this user</strong>.</p>
+      <label class="kyc-field-wrap">
+        <span>Rejection reason</span>
+        <select id="rejectReason" required>
+          <option value="">Select reason</option>
+          <option>Blurry / Unclear Image</option>
+          <option>Expired Document</option>
+          <option>Name Mismatch</option>
+          <option>Document Tampered</option>
+          <option>Incomplete Submission</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label class="kyc-field-wrap">
+        <span>Additional note</span>
+        <textarea id="rejectNote" rows="4" placeholder="Add detailed rejection note..."></textarea>
+      </label>
+      <label class="kyc-toggle-wrap">
+        <span>Notify User</span>
+        <input id="notifyUserToggle" type="checkbox" checked>
+      </label>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="quickRejectModal">Cancel</button>
+        <button type="submit" class="btn-danger-modal">Confirm Reject</button>
+      </div>
+    </form>
   </div>
-
-  <div class="kyc-panel-section">
-    <h4>Document Thumbnails</h4>
-    <div class="doc-grid" id="panelDocs"></div>
-  </div>
-
-  <div class="kyc-panel-section">
-    <h4>Extracted Data</h4>
-    <div class="panel-list" id="panelExtracted"></div>
-  </div>
-
-  <div class="kyc-panel-section">
-    <h4>Risk Flags</h4>
-    <ul class="risk-flags" id="panelFlags"></ul>
-  </div>
-
-  <div class="kyc-panel-section">
-    <h4>Admin Notes</h4>
-    <textarea id="panelNotes" class="filter-input panel-notes" rows="4" placeholder="Add internal review notes..."></textarea>
-  </div>
-
-  <div class="kyc-panel-actions">
-    <button class="btn-primary" type="button" id="panelApproveBtn"><i class="fas fa-check-circle"></i> Approve</button>
-    <button class="btn-danger" type="button" id="panelRejectBtn"><i class="fas fa-times-circle"></i> Reject</button>
-    <button class="btn-secondary" type="button" id="panelResubmitBtn"><i class="fas fa-redo"></i> Request Resubmission</button>
-  </div>
-</aside>
-
-<div class="kyc-lightbox" id="kycLightbox">
-  <button type="button" class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
-  <img id="lightboxImage" alt="KYC Document Preview" />
 </div>
-
-<script id="kycSubmissionsData" type="application/json"><%- JSON.stringify(submissions || []) %></script>
 
 <style>
-  .kyc-stats-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .stat-mini-card.stat-slate .stat-mini-icon { background: rgba(100,116,139,.12); color: #475569; }
-  .pending-dot {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 18px; height: 18px; border-radius: 999px;
-    background: #F59E0B; color: #fff; font-size: 11px; font-weight: 700; margin-left: 6px;
+  .kyc-page { color: var(--text-main); }
+  .kyc-crumb { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; color: var(--text-soft); font-size: 13px; }
+  .kyc-crumb-link { display: inline-flex; align-items: center; gap: 6px; transition: color var(--trans-fast); }
+  .kyc-crumb-link:hover { color: var(--primary); }
+  .kyc-crumb-current { color: var(--text-muted); font-weight: 600; }
+  .kyc-crumb-sep { font-size: 11px; }
+
+  .kyc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .kyc-title { font-size: 28px; font-weight: 800; color: var(--text-main); }
+  .kyc-subtitle { margin-top: 4px; font-size: 14px; color: var(--text-muted); }
+  .kyc-header-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .kyc-btn {
+    height: 42px;
+    border-radius: 9999px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all var(--trans-fast);
+    border: 1px solid transparent;
+    background: transparent;
   }
-  .pending-attention { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,.35); }
-
-  .kyc-filter-bar {
-    background: #fff; border: 1px solid var(--slate-200); border-radius: 12px;
-    padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
-  }
-  .kyc-filter-bar .search-input-wrapper { min-width: 260px; flex: 1; max-width: 360px; }
-  .date-filter-wrap {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px;
-    border: 1px solid var(--slate-200); border-radius: 8px; background: #fff;
-  }
-  .date-filter-wrap i { color: #94A3B8; }
-  .date-filter-wrap .filter-input { border: none; padding: 0; }
-
-  .kyc-table-wrap { border-radius: 16px; overflow: hidden; }
-  .kyc-table-wrap .data-table th {
-    background: #F8FAFC; color: #94A3B8; letter-spacing: .08em; font-size: 12px; text-transform: uppercase;
-    padding: 14px 20px; border-bottom: 1px solid #E2E8F0;
-  }
-  .kyc-table-wrap .data-table td { padding: 16px 20px; border-bottom: 1px solid #F1F5F9; }
-  .kyc-table-wrap .data-table tbody tr:hover { background: #FAFAFA; }
-  .kyc-table-wrap .data-table tbody tr { cursor: pointer; }
-
-  .user-inline { display: flex; align-items: center; gap: 10px; }
-  .avatar-initial {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
-    color: #fff; font-weight: 700; font-size: 14px;
-    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .user-meta-name { font-size: 15px; font-weight: 600; color: #1F2937; margin: 0 0 2px 0; }
-  .user-meta-email { font-size: 13px; color: #94A3B8; margin: 0; }
-
-  .doc-pill {
-    display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px;
-    font-size: 12px; font-weight: 600;
-  }
-  .doc-pill.slate { background: #EEF2F7; color: #475569; }
-  .doc-pill.amber { background: #FEF3C7; color: #B45309; }
-  .doc-pill.green { background: #DCFCE7; color: #166534; }
-
-  .submitted-date { font-size: 14px; color: #1F2937; font-weight: 500; }
-  .submitted-ago { font-size: 12px; color: #94A3B8; }
-
-  .risk-wrap { display: flex; align-items: center; gap: 10px; }
-  .risk-bar { width: 80px; height: 8px; border-radius: 4px; background: #E2E8F0; overflow: hidden; }
-  .risk-fill { height: 100%; border-radius: 4px; }
-  .risk-fill.low { background: #10B981; }
-  .risk-fill.mid { background: #F59E0B; }
-  .risk-fill.high { background: #EF4444; }
-  .risk-score { font-size: 14px; font-weight: 700; min-width: 30px; }
-  .risk-score.low { color: #10B981; }
-  .risk-score.mid { color: #D97706; }
-  .risk-score.high { color: #DC2626; }
-
-  .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; }
-  .status-pill.pending { background: #FEF3C7; color: #D97706; }
-  .status-pill.approved { background: #DCFCE7; color: #15803D; }
-  .status-pill.rejected { background: #FEE2E2; color: #DC2626; }
-  .status-pill.resubmission { background: #DBEAFE; color: #2563EB; }
-
-  .review-btn {
-    border: none; height: 30px; padding: 0 10px; border-radius: 999px; background: #DBEAFE;
-    color: #1D4ED8; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+  .kyc-btn i { font-size: 13px; }
+  .kyc-btn-outline { background: var(--card-bg); border-color: var(--border); color: var(--text-muted); }
+  .kyc-btn-outline:hover { color: var(--primary); border-color: var(--primary); }
+  .kyc-btn-amber {
+    height: 36px;
+    border-radius: 9999px;
+    border: 0;
+    padding: 0 14px;
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--amber), var(--amber-dark));
   }
 
-  .actions-cell { display: inline-flex; align-items: center; gap: 6px; position: relative; }
-  .action-menu-trigger { width: 30px; height: 30px; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; color: #64748B; }
-  .action-menu {
-    position: absolute; right: 0; top: 36px; background: #fff; border: 1px solid #E2E8F0;
-    border-radius: 10px; box-shadow: 0 12px 24px rgba(0,0,0,.08); min-width: 190px; z-index: 20; display: none;
+  .kyc-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .kyc-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    transition: transform var(--t-normal), box-shadow var(--t-normal);
+    animation: fadeInUp 0.35s ease-out both;
   }
-  .action-menu.open { display: block; }
-  .action-menu button {
-    width: 100%; border: none; background: transparent; text-align: left; font-size: 13px;
-    padding: 10px 12px; color: #334155; display: flex; align-items: center; gap: 8px;
+  .kyc-stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .kyc-delay-0 { animation-delay: 0s; }
+  .kyc-delay-1 { animation-delay: 0.05s; }
+  .kyc-delay-2 { animation-delay: 0.10s; }
+  .kyc-delay-3 { animation-delay: 0.15s; }
+  .kyc-delay-4 { animation-delay: 0.20s; }
+  .kyc-stat-pending.has-pending { border-left: 3px solid var(--amber); }
+
+  .kyc-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    color: var(--card-bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .action-menu button:hover { background: #F8FAFC; }
+  .kyc-stat-icon i { font-size: 20px; }
+  .kyc-icon-slate { background: linear-gradient(135deg, var(--text-muted), var(--text-mid)); }
+  .kyc-icon-amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .kyc-icon-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .kyc-icon-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .kyc-icon-blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
 
-  .kyc-panel-overlay {
-    position: fixed; inset: 0; background: rgba(15, 23, 42, .28); z-index: 190; opacity: 0;
-    visibility: hidden; transition: all .2s ease;
+  .kyc-stat-label { font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .kyc-stat-value { margin-top: 4px; font-size: 26px; color: var(--text-main); font-weight: 800; display: inline-flex; gap: 8px; align-items: center; }
+  .kyc-pulse-dot { width: 10px; height: 10px; border-radius: 9999px; background: var(--amber); animation: pulse 2s ease-in-out infinite; }
+  .kyc-mini-pill { margin-top: 6px; display: inline-flex; border-radius: 9999px; padding: 3px 9px; font-size: 11px; font-weight: 700; }
+  .kyc-mini-pill-green { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+
+  .kyc-priority-alert {
+    background: color-mix(in srgb, var(--amber) 8%, var(--card-bg));
+    border: 1.5px solid color-mix(in srgb, var(--amber) 35%, var(--card-bg));
+    border-radius: var(--radius-md);
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .kyc-panel-overlay.open { opacity: 1; visibility: visible; }
+  .kyc-priority-alert.is-hidden { display: none; }
+  .kyc-alert-left { display: inline-flex; align-items: center; gap: 10px; color: var(--amber-dark); font-size: 14px; font-weight: 600; }
+  .kyc-alert-left i { font-size: 18px; color: var(--amber); }
 
-  .kyc-quick-panel {
-    position: fixed; top: 0; right: -420px; width: 400px; max-width: 92vw; height: 100vh;
-    background: #fff; border-left: 1px solid #E2E8F0; box-shadow: -12px 0 30px rgba(2, 6, 23, .15);
-    z-index: 200; transition: right .25s ease; overflow-y: auto;
-  }
-  .kyc-quick-panel.open { right: 0; }
-  .kyc-panel-head {
-    position: sticky; top: 0; background: #fff; border-bottom: 1px solid #E2E8F0;
-    padding: 18px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-  }
-  .kyc-panel-head h3 { margin: 0; font-size: 18px; color: #1F2937; }
-  .kyc-panel-head p { margin: 4px 0 0; font-size: 13px; color: #64748B; }
-  .panel-head-right { display: flex; align-items: center; gap: 8px; }
-
-  .kyc-panel-section { padding: 16px; border-bottom: 1px solid #F1F5F9; }
-  .kyc-panel-section h4 { margin: 0 0 10px; font-size: 14px; color: #334155; }
-
-  .doc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .doc-thumb {
-    border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; background: #F8FAFC; cursor: pointer;
-    aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center;
-  }
-  .doc-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .doc-fallback { font-size: 12px; color: #94A3B8; }
-
-  .panel-list { display: grid; gap: 8px; }
-  .panel-list div { font-size: 13px; color: #334155; display: flex; justify-content: space-between; gap: 10px; }
-  .panel-list strong { color: #0F172A; }
-
-  .risk-flags { margin: 0; padding-left: 18px; color: #DC2626; font-size: 13px; }
-  .risk-flags li { margin-bottom: 6px; }
-
-  .panel-notes { width: 100%; resize: vertical; min-height: 88px; }
-  .kyc-panel-actions { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 10px; }
-
-  .kyc-lightbox {
-    position: fixed; inset: 0; background: rgba(2,6,23,.85); display: none; align-items: center; justify-content: center;
-    z-index: 250;
-  }
-  .kyc-lightbox.open { display: flex; }
-  .kyc-lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 10px; }
-  .lightbox-close {
-    position: fixed; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 999px; border: none;
-    background: rgba(255,255,255,.15); color: #fff;
+  .kyc-filter-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
-  @media (max-width: 1280px) {
-    .kyc-stats-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kyc-search-wrap { position: relative; flex: 1; min-width: 280px; }
+  .kyc-search-wrap i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-soft); font-size: 14px; }
+  .kyc-search-wrap input,
+  .kyc-select {
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    color: var(--text-main);
+    background: var(--card-bg);
+    font-size: 14px;
+    transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
   }
+  .kyc-search-wrap input { width: 100%; padding: 0 16px 0 42px; }
+  .kyc-search-wrap input:focus,
+  .kyc-select:focus,
+  .kyc-date-input input:focus,
+  .kyc-field-wrap select:focus,
+  .kyc-field-wrap textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+  }
+  .kyc-select { min-width: 170px; padding: 0 14px; }
+
+  .kyc-date-wrap { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .kyc-date-input {
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    color: var(--text-soft);
+    background: var(--card-bg);
+  }
+  .kyc-date-input input { border: 0; background: transparent; color: var(--text-main); }
+
+  .kyc-clear-filters { border: 0; background: transparent; color: var(--text-soft); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+  .kyc-clear-filters:hover { color: var(--red); }
+
+  .kyc-results-bar { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .kyc-results-text { font-size: 13px; color: var(--text-soft); }
+  .kyc-view-toggle { border: 1px solid var(--border); background: var(--card-bg); border-radius: 9999px; padding: 2px; display: inline-flex; }
+  .kyc-view-btn { border: 0; background: transparent; height: 30px; padding: 0 12px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); font-size: 12px; }
+  .kyc-view-btn.active { background: var(--primary); color: var(--card-bg); }
+
+  .kyc-table-shell,
+  .kyc-card-grid {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .kyc-table { width: 100%; border-collapse: collapse; }
+  .kyc-table thead th {
+    background: var(--bg-page);
+    color: var(--text-soft);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .kyc-col-check { width: 44px; }
+  .kyc-sortable { cursor: pointer; transition: color var(--trans-fast); }
+  .kyc-sortable i { margin-left: 4px; font-size: 12px; }
+  .kyc-sortable.active,
+  .kyc-sortable.active i { color: var(--primary); }
+
+  .kyc-table tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background var(--trans-fast);
+    animation: fadeInUp 0.2s ease-out both;
+  }
+  .kyc-table tbody tr:hover { background: color-mix(in srgb, var(--primary) 4%, var(--card-bg)); cursor: pointer; }
+  .kyc-table tbody tr.selected {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .kyc-table tbody td { padding: 16px 20px; vertical-align: middle; }
+
+  .kyc-checkbox { display: inline-flex; align-items: center; }
+  .kyc-checkbox input { position: absolute; opacity: 0; pointer-events: none; }
+  .kyc-checkbox-ui {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    background: var(--card-bg);
+  }
+  .kyc-checkbox-ui i { font-size: 10px; }
+  .kyc-checkbox input:checked + .kyc-checkbox-ui { background: var(--primary); border-color: var(--primary); color: var(--card-bg); }
+
+  .kyc-user-cell { display: flex; align-items: center; gap: 12px; }
+  .kyc-avatar { width: 40px; height: 40px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; color: var(--card-bg); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .kyc-avatar-grad-0 { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .kyc-avatar-grad-1 { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); }
+  .kyc-avatar-grad-2 { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .kyc-avatar-grad-3 { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .kyc-avatar-grad-4 { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .kyc-avatar-grad-5 { background: linear-gradient(135deg, var(--text-muted), var(--text-mid)); }
+
+  .kyc-user-name { font-size: 15px; font-weight: 700; color: var(--text-main); transition: color var(--trans-fast); }
+  .kyc-user-name:hover { color: var(--primary); }
+  .kyc-user-email { margin-top: 2px; color: var(--text-soft); font-size: 12px; }
+  .kyc-user-id { margin-top: 2px; color: var(--text-soft); font-size: 11px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .kyc-doc-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .kyc-tag { border-radius: 9999px; padding: 3px 8px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+  .kyc-tag-slate { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg)); }
+  .kyc-tag-blue { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--card-bg)); }
+  .kyc-tag-purple { color: var(--secondary); background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); }
+  .kyc-tag-green { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .kyc-tag-amber { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); }
+
+  .kyc-submitted-date { font-size: 14px; color: var(--text-muted); }
+  .kyc-submitted-age { margin-top: 2px; font-size: 11px; color: var(--text-soft); }
+  .kyc-overdue { margin-top: 4px; display: inline-flex; font-size: 10px; font-weight: 700; color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card-bg)); border-radius: 9999px; padding: 2px 7px; }
+
+  .kyc-risk-wrap { display: inline-flex; align-items: center; gap: 8px; }
+  .kyc-risk-bar { width: 80px; height: 8px; border-radius: 4px; background: var(--border-light); overflow: hidden; }
+  .kyc-risk-fill { height: 100%; border-radius: 4px; }
+  .kyc-risk-low { background: var(--green); }
+  .kyc-risk-medium { background: var(--amber); }
+  .kyc-risk-high { background: var(--red); }
+  .kyc-risk-score { font-size: 14px; font-weight: 700; }
+  .kyc-risk-score.low { color: var(--green); }
+  .kyc-risk-score.medium { color: var(--amber-dark); }
+  .kyc-risk-score.high { color: var(--red); }
+
+  .kyc-assigned { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+  .kyc-admin-avatar { width: 28px; height: 28px; border-radius: 9999px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--card-bg); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .kyc-assigned-pill { border: 1px dashed color-mix(in srgb, var(--amber) 50%, var(--card-bg)); color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 10%, var(--card-bg)); border-radius: 9999px; padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+
+  .kyc-status { border-radius: 9999px; padding: 4px 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .kyc-status.pending { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); }
+  .kyc-status.approved { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .kyc-status.rejected { color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card-bg)); }
+  .kyc-status.resubmission { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); }
+
+  .kyc-actions { display: inline-flex; align-items: center; gap: 8px; position: relative; }
+  .kyc-review-btn { height: 32px; border-radius: 9999px; border: 0; padding: 0 14px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--card-bg); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .kyc-more-btn { width: 32px; height: 32px; border-radius: 9999px; border: 0; background: transparent; color: var(--text-soft); }
+  .kyc-more-btn:hover { background: var(--border-light); color: var(--text-main); }
+
+  .kyc-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 210px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    z-index: 160;
+    animation: fadeInUp 0.15s ease-out;
+  }
+  .kyc-menu-item { width: 100%; height: 34px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-mid); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; text-align: left; padding: 0 10px; }
+  .kyc-menu-item:hover { background: var(--border-light); }
+  .kyc-menu-item.green { color: var(--green); }
+  .kyc-menu-item.red { color: var(--red); }
+  .kyc-menu-item.sep { margin-top: 6px; border-top: 1px solid var(--border-light); padding-top: 8px; }
+
+  .kyc-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 0;
+  }
+  .kyc-grid-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--t-normal), box-shadow var(--t-normal);
+    animation: fadeInUp 0.25s ease-out both;
+  }
+  .kyc-grid-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .kyc-grid-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .kyc-grid-user { display: flex; align-items: center; gap: 10px; }
+  .kyc-grid-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
+  .kyc-grid-mail { margin-top: 1px; font-size: 12px; color: var(--text-soft); }
+
+  .kyc-risk-block { margin: 14px 0; }
+  .kyc-risk-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--text-muted); }
+  .kyc-risk-track { width: 100%; height: 8px; border-radius: 4px; background: var(--border-light); overflow: hidden; }
+  .kyc-risk-track .kyc-risk-fill { display: block; }
+
+  .kyc-doc-icons { display: flex; gap: 8px; margin: 10px 0 8px; }
+  .kyc-doc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .kyc-doc-icon.done { color: var(--card-bg); background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+  .kyc-doc-icon.miss { color: var(--text-soft); background: var(--border-light); border: 1px dashed var(--border); }
+
+  .kyc-grid-submitted { margin-top: 4px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); font-size: 12px; }
+  .kyc-grid-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .kyc-grid-review { flex: 1; height: 36px; border-radius: 9999px; border: 1px solid var(--primary); color: var(--primary); background: transparent; font-size: 13px; font-weight: 700; }
+
+  .kyc-empty {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    padding: 46px 20px;
+    margin-bottom: 16px;
+  }
+  .kyc-empty.is-hidden,
+  .kyc-table-shell.is-hidden,
+  .kyc-card-grid.is-hidden { display: none; }
+  .kyc-empty-icon { font-size: 56px; color: var(--border); }
+  .kyc-empty-icon.is-success { color: var(--green); }
+  .kyc-empty-title { margin-top: 12px; color: var(--text-main); font-size: 20px; font-weight: 800; }
+  .kyc-empty-subtitle { margin-top: 6px; color: var(--text-soft); font-size: 14px; margin-bottom: 16px; }
+
+  .kyc-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--border-light); padding: 16px 20px; flex-wrap: wrap; }
+  .kyc-pagination-meta { color: var(--text-soft); font-size: 13px; }
+  .kyc-pagination-center { display: inline-flex; align-items: center; gap: 6px; }
+  .kyc-page-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card-bg); color: var(--text-muted); font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .kyc-page-btn:hover { background: var(--border-light); }
+  .kyc-page-btn.active { border-color: transparent; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--card-bg); }
+
+  .kyc-rows-wrap { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-soft); }
+  .kyc-rows-select { height: 36px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 10px; color: var(--text-main); background: var(--card-bg); }
+
+  .bulk-action-btn-success { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+
+  .kyc-quick-modal { max-width: 420px; }
+  .kyc-modal-head-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .kyc-modal-head-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .kyc-modal-copy { font-size: 14px; color: var(--text-mid); }
+  .kyc-field-wrap { display: grid; gap: 6px; }
+  .kyc-field-wrap span { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+  .kyc-field-wrap select,
+  .kyc-field-wrap textarea {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    color: var(--text-main);
+    background: var(--card-bg);
+    font-size: 14px;
+  }
+  .kyc-toggle-wrap { display: flex; align-items: center; justify-content: space-between; color: var(--text-mid); font-size: 14px; }
+  .kyc-btn-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .kyc-btn-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+
+  @media (max-width: 1320px) {
+    .kyc-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .kyc-table-shell { overflow-x: auto; }
+    .kyc-table { min-width: 1180px; }
+  }
+
   @media (max-width: 900px) {
-    .kyc-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kyc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kyc-header { flex-direction: column; }
   }
+
   @media (max-width: 640px) {
-    .kyc-stats-row { grid-template-columns: 1fr; }
-    .kyc-filter-bar { padding: 14px; }
+    .kyc-stats { grid-template-columns: 1fr; }
+    .kyc-pagination { flex-direction: column; align-items: flex-start; }
   }
 </style>
 
+<script id="kycSeedJson" type="application/json"><%- JSON.stringify(_submissions).replace(/</g, '\\u003c') %></script>
+
 <script>
   (function () {
-    const dataNode = document.getElementById('kycSubmissionsData');
-    const submissions = dataNode?.textContent ? JSON.parse(dataNode.textContent) : [];
+    const seedEl = document.getElementById('kycSeedJson');
+    const seedSubmissions = seedEl ? JSON.parse(seedEl.textContent || '[]') : [];
+    const tableBody = document.getElementById('kycTableBody');
+    if (!tableBody) return;
 
-    const state = {
-      all: submissions,
-      filtered: [...submissions],
-      selected: null,
-      filters: {
-        search: '',
-        status: 'all',
-        doc: 'all',
-        from: '',
-        to: ''
+    const myAdmin = 'You';
+    const statusFilter = document.getElementById('kycStatusFilter');
+    const searchInput = document.getElementById('kycSearch');
+    const docFilter = document.getElementById('kycDocumentFilter');
+    const riskFilter = document.getElementById('kycRiskFilter');
+    const fromDate = document.getElementById('kycFromDate');
+    const toDate = document.getElementById('kycToDate');
+    const assignedFilter = document.getElementById('kycAssignedFilter');
+    const clearFiltersBtn = document.getElementById('kycClearFilters');
+    const clearFiltersEmptyBtn = document.getElementById('kycClearFiltersEmpty');
+    const resultsMeta = document.getElementById('kycResultsMeta');
+    const paginationMeta = document.getElementById('kycPaginationMeta');
+    const paginationCenter = document.getElementById('kycPaginationCenter');
+    const rowsPerPage = document.getElementById('kycRowsPerPage');
+    const tableSection = document.getElementById('kycTableSection');
+    const cardSection = document.getElementById('kycCardSection');
+    const emptyState = document.getElementById('kycEmptyState');
+    const emptyIcon = document.getElementById('kycEmptyIcon');
+    const emptyTitle = document.getElementById('kycEmptyTitle');
+    const emptySubtitle = document.getElementById('kycEmptySubtitle');
+    const viewBtns = document.querySelectorAll('.kyc-view-btn');
+
+    const selectAll = document.getElementById('kycSelectAll');
+    const bulkBar = document.getElementById('kycBulkBar');
+    const bulkCount = document.getElementById('kycBulkCount');
+    const bulkClose = document.getElementById('kycBulkClose');
+
+    const quickApproveModal = document.getElementById('quickApproveModal');
+    const quickRejectModal = document.getElementById('quickRejectModal');
+    const quickApproveForm = document.getElementById('quickApproveForm');
+    const quickRejectForm = document.getElementById('quickRejectForm');
+    const approveTargetName = document.getElementById('approveTargetName');
+    const rejectTargetName = document.getElementById('rejectTargetName');
+    const rejectReason = document.getElementById('rejectReason');
+
+    const exportBtn = document.getElementById('exportKycCsvBtn');
+    const refreshBtn = document.getElementById('refreshKycBtn');
+    const reviewOldestBtn = document.getElementById('reviewOldestBtn');
+
+    let currentView = 'table';
+    let currentPage = 1;
+    let sortState = { key: 'submitted', dir: 'desc' };
+    let selected = new Set();
+    let activeRecord = null;
+
+    const admins = ['You', 'A. Sharma', 'K. Iyer', 'M. Khan'];
+
+    function hashNum(text) {
+      return String(text || '').split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    }
+
+    function normalizeStatus(status) {
+      const value = String(status || 'pending').toLowerCase();
+      if (value === 'approved' || value === 'verified') return 'approved';
+      if (value === 'rejected') return 'rejected';
+      if (value === 'resubmission') return 'resubmission';
+      return 'pending';
+    }
+
+    function normalizeData(items) {
+      return items.map((item) => {
+        const hash = hashNum(item.zenoPayId || item.userId || item.fullName);
+        const docs = item.docs || {};
+        const kinds = Array.isArray(item.documentKinds) ? item.documentKinds : [];
+        const hasAadhaar = kinds.includes('aadhaar') || kinds.includes('id');
+        const hasPan = kinds.includes('pan');
+        const hasSelfie = Boolean(docs.selfie);
+        const submittedTotal = [hasAadhaar, hasPan, hasSelfie].filter(Boolean).length;
+
+        let assignedTo = 'Unassigned';
+        if (hash % 3 === 0) assignedTo = admins[hash % admins.length];
+
+        const risk = Number(item.riskScore || 0);
+        const riskBand = risk <= 30 ? 'low' : risk <= 70 ? 'medium' : 'high';
+
+        const dt = new Date(item.submittedAt || Date.now());
+        const daysAgo = Number(item.daysAgo || 0);
+
+        return {
+          ...item,
+          status: normalizeStatus(item.status),
+          docsPresent: { aadhaar: hasAadhaar, pan: hasPan, selfie: hasSelfie, complete: submittedTotal === 3, submittedTotal },
+          assignedTo,
+          assignedInitial: assignedTo === 'Unassigned' ? '' : assignedTo.split(' ').map((x) => x[0]).join('').slice(0, 2).toUpperCase(),
+          risk,
+          riskBand,
+          riskPercent: Math.max(0, Math.min(100, risk)),
+          submittedDate: dt,
+          daysAgo,
+          overdue: daysAgo > 3 && normalizeStatus(item.status) === 'pending',
+          avatarClass: `kyc-avatar-grad-${hash % 6}`,
+          avatarInitial: (item.avatarInitial || item.fullName || 'U').charAt(0).toUpperCase(),
+          routeId: encodeURIComponent(item.zenoPayId || item.userId || ''),
+          docTypeText: (item.documentType || '').toLowerCase()
+        };
+      });
+    }
+
+    const records = normalizeData(seedSubmissions);
+
+    function statusBadge(status) {
+      const map = {
+        pending: { icon: 'fa-clock', text: 'Pending', cls: 'pending' },
+        approved: { icon: 'fa-check-circle', text: 'Approved', cls: 'approved' },
+        rejected: { icon: 'fa-times-circle', text: 'Rejected', cls: 'rejected' },
+        resubmission: { icon: 'fa-redo', text: 'Resubmission', cls: 'resubmission' }
+      };
+      const s = map[status] || map.pending;
+      return `<span class="kyc-status ${s.cls}"><i class="fas ${s.icon}"></i>${s.text}</span>`;
+    }
+
+    function docTags(record) {
+      const tags = [];
+      if (record.docsPresent.aadhaar) tags.push('<span class="kyc-tag kyc-tag-slate">Aadhaar</span>');
+      if (record.docsPresent.pan) tags.push('<span class="kyc-tag kyc-tag-blue">PAN</span>');
+      if (record.docsPresent.selfie) tags.push('<span class="kyc-tag kyc-tag-purple">Selfie</span>');
+      if (record.docsPresent.complete) tags.push('<span class="kyc-tag kyc-tag-green">Complete</span>');
+      else tags.push(`<span class="kyc-tag kyc-tag-amber">Incomplete ${record.docsPresent.submittedTotal}/3</span>`);
+      return tags.join('');
+    }
+
+    function assignedCell(record) {
+      if (record.assignedTo === 'Unassigned') {
+        return '<span class="kyc-assigned-pill"><i class="fas fa-user-plus"></i>Unassigned</span>';
       }
-    };
+      return `<span class="kyc-assigned"><span class="kyc-admin-avatar">${record.assignedInitial}</span><span>${record.assignedTo}</span></span>`;
+    }
 
-    const els = {
-      body: document.getElementById('kycTableBody'),
-      empty: document.getElementById('kycEmpty'),
-      search: document.getElementById('kycSearch'),
-      status: document.getElementById('statusFilter'),
-      doc: document.getElementById('docFilter'),
-      from: document.getElementById('dateFrom'),
-      to: document.getElementById('dateTo'),
-      exportBtn: document.getElementById('exportCsvBtn'),
-      statTotal: document.getElementById('statTotal'),
-      statPending: document.getElementById('statPending'),
-      statApproved: document.getElementById('statApproved'),
-      statRejected: document.getElementById('statRejected'),
-      statResub: document.getElementById('statResub'),
-      pendingCard: document.getElementById('pendingCard'),
-      pendingDot: document.getElementById('pendingDot'),
-      panel: document.getElementById('kycQuickPanel'),
-      panelOverlay: document.getElementById('kycPanelOverlay'),
-      panelCloseBtn: document.getElementById('panelCloseBtn'),
-      panelName: document.getElementById('panelName'),
-      panelEmail: document.getElementById('panelEmail'),
-      panelStatusBadge: document.getElementById('panelStatusBadge'),
-      panelDocs: document.getElementById('panelDocs'),
-      panelExtracted: document.getElementById('panelExtracted'),
-      panelFlags: document.getElementById('panelFlags'),
-      panelNotes: document.getElementById('panelNotes'),
-      approveBtn: document.getElementById('panelApproveBtn'),
-      rejectBtn: document.getElementById('panelRejectBtn'),
-      resubmitBtn: document.getElementById('panelResubmitBtn'),
-      lightbox: document.getElementById('kycLightbox'),
-      lightboxImage: document.getElementById('lightboxImage'),
-      lightboxClose: document.getElementById('lightboxClose')
-    };
+    function menuHtml(record) {
+      return `
+        <div class="kyc-menu" hidden>
+          <button type="button" class="kyc-menu-item green" data-action="quick-approve" data-id="${record.routeId}"><i class="fas fa-check"></i>Quick Approve</button>
+          <button type="button" class="kyc-menu-item red" data-action="quick-reject" data-id="${record.routeId}"><i class="fas fa-times"></i>Quick Reject</button>
+          <button type="button" class="kyc-menu-item" data-action="resubmission" data-id="${record.routeId}"><i class="fas fa-redo"></i>Request Resubmission</button>
+          <button type="button" class="kyc-menu-item" data-action="assign-me" data-id="${record.routeId}"><i class="fas fa-user-check"></i>Assign to Me</button>
+          <button type="button" class="kyc-menu-item sep" data-action="profile" data-id="${record.routeId}"><i class="fas fa-user"></i>View User Profile</button>
+        </div>`;
+    }
 
-    const statusMeta = {
-      pending: { label: 'Pending', icon: 'fa-clock' },
-      approved: { label: 'Approved', icon: 'fa-check-circle' },
-      rejected: { label: 'Rejected', icon: 'fa-times-circle' },
-      resubmission: { label: 'Resubmission', icon: 'fa-redo' }
-    };
+    function tableRow(record) {
+      return `
+        <tr data-id="${record.routeId}">
+          <td>
+            <label class="kyc-checkbox"><input class="kyc-row-check" type="checkbox" value="${record.routeId}"><span class="kyc-checkbox-ui"><i class="fas fa-check"></i></span></label>
+          </td>
+          <td>
+            <div class="kyc-user-cell">
+              <span class="kyc-avatar ${record.avatarClass}">${record.avatarInitial}</span>
+              <div>
+                <a href="/admin/kyc/${record.routeId}" class="kyc-user-name">${record.fullName}</a>
+                <p class="kyc-user-email">${record.email}</p>
+                <p class="kyc-user-id">#${record.zenoPayId || record.userId}</p>
+              </div>
+            </div>
+          </td>
+          <td><div class="kyc-doc-tags">${docTags(record)}</div></td>
+          <td>
+            <p class="kyc-submitted-date">${record.submittedFormatted}</p>
+            <p class="kyc-submitted-age">${record.daysAgo} day${record.daysAgo === 1 ? '' : 's'} ago</p>
+            ${record.overdue ? '<span class="kyc-overdue">Overdue</span>' : ''}
+          </td>
+          <td>
+            <div class="kyc-risk-wrap">
+              <span class="kyc-risk-bar"><span class="kyc-risk-fill kyc-risk-${record.riskBand}" data-risk="${record.riskPercent}"></span></span>
+              <span class="kyc-risk-score ${record.riskBand}">${record.risk}</span>
+            </div>
+          </td>
+          <td>${assignedCell(record)}</td>
+          <td>${statusBadge(record.status)}</td>
+          <td>
+            <div class="kyc-actions">
+              <a class="kyc-review-btn" href="/admin/kyc/${record.routeId}"><i class="fas fa-eye"></i>Review</a>
+              <button type="button" class="kyc-more-btn" data-more="${record.routeId}"><i class="fas fa-ellipsis-v"></i></button>
+              ${menuHtml(record)}
+            </div>
+          </td>
+        </tr>`;
+    }
 
-    const fmtDate = (v) => new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    function cardItem(record, idx) {
+      return `
+        <article class="kyc-grid-card" data-delay="${(idx * 0.04).toFixed(2)}" data-id="${record.routeId}">
+          <div class="kyc-grid-top">
+            <div class="kyc-grid-user">
+              <span class="kyc-avatar ${record.avatarClass}">${record.avatarInitial}</span>
+              <div>
+                <h3 class="kyc-grid-name">${record.fullName}</h3>
+                <p class="kyc-grid-mail">${record.email}</p>
+              </div>
+            </div>
+            ${statusBadge(record.status)}
+          </div>
 
-    const riskTone = (score) => {
-      if (score > 70) return 'high';
-      if (score >= 30) return 'mid';
-      return 'low';
-    };
+          <div class="kyc-risk-block">
+            <div class="kyc-risk-head"><span>Risk Score</span><strong class="kyc-risk-score ${record.riskBand}">${record.risk}</strong></div>
+            <div class="kyc-risk-track"><span class="kyc-risk-fill kyc-risk-${record.riskBand}" data-risk="${record.riskPercent}"></span></div>
+          </div>
 
-    const updateStats = () => {
-      const total = state.all.length;
-      const pending = state.all.filter((x) => x.status === 'pending').length;
-      const approved = state.all.filter((x) => x.status === 'approved').length;
-      const rejected = state.all.filter((x) => x.status === 'rejected').length;
-      const resub = state.all.filter((x) => x.status === 'resubmission').length;
+          <div class="kyc-doc-icons">
+            <span class="kyc-doc-icon ${record.docsPresent.aadhaar ? 'done' : 'miss'}"><i class="fas ${record.docsPresent.aadhaar ? 'fa-check' : 'fa-id-card'}"></i></span>
+            <span class="kyc-doc-icon ${record.docsPresent.pan ? 'done' : 'miss'}"><i class="fas ${record.docsPresent.pan ? 'fa-check' : 'fa-address-card'}"></i></span>
+            <span class="kyc-doc-icon ${record.docsPresent.selfie ? 'done' : 'miss'}"><i class="fas ${record.docsPresent.selfie ? 'fa-check' : 'fa-camera'}"></i></span>
+          </div>
 
-      els.statTotal.textContent = total;
-      els.statPending.textContent = pending;
-      els.statApproved.textContent = approved;
-      els.statRejected.textContent = rejected;
-      els.statResub.textContent = resub;
-      els.pendingDot.textContent = pending > 0 ? '!' : '';
-      els.pendingCard.classList.toggle('pending-attention', pending > 0);
-    };
+          <p class="kyc-grid-submitted"><i class="fas fa-calendar-alt"></i>${record.submittedFormatted} • ${record.daysAgo} day${record.daysAgo === 1 ? '' : 's'} ago</p>
 
-    const applyFilters = () => {
-      const q = state.filters.search.toLowerCase();
+          <div class="kyc-grid-footer">
+            <a href="/admin/kyc/${record.routeId}" class="kyc-grid-review">Review</a>
+            <div class="kyc-actions">
+              <button type="button" class="kyc-more-btn" data-more="${record.routeId}"><i class="fas fa-ellipsis-v"></i></button>
+              ${menuHtml(record)}
+            </div>
+          </div>
+        </article>`;
+    }
 
-      state.filtered = state.all.filter((item) => {
-        const searchHit = !q || [item.fullName, item.email, item.zenoPayId].some((v) => String(v || '').toLowerCase().includes(q));
-        const statusHit = state.filters.status === 'all' || item.status === state.filters.status;
-        const docHit = state.filters.doc === 'all' || (item.documentKinds || []).includes(state.filters.doc);
+    function applyFilters(data) {
+      const q = String(searchInput.value || '').trim().toLowerCase();
+      const st = String(statusFilter.value || '').trim().toLowerCase();
+      const doc = String(docFilter.value || '').trim().toLowerCase();
+      const risk = String(riskFilter.value || '').trim().toLowerCase();
+      const assigned = String(assignedFilter.value || '').trim().toLowerCase();
+      const from = fromDate.value ? new Date(fromDate.value) : null;
+      const to = toDate.value ? new Date(toDate.value) : null;
 
-        const submitted = new Date(item.submittedAt);
-        const fromHit = !state.filters.from || submitted >= new Date(state.filters.from + 'T00:00:00');
-        const toHit = !state.filters.to || submitted <= new Date(state.filters.to + 'T23:59:59');
-
-        return searchHit && statusHit && docHit && fromHit && toHit;
+      const list = data.filter((item) => {
+        const qMatch = !q || `${item.fullName} ${item.email} ${item.zenoPayId}`.toLowerCase().includes(q);
+        const stMatch = !st || item.status === st;
+        const docMatch = !doc || item.documentKinds.includes(doc) || item.docTypeText.includes(doc);
+        const riskMatch = !risk || item.riskBand === risk;
+        const assignedMatch = !assigned || (assigned === 'me' ? item.assignedTo === myAdmin : item.assignedTo === 'Unassigned');
+        const fromMatch = !from || item.submittedDate >= from;
+        const toMatch = !to || item.submittedDate <= to;
+        return qMatch && stMatch && docMatch && riskMatch && assignedMatch && fromMatch && toMatch;
       });
 
-      renderTable();
-    };
+      clearFiltersBtn.hidden = !(q || st || doc || risk || assigned || fromDate.value || toDate.value);
+      return list;
+    }
 
-    const renderRow = (item, index) => {
-      const tone = riskTone(item.riskScore);
-      const status = statusMeta[item.status] || statusMeta.pending;
+    function sorted(list) {
+      if (!sortState.key || sortState.dir === 'neutral') return list;
+      const factor = sortState.dir === 'asc' ? 1 : -1;
+      return [...list].sort((a, b) => {
+        let av = '';
+        let bv = '';
 
-      return `
-        <tr data-index="${index}" class="kyc-row">
-          <td>
-            <div class="user-inline">
-              <span class="avatar-initial">${item.avatarInitial || 'U'}</span>
-              <div>
-                <p class="user-meta-name">${item.fullName}</p>
-                <p class="user-meta-email">${item.email}</p>
-              </div>
-            </div>
-          </td>
-          <td><span class="doc-pill ${item.documentTone || 'slate'}">${item.documentType}</span></td>
-          <td>
-            <div class="submitted-date">${item.submittedFormatted || fmtDate(item.submittedAt)}</div>
-            <div class="submitted-ago">${item.daysAgo} day${item.daysAgo === 1 ? '' : 's'} ago</div>
-          </td>
-          <td>
-            <div class="risk-wrap">
-              <div class="risk-bar"><div class="risk-fill ${tone}" style="width:${item.riskScore}%"></div></div>
-              <div class="risk-score ${tone}">${item.riskScore}</div>
-            </div>
-          </td>
-          <td><span class="status-pill ${item.status}"><i class="fas ${status.icon}"></i> ${status.label}</span></td>
-          <td class="td-actions" onclick="event.stopPropagation()">
-            <div class="actions-cell">
-              <button type="button" class="review-btn" data-review="${index}"><i class="fas fa-eye"></i> Review</button>
-              <button type="button" class="action-menu-trigger" data-menu-trigger="${index}"><i class="fas fa-ellipsis-v"></i></button>
-              <div class="action-menu" data-menu="${index}">
-                <button type="button" data-action="approve" data-index="${index}"><i class="fas fa-check-circle"></i> Approve</button>
-                <button type="button" data-action="reject" data-index="${index}"><i class="fas fa-times-circle"></i> Reject</button>
-                <button type="button" data-action="resubmission" data-index="${index}"><i class="fas fa-redo"></i> Request Resubmission</button>
-                <button type="button" data-action="view-user" data-index="${index}"><i class="fas fa-user"></i> View User</button>
-              </div>
-            </div>
-          </td>
-        </tr>
-      `;
-    };
+        if (sortState.key === 'user') { av = a.fullName; bv = b.fullName; }
+        if (sortState.key === 'documents') { av = a.docsPresent.submittedTotal; bv = b.docsPresent.submittedTotal; }
+        if (sortState.key === 'submitted') { av = a.submittedDate.getTime(); bv = b.submittedDate.getTime(); }
+        if (sortState.key === 'risk') { av = a.risk; bv = b.risk; }
+        if (sortState.key === 'assigned') { av = a.assignedTo; bv = b.assignedTo; }
+        if (sortState.key === 'status') { av = a.status; bv = b.status; }
 
-    const renderTable = () => {
-      if (!state.filtered.length) {
-        els.body.innerHTML = '';
-        els.empty.style.display = 'block';
+        if (av < bv) return -1 * factor;
+        if (av > bv) return 1 * factor;
+        return 0;
+      });
+    }
+
+    function renderPagination(total) {
+      const size = Number(rowsPerPage.value || 20);
+      const pages = Math.max(1, Math.ceil(total / size));
+      if (currentPage > pages) currentPage = pages;
+
+      const start = total === 0 ? 0 : ((currentPage - 1) * size + 1);
+      const end = Math.min(currentPage * size, total);
+
+      const pendingFiltered = applyFilters(records).filter((r) => r.status === 'pending').length;
+      const resultsText = total === 0
+        ? 'Showing 0–0 of 0 pending submissions'
+        : `Showing ${start}–${end} of ${pendingFiltered.toLocaleString('en-IN')} pending submissions`;
+
+      resultsMeta.textContent = resultsText;
+      paginationMeta.textContent = total === 0
+        ? 'Showing 0–0 of 0 pending'
+        : `Showing ${start}–${end} of ${pendingFiltered.toLocaleString('en-IN')} pending`;
+
+      const chunks = [];
+      chunks.push(`<button class="kyc-page-btn" data-page="${Math.max(1, currentPage - 1)}"><i class="fas fa-chevron-left"></i></button>`);
+      const ws = Math.max(1, currentPage - 1);
+      const we = Math.min(pages, currentPage + 1);
+      if (ws > 1) chunks.push('<button class="kyc-page-btn" data-page="1">1</button><span class="kyc-page-btn">...</span>');
+      for (let p = ws; p <= we; p += 1) {
+        chunks.push(`<button class="kyc-page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`);
+      }
+      if (we < pages) chunks.push(`<span class="kyc-page-btn">...</span><button class="kyc-page-btn" data-page="${pages}">${pages}</button>`);
+      chunks.push(`<button class="kyc-page-btn" data-page="${Math.min(pages, currentPage + 1)}"><i class="fas fa-chevron-right"></i></button>`);
+
+      paginationCenter.innerHTML = chunks.join('');
+      paginationCenter.querySelectorAll('button[data-page]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentPage = Number(btn.dataset.page || currentPage);
+          render();
+        });
+      });
+
+      return { start, end, size };
+    }
+
+    function updateEmptyState(total) {
+      const pendingOverall = records.filter((r) => r.status === 'pending').length;
+      if (total > 0) {
+        emptyState.classList.add('is-hidden');
         return;
       }
 
-      els.empty.style.display = 'none';
-      els.body.innerHTML = state.filtered.map((item, idx) => renderRow(item, idx)).join('');
-      bindRowEvents();
-    };
+      emptyState.classList.remove('is-hidden');
+      if (pendingOverall === 0) {
+        emptyIcon.className = 'fas fa-check-circle kyc-empty-icon is-success';
+        emptyTitle.textContent = 'All caught up!';
+        emptySubtitle.textContent = 'No pending KYC submissions';
+        clearFiltersEmptyBtn.hidden = true;
+      } else {
+        emptyIcon.className = 'fas fa-id-card kyc-empty-icon';
+        emptyTitle.textContent = 'No KYC submissions found';
+        emptySubtitle.textContent = 'Try adjusting your filters';
+        clearFiltersEmptyBtn.hidden = false;
+      }
+    }
 
-    const closeMenus = () => {
-      document.querySelectorAll('.action-menu.open').forEach((m) => m.classList.remove('open'));
-    };
-
-    const bindRowEvents = () => {
-      document.querySelectorAll('.kyc-row').forEach((row) => {
-        row.addEventListener('click', () => {
-          const i = Number(row.dataset.index);
-          openPanel(state.filtered[i]);
+    function wireRowActions(container) {
+      container.querySelectorAll('[data-more]').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const menu = btn.parentElement.querySelector('.kyc-menu');
+          const isOpen = menu && !menu.hidden;
+          document.querySelectorAll('.kyc-menu').forEach((x) => { x.hidden = true; });
+          if (menu) menu.hidden = isOpen;
         });
       });
 
-      document.querySelectorAll('[data-review]').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const i = Number(btn.dataset.review);
-          const item = state.filtered[i];
-          if (!item?.zenoPayId) return;
-          window.location.href = `/admin/kyc/${encodeURIComponent(item.zenoPayId)}`;
-        });
-      });
+      container.querySelectorAll('.kyc-menu-item').forEach((itemBtn) => {
+        itemBtn.addEventListener('click', async (event) => {
+          event.stopPropagation();
+          const action = itemBtn.dataset.action;
+          const id = itemBtn.dataset.id;
+          const rec = records.find((r) => r.routeId === id);
+          if (!rec) return;
 
-      document.querySelectorAll('[data-menu-trigger]').forEach((trigger) => {
-        trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const index = trigger.dataset.menuTrigger;
-          const menu = document.querySelector(`[data-menu="${index}"]`);
-          const isOpen = menu.classList.contains('open');
-          closeMenus();
-          if (!isOpen) menu.classList.add('open');
-        });
-      });
-
-      document.querySelectorAll('[data-action]').forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          const action = btn.dataset.action;
-          const item = state.filtered[Number(btn.dataset.index)];
-          closeMenus();
-          if (!item) return;
-
-          if (action === 'view-user') {
-            window.location.href = `/admin/users?search=${encodeURIComponent(item.zenoPayId)}`;
+          if (action === 'quick-approve') {
+            activeRecord = rec;
+            approveTargetName.textContent = rec.fullName;
+            openModal(quickApproveModal);
             return;
           }
-
-          let reason = '';
-          if (action !== 'approve') {
-            reason = window.prompt(action === 'reject' ? 'Enter rejection reason:' : 'Enter resubmission note:', item.adminNotes || '') || '';
-            if (!reason.trim()) return;
+          if (action === 'quick-reject') {
+            activeRecord = rec;
+            rejectTargetName.textContent = rec.fullName;
+            openModal(quickRejectModal);
+            return;
           }
-
-          await updateStatus(item, action, reason);
+          if (action === 'resubmission') {
+            await postAction(`/admin/kyc/${id}/resubmission`, { reason: 'Please resubmit clear and complete documents' }, 'Resubmission requested');
+            return;
+          }
+          if (action === 'assign-me') {
+            rec.assignedTo = myAdmin;
+            rec.assignedInitial = 'Y';
+            showToast('Assigned to you', 'success');
+            render();
+            return;
+          }
+          if (action === 'profile') {
+            window.location.href = `/admin/users/${id}`;
+          }
         });
       });
-    };
+    }
 
-    const panelStatusBadge = (status) => {
-      const meta = statusMeta[status] || statusMeta.pending;
-      return `<span class="status-pill ${status}"><i class="fas ${meta.icon}"></i> ${meta.label}</span>`;
-    };
+    function renderTableRows(pageRows) {
+      tableBody.innerHTML = pageRows.map(tableRow).join('');
 
-    const openPanel = (item) => {
-      state.selected = item;
-      els.panelName.textContent = item.fullName;
-      els.panelEmail.textContent = `${item.email} • ${item.zenoPayId}`;
-      els.panelStatusBadge.outerHTML = panelStatusBadge(item.status);
-
-      const refreshedBadge = document.querySelector('.panel-head-right .status-pill');
-      if (refreshedBadge) refreshedBadge.id = 'panelStatusBadge';
-
-      els.panelDocs.innerHTML = [
-        { label: 'ID Front', src: item.docs?.identityFront },
-        { label: 'ID Back', src: item.docs?.identityBack },
-        { label: 'Address', src: item.docs?.addressDocument },
-        { label: 'Selfie', src: item.docs?.selfie }
-      ].map((doc) => {
-        if (!doc.src) return `<div class="doc-thumb"><div class="doc-fallback">${doc.label} unavailable</div></div>`;
-        return `<div class="doc-thumb" data-lightbox="${doc.src}"><img src="${doc.src}" alt="${doc.label}" /></div>`;
-      }).join('');
-
-      els.panelExtracted.innerHTML = `
-        <div><span>Name</span><strong>${item.extracted?.name || 'N/A'}</strong></div>
-        <div><span>DOB</span><strong>${item.extracted?.dob || 'N/A'}</strong></div>
-        <div><span>Document No.</span><strong>${item.extracted?.documentNumber || 'N/A'}</strong></div>
-      `;
-
-      const flags = item.riskFlags && item.riskFlags.length ? item.riskFlags : ['No major risk flags detected'];
-      els.panelFlags.innerHTML = flags.map((f) => `<li>${f}</li>`).join('');
-      els.panelNotes.value = item.adminNotes || '';
-
-      els.panel.classList.add('open');
-      els.panelOverlay.classList.add('open');
-
-      bindDocLightbox();
-    };
-
-    const closePanel = () => {
-      els.panel.classList.remove('open');
-      els.panelOverlay.classList.remove('open');
-      state.selected = null;
-    };
-
-    const bindDocLightbox = () => {
-      els.panelDocs.querySelectorAll('[data-lightbox]').forEach((thumb) => {
-        thumb.addEventListener('click', () => {
-          const src = thumb.dataset.lightbox;
-          els.lightboxImage.src = src;
-          els.lightbox.classList.add('open');
+      tableBody.querySelectorAll('tr[data-id]').forEach((tr) => {
+        tr.addEventListener('click', (event) => {
+          const interactive = event.target.closest('button, a, input, label, .kyc-menu');
+          if (interactive) return;
+          const id = tr.dataset.id;
+          if (id) window.location.href = `/admin/kyc/${id}`;
         });
       });
-    };
 
-    const updateStatus = async (item, action, reason = '') => {
+      tableBody.querySelectorAll('.kyc-row-check').forEach((check) => {
+        check.addEventListener('change', () => {
+          const row = check.closest('tr');
+          if (check.checked) selected.add(check.value);
+          else selected.delete(check.value);
+          row?.classList.toggle('selected', check.checked);
+          refreshBulkBar();
+        });
+      });
+
+      wireRowActions(tableBody);
+    }
+
+    function renderCardRows(pageRows) {
+      cardSection.innerHTML = pageRows.map(cardItem).join('');
+      wireRowActions(cardSection);
+    }
+
+    function refreshBulkBar() {
+      const size = selected.size;
+      bulkBar.hidden = size === 0;
+      bulkCount.textContent = `${size} selected`;
+    }
+
+    function render() {
+      const list = sorted(applyFilters(records));
+      const { size } = renderPagination(list.length);
+      const start = (currentPage - 1) * size;
+      const pageRows = list.slice(start, start + size);
+
+      updateEmptyState(list.length);
+
+      if (list.length === 0) {
+        tableSection.classList.add('is-hidden');
+        cardSection.classList.add('is-hidden');
+      } else if (currentView === 'table') {
+        tableSection.classList.remove('is-hidden');
+        cardSection.classList.add('is-hidden');
+        renderTableRows(pageRows);
+      } else {
+        tableSection.classList.add('is-hidden');
+        cardSection.classList.remove('is-hidden');
+        renderCardRows(pageRows);
+      }
+
+      document.querySelectorAll('.kyc-risk-fill[data-risk]').forEach((el) => {
+        const risk = Number(el.getAttribute('data-risk') || 0);
+        el.style.width = `${Math.max(0, Math.min(100, risk))}%`;
+      });
+
+      document.querySelectorAll('.kyc-grid-card[data-delay]').forEach((el) => {
+        const delay = Number(el.getAttribute('data-delay') || 0);
+        el.style.animationDelay = `${Math.max(0, delay)}s`;
+      });
+
+      selectAll.checked = false;
+    }
+
+    function openModal(modalEl) {
+      if (!modalEl) return;
+      if (window.AdminModal && typeof window.AdminModal.open === 'function') {
+        window.AdminModal.open(modalEl.id);
+        return;
+      }
+      modalEl.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalEl) {
+      if (!modalEl) return;
+      if (window.AdminModal && typeof window.AdminModal.close === 'function') {
+        window.AdminModal.close(modalEl.id);
+        return;
+      }
+      modalEl.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    async function postAction(url, body, successMsg) {
       try {
-        const endpoint = `/admin/kyc/${encodeURIComponent(item.zenoPayId)}/${action === 'resubmission' ? 'resubmission' : action}`;
-        const body = action === 'approve' ? {} : { reason };
-
-        const res = await fetch(endpoint, {
+        const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body || {})
         });
-
-        const out = await res.json().catch(() => ({}));
-        if (!res.ok || !out.success) {
-          throw new Error(out.message || 'Action failed');
-        }
-
-        const mappedStatus = action === 'approve' ? 'approved' : (action === 'reject' ? 'rejected' : 'resubmission');
-        const target = state.all.find((x) => x.zenoPayId === item.zenoPayId);
-        if (target) {
-          target.status = mappedStatus;
-          if (reason) target.adminNotes = reason;
-        }
-
-        updateStats();
-        applyFilters();
-        if (state.selected && state.selected.zenoPayId === item.zenoPayId) {
-          openPanel(target || item);
-        }
-
-        toast(out.message || 'Updated successfully');
-      } catch (error) {
-        toast(error.message || 'Failed to update KYC status', true);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) throw new Error(data.message || 'Request failed');
+        showToast(successMsg || 'Done', 'success');
+        setTimeout(() => window.location.reload(), 700);
+      } catch (_err) {
+        showToast('Action failed. Try again.', 'error');
       }
-    };
+    }
 
-    const toast = (message, isError = false) => {
-      const el = document.createElement('div');
-      el.className = 'status-pill ' + (isError ? 'rejected' : 'approved');
-      el.style.position = 'fixed';
-      el.style.right = '18px';
-      el.style.bottom = '18px';
-      el.style.zIndex = '260';
-      el.style.padding = '10px 12px';
-      el.style.boxShadow = '0 10px 24px rgba(2,6,23,.16)';
-      el.innerHTML = `${isError ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>'} ${message}`;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 2800);
-    };
+    function showToast(msg, type) {
+      if (window.showToast) {
+        window.showToast(msg, type === 'error' ? 'error' : 'success');
+        return;
+      }
+      const toast = document.createElement('div');
+      toast.className = `admin-toast admin-toast-${type === 'error' ? 'error' : 'success'}`;
+      toast.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${msg}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 2800);
+    }
 
-    const exportCsv = () => {
-      const rows = state.filtered.map((x) => ({
-        userId: x.zenoPayId,
-        name: x.fullName,
-        email: x.email,
-        documentType: x.documentType,
-        submittedDate: x.submittedFormatted || fmtDate(x.submittedAt),
-        riskScore: x.riskScore,
-        status: x.status
-      }));
-
-      const header = Object.keys(rows[0] || { userId: '', name: '', email: '', documentType: '', submittedDate: '', riskScore: '', status: '' });
-      const csv = [header.join(',')].concat(rows.map((r) => header.map((k) => `"${String(r[k] ?? '').replaceAll('"', '""')}"`).join(','))).join('\n');
-
+    function exportCsv(rows) {
+      const header = ['User ID', 'Name', 'Email', 'Status', 'Risk', 'Submitted', 'Assigned To'];
+      const lines = rows.map((r) => [r.zenoPayId, r.fullName, r.email, r.status, r.risk, r.submittedFormatted, r.assignedTo]);
+      const csv = [header, ...lines].map((arr) => arr.map((x) => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `kyc-submissions-${new Date().toISOString().slice(0,10)}.csv`;
+      a.download = `kyc-submissions-${Date.now()}.csv`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       URL.revokeObjectURL(url);
-    };
+    }
 
-    els.search.addEventListener('input', () => { state.filters.search = els.search.value.trim(); applyFilters(); });
-    els.status.addEventListener('change', () => { state.filters.status = els.status.value; applyFilters(); });
-    els.doc.addEventListener('change', () => { state.filters.doc = els.doc.value; applyFilters(); });
-    els.from.addEventListener('change', () => { state.filters.from = els.from.value; applyFilters(); });
-    els.to.addEventListener('change', () => { state.filters.to = els.to.value; applyFilters(); });
-    els.exportBtn.addEventListener('click', exportCsv);
-
-    els.panelCloseBtn.addEventListener('click', closePanel);
-    els.panelOverlay.addEventListener('click', closePanel);
-
-    els.approveBtn.addEventListener('click', () => {
-      if (!state.selected) return;
-      updateStatus(state.selected, 'approve');
+    viewBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        viewBtns.forEach((x) => x.classList.remove('active'));
+        btn.classList.add('active');
+        currentView = btn.dataset.view || 'table';
+        render();
+      });
     });
 
-    els.rejectBtn.addEventListener('click', () => {
-      if (!state.selected) return;
-      const reason = (els.panelNotes.value || '').trim();
-      if (!reason) return toast('Please add rejection reason in notes', true);
-      updateStatus(state.selected, 'reject', reason);
+    document.querySelectorAll('.kyc-sortable').forEach((th) => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        if (!key) return;
+        if (sortState.key !== key) sortState = { key, dir: 'asc' };
+        else if (sortState.dir === 'asc') sortState.dir = 'desc';
+        else if (sortState.dir === 'desc') sortState.dir = 'neutral';
+        else sortState.dir = 'asc';
+
+        document.querySelectorAll('.kyc-sortable').forEach((x) => x.classList.remove('active'));
+        if (sortState.dir !== 'neutral') th.classList.add('active');
+        currentPage = 1;
+        render();
+      });
     });
 
-    els.resubmitBtn.addEventListener('click', () => {
-      if (!state.selected) return;
-      const reason = (els.panelNotes.value || '').trim();
-      if (!reason) return toast('Please add resubmission note in notes', true);
-      updateStatus(state.selected, 'resubmission', reason);
+    [searchInput, statusFilter, docFilter, riskFilter, fromDate, toDate, assignedFilter].forEach((el) => {
+      el?.addEventListener(el.tagName === 'INPUT' && el.type === 'text' ? 'input' : 'change', () => {
+        currentPage = 1;
+        render();
+      });
     });
 
-    els.lightboxClose.addEventListener('click', () => els.lightbox.classList.remove('open'));
-    els.lightbox.addEventListener('click', (e) => {
-      if (e.target === els.lightbox) els.lightbox.classList.remove('open');
+    clearFiltersBtn?.addEventListener('click', () => {
+      searchInput.value = '';
+      statusFilter.value = '';
+      docFilter.value = '';
+      riskFilter.value = '';
+      fromDate.value = '';
+      toDate.value = '';
+      assignedFilter.value = '';
+      currentPage = 1;
+      render();
     });
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.actions-cell')) closeMenus();
+    clearFiltersEmptyBtn?.addEventListener('click', () => clearFiltersBtn.click());
+
+    rowsPerPage?.addEventListener('change', () => {
+      currentPage = 1;
+      render();
     });
 
-    updateStats();
-    renderTable();
+    selectAll?.addEventListener('change', () => {
+      tableBody.querySelectorAll('.kyc-row-check').forEach((check) => {
+        check.checked = selectAll.checked;
+        if (check.checked) selected.add(check.value);
+        else selected.delete(check.value);
+        check.closest('tr')?.classList.toggle('selected', check.checked);
+      });
+      refreshBulkBar();
+    });
+
+    bulkClose?.addEventListener('click', () => {
+      selected.clear();
+      selectAll.checked = false;
+      tableBody.querySelectorAll('.kyc-row-check').forEach((check) => {
+        check.checked = false;
+        check.closest('tr')?.classList.remove('selected');
+      });
+      refreshBulkBar();
+    });
+
+    refreshBtn?.addEventListener('click', () => {
+      const icon = refreshBtn.querySelector('i');
+      if (icon) {
+        icon.style.animation = 'spin 0.6s linear';
+        setTimeout(() => { icon.style.animation = ''; }, 620);
+      }
+      render();
+      showToast('KYC list refreshed', 'success');
+    });
+
+    exportBtn?.addEventListener('click', () => {
+      exportCsv(sorted(applyFilters(records)));
+      showToast('KYC CSV exported', 'success');
+    });
+
+    reviewOldestBtn?.addEventListener('click', () => {
+      const pending = records.filter((r) => r.status === 'pending').sort((a, b) => b.daysAgo - a.daysAgo);
+      if (!pending.length) return;
+      window.location.href = `/admin/kyc/${pending[0].routeId}`;
+    });
+
+    quickApproveForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!activeRecord) return;
+      postAction(`/admin/kyc/${activeRecord.routeId}/approve`, { note: document.getElementById('approveNote')?.value || '' }, 'KYC approved successfully');
+      closeModal(quickApproveModal);
+    });
+
+    quickRejectForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!activeRecord) return;
+      if (!rejectReason.value) {
+        showToast('Please select a rejection reason', 'error');
+        return;
+      }
+      const note = document.getElementById('rejectNote')?.value || '';
+      const reasonText = `${rejectReason.value}${note ? ` - ${note}` : ''}`;
+      postAction(`/admin/kyc/${activeRecord.routeId}/reject`, { reason: reasonText }, 'KYC rejected');
+      closeModal(quickRejectModal);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.kyc-actions')) {
+        document.querySelectorAll('.kyc-menu').forEach((x) => { x.hidden = true; });
+      }
+    });
+
+    document.getElementById('bulkApproveBtn')?.addEventListener('click', () => showToast('Approve Selected queued', 'success'));
+    document.getElementById('bulkRejectBtn')?.addEventListener('click', () => showToast('Reject Selected queued', 'success'));
+    document.getElementById('bulkResubBtn')?.addEventListener('click', () => showToast('Resubmission requested for selected', 'success'));
+    document.getElementById('bulkAssignBtn')?.addEventListener('click', () => showToast('Selected items assigned to you', 'success'));
+
+    render();
   })();
 </script>

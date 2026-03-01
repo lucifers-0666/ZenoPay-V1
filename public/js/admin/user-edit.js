@@ -532,12 +532,20 @@ function handleForceLogout() {
 
 // Show Unsaved Changes Modal
 function showUnsavedModal() {
+  if (window.AdminModal && typeof window.AdminModal.open === 'function') {
+    window.AdminModal.open('unsavedChangesModal');
+    return;
+  }
   document.getElementById('unsavedChangesModal').style.display = 'flex';
 }
 
 // Close Unsaved Changes Modal
 function closeUnsavedModal() {
-  document.getElementById('unsavedChangesModal').style.display = 'none';
+  if (window.AdminModal && typeof window.AdminModal.close === 'function') {
+    window.AdminModal.close('unsavedChangesModal');
+  } else {
+    document.getElementById('unsavedChangesModal').style.display = 'none';
+  }
   formState.pendingNavigation = null;
 }
 

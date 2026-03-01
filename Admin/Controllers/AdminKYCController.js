@@ -288,6 +288,7 @@ const getKYCManagement = async (req, res) => {
     res.render("admin/kyc/admin-kyc-management", {
       pageTitle: "KYC Management",
       currentPage: "kyc",
+      adminPage: "kyc",
       admin: req.session.user,
       breadcrumb: [
         { name: "KYC", url: "/admin/kyc" },
@@ -347,11 +348,11 @@ const getKYCDetails = async (req, res) => {
     res.render("admin/kyc/admin-kyc-details", {
       pageTitle: `${details.fullName} - KYC Details`,
       currentPage: "kyc",
+      adminPage: "kyc",
+      hideBreadcrumb: true,
       admin: req.session.user,
       breadcrumb: [
-        { name: "Admin", url: "/admin/dashboard" },
-        { name: "KYC", url: "/admin/kyc" },
-        { name: "Management", url: "/admin/kyc" },
+        { name: "KYC Management", url: "/admin/kyc" },
         { name: details.fullName, url: `/admin/kyc/${encodeURIComponent(details.zenoPayId)}` },
       ],
       details,

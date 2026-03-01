@@ -380,11 +380,19 @@ function showApprovalModal(merchantId) {
     document.getElementById('commissionRate').value = '2.5';
     document.getElementById('approvalNotes').value = '';
 
-    document.getElementById('approvalModal').style.display = 'flex';
+    if (window.AdminModal && typeof window.AdminModal.open === 'function') {
+        window.AdminModal.open('approvalModal');
+    } else {
+        document.getElementById('approvalModal').style.display = 'flex';
+    }
 }
 
 function closeApprovalModal() {
-    document.getElementById('approvalModal').style.display = 'none';
+    if (window.AdminModal && typeof window.AdminModal.close === 'function') {
+        window.AdminModal.close('approvalModal');
+    } else {
+        document.getElementById('approvalModal').style.display = 'none';
+    }
     currentMerchantId = null;
 }
 
@@ -443,11 +451,19 @@ function showRejectionModal(merchantId) {
     document.getElementById('rejectionDetails').value = '';
     document.getElementById('allowReapply').checked = true;
 
-    document.getElementById('rejectionModal').style.display = 'flex';
+    if (window.AdminModal && typeof window.AdminModal.open === 'function') {
+        window.AdminModal.open('rejectionModal');
+    } else {
+        document.getElementById('rejectionModal').style.display = 'flex';
+    }
 }
 
 function closeRejectionModal() {
-    document.getElementById('rejectionModal').style.display = 'none';
+    if (window.AdminModal && typeof window.AdminModal.close === 'function') {
+        window.AdminModal.close('rejectionModal');
+    } else {
+        document.getElementById('rejectionModal').style.display = 'none';
+    }
     currentMerchantId = null;
 }
 

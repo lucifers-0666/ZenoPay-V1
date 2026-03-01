@@ -593,6 +593,184 @@ input, select, textarea { font-family: inherit; }
   box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
 }
 
+/* ── Danger modal button ── */
+.btn-danger-modal {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.btn-danger-modal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+}
+
+/* ── Form group inside modal ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* ── Toggle row ── */
+.form-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+/* ── Admin select / textarea ── */
+.admin-select,
+.admin-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-main);
+  background: #F9FAFB;
+  transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+  font-family: inherit;
+}
+
+.admin-select {
+  height: 46px;
+  cursor: pointer;
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.6;
+}
+
+.admin-select:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: #fff;
+}
+
+.decision-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.decision-btn .decision-arrow {
+  margin-left: auto;
+  transition: transform var(--trans-fast);
+}
+
+.decision-btn:hover .decision-arrow {
+  transform: translateX(3px);
+}
+
+.decision-approve {
+  border-color: rgba(16,185,129,0.4);
+  background: rgba(16,185,129,0.06);
+  color: var(--green-dark);
+}
+
+.decision-approve:hover {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.decision-reject {
+  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.06);
+  color: var(--red-dark);
+}
+
+.decision-reject:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.decision-resubmit {
+  border-color: rgba(59,130,246,0.4);
+  background: rgba(59,130,246,0.06);
+  color: var(--primary-dark);
+}
+
+.decision-resubmit:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.doc-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.doc-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.doc-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--trans-fast);
+}
+
+.doc-lightbox-close:hover {
+  background: rgba(255,255,255,0.25);
+}
+
 .admin-toast {
   position: fixed;
   bottom: 28px;

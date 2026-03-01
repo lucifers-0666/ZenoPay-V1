@@ -426,10 +426,10 @@
 
 <!-- Unsaved Changes Modal -->
 <div class="modal-overlay" id="unsavedChangesModal" style="display: none;">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-card">
     <div class="modal-header">
       <h3 class="modal-title">Unsaved Changes</h3>
-      <button class="modal-close" id="closeUnsavedModal">
+      <button type="button" class="modal-close" id="closeUnsavedModal" data-close-modal="unsavedChangesModal">
         <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
@@ -439,8 +439,8 @@
       <p>You have unsaved changes. Are you sure you want to leave?</p>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" id="stayOnPageBtn">Stay on Page</button>
-      <button class="btn-error-outline" id="leavePageBtn">Leave</button>
+      <button type="button" class="btn-secondary" id="stayOnPageBtn" data-close-modal="unsavedChangesModal">Stay on Page</button>
+      <button type="button" class="btn-error-outline" id="leavePageBtn">Leave</button>
     </div>
   </div>
 </div>
