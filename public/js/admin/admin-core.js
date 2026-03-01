@@ -1,14 +1,19 @@
-// 1. Sidebar toggle
-document.getElementById('sidebarToggle')?.addEventListener('click', () => {
-  document.getElementById('adminLayout').classList.toggle('sidebar-collapsed');
-  document.getElementById('adminSidebar').classList.toggle('collapsed');
-  localStorage.setItem('sidebarCollapsed', document.getElementById('adminLayout').classList.contains('sidebar-collapsed'));
-});
+// 1. Sidebar collapse toggle (bottom button)
+const collapseBtn = document.getElementById('sidebar-collapse-btn');
+const wrapper = document.querySelector('.admin-wrapper') || document.querySelector('.admin-layout') || document.getElementById('adminLayout');
 
-// Restore sidebar state on load
-if (localStorage.getItem('sidebarCollapsed') === 'true') {
-  document.getElementById('adminLayout')?.classList.add('sidebar-collapsed');
+// Restore saved state on page load
+if (localStorage.getItem('adminSidebarCollapsed') === 'true') {
+  wrapper?.classList.add('sidebar-collapsed');
 }
+
+// Toggle on click
+collapseBtn?.addEventListener('click', () => {
+  if (!wrapper) return;
+  wrapper.classList.toggle('sidebar-collapsed');
+  const isCollapsed = wrapper.classList.contains('sidebar-collapsed');
+  localStorage.setItem('adminSidebarCollapsed', isCollapsed);
+});
 
 // 2. Submenu toggle
 document.querySelectorAll('.sidebar-link.has-sub').forEach(link => {
@@ -64,14 +69,3 @@ document.getElementById('refreshBtn')?.addEventListener('click', function() {
   }, 800);
 });
 
-// 6. Chart period toggle
-document.querySelectorAll('.chart-period').forEach(btn => {
-  btn.addEventListener('click', function() {
-    this.closest('.admin-card').querySelectorAll('.chart-period').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-
-    if (window.updateTxChartPeriod) {
-      window.updateTxChartPeriod(this.dataset.period);
-    }
-  });
-});

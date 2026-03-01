@@ -1,276 +1,1380 @@
-<!-- Page Header -->
-<div class="page-header">
-  <div class="page-header-content">
-    <h1 class="page-title">Users Management</h1>
-    <p class="page-subtitle">Manage and monitor all registered users</p>
-  </div>
-</div>
+<%
+  const currentAdminPage = typeof adminPage !== 'undefined' ? adminPage : 'users';
+  page = currentAdminPage;
+%>
 
-<!-- Stats Cards Row -->
-<div class="stats-cards-row">
-  <div class="stat-mini-card stat-primary">
-    <div class="stat-mini-icon">
-      <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-      </svg>
-    </div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value">24,583</div>
-      <div class="stat-mini-label">Total Users</div>
-    </div>
-  </div>
+<section class="users-page" id="usersPage">
+  <nav class="users-crumb" aria-label="Breadcrumb">
+    <a href="/admin/dashboard" class="users-crumb-link"><i class="fas fa-home"></i><span>Admin</span></a>
+    <i class="fas fa-chevron-right users-crumb-sep"></i>
+    <span class="users-crumb-current">User Management</span>
+  </nav>
 
-  <div class="stat-mini-card stat-success">
-    <div class="stat-mini-icon">
-      <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-      </svg>
+  <header class="users-title-row">
+    <div>
+      <h1 class="users-title">User Management</h1>
+      <p class="users-subtitle">Manage all registered ZenoPay users</p>
     </div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value">1,847</div>
-      <div class="stat-mini-label">Active Today</div>
+    <div class="users-title-actions">
+      <button class="users-btn users-btn-primary" id="openAddUserModal" type="button"><i class="fas fa-plus"></i><span>Add User</span></button>
+      <button class="users-btn users-btn-outline" id="exportCsvBtn" type="button"><i class="fas fa-download"></i><span>Export CSV</span></button>
     </div>
-  </div>
+  </header>
 
-  <div class="stat-mini-card stat-warning">
-    <div class="stat-mini-icon">
-      <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-      </svg>
-    </div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value">342</div>
-      <div class="stat-mini-label">KYC Pending</div>
-    </div>
-  </div>
+  <section class="users-stats-strip">
+    <article class="users-stat-card users-stat-delay-0">
+      <div class="users-stat-icon users-stat-icon-blue"><i class="fas fa-users"></i></div>
+      <div class="users-stat-body">
+        <p class="users-stat-label">Total Users</p>
+        <h3 class="users-stat-value">24,583</h3>
+        <span class="users-trend users-trend-up"><i class="fas fa-arrow-up"></i>+12.5%</span>
+      </div>
+    </article>
 
-  <div class="stat-mini-card stat-error">
-    <div class="stat-mini-icon">
-      <svg class="icon-24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-      </svg>
-    </div>
-    <div class="stat-mini-content">
-      <div class="stat-mini-value">28</div>
-      <div class="stat-mini-label">Blocked Users</div>
-    </div>
-  </div>
-</div>
+    <article class="users-stat-card users-stat-delay-1">
+      <div class="users-stat-icon users-stat-icon-green"><i class="fas fa-user-check"></i></div>
+      <div class="users-stat-body">
+        <p class="users-stat-label">Verified (KYC)</p>
+        <h3 class="users-stat-value">18,240</h3>
+        <span class="users-trend users-trend-up"><i class="fas fa-arrow-up"></i>+8.1%</span>
+      </div>
+    </article>
 
-<!-- Top Controls Bar -->
-<div class="controls-bar">
-  <div class="controls-left">
-    <div class="search-input-wrapper">
-      <svg class="search-icon icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-      <input type="text" class="search-input" id="userSearch" placeholder="Search users by name, email, phone...">
-      <div class="search-spinner" id="searchSpinner" style="display: none;">
-        <div class="spinner-small"></div>
+    <article class="users-stat-card users-stat-delay-2">
+      <div class="users-stat-icon users-stat-icon-amber"><i class="fas fa-user-clock"></i></div>
+      <div class="users-stat-body">
+        <p class="users-stat-label">Pending KYC</p>
+        <h3 class="users-stat-value">3,891</h3>
+        <span class="users-trend users-trend-neutral">Count only</span>
+      </div>
+    </article>
+
+    <article class="users-stat-card users-stat-delay-3">
+      <div class="users-stat-icon users-stat-icon-red"><i class="fas fa-user-times"></i></div>
+      <div class="users-stat-body">
+        <p class="users-stat-label">Suspended</p>
+        <h3 class="users-stat-value">124</h3>
+        <span class="users-trend users-trend-neutral">Count only</span>
+      </div>
+    </article>
+
+    <article class="users-stat-card users-stat-delay-4">
+      <div class="users-stat-icon users-stat-icon-purple"><i class="fas fa-user-plus"></i></div>
+      <div class="users-stat-body">
+        <p class="users-stat-label">New Today</p>
+        <h3 class="users-stat-value">47</h3>
+        <span class="users-trend users-trend-neutral">+5 from yesterday</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="users-filter-card">
+    <div class="users-search-wrap">
+      <i class="fas fa-search users-search-icon"></i>
+      <input id="userSearchInput" class="users-search-input" type="text" placeholder="Search by name, email, phone, user ID..." />
+    </div>
+
+    <select id="statusFilter" class="users-select-pill" aria-label="Status filter">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="suspended">Suspended</option>
+      <option value="pending kyc">Pending KYC</option>
+      <option value="unverified">Unverified</option>
+    </select>
+
+    <select id="kycFilter" class="users-select-pill" aria-label="KYC filter">
+      <option value="">All KYC</option>
+      <option value="verified">Verified</option>
+      <option value="pending">Pending</option>
+      <option value="rejected">Rejected</option>
+      <option value="not submitted">Not Submitted</option>
+    </select>
+
+    <div class="users-date-wrap">
+      <label class="users-date-input-wrap"><i class="fas fa-calendar-alt"></i><input id="fromDate" class="users-date-input" type="date" aria-label="From date" /></label>
+      <label class="users-date-input-wrap"><i class="fas fa-calendar-alt"></i><input id="toDate" class="users-date-input" type="date" aria-label="To date" /></label>
+    </div>
+
+    <button id="clearFiltersBtn" class="users-clear-filters" type="button" hidden><i class="fas fa-times"></i><span>Clear Filters</span></button>
+  </section>
+
+  <section class="users-results-bar">
+    <p class="users-results-text" id="resultsMeta">Showing 1–20 of 24,583 users</p>
+    <div class="users-results-controls">
+      <button class="users-mini-btn" type="button"><i class="fas fa-columns"></i><span>Columns</span></button>
+      <div class="users-view-switch" role="group" aria-label="View mode">
+        <button class="users-view-btn" type="button" aria-pressed="false"><i class="fas fa-th-large"></i><span>Grid</span></button>
+        <button class="users-view-btn active" type="button" aria-pressed="true"><i class="fas fa-list"></i><span>Table</span></button>
       </div>
     </div>
-  </div>
-  <div class="controls-right">
-    <button class="btn-secondary btn-icon" id="filterBtn">
-      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-      </svg>
-      Filter
-      <span class="badge-pill" id="filterBadge" style="display: none;">0</span>
-    </button>
-    <button class="btn-secondary btn-icon" id="exportBtn">
-      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-      </svg>
-      Export CSV
-    </button>
-    <button class="btn-primary btn-icon" id="addUserBtn">
-      <svg class="icon-20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      Add User
-    </button>
-  </div>
-</div>
+  </section>
 
-<!-- Filter Panel (Collapsible) -->
-<div class="filter-panel" id="filterPanel" style="display: none;">
-  <div class="filter-grid">
-    <div class="filter-item">
-      <label class="filter-label">Status</label>
-      <select class="filter-select" id="filterStatus">
-        <option value="">All Status</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-        <option value="suspended">Suspended</option>
-        <option value="blocked">Blocked</option>
-      </select>
-    </div>
-
-    <div class="filter-item">
-      <label class="filter-label">KYC Status</label>
-      <select class="filter-select" id="filterKYC">
-        <option value="">All KYC Status</option>
-        <option value="verified">Verified</option>
-        <option value="pending">Pending</option>
-        <option value="rejected">Rejected</option>
-      </select>
-    </div>
-
-    <div class="filter-item">
-      <label class="filter-label">Registration Date</label>
-      <div class="date-range-inputs">
-        <input type="date" class="filter-input" id="filterDateFrom" placeholder="From">
-        <span class="date-separator">to</span>
-        <input type="date" class="filter-input" id="filterDateTo" placeholder="To">
-      </div>
-    </div>
-
-    <div class="filter-item">
-      <label class="filter-label">Account Balance (₹0 - ₹100,000)</label>
-      <div class="range-slider-container">
-        <input type="range" class="range-slider" id="filterBalance" min="0" max="100000" value="100000" step="1000">
-        <div class="range-value" id="filterBalanceValue">₹100,000</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="filter-actions">
-    <button class="btn-text" id="clearFiltersBtn">Clear All</button>
-    <button class="btn-primary" id="applyFiltersBtn">Apply Filters</button>
-  </div>
-</div>
-
-<!-- Users Table Card -->
-<div class="card table-card">
-  <!-- Bulk Actions Bar (Hidden by default) -->
-  <div class="bulk-actions-bar" id="bulkActionsBar" style="display: none;">
-    <div class="bulk-actions-left">
-      <span class="bulk-selected-count" id="bulkSelectedCount">0 users selected</span>
-    </div>
-    <div class="bulk-actions-right">
-      <button class="btn-secondary btn-sm" id="bulkExportBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        Export Selected
-      </button>
-      <button class="btn-warning btn-sm" id="bulkSuspendBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-        </svg>
-        Suspend Selected
-      </button>
-      <button class="btn-danger btn-sm" id="bulkDeleteBtn">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-        </svg>
-        Delete Selected
-      </button>
-    </div>
-  </div>
-
-  <!-- Table -->
-  <div class="table-responsive">
-    <table class="data-table" id="usersTable">
+  <section class="users-table-shell">
+    <table class="users-table" id="usersTable">
       <thead>
         <tr>
-          <th class="th-checkbox">
-            <input type="checkbox" class="checkbox" id="selectAll">
-          </th>
-          <th class="th-sortable" data-sort="name">
-            User
-            <span class="sort-icons">
-              <svg class="icon-16 sort-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-              </svg>
-            </span>
-          </th>
-          <th class="th-sortable" data-sort="phone">Phone</th>
-          <th class="th-sortable" data-sort="status">Status</th>
-          <th class="th-sortable" data-sort="kyc">KYC Status</th>
-          <th class="th-sortable" data-sort="balance">Balance</th>
-          <th class="th-sortable" data-sort="registered">Registered Date</th>
-          <th class="th-sortable" data-sort="lastActive">Last Active</th>
-          <th class="th-actions">Actions</th>
+          <th class="users-col-checkbox"><label class="users-checkbox"><input id="selectAllUsers" type="checkbox"><span class="users-checkbox-ui"><i class="fas fa-check"></i></span></label></th>
+          <th class="users-sortable active" data-sort="name">USER <i class="fas fa-sort"></i></th>
+          <th class="users-sortable" data-sort="contact">CONTACT <i class="fas fa-sort"></i></th>
+          <th>KYC</th>
+          <th>ROLE</th>
+          <th class="users-align-right users-sortable" data-sort="balance">BALANCE <i class="fas fa-sort"></i></th>
+          <th>STATUS</th>
+          <th class="users-sortable" data-sort="joined">JOINED <i class="fas fa-sort"></i></th>
+          <th>ACTIONS</th>
         </tr>
       </thead>
-      <tbody id="usersTableBody">
-        <!-- Table rows will be populated by JavaScript -->
+      <tbody id="usersTableBody"></tbody>
+      <tbody id="usersSkeletonBody" hidden>
+        <tr>
+          <td><div class="skeleton users-skeleton-check"></div></td>
+          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
+          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-mid users-align-right"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-mid"></div><div class="skeleton users-skeleton-small"></div></td>
+          <td><div class="skeleton users-skeleton-actions"></div></td>
+        </tr>
+        <tr>
+          <td><div class="skeleton users-skeleton-check"></div></td>
+          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
+          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-mid users-align-right"></div></td>
+          <td><div class="skeleton users-skeleton-pill"></div></td>
+          <td><div class="skeleton users-skeleton-mid"></div><div class="skeleton users-skeleton-small"></div></td>
+          <td><div class="skeleton users-skeleton-actions"></div></td>
+        </tr>
       </tbody>
     </table>
 
-    <!-- Empty State -->
-    <div class="empty-state" id="emptyState" style="display: none;">
-      <svg class="empty-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-      </svg>
-      <h3 class="empty-title">No users found</h3>
-      <p class="empty-text">Try adjusting your filters or search query</p>
-      <button class="btn-secondary" id="resetFiltersBtn">Reset Filters</button>
+    <div class="users-empty" id="usersEmpty" hidden>
+      <i class="fas fa-users users-empty-icon"></i>
+      <h3 class="users-empty-title">No users found</h3>
+      <p class="users-empty-subtitle">Try adjusting your filters or search term</p>
+      <button id="clearFiltersEmptyBtn" class="users-btn users-btn-outline" type="button">Clear All Filters</button>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  <div class="table-footer" id="tableFooter">
-    <div class="pagination-info">
-      <span id="paginationInfo">Showing 1 to 15 of 24,583 users</span>
-      <select class="rows-per-page-select" id="rowsPerPage">
-        <option value="10">10 per page</option>
-        <option value="25" selected>25 per page</option>
-        <option value="50">50 per page</option>
-        <option value="100">100 per page</option>
-      </select>
-    </div>
-    <div class="pagination-controls" id="paginationControls">
-      <button class="btn-pagination" id="prevPage" disabled>
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-        </svg>
-      </button>
-      <div class="pagination-numbers" id="paginationNumbers">
-        <!-- Page numbers will be populated by JavaScript -->
+    <footer class="users-pagination-wrap">
+      <p class="users-pagination-meta" id="paginationMeta">Showing 1–20 of 24,583 users</p>
+      <div class="users-pagination-center" id="paginationCenter"></div>
+      <label class="users-rows-wrap">Show:
+        <select id="rowsPerPage" class="users-rows-select">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
+    </footer>
+  </section>
+</section>
+
+<div class="bulk-action-bar" id="bulkActionBar" hidden>
+  <p class="bulk-action-count" id="bulkActionCount">0 users selected</p>
+  <button class="bulk-action-btn bulk-action-btn-light" type="button">Export Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-primary" type="button">Send Notification</button>
+  <button class="bulk-action-btn bulk-action-btn-amber" type="button">Suspend Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-red" type="button">Delete Selected</button>
+  <button class="bulk-action-close" id="bulkActionClose" type="button" aria-label="Dismiss"><i class="fas fa-times"></i></button>
+</div>
+
+<div id="addUserModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
+    <div class="modal-header">
+      <div>
+        <h2 id="addUserTitle" class="modal-title">Add New User</h2>
+        <p class="modal-subtitle">Create a manual user account</p>
       </div>
-      <button class="btn-pagination" id="nextPage">
-        <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
+      <button type="button" id="closeAddUserModal" class="modal-close-btn" aria-label="Close modal"><i class="fas fa-times"></i></button>
     </div>
+
+    <form id="addUserForm" class="modal-body">
+      <label class="users-field-wrap"><span>Full Name</span><div class="users-field-input-wrap"><i class="fas fa-user"></i><input name="fullName" type="text" required /></div></label>
+      <label class="users-field-wrap"><span>Email Address</span><div class="users-field-input-wrap"><i class="fas fa-envelope"></i><input name="email" type="email" required /></div></label>
+      <label class="users-field-wrap"><span>Phone Number</span><div class="users-field-input-wrap"><i class="fas fa-phone"></i><input name="phone" type="tel" required /></div></label>
+
+      <div class="users-field-grid">
+        <label class="users-field-wrap"><span>Role</span>
+          <select class="users-field-select" name="role" required>
+            <option>User</option>
+            <option>Merchant</option>
+            <option>Admin</option>
+          </select>
+        </label>
+
+        <label class="users-field-wrap"><span>KYC Status</span>
+          <select class="users-field-select" name="kycStatus" required>
+            <option>Not Submitted</option>
+            <option>Verified</option>
+            <option>Pending</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="users-field-wrap"><span>Initial Password</span>
+        <div class="users-field-input-wrap">
+          <i class="fas fa-lock"></i>
+          <input id="passwordField" name="password" type="password" required />
+          <button type="button" class="users-password-toggle" id="passwordToggle"><i class="fas fa-eye"></i></button>
+        </div>
+      </label>
+
+      <label class="users-toggle-wrap">
+        <span>Send Welcome Email</span>
+        <span class="users-toggle users-toggle-on"><span class="users-toggle-knob"></span></span>
+      </label>
+
+      <div class="modal-footer">
+        <button type="button" id="cancelAddUser" class="btn-outline-modal">Cancel</button>
+        <button type="submit" class="btn-primary-modal"><i class="fas fa-check"></i><span>Create User</span></button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- Actions Dropdown Menu Template -->
-<div class="actions-dropdown" id="actionsDropdown" style="display: none;">
-  <button class="dropdown-item" data-action="view">
-    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
-    View Details
-  </button>
-  <button class="dropdown-item" data-action="edit">
-    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-    </svg>
-    Edit User
-  </button>
-  <button class="dropdown-item" data-action="suspend">
-    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-    </svg>
-    Suspend Account
-  </button>
-  <button class="dropdown-item" data-action="block">
-    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-    </svg>
-    Block User
-  </button>
-  <button class="dropdown-item dropdown-item-danger" data-action="delete">
-    <svg class="icon-16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-    </svg>
-    Delete User
-  </button>
-</div>
+<style>
+  .users-page { color: var(--text-main); }
+
+  .users-crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .users-crumb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color var(--trans-fast);
+  }
+  .users-crumb-link:hover { color: var(--primary); }
+  .users-crumb-current { color: var(--text-muted); font-weight: 600; }
+  .users-crumb-sep { font-size: 11px; }
+
+  .users-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .users-title { font-size: 28px; font-weight: 800; color: var(--text-main); line-height: 1.15; }
+  .users-subtitle { margin-top: 4px; font-size: 14px; color: var(--text-muted); }
+
+  .users-title-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .users-btn {
+    height: 42px;
+    border-radius: 9999px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all var(--trans-fast);
+    border: 1px solid transparent;
+  }
+  .users-btn i { font-size: 13px; }
+  .users-btn-primary {
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: var(--shadow-sm);
+  }
+  .users-btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .users-btn-outline {
+    color: var(--text-muted);
+    border-color: var(--border);
+    background: var(--card-bg);
+  }
+  .users-btn-outline:hover { color: var(--primary); border-color: var(--primary); }
+
+  .users-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .users-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+    animation: fadeInUp 0.3s ease-out both;
+  }
+  .users-stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .users-stat-delay-0 { animation-delay: 0s; }
+  .users-stat-delay-1 { animation-delay: 0.05s; }
+  .users-stat-delay-2 { animation-delay: 0.10s; }
+  .users-stat-delay-3 { animation-delay: 0.15s; }
+  .users-stat-delay-4 { animation-delay: 0.20s; }
+
+  .users-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    color: var(--card-bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .users-stat-icon i { font-size: 20px; }
+  .users-stat-icon-blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .users-stat-icon-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .users-stat-icon-amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .users-stat-icon-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .users-stat-icon-purple { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); }
+
+  .users-stat-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .users-stat-value {
+    margin-top: 4px;
+    font-size: 26px;
+    color: var(--text-main);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .users-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 7px;
+    border-radius: 9999px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .users-trend-up {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 12%, var(--card-bg));
+  }
+  .users-trend-up i { font-size: 10px; }
+  .users-trend-neutral {
+    color: var(--text-muted);
+    background: color-mix(in srgb, var(--text-soft) 10%, var(--card-bg));
+  }
+
+  .users-filter-card {
+    margin-bottom: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .users-search-wrap { position: relative; flex: 1; min-width: 280px; }
+  .users-search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  .users-search-input,
+  .users-select-pill {
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-size: 14px;
+    transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+  }
+  .users-search-input {
+    width: 100%;
+    padding: 0 16px 0 42px;
+  }
+  .users-search-input::placeholder { color: var(--text-soft); }
+  .users-search-input:focus,
+  .users-select-pill:focus,
+  .users-date-input:focus,
+  .users-field-input-wrap input:focus,
+  .users-field-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+  }
+  .users-select-pill { min-width: 160px; padding: 0 16px; }
+
+  .users-date-wrap { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .users-date-input-wrap {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-soft);
+    background: var(--card-bg);
+  }
+  .users-date-input { border: 0; background: transparent; color: var(--text-main); }
+
+  .users-clear-filters {
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    transition: color var(--trans-fast);
+  }
+  .users-clear-filters:hover { color: var(--red); }
+
+  .users-results-bar {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .users-results-text { font-size: 13px; color: var(--text-soft); }
+  .users-results-controls { display: inline-flex; align-items: center; gap: 10px; }
+  .users-mini-btn {
+    height: 34px;
+    padding: 0 12px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--card-bg);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .users-view-switch {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 9999px;
+    padding: 2px;
+    display: inline-flex;
+  }
+  .users-view-btn {
+    border: 0;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 9999px;
+    color: var(--text-soft);
+    background: transparent;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .users-view-btn.active { background: var(--primary); color: var(--card-bg); }
+
+  .users-table-shell {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .users-table { width: 100%; border-collapse: collapse; }
+  .users-table thead th {
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border);
+    padding: 13px 20px;
+    color: var(--text-soft);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .users-col-checkbox { width: 44px; }
+  .users-sortable {
+    cursor: pointer;
+    transition: color var(--trans-fast);
+  }
+  .users-sortable i { margin-left: 4px; font-size: 12px; color: var(--text-soft); }
+  .users-sortable.active,
+  .users-sortable.active i { color: var(--primary); }
+
+  .users-table tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background var(--trans-fast);
+    animation: fadeInUp 0.2s ease-out both;
+  }
+  .users-table tbody tr:hover { background: color-mix(in srgb, var(--primary) 4%, var(--card-bg)); }
+  .users-table tbody tr.users-row-selected {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .users-table tbody td { padding: 16px 20px; vertical-align: middle; }
+  .users-align-right { text-align: right; }
+
+  .users-checkbox { display: inline-flex; align-items: center; }
+  .users-checkbox input { position: absolute; opacity: 0; pointer-events: none; }
+  .users-checkbox-ui {
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    background: var(--card-bg);
+    transition: all var(--trans-fast);
+  }
+  .users-checkbox-ui i { font-size: 10px; }
+  .users-checkbox input:checked + .users-checkbox-ui {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--card-bg);
+  }
+
+  .users-cell-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .users-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 9999px;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card-bg);
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .users-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .users-avatar-grad-0 { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .users-avatar-grad-1 { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .users-avatar-grad-2 { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); }
+  .users-avatar-grad-3 { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .users-avatar-grad-4 { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .users-avatar-grad-5 { background: linear-gradient(135deg, var(--text-muted), var(--text-mid)); }
+
+  .users-user-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    transition: color var(--trans-fast);
+  }
+  .users-user-name:hover { color: var(--primary); }
+  .users-user-id {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .users-contact-mail {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .users-contact-phone {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .users-contact-phone i { font-size: 10px; }
+
+  .users-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .users-pill-kyc-verified { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .users-pill-kyc-pending { color: var(--amber); background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); }
+  .users-pill-kyc-rejected { color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card-bg)); }
+  .users-pill-kyc-not { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 14%, var(--card-bg)); }
+
+  .users-pill-role-user { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg)); }
+  .users-pill-role-merchant { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--card-bg)); }
+  .users-pill-role-admin { color: var(--secondary); background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); }
+  .users-pill-role-superadmin {
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+  }
+
+  .users-balance {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .users-status-active { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .users-status-suspended { color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card-bg)); }
+  .users-status-inactive { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg)); }
+
+  .users-joined-date { font-size: 13px; color: var(--text-muted); }
+  .users-joined-age { margin-top: 2px; font-size: 11px; color: var(--text-soft); }
+
+  .users-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+  .users-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--trans-fast);
+  }
+  .users-action-btn:hover { background: var(--border-light); color: var(--text-main); }
+  .users-action-btn[data-action="view"]:hover { color: var(--primary); }
+  .users-action-btn[data-action="edit"]:hover { color: var(--amber); }
+
+  .users-more-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 194px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    z-index: 200;
+    animation: fadeInUp 0.15s ease-out;
+  }
+  .users-more-item {
+    width: 100%;
+    border: 0;
+    border-radius: var(--radius-sm);
+    height: 34px;
+    padding: 0 10px;
+    text-align: left;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--text-mid);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .users-more-item:hover { background: var(--border-light); }
+  .users-more-item.warn { color: var(--amber); }
+  .users-more-item.delete {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-light);
+    color: var(--red);
+  }
+
+  .users-pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-light);
+    flex-wrap: wrap;
+  }
+  .users-pagination-meta { font-size: 13px; color: var(--text-soft); }
+  .users-pagination-center { display: inline-flex; align-items: center; gap: 6px; }
+
+  .users-page-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .users-page-btn:hover { background: var(--border-light); }
+  .users-page-btn.active {
+    border-color: transparent;
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  }
+
+  .users-rows-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .users-rows-select {
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    color: var(--text-main);
+    background: var(--card-bg);
+  }
+
+  .users-empty {
+    padding: 42px 20px;
+    text-align: center;
+  }
+  .users-empty-icon { font-size: 56px; color: var(--border); }
+  .users-empty-title {
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .users-empty-subtitle { margin-top: 6px; color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+
+  .bulk-action-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--sidebar-bg);
+    border-radius: 9999px;
+    padding: 12px 20px;
+    box-shadow: var(--shadow-lg);
+    z-index: 150;
+    animation: fadeInUp 0.2s ease-out;
+  }
+  .bulk-action-count { color: var(--card-bg); font-size: 14px; font-weight: 600; }
+  .bulk-action-btn {
+    height: 36px;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--card-bg);
+  }
+  .bulk-action-btn-light {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--card-bg) 40%, transparent);
+  }
+  .bulk-action-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .bulk-action-btn-amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .bulk-action-btn-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .bulk-action-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 9999px;
+    border: 0;
+    background: transparent;
+    color: var(--card-bg);
+  }
+
+  .users-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--sidebar-bg) 42%, transparent);
+    z-index: 220;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .users-modal {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: fadeInUp 0.25s ease-out;
+  }
+  .users-modal-head {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--card-bg);
+    padding: 24px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .users-modal-head h2 { font-size: 20px; font-weight: 800; }
+  .users-modal-head p { font-size: 14px; color: color-mix(in srgb, var(--card-bg) 80%, transparent); margin-top: 2px; }
+  .users-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    border: 0;
+    color: var(--card-bg);
+    background: transparent;
+  }
+
+  .users-modal-form { padding: 28px; display: grid; gap: 14px; }
+  .users-field-wrap { display: grid; gap: 6px; }
+  .users-field-wrap > span { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+  .users-field-input-wrap {
+    height: 46px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+  }
+  .users-field-input-wrap input {
+    border: 0;
+    flex: 1;
+    height: 100%;
+    color: var(--text-main);
+    background: transparent;
+  }
+  .users-field-select {
+    height: 46px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0 12px;
+    color: var(--text-main);
+    background: var(--card-bg);
+  }
+  .users-field-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+
+  .users-password-toggle {
+    width: 30px;
+    height: 30px;
+    border-radius: 9999px;
+    border: 0;
+    background: transparent;
+    color: var(--text-soft);
+  }
+
+  .users-toggle-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2px;
+    font-size: 14px;
+    color: var(--text-mid);
+  }
+  .users-toggle {
+    width: 46px;
+    height: 26px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    background: var(--border);
+  }
+  .users-toggle-on { background: var(--primary); justify-content: flex-end; }
+  .users-toggle-knob {
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: var(--card-bg);
+  }
+
+  .users-modal-footer {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--border-light) 25%, var(--border) 50%, var(--border-light) 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: var(--radius-sm);
+    height: 14px;
+    margin: 2px 0;
+  }
+  .users-skeleton-check { width: 18px; height: 18px; }
+  .users-skeleton-wide { width: 140px; }
+  .users-skeleton-mid { width: 90px; }
+  .users-skeleton-small { width: 60px; }
+  .users-skeleton-pill { width: 86px; height: 24px; border-radius: 9999px; }
+  .users-skeleton-actions { width: 92px; height: 32px; border-radius: 9999px; }
+
+  @keyframes shimmer {
+    from { background-position: -600px 0; }
+    to { background-position: 600px 0; }
+  }
+
+  @media (max-width: 1280px) {
+    .users-stats-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .users-table-shell { overflow-x: auto; }
+    .users-table { min-width: 1080px; }
+  }
+
+  @media (max-width: 900px) {
+    .users-stats-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .users-field-grid { grid-template-columns: 1fr; }
+    .users-title-row { flex-direction: column; }
+  }
+
+  @media (max-width: 640px) {
+    .users-stats-strip { grid-template-columns: 1fr; }
+    .users-pagination-wrap { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<script>
+  (function () {
+    const usersData = [
+      { id: 'USR-00124', name: 'Rahul Sharma', initials: 'RS', email: 'rahul.sharma@zenopay.com', phone: '+91 98765 43210', kyc: 'Verified', role: 'User', balance: 2450, status: 'Active', joined: '2026-02-24', age: '6 days ago' },
+      { id: 'USR-00125', name: 'Priya Mehta', initials: 'PM', email: 'priya.mehta@zenopay.com', phone: '+91 99881 11223', kyc: 'Pending', role: 'Merchant', balance: 18200, status: 'Active', joined: '2026-02-20', age: '10 days ago' },
+      { id: 'USR-00126', name: 'Arjun Verma', initials: 'AV', email: 'arjun.verma@zenopay.com', phone: '+91 90123 44556', kyc: 'Rejected', role: 'User', balance: 540, status: 'Suspended', joined: '2026-02-18', age: '12 days ago' },
+      { id: 'USR-00127', name: 'Sonia Kapoor', initials: 'SK', email: 'sonia.kapoor@zenopay.com', phone: '+91 93210 45678', kyc: 'Not Submitted', role: 'Admin', balance: 89200, status: 'Active', joined: '2026-02-11', age: '19 days ago' },
+      { id: 'USR-00128', name: 'Nitin Rao', initials: 'NR', email: 'nitin.rao@zenopay.com', phone: '+91 92145 78901', kyc: 'Verified', role: 'Super Admin', balance: 305000, status: 'Inactive', joined: '2026-01-31', age: '1 month ago' },
+      { id: 'USR-00129', name: 'Isha Jain', initials: 'IJ', email: 'isha.jain@zenopay.com', phone: '+91 91111 22334', kyc: 'Verified', role: 'Merchant', balance: 11990, status: 'Active', joined: '2026-02-26', age: '4 days ago' }
+    ];
+
+    const usersTableBody = document.getElementById('usersTableBody');
+    const usersSkeletonBody = document.getElementById('usersSkeletonBody');
+    const usersEmpty = document.getElementById('usersEmpty');
+    const userSearchInput = document.getElementById('userSearchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const kycFilter = document.getElementById('kycFilter');
+    const fromDate = document.getElementById('fromDate');
+    const toDate = document.getElementById('toDate');
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    const clearFiltersEmptyBtn = document.getElementById('clearFiltersEmptyBtn');
+    const bulkActionBar = document.getElementById('bulkActionBar');
+    const bulkActionCount = document.getElementById('bulkActionCount');
+    const bulkActionClose = document.getElementById('bulkActionClose');
+    const selectAllUsers = document.getElementById('selectAllUsers');
+    const rowsPerPage = document.getElementById('rowsPerPage');
+    const paginationCenter = document.getElementById('paginationCenter');
+    const paginationMeta = document.getElementById('paginationMeta');
+    const resultsMeta = document.getElementById('resultsMeta');
+    const addUserModal = document.getElementById('addUserModal');
+    const openAddUserModal = document.getElementById('openAddUserModal');
+    const closeAddUserModal = document.getElementById('closeAddUserModal');
+    const cancelAddUser = document.getElementById('cancelAddUser');
+    const addUserForm = document.getElementById('addUserForm');
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordField = document.getElementById('passwordField');
+
+    let filtered = [...usersData];
+    let sortState = { key: 'name', dir: 'neutral' };
+    let selectedIds = new Set();
+    let currentPage = 1;
+
+    function hashText(value) {
+      let hash = 0;
+      for (let i = 0; i < value.length; i += 1) hash = value.charCodeAt(i) + ((hash << 5) - hash);
+      return Math.abs(hash);
+    }
+
+    function avatarGradientClass(name) {
+      return `users-avatar-grad-${hashText(name) % 6}`;
+    }
+
+    function pillKyc(kyc) {
+      const map = {
+        'Verified': 'users-pill users-pill-kyc-verified',
+        'Pending': 'users-pill users-pill-kyc-pending',
+        'Rejected': 'users-pill users-pill-kyc-rejected',
+        'Not Submitted': 'users-pill users-pill-kyc-not'
+      };
+      const icon = {
+        'Verified': 'fa-check-circle',
+        'Pending': 'fa-clock',
+        'Rejected': 'fa-times-circle',
+        'Not Submitted': 'fa-minus-circle'
+      };
+      return `<span class="${map[kyc] || map['Not Submitted']}"><i class="fas ${icon[kyc] || icon['Not Submitted']}"></i>${kyc}</span>`;
+    }
+
+    function pillRole(role) {
+      const map = {
+        'User': { cls: 'users-pill users-pill-role-user', icon: '' },
+        'Merchant': { cls: 'users-pill users-pill-role-merchant', icon: 'fa-store' },
+        'Admin': { cls: 'users-pill users-pill-role-admin', icon: 'fa-shield-alt' },
+        'Super Admin': { cls: 'users-pill users-pill-role-superadmin', icon: 'fa-crown' }
+      };
+      const item = map[role] || map.User;
+      return `<span class="${item.cls}">${item.icon ? `<i class="fas ${item.icon}"></i>` : ''}${role}</span>`;
+    }
+
+    function pillStatus(status) {
+      const map = {
+        'Active': { cls: 'users-pill users-status-active', icon: 'fa-circle' },
+        'Suspended': { cls: 'users-pill users-status-suspended', icon: 'fa-ban' },
+        'Inactive': { cls: 'users-pill users-status-inactive', icon: 'fa-moon' }
+      };
+      const item = map[status] || map.Inactive;
+      return `<span class="${item.cls}"><i class="fas ${item.icon}"></i>${status}</span>`;
+    }
+
+    function renderActions() {
+      return `
+        <div class="users-actions">
+          <button class="users-action-btn" data-action="view" title="View profile"><i class="fas fa-eye"></i></button>
+          <button class="users-action-btn" data-action="edit" title="Edit user"><i class="fas fa-user-edit"></i></button>
+          <button class="users-action-btn" data-action="more" title="More"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="users-more-menu" hidden>
+            <button class="users-more-item" type="button"><i class="fas fa-eye"></i>View Details</button>
+            <button class="users-more-item" type="button"><i class="fas fa-user-edit"></i>Edit User</button>
+            <button class="users-more-item" type="button"><i class="fas fa-key"></i>Reset Password</button>
+            <button class="users-more-item warn" type="button"><i class="fas fa-ban"></i>Suspend User</button>
+            <button class="users-more-item delete" type="button"><i class="fas fa-trash"></i>Delete Account</button>
+          </div>
+        </div>`;
+    }
+
+    function rowHtml(user, index) {
+      const selected = selectedIds.has(user.id) ? 'users-row-selected' : '';
+      return `
+        <tr class="${selected}">
+          <td>
+            <label class="users-checkbox"><input type="checkbox" class="row-check" value="${user.id}" ${selected ? 'checked' : ''}><span class="users-checkbox-ui"><i class="fas fa-check"></i></span></label>
+          </td>
+          <td>
+            <div class="users-cell-user">
+              <div class="users-avatar ${avatarGradientClass(user.name)}">${user.initials}</div>
+              <div>
+                <a href="#" class="users-user-name">${user.name}</a>
+                <p class="users-user-id">#${user.id}</p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p class="users-contact-mail">${user.email}</p>
+            <p class="users-contact-phone"><i class="fas fa-phone"></i>${user.phone}</p>
+          </td>
+          <td>${pillKyc(user.kyc)}</td>
+          <td>${pillRole(user.role)}</td>
+          <td class="users-align-right"><span class="users-balance">₹${user.balance.toLocaleString('en-IN')}.00</span></td>
+          <td>${pillStatus(user.status)}</td>
+          <td>
+            <p class="users-joined-date">${new Date(user.joined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            <p class="users-joined-age">${user.age}</p>
+          </td>
+          <td>${renderActions(index)}</td>
+        </tr>`;
+    }
+
+    function applyFilters() {
+      const query = userSearchInput.value.trim().toLowerCase();
+      const status = statusFilter.value.trim().toLowerCase();
+      const kyc = kycFilter.value.trim().toLowerCase();
+      const from = fromDate.value ? new Date(fromDate.value) : null;
+      const to = toDate.value ? new Date(toDate.value) : null;
+
+      filtered = usersData.filter((u) => {
+        const matchQuery = !query || `${u.name} ${u.email} ${u.phone} ${u.id}`.toLowerCase().includes(query);
+        const matchStatus = !status || u.status.toLowerCase() === status;
+        const normalizedKyc = u.kyc.toLowerCase();
+        const matchKyc = !kyc || normalizedKyc === kyc;
+        const joinedDate = new Date(u.joined);
+        const matchFrom = !from || joinedDate >= from;
+        const matchTo = !to || joinedDate <= to;
+        return matchQuery && matchStatus && matchKyc && matchFrom && matchTo;
+      });
+
+      const anyFilter = Boolean(query || status || kyc || fromDate.value || toDate.value);
+      clearFiltersBtn.hidden = !anyFilter;
+      currentPage = 1;
+      renderTable();
+    }
+
+    function sortData(data) {
+      if (sortState.dir === 'neutral') return data;
+      const direction = sortState.dir === 'asc' ? 1 : -1;
+      return [...data].sort((a, b) => {
+        const av = `${a[sortState.key] ?? ''}`.toLowerCase();
+        const bv = `${b[sortState.key] ?? ''}`.toLowerCase();
+        if (av < bv) return -1 * direction;
+        if (av > bv) return 1 * direction;
+        return 0;
+      });
+    }
+
+    function renderPagination(total) {
+      const pageSize = Number(rowsPerPage.value || 20);
+      const pages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > pages) currentPage = pages;
+
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, total);
+      const metaText = total === 0 ? 'Showing 0–0 of 0 users' : `Showing ${start}–${end} of ${total.toLocaleString('en-IN')} users`;
+      paginationMeta.textContent = metaText;
+      resultsMeta.textContent = metaText;
+
+      const buttons = [];
+      buttons.push(`<button class="users-page-btn" data-page="${Math.max(1, currentPage - 1)}"><i class="fas fa-chevron-left"></i></button>`);
+
+      const windowStart = Math.max(1, currentPage - 1);
+      const windowEnd = Math.min(pages, currentPage + 1);
+      if (windowStart > 1) buttons.push('<button class="users-page-btn" data-page="1">1</button><span class="users-page-btn">...</span>');
+      for (let p = windowStart; p <= windowEnd; p += 1) {
+        buttons.push(`<button class="users-page-btn ${p === currentPage ? 'active' : ''}" data-page="${p}">${p}</button>`);
+      }
+      if (windowEnd < pages) buttons.push(`<span class="users-page-btn">...</span><button class="users-page-btn" data-page="${pages}">${pages}</button>`);
+
+      buttons.push(`<button class="users-page-btn" data-page="${Math.min(pages, currentPage + 1)}"><i class="fas fa-chevron-right"></i></button>`);
+      paginationCenter.innerHTML = buttons.join('');
+
+      paginationCenter.querySelectorAll('button[data-page]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentPage = Number(btn.dataset.page || currentPage);
+          renderTable();
+        });
+      });
+
+      return { start, end, pageSize };
+    }
+
+    function renderTable() {
+      const sorted = sortData(filtered);
+      const total = sorted.length;
+      const { pageSize } = renderPagination(total);
+      const offset = (currentPage - 1) * pageSize;
+      const pageItems = sorted.slice(offset, offset + pageSize);
+
+      usersEmpty.hidden = total !== 0;
+      usersTable.hidden = total === 0;
+
+      usersTableBody.innerHTML = pageItems.map(rowHtml).join('');
+      bindRowEvents();
+      refreshBulkBar();
+    }
+
+    function refreshBulkBar() {
+      const size = selectedIds.size;
+      bulkActionBar.hidden = size === 0;
+      bulkActionCount.textContent = `${size} user${size === 1 ? '' : 's'} selected`;
+    }
+
+    function bindRowEvents() {
+      usersTableBody.querySelectorAll('.row-check').forEach((check) => {
+        check.addEventListener('change', () => {
+          if (check.checked) selectedIds.add(check.value);
+          else selectedIds.delete(check.value);
+          check.closest('tr')?.classList.toggle('users-row-selected', check.checked);
+          refreshBulkBar();
+        });
+      });
+
+      usersTableBody.querySelectorAll('.users-action-btn[data-action="more"]').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const menu = btn.parentElement.querySelector('.users-more-menu');
+          const already = !menu.hidden;
+          document.querySelectorAll('.users-more-menu').forEach((m) => { m.hidden = true; });
+          menu.hidden = already;
+        });
+      });
+    }
+
+    function cycleSort(header) {
+      const key = header.dataset.sort;
+      if (!key) return;
+      if (sortState.key !== key) sortState = { key, dir: 'asc' };
+      else if (sortState.dir === 'asc') sortState.dir = 'desc';
+      else if (sortState.dir === 'desc') sortState.dir = 'neutral';
+      else sortState.dir = 'asc';
+
+      document.querySelectorAll('.users-sortable').forEach((el) => el.classList.remove('active'));
+      if (sortState.dir !== 'neutral') header.classList.add('active');
+      renderTable();
+    }
+
+    function openModal() {
+      if (!addUserModal) return;
+      addUserModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      if (!addUserModal) return;
+      addUserModal.style.display = 'none';
+      document.body.style.overflow = '';
+      if (addUserForm) addUserForm.reset();
+    }
+
+    userSearchInput.addEventListener('input', applyFilters);
+    statusFilter.addEventListener('change', applyFilters);
+    kycFilter.addEventListener('change', applyFilters);
+    fromDate.addEventListener('change', applyFilters);
+    toDate.addEventListener('change', applyFilters);
+
+    clearFiltersBtn.addEventListener('click', () => {
+      userSearchInput.value = '';
+      statusFilter.value = '';
+      kycFilter.value = '';
+      fromDate.value = '';
+      toDate.value = '';
+      selectedIds.clear();
+      applyFilters();
+    });
+
+    clearFiltersEmptyBtn.addEventListener('click', () => clearFiltersBtn.click());
+
+    rowsPerPage.addEventListener('change', () => {
+      currentPage = 1;
+      renderTable();
+    });
+
+    selectAllUsers.addEventListener('change', () => {
+      usersTableBody.querySelectorAll('.row-check').forEach((check) => {
+        check.checked = selectAllUsers.checked;
+        if (check.checked) selectedIds.add(check.value);
+        else selectedIds.delete(check.value);
+        check.closest('tr')?.classList.toggle('users-row-selected', check.checked);
+      });
+      refreshBulkBar();
+    });
+
+    bulkActionClose.addEventListener('click', () => {
+      selectedIds.clear();
+      selectAllUsers.checked = false;
+      usersTableBody.querySelectorAll('.row-check').forEach((check) => {
+        check.checked = false;
+        check.closest('tr')?.classList.remove('users-row-selected');
+      });
+      refreshBulkBar();
+    });
+
+    document.querySelectorAll('.users-sortable').forEach((th) => {
+      th.addEventListener('click', () => cycleSort(th));
+    });
+
+    openAddUserModal?.addEventListener('click', openModal);
+    closeAddUserModal?.addEventListener('click', closeModal);
+    cancelAddUser?.addEventListener('click', closeModal);
+
+    addUserModal?.addEventListener('click', (event) => {
+      if (event.target === addUserModal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && addUserModal?.style.display === 'flex') {
+        closeModal();
+      }
+    });
+
+    addUserForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const submitBtn = addUserForm.querySelector('[type="submit"]');
+      const originalHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+      }
+
+      const payload = {
+        fullName: addUserForm.querySelector('[name="fullName"]')?.value || '',
+        email: addUserForm.querySelector('[name="email"]')?.value || '',
+        phone: addUserForm.querySelector('[name="phone"]')?.value || '',
+        role: addUserForm.querySelector('[name="role"]')?.value || '',
+        kycStatus: addUserForm.querySelector('[name="kycStatus"]')?.value || '',
+        password: addUserForm.querySelector('[name="password"]')?.value || ''
+      };
+
+      fetch('/admin/users/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(async (res) => {
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_err) {
+          data = {};
+        }
+        if (!res.ok) {
+          throw new Error(data?.message || 'Failed to create user');
+        }
+        return data;
+      })
+      .then(() => {
+        closeModal();
+        showToast('User created successfully', 'success');
+        setTimeout(() => location.reload(), 800);
+      })
+      .catch(() => {
+        showToast('Failed to create user. Try again.', 'error');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHtml || '<i class="fas fa-check"></i> Create User';
+        }
+      });
+    });
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `admin-toast admin-toast-${type}`;
+      toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    passwordToggle.addEventListener('click', () => {
+      const visible = passwordField.type === 'text';
+      passwordField.type = visible ? 'password' : 'text';
+      passwordToggle.innerHTML = visible ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.users-actions')) {
+        document.querySelectorAll('.users-more-menu').forEach((m) => { m.hidden = true; });
+      }
+    });
+
+    usersSkeletonBody.hidden = false;
+    usersTableBody.innerHTML = '';
+    setTimeout(() => {
+      usersSkeletonBody.hidden = true;
+      applyFilters();
+    }, 500);
+  })();
+</script>

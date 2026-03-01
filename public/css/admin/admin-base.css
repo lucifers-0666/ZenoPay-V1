@@ -272,3 +272,350 @@ input, select, textarea { font-family: inherit; }
   color: var(--red);
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
+
+/* ── Collapse button at bottom of sidebar ── */
+.sidebar-collapse-wrap {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 8px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--sidebar-bg);
+}
+
+.sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #9CA3AF;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--trans-fast), color var(--trans-fast);
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--sidebar-hover);
+  color: #F9FAFB;
+}
+
+.sidebar-collapse-btn i {
+  font-size: 13px;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   COLLAPSED SIDEBAR — ICON-ONLY MODE
+═══════════════════════════════════════ */
+
+/* Sidebar shrinks to icon-only width */
+.admin-wrapper.sidebar-collapsed .admin-sidebar,
+.admin-layout.sidebar-collapsed .admin-sidebar {
+  width: 68px;
+}
+
+/* Grid column follows sidebar width */
+.admin-wrapper.sidebar-collapsed,
+.admin-layout.sidebar-collapsed {
+  grid-template-columns: 68px minmax(0, 1fr);
+}
+
+/* ── Hide all text elements ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link span,
+.admin-wrapper.sidebar-collapsed .sidebar-group-toggle span,
+.admin-wrapper.sidebar-collapsed .sidebar-section-label,
+.admin-wrapper.sidebar-collapsed .collapse-label,
+.admin-wrapper.sidebar-collapsed .sidebar-logo-text,
+.admin-wrapper.sidebar-collapsed .sidebar-group-arrow,
+.admin-layout.sidebar-collapsed .sidebar-link span,
+.admin-layout.sidebar-collapsed .sidebar-group-toggle span,
+.admin-layout.sidebar-collapsed .sidebar-section-label,
+.admin-layout.sidebar-collapsed .collapse-label,
+.admin-layout.sidebar-collapsed .sidebar-logo-text,
+.admin-layout.sidebar-collapsed .sidebar-group-arrow,
+.admin-layout.sidebar-collapsed .logo-text,
+.admin-layout.sidebar-collapsed .admin-badge {
+  display: none;
+}
+
+/* ── Re-center every nav link around its icon ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link,
+.admin-wrapper.sidebar-collapsed .sidebar-group-toggle,
+.admin-layout.sidebar-collapsed .sidebar-link,
+.admin-layout.sidebar-collapsed .sidebar-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 2px auto;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Normal icon color ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link i,
+.admin-wrapper.sidebar-collapsed .sidebar-group-toggle i,
+.admin-layout.sidebar-collapsed .sidebar-link i,
+.admin-layout.sidebar-collapsed .sidebar-group-toggle i {
+  font-size: 18px;
+  color: #9CA3AF;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* ── Hover state ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link:hover,
+.admin-wrapper.sidebar-collapsed .sidebar-group-toggle:hover,
+.admin-layout.sidebar-collapsed .sidebar-link:hover,
+.admin-layout.sidebar-collapsed .sidebar-group-toggle:hover {
+  background: var(--sidebar-hover);
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-link:hover i,
+.admin-wrapper.sidebar-collapsed .sidebar-group-toggle:hover i,
+.admin-layout.sidebar-collapsed .sidebar-link:hover i,
+.admin-layout.sidebar-collapsed .sidebar-group-toggle:hover i {
+  color: #F9FAFB;
+}
+
+/* ── Active state — small rounded square, not full-width bar ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link.active,
+.admin-layout.sidebar-collapsed .sidebar-link.active {
+  background: var(--sidebar-active);
+  border-left: none;
+  border-radius: var(--radius-sm);
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-link.active i,
+.admin-layout.sidebar-collapsed .sidebar-link.active i {
+  color: var(--primary-light);
+}
+
+/* ── Logo area: show only the icon/favicon, hide wordmark ── */
+.admin-wrapper.sidebar-collapsed .sidebar-logo,
+.admin-layout.sidebar-collapsed .sidebar-logo {
+  justify-content: center;
+  padding: 0 0 16px;
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-logo img,
+.admin-layout.sidebar-collapsed .sidebar-logo img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* ── Collapse button centering ── */
+.admin-wrapper.sidebar-collapsed .sidebar-collapse-btn,
+.admin-layout.sidebar-collapsed .sidebar-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  padding: 0;
+  margin: 0 auto;
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-collapse-btn i,
+.admin-layout.sidebar-collapsed .sidebar-collapse-btn i {
+  margin: 0;
+}
+
+/* ── Tooltip on hover when collapsed ── */
+.admin-wrapper.sidebar-collapsed .sidebar-link,
+.admin-layout.sidebar-collapsed .sidebar-link {
+  position: relative;
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-link::after,
+.admin-layout.sidebar-collapsed .sidebar-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1E293B;
+  color: #F9FAFB;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  z-index: 300;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.admin-wrapper.sidebar-collapsed .sidebar-link:hover::after,
+.admin-layout.sidebar-collapsed .sidebar-link:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Modal Overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* ── Modal Card ── */
+.modal-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.25s ease-out;
+}
+
+/* ── Modal Header ── */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  padding: 24px 28px;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 4px 0 0;
+}
+
+/* ── Close Button ── */
+.modal-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--trans-fast), border-color var(--trans-fast);
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Modal Body ── */
+.modal-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Modal Footer ── */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 8px;
+}
+
+.btn-outline-modal {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--trans-fast), color var(--trans-fast);
+}
+
+.btn-outline-modal:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-primary-modal {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.btn-primary-modal:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
+}
+
+.admin-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+  z-index: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.admin-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.admin-toast-success { background: linear-gradient(135deg, #10B981, #059669); }
+.admin-toast-error   { background: linear-gradient(135deg, #EF4444, #DC2626); }

@@ -19,29 +19,29 @@
 
     <!-- MAIN -->
     <div class="sidebar-section-label">Main</div>
-    <a href="/admin/dashboard" class="sidebar-link <%= _page === 'dashboard' ? 'active' : '' %>">
-      <i class="fas fa-home"></i> Dashboard
+    <a href="/admin/dashboard" class="sidebar-link <%= _page === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
+      <i class="fas fa-home"></i> <span>Dashboard</span>
     </a>
-    <a href="/admin/dashboard/statistics" class="sidebar-link <%= _page === 'statistics' ? 'active' : '' %>">
-      <i class="fas fa-chart-bar"></i> Statistics
+    <a href="/admin/dashboard/statistics" class="sidebar-link <%= _page === 'statistics' ? 'active' : '' %>" data-tooltip="Statistics">
+      <i class="fas fa-chart-bar"></i> <span>Statistics</span>
     </a>
-    <a href="/admin/dashboard/activity-monitor" class="sidebar-link <%= _page === 'activity' ? 'active' : '' %>">
-      <i class="fas fa-bolt"></i> Activity Monitor
+    <a href="/admin/dashboard/activity-monitor" class="sidebar-link <%= _page === 'activity' ? 'active' : '' %>" data-tooltip="Activity Monitor">
+      <i class="fas fa-bolt"></i> <span>Activity Monitor</span>
     </a>
 
     <!-- USER MANAGEMENT -->
     <div class="sidebar-section-label">User Management</div>
-    <a href="/admin/users" class="sidebar-link <%= _page === 'users' ? 'active' : '' %>">
-      <i class="fas fa-users"></i> Users List
+    <a href="/admin/users" class="sidebar-link <%= _page === 'users' ? 'active' : '' %>" data-tooltip="Users List">
+      <i class="fas fa-users"></i> <span>Users List</span>
     </a>
-    <a href="/admin/kyc" class="sidebar-link <%= _page === 'kyc' ? 'active' : '' %>">
-      <i class="fas fa-id-card"></i> KYC Management
+    <a href="/admin/kyc" class="sidebar-link <%= _page === 'kyc' ? 'active' : '' %>" data-tooltip="KYC Management">
+      <i class="fas fa-id-card"></i> <span>KYC Management</span>
       <% if(_kycPending > 0) { %>
         <span class="sidebar-badge"><%= _kycPending %></span>
       <% } %>
     </a>
-    <a href="/admin/support" class="sidebar-link <%= _page === 'support' ? 'active' : '' %>">
-      <i class="fas fa-headset"></i> Support Tickets
+    <a href="/admin/support" class="sidebar-link <%= _page === 'support' ? 'active' : '' %>" data-tooltip="Support Tickets">
+      <i class="fas fa-headset"></i> <span>Support Tickets</span>
       <% if(_supportOpen > 0) { %>
         <span class="sidebar-badge"><%= _supportOpen %></span>
       <% } %>
@@ -49,79 +49,87 @@
 
     <!-- MERCHANT MANAGEMENT -->
     <div class="sidebar-section-label">Merchants & Banks</div>
-    <a href="/admin/merchants" class="sidebar-link has-sub <%= ['merchants','merchants-pending'].includes(_page) ? 'active open' : '' %>" data-submenu="sub-merchants">
-      <i class="fas fa-store"></i> Merchants
+    <a href="/admin/merchants" class="sidebar-link has-sub <%= ['merchants','merchants-pending'].includes(_page) ? 'active open' : '' %>" data-submenu="sub-merchants" data-tooltip="Merchants">
+      <i class="fas fa-store"></i> <span>Merchants</span>
       <i class="fas fa-chevron-down sidebar-arrow"></i>
     </a>
     <div class="sidebar-submenu <%= ['merchants','merchants-pending'].includes(_page) ? 'open' : '' %>" id="sub-merchants">
-      <a href="/admin/merchants" class="sidebar-link <%= _page === 'merchants' ? 'active' : '' %>"><i class="fas fa-list"></i> All Merchants</a>
-      <a href="/admin/merchants/pending" class="sidebar-link <%= _page === 'merchants-pending' ? 'active' : '' %>"><i class="fas fa-clock"></i> Pending Approval</a>
+      <a href="/admin/merchants" class="sidebar-link <%= _page === 'merchants' ? 'active' : '' %>" data-tooltip="All Merchants"><i class="fas fa-list"></i><span>All Merchants</span></a>
+      <a href="/admin/merchants/pending" class="sidebar-link <%= _page === 'merchants-pending' ? 'active' : '' %>" data-tooltip="Pending Approval"><i class="fas fa-clock"></i><span>Pending Approval</span></a>
     </div>
 
-    <a href="/admin/banks" class="sidebar-link has-sub <%= ['banks','banks-pending'].includes(_page) ? 'active open' : '' %>" data-submenu="sub-banks">
-      <i class="fas fa-university"></i> Banks
+    <a href="/admin/banks" class="sidebar-link has-sub <%= ['banks','banks-pending'].includes(_page) ? 'active open' : '' %>" data-submenu="sub-banks" data-tooltip="Banks">
+      <i class="fas fa-university"></i> <span>Banks</span>
       <i class="fas fa-chevron-down sidebar-arrow"></i>
     </a>
     <div class="sidebar-submenu <%= ['banks','banks-pending'].includes(_page) ? 'open' : '' %>" id="sub-banks">
-      <a href="/admin/banks" class="sidebar-link <%= _page === 'banks' ? 'active' : '' %>"><i class="fas fa-list"></i> All Banks</a>
-      <a href="/admin/banks/pending" class="sidebar-link <%= _page === 'banks-pending' ? 'active' : '' %>"><i class="fas fa-clock"></i> Pending Approval</a>
+      <a href="/admin/banks" class="sidebar-link <%= _page === 'banks' ? 'active' : '' %>" data-tooltip="All Banks"><i class="fas fa-list"></i><span>All Banks</span></a>
+      <a href="/admin/banks/pending" class="sidebar-link <%= _page === 'banks-pending' ? 'active' : '' %>" data-tooltip="Pending Approval"><i class="fas fa-clock"></i><span>Pending Approval</span></a>
     </div>
 
     <!-- TRANSACTIONS -->
     <div class="sidebar-section-label">Transactions</div>
-    <a href="/admin/transactions" class="sidebar-link <%= _page === 'transactions' ? 'active' : '' %>">
-      <i class="fas fa-exchange-alt"></i> All Transactions
+    <a href="/admin/transactions" class="sidebar-link <%= _page === 'transactions' ? 'active' : '' %>" data-tooltip="All Transactions">
+      <i class="fas fa-exchange-alt"></i> <span>All Transactions</span>
     </a>
-    <a href="/admin/transactions/flagged" class="sidebar-link <%= _page === 'transactions-flagged' ? 'active' : '' %>">
-      <i class="fas fa-flag"></i> Flagged
+    <a href="/admin/transactions/flagged" class="sidebar-link <%= _page === 'transactions-flagged' ? 'active' : '' %>" data-tooltip="Flagged">
+      <i class="fas fa-flag"></i> <span>Flagged</span>
     </a>
-    <a href="/admin/transactions/failed" class="sidebar-link <%= _page === 'transactions-failed' ? 'active' : '' %>">
-      <i class="fas fa-times-circle"></i> Failed
+    <a href="/admin/transactions/failed" class="sidebar-link <%= _page === 'transactions-failed' ? 'active' : '' %>" data-tooltip="Failed">
+      <i class="fas fa-times-circle"></i> <span>Failed</span>
     </a>
 
     <!-- ANALYTICS -->
     <div class="sidebar-section-label">Analytics</div>
-    <a href="/admin/analytics" class="sidebar-link <%= _page === 'analytics' ? 'active' : '' %>">
-      <i class="fas fa-chart-line"></i> Analytics
+    <a href="/admin/analytics" class="sidebar-link <%= _page === 'analytics' ? 'active' : '' %>" data-tooltip="Analytics">
+      <i class="fas fa-chart-line"></i> <span>Analytics</span>
     </a>
-    <a href="/admin/reports" class="sidebar-link <%= _page === 'reports' ? 'active' : '' %>">
-      <i class="fas fa-file-alt"></i> Reports
+    <a href="/admin/reports" class="sidebar-link <%= _page === 'reports' ? 'active' : '' %>" data-tooltip="Reports">
+      <i class="fas fa-file-alt"></i> <span>Reports</span>
     </a>
-    <a href="/admin/audit-logs" class="sidebar-link <%= _page === 'audit-logs' ? 'active' : '' %>">
-      <i class="fas fa-history"></i> Audit Logs
+    <a href="/admin/audit-logs" class="sidebar-link <%= _page === 'audit-logs' ? 'active' : '' %>" data-tooltip="Audit Logs">
+      <i class="fas fa-history"></i> <span>Audit Logs</span>
     </a>
 
     <!-- PLATFORM -->
     <div class="sidebar-section-label">Platform</div>
-    <a href="/admin/notifications" class="sidebar-link <%= _page === 'notifications' ? 'active' : '' %>">
-      <i class="fas fa-bell"></i> Notifications
+    <a href="/admin/notifications" class="sidebar-link <%= _page === 'notifications' ? 'active' : '' %>" data-tooltip="Notifications">
+      <i class="fas fa-bell"></i> <span>Notifications</span>
     </a>
-    <a href="/admin/pricing" class="sidebar-link <%= _page === 'pricing' ? 'active' : '' %>">
-      <i class="fas fa-tag"></i> Pricing
+    <a href="/admin/pricing" class="sidebar-link <%= _page === 'pricing' ? 'active' : '' %>" data-tooltip="Pricing">
+      <i class="fas fa-tag"></i> <span>Pricing</span>
     </a>
-    <a href="/admin/privacy-policy" class="sidebar-link <%= _page === 'privacy' ? 'active' : '' %>">
-      <i class="fas fa-shield-alt"></i> Privacy Policy
+    <a href="/admin/privacy-policy" class="sidebar-link <%= _page === 'privacy' ? 'active' : '' %>" data-tooltip="Privacy Policy">
+      <i class="fas fa-shield-alt"></i> <span>Privacy Policy</span>
     </a>
-    <a href="/blog/admin/dashboard" class="sidebar-link <%= _page === 'blog' ? 'active' : '' %>">
-      <i class="fas fa-rss"></i> Blog Manager
+    <a href="/blog/admin/dashboard" class="sidebar-link <%= _page === 'blog' ? 'active' : '' %>" data-tooltip="Blog Manager">
+      <i class="fas fa-rss"></i> <span>Blog Manager</span>
     </a>
 
     <!-- SETTINGS -->
     <div class="sidebar-section-label">System</div>
-    <a href="/admin/settings" class="sidebar-link <%= _page === 'settings' ? 'active' : '' %>">
-      <i class="fas fa-cog"></i> Settings
+    <a href="/admin/settings" class="sidebar-link <%= _page === 'settings' ? 'active' : '' %>" data-tooltip="Settings">
+      <i class="fas fa-cog"></i> <span>Settings</span>
     </a>
 
   </nav>
 
   <!-- Footer -->
   <div class="sidebar-footer">
-    <a href="/" target="_blank" class="sidebar-link">
-      <i class="fas fa-external-link-alt"></i> View Live Site
+    <a href="/" target="_blank" class="sidebar-link" data-tooltip="View Live Site">
+      <i class="fas fa-external-link-alt"></i> <span>View Live Site</span>
     </a>
-    <a href="/admin/logout" class="sidebar-link" style="color: #F87171;">
-      <i class="fas fa-sign-out-alt"></i> Logout
+    <a href="/admin/logout" class="sidebar-link" style="color: #F87171;" data-tooltip="Logout">
+      <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
     </a>
+  </div>
+
+  <!-- Sidebar collapse toggle — lives at bottom of sidebar -->
+  <div class="sidebar-collapse-wrap">
+    <button id="sidebar-collapse-btn" class="sidebar-collapse-btn" title="Collapse sidebar">
+      <i class="fas fa-chevron-left" id="collapse-icon"></i>
+      <span class="collapse-label">Collapse</span>
+    </button>
   </div>
 
 </aside>
