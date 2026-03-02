@@ -112,7 +112,9 @@ const getSupportTickets = async (req, res) => {
     const tickets = docs.map(normalizeTicket);
 
     const totalTickets = tickets.length;
-    const openTickets = tickets.filter((t) => t.status === "open" || t.status === "in_progress").length;
+    const openTickets = tickets.filter((t) => t.status === "open").length;
+    const inProgressTickets = tickets.filter((t) => t.status === "in_progress").length;
+    const urgentTickets = tickets.filter((t) => t.priority === "urgent").length;
 
     const responded = docs
       .map((d) => hoursBetween(d.submitted_at, d.replied_at))
@@ -133,6 +135,8 @@ const getSupportTickets = async (req, res) => {
     res.render("admin/support/admin-support-tickets", {
       pageTitle: "Support Tickets",
       currentPage: "support",
+      adminPage: "support",
+      hideBreadcrumb: true,
       admin: req.session.user,
       breadcrumb: [
         { name: "Admin", url: "/admin/dashboard" },
@@ -142,6 +146,8 @@ const getSupportTickets = async (req, res) => {
       stats: {
         totalTickets,
         openTickets,
+        inProgressTickets,
+        urgentTickets,
         avgResponseHours,
         resolvedToday,
       },
