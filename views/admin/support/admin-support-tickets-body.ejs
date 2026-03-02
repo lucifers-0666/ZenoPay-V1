@@ -156,7 +156,7 @@
     </div>
   </section>
 
-  <section class="ticket-table-wrap" id="tableViewSection">
+  <section class="ticket-table-wrap admin-table-wrapper" id="tableViewSection">
     <table class="ticket-table" id="ticketTable">
       <thead>
         <tr>
@@ -633,7 +633,8 @@
 
   .updated-cell { font-size: 13px; color: var(--text-muted); }
 
-  .action-cell { display: inline-flex; align-items: center; gap: 8px; position: relative; }
+  .action-cell { position: relative; }
+  .action-cell-actions { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; width: 100%; }
   .icon-btn {
     width: 32px;
     height: 32px;
@@ -648,37 +649,6 @@
   .icon-btn:hover { background: var(--border-light); }
   .icon-btn.view:hover { color: var(--primary); }
   .icon-btn.assign:hover { color: var(--green); }
-
-  .action-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    width: 186px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    box-shadow: var(--shadow-lg);
-    background: var(--card-bg);
-    padding: 8px;
-    z-index: 110;
-  }
-  .action-menu button {
-    width: 100%;
-    height: 34px;
-    border: 0;
-    border-radius: var(--r-sm);
-    background: transparent;
-    color: var(--text-mid);
-    text-align: left;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 0 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .action-menu button:hover { background: var(--border-light); }
-  .action-menu .danger { color: var(--red); }
-  .action-menu .sep { border-top: 1px solid var(--border-light); margin-top: 6px; padding-top: 8px; }
 
   .ticket-card-grid {
     padding: 16px;
@@ -1153,17 +1123,35 @@
         <td><span class="status-pill ${s.cls}"><i class="fas ${s.icon}"></i>${s.label}</span></td>
         <td>${assignedHtml}</td>
         <td><span class="updated-cell" title="${new Date(row.updatedAt).toLocaleString('en-IN')}">${ago(row.updatedAt)}</span></td>
-        <td>
-          <div class="action-cell">
-            <button type="button" class="icon-btn view" data-action="view" data-id="${row.id}" title="View"><i class="fas fa-eye"></i></button>
-            <button type="button" class="icon-btn assign" data-action="assign-me" data-id="${row.id}" title="Assign to Me"><i class="fas fa-user-check"></i></button>
-            <button type="button" class="icon-btn" data-menu-trigger="${idx}" title="More"><i class="fas fa-ellipsis-v"></i></button>
-            <div class="action-menu" data-menu="${idx}" hidden>
-              <button type="button" data-action="view" data-id="${row.id}"><i class="fas fa-eye"></i>View Ticket</button>
-              <button type="button" data-action="assign-me" data-id="${row.id}"><i class="fas fa-user-check"></i>Assign to Me</button>
-              <button type="button" data-action="mark-urgent" data-id="${row.id}"><i class="fas fa-fire"></i>Mark Urgent</button>
-              <button type="button" data-action="close" data-id="${row.id}"><i class="fas fa-lock"></i>Close Ticket</button>
-              <button type="button" class="danger sep" data-action="delete" data-id="${row.id}"><i class="fas fa-trash"></i>Delete Ticket</button>
+        <td class="action-cell">
+          <div class="action-cell-actions">
+            <a href="/admin/support/${encodeURIComponent(row.id)}" class="action-icon-btn" title="View Ticket" data-action="view" data-id="${row.id}">
+              <i class="fas fa-eye"></i>
+            </a>
+            <button type="button" class="action-icon-btn text-green" title="Assign to Me" data-action="assign-me" data-id="${row.id}">
+              <i class="fas fa-user-check"></i>
+            </button>
+            <button type="button" class="action-icon-btn dropdown-trigger" title="More options">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <div class="action-dropdown">
+              <a href="/admin/support/${encodeURIComponent(row.id)}" class="action-dropdown-item" data-action="view" data-id="${row.id}">
+                <i class="fas fa-eye"></i> View Ticket
+              </a>
+              <button type="button" class="action-dropdown-item text-green" data-action="assign-me" data-id="${row.id}">
+                <i class="fas fa-user-check"></i> Assign to Me
+              </button>
+              <button type="button" class="action-dropdown-item text-amber" data-action="mark-urgent" data-id="${row.id}">
+                <i class="fas fa-fire"></i> Mark Urgent
+              </button>
+              <button type="button" class="action-dropdown-item" data-action="close" data-id="${row.id}">
+                <i class="fas fa-lock"></i> Close Ticket
+              </button>
+              <div class="action-dropdown-separator"></div>
+              <button type="button" class="action-dropdown-item text-red" data-action="delete" data-id="${row.id}">
+                <i class="fas fa-trash"></i> Delete Ticket
+              </button>
             </div>
           </div>
         </td>
@@ -1206,13 +1194,28 @@
         <footer class="card-footer">
           <a class="view-ticket-btn" href="/admin/support/${encodeURIComponent(row.id)}"><i class="fas fa-eye"></i>View Ticket</a>
           <div class="action-cell">
-            <button type="button" class="icon-btn" data-menu-trigger="card-${idx}"><i class="fas fa-ellipsis-v"></i></button>
-            <div class="action-menu" data-menu="card-${idx}" hidden>
-              <button type="button" data-action="view" data-id="${row.id}"><i class="fas fa-eye"></i>View Ticket</button>
-              <button type="button" data-action="assign-me" data-id="${row.id}"><i class="fas fa-user-check"></i>Assign to Me</button>
-              <button type="button" data-action="mark-urgent" data-id="${row.id}"><i class="fas fa-fire"></i>Mark Urgent</button>
-              <button type="button" data-action="close" data-id="${row.id}"><i class="fas fa-lock"></i>Close Ticket</button>
-              <button type="button" class="danger sep" data-action="delete" data-id="${row.id}"><i class="fas fa-trash"></i>Delete Ticket</button>
+            <div class="action-cell-actions">
+              <button type="button" class="action-icon-btn dropdown-trigger" title="More options">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <div class="action-dropdown">
+                <a href="/admin/support/${encodeURIComponent(row.id)}" class="action-dropdown-item" data-action="view" data-id="${row.id}">
+                  <i class="fas fa-eye"></i> View Ticket
+                </a>
+                <button type="button" class="action-dropdown-item text-green" data-action="assign-me" data-id="${row.id}">
+                  <i class="fas fa-user-check"></i> Assign to Me
+                </button>
+                <button type="button" class="action-dropdown-item text-amber" data-action="mark-urgent" data-id="${row.id}">
+                  <i class="fas fa-fire"></i> Mark Urgent
+                </button>
+                <button type="button" class="action-dropdown-item" data-action="close" data-id="${row.id}">
+                  <i class="fas fa-lock"></i> Close Ticket
+                </button>
+                <div class="action-dropdown-separator"></div>
+                <button type="button" class="action-dropdown-item text-red" data-action="delete" data-id="${row.id}">
+                  <i class="fas fa-trash"></i> Delete Ticket
+                </button>
+              </div>
             </div>
           </div>
         </footer>
@@ -1230,25 +1233,7 @@
     });
   }
 
-  function closeMenus() {
-    document.querySelectorAll('.action-menu').forEach((menu) => {
-      menu.hidden = true;
-    });
-  }
-
   function bindActionMenus() {
-    document.querySelectorAll('[data-menu-trigger]').forEach((trigger) => {
-      trigger.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const key = trigger.getAttribute('data-menu-trigger');
-        const menu = document.querySelector(`[data-menu="${key}"]`);
-        if (!menu) return;
-        const willOpen = menu.hidden;
-        closeMenus();
-        menu.hidden = !willOpen;
-      });
-    });
-
     document.querySelectorAll('[data-action]').forEach((btn) => {
       btn.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -1297,7 +1282,7 @@
   function bindRowClicks() {
     dom.tableBody.querySelectorAll('tr[data-row-id]').forEach((tr) => {
       tr.addEventListener('click', (event) => {
-        if (event.target.closest('button, a, input, label, .action-menu')) return;
+        if (event.target.closest('button, a, input, label, .action-dropdown')) return;
         const id = tr.getAttribute('data-row-id');
         if (!id) return;
         window.location.href = `/admin/support/${encodeURIComponent(id)}`;
@@ -1470,9 +1455,6 @@
   document.addEventListener('click', (event) => {
     if (!event.target.closest('.assign-dropdown-wrap')) {
       dom.assignSelectedMenu.hidden = true;
-    }
-    if (!event.target.closest('.action-cell')) {
-      closeMenus();
     }
   });
 

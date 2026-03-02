@@ -1,1 +1,51 @@
-<%- include('./admin-ticket-details-body', { details: details }) %>
+<% if (!details) { %>
+	<section class="support-fallback-card">
+		<div class="support-fallback-icon"><i class="fas fa-exclamation-triangle"></i></div>
+		<h3><%= errorMessage || 'Ticket not found' %></h3>
+		<a href="/admin/support" class="support-fallback-btn">Back to Tickets</a>
+	</section>
+
+	<style>
+		.support-fallback-card {
+			background: var(--card-bg);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-sm);
+			padding: 48px 20px;
+			text-align: center;
+		}
+		.support-fallback-icon {
+			width: 72px;
+			height: 72px;
+			margin: 0 auto;
+			border-radius: 9999px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--border-light);
+			color: var(--text-soft);
+			font-size: 28px;
+		}
+		.support-fallback-card h3 {
+			margin-top: 16px;
+			color: var(--text-main);
+			font-size: 20px;
+			font-weight: 800;
+		}
+		.support-fallback-btn {
+			margin-top: 16px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			height: 40px;
+			padding: 0 18px;
+			border-radius: 9999px;
+			background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+			color: #fff;
+			font-size: 14px;
+			font-weight: 700;
+		}
+	</style>
+<% } else { %>
+	<%- include('./admin-ticket-details-body', { details: details }) %>
+<% } %>

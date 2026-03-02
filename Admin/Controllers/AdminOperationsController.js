@@ -1,6 +1,7 @@
 const ContactSubmission = require("../../Models/ContactSubmission");
 const Notification = require("../../Models/Notification");
 const TransactionHistory = require("../../Models/TransactionHistory");
+const mongoose = require("mongoose");
 
 const statusMapToUi = {
   new: "open",
@@ -163,13 +164,44 @@ const getSupportTicketDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doc = await ContactSubmission.findById(id)
-      .populate("assigned_to", "FullName Email")
-      .populate("replied_by", "FullName Email")
-      .lean();
+    let doc = null;
+
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      doc = await ContactSubmission.findById(id)
+        .populate("assigned_to", "FullName Email")
+        .populate("replied_by", "FullName Email")
+        .populate("user_id", "FullName Email Mobile PhoneNumber RegistrationDate AccountStatus KYCStatus")
+        .lean();
+    }
+
+    if (!doc && /^#?TKT-/i.test(String(id || ""))) {
+      const normalizedTicketNo = String(id).startsWith("#") ? String(id).toUpperCase() : `#${String(id).toUpperCase()}`;
+      const candidates = await ContactSubmission.find({})
+        .sort({ submitted_at: -1 })
+        .limit(500)
+        .populate("assigned_to", "FullName Email")
+        .populate("replied_by", "FullName Email")
+        .populate("user_id", "FullName Email Mobile PhoneNumber RegistrationDate AccountStatus KYCStatus")
+        .lean();
+
+      doc = candidates.find((item) => toTicketNo(item).toUpperCase() === normalizedTicketNo) || null;
+    }
 
     if (!doc) {
-      return res.status(404).send("Ticket not found");
+      return res.status(404).render("admin/support/admin-ticket-details", {
+        pageTitle: "Support Ticket Not Found",
+        currentPage: "support",
+        adminPage: "support",
+        hideBreadcrumb: true,
+        admin: req.session.user,
+        breadcrumb: [
+          { name: "Admin", url: "/admin/dashboard" },
+          { name: "Support", url: "/admin/support" },
+          { name: "Tickets", url: "/admin/support" },
+        ],
+        details: null,
+        errorMessage: "Ticket not found",
+      });
     }
 
     const t = normalizeTicket(doc);
@@ -234,11 +266,21 @@ const getSupportTicketDetails = async (req, res) => {
           }
         : null,
       user: {
+        id: doc.user_id?._id ? String(doc.user_id._id) : (doc.user_id ? String(doc.user_id) : null),
         name: doc.name,
         email: doc.email,
+        phone: doc.phone || doc.user_id?.PhoneNumber || doc.user_id?.Mobile || "Not provided",
         avatarInitial: (doc.name || "U").charAt(0).toUpperCase(),
         accountAge: "8 months",
-        kycStatus: "Verified",
+        kycStatus: doc.user_id?.KYCStatus ? String(doc.user_id.KYCStatus).replace(/_/g, " ") : "Unknown",
+        accountStatus: doc.user_id?.AccountStatus || "Active",
+        joinedAt: doc.user_id?.RegistrationDate
+          ? new Date(doc.user_id.RegistrationDate).toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "N/A",
         totalTransactions: relatedTransactions.length * 8 + 12,
         walletBalance: "₹24,860",
       },
@@ -258,6 +300,8 @@ const getSupportTicketDetails = async (req, res) => {
     res.render("admin/support/admin-ticket-details", {
       pageTitle: `${details.ticketNo} - Support Ticket`,
       currentPage: "support",
+      adminPage: "support",
+      hideBreadcrumb: true,
       admin: req.session.user,
       breadcrumb: [
         { name: "Admin", url: "/admin/dashboard" },
@@ -266,10 +310,24 @@ const getSupportTicketDetails = async (req, res) => {
         { name: details.ticketNo, url: `/admin/support/${encodeURIComponent(details.id)}` },
       ],
       details,
+      errorMessage: null,
     });
   } catch (error) {
     console.error("Admin support ticket details error:", error);
-    res.status(500).send("Error loading support ticket details");
+    res.status(500).render("admin/support/admin-ticket-details", {
+      pageTitle: "Support Ticket Error",
+      currentPage: "support",
+      adminPage: "support",
+      hideBreadcrumb: true,
+      admin: req.session.user,
+      breadcrumb: [
+        { name: "Admin", url: "/admin/dashboard" },
+        { name: "Support", url: "/admin/support" },
+        { name: "Tickets", url: "/admin/support" },
+      ],
+      details: null,
+      errorMessage: "Error loading support ticket details",
+    });
   }
 };
 
