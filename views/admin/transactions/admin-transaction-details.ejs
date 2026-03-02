@@ -1,114 +1,1140 @@
-<div class="page-header">
-  <h1 class="page-title">
-    <i class="fas fa-exchange-alt" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
-    Transaction Details
-  </h1>
+<%
+  const tx = transaction || {};
+  const rawId = String(tx.TransactionID || tx._id || '084521');
+  const txDate = tx.TransactionTime ? new Date(tx.TransactionTime) : new Date('2026-03-02T10:45:00');
+
+  const amount = Number(tx.Amount || 2500);
+  const fee = Math.max(0.5, +(amount * 0.001).toFixed(2));
+  const netAmount = +(amount - fee).toFixed(2);
+
+  const senderName = tx.SenderHolderName || 'Rahul Sharma';
+  const receiverName = tx.ReceiverHolderName || 'Priya Mehta';
+  const senderAccount = tx.SenderAccountNumber || 'rahul@okaxis';
+  const receiverAccount = tx.ReceiverAccountNumber || 'priya@okhdfcbank';
+  const senderBank = tx.SenderBank || 'Axis Bank';
+  const receiverBank = tx.ReceiverBank || 'HDFC Bank';
+
+  const senderEmail = tx.SenderEmail || 'rahul.sharma@example.com';
+  const receiverEmail = tx.ReceiverEmail || 'priya.mehta@example.com';
+  const senderWalletAfter = Number(tx.SenderWalletAfter || 1200);
+  const receiverWalletAfter = Number(tx.ReceiverWalletAfter || 4750);
+
+  const description = String(tx.Description || 'UPI Transfer');
+  const type = /refund|reversal/i.test(description) ? 'Refund' : (/neft|rtgs|imps/i.test(description) ? 'Bank Transfer' : 'UPI Transfer');
+  const paymentType = /upi/i.test(description + ' ' + senderAccount) ? 'UPI' : 'Wallet';
+  const authMethod = paymentType === 'UPI' ? 'UPI PIN' : 'Wallet PIN';
+
+  const isFlagged = Boolean(tx.IsFlagged);
+  const rawStatus = String(tx.Status || 'success').toLowerCase();
+  const status = isFlagged ? 'flagged' : (rawStatus === 'failed' ? 'failed' : (rawStatus === 'pending' ? 'pending' : (rawStatus === 'success' ? 'success' : 'success')));
+
+  let riskScore = 22;
+  if (amount >= 50000) riskScore += 34;
+  else if (amount >= 10000) riskScore += 18;
+  else if (amount >= 2500) riskScore += 8;
+  if (status === 'pending') riskScore += 10;
+  if (status === 'failed') riskScore += 24;
+  if (status === 'flagged') riskScore += 20;
+  riskScore = Math.max(5, Math.min(99, riskScore));
+  const riskLevel = riskScore > 70 ? 'high' : (riskScore > 30 ? 'medium' : 'low');
+
+  const txnDisplayId = `#TXN-${txDate.getFullYear()}-${rawId.replace(/\D/g, '').padStart(6, '0')}`;
+  const dateMain = txDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+  const timeMain = txDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const fullDateTime = `${dateMain} · ${timeMain}`;
+
+  const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const senderInitial = (senderName || 'S').split(' ').map(x => x.charAt(0)).join('').slice(0, 2).toUpperCase();
+  const receiverInitial = (receiverName || 'R').split(' ').map(x => x.charAt(0)).join('').slice(0, 2).toUpperCase();
+
+  const statusMeta = {
+    success: { icon: 'fa-check-circle', label: 'Success', cls: 'is-success' },
+    pending: { icon: 'fa-clock', label: 'Pending', cls: 'is-pending' },
+    failed: { icon: 'fa-times-circle', label: 'Failed', cls: 'is-failed' },
+    flagged: { icon: 'fa-flag', label: 'Flagged', cls: 'is-flagged' }
+  }[status] || { icon: 'fa-check-circle', label: 'Success', cls: 'is-success' };
+%>
+
+<section class="txd-page" id="txDetailsPage">
+  <nav class="txd-breadcrumb" aria-label="breadcrumb">
+    <a href="/admin/dashboard"><i class="fas fa-home"></i></a>
+    <i class="fas fa-chevron-right"></i>
+    <a href="/admin/transactions">Transactions</a>
+    <i class="fas fa-chevron-right"></i>
+    <span><%= txnDisplayId %></span>
+  </nav>
+
+  <header class="txd-header">
+    <div class="txd-header-left">
+      <a href="/admin/transactions" class="txd-back-link"><i class="fas fa-arrow-left"></i>Back to Transactions</a>
+      <h1 class="txd-title">Transaction <%= txnDisplayId %></h1>
+      <p class="txd-subtitle"><%= dateMain %> • <%= timeMain %> • <%= type %> • <strong><%= money(amount) %></strong></p>
+    </div>
+
+    <div class="txd-header-actions">
+      <button type="button" class="txd-btn txd-btn-outline" id="downloadReceiptTop"><i class="fas fa-download"></i>Download Receipt</button>
+      <button type="button" class="txd-btn txd-btn-amber" data-open-modal="flagTransactionModal"><i class="fas fa-flag"></i>Flag Transaction</button>
+      <div class="action-cell txd-more-cell">
+        <button type="button" class="action-icon-btn dropdown-trigger" aria-label="More actions"><i class="fas fa-ellipsis-v"></i></button>
+        <div class="action-dropdown">
+          <button type="button" class="action-dropdown-item text-blue" data-open-modal="refundModal"><i class="fas fa-undo"></i>Initiate Refund</button>
+          <button type="button" class="action-dropdown-item text-amber" data-open-modal="reverseModal"><i class="fas fa-ban"></i>Reverse Transaction</button>
+          <a href="/admin/users" class="action-dropdown-item"><i class="fas fa-user"></i>View Sender Profile</a>
+          <a href="/admin/users" class="action-dropdown-item"><i class="fas fa-user"></i>View Receiver Profile</a>
+          <div class="action-dropdown-separator"></div>
+          <button type="button" class="action-dropdown-item text-red" id="deleteRecordBtn"><i class="fas fa-trash"></i>Delete Record</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="txd-layout-grid">
+    <div>
+      <article class="txd-card left-card delay-0">
+        <div class="txd-amount-block">
+          <h2 class="txd-amount <%= status === 'failed' ? 'failed' : (status === 'pending' || status === 'flagged' ? 'debit' : 'credit') %> js-count-amount" data-value="<%= amount.toFixed(2) %>">
+            <%= status === 'failed' || status === 'pending' || status === 'flagged' ? '−' : '+' %><%= money(amount) %>
+          </h2>
+          <span class="txd-status-pill <%= statusMeta.cls %>"><i class="fas <%= statusMeta.icon %>"></i><%= statusMeta.label %></span>
+          <p class="txd-type-line"><%= type %></p>
+        </div>
+
+        <div class="txd-divider"></div>
+
+        <div class="txd-info-grid">
+          <div class="txd-info-item"><span class="txd-info-icon blue"><i class="fas fa-hashtag"></i></span><p>Transaction ID</p><h4><%= txnDisplayId %></h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon slate"><i class="fas fa-calendar-alt"></i></span><p>Date & Time</p><h4><%= fullDateTime %></h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon blue"><i class="fas fa-mobile-alt"></i></span><p>Payment Type</p><h4><%= paymentType %></h4></div>
+
+          <div class="txd-info-item"><span class="txd-info-icon green"><i class="fas fa-rupee-sign"></i></span><p>Amount</p><h4><%= money(amount) %></h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon slate"><i class="fas fa-receipt"></i></span><p>Platform Fee</p><h4><%= money(fee) %></h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon green"><i class="fas fa-rupee-sign"></i></span><p>Net Amount</p><h4><%= money(netAmount) %></h4></div>
+
+          <div class="txd-info-item"><span class="txd-info-icon purple"><i class="fas fa-stopwatch"></i></span><p>Processing Time</p><h4>1.2 seconds</h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon slate"><i class="fas fa-server"></i></span><p>Gateway</p><h4>Razorpay</h4></div>
+          <div class="txd-info-item"><span class="txd-info-icon green"><i class="fas fa-shield-alt"></i></span><p>Auth Method</p><h4><%= authMethod %></h4></div>
+        </div>
+      </article>
+
+      <article class="txd-card left-card delay-1">
+        <header class="txd-card-header">
+          <span class="txd-header-icon"><i class="fas fa-exchange-alt"></i></span>
+          <h3>Transaction Parties</h3>
+        </header>
+
+        <div class="txd-flow-wrap">
+          <div class="txd-party-card sender">
+            <div class="txd-party-top">
+              <span class="txd-party-avatar sender"><%= senderInitial %></span>
+              <p class="txd-party-tag sender">SENDER</p>
+            </div>
+            <h4><%= senderName %></h4>
+            <p class="txd-party-sub"><%= senderEmail %></p>
+            <p class="txd-party-mono"><%= senderAccount %></p>
+            <p class="txd-party-wallet">Wallet: <%= money(senderWalletAfter) %></p>
+            <a href="/admin/users" class="txd-profile-link">View Profile <i class="fas fa-arrow-right"></i></a>
+          </div>
+
+          <div class="txd-flow-center">
+            <i class="fas fa-long-arrow-alt-right"></i>
+            <h5><%= money(amount) %></h5>
+            <span class="txd-micro-badge <%= statusMeta.cls %>"><%= statusMeta.label %></span>
+          </div>
+
+          <div class="txd-party-card receiver">
+            <div class="txd-party-top">
+              <span class="txd-party-avatar receiver"><%= receiverInitial %></span>
+              <p class="txd-party-tag receiver">RECEIVER</p>
+            </div>
+            <h4><%= receiverName %></h4>
+            <p class="txd-party-sub"><%= receiverEmail %></p>
+            <p class="txd-party-mono"><%= receiverAccount %></p>
+            <p class="txd-party-wallet">Wallet: <%= money(receiverWalletAfter) %></p>
+            <a href="/admin/users" class="txd-profile-link">View Profile <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="txd-card left-card delay-2">
+        <header class="txd-card-header">
+          <span class="txd-header-icon"><i class="fas fa-credit-card"></i></span>
+          <h3>Payment Method Details</h3>
+        </header>
+
+        <div class="txd-two-col-grid">
+          <div class="txd-kv"><p>Method</p><h4><%= paymentType %></h4></div>
+          <div class="txd-kv"><p>UPI ID</p><h4><%= senderAccount %></h4></div>
+          <div class="txd-kv"><p>Bank Name</p><h4><%= senderBank %></h4></div>
+          <div class="txd-kv"><p>VPA Handle</p><h4><%= (senderAccount.includes('@') ? '@' + senderAccount.split('@')[1] : '@okaxis') %></h4></div>
+          <div class="txd-kv"><p>Device</p><h4>iPhone 14 — iOS 17</h4></div>
+          <div class="txd-kv"><p>IP Address</p><h4>103.45.22.xxx</h4></div>
+          <div class="txd-kv"><p>Location</p><h4>Mumbai, Maharashtra</h4></div>
+          <div class="txd-kv"><p>App Used</p><h4>ZenoPay iOS App v2.4.1</h4></div>
+        </div>
+      </article>
+
+      <article class="txd-card left-card delay-3">
+        <header class="txd-card-header">
+          <span class="txd-header-icon"><i class="fas fa-history"></i></span>
+          <h3>Processing Timeline</h3>
+        </header>
+
+        <div class="txd-timeline">
+          <div class="txd-step delay-0"><span class="dot blue"></span><div><h5>Initiated</h5><p>User initiated UPI transfer</p><time><%= dateMain %> • <%= timeMain %></time></div></div>
+          <div class="txd-step delay-1"><span class="dot amber"></span><div><h5>Processing</h5><p>Sent to payment gateway</p><time><%= dateMain %> • <%= timeMain %></time></div></div>
+          <div class="txd-step delay-2"><span class="dot purple"></span><div><h5>Bank Verification</h5><p>Bank authentication completed</p><time><%= dateMain %> • <%= timeMain %></time></div></div>
+          <div class="txd-step delay-3"><span class="dot blue"></span><div><h5>Gateway Response</h5><p>Razorpay confirmed success</p><time><%= dateMain %> • <%= timeMain %></time></div></div>
+          <div class="txd-step delay-4"><span class="dot green"></span><div><h5>Completed</h5><p>Amount credited to receiver</p><time><%= dateMain %> • <%= timeMain %></time></div></div>
+        </div>
+      </article>
+
+      <article class="txd-card left-card delay-4">
+        <header class="txd-card-header txd-card-subhead">
+          <div>
+            <span class="txd-header-icon"><i class="fas fa-link"></i></span>
+            <h3>Related Transactions</h3>
+          </div>
+          <p>Other transactions by same sender today</p>
+        </header>
+
+        <div class="admin-table-wrapper txd-related-wrap">
+          <table class="txd-related-table">
+            <thead>
+              <tr><th>TXN ID</th><th>Amount</th><th>Receiver</th><th>Status</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+              <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId) %>"><td><%= txnDisplayId %></td><td><%= money(amount) %></td><td><%= receiverName %></td><td><span class="mini-status <%= statusMeta.cls %>"><%= statusMeta.label %></span></td><td><%= timeMain %></td></tr>
+              <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId + '1') %>"><td>#TXN-<%= txDate.getFullYear() %>-<%= String(Number(rawId.replace(/\D/g, '') || '84521') + 1).padStart(6, '0') %></td><td><%= money(amount * 0.64) %></td><td>Anjali Nair</td><td><span class="mini-status is-success">Success</span></td><td>09:22 AM</td></tr>
+              <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId + '2') %>"><td>#TXN-<%= txDate.getFullYear() %>-<%= String(Number(rawId.replace(/\D/g, '') || '84521') + 2).padStart(6, '0') %></td><td><%= money(amount * 1.2) %></td><td>Karan Rao</td><td><span class="mini-status is-pending">Pending</span></td><td>11:18 AM</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <a href="/admin/transactions?user=<%= encodeURIComponent(senderName) %>" class="txd-view-all-link">View All by User</a>
+      </article>
+    </div>
+
+    <aside class="txd-right-rail">
+      <article class="txd-card right-card delay-0 txd-health-card">
+        <header class="txd-side-title"><i class="fas fa-tachometer-alt"></i><h4>Transaction Health</h4></header>
+
+        <div class="txd-status-row"><span>Current Status</span><span class="txd-status-pill <%= statusMeta.cls %>"><i class="fas <%= statusMeta.icon %>"></i><%= statusMeta.label %></span></div>
+
+        <div class="txd-gauge-wrap">
+          <svg viewBox="0 0 160 90" class="txd-risk-gauge" aria-label="Risk gauge">
+            <path d="M 20 80 A 60 60 0 0 1 140 80" class="txd-gauge-bg"></path>
+            <path d="M 20 80 A 60 60 0 0 1 140 80" class="txd-gauge-progress" id="riskGaugePath"></path>
+          </svg>
+          <div class="txd-gauge-center">
+            <h3 id="riskScoreValue" data-risk="<%= riskScore %>"><%= riskScore %></h3>
+            <p><%= riskLevel === 'high' ? 'High Risk' : (riskLevel === 'medium' ? 'Medium Risk' : 'Low Risk') %></p>
+          </div>
+        </div>
+
+        <div class="txd-risk-flags">
+          <div class="txd-flag-row"><span class="icon green"><i class="fas fa-check"></i></span><p>Amount within normal range</p><span class="sev low">LOW</span></div>
+          <div class="txd-flag-row"><span class="icon slate"><i class="fas fa-map-marker-alt"></i></span><p>Location matches user history</p><span class="sev low">LOW</span></div>
+          <div class="txd-flag-row"><span class="icon amber"><i class="fas fa-exclamation-triangle"></i></span><p>3rd transaction in 1 hour</p><span class="sev medium">MEDIUM</span></div>
+        </div>
+      </article>
+
+      <article class="txd-card right-card delay-1">
+        <header class="txd-side-title"><span class="txd-header-icon small"><i class="fas fa-bolt"></i></span><h4>Admin Actions</h4></header>
+        <div class="txd-action-stack">
+          <button type="button" class="txd-quick-btn blue" data-open-modal="refundModal"><i class="fas fa-undo"></i>Initiate Refund</button>
+          <button type="button" class="txd-quick-btn amber" data-open-modal="reverseModal"><i class="fas fa-ban"></i>Reverse Transaction</button>
+          <button type="button" class="txd-quick-btn amber" data-open-modal="flagTransactionModal"><i class="fas fa-flag"></i>Flag for Review</button>
+          <button type="button" class="txd-quick-btn slate" id="downloadReceiptSide"><i class="fas fa-download"></i>Download Receipt</button>
+          <button type="button" class="txd-quick-btn red" data-open-modal="suspendUserModal"><i class="fas fa-user-slash"></i>Suspend Sender</button>
+        </div>
+      </article>
+
+      <article class="txd-card right-card delay-2">
+        <header class="txd-side-title"><span class="txd-header-icon small"><i class="fas fa-server"></i></span><h4>Gateway Response</h4></header>
+        <div class="txd-code-wrap">
+          <button type="button" id="copyGatewayBtn" class="txd-copy-btn" aria-label="Copy gateway response"><i class="fas fa-copy"></i></button>
+          <pre id="gatewayResponseBlock" class="txd-code-block">{
+  "status": "success",
+  "gateway": "razorpay",
+  "razorpay_txn_id": "pay_OjKLM12345",
+  "bank_ref": "423891029384",
+  "response_code": "00",
+  "response_msg": "Transaction Approved",
+  "timestamp": "<%= txDate.toISOString() %>"
+}</pre>
+        </div>
+      </article>
+
+      <article class="txd-card right-card delay-3">
+        <header class="txd-side-title with-sub"><div><span class="txd-header-icon small"><i class="fas fa-sticky-note"></i></span><h4>Admin Notes</h4></div><p>Internal only</p></header>
+        <div id="notesList" class="txd-notes-list">
+          <article class="txd-note-item"><span><%= dateMain %> • Admin User</span><p>Transaction reviewed. No discrepancy observed in sender KYC.</p></article>
+          <article class="txd-note-item"><span><%= dateMain %> • Compliance Bot</span><p>Velocity check triggered medium risk due to repeated payouts.</p></article>
+        </div>
+        <div class="txd-note-form">
+          <textarea class="admin-textarea" id="newAdminNote" rows="3" placeholder="Add an internal note..."></textarea>
+          <button type="button" class="txd-add-note" id="addAdminNoteBtn"><i class="fas fa-plus"></i>Add Note</button>
+        </div>
+      </article>
+    </aside>
+  </div>
+</section>
+
+<div id="refundModal" class="modal-overlay" hidden>
+  <div class="modal-card txd-modal-card">
+    <div class="modal-header txd-head-blue">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-undo"></i> Initiate Refund</h3>
+        <p class="modal-subtitle">Process refund for this transaction</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="refundModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="txd-modal-strip"><strong><%= txnDisplayId %></strong> • <%= money(amount) %> • <%= fullDateTime %></div>
+      <div class="form-group">
+        <label class="form-label" for="refundAmountInput">Refund Amount</label>
+        <input id="refundAmountInput" type="number" class="admin-input" value="<%= amount.toFixed(2) %>" step="0.01" min="0">
+      </div>
+      <div class="form-toggle-row"><span>Full Refund</span><label class="admin-toggle"><input id="fullRefundToggle" type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="form-group">
+        <label class="form-label" for="refundReasonInput">Reason</label>
+        <select id="refundReasonInput" class="admin-select">
+          <option>Duplicate</option>
+          <option>User Request</option>
+          <option>Fraud</option>
+          <option>Technical</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="refundNoteInput">Note</label>
+        <textarea id="refundNoteInput" class="admin-textarea" rows="3" placeholder="Add internal reason..."></textarea>
+      </div>
+      <div class="form-toggle-row"><span>Notify User</span><label class="admin-toggle"><input id="refundNotifyToggle" type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="refundModal">Cancel</button>
+        <button type="button" class="btn-primary-modal" id="processRefundBtn"><i class="fas fa-check"></i>Process Refund</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-2xl);">
-  <div>
-    <!-- Transaction Info -->
-    <div class="card" style="margin-bottom: var(--spacing-2xl);">
-      <div class="card-header">
-        <h2 class="card-title">Transaction Information</h2>
+<div id="reverseModal" class="modal-overlay" hidden>
+  <div class="modal-card txd-modal-card small">
+    <div class="modal-header txd-head-amber">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-ban"></i> Reverse Transaction</h3>
+        <p class="modal-subtitle">This will move funds back to sender</p>
       </div>
-      <div class="card-body">
-        <div class="form-group">
-          <label class="form-label">Transaction ID</label>
-          <p style="margin: 0;">TXN-2024-001</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Type</label>
-          <p style="margin: 0;">Transfer</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Amount</label>
-          <p style="margin: 0; font-size: var(--text-lg); font-weight: bold;">₦50,000</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">From Account</label>
-          <p style="margin: 0;">John Doe (john@example.com)</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">To Account</label>
-          <p style="margin: 0;">Jane Smith (jane@example.com)</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Date & Time</label>
-          <p style="margin: 0;">February 4, 2024 at 10:30 AM</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Reference</label>
-          <p style="margin: 0;">Payment for goods</p>
-        </div>
-      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="reverseModal"><i class="fas fa-times"></i></button>
     </div>
-    
-    <!-- Recipient Details -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">Recipient Details</h2>
+    <div class="modal-body">
+      <div class="txd-warning-box"><i class="fas fa-exclamation-triangle"></i><p>This action cannot be undone. Funds will be returned to sender.</p></div>
+      <div class="form-group">
+        <label class="form-label" for="reverseReasonInput">Reason</label>
+        <select id="reverseReasonInput" class="admin-select" required>
+          <option value="">Select a reason</option>
+          <option>Fraud Suspicion</option>
+          <option>Duplicate Transfer</option>
+          <option>Compliance Hold</option>
+          <option>Technical Mismatch</option>
+        </select>
       </div>
-      <div class="card-body">
-        <div class="form-group">
-          <label class="form-label">Bank Name</label>
-          <p style="margin: 0;">First Bank</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Account Number</label>
-          <p style="margin: 0;">0987654321</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Account Name</label>
-          <p style="margin: 0;">JANE SMITH</p>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="adminPasswordInput">Enter admin password to confirm</label>
+        <input id="adminPasswordInput" type="password" class="admin-input" placeholder="Admin password">
       </div>
-    </div>
-  </div>
-  
-  <!-- Sidebar -->
-  <div>
-    <div class="card" style="margin-bottom: var(--spacing-2xl);">
-      <div class="card-header">
-        <h2 class="card-title">Status</h2>
-      </div>
-      <div class="card-body">
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Transaction Status</p>
-          <span class="badge badge-success">Complete</span>
-        </div>
-        
-        <div>
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Settlement Status</p>
-          <span class="badge badge-success">Settled</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">Actions</h2>
-      </div>
-      <div class="card-body" style="display: flex; flex-direction: column; gap: var(--spacing-base);">
-        <button class="btn btn-primary btn-sm" style="justify-content: center;">
-          <i class="fas fa-print"></i> Print
-        </button>
-        <button class="btn btn-primary btn-sm" style="justify-content: center;">
-          <i class="fas fa-download"></i> Download
-        </button>
-        <button class="btn btn-error btn-sm" style="justify-content: center;">
-          <i class="fas fa-undo"></i> Refund
-        </button>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="reverseModal">Cancel</button>
+        <button type="button" class="btn-primary-modal txd-amber-btn" id="confirmReverseBtn"><i class="fas fa-ban"></i>Confirm Reversal</button>
       </div>
     </div>
   </div>
 </div>
+
+<div id="flagTransactionModal" class="modal-overlay" hidden>
+  <div class="modal-card txd-modal-card small">
+    <div class="modal-header txd-head-amber">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-flag"></i> Flag Transaction</h3>
+        <p class="modal-subtitle">Mark this transaction for compliance review</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="flagTransactionModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="txd-modal-copy">You are flagging <strong><%= txnDisplayId %></strong> for review.</p>
+      <div class="form-group">
+        <label class="form-label" for="flagReasonInput">Flag Reason</label>
+        <select id="flagReasonInput" class="admin-select">
+          <option>Suspicious Activity</option>
+          <option>Unusually Large Amount</option>
+          <option>Multiple Failed Attempts</option>
+          <option>User Reported Fraud</option>
+          <option>AML Compliance Check</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="flagNoteInput">Admin Note</label>
+        <textarea id="flagNoteInput" class="admin-textarea" rows="3" placeholder="Add review context..."></textarea>
+      </div>
+      <div class="form-toggle-row"><span>Notify Compliance Team</span><label class="admin-toggle"><input id="notifyComplianceToggle" type="checkbox" checked><span class="toggle-slider"></span></label></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="flagTransactionModal">Cancel</button>
+        <button type="button" class="btn-primary-modal txd-amber-btn" id="confirmFlagBtn"><i class="fas fa-flag"></i>Flag Transaction</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="suspendUserModal" class="modal-overlay" hidden>
+  <div class="modal-card txd-modal-card small">
+    <div class="modal-header txd-head-red">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-user-slash"></i> Suspend Sender</h3>
+        <p class="modal-subtitle">Temporary suspend sender account</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="suspendUserModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="txd-modal-copy">Suspend <strong><%= senderName %></strong> pending manual review?</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="suspendUserModal">Cancel</button>
+        <button type="button" class="btn-danger-modal" id="confirmSuspendBtn"><i class="fas fa-user-slash"></i>Suspend User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .txd-page { color: var(--text-main); }
+
+  .txd-breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .txd-breadcrumb a { color: var(--text-muted); transition: color var(--trans-fast); }
+  .txd-breadcrumb a:hover { color: var(--primary); }
+  .txd-breadcrumb i { font-size: 11px; }
+  .txd-breadcrumb span { font-weight: 700; color: var(--text-main); }
+
+  .txd-header {
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .txd-header-left { min-width: 280px; }
+
+  .txd-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    transition: color var(--trans-fast), transform var(--trans-fast);
+  }
+  .txd-back-link:hover { color: var(--primary); transform: translateX(-2px); }
+
+  .txd-title { margin-top: 8px; font-size: 26px; font-weight: 800; color: var(--text-main); }
+  .txd-subtitle { margin-top: 4px; font-size: 14px; color: var(--text-soft); }
+  .txd-subtitle strong { color: var(--text-main); }
+
+  .txd-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .txd-btn {
+    height: 42px;
+    border-radius: 9999px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color var(--trans-fast), color var(--trans-fast), background var(--trans-fast), transform var(--trans-fast);
+  }
+  .txd-btn:hover { transform: translateY(-1px); }
+  .txd-btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .txd-btn-amber { border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); color: var(--amber-dark); }
+  .txd-btn-amber:hover { background: color-mix(in srgb, var(--amber) 10%, var(--card-bg)); }
+
+  .txd-more-cell .action-icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 9999px;
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+  }
+  .txd-more-cell .action-icon-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  .txd-layout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) 320px;
+    gap: 24px;
+  }
+
+  .txd-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .left-card {
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: fadeInUp .35s ease-out both;
+  }
+  .right-card {
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeInUp .35s ease-out both;
+  }
+  .left-card.delay-0 { animation-delay: 0s; }
+  .left-card.delay-1 { animation-delay: .06s; }
+  .left-card.delay-2 { animation-delay: .12s; }
+  .left-card.delay-3 { animation-delay: .18s; }
+  .left-card.delay-4 { animation-delay: .24s; }
+  .right-card.delay-0 { animation-delay: 0s; }
+  .right-card.delay-1 { animation-delay: .08s; }
+  .right-card.delay-2 { animation-delay: .16s; }
+  .right-card.delay-3 { animation-delay: .24s; }
+
+  .txd-right-rail { position: sticky; top: 88px; align-self: start; }
+
+  .txd-amount-block { text-align: center; margin-bottom: 28px; }
+  .txd-amount { font-size: 48px; line-height: 1.08; font-weight: 900; letter-spacing: -0.02em; }
+  .txd-amount.debit, .txd-amount.failed { color: var(--red); }
+  .txd-amount.credit { color: var(--green); }
+
+  .txd-status-pill {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 8px 14px;
+  }
+  .txd-status-pill.is-success { color: #fff; background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .txd-status-pill.is-pending { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 15%, var(--card-bg)); }
+  .txd-status-pill.is-failed { color: #fff; background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .txd-status-pill.is-flagged { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 20%, var(--card-bg)); }
+
+  .txd-type-line { margin-top: 8px; font-size: 14px; color: var(--text-soft); }
+  .txd-divider { height: 1px; background: var(--border-light); margin: 20px 0; }
+
+  .txd-info-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .txd-info-item p {
+    margin-top: 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+  .txd-info-item h4 {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    word-break: break-word;
+  }
+  .txd-info-item:first-child h4 { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .txd-info-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+  }
+  .txd-info-icon.blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .txd-info-icon.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .txd-info-icon.slate { background: linear-gradient(135deg, var(--text-muted), var(--text-mid)); }
+  .txd-info-icon.purple { background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); }
+
+  .txd-card-header { display: flex; align-items: center; gap: 10px; }
+  .txd-card-header h3 { font-size: 17px; font-weight: 800; color: var(--text-main); }
+  .txd-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .txd-header-icon.small { width: 30px; height: 30px; font-size: 13px; }
+
+  .txd-flow-wrap {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .txd-party-card {
+    flex: 1;
+    border-radius: var(--r-md);
+    padding: 20px;
+  }
+  .txd-party-card.sender {
+    background: rgba(239,68,68,.04);
+    border: 1px solid rgba(239,68,68,.15);
+  }
+  .txd-party-card.receiver {
+    background: rgba(16,185,129,.04);
+    border: 1px solid rgba(16,185,129,.15);
+  }
+
+  .txd-party-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .txd-party-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 9999px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .txd-party-avatar.sender { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .txd-party-avatar.receiver { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .txd-party-tag { font-size: 10px; letter-spacing: .1em; font-weight: 700; }
+  .txd-party-tag.sender { color: var(--red); }
+  .txd-party-tag.receiver { color: var(--green-dark); }
+
+  .txd-party-card h4 { font-size: 16px; font-weight: 800; color: var(--text-main); }
+  .txd-party-sub { margin-top: 3px; font-size: 13px; color: var(--text-soft); }
+  .txd-party-mono { margin-top: 6px; font-size: 12px; color: var(--text-soft); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .txd-party-wallet { margin-top: 8px; font-size: 12px; color: var(--text-soft); }
+
+  .txd-profile-link {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .txd-flow-center {
+    min-width: 110px;
+    text-align: center;
+    color: var(--primary);
+  }
+  .txd-flow-center i { font-size: 32px; }
+  .txd-flow-center h5 { margin-top: 6px; font-size: 14px; font-weight: 800; }
+
+  .txd-micro-badge {
+    margin-top: 6px;
+    display: inline-flex;
+    border-radius: 9999px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .txd-micro-badge.is-success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green-dark); }
+  .txd-micro-badge.is-pending, .txd-micro-badge.is-flagged { background: color-mix(in srgb, var(--amber) 16%, var(--card-bg)); color: var(--amber-dark); }
+  .txd-micro-badge.is-failed { background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); color: var(--red); }
+
+  .txd-two-col-grid { margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .txd-kv p {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+  .txd-kv h4 { margin-top: 4px; font-size: 14px; font-weight: 700; color: var(--text-main); }
+
+  .txd-timeline {
+    margin-top: 20px;
+    margin-left: 20px;
+    border-left: 2px solid var(--border-light);
+    padding-left: 18px;
+  }
+  .txd-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    animation: fadeInUp .3s ease-out both;
+  }
+  .txd-step.delay-0 { animation-delay: 0s; }
+  .txd-step.delay-1 { animation-delay: .08s; }
+  .txd-step.delay-2 { animation-delay: .16s; }
+  .txd-step.delay-3 { animation-delay: .24s; }
+  .txd-step.delay-4 { animation-delay: .32s; }
+
+  .txd-step .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    margin-left: -27px;
+    border: 3px solid #fff;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+  }
+  .txd-step .dot.blue { background: var(--primary); }
+  .txd-step .dot.amber { background: var(--amber); }
+  .txd-step .dot.purple { background: var(--secondary); }
+  .txd-step .dot.green { background: var(--green); }
+  .txd-step h5 { font-size: 14px; font-weight: 700; color: var(--text-main); }
+  .txd-step p { margin-top: 2px; font-size: 13px; color: var(--text-muted); }
+  .txd-step time { margin-top: 4px; display: block; font-size: 11px; color: var(--text-soft); }
+
+  .txd-card-subhead {
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .txd-card-subhead > div { display: flex; align-items: center; gap: 10px; }
+  .txd-card-subhead p { font-size: 13px; color: var(--text-soft); }
+
+  .txd-related-wrap { margin-top: 16px; }
+  .txd-related-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .txd-related-table th {
+    background: #F8FAFC;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  .txd-related-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-mid);
+    font-size: 13px;
+  }
+  .txd-related-table tbody tr:last-child td { border-bottom: none; }
+  .txd-related-table tbody tr { cursor: pointer; transition: background var(--trans-fast); }
+  .txd-related-table tbody tr:hover { background: #FAFBFF; }
+
+  .mini-status {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .mini-status.is-success { color: var(--green-dark); background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); }
+  .mini-status.is-pending { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); }
+  .mini-status.is-failed { color: var(--red); background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); }
+  .mini-status.is-flagged { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 20%, var(--card-bg)); }
+
+  .txd-view-all-link {
+    margin-top: 12px;
+    display: inline-flex;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .txd-health-card { border: 1.5px solid var(--primary); }
+  .txd-side-title { display: flex; align-items: center; gap: 10px; }
+  .txd-side-title > i { color: var(--primary); font-size: 16px; }
+  .txd-side-title h4 { font-size: 15px; font-weight: 800; color: var(--text-main); }
+  .txd-side-title.with-sub { justify-content: space-between; align-items: flex-start; }
+  .txd-side-title.with-sub > div { display: flex; align-items: center; gap: 10px; }
+  .txd-side-title.with-sub p { font-size: 12px; color: var(--text-soft); }
+
+  .txd-status-row {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .txd-status-row span:first-child { font-size: 13px; color: var(--text-soft); }
+  .txd-status-row .txd-status-pill { margin-top: 0; font-size: 12px; padding: 6px 10px; }
+
+  .txd-gauge-wrap { width: 160px; margin: 16px auto 0; position: relative; }
+  .txd-risk-gauge { width: 160px; height: 90px; display: block; }
+  .txd-gauge-bg {
+    fill: none;
+    stroke: var(--border-light);
+    stroke-width: 10;
+    stroke-linecap: round;
+  }
+  .txd-gauge-progress {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke: var(--amber);
+    transition: stroke-dashoffset 1.2s ease-out, stroke var(--trans-fast);
+  }
+  .txd-gauge-center {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  .txd-gauge-center h3 { font-size: 28px; font-weight: 800; line-height: 1; color: var(--amber-dark); }
+  .txd-gauge-center p { margin-top: 4px; font-size: 12px; color: var(--text-soft); }
+
+  .txd-risk-flags { margin-top: 16px; }
+  .txd-flag-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .txd-flag-row:last-child { border-bottom: none; }
+
+  .txd-flag-row .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .txd-flag-row .icon.green { color: var(--green-dark); background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); }
+  .txd-flag-row .icon.slate { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 14%, var(--card-bg)); }
+  .txd-flag-row .icon.amber { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 18%, var(--card-bg)); }
+  .txd-flag-row p { font-size: 13px; color: var(--text-main); flex: 1; }
+
+  .sev {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 9999px;
+    letter-spacing: .03em;
+  }
+  .sev.low { color: var(--green-dark); background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); }
+  .sev.medium { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 18%, var(--card-bg)); }
+
+  .txd-action-stack { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .txd-quick-btn {
+    width: 100%;
+    height: 44px;
+    border-radius: var(--r-md);
+    border: 1.5px solid;
+    background: var(--card-bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: background var(--trans-fast), color var(--trans-fast), border-color var(--trans-fast), transform var(--trans-fast);
+  }
+  .txd-quick-btn:hover { transform: translateY(-1px); }
+  .txd-quick-btn.blue { color: var(--primary); border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); }
+  .txd-quick-btn.blue:hover { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .txd-quick-btn.amber { color: var(--amber-dark); border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); }
+  .txd-quick-btn.amber:hover { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .txd-quick-btn.slate { color: var(--text-muted); border-color: var(--border); }
+  .txd-quick-btn.slate:hover { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--text-muted), var(--text-mid)); }
+  .txd-quick-btn.red { color: var(--red); border-color: color-mix(in srgb, var(--red) 45%, var(--border)); }
+  .txd-quick-btn.red:hover { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+
+  .txd-code-wrap { margin-top: 14px; position: relative; }
+  .txd-code-block {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    overflow-x: auto;
+    color: var(--text-mid);
+  }
+  .txd-copy-btn {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color var(--trans-fast), color var(--trans-fast), background var(--trans-fast);
+  }
+  .txd-copy-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+  .txd-notes-list { margin-top: 12px; }
+  .txd-note-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .txd-note-item:last-child { border-bottom: none; }
+  .txd-note-item span { font-size: 12px; color: var(--text-soft); }
+  .txd-note-item p { margin-top: 4px; font-size: 13px; color: var(--text-main); }
+
+  .txd-note-form { margin-top: 12px; display: grid; gap: 10px; }
+  .txd-add-note {
+    width: 100%;
+    height: 36px;
+    border-radius: 9999px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .txd-modal-card { max-width: 520px; }
+  .txd-modal-card.small { max-width: 460px; }
+  .txd-head-blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .txd-head-amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .txd-head-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+  .txd-amber-btn { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+
+  .txd-modal-strip {
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+  .txd-warning-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--border));
+    background: color-mix(in srgb, var(--amber) 10%, var(--card-bg));
+    border-radius: var(--r-md);
+    padding: 12px;
+    font-size: 13px;
+    color: var(--amber-dark);
+  }
+  .txd-modal-copy { font-size: 13px; color: var(--text-mid); }
+
+  @media (max-width: 1240px) {
+    .txd-layout-grid { grid-template-columns: 1fr; }
+    .txd-right-rail { position: static; }
+  }
+
+  @media (max-width: 900px) {
+    .txd-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .txd-flow-wrap { flex-direction: column; }
+    .txd-flow-center i { transform: rotate(90deg); }
+  }
+
+  @media (max-width: 640px) {
+    .txd-info-grid, .txd-two-col-grid { grid-template-columns: 1fr; }
+    .txd-title { font-size: 22px; }
+    .txd-amount { font-size: 40px; }
+  }
+</style>
+
+<script>
+  (() => {
+    const $ = (sel) => document.querySelector(sel);
+
+    const showToast = (message, type = 'success') => {
+      if (window.showToast) return window.showToast(message, type);
+      const el = document.createElement('div');
+      el.className = `admin-toast admin-toast-${type === 'error' ? 'error' : 'success'}`;
+      el.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span>`;
+      document.body.appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 220); }, 2400);
+    };
+
+    function animateAmount() {
+      const el = document.querySelector('.js-count-amount');
+      if (!el) return;
+      const raw = Number(el.getAttribute('data-value') || 0);
+      const isDebit = el.textContent.trim().startsWith('−');
+      const sign = isDebit ? '−' : '+';
+
+      const duration = 850;
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        const val = raw * (1 - Math.pow(1 - t, 3));
+        el.textContent = `${sign}₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function setupGauge() {
+      const scoreEl = $('#riskScoreValue');
+      const arc = $('#riskGaugePath');
+      if (!scoreEl || !arc) return;
+
+      const score = Math.max(0, Math.min(100, Number(scoreEl.getAttribute('data-risk') || 0)));
+      const len = arc.getTotalLength();
+      const pct = score / 100;
+
+      arc.style.strokeDasharray = String(len);
+      arc.style.strokeDashoffset = String(len);
+
+      if (score <= 30) {
+        arc.style.stroke = 'var(--green)';
+        scoreEl.style.color = 'var(--green-dark)';
+      } else if (score <= 70) {
+        arc.style.stroke = 'var(--amber)';
+        scoreEl.style.color = 'var(--amber-dark)';
+      } else {
+        arc.style.stroke = 'var(--red)';
+        scoreEl.style.color = 'var(--red)';
+      }
+
+      requestAnimationFrame(() => {
+        arc.style.strokeDashoffset = String(len - len * pct);
+      });
+    }
+
+    function setupRelatedRows() {
+      document.querySelectorAll('.txd-related-table tbody tr[data-href]').forEach((tr) => {
+        tr.addEventListener('click', () => {
+          const href = tr.getAttribute('data-href');
+          if (href) window.location.href = href;
+        });
+      });
+    }
+
+    function setupCopyGateway() {
+      const btn = $('#copyGatewayBtn');
+      const block = $('#gatewayResponseBlock');
+      if (!btn || !block) return;
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(block.textContent || '');
+          showToast('Gateway response copied', 'success');
+        } catch (_) {
+          showToast('Unable to copy response', 'error');
+        }
+      });
+    }
+
+    function setupDownloads() {
+      const onDownload = () => showToast('Receipt download started', 'success');
+      $('#downloadReceiptTop')?.addEventListener('click', onDownload);
+      $('#downloadReceiptSide')?.addEventListener('click', onDownload);
+    }
+
+    function setupNotes() {
+      const btn = $('#addAdminNoteBtn');
+      const textarea = $('#newAdminNote');
+      const list = $('#notesList');
+      if (!btn || !textarea || !list) return;
+
+      btn.addEventListener('click', () => {
+        const value = String(textarea.value || '').trim();
+        if (!value) return showToast('Please enter a note first', 'error');
+
+        const now = new Date();
+        const stamp = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • Admin User';
+        const row = document.createElement('article');
+        row.className = 'txd-note-item';
+        row.innerHTML = `<span>${stamp}</span><p>${value.replace(/</g, '&lt;')}</p>`;
+        list.prepend(row);
+        textarea.value = '';
+        showToast('Note added', 'success');
+      });
+    }
+
+    function setupModalActions() {
+      const fullToggle = $('#fullRefundToggle');
+      const amountInput = $('#refundAmountInput');
+      const baseAmount = Number(amountInput?.value || 0);
+
+      fullToggle?.addEventListener('change', () => {
+        if (!amountInput) return;
+        if (fullToggle.checked) {
+          amountInput.value = baseAmount.toFixed(2);
+          amountInput.readOnly = true;
+        } else {
+          amountInput.readOnly = false;
+        }
+      });
+
+      $('#processRefundBtn')?.addEventListener('click', () => {
+        window.AdminModal?.close('refundModal');
+        showToast('Refund request submitted', 'success');
+      });
+
+      $('#confirmReverseBtn')?.addEventListener('click', () => {
+        const reason = String($('#reverseReasonInput')?.value || '').trim();
+        const pass = String($('#adminPasswordInput')?.value || '').trim();
+        if (!reason) return showToast('Please select reversal reason', 'error');
+        if (!pass) return showToast('Admin password is required', 'error');
+        window.AdminModal?.close('reverseModal');
+        showToast('Transaction reversed successfully', 'success');
+      });
+
+      $('#confirmFlagBtn')?.addEventListener('click', async () => {
+        try {
+          const txId = '<%= encodeURIComponent(rawId) %>';
+          const reason = String($('#flagReasonInput')?.value || 'Suspicious Activity');
+          const resp = await fetch(`/admin/transactions/${txId}/flag`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+          });
+          if (!resp.ok) throw new Error('failed');
+          window.AdminModal?.close('flagTransactionModal');
+          showToast('Transaction flagged successfully', 'success');
+        } catch (_) {
+          showToast('Could not flag transaction right now', 'error');
+        }
+      });
+
+      $('#confirmSuspendBtn')?.addEventListener('click', () => {
+        window.AdminModal?.close('suspendUserModal');
+        showToast('Sender suspended for review', 'success');
+      });
+
+      $('#deleteRecordBtn')?.addEventListener('click', () => {
+        showToast('Delete action requires API wiring', 'error');
+      });
+    }
+
+    animateAmount();
+    setupGauge();
+    setupRelatedRows();
+    setupCopyGateway();
+    setupDownloads();
+    setupNotes();
+    setupModalActions();
+  })();
+</script>

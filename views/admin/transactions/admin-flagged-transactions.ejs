@@ -1,0 +1,738 @@
+<%
+  const rows = Array.isArray(transactions) ? transactions : [];
+  const cardStats = stats || {};
+
+  const formatMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+  const compactMoney = (n) => {
+    const num = Number(n || 0);
+    if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr`;
+    if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
+    if (num >= 1000) return `₹${(num / 1000).toFixed(1)}K`;
+    return `₹${num.toFixed(0)}`;
+  };
+%>
+
+<section class="flagged-page" id="flaggedPage">
+  <nav class="flagged-breadcrumb" aria-label="Flagged Breadcrumb">
+    <a href="/admin/dashboard"><i class="fas fa-home"></i></a>
+    <i class="fas fa-chevron-right"></i>
+    <a href="/admin/transactions">Transactions</a>
+    <i class="fas fa-chevron-right"></i>
+    <span>Flagged</span>
+  </nav>
+
+  <header class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon flagged-icon"><i class="fas fa-flag"></i></span>
+        Flagged Transactions
+      </h1>
+      <p class="admin-page-subtitle">Transactions marked for suspicious activity review</p>
+    </div>
+    <div class="page-header-actions">
+      <a href="/admin/transactions" class="btn-outline-admin"><i class="fas fa-arrow-left"></i> All Transactions</a>
+      <button type="button" class="btn-outline-admin" id="exportFlaggedBtn"><i class="fas fa-download"></i> Export</button>
+      <button type="button" class="btn-primary-admin" data-open-modal="bulkReviewModal"><i class="fas fa-tasks"></i> Bulk Review</button>
+    </div>
+  </header>
+
+  <section class="admin-stats-grid flagged-stats-grid">
+    <article class="admin-stat-card delay-1">
+      <div class="stat-icon-wrap bg-amber"><i class="fas fa-flag"></i></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statTotalFlagged"><%= Number(cardStats.totalFlagged || rows.length).toLocaleString('en-IN') %></div>
+        <div class="stat-label">TOTAL FLAGGED</div>
+      </div>
+      <span class="stat-trend neutral"><i class="fas fa-minus"></i>Active flags</span>
+    </article>
+
+    <article class="admin-stat-card delay-2 high-risk-card">
+      <div class="stat-icon-wrap bg-red"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statHighRisk"><%= Number(cardStats.highRisk || 0).toLocaleString('en-IN') %></div>
+        <div class="stat-label">HIGH RISK</div>
+      </div>
+      <span class="stat-trend down"><i class="fas fa-fire"></i>Needs immediate review</span>
+    </article>
+
+    <article class="admin-stat-card delay-3">
+      <div class="stat-icon-wrap bg-purple"><i class="fas fa-rupee-sign"></i></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statFlaggedVolume"><%= compactMoney(cardStats.flaggedVolume || 0) %></div>
+        <div class="stat-label">FLAGGED VOLUME</div>
+      </div>
+      <span class="stat-trend neutral"><i class="fas fa-info-circle"></i>Under review</span>
+    </article>
+
+    <article class="admin-stat-card delay-4">
+      <div class="stat-icon-wrap bg-green"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-info">
+        <div class="stat-value" id="statResolvedMonth"><%= Number(cardStats.resolvedMonth || 0).toLocaleString('en-IN') %></div>
+        <div class="stat-label">RESOLVED THIS MONTH</div>
+      </div>
+      <span class="stat-trend up"><i class="fas fa-arrow-up"></i>+5 from last month</span>
+    </article>
+  </section>
+
+  <section class="admin-card flagged-filter-card">
+    <div class="flagged-filter-row">
+      <div class="search-wrap flagged-search">
+        <i class="fas fa-search"></i>
+        <input id="searchInput" type="text" class="admin-input round" placeholder="Search by TXN ID, user, amount...">
+      </div>
+
+      <select id="riskFilter" class="admin-select round min-150">
+        <option value="">All Risk Levels</option>
+        <option value="low">Low Risk</option>
+        <option value="medium">Medium Risk</option>
+        <option value="high">High Risk</option>
+        <option value="critical">Critical</option>
+      </select>
+
+      <select id="reasonFilter" class="admin-select round min-170">
+        <option value="">All Flag Reasons</option>
+        <option value="Suspicious Activity">Suspicious Activity</option>
+        <option value="Large Amount">Large Amount</option>
+        <option value="Multiple Failed Attempts">Multiple Failed Attempts</option>
+        <option value="User Reported Fraud">User Reported Fraud</option>
+      </select>
+
+      <input id="fromDate" type="date" class="admin-input w-160">
+      <input id="toDate" type="date" class="admin-input w-160">
+
+      <button type="button" class="btn-outline-admin clear-danger" id="clearFlagFilters"><i class="fas fa-times"></i>Clear</button>
+    </div>
+  </section>
+
+  <section class="admin-card flagged-table-card admin-table-wrapper">
+    <div class="table-meta-row">
+      <span>Showing <strong id="showingCount">0</strong> flagged transactions</span>
+      <button type="button" class="btn-outline-admin btn-sm" id="markAllReviewedBtn"><i class="fas fa-check-double"></i>Mark All Reviewed</button>
+    </div>
+
+    <table class="flagged-table" id="flaggedTable">
+      <thead>
+        <tr>
+          <th>
+            <label class="table-check">
+              <input type="checkbox" id="selectAllFlagged">
+              <span><i class="fas fa-check"></i></span>
+            </label>
+          </th>
+          <th>TXN ID</th>
+          <th>User</th>
+          <th>Amount</th>
+          <th>Flag Reason</th>
+          <th>Risk</th>
+          <th>Flagged On</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="flaggedTableBody"></tbody>
+    </table>
+
+    <div class="flagged-empty" id="emptyState" hidden>
+      <i class="fas fa-flag empty-state-icon"></i>
+      <h3>No Flagged Transactions</h3>
+      <p>All clear — no transactions currently flagged for review</p>
+      <a href="/admin/transactions" class="btn-primary-admin"><i class="fas fa-arrow-left"></i>Back to All Transactions</a>
+    </div>
+  </section>
+</section>
+
+<div class="bulk-action-bar" id="bulkActionBar" hidden>
+  <p class="bulk-action-count" id="bulkCount">0 selected</p>
+  <button type="button" class="bulk-action-btn bulk-action-btn-success" id="bulkReviewedBtn"><i class="fas fa-check-circle"></i>Mark Reviewed</button>
+  <button type="button" class="bulk-action-btn bulk-action-btn-primary" id="bulkRefundBtn"><i class="fas fa-undo"></i>Initiate Refund</button>
+  <button type="button" class="bulk-action-btn bulk-action-btn-red" id="bulkReverseBtn"><i class="fas fa-ban"></i>Reverse</button>
+</div>
+
+<div id="bulkReviewModal" class="modal-overlay" hidden>
+  <div class="modal-card flagged-modal-card">
+    <div class="modal-header flagged-modal-head">
+      <h3><i class="fas fa-tasks"></i> Bulk Review Actions</h3>
+      <button type="button" class="modal-close-btn" data-close-modal="bulkReviewModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-note">Apply one action to all selected flagged transactions.</p>
+      <div class="form-group">
+        <label class="form-label">Action</label>
+        <select id="bulkActionSelect" class="admin-select">
+          <option value="reviewed">Mark as Reviewed</option>
+          <option value="refund">Initiate Refund</option>
+          <option value="reverse">Reverse Transaction</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Note</label>
+        <textarea id="bulkReviewNote" class="admin-textarea" rows="3" placeholder="Add review context..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="bulkReviewModal">Cancel</button>
+        <button type="button" class="btn-primary-modal" id="confirmBulkReviewBtn"><i class="fas fa-check"></i>Apply Action</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="flaggedSeed" type="application/json"><%- JSON.stringify(rows).replace(/</g, '\\u003c') %></script>
+
+<style>
+  .flagged-page { color: var(--text-main); }
+
+  .flagged-breadcrumb {
+    margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .flagged-breadcrumb a { color: var(--text-muted); font-weight: 700; }
+  .flagged-breadcrumb a:hover { color: var(--primary); }
+  .flagged-breadcrumb i { font-size: 11px; }
+  .flagged-breadcrumb span { color: var(--text-main); font-weight: 700; }
+
+  .flagged-icon { background: linear-gradient(135deg, #F59E0B, #D97706); }
+  .flagged-stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px; }
+  .delay-1 { animation-delay: .05s; }
+  .delay-2 { animation-delay: .10s; }
+  .delay-3 { animation-delay: .15s; }
+  .delay-4 { animation-delay: .20s; }
+
+  .bg-amber { background: linear-gradient(135deg, #F59E0B, #D97706); }
+  .bg-red { background: linear-gradient(135deg, #EF4444, #DC2626); }
+  .bg-purple { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+  .bg-green { background: linear-gradient(135deg, #10B981, #059669); }
+  .high-risk-card { border-left: 3px solid var(--red); }
+
+  .admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .flagged-filter-card { padding: 16px 20px; margin-bottom: 20px; }
+  .flagged-filter-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .flagged-search { flex: 1; min-width: 260px; position: relative; }
+  .flagged-search i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: 13px;
+  }
+
+  .admin-input,
+  .admin-select,
+  .admin-textarea {
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    background: var(--card-bg);
+  }
+  .admin-input {
+    height: 42px;
+    border-radius: var(--r-sm);
+    padding: 0 12px;
+    font-size: 14px;
+  }
+  .admin-input:focus,
+  .admin-select:focus,
+  .admin-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  .admin-input.round { border-radius: 9999px; padding-left: 38px; }
+  .admin-select.round { border-radius: 9999px; }
+  .min-150 { min-width: 150px; }
+  .min-170 { min-width: 170px; }
+  .w-160 { width: 160px; }
+
+  .clear-danger { color: var(--red); border-color: rgba(239,68,68,0.3); }
+  .clear-danger:hover { border-color: var(--red); color: var(--red); }
+
+  .flagged-table-card { padding: 0; overflow: visible; }
+  .table-meta-row {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+  .table-meta-row strong { color: var(--text-main); }
+  .btn-sm { height: 34px; font-size: 12px; }
+
+  .flagged-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .flagged-table thead tr { background: #F8FAFC; }
+  .flagged-table th {
+    padding: 13px 20px;
+    text-align: left;
+    font-size: 11px;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .flagged-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    background: rgba(245,158,11,0.03);
+  }
+
+  .table-check { display: inline-flex; }
+  .table-check input { position: absolute; opacity: 0; pointer-events: none; }
+  .table-check span {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-xs);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+  }
+  .table-check span i { font-size: 10px; }
+  .table-check input:checked + span { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  .flagged-row-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; color: var(--primary); }
+  .flagged-row-sub { margin-top: 3px; font-size: 11px; color: var(--text-soft); display: inline-flex; align-items: center; gap: 6px; }
+
+  .user-cell { display: flex; align-items: center; gap: 10px; }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+  .user-email { margin-top: 2px; font-size: 11px; color: var(--text-soft); }
+
+  .amt-main { font-size: 15px; font-weight: 800; color: var(--red); }
+  .amt-sub { margin-top: 2px; font-size: 11px; color: var(--text-soft); }
+
+  .reason-pill,
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    white-space: nowrap;
+  }
+  .reason-pill { background: rgba(245,158,11,0.12); color: #B45309; }
+  .status-pill { background: rgba(245,158,11,0.1); color: var(--amber-dark); }
+  .status-pill i,
+  .reason-pill i { font-size: 10px; }
+
+  .risk-wrap { display: flex; align-items: center; gap: 8px; }
+  .risk-track {
+    width: 60px;
+    height: 6px;
+    background: var(--border-light);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .risk-fill { height: 100%; border-radius: 3px; }
+  .risk-fill.low { background: var(--green); }
+  .risk-fill.medium { background: var(--amber); }
+  .risk-fill.high { background: var(--red); }
+  .risk-score { font-size: 12px; font-weight: 700; }
+  .risk-score.low { color: var(--green); }
+  .risk-score.medium { color: var(--amber-dark); }
+  .risk-score.high { color: var(--red); }
+
+  .flag-date { font-size: 13px; color: var(--text-muted); }
+  .flag-time { margin-top: 2px; font-size: 11px; color: var(--text-soft); }
+
+  .action-cell-actions { display: flex; align-items: center; gap: 8px; }
+
+  .flagged-empty {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .flagged-empty .empty-state-icon { font-size: 52px; color: #CBD5E1; }
+  .flagged-empty h3 { margin-top: 16px; font-size: 18px; font-weight: 700; color: var(--text-main); }
+  .flagged-empty p { margin-top: 6px; color: var(--text-soft); font-size: 14px; }
+  .flagged-empty .btn-primary-admin { margin-top: 20px; }
+
+  .flagged-modal-card { max-width: 480px; }
+  .flagged-modal-head { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .modal-note { font-size: 13px; color: var(--text-soft); }
+
+  @media (max-width: 1200px) {
+    .flagged-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .flagged-table-card { overflow-x: auto; }
+    .flagged-table { min-width: 1180px; }
+  }
+
+  @media (max-width: 780px) {
+    .flagged-stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+(() => {
+  const seedNode = document.getElementById('flaggedSeed');
+  const seedRows = seedNode ? JSON.parse(seedNode.textContent || '[]') : [];
+
+  const state = {
+    rows: Array.isArray(seedRows) ? seedRows : [],
+    filtered: [],
+    selected: new Set(),
+    filters: {
+      q: '',
+      risk: '',
+      reason: '',
+      from: '',
+      to: ''
+    }
+  };
+
+  const dom = {
+    tableBody: document.getElementById('flaggedTableBody'),
+    emptyState: document.getElementById('emptyState'),
+    selectAll: document.getElementById('selectAllFlagged'),
+    showingCount: document.getElementById('showingCount'),
+    bulkBar: document.getElementById('bulkActionBar'),
+    bulkCount: document.getElementById('bulkCount'),
+    searchInput: document.getElementById('searchInput'),
+    riskFilter: document.getElementById('riskFilter'),
+    reasonFilter: document.getElementById('reasonFilter'),
+    fromDate: document.getElementById('fromDate'),
+    toDate: document.getElementById('toDate')
+  };
+
+  const initials = (name) => {
+    const parts = String(name || 'U').trim().split(/\s+/);
+    return parts.slice(0, 2).map(p => p.charAt(0).toUpperCase()).join('') || 'U';
+  };
+
+  const fmtDate = (v) => {
+    const d = new Date(v || Date.now());
+    if (Number.isNaN(d.getTime())) return { day: 'N/A', time: 'N/A' };
+    return {
+      day: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      time: d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    };
+  };
+
+  const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+
+  function toast(message, type = 'success') {
+    if (window.showToast) return window.showToast(message, type);
+    const node = document.createElement('div');
+    node.className = `admin-toast admin-toast-${type === 'error' ? 'error' : 'success'}`;
+    node.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span>`;
+    document.body.appendChild(node);
+    setTimeout(() => node.classList.add('show'), 10);
+    setTimeout(() => { node.classList.remove('show'); setTimeout(() => node.remove(), 260); }, 2300);
+  }
+
+  function riskLevel(score) {
+    const n = Number(score || 0);
+    if (n >= 85) return 'critical';
+    if (n > 70) return 'high';
+    if (n > 30) return 'medium';
+    return 'low';
+  }
+
+  function riskTone(score) {
+    const lvl = riskLevel(score);
+    if (lvl === 'critical' || lvl === 'high') return 'high';
+    if (lvl === 'medium') return 'medium';
+    return 'low';
+  }
+
+  function matchesFilters(row) {
+    const q = state.filters.q;
+    const qMatch = !q || [row.txnId, row.transactionId, row.userName, row.userEmail, row.flagReason, row.amount]
+      .some(v => String(v || '').toLowerCase().includes(q));
+
+    const score = Number(row.risk?.score || 0);
+    const lvl = riskLevel(score);
+    const riskMatch = !state.filters.risk || lvl === state.filters.risk;
+
+    const reason = String(row.flagReason || 'Suspicious Activity');
+    const reasonMatch = !state.filters.reason || reason === state.filters.reason;
+
+    const time = new Date(row.flaggedAt || row.time || Date.now()).getTime();
+    const fromMatch = !state.filters.from || time >= new Date(state.filters.from).getTime();
+    const toMatch = !state.filters.to || time <= (new Date(state.filters.to).getTime() + (24 * 60 * 60 * 1000 - 1));
+
+    return qMatch && riskMatch && reasonMatch && fromMatch && toMatch;
+  }
+
+  function rowHtml(row) {
+    const riskScore = Number(row.risk?.score || 75);
+    const riskToneClass = riskTone(riskScore);
+    const d = fmtDate(row.flaggedAt || row.time);
+
+    return `
+      <tr class="flagged-row" data-tx-id="${row.transactionId}">
+        <td>
+          <label class="table-check">
+            <input type="checkbox" class="flag-row-check" value="${row.transactionId}">
+            <span><i class="fas fa-check"></i></span>
+          </label>
+        </td>
+
+        <td>
+          <div class="flagged-row-id">${row.txnId || row.transactionId || 'TXN-NA'}</div>
+          <div class="flagged-row-sub"><i class="fas fa-mobile-alt"></i>${row.type || 'UPI'}</div>
+        </td>
+
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">${initials(row.userName || row.sender?.name)}</div>
+            <div>
+              <div class="user-name">${row.userName || row.sender?.name || 'Unknown User'}</div>
+              <div class="user-email">${row.userEmail || ''}</div>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          <div class="amt-main">−${money(row.amount || 0)}</div>
+          <div class="amt-sub">Fee: ${money(row.fee || 0)}</div>
+        </td>
+
+        <td>
+          <span class="reason-pill"><i class="fas fa-flag"></i>${row.flagReason || 'Suspicious Activity'}</span>
+        </td>
+
+        <td>
+          <div class="risk-wrap">
+            <div class="risk-track"><div class="risk-fill ${riskToneClass}" data-risk-width="${Math.max(5, Math.min(100, riskScore))}"></div></div>
+            <span class="risk-score ${riskToneClass}">${riskScore}</span>
+          </div>
+        </td>
+
+        <td>
+          <div class="flag-date">${d.day}</div>
+          <div class="flag-time">${d.time}</div>
+        </td>
+
+        <td>
+          <span class="status-pill"><i class="fas fa-clock"></i>Under Review</span>
+        </td>
+
+        <td class="action-cell">
+          <div class="action-cell-actions">
+            <a href="/admin/transactions/${encodeURIComponent(row.transactionId || row.id)}" class="action-icon-btn" title="View Transaction"><i class="fas fa-eye"></i></a>
+            <button type="button" class="action-icon-btn text-green" data-action="reviewed" data-id="${row.transactionId}" title="Unflag"><i class="fas fa-check"></i></button>
+            <button type="button" class="action-icon-btn dropdown-trigger" title="More"><i class="fas fa-ellipsis-v"></i></button>
+
+            <div class="action-dropdown">
+              <a href="/admin/transactions/${encodeURIComponent(row.transactionId || row.id)}" class="action-dropdown-item">
+                <i class="fas fa-eye"></i> View Details
+              </a>
+              <button type="button" class="action-dropdown-item text-green" data-action="reviewed" data-id="${row.transactionId}">
+                <i class="fas fa-check-circle"></i> Mark Reviewed
+              </button>
+              <button type="button" class="action-dropdown-item text-blue" data-action="refund" data-id="${row.transactionId}">
+                <i class="fas fa-undo"></i> Initiate Refund
+              </button>
+              <button type="button" class="action-dropdown-item" data-action="user" data-id="${row.transactionId}">
+                <i class="fas fa-user"></i> View User
+              </button>
+              <div class="action-dropdown-separator"></div>
+              <button type="button" class="action-dropdown-item text-red" data-action="reverse" data-id="${row.transactionId}">
+                <i class="fas fa-ban"></i> Reverse Transaction
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function updateRiskBars() {
+    document.querySelectorAll('[data-risk-width]').forEach((el) => {
+      const width = Number(el.getAttribute('data-risk-width') || 0);
+      el.style.width = `${Math.max(5, Math.min(100, width))}%`;
+    });
+  }
+
+  function updateBulkBar() {
+    const count = state.selected.size;
+    dom.bulkBar.hidden = count === 0;
+    dom.bulkCount.textContent = `${count} selected`;
+  }
+
+  function render() {
+    state.filtered = state.rows.filter(matchesFilters);
+    dom.showingCount.textContent = state.filtered.length.toLocaleString('en-IN');
+
+    if (!state.filtered.length) {
+      dom.tableBody.innerHTML = '';
+      dom.emptyState.hidden = false;
+      updateBulkBar();
+      return;
+    }
+
+    dom.emptyState.hidden = true;
+    dom.tableBody.innerHTML = state.filtered.map(rowHtml).join('');
+
+    updateRiskBars();
+
+    dom.tableBody.querySelectorAll('tr[data-tx-id]').forEach((tr) => {
+      tr.addEventListener('click', (event) => {
+        if (event.target.closest('button, a, input, label, .action-dropdown')) return;
+        const txId = tr.getAttribute('data-tx-id');
+        if (txId) window.location.href = `/admin/transactions/${encodeURIComponent(txId)}`;
+      });
+    });
+
+    dom.tableBody.querySelectorAll('.flag-row-check').forEach((check) => {
+      check.addEventListener('change', () => {
+        if (check.checked) state.selected.add(check.value);
+        else state.selected.delete(check.value);
+        updateBulkBar();
+      });
+    });
+
+    dom.tableBody.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+
+        if (action === 'reviewed') {
+          state.rows = state.rows.filter((r) => String(r.transactionId) !== String(id));
+          state.selected.delete(String(id));
+          toast('Transaction marked reviewed', 'success');
+          render();
+          return;
+        }
+
+        if (action === 'refund') {
+          toast('Refund flow opened', 'success');
+          return;
+        }
+
+        if (action === 'user') {
+          toast('Opening user profile...', 'success');
+          return;
+        }
+
+        if (action === 'reverse') {
+          toast('Transaction reversed (demo)', 'success');
+        }
+      });
+    });
+
+    updateBulkBar();
+  }
+
+  function clearFilters() {
+    state.filters = { q: '', risk: '', reason: '', from: '', to: '' };
+    dom.searchInput.value = '';
+    dom.riskFilter.value = '';
+    dom.reasonFilter.value = '';
+    dom.fromDate.value = '';
+    dom.toDate.value = '';
+    render();
+  }
+
+  dom.searchInput.addEventListener('input', () => { state.filters.q = dom.searchInput.value.trim().toLowerCase(); render(); });
+  dom.riskFilter.addEventListener('change', () => { state.filters.risk = dom.riskFilter.value; render(); });
+  dom.reasonFilter.addEventListener('change', () => { state.filters.reason = dom.reasonFilter.value; render(); });
+  dom.fromDate.addEventListener('change', () => { state.filters.from = dom.fromDate.value; render(); });
+  dom.toDate.addEventListener('change', () => { state.filters.to = dom.toDate.value; render(); });
+
+  document.getElementById('clearFlagFilters').addEventListener('click', clearFilters);
+
+  dom.selectAll.addEventListener('change', () => {
+    dom.tableBody.querySelectorAll('.flag-row-check').forEach((check) => {
+      check.checked = dom.selectAll.checked;
+      if (check.checked) state.selected.add(check.value);
+      else state.selected.delete(check.value);
+    });
+    updateBulkBar();
+  });
+
+  document.getElementById('markAllReviewedBtn').addEventListener('click', () => {
+    state.rows = [];
+    state.selected.clear();
+    toast('All flagged transactions marked reviewed', 'success');
+    render();
+  });
+
+  document.getElementById('exportFlaggedBtn').addEventListener('click', () => {
+    const header = ['TxnId', 'User', 'Amount', 'FlagReason', 'RiskScore', 'FlaggedAt'];
+    const lines = state.filtered.map((r) => [r.txnId || r.transactionId, r.userName || r.sender?.name, r.amount, r.flagReason, r.risk?.score || 0, new Date(r.flaggedAt || r.time || Date.now()).toISOString()]);
+    const csv = [header, ...lines].map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flagged-transactions-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast('Flagged transactions exported', 'success');
+  });
+
+  document.getElementById('confirmBulkReviewBtn').addEventListener('click', () => {
+    if (!state.selected.size) {
+      toast('Select transactions first', 'error');
+      return;
+    }
+
+    const action = document.getElementById('bulkActionSelect').value;
+    if (action === 'reviewed') {
+      state.rows = state.rows.filter((r) => !state.selected.has(String(r.transactionId)));
+      state.selected.clear();
+      window.AdminModal?.close('bulkReviewModal');
+      toast('Bulk review completed', 'success');
+      render();
+      return;
+    }
+
+    window.AdminModal?.close('bulkReviewModal');
+    toast('Bulk action queued', 'success');
+  });
+
+  document.getElementById('bulkReviewedBtn').addEventListener('click', () => {
+    if (!state.selected.size) return toast('Select transactions first', 'error');
+    state.rows = state.rows.filter((r) => !state.selected.has(String(r.transactionId)));
+    state.selected.clear();
+    toast('Selected transactions marked reviewed', 'success');
+    render();
+  });
+
+  document.getElementById('bulkRefundBtn').addEventListener('click', () => {
+    if (!state.selected.size) return toast('Select transactions first', 'error');
+    toast('Refund initiated for selected transactions', 'success');
+  });
+
+  document.getElementById('bulkReverseBtn').addEventListener('click', () => {
+    if (!state.selected.size) return toast('Select transactions first', 'error');
+    toast('Reverse initiated for selected transactions', 'success');
+  });
+
+  render();
+})();
+</script>

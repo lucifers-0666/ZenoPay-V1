@@ -1,0 +1,1472 @@
+<%
+  const rows = Array.isArray(transactions) ? transactions : [];
+  const stats = summary || {};
+  const pageInfo = pagination || {};
+  const totalRecords = Number(pageInfo.totalTransactions || rows.length || 0);
+  const pageLimit = Number(pageInfo.limit || 20);
+  const currPage = Number(pageInfo.page || 1);
+  const startIdx = totalRecords ? ((currPage - 1) * pageLimit + 1) : 0;
+  const endIdx = Math.min(currPage * pageLimit, totalRecords);
+  const volumeTotal = Number(totalAmount || 0);
+
+  const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const compactMoney = (n) => {
+    const num = Number(n || 0);
+    if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr`;
+    if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
+    if (num >= 1000) return `₹${(num / 1000).toFixed(1)}K`;
+    return `₹${num.toFixed(0)}`;
+  };
+%>
+
+<section class="tx-page" id="txPage">
+  <nav class="tx-breadcrumb" aria-label="Transactions Breadcrumb">
+    <a href="/admin/dashboard"><i class="fas fa-home"></i></a>
+    <i class="fas fa-chevron-right"></i>
+    <span>Transactions</span>
+  </nav>
+
+  <header class="tx-header">
+    <div>
+      <h1>All Transactions</h1>
+      <p>Monitor and manage all payment transactions</p>
+    </div>
+    <div class="tx-head-actions">
+      <button type="button" class="tx-btn tx-btn-outline" id="exportAllBtn"><i class="fas fa-download"></i>Export</button>
+      <a href="/admin/transactions/flagged" class="tx-btn tx-btn-amber"><i class="fas fa-flag"></i>Flagged</a>
+      <a href="/admin/transactions/failed" class="tx-btn tx-btn-red"><i class="fas fa-times-circle"></i>Failed</a>
+    </div>
+  </header>
+
+  <section class="tx-stats-grid">
+    <article class="tx-stat-card delay-0">
+      <span class="tx-stat-icon blue"><i class="fas fa-exchange-alt"></i></span>
+      <div>
+        <p>Total Today</p>
+        <h3 id="statTotalToday"><%= Number(stats.totalToday || 0).toLocaleString('en-IN') %></h3>
+        <span class="mini-pill">vs yesterday</span>
+      </div>
+    </article>
+
+    <article class="tx-stat-card delay-1">
+      <span class="tx-stat-icon green"><i class="fas fa-rupee-sign"></i></span>
+      <div>
+        <p>Volume Today</p>
+        <h3 id="statVolumeToday"><%= compactMoney(stats.volumeToday || 0) %></h3>
+        <span class="mini-pill green">+8.2%</span>
+      </div>
+    </article>
+
+    <article class="tx-stat-card delay-2">
+      <span class="tx-stat-icon green"><i class="fas fa-check-circle"></i></span>
+      <div>
+        <p>Success Rate</p>
+        <h3 id="statSuccessRate" class="success-rate"><%= Number(stats.successRate || 0).toFixed(1) %>%</h3>
+        <span class="mini-pill <%= Number(stats.successRate || 0) > 95 ? 'green' : 'amber' %>"><%= Number(stats.successRate || 0) > 95 ? 'Healthy' : 'Watch' %></span>
+      </div>
+    </article>
+
+    <article class="tx-stat-card delay-3 alert-amber <%= Number(stats.flaggedToday || 0) > 0 ? 'with-border' : '' %>">
+      <span class="tx-stat-icon amber"><i class="fas fa-flag"></i></span>
+      <div>
+        <p>Flagged</p>
+        <h3 id="statFlagged"><span class="pulse-dot amber <%= Number(stats.flaggedToday || 0) > 0 ? '' : 'hidden' %>"></span><%= Number(stats.flaggedToday || 0).toLocaleString('en-IN') %></h3>
+      </div>
+    </article>
+
+    <article class="tx-stat-card delay-4 alert-red <%= Number(stats.failedToday || 0) > 10 ? 'with-border' : '' %>">
+      <span class="tx-stat-icon red"><i class="fas fa-times-circle"></i></span>
+      <div>
+        <p>Failed</p>
+        <h3 id="statFailed"><span class="pulse-dot red <%= Number(stats.failedToday || 0) > 10 ? '' : 'hidden' %>"></span><%= Number(stats.failedToday || 0).toLocaleString('en-IN') %></h3>
+      </div>
+    </article>
+  </section>
+
+  <section class="tx-live-strip">
+    <div class="live-left">
+      <span class="live-dot"></span>
+      <p>Live — transactions updating in real time</p>
+    </div>
+    <div class="live-center" id="liveTicker"></div>
+    <button type="button" class="auto-refresh on" id="autoRefreshBtn">Auto-refresh: ON</button>
+  </section>
+
+  <section class="tx-filter-card">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by TXN ID, user, amount, UPI ID...">
+    </div>
+
+    <select id="typeFilter" class="tx-select">
+      <option value="">All Types</option>
+      <option value="UPI">UPI</option>
+      <option value="NEFT">NEFT</option>
+      <option value="IMPS">IMPS</option>
+      <option value="Card">Card</option>
+      <option value="Wallet">Wallet</option>
+      <option value="Refund">Refund</option>
+    </select>
+
+    <select id="statusFilter" class="tx-select">
+      <option value="">All Status</option>
+      <option value="success">Success</option>
+      <option value="pending">Pending</option>
+      <option value="failed">Failed</option>
+      <option value="flagged">Flagged</option>
+      <option value="refunded">Refunded</option>
+      <option value="reversed">Reversed</option>
+    </select>
+
+    <select id="methodFilter" class="tx-select">
+      <option value="">All Methods</option>
+      <option value="UPI">UPI</option>
+      <option value="Net Banking">Net Banking</option>
+      <option value="Debit Card">Debit Card</option>
+      <option value="Credit Card">Credit Card</option>
+      <option value="Wallet">Wallet</option>
+    </select>
+
+    <div class="range-wrap">
+      <input type="number" id="minAmount" class="tx-num" placeholder="Min ₹">
+      <input type="number" id="maxAmount" class="tx-num" placeholder="Max ₹">
+    </div>
+
+    <div class="date-wrap">
+      <input type="date" id="fromDate" class="tx-date" aria-label="From date">
+      <input type="date" id="toDate" class="tx-date" aria-label="To date">
+    </div>
+
+    <select id="riskFilter" class="tx-select">
+      <option value="">All Risk</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <button type="button" id="clearFilters" class="clear-link" hidden><i class="fas fa-times"></i>Clear Filters</button>
+  </section>
+
+  <section class="tx-results-bar">
+    <p id="resultsText">Showing <%= startIdx %>–<%= endIdx %> of <%= totalRecords.toLocaleString('en-IN') %> transactions • Total: <strong><%= money(volumeTotal) %></strong></p>
+    <div class="view-toggle" role="group" aria-label="Transactions view toggle">
+      <button type="button" class="view-btn" data-view="summary"><i class="fas fa-border-all"></i>Summary</button>
+      <button type="button" class="view-btn active" data-view="table"><i class="fas fa-bars"></i>Table</button>
+    </div>
+  </section>
+
+  <section id="tableView" class="admin-table-wrapper tx-table-wrap">
+    <table class="tx-table" id="txTable">
+      <thead>
+        <tr>
+          <th><label class="table-check"><input type="checkbox" id="selectAllRows"><span><i class="fas fa-check"></i></span></label></th>
+          <th class="sortable" data-sort="txnId">TXN ID <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="type">TYPE <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="sender">FROM <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="receiver">TO <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="amount">AMOUNT <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="method">METHOD <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="status">STATUS <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="date">DATE <i class="fas fa-sort"></i></th>
+          <th class="sortable" data-sort="risk">RISK <i class="fas fa-sort"></i></th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody id="txTableBody"></tbody>
+    </table>
+  </section>
+
+  <section id="summaryView" class="tx-summary" hidden>
+    <div class="summary-row three">
+      <article class="summary-card">
+        <header><h3>By Type</h3><i class="fas fa-chart-bar"></i></header>
+        <div class="chart-box"><canvas id="typeChart"></canvas></div>
+      </article>
+      <article class="summary-card">
+        <header><h3>By Status</h3><i class="fas fa-chart-pie"></i></header>
+        <div class="chart-box"><canvas id="statusChart"></canvas></div>
+      </article>
+      <article class="summary-card">
+        <header><h3>By Hour (Today)</h3><i class="fas fa-chart-line"></i></header>
+        <div class="chart-box"><canvas id="hourChart"></canvas></div>
+      </article>
+    </div>
+
+    <div class="summary-row two">
+      <article class="summary-card">
+        <header><h3><i class="fas fa-arrow-up"></i>Top Senders Today</h3></header>
+        <div id="topSenders" class="rank-list"></div>
+      </article>
+      <article class="summary-card">
+        <header><h3><i class="fas fa-arrow-down"></i>Top Receivers Today</h3></header>
+        <div id="topReceivers" class="rank-list"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tx-empty" id="emptyState" hidden>
+    <i class="fas fa-exchange-alt"></i>
+    <h3>No transactions found</h3>
+    <p>Try adjusting your filters or date range</p>
+    <button type="button" class="tx-btn tx-btn-outline" id="emptyClearBtn">Clear Filters</button>
+  </section>
+
+  <footer class="tx-pagination" id="paginationBar">
+    <p id="paginationLeft">Showing <%= startIdx %>–<%= endIdx %> of <%= totalRecords.toLocaleString('en-IN') %> transactions - <%= money(volumeTotal) %> total</p>
+    <div class="page-center" id="pageCenter"></div>
+    <label class="rows-select">Rows
+      <select id="rowsPerPage">
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </label>
+  </footer>
+</section>
+
+<div class="bulk-action-bar" id="bulkBar" hidden>
+  <p class="bulk-action-count" id="bulkCount">0 selected</p>
+  <button type="button" class="bulk-action-btn bulk-action-btn-warning" id="bulkFlag"><i class="fas fa-flag"></i>Flag Selected</button>
+  <button type="button" class="bulk-action-btn bulk-action-btn-light" id="bulkExport"><i class="fas fa-download"></i>Export Selected</button>
+  <button type="button" class="bulk-action-btn bulk-action-btn-primary" id="bulkRefund"><i class="fas fa-undo"></i>Initiate Refund</button>
+  <button type="button" class="bulk-action-btn bulk-action-btn-red" id="bulkReverse"><i class="fas fa-ban"></i>Reverse Selected</button>
+</div>
+
+<div id="initiateRefundModal" class="modal-overlay" hidden>
+  <div class="modal-card tx-modal-card">
+    <div class="modal-header refund-head">
+      <h3><i class="fas fa-undo"></i> Initiate Refund</h3>
+      <button type="button" class="modal-close-btn" data-close-modal="initiateRefundModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="tx-info-strip" id="refundInfoStrip"></div>
+      <div class="form-group">
+        <label class="form-label">Refund Amount</label>
+        <div class="money-input-wrap">
+          <i class="fas fa-rupee-sign"></i>
+          <input type="number" id="refundAmount" class="admin-input" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span>Full Refund</span>
+        <label class="switch"><input type="checkbox" id="fullRefundToggle" checked><span></span></label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <select id="refundReason" class="admin-select">
+          <option>Duplicate Payment</option>
+          <option>User Request</option>
+          <option>Fraud</option>
+          <option>Technical Error</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Note</label>
+        <textarea id="refundNote" class="admin-textarea" rows="3" placeholder="Optional note..."></textarea>
+      </div>
+      <div class="toggle-row">
+        <span>Notify User</span>
+        <label class="switch"><input type="checkbox" id="refundNotifyToggle" checked><span></span></label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="initiateRefundModal">Cancel</button>
+        <button type="button" class="btn-primary-modal" id="processRefundBtn"><i class="fas fa-check"></i>Process Refund</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="flagTransactionModal" class="modal-overlay" hidden>
+  <div class="modal-card tx-modal-card small">
+    <div class="modal-header flag-head">
+      <h3><i class="fas fa-flag"></i> Flag Transaction</h3>
+      <button type="button" class="modal-close-btn" data-close-modal="flagTransactionModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-note" id="flagNoteText">You are flagging transaction for review.</p>
+      <div class="form-group">
+        <label class="form-label">Flag Reason</label>
+        <select id="flagReason" class="admin-select">
+          <option>Suspicious Activity</option>
+          <option>Unusually Large Amount</option>
+          <option>Multiple Failed Attempts</option>
+          <option>User Reported Fraud</option>
+          <option>AML Compliance Check</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Severity</label>
+        <div class="severity-pills" id="severityPills">
+          <button type="button" class="sev-pill" data-sev="low">Low</button>
+          <button type="button" class="sev-pill active" data-sev="medium">Medium</button>
+          <button type="button" class="sev-pill" data-sev="high">High</button>
+          <button type="button" class="sev-pill" data-sev="critical">Critical</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Note</label>
+        <textarea id="flagAdminNote" class="admin-textarea" rows="3" placeholder="Add review context..."></textarea>
+      </div>
+      <div class="toggle-row">
+        <span>Freeze User Account</span>
+        <label class="switch"><input type="checkbox" id="freezeUserToggle"><span></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Notify Compliance Team</span>
+        <label class="switch"><input type="checkbox" id="notifyComplianceToggle" checked><span></span></label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="flagTransactionModal">Cancel</button>
+        <button type="button" class="btn-primary-modal amber" id="confirmFlagBtn"><i class="fas fa-flag"></i>Flag Transaction</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="txSeedData" type="application/json"><%- JSON.stringify(rows).replace(/</g, '\\u003c') %></script>
+
+<style>
+  .tx-page { color: var(--text-main); }
+  .tx-breadcrumb { margin-bottom: 12px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-soft); }
+  .tx-breadcrumb a { color: var(--text-muted); }
+  .tx-breadcrumb a:hover { color: var(--primary); }
+  .tx-breadcrumb i { font-size: 11px; }
+  .tx-breadcrumb span { color: var(--text-main); font-weight: 700; }
+
+  .tx-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 24px; }
+  .tx-header h1 { font-size: 28px; font-weight: 800; color: var(--text-main); }
+  .tx-header p { margin-top: 4px; font-size: 14px; color: var(--text-soft); }
+
+  .tx-head-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tx-btn {
+    height: 42px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color var(--trans-fast), color var(--trans-fast), transform var(--trans-fast);
+  }
+  .tx-btn:hover { transform: translateY(-1px); }
+  .tx-btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .tx-btn-amber { border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); color: var(--amber-dark); }
+  .tx-btn-amber:hover { background: rgba(245,158,11,0.08); }
+  .tx-btn-red { border-color: color-mix(in srgb, var(--red) 45%, var(--border)); color: var(--red); }
+  .tx-btn-red:hover { background: rgba(239,68,68,0.08); }
+
+  .tx-stats-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .tx-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeInUp .35s ease-out both;
+  }
+  .tx-stat-card.delay-0 { animation-delay: 0s; }
+  .tx-stat-card.delay-1 { animation-delay: .05s; }
+  .tx-stat-card.delay-2 { animation-delay: .10s; }
+  .tx-stat-card.delay-3 { animation-delay: .15s; }
+  .tx-stat-card.delay-4 { animation-delay: .20s; }
+  .tx-stat-card.with-border.alert-amber { border-left: 3px solid var(--amber); }
+  .tx-stat-card.with-border.alert-red { border-left: 3px solid var(--red); }
+
+  .tx-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .tx-stat-icon.blue { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .tx-stat-icon.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); }
+  .tx-stat-icon.amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+  .tx-stat-icon.red { background: linear-gradient(135deg, var(--red), var(--red-dark)); }
+
+  .tx-stat-card p { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--text-soft); font-weight: 700; }
+  .tx-stat-card h3 { margin-top: 2px; font-size: 24px; font-weight: 800; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px; }
+  .mini-pill {
+    margin-top: 4px;
+    border-radius: 9999px;
+    padding: 3px 8px;
+    display: inline-flex;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-soft);
+    background: var(--border-light);
+  }
+  .mini-pill.green { color: var(--green-dark); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .mini-pill.amber { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); }
+  .pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  .pulse-dot.hidden { display: none; }
+  .pulse-dot.amber { background: var(--amber); }
+  .pulse-dot.red { background: var(--red); }
+
+  .tx-live-strip {
+    margin-bottom: 20px;
+    border-radius: var(--r-md);
+    border: 1px solid rgba(16,185,129,.25);
+    background: rgba(16,185,129,.05);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .live-left { display: inline-flex; align-items: center; gap: 8px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--green); animation: pulse 2s infinite; }
+  .live-left p { color: var(--green-dark); font-size: 13px; font-weight: 600; }
+
+  .live-center { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .live-pill {
+    border: 1px solid color-mix(in srgb, var(--green) 30%, var(--border));
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green-dark);
+    background: #fff;
+  }
+
+  .auto-refresh {
+    height: 30px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-soft);
+  }
+  .auto-refresh.on { border-color: color-mix(in srgb, var(--green) 40%, var(--border)); color: var(--green-dark); background: color-mix(in srgb, var(--green) 10%, var(--card-bg)); }
+
+  .tx-filter-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-sm);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; min-width: 280px; flex: 1; }
+  .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-soft); }
+  .search-wrap input,
+  .tx-select,
+  .tx-num,
+  .tx-date {
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    font-size: 14px;
+    color: var(--text-main);
+    background: var(--card-bg);
+    transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+  }
+  .search-wrap input { width: 100%; padding: 0 14px 0 40px; }
+  .tx-select { min-width: 150px; padding: 0 12px; }
+  .range-wrap, .date-wrap { display: inline-flex; align-items: center; gap: 8px; }
+  .tx-num { width: 100px; border-radius: var(--r-sm); padding: 0 10px; }
+  .tx-date { border-radius: var(--r-sm); padding: 0 10px; }
+  .clear-link { border: 0; background: transparent; color: var(--text-soft); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .clear-link:hover { color: var(--red); }
+
+  .search-wrap input:focus,
+  .tx-select:focus,
+  .tx-num:focus,
+  .tx-date:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+
+  .tx-results-bar { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tx-results-bar p { font-size: 13px; color: var(--text-soft); }
+  .tx-results-bar p strong { color: var(--green-dark); font-weight: 700; }
+
+  .view-toggle { border: 1px solid var(--border); border-radius: 9999px; background: var(--card-bg); padding: 2px; display: inline-flex; }
+  .view-btn {
+    border: 0;
+    background: transparent;
+    height: 30px;
+    border-radius: 9999px;
+    color: var(--text-soft);
+    font-size: 12px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+  }
+  .view-btn.active { color: #fff; background: var(--primary); }
+
+  .tx-table-wrap { background: var(--card-bg); margin-bottom: 16px; }
+  .tx-table th {
+    background: #F8FAFC;
+    color: var(--text-soft);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    text-align: left;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .tx-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+  .tx-table tbody tr { transition: background var(--trans-fast); animation: fadeInUp .2s ease-out both; }
+  .tx-table tbody tr:hover { background: #FAFBFF; cursor: pointer; }
+  .tx-table tbody tr.flagged { background: rgba(245,158,11,0.05); box-shadow: inset 3px 0 0 var(--amber); }
+  .tx-table tbody tr.failed { background: rgba(239,68,68,0.04); }
+
+  .table-check { display: inline-flex; }
+  .table-check input { position: absolute; opacity: 0; pointer-events: none; }
+  .table-check span {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-xs);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+  }
+  .table-check span i { font-size: 10px; }
+  .table-check input:checked + span { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  .sortable { cursor: pointer; }
+  .sortable.active, .sortable.active i { color: var(--primary); }
+
+  .txn-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--primary); font-size: 13px; font-weight: 700; }
+  .subtext { margin-top: 3px; font-size: 11px; color: var(--text-soft); }
+
+  .type-cell { display: inline-flex; align-items: center; gap: 8px; }
+  .type-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .type-icon.upi { color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); }
+  .type-icon.neft { color: var(--secondary-dark); background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); }
+  .type-icon.card { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 12%, var(--card-bg)); }
+  .type-icon.refund { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 13%, var(--card-bg)); }
+  .type-icon.wallet { color: var(--green-dark); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+
+  .entity-cell { display: flex; align-items: center; gap: 9px; }
+  .entity-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .entity-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .entity-pill { margin-top: 2px; display: inline-flex; border-radius: 9999px; font-size: 10px; font-weight: 700; padding: 2px 8px; color: var(--text-muted); background: var(--border-light); }
+
+  .amount { font-size: 15px; font-weight: 800; }
+  .amount.debit { color: var(--red); }
+  .amount.credit { color: var(--green-dark); }
+  .amount.refund { color: var(--amber-dark); }
+
+  .method-main { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; }
+
+  .status-pill {
+    border-radius: 9999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-pill.success { color: var(--green-dark); background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); }
+  .status-pill.pending { color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); }
+  .status-pill.failed { color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--card-bg)); }
+  .status-pill.flagged { color: var(--amber-dark); background: rgba(245,158,11,.18); }
+  .status-pill.refunded { color: var(--primary-dark); background: color-mix(in srgb, var(--primary) 13%, var(--card-bg)); }
+  .status-pill.reversed { color: var(--text-muted); background: color-mix(in srgb, var(--text-soft) 13%, var(--card-bg)); }
+
+  .risk-wrap { display: inline-flex; align-items: center; gap: 7px; }
+  .risk-bar { width: 60px; height: 6px; border-radius: 9999px; background: var(--border-light); overflow: hidden; }
+  .risk-fill { height: 100%; border-radius: 9999px; }
+  .risk-fill.low { background: var(--green); }
+  .risk-fill.medium { background: var(--amber); }
+  .risk-fill.high { background: var(--red); }
+  .risk-warn { color: var(--amber); }
+  .risk-score { font-size: 12px; font-weight: 700; }
+  .risk-score.low { color: var(--green-dark); }
+  .risk-score.medium { color: var(--amber-dark); }
+  .risk-score.high { color: var(--red); }
+
+  .tx-summary { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+  .summary-row { display: grid; gap: 16px; }
+  .summary-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .summary-row.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    animation: fadeInUp .25s ease-out both;
+  }
+  .summary-card header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .summary-card h3 { font-size: 15px; color: var(--text-main); font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
+  .summary-card header i { color: var(--text-soft); }
+  .chart-box { height: 220px; position: relative; }
+
+  .rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .rank-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--border-light); border-radius: var(--r-md); padding: 10px; }
+  .rank-left { display: inline-flex; align-items: center; gap: 8px; }
+  .rank-no { width: 20px; text-align: center; font-size: 12px; font-weight: 800; color: var(--text-soft); }
+  .rank-avatar { width: 30px; height: 30px; border-radius: 9999px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .rank-name { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .rank-amt.send { color: var(--red); font-weight: 700; }
+  .rank-amt.recv { color: var(--green-dark); font-weight: 700; }
+
+  .tx-empty {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    padding: 44px 18px;
+    margin-bottom: 16px;
+  }
+  .tx-empty i { font-size: 56px; color: #CBD5E1; }
+  .tx-empty h3 { margin-top: 10px; font-size: 18px; color: var(--text-main); font-weight: 800; }
+  .tx-empty p { margin-top: 5px; color: var(--text-soft); margin-bottom: 14px; }
+
+  .tx-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--border-light);
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+  .tx-pagination p { font-size: 13px; color: var(--text-soft); }
+  .page-center { display: inline-flex; align-items: center; gap: 6px; }
+  .page-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .page-btn.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border-color: transparent; }
+
+  .rows-select { display: inline-flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 13px; }
+  .rows-select select { height: 34px; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 10px; color: var(--text-main); }
+
+  .bulk-action-btn-warning { color: #fff; background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+
+  .tx-modal-card { max-width: 480px; }
+  .tx-modal-card.small { max-width: 420px; }
+  .refund-head { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .flag-head { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+
+  .tx-info-strip { border: 1px solid var(--border); border-radius: var(--r-sm); background: #F8FAFC; padding: 12px 16px; font-size: 13px; color: var(--text-mid); }
+  .money-input-wrap { position: relative; }
+  .money-input-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-soft); }
+  .money-input-wrap .admin-input { padding-left: 30px; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; }
+  .toggle-row span { font-size: 13px; color: var(--text-mid); }
+  .switch { position: relative; width: 42px; height: 24px; display: inline-block; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; border-radius: 9999px; background: var(--border); transition: background var(--trans-fast); }
+  .switch span::before { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 9999px; background: #fff; transition: transform var(--trans-fast); }
+  .switch input:checked + span { background: var(--green); }
+  .switch input:checked + span::before { transform: translateX(18px); }
+
+  .severity-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sev-pill {
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--card-bg);
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 10px;
+  }
+  .sev-pill.active { border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); color: var(--amber-dark); background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); }
+
+  .btn-primary-modal.amber { background: linear-gradient(135deg, var(--amber), var(--amber-dark)); }
+
+  @media (max-width: 1380px) {
+    .tx-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .summary-row.three { grid-template-columns: 1fr; }
+    .summary-row.two { grid-template-columns: 1fr; }
+    .tx-table-wrap { overflow-x: auto; }
+    .tx-table { min-width: 1560px; }
+  }
+
+  @media (max-width: 980px) {
+    .tx-header { flex-direction: column; }
+    .tx-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 640px) {
+    .tx-stats-grid { grid-template-columns: 1fr; }
+    .tx-pagination { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<script>
+(() => {
+  const seedNode = document.getElementById('txSeedData');
+  const seedRows = seedNode ? JSON.parse(seedNode.textContent || '[]') : [];
+
+  const state = {
+    all: Array.isArray(seedRows) ? seedRows : [],
+    filtered: [],
+    page: 1,
+    rowsPerPage: 20,
+    sortKey: 'date',
+    sortDir: 'desc',
+    view: 'table',
+    selected: new Set(),
+    liveOn: true,
+    selectedTxn: null,
+    filters: {
+      q: '',
+      type: '',
+      status: '',
+      method: '',
+      min: '',
+      max: '',
+      from: '',
+      to: '',
+      risk: ''
+    }
+  };
+
+  const dom = {
+    tableBody: document.getElementById('txTableBody'),
+    emptyState: document.getElementById('emptyState'),
+    tableView: document.getElementById('tableView'),
+    summaryView: document.getElementById('summaryView'),
+    pageCenter: document.getElementById('pageCenter'),
+    paginationBar: document.getElementById('paginationBar'),
+    paginationLeft: document.getElementById('paginationLeft'),
+    resultsText: document.getElementById('resultsText'),
+    rowsPerPage: document.getElementById('rowsPerPage'),
+    selectAll: document.getElementById('selectAllRows'),
+    bulkBar: document.getElementById('bulkBar'),
+    bulkCount: document.getElementById('bulkCount'),
+    clearFilters: document.getElementById('clearFilters'),
+    emptyClearBtn: document.getElementById('emptyClearBtn'),
+    viewBtns: document.querySelectorAll('.view-btn'),
+    search: document.getElementById('searchInput'),
+    typeFilter: document.getElementById('typeFilter'),
+    statusFilter: document.getElementById('statusFilter'),
+    methodFilter: document.getElementById('methodFilter'),
+    minAmount: document.getElementById('minAmount'),
+    maxAmount: document.getElementById('maxAmount'),
+    fromDate: document.getElementById('fromDate'),
+    toDate: document.getElementById('toDate'),
+    riskFilter: document.getElementById('riskFilter'),
+    liveTicker: document.getElementById('liveTicker'),
+    autoRefreshBtn: document.getElementById('autoRefreshBtn')
+  };
+
+  const typeIconClass = (type) => {
+    const x = String(type || '').toLowerCase();
+    if (x.includes('upi')) return { cls: 'upi', icon: 'fa-mobile-alt', label: 'UPI' };
+    if (x.includes('neft') || x.includes('imps')) return { cls: 'neft', icon: 'fa-university', label: 'NEFT' };
+    if (x.includes('card')) return { cls: 'card', icon: 'fa-credit-card', label: 'Card' };
+    if (x.includes('refund')) return { cls: 'refund', icon: 'fa-undo', label: 'Refund' };
+    return { cls: 'wallet', icon: 'fa-wallet', label: 'Wallet' };
+  };
+
+  const statusMeta = (status) => {
+    const s = String(status || '').toLowerCase();
+    if (s === 'success') return { cls: 'success', icon: 'fa-check-circle', label: 'Success' };
+    if (s === 'pending') return { cls: 'pending', icon: 'fa-clock', label: 'Pending' };
+    if (s === 'failed') return { cls: 'failed', icon: 'fa-times-circle', label: 'Failed' };
+    if (s === 'flagged') return { cls: 'flagged', icon: 'fa-flag', label: 'Flagged' };
+    if (s === 'refunded') return { cls: 'refunded', icon: 'fa-undo', label: 'Refunded' };
+    if (s === 'reversed') return { cls: 'reversed', icon: 'fa-history', label: 'Reversed' };
+    return { cls: 'pending', icon: 'fa-clock', label: 'Pending' };
+  };
+
+  const initials = (name) => {
+    const parts = String(name || 'U').trim().split(/\s+/);
+    return parts.slice(0, 2).map((x) => x[0]?.toUpperCase() || '').join('') || 'U';
+  };
+
+  const riskMeta = (risk) => {
+    const score = Number(risk?.score || 0);
+    const level = String(risk?.level || 'low').toLowerCase();
+    return { score, level: level === 'high' ? 'high' : (level === 'medium' ? 'medium' : 'low') };
+  };
+
+  const money = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const compactMoney = (n) => {
+    const num = Number(n || 0);
+    if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr`;
+    if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L`;
+    if (num >= 1000) return `₹${(num / 1000).toFixed(1)}K`;
+    return `₹${num.toFixed(0)}`;
+  };
+
+  const dateLabel = (value) => {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return { day: 'N/A', time: '' };
+    return {
+      day: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    };
+  };
+
+  function toast(message, type = 'success') {
+    if (window.showToast) return window.showToast(message, type);
+    const el = document.createElement('div');
+    el.className = `admin-toast admin-toast-${type === 'error' ? 'error' : 'success'}`;
+    el.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i><span>${message}</span>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 20);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 220); }, 2300);
+  }
+
+  function matchesFilters(row) {
+    const q = state.filters.q;
+    const qMatch = !q || [row.txnId, row.transactionId, row.upiRef, row.sender?.name, row.receiver?.name, row.method, row.type, row.sender?.account, row.receiver?.account]
+      .some((v) => String(v || '').toLowerCase().includes(q));
+
+    const typeMatch = !state.filters.type || String(row.type || '').toLowerCase() === state.filters.type.toLowerCase();
+    const statusMatch = !state.filters.status || String(row.status || '').toLowerCase() === state.filters.status.toLowerCase();
+    const methodMatch = !state.filters.method || String(row.method || '').toLowerCase() === state.filters.method.toLowerCase();
+
+    const amt = Number(row.amount || 0);
+    const minMatch = !state.filters.min || amt >= Number(state.filters.min);
+    const maxMatch = !state.filters.max || amt <= Number(state.filters.max);
+
+    const txTime = new Date(row.time).getTime();
+    const fromMatch = !state.filters.from || txTime >= new Date(state.filters.from).getTime();
+    const toMatch = !state.filters.to || txTime <= new Date(state.filters.to).getTime() + (24 * 60 * 60 * 1000 - 1);
+
+    const risk = String(row.risk?.level || '').toLowerCase();
+    const riskMatch = !state.filters.risk || risk === state.filters.risk;
+
+    return qMatch && typeMatch && statusMatch && methodMatch && minMatch && maxMatch && fromMatch && toMatch && riskMatch;
+  }
+
+  function sortRows(rows) {
+    const sorted = [...rows];
+    const key = state.sortKey;
+    const dir = state.sortDir === 'asc' ? 1 : -1;
+
+    sorted.sort((a, b) => {
+      const pick = (r) => {
+        if (key === 'txnId') return String(r.txnId || '');
+        if (key === 'type') return String(r.type || '');
+        if (key === 'sender') return String(r.sender?.name || '');
+        if (key === 'receiver') return String(r.receiver?.name || '');
+        if (key === 'amount') return Number(r.amount || 0);
+        if (key === 'method') return String(r.method || '');
+        if (key === 'status') return String(r.status || '');
+        if (key === 'date') return new Date(r.time).getTime();
+        if (key === 'risk') return Number(r.risk?.score || 0);
+        return new Date(r.time).getTime();
+      };
+
+      const va = pick(a);
+      const vb = pick(b);
+      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+      return String(va).localeCompare(String(vb)) * dir;
+    });
+
+    return sorted;
+  }
+
+  function filterAndSort() {
+    state.filtered = sortRows(state.all.filter(matchesFilters));
+    state.page = 1;
+    render();
+  }
+
+  function rowClass(row) {
+    if (String(row.status || '').toLowerCase() === 'flagged' || row.isFlagged) return 'flagged';
+    if (String(row.status || '').toLowerCase() === 'failed') return 'failed';
+    return '';
+  }
+
+  function directionMeta(row) {
+    const dir = String(row.direction || '').toLowerCase();
+    if (dir.includes('refund')) return { cls: 'refund', txt: `↩ ${money(row.amount)}` };
+    if (dir.includes('credit')) return { cls: 'credit', txt: `+${money(row.amount)}` };
+    return { cls: 'debit', txt: `−${money(row.amount)}` };
+  }
+
+  function rowHtml(row) {
+    const type = typeIconClass(row.type);
+    const status = statusMeta(row.status);
+    const risk = riskMeta(row.risk);
+    const date = dateLabel(row.time);
+    const dir = directionMeta(row);
+
+    return `
+      <tr class="${rowClass(row)}" data-row-id="${row.transactionId}">
+        <td>
+          <label class="table-check"><input type="checkbox" class="row-check" value="${row.transactionId}"><span><i class="fas fa-check"></i></span></label>
+        </td>
+        <td>
+          <p class="txn-id">${row.txnId || '#TXN-NA'}</p>
+          <p class="subtext">UPI Ref: ${row.upiRef || 'N/A'}</p>
+        </td>
+        <td>
+          <div class="type-cell">
+            <span class="type-icon ${type.cls}"><i class="fas ${type.icon}"></i></span>
+            <span>${type.label}</span>
+          </div>
+        </td>
+        <td>
+          <div class="entity-cell">
+            <span class="entity-avatar">${initials(row.sender?.name)}</span>
+            <div>
+              <a href="/admin/users/${encodeURIComponent(row.sender?.userId || row.sender?.account || '')}" class="entity-name">${row.sender?.name || 'Unknown'}</a>
+              <span class="entity-pill">${row.sender?.type || 'User'}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          ${row.receiver?.external
+            ? `<div class="type-cell"><span class="type-icon neft"><i class="fas fa-university"></i></span><div><p class="entity-name">${row.receiver?.bank || 'External Bank'}</p><p class="subtext">${String(row.receiver?.account || '').replace(/.(?=.{4})/g, '•')}</p></div></div>`
+            : `<div class="entity-cell"><span class="entity-avatar">${initials(row.receiver?.name)}</span><div><a href="/admin/users/${encodeURIComponent(row.receiver?.userId || row.receiver?.account || '')}" class="entity-name">${row.receiver?.name || 'Unknown'}</a><span class="entity-pill">${row.receiver?.type || 'Merchant'}</span></div></div>`}
+        </td>
+        <td>
+          <p class="amount ${dir.cls}">${dir.txt}</p>
+          <p class="subtext">Fee: ${money(row.fee || 0)}</p>
+        </td>
+        <td>
+          <p class="method-main"><i class="fas fa-wallet"></i>${row.method || 'Method'}</p>
+          <p class="subtext">${(row.method || '').toLowerCase().includes('upi') ? (row.sender?.account || row.upiRef || 'N/A') : (String(row.sender?.account || '').slice(-4).padStart(4, '•'))}</p>
+        </td>
+        <td><span class="status-pill ${status.cls}"><i class="fas ${status.icon}"></i>${status.label}</span></td>
+        <td>
+          <p>${date.day}</p>
+          <p class="subtext">${date.time}</p>
+        </td>
+        <td>
+          <div class="risk-wrap">
+            <span class="risk-bar"><span class="risk-fill ${risk.level}" data-risk-score="${Math.max(2, Math.min(100, risk.score))}"></span></span>
+            <span class="risk-score ${risk.level}">${risk.score}</span>
+            ${risk.score > 70 ? '<i class="fas fa-exclamation-triangle risk-warn"></i>' : ''}
+          </div>
+        </td>
+        <td class="action-cell">
+          <div class="action-cell-actions">
+            <a href="/admin/transactions/${encodeURIComponent(row.transactionId)}" class="action-icon-btn" title="View"><i class="fas fa-eye"></i></a>
+            <button type="button" class="action-icon-btn text-amber" title="Flag" data-action="flag" data-id="${row.transactionId}"><i class="fas fa-flag"></i></button>
+            <button type="button" class="action-icon-btn dropdown-trigger" title="More options"><i class="fas fa-ellipsis-v"></i></button>
+            <div class="action-dropdown">
+              <a href="/admin/transactions/${encodeURIComponent(row.transactionId)}" class="action-dropdown-item"><i class="fas fa-eye"></i> View Details</a>
+              <button type="button" class="action-dropdown-item text-amber" data-action="flag" data-id="${row.transactionId}"><i class="fas fa-flag"></i> Flag Transaction</button>
+              <button type="button" class="action-dropdown-item text-blue" data-action="refund" data-id="${row.transactionId}"><i class="fas fa-undo"></i> Initiate Refund</button>
+              <button type="button" class="action-dropdown-item" data-action="receipt" data-id="${row.transactionId}"><i class="fas fa-download"></i> Download Receipt</button>
+              <button type="button" class="action-dropdown-item" data-action="sender" data-id="${row.transactionId}"><i class="fas fa-user"></i> View Sender</button>
+              <div class="action-dropdown-separator"></div>
+              <button type="button" class="action-dropdown-item text-red" data-action="reverse" data-id="${row.transactionId}"><i class="fas fa-ban"></i> Reverse Transaction</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderPagination(total) {
+    const pages = Math.max(1, Math.ceil(total / state.rowsPerPage));
+    if (state.page > pages) state.page = pages;
+
+    const start = total ? ((state.page - 1) * state.rowsPerPage + 1) : 0;
+    const end = Math.min(state.page * state.rowsPerPage, total);
+
+    const totalAmt = state.filtered.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    dom.resultsText.innerHTML = `Showing ${start}–${end} of ${total.toLocaleString('en-IN')} transactions • Total: <strong>${money(totalAmt)}</strong>`;
+    dom.paginationLeft.textContent = `Showing ${start}–${end} of ${total.toLocaleString('en-IN')} transactions - ${money(totalAmt)} total`;
+
+    const html = [];
+    html.push(`<button type="button" class="page-btn" data-page="${Math.max(1, state.page - 1)}"><i class="fas fa-chevron-left"></i></button>`);
+    const ws = Math.max(1, state.page - 1);
+    const we = Math.min(pages, state.page + 1);
+    if (ws > 1) html.push('<button type="button" class="page-btn" data-page="1">1</button><span class="page-btn">...</span>');
+    for (let p = ws; p <= we; p += 1) html.push(`<button type="button" class="page-btn ${p === state.page ? 'active' : ''}" data-page="${p}">${p}</button>`);
+    if (we < pages) html.push(`<span class="page-btn">...</span><button type="button" class="page-btn" data-page="${pages}">${pages}</button>`);
+    html.push(`<button type="button" class="page-btn" data-page="${Math.min(pages, state.page + 1)}"><i class="fas fa-chevron-right"></i></button>`);
+    dom.pageCenter.innerHTML = html.join('');
+
+    dom.pageCenter.querySelectorAll('[data-page]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.page = Number(btn.getAttribute('data-page') || state.page);
+        render();
+      });
+    });
+
+    return { start, end };
+  }
+
+  function renderTable() {
+    const total = state.filtered.length;
+    const { start, end } = renderPagination(total);
+    const pageRows = state.filtered.slice(start ? start - 1 : 0, end);
+
+    if (!pageRows.length) {
+      dom.tableView.hidden = true;
+      dom.paginationBar.hidden = true;
+      dom.emptyState.hidden = false;
+      return;
+    }
+
+    dom.emptyState.hidden = true;
+    dom.paginationBar.hidden = false;
+
+    dom.tableBody.innerHTML = pageRows.map(rowHtml).join('');
+
+    dom.tableBody.querySelectorAll('tr[data-row-id]').forEach((tr) => {
+      tr.addEventListener('click', (event) => {
+        if (event.target.closest('button, a, input, label, .action-dropdown')) return;
+        const id = tr.getAttribute('data-row-id');
+        if (id) window.location.href = `/admin/transactions/${encodeURIComponent(id)}`;
+      });
+    });
+
+    dom.tableBody.querySelectorAll('.row-check').forEach((check) => {
+      check.addEventListener('change', () => {
+        if (check.checked) state.selected.add(check.value);
+        else state.selected.delete(check.value);
+        updateBulkBar();
+      });
+    });
+
+    dom.tableBody.querySelectorAll('[data-action]').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const row = state.all.find((x) => String(x.transactionId) === String(id));
+        if (!row) return;
+
+        if (action === 'flag') {
+          openFlagModal(row);
+          return;
+        }
+        if (action === 'refund') {
+          openRefundModal(row);
+          return;
+        }
+        if (action === 'receipt') {
+          toast('Receipt download started', 'success');
+          return;
+        }
+        if (action === 'sender') {
+          if (row.sender?.userId) window.location.href = `/admin/users/${encodeURIComponent(row.sender.userId)}`;
+          else toast('Sender profile unavailable', 'error');
+          return;
+        }
+        if (action === 'reverse') {
+          row.status = 'reversed';
+          toast('Transaction reversed (demo action)', 'success');
+          filterAndSort();
+        }
+      });
+    });
+
+    dom.tableBody.querySelectorAll('[data-risk-score]').forEach((el) => {
+      const pct = Number(el.getAttribute('data-risk-score') || 2);
+      el.style.width = `${Math.max(2, Math.min(100, pct))}%`;
+    });
+  }
+
+  function updateBulkBar() {
+    const count = state.selected.size;
+    dom.bulkBar.hidden = count === 0;
+    dom.bulkCount.textContent = `${count} selected`;
+  }
+
+  function clearFilters() {
+    state.filters = { q: '', type: '', status: '', method: '', min: '', max: '', from: '', to: '', risk: '' };
+    dom.search.value = '';
+    dom.typeFilter.value = '';
+    dom.statusFilter.value = '';
+    dom.methodFilter.value = '';
+    dom.minAmount.value = '';
+    dom.maxAmount.value = '';
+    dom.fromDate.value = '';
+    dom.toDate.value = '';
+    dom.riskFilter.value = '';
+    filterAndSort();
+  }
+
+  function bindFilterControls() {
+    const bind = (node, key, formatter = (x) => x) => {
+      node.addEventListener('input', () => {
+        state.filters[key] = formatter(node.value);
+        filterAndSort();
+      });
+      node.addEventListener('change', () => {
+        state.filters[key] = formatter(node.value);
+        filterAndSort();
+      });
+    };
+
+    bind(dom.search, 'q', (v) => v.trim().toLowerCase());
+    bind(dom.typeFilter, 'type');
+    bind(dom.statusFilter, 'status');
+    bind(dom.methodFilter, 'method');
+    bind(dom.minAmount, 'min');
+    bind(dom.maxAmount, 'max');
+    bind(dom.fromDate, 'from');
+    bind(dom.toDate, 'to');
+    bind(dom.riskFilter, 'risk');
+
+    dom.clearFilters.addEventListener('click', clearFilters);
+    dom.emptyClearBtn.addEventListener('click', clearFilters);
+  }
+
+  function updateClearFiltersVisibility() {
+    const active = Object.values(state.filters).some((v) => String(v || '').trim() !== '');
+    dom.clearFilters.hidden = !active;
+  }
+
+  function wireSort() {
+    document.querySelectorAll('.tx-table th.sortable').forEach((th) => {
+      th.addEventListener('click', () => {
+        const nextKey = th.getAttribute('data-sort') || 'date';
+        if (state.sortKey === nextKey) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+        else {
+          state.sortKey = nextKey;
+          state.sortDir = 'asc';
+        }
+
+        document.querySelectorAll('.tx-table th.sortable').forEach((x) => x.classList.remove('active'));
+        th.classList.add('active');
+
+        state.filtered = sortRows(state.filtered);
+        render();
+      });
+    });
+  }
+
+  function setView(view) {
+    state.view = view;
+    dom.viewBtns.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-view') === view));
+
+    if (view === 'summary') {
+      dom.tableView.hidden = true;
+      dom.summaryView.hidden = false;
+      dom.emptyState.hidden = true;
+      dom.paginationBar.hidden = true;
+      renderSummary();
+      return;
+    }
+
+    dom.summaryView.hidden = true;
+    dom.tableView.hidden = false;
+    render();
+  }
+
+  function renderSummary() {
+    const rows = state.filtered;
+
+    const byType = {};
+    const byStatus = {};
+    const hours = new Array(24).fill(0);
+    const senderMap = new Map();
+    const receiverMap = new Map();
+
+    rows.forEach((row) => {
+      byType[row.type] = (byType[row.type] || 0) + 1;
+      byStatus[row.status] = (byStatus[row.status] || 0) + 1;
+
+      const d = new Date(row.time);
+      if (!Number.isNaN(d.getTime())) hours[d.getHours()] += 1;
+
+      const sName = row.sender?.name || 'Unknown';
+      const rName = row.receiver?.name || row.receiver?.bank || 'Unknown';
+      senderMap.set(sName, (senderMap.get(sName) || 0) + Number(row.amount || 0));
+      receiverMap.set(rName, (receiverMap.get(rName) || 0) + Number(row.amount || 0));
+    });
+
+    renderTopList(document.getElementById('topSenders'), [...senderMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5), 'send');
+    renderTopList(document.getElementById('topReceivers'), [...receiverMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5), 'recv');
+
+    if (!window.Chart) return;
+
+    const tooltipStyle = {
+      backgroundColor: '#fff',
+      titleColor: '#1F2937',
+      bodyColor: '#475569',
+      borderColor: '#E2E8F0',
+      borderWidth: 1,
+      padding: 10,
+      displayColors: true
+    };
+
+    drawChart('typeChart', 'bar', {
+      labels: Object.keys(byType),
+      datasets: [{ label: 'Transactions', data: Object.values(byType), backgroundColor: ['#3B82F6', '#8B5CF6', '#64748B', '#10B981', '#F59E0B'] }]
+    }, { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipStyle }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } } });
+
+    drawChart('statusChart', 'doughnut', {
+      labels: Object.keys(byStatus),
+      datasets: [{ data: Object.values(byStatus), backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#F97316', '#3B82F6', '#64748B'] }]
+    }, { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: tooltipStyle }, cutout: '62%' });
+
+    drawChart('hourChart', 'line', {
+      labels: hours.map((_, i) => `${i}:00`),
+      datasets: [{ data: hours, borderColor: '#3B82F6', backgroundColor: 'rgba(59,130,246,0.12)', fill: true, tension: 0.35, pointRadius: 0 }]
+    }, { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: tooltipStyle }, scales: { y: { beginAtZero: true, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } } });
+  }
+
+  const chartCache = new Map();
+  function drawChart(id, type, data, options) {
+    const el = document.getElementById(id);
+    if (!el || !window.Chart) return;
+    const prev = chartCache.get(id);
+    if (prev) prev.destroy();
+    const chart = new window.Chart(el, { type, data, options });
+    chartCache.set(id, chart);
+  }
+
+  function renderTopList(container, list, tone) {
+    if (!container) return;
+    if (!list.length) {
+      container.innerHTML = '<div class="empty-mini"><i class="fas fa-info-circle"></i>No data</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(([name, amt], idx) => `
+      <div class="rank-item">
+        <div class="rank-left">
+          <span class="rank-no">${idx + 1}</span>
+          <span class="rank-avatar">${initials(name)}</span>
+          <span class="rank-name">${name}</span>
+        </div>
+        <span class="rank-amt ${tone}">${money(amt)}</span>
+      </div>
+    `).join('');
+  }
+
+  function openRefundModal(row) {
+    state.selectedTxn = row;
+    const info = document.getElementById('refundInfoStrip');
+    const d = dateLabel(row.time);
+    info.textContent = `${row.txnId} • ${money(row.amount)} • ${d.day}`;
+    const amountInput = document.getElementById('refundAmount');
+    amountInput.value = Number(row.amount || 0).toFixed(2);
+    document.getElementById('fullRefundToggle').checked = true;
+    amountInput.readOnly = true;
+    window.AdminModal?.open('initiateRefundModal');
+  }
+
+  function openFlagModal(row) {
+    state.selectedTxn = row;
+    document.getElementById('flagNoteText').textContent = `You are flagging ${row.txnId} for review.`;
+    window.AdminModal?.open('flagTransactionModal');
+  }
+
+  async function submitFlag() {
+    const row = state.selectedTxn;
+    if (!row) return;
+
+    try {
+      const resp = await fetch(`/admin/transactions/${encodeURIComponent(row.transactionId)}/flag`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: document.getElementById('flagReason').value })
+      });
+
+      if (!resp.ok) throw new Error('flag failed');
+      row.status = 'flagged';
+      row.isFlagged = true;
+      toast('Transaction flagged successfully', 'success');
+      window.AdminModal?.close('flagTransactionModal');
+      filterAndSort();
+    } catch (_) {
+      toast('Unable to flag transaction right now', 'error');
+    }
+  }
+
+  function submitRefund() {
+    if (!state.selectedTxn) return;
+    toast('Refund request submitted', 'success');
+    window.AdminModal?.close('initiateRefundModal');
+  }
+
+  function renderLiveTicker() {
+    const liveRows = [...state.all].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 3);
+    dom.liveTicker.innerHTML = liveRows.map((row) => {
+      const st = statusMeta(row.status);
+      return `<span class="live-pill">${row.txnId} • ${compactMoney(row.amount)} • ${st.label}</span>`;
+    }).join('');
+  }
+
+  function startLiveTicker() {
+    renderLiveTicker();
+    setInterval(() => {
+      if (!state.liveOn) return;
+      renderLiveTicker();
+    }, 10000);
+  }
+
+  function bindMisc() {
+    dom.selectAll.addEventListener('change', () => {
+      dom.tableBody.querySelectorAll('.row-check').forEach((check) => {
+        check.checked = dom.selectAll.checked;
+        if (check.checked) state.selected.add(check.value);
+        else state.selected.delete(check.value);
+      });
+      updateBulkBar();
+    });
+
+    dom.rowsPerPage.addEventListener('change', () => {
+      state.rowsPerPage = Number(dom.rowsPerPage.value || 20);
+      state.page = 1;
+      render();
+    });
+
+    dom.viewBtns.forEach((btn) => {
+      btn.addEventListener('click', () => setView(btn.getAttribute('data-view') || 'table'));
+    });
+
+    dom.autoRefreshBtn.addEventListener('click', () => {
+      state.liveOn = !state.liveOn;
+      dom.autoRefreshBtn.classList.toggle('on', state.liveOn);
+      dom.autoRefreshBtn.textContent = `Auto-refresh: ${state.liveOn ? 'ON' : 'OFF'}`;
+    });
+
+    document.getElementById('exportAllBtn').addEventListener('click', () => {
+      const headers = ['TXN ID', 'Type', 'From', 'To', 'Amount', 'Method', 'Status', 'Date', 'Risk'];
+      const lines = state.filtered.map((r) => [
+        r.txnId,
+        r.type,
+        r.sender?.name,
+        r.receiver?.name || r.receiver?.bank,
+        Number(r.amount || 0).toFixed(2),
+        r.method,
+        r.status,
+        new Date(r.time).toISOString(),
+        r.risk?.score
+      ]);
+      const csv = [headers, ...lines].map((row) => row.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `transactions-${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast('Transactions exported', 'success');
+    });
+
+    document.getElementById('fullRefundToggle').addEventListener('change', (e) => {
+      const amt = document.getElementById('refundAmount');
+      const checked = e.target.checked;
+      amt.readOnly = checked;
+      if (checked && state.selectedTxn) amt.value = Number(state.selectedTxn.amount || 0).toFixed(2);
+    });
+
+    document.getElementById('confirmFlagBtn').addEventListener('click', submitFlag);
+    document.getElementById('processRefundBtn').addEventListener('click', submitRefund);
+
+    document.getElementById('severityPills').querySelectorAll('.sev-pill').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        document.getElementById('severityPills').querySelectorAll('.sev-pill').forEach((p) => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    document.getElementById('bulkFlag').addEventListener('click', () => {
+      const first = state.all.find((r) => state.selected.has(String(r.transactionId)));
+      if (!first) return toast('Select rows first', 'error');
+      openFlagModal(first);
+    });
+
+    document.getElementById('bulkRefund').addEventListener('click', () => {
+      const first = state.all.find((r) => state.selected.has(String(r.transactionId)));
+      if (!first) return toast('Select rows first', 'error');
+      openRefundModal(first);
+    });
+
+    document.getElementById('bulkExport').addEventListener('click', () => {
+      if (!state.selected.size) return toast('Select rows first', 'error');
+      toast('Selected transactions exported', 'success');
+    });
+
+    document.getElementById('bulkReverse').addEventListener('click', () => {
+      if (!state.selected.size) return toast('Select rows first', 'error');
+      state.all.forEach((r) => {
+        if (state.selected.has(String(r.transactionId))) r.status = 'reversed';
+      });
+      toast('Selected transactions reversed', 'success');
+      filterAndSort();
+    });
+  }
+
+  function render() {
+    updateClearFiltersVisibility();
+    if (state.view === 'summary') return renderSummary();
+    renderTable();
+  }
+
+  bindFilterControls();
+  bindMisc();
+  wireSort();
+  startLiveTicker();
+
+  state.filtered = sortRows(state.all);
+  render();
+})();
+</script>

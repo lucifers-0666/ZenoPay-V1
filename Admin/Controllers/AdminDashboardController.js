@@ -390,10 +390,14 @@ const getAnalytics = async (req, res) => {
 // GET Reports Page
 const getReports = async (req, res) => {
   try {
-    res.render("admin/analytics/admin-financial-reports", {
-      pageTitle: "Admin Financial Reports",
+    res.locals.adminPage = "reports";
+    res.render("admin/reports/admin-reports", {
+      title: "Reports & Analytics",
+      pageTitle: "Reports & Analytics - ZenoPay Admin",
+      page: "reports",
       currentPage: "reports",
       admin: req.session.user,
+      user: req.session.user,
     });
   } catch (error) {
     console.error("Reports error:", error);
