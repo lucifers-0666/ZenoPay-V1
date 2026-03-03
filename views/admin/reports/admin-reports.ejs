@@ -1,861 +1,769 @@
-<div class="admin-page-header reports-header">
-  <div>
-    <h1 class="admin-page-title">
-      <span class="page-title-icon reports-gradient-icon">
-        <i class="fas fa-chart-line" aria-hidden="true"></i>
-      </span>
-      Reports &amp; Analytics
-    </h1>
-    <p class="admin-page-subtitle">Deep performance insights across revenue, users, transactions, KYC, and support operations.</p>
-    <nav class="reports-breadcrumb" aria-label="Breadcrumb">
-      <span class="crumb-item"><i class="fas fa-home" aria-hidden="true"></i> Home</span>
-      <i class="fas fa-chevron-right crumb-separator" aria-hidden="true"></i>
-      <span class="crumb-item active">Reports &amp; Analytics</span>
-    </nav>
-  </div>
+<%
+  const currentAdminPage = typeof adminPage !== 'undefined' ? adminPage : 'reports';
+  page = 'reports';
+%>
 
-  <div class="reports-actions">
-    <div class="btn-group" role="group" aria-label="Date range selector">
-      <button type="button" class="date-range-btn active" data-range="7">Last 7 Days</button>
-      <button type="button" class="date-range-btn" data-range="30">Last 30 Days</button>
-      <button type="button" class="date-range-btn" data-range="90">Last 90 Days</button>
-      <button type="button" class="date-range-btn" data-open-modal="customDateRangeModal">Custom</button>
-    </div>
+<div class="reports-page-wrapper">
+        <section class="reports-page-header">
+          <div>
+            <h1 class="admin-page-title">
+              <span class="page-title-icon reports-gradient-icon">
+                <i class="fas fa-chart-line" aria-hidden="true"></i>
+              </span>
+              Reports &amp; Analytics
+            </h1>
+            <nav class="reports-breadcrumb" aria-label="Breadcrumb">
+              <span class="crumb-item"><i class="fas fa-home" aria-hidden="true"></i> Home</span>
+              <i class="fas fa-chevron-right" aria-hidden="true"></i>
+              <span class="crumb-item active">Reports &amp; Analytics</span>
+            </nav>
+          </div>
 
-    <div class="action-cell">
-      <button type="button" class="btn-outline-admin reports-export-btn dropdown-trigger" aria-label="Export reports">
-        <i class="fas fa-file-export" aria-hidden="true"></i>
-        Export
-        <i class="fas fa-chevron-down" aria-hidden="true"></i>
-      </button>
-      <div class="action-dropdown" role="menu" aria-label="Export options">
-        <button type="button" class="action-dropdown-item text-blue" data-open-modal="exportReportsModal">
-          <i class="fas fa-file-export" aria-hidden="true"></i>
-          Quick Export
-        </button>
-        <button type="button" class="action-dropdown-item">
-          <i class="fas fa-file-pdf" aria-hidden="true"></i>
-          Export PDF
-        </button>
-        <button type="button" class="action-dropdown-item">
-          <i class="fas fa-file-csv" aria-hidden="true"></i>
-          Export CSV
-        </button>
-        <button type="button" class="action-dropdown-item">
-          <i class="fas fa-file-code" aria-hidden="true"></i>
-          Export JSON
-        </button>
+          <div class="reports-header-actions">
+            <div>
+              <div class="date-range-group" id="dateRangeGroup">
+                <button class="date-btn active" data-range="7" type="button">Last 7 Days</button>
+                <button class="date-btn" data-range="30" type="button">Last 30 Days</button>
+                <button class="date-btn" data-range="90" type="button">Last 90 Days</button>
+                <button class="date-btn" data-range="custom" type="button">Custom</button>
+              </div>
+
+              <div class="custom-date-picker" id="customDatePicker">
+                <input type="date" id="dateFrom" class="admin-input">
+                <span class="date-picker-sep">to</span>
+                <input type="date" id="dateTo" class="admin-input">
+                <button class="btn-primary-sm" id="applyCustomDate" type="button">Apply</button>
+              </div>
+            </div>
+
+            <div class="action-cell">
+              <button type="button" class="btn-outline-admin reports-export-btn dropdown-trigger" aria-label="Export reports">
+                <i class="fas fa-file-export" aria-hidden="true"></i>
+                Export
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              </button>
+              <div class="action-dropdown" role="menu" aria-label="Export options">
+                <button type="button" class="action-dropdown-item text-blue"><i class="fas fa-file-pdf" aria-hidden="true"></i>Export PDF</button>
+                <button type="button" class="action-dropdown-item text-blue"><i class="fas fa-file-csv" aria-hidden="true"></i>Export CSV</button>
+                <button type="button" class="action-dropdown-item text-blue"><i class="fas fa-file-code" aria-hidden="true"></i>Export JSON</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="reports-kpi-grid" aria-label="KPI Summary">
+          <article class="reports-kpi-card">
+            <div class="kpi-icon-box green"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-value">₹4,28,75,200</div>
+              <div class="kpi-label">Total Revenue</div>
+              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>12.4% vs last period</div>
+            </div>
+          </article>
+
+          <article class="reports-kpi-card">
+            <div class="kpi-icon-box blue"><i class="fas fa-arrow-right-arrow-left" aria-hidden="true"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-value">1,92,843</div>
+              <div class="kpi-label">Total Transactions</div>
+              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>8.1% vs last period</div>
+            </div>
+          </article>
+
+          <article class="reports-kpi-card">
+            <div class="kpi-icon-box purple"><i class="fas fa-user-plus" aria-hidden="true"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-value">8,614</div>
+              <div class="kpi-label">New Users</div>
+              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>6.8% vs last period</div>
+            </div>
+          </article>
+
+          <article class="reports-kpi-card">
+            <div class="kpi-icon-box amber"><i class="fas fa-wallet" aria-hidden="true"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-value">54,902</div>
+              <div class="kpi-label">Active Wallets</div>
+              <div class="kpi-trend down"><i class="fas fa-arrow-trend-down" aria-hidden="true"></i>2.3% vs last period</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="reports-row reports-row-1" aria-label="Revenue and transaction breakdown">
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box primary"><i class="fas fa-chart-area" aria-hidden="true"></i></div>
+              <span class="chart-card-title">Revenue Over Time</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-260">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box secondary"><i class="fas fa-chart-pie" aria-hidden="true"></i></div>
+              <span class="chart-card-title">Transaction Type Breakdown</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-220">
+              <canvas id="transactionBreakdownChart"></canvas>
+            </div>
+            <div class="reports-donut-legend" id="transactionLegend"></div>
+          </article>
+        </section>
+
+        <section class="reports-row reports-row-2" aria-label="User and KYC analytics">
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box primary"><i class="fas fa-users" aria-hidden="true"></i></div>
+              <span class="chart-card-title">User Growth</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-220">
+              <canvas id="userGrowthChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box success"><i class="fas fa-id-card" aria-hidden="true"></i></div>
+              <span class="chart-card-title">KYC Status Overview</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-220">
+              <canvas id="kycStatusChart"></canvas>
+            </div>
+          </article>
+        </section>
+
+        <section class="reports-row reports-row-3" aria-label="Transaction success and support analytics">
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box success"><i class="fas fa-layer-group" aria-hidden="true"></i></div>
+              <span class="chart-card-title">Transaction Success vs Failure Rate</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-220">
+              <canvas id="successFailureChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-icon-box danger"><i class="fas fa-headset" aria-hidden="true"></i></div>
+              <span class="chart-card-title">Support Ticket Volume</span>
+            </div>
+            <div class="chart-wrapper chart-wrapper-220">
+              <canvas id="supportTicketChart"></canvas>
+            </div>
+          </article>
+        </section>
+
+        <section class="chart-card top-merchants-card" aria-label="Top merchants table">
+          <div class="chart-card-header">
+            <div class="chart-icon-box primary"><i class="fas fa-store" aria-hidden="true"></i></div>
+            <span class="chart-card-title">Top Merchants by Volume</span>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Merchant Name</th>
+                  <th>Total Transactions</th>
+                  <th>Volume (₹)</th>
+                  <th>Avg Ticket Size</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>#1</td><td>QuickMart Retail Pvt Ltd</td><td>18,442</td><td>₹1,24,85,900</td><td>₹677</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#2</td><td>RideFlex Mobility</td><td>16,108</td><td>₹98,70,400</td><td>₹613</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#3</td><td>MetroFuel Services</td><td>13,940</td><td>₹86,44,100</td><td>₹620</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#4</td><td>CloudKitchen Hub</td><td>12,874</td><td>₹79,54,850</td><td>₹618</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#5</td><td>FastPay Utilities</td><td>11,590</td><td>₹72,18,900</td><td>₹623</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#6</td><td>UrbanMed Pharmacy</td><td>10,230</td><td>₹61,55,000</td><td>₹602</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#7</td><td>EduSprint Online</td><td>9,602</td><td>₹53,81,120</td><td>₹560</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#8</td><td>TravelNest Bookings</td><td>8,744</td><td>₹49,42,760</td><td>₹565</td><td><span class="badge badge-success">Active</span></td></tr>
+                <tr><td>#9</td><td>Prime Health Labs</td><td>7,918</td><td>₹42,80,200</td><td>₹541</td><td><span class="badge badge-danger">Suspended</span></td></tr>
+                <tr><td>#10</td><td>CityGrocers Chain</td><td>7,204</td><td>₹37,42,100</td><td>₹519</td><td><span class="badge badge-success">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-    </div>
-  </div>
-</div>
 
-<section class="reports-kpi-grid" aria-label="KPI Summary">
-  <article class="stat-card report-kpi-card">
-    <div class="kpi-header-row">
-      <span class="stat-icon-wrap kpi-icon revenue"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></span>
-      <span class="stat-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> 12.4% vs last period</span>
-    </div>
-    <div class="stat-info">
-      <div class="stat-value">₹4,28,75,200</div>
-      <div class="stat-label">Total Revenue</div>
-    </div>
-  </article>
-
-  <article class="stat-card report-kpi-card">
-    <div class="kpi-header-row">
-      <span class="stat-icon-wrap kpi-icon transactions"><i class="fas fa-arrow-right-arrow-left" aria-hidden="true"></i></span>
-      <span class="stat-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> 8.1% vs last period</span>
-    </div>
-    <div class="stat-info">
-      <div class="stat-value">1,92,843</div>
-      <div class="stat-label">Total Transactions</div>
-    </div>
-  </article>
-
-  <article class="stat-card report-kpi-card">
-    <div class="kpi-header-row">
-      <span class="stat-icon-wrap kpi-icon users"><i class="fas fa-user-plus" aria-hidden="true"></i></span>
-      <span class="stat-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> 6.8% vs last period</span>
-    </div>
-    <div class="stat-info">
-      <div class="stat-value">8,614</div>
-      <div class="stat-label">New Users</div>
-    </div>
-  </article>
-
-  <article class="stat-card report-kpi-card">
-    <div class="kpi-header-row">
-      <span class="stat-icon-wrap kpi-icon wallets"><i class="fas fa-wallet" aria-hidden="true"></i></span>
-      <span class="stat-trend down"><i class="fas fa-arrow-trend-down" aria-hidden="true"></i> 2.3% vs last period</span>
-    </div>
-    <div class="stat-info">
-      <div class="stat-value">54,902</div>
-      <div class="stat-label">Active Wallets</div>
-    </div>
-  </article>
-</section>
-
-<section class="reports-row reports-row-1" aria-label="Revenue and transaction breakdown">
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-primary"><i class="fas fa-chart-area" aria-hidden="true"></i></span>
-        Revenue Over Time
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="revenueOverTimeChart" aria-label="Revenue over time chart"></canvas>
-    </div>
-  </article>
-
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-secondary"><i class="fas fa-chart-pie" aria-hidden="true"></i></span>
-        Transaction Type Breakdown
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="transactionBreakdownChart" aria-label="Transaction breakdown doughnut chart"></canvas>
-    </div>
-    <div class="reports-donut-legend" id="transactionLegend"></div>
-  </article>
-</section>
-
-<section class="reports-row reports-row-2" aria-label="User and KYC analytics">
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-primary"><i class="fas fa-users" aria-hidden="true"></i></span>
-        User Growth
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="userGrowthChart" aria-label="User growth chart"></canvas>
-    </div>
-  </article>
-
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-success"><i class="fas fa-id-card" aria-hidden="true"></i></span>
-        KYC Status Overview
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="kycStatusChart" aria-label="KYC status overview chart"></canvas>
-    </div>
-  </article>
-</section>
-
-<section class="reports-row reports-row-3" aria-label="Transaction success and support analytics">
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-success"><i class="fas fa-layer-group" aria-hidden="true"></i></span>
-        Transaction Success vs Failure Rate
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="transactionHealthChart" aria-label="Transaction success vs failure chart"></canvas>
-    </div>
-  </article>
-
-  <article class="chart-card">
-    <header class="chart-card-header">
-      <h2 class="chart-card-title">
-        <span class="chart-icon chart-icon-danger"><i class="fas fa-headset" aria-hidden="true"></i></span>
-        Support Ticket Volume
-      </h2>
-    </header>
-    <div class="chart-container reports-chart-container">
-      <canvas id="supportTicketsChart" aria-label="Support ticket volume chart"></canvas>
-    </div>
-  </article>
-</section>
-
-<section class="chart-card top-merchants-card" aria-label="Top merchants table">
-  <header class="chart-card-header">
-    <h2 class="chart-card-title">
-      <span class="chart-icon chart-icon-primary"><i class="fas fa-store" aria-hidden="true"></i></span>
-      Top Merchants by Volume
-    </h2>
-  </header>
-
-  <div class="admin-table-wrapper">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Merchant Name</th>
-          <th>Total Transactions</th>
-          <th>Volume (₹)</th>
-          <th>Avg Ticket Size</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>#1</td>
-          <td>QuickMart Retail Pvt Ltd</td>
-          <td>18,442</td>
-          <td>₹1,24,85,900</td>
-          <td>₹677</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#2</td>
-          <td>RideFlex Mobility</td>
-          <td>16,108</td>
-          <td>₹98,70,400</td>
-          <td>₹613</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#3</td>
-          <td>MetroFuel Services</td>
-          <td>13,940</td>
-          <td>₹86,44,100</td>
-          <td>₹620</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#4</td>
-          <td>CloudKitchen Hub</td>
-          <td>12,874</td>
-          <td>₹79,54,850</td>
-          <td>₹618</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#5</td>
-          <td>FastPay Utilities</td>
-          <td>11,590</td>
-          <td>₹72,18,900</td>
-          <td>₹623</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#6</td>
-          <td>UrbanMed Pharmacy</td>
-          <td>10,230</td>
-          <td>₹61,55,000</td>
-          <td>₹602</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#7</td>
-          <td>EduSprint Online</td>
-          <td>9,602</td>
-          <td>₹53,81,120</td>
-          <td>₹560</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#8</td>
-          <td>TravelNest Bookings</td>
-          <td>8,744</td>
-          <td>₹49,42,760</td>
-          <td>₹565</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-        <tr>
-          <td>#9</td>
-          <td>Prime Health Labs</td>
-          <td>7,918</td>
-          <td>₹42,80,200</td>
-          <td>₹541</td>
-          <td><span class="badge badge-danger">Suspended</span></td>
-        </tr>
-        <tr>
-          <td>#10</td>
-          <td>CityGrocers Chain</td>
-          <td>7,204</td>
-          <td>₹37,42,100</td>
-          <td>₹519</td>
-          <td><span class="badge badge-success">Active</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<div id="customDateRangeModal" class="modal-overlay" hidden>
-  <div class="modal-card">
-    <div class="modal-header">
-      <div>
-        <h3 class="modal-title">Custom Date Range</h3>
-        <p class="modal-subtitle">Set a custom window for dashboard analytics.</p>
-      </div>
-      <button type="button" class="modal-close-btn" data-close-modal="customDateRangeModal">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label" for="customFromDate">From Date</label>
-        <input class="admin-select" id="customFromDate" type="date">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="customToDate">To Date</label>
-        <input class="admin-select" id="customToDate" type="date">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-outline-modal" data-close-modal="customDateRangeModal">Cancel</button>
-        <button type="button" class="btn-primary-modal" data-close-modal="customDateRangeModal">
-          <i class="fas fa-check" aria-hidden="true"></i>
-          Apply Range
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="exportReportsModal" class="modal-overlay" hidden>
-  <div class="modal-card">
-    <div class="modal-header">
-      <div>
-        <h3 class="modal-title">Export Reports</h3>
-        <p class="modal-subtitle">Download current analytics in your preferred format.</p>
-      </div>
-      <button type="button" class="modal-close-btn" data-close-modal="exportReportsModal">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label" for="exportFormat">Format</label>
-        <select class="admin-select" id="exportFormat">
-          <option value="pdf">PDF</option>
-          <option value="csv">CSV</option>
-          <option value="json">JSON</option>
-          <option value="xlsx">XLSX</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="exportScope">Scope</label>
-        <select class="admin-select" id="exportScope">
-          <option value="all">All Charts &amp; Table</option>
-          <option value="financial">Financial Only</option>
-          <option value="users">Users &amp; KYC</option>
-          <option value="support">Support &amp; Tickets</option>
-        </select>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-outline-modal" data-close-modal="exportReportsModal">Close</button>
-        <button type="button" class="btn-primary-modal" data-close-modal="exportReportsModal">
-          <i class="fas fa-download" aria-hidden="true"></i>
-          Export Now
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const root = document.documentElement;
-    const rootStyles = getComputedStyle(root);
-
-    const cssVar = (name) => rootStyles.getPropertyValue(name).trim();
-
-    const rgbaFromVar = (name, alpha) => {
-      const raw = cssVar(name);
-      if (!raw) return cssVar('--text-soft') || cssVar('--text-muted');
-
-      if (raw.startsWith('#')) {
-        const hex = raw.replace('#', '');
-        const normalized = hex.length === 3
-          ? hex.split('').map((c) => c + c).join('')
-          : hex;
-
-        const intVal = parseInt(normalized, 16);
-        const r = (intVal >> 16) & 255;
-        const g = (intVal >> 8) & 255;
-        const b = intVal & 255;
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-      }
-
-      if (raw.startsWith('rgb(')) {
-        const values = raw.replace('rgb(', '').replace(')', '').split(',').map((v) => v.trim());
-        return `rgba(${values[0]}, ${values[1]}, ${values[2]}, ${alpha})`;
-      }
-
-      if (raw.startsWith('rgba(')) {
-        return raw;
-      }
-
-      return raw;
-    };
-
-    const chartText = cssVar('--text-soft') || cssVar('--text-muted');
-    const chartGrid = rgbaFromVar('--border', 0.8);
-    const primary = cssVar('--primary');
-    const success = cssVar('--green') || cssVar('--success');
-    const warning = cssVar('--amber') || cssVar('--warning');
-    const danger = cssVar('--red') || cssVar('--danger');
-    const gray = cssVar('--text-soft');
-    const secondary = cssVar('--secondary');
-
-    const defaultChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: {
-          grid: { color: chartGrid, drawBorder: false },
-          ticks: { color: chartText }
-        },
-        y: {
-          grid: { color: chartGrid, drawBorder: false },
-          ticks: { color: chartText }
+      <style>
+        .reports-page-wrapper {
+          display: grid;
+          gap: 24px;
         }
-      }
-    };
 
-    const labels = ['Mar 01', 'Mar 03', 'Mar 05', 'Mar 07', 'Mar 09', 'Mar 11', 'Mar 13', 'Mar 15', 'Mar 17', 'Mar 19', 'Mar 21', 'Mar 23'];
+        .reports-page-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
 
-    const revenueCanvas = document.getElementById('revenueOverTimeChart');
-    if (revenueCanvas && window.Chart) {
-      const gradient = revenueCanvas.getContext('2d').createLinearGradient(0, 0, 0, 260);
-      gradient.addColorStop(0, rgbaFromVar('--primary', 0.35));
-      gradient.addColorStop(1, rgbaFromVar('--primary', 0.02));
+        .reports-gradient-icon {
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
 
-      new Chart(revenueCanvas, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Revenue (₹)',
-            data: [2560000, 2850000, 3015000, 2925000, 3240000, 3565000, 3720000, 3980000, 4105000, 4320000, 4475000, 4625000],
-            borderColor: primary,
-            backgroundColor: gradient,
-            borderWidth: 3,
-            fill: true,
-            tension: 0.38,
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            pointBackgroundColor: primary
-          }]
-        },
-        options: {
-          ...defaultChartOptions,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function (ctx) {
-                  return ` ₹${ctx.raw.toLocaleString('en-IN')}`;
+        .reports-breadcrumb {
+          margin-top: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+          color: var(--text-soft);
+        }
+
+        .crumb-item.active {
+          color: var(--text-dark);
+          font-weight: 600;
+        }
+
+        .reports-header-actions {
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+
+        .reports-export-btn {
+          height: 40px;
+          font-weight: 700;
+        }
+
+        .date-range-group {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+
+        .date-btn {
+          padding: 7px 16px;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: var(--card-bg);
+          color: var(--text-soft);
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .date-btn:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+
+        .date-btn.active {
+          background: var(--primary);
+          color: var(--card-bg);
+          border-color: var(--primary);
+        }
+
+        .custom-date-picker {
+          display: none;
+          align-items: center;
+          gap: 8px;
+          margin-top: 10px;
+          flex-wrap: wrap;
+        }
+
+        .date-picker-sep {
+          color: var(--text-soft);
+          padding: 0 6px;
+        }
+
+        .admin-input {
+          padding: 6px 12px;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          font-size: 0.85rem;
+          color: var(--text-dark);
+          background: var(--card-bg);
+        }
+
+        .btn-primary-sm {
+          padding: 6px 14px;
+          background: var(--primary);
+          color: var(--card-bg);
+          border: none;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          cursor: pointer;
+        }
+
+        .reports-kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+
+        .reports-kpi-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 20px;
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          box-shadow: var(--shadow-sm);
+          min-width: 0;
+        }
+
+        .kpi-icon-box {
+          width: 44px;
+          height: 44px;
+          min-width: 44px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.1rem;
+        }
+
+        .kpi-icon-box.green  { background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); color: var(--green); }
+        .kpi-icon-box.blue   { background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); color: var(--primary); }
+        .kpi-icon-box.purple { background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); color: var(--secondary); }
+        .kpi-icon-box.amber  { background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); color: var(--amber-dark); }
+
+        .kpi-body {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .kpi-value {
+          font-size: clamp(1.2rem, 2vw, 1.6rem);
+          font-weight: 800;
+          color: var(--text-dark);
+          line-height: 1.25;
+        }
+
+        .kpi-label {
+          font-size: 0.75rem;
+          color: var(--text-soft);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin: 2px 0 8px;
+        }
+
+        .kpi-trend {
+          font-size: 0.78rem;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 3px 8px;
+          border-radius: 20px;
+        }
+
+        .kpi-trend.up {
+          color: var(--green-dark);
+          background: color-mix(in srgb, var(--green) 12%, var(--card-bg));
+        }
+
+        .kpi-trend.down {
+          color: var(--red-dark);
+          background: color-mix(in srgb, var(--red) 12%, var(--card-bg));
+        }
+
+        .reports-row {
+          display: grid;
+          gap: 16px;
+        }
+
+        .reports-row-1 {
+          grid-template-columns: 3fr 2fr;
+        }
+
+        .reports-row-2,
+        .reports-row-3 {
+          grid-template-columns: 1fr 1fr;
+          align-items: stretch;
+        }
+
+        .chart-card {
+          background: var(--card-bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-sm);
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .chart-card-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .chart-icon-box {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chart-icon-box.primary { background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); color: var(--primary); }
+        .chart-icon-box.secondary { background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg)); color: var(--secondary); }
+        .chart-icon-box.success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green); }
+        .chart-icon-box.danger { background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); color: var(--red); }
+
+        .chart-card-title {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: var(--text-dark);
+        }
+
+        .chart-wrapper {
+          position: relative;
+          width: 100%;
+        }
+
+        .chart-wrapper-260 { height: 260px; }
+        .chart-wrapper-220 { height: 220px; }
+
+        .chart-wrapper canvas {
+          width: 100% !important;
+          height: 100% !important;
+          display: block;
+        }
+
+        .reports-donut-legend {
+          margin-top: 12px;
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          color: var(--text-soft);
+          font-size: 12px;
+        }
+
+        .legend-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .legend-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+
+        .top-merchants-card .admin-table {
+          border-radius: 0;
+        }
+
+        @media (max-width: 1280px) {
+          .reports-kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .reports-row-1,
+          .reports-row-2,
+          .reports-row-3 {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .reports-kpi-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      </style>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const chartData = {
+            7: {
+              revenue:    { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2500000,2800000,3000000,3200000,3700000,4200000,4500000] },
+              userGrowth: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [42,68,35,82,65,108,78] },
+              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [342,87,23,156] },
+              txSuccess:  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], success:[820,740,900,680,950,430,610], failed:[40,30,50,20,45,15,30], pending:[60,80,40,90,55,35,70] },
+              support:    { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], open:[12,18,9,22,15,8,11], closed:[8,14,16,18,12,10,15] }
+            },
+            30: {
+              revenue:    { labels: ['Week 1','Week 2','Week 3','Week 4'], values: [8200000,9500000,11000000,13500000] },
+              userGrowth: { labels: ['Week 1','Week 2','Week 3','Week 4'], values: [210,340,290,410] },
+              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [980,210,67,430] },
+              txSuccess:  { labels: ['Week 1','Week 2','Week 3','Week 4'], success:[3200,4100,3800,4600], failed:[180,140,200,160], pending:[320,280,340,290] },
+              support:    { labels: ['Week 1','Week 2','Week 3','Week 4'], open:[48,62,39,55], closed:[34,57,48,62] }
+            },
+            90: {
+              revenue:    { labels: ['Jan','Feb','Mar'], values: [28000000,32000000,41000000] },
+              userGrowth: { labels: ['Jan','Feb','Mar'], values: [820,1040,1380] },
+              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [2800,640,180,950] },
+              txSuccess:  { labels: ['Jan','Feb','Mar'], success:[12000,14500,18200], failed:[580,490,620], pending:[980,1100,1350] },
+              support:    { labels: ['Jan','Feb','Mar'], open:[142,168,121], closed:[128,152,145] }
+            }
+          };
+
+          let revenueChart;
+          let transactionBreakdownChart;
+          let userGrowthChart;
+          let kycStatusChart;
+          let successFailureChart;
+          let supportTicketChart;
+
+          function getCssVar(name, fallback) {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return value || fallback;
+          }
+
+          function ensureChartLibrary() {
+            if (window.Chart) return Promise.resolve();
+
+            return new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js';
+              script.onload = () => resolve();
+              script.onerror = () => reject(new Error('Chart.js failed to load'));
+              document.head.appendChild(script);
+            });
+          }
+
+          function initCharts(range) {
+            const currentRange = [7, 30, 90].includes(range) ? range : 7;
+            const d = chartData[currentRange];
+
+            const primary = getCssVar('--primary', '#3B82F6');
+            const primaryDark = getCssVar('--primary-dark', '#2563EB');
+            const cardBg = getCssVar('--card-bg', '#FFFFFF');
+            const softText = getCssVar('--text-soft', '#94A3B8');
+            const green = getCssVar('--green', '#10B981');
+            const amber = getCssVar('--amber', '#F59E0B');
+            const red = getCssVar('--red', '#EF4444');
+
+            const revenueEl = document.getElementById('revenueChart');
+            if (revenueEl) {
+              if (revenueChart) revenueChart.destroy();
+              const ctx = revenueEl.getContext('2d');
+              const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+              gradient.addColorStop(0, 'rgba(59,130,246,0.25)');
+              gradient.addColorStop(1, 'rgba(59,130,246,0)');
+
+              revenueChart = new Chart(revenueEl, {
+                type: 'line',
+                data: {
+                  labels: d.revenue.labels,
+                  datasets: [{
+                    label: 'Revenue (₹)',
+                    data: d.revenue.values,
+                    borderColor: primary,
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: primary
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: softText } },
+                    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: softText } }
+                  }
                 }
-              }
+              });
+            }
+
+            const txEl = document.getElementById('transactionBreakdownChart');
+            const txLabels = ['P2P Transfer', 'Merchant Payment', 'Wallet Top-Up', 'Refund'];
+            const txValues = [44, 31, 19, 6];
+            const txColors = [primary, getCssVar('--secondary', '#8B5CF6'), green, amber];
+            if (txEl) {
+              if (transactionBreakdownChart) transactionBreakdownChart.destroy();
+              transactionBreakdownChart = new Chart(txEl, {
+                type: 'doughnut',
+                data: {
+                  labels: txLabels,
+                  datasets: [{
+                    data: txValues,
+                    backgroundColor: txColors,
+                    borderColor: cardBg,
+                    borderWidth: 2,
+                    hoverOffset: 4
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  cutout: '68%',
+                  plugins: { legend: { display: false } }
+                }
+              });
+            }
+
+            const legendHost = document.getElementById('transactionLegend');
+            if (legendHost) {
+              legendHost.innerHTML = txLabels.map((label, idx) => `
+                <span class="legend-item">
+                  <span class="legend-dot" data-color="${txColors[idx]}"></span>
+                  <span>${label}</span>
+                </span>
+              `).join('');
+
+              legendHost.querySelectorAll('.legend-dot').forEach((dot) => {
+                dot.style.backgroundColor = dot.getAttribute('data-color');
+              });
+            }
+
+            const ugEl = document.getElementById('userGrowthChart');
+            if (ugEl) {
+              if (userGrowthChart) userGrowthChart.destroy();
+              userGrowthChart = new Chart(ugEl, {
+                type: 'bar',
+                data: {
+                  labels: d.userGrowth.labels,
+                  datasets: [{
+                    label: 'New Users',
+                    data: d.userGrowth.values,
+                    backgroundColor: 'rgba(59,130,246,0.75)',
+                    borderColor: primaryDark,
+                    borderWidth: 2,
+                    borderRadius: 6
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: softText } },
+                    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: softText } }
+                  }
+                }
+              });
+            }
+
+            const kycEl = document.getElementById('kycStatusChart');
+            if (kycEl) {
+              if (kycStatusChart) kycStatusChart.destroy();
+              kycStatusChart = new Chart(kycEl, {
+                type: 'bar',
+                data: {
+                  labels: d.kyc.labels,
+                  datasets: [{
+                    label: 'Users',
+                    data: d.kyc.values,
+                    backgroundColor: [green, amber, red, softText],
+                    borderRadius: 6,
+                    borderSkipped: false
+                  }]
+                },
+                options: {
+                  indexAxis: 'y',
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: softText } },
+                    y: { grid: { display: false }, ticks: { color: softText } }
+                  }
+                }
+              });
+            }
+
+            const sfEl = document.getElementById('successFailureChart');
+            if (sfEl) {
+              if (successFailureChart) successFailureChart.destroy();
+              successFailureChart = new Chart(sfEl, {
+                type: 'bar',
+                data: {
+                  labels: d.txSuccess.labels,
+                  datasets: [
+                    { label: 'Success', data: d.txSuccess.success, backgroundColor: green, borderRadius: 4, stack: 'stack' },
+                    { label: 'Failed',  data: d.txSuccess.failed,  backgroundColor: red, borderRadius: 4, stack: 'stack' },
+                    { label: 'Pending', data: d.txSuccess.pending, backgroundColor: amber, borderRadius: 4, stack: 'stack' }
+                  ]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: 'bottom', labels: { color: softText, boxWidth: 12 } } },
+                  scales: {
+                    x: { stacked: true, grid: { display: false }, ticks: { color: softText } },
+                    y: { stacked: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: softText } }
+                  }
+                }
+              });
+            }
+
+            const stEl = document.getElementById('supportTicketChart');
+            if (stEl) {
+              if (supportTicketChart) supportTicketChart.destroy();
+              supportTicketChart = new Chart(stEl, {
+                type: 'line',
+                data: {
+                  labels: d.support.labels,
+                  datasets: [
+                    { label: 'Open', data: d.support.open, borderColor: red, backgroundColor: 'rgba(239,68,68,0.08)', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: red },
+                    { label: 'Closed', data: d.support.closed, borderColor: green, backgroundColor: 'rgba(34,197,94,0.08)', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: green }
+                  ]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: 'bottom', labels: { color: softText, boxWidth: 12 } } },
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: softText } },
+                    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: softText } }
+                  }
+                }
+              });
             }
           }
-        }
-      });
-    }
 
-    const donutLabels = ['P2P Transfer', 'Merchant Payment', 'Wallet Top-Up', 'Refund'];
-    const donutData = [44, 31, 19, 6];
-    const donutColors = [primary, secondary, success, warning];
+          function wireDateControls() {
+            const picker = document.getElementById('customDatePicker');
+            const dateButtons = document.querySelectorAll('.date-btn');
 
-    const transactionBreakdownCanvas = document.getElementById('transactionBreakdownChart');
-    if (transactionBreakdownCanvas && window.Chart) {
-      new Chart(transactionBreakdownCanvas, {
-        type: 'doughnut',
-        data: {
-          labels: donutLabels,
-          datasets: [{
-            data: donutData,
-            backgroundColor: donutColors,
-            borderColor: cssVar('--card-bg'),
-            borderWidth: 2,
-            hoverOffset: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '68%',
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-    }
+            dateButtons.forEach((btn) => {
+              btn.addEventListener('click', function () {
+                dateButtons.forEach((b) => b.classList.remove('active'));
+                this.classList.add('active');
 
-    const legendHost = document.getElementById('transactionLegend');
-    if (legendHost) {
-      legendHost.innerHTML = donutLabels.map((label, idx) => {
-        return `
-          <span class="legend-item">
-            <span class="legend-dot legend-dot-${idx}"></span>
-            <span>${label}</span>
-          </span>
-        `;
-      }).join('');
+                const range = this.dataset.range;
+                if (range === 'custom') {
+                  if (picker) picker.style.display = 'flex';
+                  return;
+                }
 
-      const legendDots = legendHost.querySelectorAll('.legend-dot');
-      legendDots.forEach((dot, idx) => {
-        dot.style.backgroundColor = donutColors[idx];
-      });
-    }
+                if (picker) picker.style.display = 'none';
+                initCharts(parseInt(range, 10));
+              });
+            });
 
-    const userGrowthCanvas = document.getElementById('userGrowthChart');
-    if (userGrowthCanvas && window.Chart) {
-      new Chart(userGrowthCanvas, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'New Registrations',
-            data: [320, 410, 455, 498, 520, 560, 588, 604, 631, 658, 672, 705],
-            backgroundColor: rgbaFromVar('--primary', 0.85),
-            borderRadius: 8,
-            borderSkipped: false,
-            maxBarThickness: 24
-          }]
-        },
-        options: {
-          ...defaultChartOptions,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    const kycStatusCanvas = document.getElementById('kycStatusChart');
-    if (kycStatusCanvas && window.Chart) {
-      new Chart(kycStatusCanvas, {
-        type: 'bar',
-        data: {
-          labels: ['Approved', 'Pending', 'Rejected', 'Not Submitted'],
-          datasets: [{
-            label: 'KYC Profiles',
-            data: [42100, 9350, 2180, 12440],
-            backgroundColor: [success, warning, danger, gray],
-            borderRadius: 8,
-            borderSkipped: false
-          }]
-        },
-        options: {
-          ...defaultChartOptions,
-          indexAxis: 'y',
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
-    const transactionHealthCanvas = document.getElementById('transactionHealthChart');
-    if (transactionHealthCanvas && window.Chart) {
-      new Chart(transactionHealthCanvas, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Success',
-              data: [1320, 1388, 1422, 1455, 1490, 1510, 1575, 1622, 1684, 1705, 1752, 1820],
-              backgroundColor: rgbaFromVar('--green', 0.9)
-            },
-            {
-              label: 'Failed',
-              data: [124, 138, 116, 141, 132, 127, 148, 155, 161, 149, 152, 165],
-              backgroundColor: rgbaFromVar('--red', 0.9)
-            },
-            {
-              label: 'Pending',
-              data: [88, 95, 102, 97, 108, 111, 118, 120, 126, 123, 130, 134],
-              backgroundColor: rgbaFromVar('--amber', 0.9)
-            }
-          ]
-        },
-        options: {
-          ...defaultChartOptions,
-          plugins: {
-            legend: {
-              display: true,
-              labels: { color: chartText }
-            }
-          },
-          scales: {
-            x: {
-              stacked: true,
-              grid: { color: chartGrid, drawBorder: false },
-              ticks: { color: chartText }
-            },
-            y: {
-              stacked: true,
-              grid: { color: chartGrid, drawBorder: false },
-              ticks: { color: chartText }
+            const applyBtn = document.getElementById('applyCustomDate');
+            if (applyBtn) {
+              applyBtn.addEventListener('click', function () {
+                initCharts(7);
+              });
             }
           }
-        }
-      });
-    }
 
-    const supportTicketsCanvas = document.getElementById('supportTicketsChart');
-    if (supportTicketsCanvas && window.Chart) {
-      new Chart(supportTicketsCanvas, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Open',
-              data: [125, 132, 140, 148, 151, 145, 142, 138, 131, 129, 124, 121],
-              borderColor: danger,
-              backgroundColor: rgbaFromVar('--red', 0.1),
-              borderWidth: 2,
-              fill: false,
-              tension: 0.34,
-              pointRadius: 2
-            },
-            {
-              label: 'Closed',
-              data: [98, 105, 111, 120, 127, 133, 141, 147, 154, 161, 168, 174],
-              borderColor: success,
-              backgroundColor: rgbaFromVar('--green', 0.1),
-              borderWidth: 2,
-              fill: false,
-              tension: 0.34,
-              pointRadius: 2
-            }
-          ]
-        },
-        options: {
-          ...defaultChartOptions,
-          plugins: {
-            legend: {
-              display: true,
-              labels: { color: chartText }
-            }
-          }
-        }
-      });
-    }
-
-    const dateRangeButtons = document.querySelectorAll('.date-range-btn[data-range]');
-    dateRangeButtons.forEach((btn) => {
-      btn.addEventListener('click', function () {
-        dateRangeButtons.forEach((node) => node.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-  });
-</script>
-
-<style>
-  .reports-header {
-    margin-bottom: 22px;
-  }
-
-  .reports-gradient-icon {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-  }
-
-  .reports-breadcrumb {
-    margin-top: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-soft);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .crumb-item.active {
-    color: var(--text-main);
-  }
-
-  .crumb-separator {
-    font-size: 11px;
-  }
-
-  .reports-actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .btn-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 9999px;
-    box-shadow: var(--shadow-sm);
-    padding: 4px;
-  }
-
-  .date-range-btn {
-    height: 34px;
-    border: 1px solid transparent;
-    border-radius: 9999px;
-    padding: 0 14px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    background: transparent;
-    transition: all var(--trans-fast);
-  }
-
-  .date-range-btn:hover {
-    color: var(--text-main);
-    background: var(--border-light);
-  }
-
-  .date-range-btn.active {
-    color: var(--card-bg);
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    box-shadow: var(--shadow-xs);
-  }
-
-  .reports-export-btn {
-    font-weight: 700;
-  }
-
-  .reports-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .report-kpi-card {
-    padding: 18px;
-    gap: 14px;
-  }
-
-  .kpi-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .kpi-icon.revenue {
-    background: color-mix(in srgb, var(--green) 14%, transparent);
-    color: var(--green);
-  }
-
-  .kpi-icon.transactions {
-    background: color-mix(in srgb, var(--primary) 14%, transparent);
-    color: var(--primary);
-  }
-
-  .kpi-icon.users {
-    background: color-mix(in srgb, var(--secondary) 14%, transparent);
-    color: var(--secondary);
-  }
-
-  .kpi-icon.wallets {
-    background: color-mix(in srgb, var(--amber) 14%, transparent);
-    color: var(--amber-dark);
-  }
-
-  .reports-row {
-    display: grid;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .reports-row-1 {
-    grid-template-columns: 3fr 2fr;
-  }
-
-  .reports-row-2,
-  .reports-row-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .reports-chart-container {
-    height: 260px;
-  }
-
-  .reports-donut-legend {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  .chart-icon-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  }
-
-  .chart-icon-secondary {
-    background: linear-gradient(135deg, var(--secondary), var(--primary));
-  }
-
-  .chart-icon-success {
-    background: linear-gradient(135deg, var(--green), var(--primary));
-  }
-
-  .chart-icon-danger {
-    background: linear-gradient(135deg, var(--red), var(--amber));
-  }
-
-  .top-merchants-card {
-    margin-top: 4px;
-  }
-
-  .top-merchants-card .admin-table {
-    border-radius: 0;
-  }
-
-  @media (max-width: 1280px) {
-    .reports-kpi-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .reports-row-1,
-    .reports-row-2,
-    .reports-row-3 {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .reports-kpi-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .reports-actions {
-      width: 100%;
-    }
-
-    .btn-group {
-      width: 100%;
-      justify-content: space-between;
-      border-radius: var(--r-md);
-      flex-wrap: wrap;
-    }
-
-    .date-range-btn {
-      flex: 1 1 calc(50% - 8px);
-      min-width: 120px;
-    }
-  }
-</style>
+          ensureChartLibrary()
+            .then(() => {
+              wireDateControls();
+              initCharts(7);
+            })
+            .catch((error) => {
+              console.error('Reports charts initialization failed:', error);
+            });
+        });
+      </script>
+</div>
