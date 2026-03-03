@@ -1,0 +1,1310 @@
+<%
+  page = typeof page !== 'undefined' ? page : 'wallets';
+%>
+
+<div class="wallets-page">
+  <section class="admin-page-header wallets-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon wallets-title-icon">
+          <i class="fas fa-wallet" aria-hidden="true"></i>
+        </span>
+        Wallet Management
+      </h1>
+      <p class="admin-page-subtitle">Manage user wallets, balances and wallet status</p>
+      <nav class="wallets-breadcrumb" aria-label="Breadcrumb">
+        <span class="crumb-item"><i class="fas fa-home" aria-hidden="true"></i> Home</span>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        <span class="crumb-item active">Wallets</span>
+      </nav>
+    </div>
+
+    <div class="wallets-header-actions">
+      <button type="button" class="btn-outline-admin wallets-export-btn">
+        <i class="fas fa-file-export" aria-hidden="true"></i>
+        Export
+      </button>
+    </div>
+  </section>
+
+  <section class="wallets-kpi-grid" aria-label="Wallet stats">
+    <article class="stat-card wallets-stat-card">
+      <div class="wallets-stat-icon primary"><i class="fas fa-wallet" aria-hidden="true"></i></div>
+      <div class="wallets-stat-content">
+        <p class="wallets-stat-value"><%= (typeof totalWallets === 'number' ? totalWallets : 0).toLocaleString('en-IN') %></p>
+        <p class="wallets-stat-label">Total Wallets</p>
+        <span class="wallets-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> +4.8%</span>
+      </div>
+    </article>
+
+    <article class="stat-card wallets-stat-card">
+      <div class="wallets-stat-icon success"><i class="fas fa-circle-check" aria-hidden="true"></i></div>
+      <div class="wallets-stat-content">
+        <p class="wallets-stat-value"><%= (typeof activeWallets === 'number' ? activeWallets : 0).toLocaleString('en-IN') %></p>
+        <p class="wallets-stat-label">Active Wallets</p>
+        <span class="wallets-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> +3.1%</span>
+      </div>
+    </article>
+
+    <article class="stat-card wallets-stat-card">
+      <div class="wallets-stat-icon info"><i class="fas fa-snowflake" aria-hidden="true"></i></div>
+      <div class="wallets-stat-content">
+        <p class="wallets-stat-value"><%= (typeof frozenWallets === 'number' ? frozenWallets : 0).toLocaleString('en-IN') %></p>
+        <p class="wallets-stat-label">Frozen Wallets</p>
+        <span class="wallets-trend down"><i class="fas fa-arrow-trend-down" aria-hidden="true"></i> -1.2%</span>
+      </div>
+    </article>
+
+    <article class="stat-card wallets-stat-card">
+      <div class="wallets-stat-icon secondary"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></div>
+      <div class="wallets-stat-content">
+        <p class="wallets-stat-value">₹<%= (typeof totalBalance === 'number' ? totalBalance : 0).toLocaleString('en-IN') %></p>
+        <p class="wallets-stat-label">Total Balance</p>
+        <span class="wallets-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> +6.7%</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="wallets-filter-card" aria-label="Wallet filters">
+    <div class="wallets-search-wrap">
+      <i class="fas fa-magnifying-glass wallets-search-icon" aria-hidden="true"></i>
+      <input id="walletSearch" class="wallets-search-input" type="text" placeholder="Search by user name, email, wallet ID...">
+    </div>
+
+    <select id="walletStatusFilter" class="admin-select wallets-filter-select" aria-label="Filter by status">
+      <option value="">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Frozen">Frozen</option>
+      <option value="Suspended">Suspended</option>
+    </select>
+
+    <select id="walletBalanceFilter" class="admin-select wallets-filter-select" aria-label="Filter by balance range">
+      <option value="">All</option>
+      <option value="0-1000">₹0–₹1K</option>
+      <option value="1000-10000">₹1K–₹10K</option>
+      <option value="10000-100000">₹10K–₹1L</option>
+      <option value="100000+">₹1L+</option>
+    </select>
+
+    <select id="walletSort" class="admin-select wallets-filter-select" aria-label="Sort wallets">
+      <option value="latest">Latest</option>
+      <option value="high">Highest Balance</option>
+      <option value="low">Lowest Balance</option>
+    </select>
+
+    <button id="resetWalletFilters" type="button" class="btn-outline-admin wallets-reset-btn">
+      <i class="fas fa-rotate-left" aria-hidden="true"></i>
+      Reset Filters
+    </button>
+  </section>
+
+  <section class="wallets-table-card">
+    <div class="admin-table-wrapper">
+      <table class="admin-table wallets-table" id="walletsTable">
+        <thead>
+          <tr>
+            <th>
+              <label class="wallet-checkbox" for="selectAllWallets">
+                <input id="selectAllWallets" type="checkbox">
+                <span class="wallet-checkbox-ui"></span>
+              </label>
+            </th>
+            <th>Wallet ID</th>
+            <th>User</th>
+            <th class="align-right">Balance (₹)</th>
+            <th>Total Credit</th>
+            <th>Total Debit</th>
+            <th>Status</th>
+            <th>Last Transaction</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (wallets && wallets.length > 0) { %>
+            <% wallets.forEach(function(wallet, index) { %>
+              <% const walletStatus = (wallet.statusLabel || 'Active'); %>
+              <% const badgeClass = walletStatus === 'Active' ? 'badge-success' : (walletStatus === 'Frozen' ? 'badge-info' : 'badge-danger'); %>
+              <% const walletBalance = Number(wallet.balance || 0); %>
+              <% const balanceClass = walletBalance > 10000 ? 'high' : (walletBalance < 1000 ? 'low' : ''); %>
+              <% const userName = (wallet.user && wallet.user.name) ? wallet.user.name : 'Unknown'; %>
+              <% const userEmail = (wallet.user && wallet.user.email) ? wallet.user.email : '—'; %>
+              <% const avatarLetter = userName && userName.charAt(0) ? userName.charAt(0).toUpperCase() : 'U'; %>
+              <tr data-status="<%= walletStatus %>" data-balance="<%= walletBalance %>">
+                <td>
+                  <label class="wallet-checkbox" for="chk-<%= wallet.walletId || index %>">
+                    <input id="chk-<%= wallet.walletId || index %>" type="checkbox" class="wallet-row-check" data-wallet="<%= wallet.walletId || wallet._id %>">
+                    <span class="wallet-checkbox-ui"></span>
+                  </label>
+                </td>
+                <td class="wallet-id-cell">
+                  <span class="wallet-id wallet-id-text"><%= wallet.walletId || wallet._id %></span>
+                  <button type="button" class="action-icon-btn copy-wallet-btn copy-btn" data-copy="<%= wallet.walletId || wallet._id %>" aria-label="Copy wallet id">
+                    <i class="fas fa-copy" aria-hidden="true"></i>
+                  </button>
+                </td>
+                <td>
+                  <div class="wallet-user user-cell">
+                    <span class="wallet-avatar avatar-circle"><%= avatarLetter %></span>
+                    <div>
+                      <p class="wallet-user-name user-name"><%= userName %></p>
+                      <p class="wallet-user-email user-email"><%= userEmail %></p>
+                    </div>
+                  </div>
+                </td>
+                <td class="wallet-balance balance-cell align-right <%= balanceClass %>">₹<%= walletBalance.toLocaleString('en-IN') %></td>
+                <td style="color:#16a34a; font-weight:600; font-size:0.88rem; white-space:nowrap; text-align:right;">
+                  <i class="fas fa-arrow-down" style="font-size:0.75rem; margin-right:3px;"></i>₹<%= (wallet.totalCredit || 0).toLocaleString('en-IN') %>
+                </td>
+                <td style="color:#dc2626; font-weight:600; font-size:0.88rem; white-space:nowrap; text-align:right;">
+                  <i class="fas fa-arrow-up" style="font-size:0.75rem; margin-right:3px;"></i>₹<%= (wallet.totalDebit || 0).toLocaleString('en-IN') %>
+                </td>
+                <td><span class="wallet-badge status-badge <%= badgeClass %>"><%= walletStatus %></span></td>
+                <td class="text-soft"><%= wallet.lastTransaction || '—' %></td>
+                <td class="action-cell">
+                  <button type="button" class="action-btn" onclick="toggleDropdown(this)">
+                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                  </button>
+                  <div class="action-dropdown">
+                    <a href="/admin/wallets/<%= wallet._id %>">
+                      <i class="fas fa-eye" style="color:#3B82F6;"></i> View Details
+                    </a>
+                    <% if (wallet.status !== 'frozen') { %>
+                    <button type="button" onclick="walletAction('<%= wallet._id %>', 'freeze', this)">
+                      <i class="fas fa-snowflake" style="color:#0ea5e9;"></i> Freeze Wallet
+                    </button>
+                    <% } %>
+                    <% if (wallet.status === 'frozen') { %>
+                    <button type="button" onclick="walletAction('<%= wallet._id %>', 'unfreeze', this)">
+                      <i class="fas fa-fire" style="color:#22c55e;"></i> Unfreeze Wallet
+                    </button>
+                    <% } %>
+                    <button type="button" onclick="openAdjustModal('<%= wallet._id %>', '<%= wallet.balance %>')">
+                      <i class="fas fa-indian-rupee-sign" style="color:#8B5CF6;"></i> Adjust Balance
+                    </button>
+                    <% if (wallet.status !== 'suspended') { %>
+                    <button type="button" class="danger" onclick="walletAction('<%= wallet._id %>', 'suspend', this)">
+                      <i class="fas fa-ban"></i> Suspend Wallet
+                    </button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="9" class="empty-state-cell">
+                <div class="empty-state">
+                  <i class="fas fa-wallet" aria-hidden="true"></i>
+                  <p>No wallets found</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="wallets-pagination">
+      <p class="wallets-pagination-meta" id="walletsPaginationMeta">Showing 1 to 10 of 10 wallets</p>
+      <div class="wallets-page-controls">
+        <button type="button" class="wallets-page-btn" disabled>Prev</button>
+        <button type="button" class="wallets-page-btn active">1</button>
+        <button type="button" class="wallets-page-btn">2</button>
+        <button type="button" class="wallets-page-btn">3</button>
+        <button type="button" class="wallets-page-btn">Next</button>
+      </div>
+      <label class="wallets-per-page">
+        <span>Items</span>
+        <select class="admin-select wallets-items-select" aria-label="Items per page">
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+        </select>
+      </label>
+    </div>
+  </section>
+</div>
+
+<div class="wallets-bulk-bar" id="walletBulkBar" hidden>
+  <p class="wallets-bulk-count" id="walletBulkCount">0 wallets selected</p>
+  <div class="wallets-bulk-actions">
+    <button type="button" class="wallets-bulk-btn blue"><i class="fas fa-snowflake" aria-hidden="true"></i>Freeze Selected</button>
+    <button type="button" class="wallets-bulk-btn red"><i class="fas fa-ban" aria-hidden="true"></i>Suspend Selected</button>
+    <button type="button" class="wallets-bulk-btn gray"><i class="fas fa-file-export" aria-hidden="true"></i>Export Selected</button>
+  </div>
+</div>
+
+<div id="freezeWalletModal" class="modal-overlay" hidden>
+  <div class="modal-card wallets-modal-card">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-snowflake" aria-hidden="true"></i> Freeze Wallet</h3>
+        <p class="modal-subtitle" id="freezeWalletTarget">Wallet ID: —</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="freezeWalletModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="wallets-modal-text">Are you sure you want to freeze this wallet? The user will not be able to make any transactions.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="freezeWalletModal">Cancel</button>
+        <button type="button" class="btn-primary-modal" data-close-modal="freezeWalletModal"><i class="fas fa-snowflake" aria-hidden="true"></i>Freeze Wallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="unfreezeWalletModal" class="modal-overlay" hidden>
+  <div class="modal-card wallets-modal-card">
+    <div class="modal-header wallets-modal-header-success">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-fire" aria-hidden="true"></i> Unfreeze Wallet</h3>
+        <p class="modal-subtitle" id="unfreezeWalletTarget">Wallet ID: —</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="unfreezeWalletModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="wallets-modal-text">This will restore full transaction access for this wallet.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="unfreezeWalletModal">Cancel</button>
+        <button type="button" class="btn-success-modal" data-close-modal="unfreezeWalletModal"><i class="fas fa-fire" aria-hidden="true"></i>Unfreeze</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="adjustBalanceModal" class="modal-overlay" hidden>
+  <div class="modal-card wallets-modal-card">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i> Adjust Balance</h3>
+        <p class="modal-subtitle" id="adjustWalletTarget">Wallet ID: —</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="adjustBalanceModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="adjustBalanceForm">
+        <input type="hidden" id="adjustWalletId">
+
+        <div class="wallets-current-balance">
+          <span>Current Balance</span>
+          <strong id="currentBalanceDisplay">₹0</strong>
+        </div>
+
+        <div class="wallets-adjust-toggle" role="group" aria-label="Adjustment type">
+          <label class="wallets-radio-pill">
+            <input type="radio" name="adjustType" value="credit" checked>
+            <span>Credit</span>
+          </label>
+          <label class="wallets-radio-pill">
+            <input type="radio" name="adjustType" value="debit">
+            <span>Debit</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adjustAmountInput">Amount (₹)</label>
+          <input id="adjustAmountInput" type="number" min="1" required class="admin-select" placeholder="Enter amount">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adjustReasonSelect">Reason</label>
+          <select id="adjustReasonSelect" class="admin-select">
+            <option value="refund">Refund</option>
+            <option value="cashback">Cashback</option>
+            <option value="correction">Correction</option>
+            <option value="penalty">Penalty</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adjustNoteInput">Admin Note (optional)</label>
+          <textarea id="adjustNoteInput" class="admin-textarea" placeholder="Admin note (optional)"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-outline-modal" data-close-modal="adjustBalanceModal">Cancel</button>
+          <button type="submit" class="btn-primary-modal"><i class="fas fa-check" aria-hidden="true"></i>Apply Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="suspendWalletModal" class="modal-overlay" hidden>
+  <div class="modal-card wallets-modal-card">
+    <div class="modal-header wallets-modal-header-danger">
+      <div>
+        <h3 class="modal-title"><i class="fas fa-ban" aria-hidden="true"></i> Suspend Wallet</h3>
+        <p class="modal-subtitle" id="suspendWalletTarget">Wallet ID: —</p>
+      </div>
+      <button type="button" class="modal-close-btn" data-close-modal="suspendWalletModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="wallets-warning-card">
+        <p><strong>Warning:</strong> This action can restrict wallet operations for an extended period.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="suspendReason">Reason for suspension</label>
+        <textarea id="suspendReason" class="admin-textarea" required placeholder="Enter suspension reason"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="suspendWalletModal">Cancel</button>
+        <button type="button" class="btn-danger-modal" data-close-modal="suspendWalletModal"><i class="fas fa-ban" aria-hidden="true"></i>Suspend Wallet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wallets-page {
+    display: grid;
+    gap: 18px;
+  }
+
+  .wallets-header {
+    margin-bottom: 4px;
+  }
+
+  .wallets-title-icon {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  }
+
+  .wallets-breadcrumb {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .wallets-breadcrumb .active {
+    color: var(--text-dark);
+  }
+
+  .wallets-header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .wallets-export-btn {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .wallets-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .wallets-stat-card {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .wallets-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .wallets-stat-icon.primary {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+  }
+
+  .wallets-stat-icon.success {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 14%, var(--card-bg));
+  }
+
+  .wallets-stat-icon.info {
+    color: var(--primary-light);
+    background: color-mix(in srgb, var(--primary-light) 18%, var(--card-bg));
+  }
+
+  .wallets-stat-icon.secondary {
+    color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg));
+  }
+
+  .wallets-stat-value {
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .wallets-stat-label {
+    margin-top: 3px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-soft);
+  }
+
+  .wallets-trend {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 8px;
+  }
+
+  .wallets-trend.up {
+    color: var(--green-dark);
+    background: color-mix(in srgb, var(--green) 10%, var(--card-bg));
+  }
+
+  .wallets-trend.down {
+    color: var(--red-dark);
+    background: color-mix(in srgb, var(--red) 10%, var(--card-bg));
+  }
+
+  .wallets-filter-card {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, minmax(150px, 1fr)) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .wallets-search-wrap {
+    position: relative;
+  }
+
+  .wallets-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: 13px;
+  }
+
+  .wallets-search-input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 0 12px 0 36px;
+    color: var(--text-dark);
+    background: var(--card-bg);
+  }
+
+  .wallets-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
+  .wallets-filter-select {
+    height: 42px;
+  }
+
+  .wallets-reset-btn {
+    color: var(--text-muted);
+    border-color: var(--border);
+  }
+
+  .wallets-table-card {
+    display: grid;
+    gap: 12px;
+  }
+
+  .admin-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .admin-table-wrapper {
+    overflow: visible !important;
+    position: relative;
+  }
+
+  .action-cell {
+    position: relative;
+  }
+
+  .action-dropdown {
+    position: absolute;
+    right: 8px;
+    top: 100%;
+    z-index: 999;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 190px;
+    padding: 6px 0;
+    display: none;
+  }
+
+  .action-dropdown.open {
+    display: block;
+  }
+
+  .action-dropdown a,
+  .action-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 16px;
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    color: var(--text-dark, #1e293b);
+    cursor: pointer;
+    text-decoration: none;
+    text-align: left;
+  }
+
+  .action-dropdown a:hover,
+  .action-dropdown button:hover {
+    background: var(--hover-bg, #f1f5f9);
+  }
+
+  .action-dropdown .danger {
+    color: #dc2626;
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-soft);
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+
+  .action-btn:hover {
+    background: var(--hover-bg, #f1f5f9);
+    color: var(--primary);
+  }
+
+  .admin-table th:nth-child(1) { width: 40px; }
+  .admin-table th:nth-child(2) { min-width: 100px; }
+  .admin-table th:nth-child(3) { min-width: 200px; }
+  .admin-table th:nth-child(4) { min-width: 110px; text-align: right; }
+  .admin-table th:nth-child(5) { min-width: 120px; text-align: right; }
+  .admin-table th:nth-child(6) { min-width: 110px; text-align: right; }
+  .admin-table th:nth-child(7) { min-width: 100px; text-align: center; }
+  .admin-table th:nth-child(8) { min-width: 140px; }
+  .admin-table th:nth-child(9) { width: 60px; text-align: center; }
+
+  .wallets-table th,
+  .wallets-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+
+  .admin-table tbody tr td {
+    vertical-align: middle;
+    padding: 14px 16px;
+  }
+
+  .wallets-table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-soft);
+    font-weight: 700;
+    background: color-mix(in srgb, var(--border-light) 48%, var(--card-bg));
+  }
+
+  .wallets-table td {
+    font-size: 13px;
+    color: var(--text-dark);
+  }
+
+  .wallets-table tbody tr:hover {
+    background: color-mix(in srgb, var(--primary) 4%, var(--card-bg));
+  }
+
+  .wallet-id-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wallet-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--primary-dark);
+    font-weight: 700;
+  }
+
+  .wallet-id-text {
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .copy-btn {
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 0.78rem;
+  }
+
+  .copy-btn:hover {
+    color: var(--primary);
+  }
+
+  .wallet-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: normal;
+  }
+
+  .wallet-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: var(--primary-light, #60A5FA);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .wallet-user-name {
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .user-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+  }
+
+  .wallet-user-email {
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+
+  .user-email {
+    font-size: 0.76rem;
+    color: var(--text-soft);
+  }
+
+  .wallet-balance {
+    font-weight: 800;
+  }
+
+  .balance-cell {
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .wallet-balance.high {
+    color: var(--success, var(--green-dark));
+  }
+
+  .wallet-balance.low {
+    color: var(--danger, var(--red-dark));
+  }
+
+  .wallet-credit,
+  .wallet-debit {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+  }
+
+  .credit-cell {
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .credit-cell i {
+    margin-right: 4px;
+    font-size: 0.75rem;
+  }
+
+  .debit-cell {
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .debit-cell i {
+    margin-right: 4px;
+    font-size: 0.75rem;
+  }
+
+  .wallet-credit {
+    color: var(--success, var(--green));
+  }
+
+  .wallet-debit {
+    color: var(--danger, var(--red));
+  }
+
+  .wallets-table td:nth-child(8) {
+    white-space: nowrap;
+  }
+
+  .wallet-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .badge-success {
+    color: var(--green-dark);
+    background: color-mix(in srgb, var(--green) 14%, var(--card-bg));
+  }
+
+  .badge-info {
+    color: var(--primary-dark);
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+  }
+
+  .badge-danger {
+    color: var(--red-dark);
+    background: color-mix(in srgb, var(--red) 14%, var(--card-bg));
+  }
+
+  .align-right {
+    text-align: right;
+  }
+
+  .wallet-checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  .wallet-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .wallet-checkbox-ui {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--card-bg);
+    display: inline-block;
+  }
+
+  .wallet-checkbox input:checked + .wallet-checkbox-ui {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+
+  .wallets-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .wallets-pagination-meta {
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .wallets-page-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .wallets-page-btn {
+    min-width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .wallets-page-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--card-bg);
+  }
+
+  .wallets-page-btn:disabled {
+    color: var(--text-soft);
+  }
+
+  .wallets-per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .wallets-items-select {
+    width: 76px;
+    min-width: 76px;
+    height: 34px;
+  }
+
+  .wallets-bulk-bar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    z-index: 550;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 999px;
+    padding: 10px 14px;
+    background: var(--text-dark);
+    color: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    animation: fadeInUp 0.2s ease-out;
+  }
+
+  .wallets-bulk-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--card-bg);
+    white-space: nowrap;
+  }
+
+  .wallets-bulk-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .wallets-bulk-btn {
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--card-bg);
+  }
+
+  .wallets-bulk-btn.blue {
+    background: var(--primary);
+  }
+
+  .wallets-bulk-btn.red {
+    background: var(--red);
+  }
+
+  .wallets-bulk-btn.gray {
+    background: var(--text-muted);
+  }
+
+  .wallets-modal-card {
+    max-width: 560px;
+  }
+
+  .wallets-modal-header-success {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+  }
+
+  .wallets-modal-header-danger {
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+  }
+
+  .wallets-modal-text {
+    color: var(--text-mid);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .btn-success-modal {
+    height: 42px;
+    padding: 0 24px;
+    border-radius: 999px;
+    border: 0;
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wallets-current-balance {
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--border-light) 50%, var(--card-bg));
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .wallets-current-balance strong {
+    color: var(--text-dark);
+    font-size: 16px;
+  }
+
+  .wallets-adjust-toggle {
+    display: flex;
+    gap: 8px;
+  }
+
+  .wallets-radio-pill {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .wallets-radio-pill input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .wallets-radio-pill span {
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--card-bg);
+  }
+
+  .wallets-radio-pill input:checked + span {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
+  }
+
+  .wallets-warning-card {
+    border: 1px solid color-mix(in srgb, var(--red) 35%, var(--border));
+    background: color-mix(in srgb, var(--red) 8%, var(--card-bg));
+    border-radius: var(--r-md);
+    padding: 12px;
+    color: var(--red-dark);
+    font-size: 13px;
+  }
+
+  @media (max-width: 1320px) {
+    .wallets-kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .wallets-filter-card {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .wallets-kpi-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .wallets-filter-card {
+      grid-template-columns: 1fr;
+    }
+
+    .wallets-bulk-bar {
+      left: 14px;
+      right: 14px;
+      transform: none;
+      border-radius: var(--r-md);
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .wallets-bulk-actions {
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  function toggleDropdown(btn) {
+    const dropdown = btn.nextElementSibling;
+    const isOpen = dropdown.classList.contains('open');
+
+    document.querySelectorAll('.action-dropdown.open').forEach((d) => {
+      d.classList.remove('open');
+      d.style.top = '100%';
+      d.style.bottom = 'auto';
+    });
+
+    if (!isOpen) {
+      dropdown.classList.add('open');
+      const rect = dropdown.getBoundingClientRect();
+      if (rect.bottom > window.innerHeight - 20) {
+        dropdown.style.top = 'auto';
+        dropdown.style.bottom = '100%';
+      }
+    }
+  }
+
+  function walletAction(walletId, action, btn) {
+    const labels = { freeze: 'Freeze', unfreeze: 'Unfreeze', suspend: 'Suspend' };
+    if (!confirm(`Are you sure you want to ${labels[action]} this wallet?`)) return;
+
+    const dropdown = btn.closest('.action-dropdown');
+    if (dropdown) dropdown.classList.remove('open');
+
+    fetch(`/admin/wallets/${walletId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          const row = btn.closest('tr');
+          const badge = row ? row.querySelector('.status-badge') : null;
+          const statusMap = {
+            active: { text: 'Active', cls: 'badge-success' },
+            frozen: { text: 'Frozen', cls: 'badge-info' },
+            suspended: { text: 'Suspended', cls: 'badge-danger' }
+          };
+          const s = statusMap[data.status];
+          if (badge && s) {
+            badge.textContent = s.text;
+            badge.className = `wallet-badge status-badge ${s.cls}`;
+          }
+          setTimeout(() => location.reload(), 800);
+        } else {
+          alert(data.message || 'Action failed');
+        }
+      })
+      .catch(() => alert('Network error. Please try again.'));
+  }
+
+  function openAdjustModal(walletId, currentBalance) {
+    const adjustWalletId = document.getElementById('adjustWalletId');
+    const balanceDisplay = document.getElementById('currentBalanceDisplay');
+    const amountInput = document.getElementById('adjustAmountInput');
+    const noteInput = document.getElementById('adjustNoteInput');
+    const modal = document.getElementById('adjustBalanceModal');
+
+    if (adjustWalletId) adjustWalletId.value = walletId;
+    if (balanceDisplay) {
+      const amount = parseFloat(currentBalance || 0) || 0;
+      balanceDisplay.textContent = '₹' + amount.toLocaleString('en-IN');
+    }
+    if (amountInput) amountInput.value = '';
+    if (noteInput) noteInput.value = '';
+
+    if (modal) {
+      modal.hidden = false;
+      modal.classList.add('modal-open');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const table = document.getElementById('walletsTable');
+    const selectAll = document.getElementById('selectAllWallets');
+    const rowChecks = Array.from(document.querySelectorAll('.wallet-row-check'));
+    const bulkBar = document.getElementById('walletBulkBar');
+    const bulkCount = document.getElementById('walletBulkCount');
+    const statusFilter = document.getElementById('walletStatusFilter');
+    const balanceFilter = document.getElementById('walletBalanceFilter');
+    const searchInput = document.getElementById('walletSearch');
+    const resetFiltersBtn = document.getElementById('resetWalletFilters');
+
+    function parseBalance(text) {
+      return Number((text || '').replace(/[₹,\s]/g, '')) || 0;
+    }
+
+    function updateBulkState() {
+      const selected = rowChecks.filter((check) => check.checked).length;
+      bulkCount.textContent = `${selected} wallets selected`;
+      bulkBar.hidden = selected === 0;
+    }
+
+    function applyFilters() {
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      const q = (searchInput.value || '').trim().toLowerCase();
+      const status = statusFilter.value;
+      const range = balanceFilter.value;
+
+      rows.forEach((row) => {
+        const rowText = row.textContent.toLowerCase();
+        const rowStatus = row.getAttribute('data-status') || '';
+        const rowBalance = Number(row.getAttribute('data-balance') || 0);
+
+        let statusMatch = !status || rowStatus === status;
+        let searchMatch = !q || rowText.includes(q);
+        let balanceMatch = true;
+
+        if (range === '0-1000') balanceMatch = rowBalance >= 0 && rowBalance <= 1000;
+        if (range === '1000-10000') balanceMatch = rowBalance > 1000 && rowBalance <= 10000;
+        if (range === '10000-100000') balanceMatch = rowBalance > 10000 && rowBalance <= 100000;
+        if (range === '100000+') balanceMatch = rowBalance > 100000;
+
+        row.style.display = (statusMatch && searchMatch && balanceMatch) ? '' : 'none';
+      });
+    }
+
+    if (selectAll) {
+      selectAll.addEventListener('change', function () {
+        rowChecks.forEach((check) => {
+          if (check.closest('tr').style.display !== 'none') {
+            check.checked = selectAll.checked;
+          }
+        });
+        updateBulkState();
+      });
+    }
+
+    rowChecks.forEach((check) => {
+      check.addEventListener('change', updateBulkState);
+    });
+
+    [statusFilter, balanceFilter, searchInput].forEach((node) => {
+      if (!node) return;
+      node.addEventListener('input', applyFilters);
+      node.addEventListener('change', applyFilters);
+    });
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        statusFilter.value = '';
+        balanceFilter.value = '';
+        applyFilters();
+      });
+    }
+
+    document.querySelectorAll('.copy-wallet-btn').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        const value = this.getAttribute('data-copy') || '';
+        if (!value || !navigator.clipboard) return;
+        navigator.clipboard.writeText(value).catch(() => {});
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.action-cell')) {
+        document.querySelectorAll('.action-dropdown.open').forEach((d) => {
+          d.classList.remove('open');
+          d.style.top = '100%';
+          d.style.bottom = 'auto';
+        });
+      }
+    });
+
+    const adjustForm = document.getElementById('adjustBalanceForm');
+    if (adjustForm) {
+      adjustForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const walletId = document.getElementById('adjustWalletId')?.value;
+        const type = document.querySelector('input[name="adjustType"]:checked')?.value;
+        const amount = document.getElementById('adjustAmountInput')?.value;
+        const reason = document.getElementById('adjustReasonSelect')?.value;
+        const note = document.getElementById('adjustNoteInput')?.value;
+
+        fetch(`/admin/wallets/${walletId}/adjust-balance`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, amount, reason, note })
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert('Balance adjusted successfully');
+              location.reload();
+            } else {
+              alert(data.message || 'Failed to adjust balance');
+            }
+          })
+          .catch(() => alert('Network error'));
+      });
+    }
+
+    updateBulkState();
+    applyFilters();
+  });
+</script>

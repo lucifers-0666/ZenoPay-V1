@@ -1,0 +1,95 @@
+<div class="wallet-detail-page">
+  <section class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon wallet-detail-icon">
+          <i class="fas fa-wallet" aria-hidden="true"></i>
+        </span>
+        Wallet Details
+      </h1>
+      <p class="admin-page-subtitle">Wallet <%= wallet && wallet.id ? wallet.id : 'N/A' %> details and status overview</p>
+      <nav class="wallet-detail-breadcrumb" aria-label="Breadcrumb">
+        <a href="/admin/dashboard" class="crumb-link"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        <a href="/admin/wallets" class="crumb-link">Wallets</a>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        <span class="crumb-active"><%= wallet && wallet.id ? wallet.id : 'Wallet' %></span>
+      </nav>
+    </div>
+    <a href="/admin/wallets" class="btn-outline-admin"><i class="fas fa-arrow-left" aria-hidden="true"></i>Back to Wallets</a>
+  </section>
+
+  <section class="chart-card wallet-detail-card">
+    <div class="wallet-detail-grid">
+      <div><span class="detail-label">Wallet ID</span><strong class="detail-value"><%= wallet && wallet.id ? wallet.id : 'N/A' %></strong></div>
+      <div><span class="detail-label">User Name</span><strong class="detail-value"><%= wallet && wallet.name ? wallet.name : 'Unknown' %></strong></div>
+      <div><span class="detail-label">Email</span><strong class="detail-value"><%= wallet && wallet.email ? wallet.email : 'unknown@example.com' %></strong></div>
+      <div><span class="detail-label">Balance</span><strong class="detail-value">₹<%= wallet && typeof wallet.balance === 'number' ? wallet.balance.toLocaleString('en-IN') : '0' %></strong></div>
+      <div><span class="detail-label">Status</span><strong class="detail-value"><%= wallet && wallet.status ? wallet.status : 'Active' %></strong></div>
+    </div>
+  </section>
+
+  <style>
+    .wallet-detail-page {
+      display: grid;
+      gap: 16px;
+    }
+
+    .wallet-detail-icon {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    }
+
+    .wallet-detail-breadcrumb {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .crumb-link {
+      color: var(--text-soft);
+    }
+
+    .crumb-active {
+      color: var(--text-dark);
+    }
+
+    .wallet-detail-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      background: var(--card-bg);
+      padding: 20px;
+    }
+
+    .wallet-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .detail-label {
+      display: block;
+      color: var(--text-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .detail-value {
+      color: var(--text-dark);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .wallet-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</div>

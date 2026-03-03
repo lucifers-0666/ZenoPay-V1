@@ -16,6 +16,7 @@ const AdminUserController = require("../Controllers/AdminUserController");
 const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyController");
 const AdminKYCController = require("../Controllers/AdminKYCController");
 const AdminOperationsController = require("../Controllers/AdminOperationsController");
+const AdminWalletController = require("../Controllers/AdminWalletController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -115,6 +116,12 @@ router.get("/transactions/flagged", requirePermission("transactions", "flag"), A
 router.get("/transactions/failed", requirePermission("transactions", "view"), AdminTransactionController.getFailedTransactions);
 router.get("/transactions/:id", requirePermission("transactions", "view"), AdminTransactionController.getTransactionDetails);
 router.post("/transactions/:id/flag", requirePermission("transactions", "flag"), AdminTransactionController.flagTransaction);
+
+// ============ WALLET MANAGEMENT ROUTES ============
+router.get("/wallets", requirePermission("transactions", "view"), AdminWalletController.walletsList);
+router.get("/wallets/:id", requirePermission("transactions", "view"), AdminWalletController.walletDetails);
+router.patch("/wallets/:id/status", requirePermission("transactions", "view"), AdminWalletController.updateWalletStatus);
+router.post("/wallets/:id/adjust-balance", requirePermission("transactions", "view"), AdminWalletController.adjustWalletBalance);
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
