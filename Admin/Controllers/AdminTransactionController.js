@@ -1,5 +1,18 @@
 const TransactionHistory = require("../../Models/TransactionHistory");
 
+const parseTxnNumericId = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const buildTxnLookupQuery = (idParam) => {
+  const numericId = parseTxnNumericId(idParam);
+  if (numericId !== null) {
+    return { TransactionID: numericId };
+  }
+  return { TransactionID: idParam };
+};
+
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
   if (typeof value === "number") return value;
@@ -233,23 +246,142 @@ const getFlaggedTransactions = async (req, res) => {
 };
 
 // GET Failed Transactions
-const getFailedTransactions = async (req, res) => {
+const failedTransactions = async (req, res) => {
   try {
-    // Assuming you'll add Status field to TransactionHistory model
-    const failedTransactions = await TransactionHistory.find({ Status: "failed" })
-      .sort({ TransactionTime: -1 });
+    const { search, type, dateFrom, dateTo, page = 1, limit = 10 } = req.query;
+    const safePage = Math.max(1, parseInt(page, 10) || 1);
+    const safeLimit = [10, 25, 50].includes(parseInt(limit, 10)) ? parseInt(limit, 10) : 10;
+    const skip = (safePage - 1) * safeLimit;
 
-    res.render("admin/transactions/admin-transaction-failed", {
-      pageTitle: "Admin Transaction Failed",
+    const query = { Status: "failed" };
+
+    if (search) {
+      const regex = { $regex: search, $options: "i" };
+      const numericSearch = parseTxnNumericId(search);
+      query.$or = [
+        { Description: regex },
+        { SenderHolderName: regex },
+        { ReceiverHolderName: regex },
+        ...(numericSearch !== null ? [{ TransactionID: numericSearch }] : []),
+      ];
+    }
+
+    if (type && type !== "all") {
+      const normalizedType = String(type).toLowerCase();
+      if (normalizedType === "refund") {
+        query.Description = { $regex: "refund|reversal", $options: "i" };
+      } else if (normalizedType === "wallet_topup") {
+        query.Description = { $regex: "top\s*-?up|wallet\s*top", $options: "i" };
+      } else if (normalizedType === "withdrawal") {
+        query.Description = { $regex: "withdraw|payout", $options: "i" };
+      } else if (normalizedType === "merchant_payment") {
+        query.Description = { $regex: "merchant|payment", $options: "i" };
+      } else if (normalizedType === "p2p_transfer") {
+        query.Description = { $regex: "transfer|p2p|send", $options: "i" };
+      }
+    }
+
+    if (dateFrom || dateTo) {
+      query.TransactionTime = {};
+      if (dateFrom) query.TransactionTime.$gte = new Date(dateFrom);
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        query.TransactionTime.$lte = to;
+      }
+    }
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const [transactions, totalCount, totalFailed, failedToday, totalAmountAgg] = await Promise.all([
+      TransactionHistory.find(query)
+        .sort({ TransactionTime: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .lean(),
+      TransactionHistory.countDocuments(query),
+      TransactionHistory.countDocuments({ Status: "failed" }),
+      TransactionHistory.countDocuments({
+        Status: "failed",
+        TransactionTime: { $gte: startOfDay, $lte: endOfDay },
+      }),
+      TransactionHistory.aggregate([
+        { $match: { Status: "failed" } },
+        { $group: { _id: null, total: { $sum: "$Amount" } } },
+      ]),
+    ]);
+
+    const failureReasonFromDescription = (description = "") => {
+      const text = String(description).toLowerCase();
+      if (text.includes("insufficient") || text.includes("balance")) return "Insufficient Balance";
+      if (text.includes("timeout") || text.includes("network")) return "Network Timeout";
+      if (text.includes("beneficiary") || text.includes("account")) return "Invalid Beneficiary";
+      if (text.includes("decline") || text.includes("declined")) return "Bank Declined";
+      if (text.includes("limit")) return "Daily Limit Exceeded";
+      if (text.includes("fraud")) return "Fraud Detected";
+      return "Unknown Error";
+    };
+
+    const formattedTransactions = transactions.map((tx) => {
+      const normalized = normalizeTransaction(tx);
+      return {
+        ...normalized,
+        _id: String(tx._id),
+        transactionId: String(tx.TransactionID || ""),
+        typeKey:
+          normalized.type === "Refund"
+            ? "refund"
+            : normalized.type === "Wallet"
+              ? "wallet_topup"
+              : normalized.type === "UPI"
+                ? "p2p_transfer"
+                : normalized.type === "Card"
+                  ? "merchant_payment"
+                  : normalized.type === "NEFT" || normalized.type === "IMPS"
+                    ? "withdrawal"
+                    : "all",
+        senderLabel: tx.SenderHolderName || tx.SenderAccountNumber || "—",
+        receiverLabel: tx.ReceiverHolderName || tx.ReceiverAccountNumber || "—",
+        amount: toNumber(tx.Amount),
+        failureReason: tx.FailureReason || failureReasonFromDescription(tx.Description),
+        gatewayResponse: tx.GatewayResponse || tx.Description || "No gateway response",
+        retryCount: Number(tx.retryCount || 0),
+        isFlagged: Boolean(tx.IsFlagged),
+      };
+    });
+
+    res.locals.adminPage = "transactions";
+    res.render("admin/transactions/admin-failed-transactions", {
+      pageTitle: "Failed Transactions",
       currentPage: "transactions",
+      adminPage: "transactions",
+      hideBreadcrumb: true,
       admin: req.session.user,
-      transactions: failedTransactions,
+      transactions: formattedTransactions,
+      totalCount,
+      totalFailed,
+      failedToday,
+      totalAmount: totalAmountAgg[0] ? toNumber(totalAmountAgg[0].total) : 0,
+      currentPageNumber: safePage,
+      perPage: safeLimit,
+      totalPages: Math.max(1, Math.ceil(totalCount / safeLimit)),
+      filters: {
+        search: search || "",
+        type: type || "all",
+        dateFrom: dateFrom || "",
+        dateTo: dateTo || "",
+      },
     });
   } catch (error) {
     console.error("Get failed transactions error:", error);
     res.status(500).send("Error loading failed transactions");
   }
 };
+
+const getFailedTransactions = failedTransactions;
 
 // GET Transaction Details
 const getTransactionDetails = async (req, res) => {
@@ -279,22 +411,49 @@ const getTransactionDetails = async (req, res) => {
 };
 
 // Flag Transaction
+const retryTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.id;
+    const query = buildTxnLookupQuery(transactionId);
+
+    const transaction = await TransactionHistory.findOne(query);
+    if (!transaction) {
+      return res.status(404).json({ success: false, message: "Transaction not found" });
+    }
+
+    transaction.Status = "pending";
+    transaction.retryCount = Number(transaction.retryCount || 0) + 1;
+    await transaction.save();
+
+    return res.json({
+      success: true,
+      message: "Transaction moved to pending for retry",
+      retryCount: transaction.retryCount,
+    });
+  } catch (error) {
+    console.error("Retry transaction error:", error);
+    return res.status(500).json({ success: false, message: "Failed to retry transaction" });
+  }
+};
+
+// Flag Transaction
 const flagTransaction = async (req, res) => {
   try {
     const transactionId = req.params.id;
-    const { reason } = req.body;
-    
-    await TransactionHistory.findOneAndUpdate(
-      { TransactionID: transactionId },
-      { 
-        $set: { 
-          IsFlagged: true,
-          FlagReason: reason,
-          FlaggedAt: new Date(),
-          FlaggedBy: req.session.user.ZenoPayID,
-        } 
-      }
-    );
+    const { reason, notes } = req.body;
+    const query = buildTxnLookupQuery(transactionId);
+
+    const transaction = await TransactionHistory.findOne(query);
+    if (!transaction) {
+      return res.status(404).json({ success: false, message: "Transaction not found" });
+    }
+
+    transaction.IsFlagged = true;
+    transaction.FlagReason = reason || "Suspicious Activity";
+    transaction.flagNotes = notes || "";
+    transaction.FlaggedAt = new Date();
+    transaction.FlaggedBy = req.session?.user?.ZenoPayID || null;
+    await transaction.save();
 
     res.json({ success: true, message: "Transaction flagged successfully" });
   } catch (error) {
@@ -303,10 +462,166 @@ const flagTransaction = async (req, res) => {
   }
 };
 
+const bulkRetryTransactions = async (req, res) => {
+  try {
+    const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+    if (!ids.length) {
+      return res.status(400).json({ success: false, message: "No transaction IDs provided" });
+    }
+
+    const numericIds = ids.map(parseTxnNumericId).filter((v) => v !== null);
+    const transactions = await TransactionHistory.find({ TransactionID: { $in: numericIds } })
+      .select("_id retryCount")
+      .lean();
+
+    if (!transactions.length) {
+      return res.status(404).json({ success: false, message: "No matching transactions found" });
+    }
+
+    const operations = transactions.map((tx) => ({
+      updateOne: {
+        filter: { _id: tx._id },
+        update: {
+          $set: {
+            Status: "pending",
+            retryCount: Number(tx.retryCount || 0) + 1,
+          },
+        },
+      },
+    }));
+
+    const result = await TransactionHistory.bulkWrite(operations);
+    const modifiedCount = Number(result.modifiedCount || result.nModified || operations.length || 0);
+
+    return res.json({
+      success: true,
+      message: `Retried ${modifiedCount} transaction(s)`,
+      modifiedCount,
+    });
+  } catch (error) {
+    console.error("Bulk retry transaction error:", error);
+    return res.status(500).json({ success: false, message: "Failed bulk retry" });
+  }
+};
+
+const bulkFlagTransactions = async (req, res) => {
+  try {
+    const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+    const { reason, notes } = req.body;
+    if (!ids.length) {
+      return res.status(400).json({ success: false, message: "No transaction IDs provided" });
+    }
+
+    const numericIds = ids.map(parseTxnNumericId).filter((v) => v !== null);
+    const result = await TransactionHistory.updateMany(
+      { TransactionID: { $in: numericIds } },
+      {
+        $set: {
+          IsFlagged: true,
+          FlagReason: reason || "Suspicious Activity",
+          flagNotes: notes || "",
+          FlaggedAt: new Date(),
+          FlaggedBy: req.session?.user?.ZenoPayID || null,
+        },
+      }
+    );
+
+    return res.json({
+      success: true,
+      message: `Flagged ${result.modifiedCount || 0} transaction(s)`,
+      modifiedCount: result.modifiedCount || 0,
+    });
+  } catch (error) {
+    console.error("Bulk flag transaction error:", error);
+    return res.status(500).json({ success: false, message: "Failed bulk flag" });
+  }
+};
+
+const exportTransactions = async (req, res) => {
+  try {
+    const { ids, status } = req.query;
+
+    const query = {};
+    if (status) {
+      query.Status = String(status).toLowerCase();
+    }
+
+    if (ids) {
+      const idArray = String(ids)
+        .split(",")
+        .map((id) => parseTxnNumericId(id.trim()))
+        .filter((id) => id !== null);
+      if (idArray.length) {
+        query.TransactionID = { $in: idArray };
+      }
+    }
+
+    const rows = await TransactionHistory.find(query).sort({ TransactionTime: -1 }).lean();
+
+    const header = [
+      "Transaction ID",
+      "Status",
+      "Type",
+      "Amount",
+      "Sender",
+      "Receiver",
+      "Failure Reason",
+      "Description",
+      "Date",
+    ];
+
+    const mapReason = (description = "") => {
+      const text = String(description).toLowerCase();
+      if (text.includes("insufficient") || text.includes("balance")) return "Insufficient Balance";
+      if (text.includes("timeout") || text.includes("network")) return "Network Timeout";
+      if (text.includes("beneficiary") || text.includes("account")) return "Invalid Beneficiary";
+      if (text.includes("decline") || text.includes("declined")) return "Bank Declined";
+      if (text.includes("limit")) return "Daily Limit Exceeded";
+      if (text.includes("fraud")) return "Fraud Detected";
+      return "Unknown Error";
+    };
+
+    const csvRows = rows.map((tx) => {
+      const inferred = inferTypeAndMethod(tx);
+      return [
+        tx.TransactionID,
+        tx.Status || "",
+        inferred.type,
+        toNumber(tx.Amount),
+        tx.SenderHolderName || tx.SenderAccountNumber || "",
+        tx.ReceiverHolderName || tx.ReceiverAccountNumber || "",
+        tx.FailureReason || mapReason(tx.Description),
+        tx.Description || "",
+        tx.TransactionTime ? new Date(tx.TransactionTime).toISOString() : "",
+      ];
+    });
+
+    const csv = [header, ...csvRows]
+      .map((row) => row.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=transactions-${status || "all"}-${Date.now()}.csv`
+    );
+
+    return res.status(200).send(csv);
+  } catch (error) {
+    console.error("Export transactions error:", error);
+    return res.status(500).json({ success: false, message: "Failed to export transactions" });
+  }
+};
+
 module.exports = {
   getAllTransactions,
   getFlaggedTransactions,
+  failedTransactions,
   getFailedTransactions,
   getTransactionDetails,
+  retryTransaction,
   flagTransaction,
+  bulkRetryTransactions,
+  bulkFlagTransactions,
+  exportTransactions,
 };

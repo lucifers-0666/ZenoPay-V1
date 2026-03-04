@@ -113,9 +113,13 @@ router.delete("/banks/:id", requirePermission("banks", "delete"), AdminBankContr
 // ============ TRANSACTION MANAGEMENT ROUTES ============
 router.get("/transactions", requirePermission("transactions", "view"), AdminTransactionController.getAllTransactions);
 router.get("/transactions/flagged", requirePermission("transactions", "flag"), AdminTransactionController.getFlaggedTransactions);
-router.get("/transactions/failed", requirePermission("transactions", "view"), AdminTransactionController.getFailedTransactions);
+router.get("/transactions/failed", requirePermission("transactions", "view"), AdminTransactionController.failedTransactions);
+router.post("/transactions/bulk-retry", requirePermission("transactions", "view"), AdminTransactionController.bulkRetryTransactions);
+router.post("/transactions/bulk-flag", requirePermission("transactions", "view"), AdminTransactionController.bulkFlagTransactions);
+router.get("/transactions/export", requirePermission("transactions", "view"), AdminTransactionController.exportTransactions);
+router.post("/transactions/:id/retry", requirePermission("transactions", "view"), AdminTransactionController.retryTransaction);
+router.post("/transactions/:id/flag", requirePermission("transactions", "view"), AdminTransactionController.flagTransaction);
 router.get("/transactions/:id", requirePermission("transactions", "view"), AdminTransactionController.getTransactionDetails);
-router.post("/transactions/:id/flag", requirePermission("transactions", "flag"), AdminTransactionController.flagTransaction);
 
 // ============ WALLET MANAGEMENT ROUTES ============
 router.get("/wallets", requirePermission("transactions", "view"), AdminWalletController.walletsList);

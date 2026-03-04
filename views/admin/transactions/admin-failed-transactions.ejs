@@ -1,0 +1,1403 @@
+<style>
+  .failed-transactions-page {
+    display: grid;
+    gap: 16px;
+  }
+
+  .failed-title-icon {
+    background: linear-gradient(135deg, var(--danger), var(--warning));
+  }
+
+  .failed-breadcrumb {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .failed-breadcrumb .active {
+    color: var(--text-dark);
+  }
+
+  .failed-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-export-failed {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .btn-retry-all {
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  .failed-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .failed-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .failed-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .failed-stat-icon.danger {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 14%, var(--card-bg));
+  }
+
+  .failed-stat-icon.warning {
+    color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 14%, var(--card-bg));
+  }
+
+  .failed-stat-icon.success {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 14%, var(--card-bg));
+  }
+
+  .failed-stat-value {
+    margin: 0;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    line-height: 1.2;
+    color: var(--text-dark);
+    font-weight: 800;
+  }
+
+  .failed-stat-label {
+    margin-top: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+
+  .failed-trend-badge {
+    margin-top: 8px;
+    border-radius: 999px;
+    padding: 4px 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .failed-trend-badge.danger {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
+  }
+
+  .failed-trend-badge.warning {
+    color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 10%, var(--card-bg));
+  }
+
+  .failed-trend-badge.success {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 10%, var(--card-bg));
+  }
+
+  .failed-filter-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+  }
+
+  .failed-filter-row {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, minmax(140px, 1fr)) auto auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: 13px;
+  }
+
+  .failed-input,
+  .failed-select,
+  .failed-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .failed-input,
+  .failed-select {
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .failed-input.with-icon {
+    padding-left: 36px;
+  }
+
+  .failed-textarea {
+    min-height: 100px;
+    padding: 10px 12px;
+    resize: vertical;
+  }
+
+  .failed-input:focus,
+  .failed-select:focus,
+  .failed-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+
+  .failed-table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .admin-table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  .failed-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1220px;
+  }
+
+  .failed-table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: left;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .failed-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-dark);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .failed-table tbody tr:hover {
+    background: color-mix(in srgb, var(--danger) 3%, var(--card-bg));
+  }
+
+  .failed-table .amount-cell {
+    color: var(--danger);
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .failed-table th.amount-col,
+  .failed-table th.actions-col,
+  .failed-table td.actions-col {
+    text-align: right;
+  }
+
+  .txn-id-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .txn-id-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .copy-txn-btn,
+  .action-btn {
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    cursor: pointer;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-txn-btn:hover,
+  .action-btn:hover {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
+  }
+
+  .type-badge,
+  .reason-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .type-badge {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
+  }
+
+  .reason-pill {
+    font-weight: 600;
+  }
+
+  .reason-pill.red {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 12%, var(--card-bg));
+  }
+
+  .reason-pill.orange {
+    color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 12%, var(--card-bg));
+  }
+
+  .reason-pill.yellow {
+    color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 18%, var(--card-bg));
+  }
+
+  .reason-pill.purple {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+  }
+
+  .reason-pill.darkred {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 18%, var(--card-bg));
+  }
+
+  .action-cell {
+    position: relative;
+    overflow: visible;
+  }
+
+  .action-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 210px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    z-index: 250;
+    display: none;
+    padding: 6px 0;
+  }
+
+  .action-dropdown.open {
+    display: block;
+  }
+
+  .action-dropdown a,
+  .action-dropdown button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: none;
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--text-dark);
+    padding: 9px 14px;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .action-dropdown a:hover,
+  .action-dropdown button:hover {
+    background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+  }
+
+  .action-dropdown .danger {
+    color: var(--danger);
+  }
+
+  .failed-empty-state {
+    text-align: center;
+    padding: 56px 20px;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+  }
+
+  .failed-empty-state i {
+    font-size: 52px;
+    color: var(--success);
+  }
+
+  .failed-empty-state h3 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .failed-empty-state p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14px;
+  }
+
+  .failed-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 2px 2px;
+  }
+
+  .pagination-meta {
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .pagination-controls {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .page-btn {
+    min-width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--card-bg);
+  }
+
+  .page-btn.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .items-per-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .items-select {
+    width: 74px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-dark);
+  }
+
+  .bulk-action-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 600;
+    border-radius: 999px;
+    background: var(--text-dark);
+    color: var(--card-bg);
+    padding: 10px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bulk-action-bar[hidden] {
+    display: none;
+  }
+
+  .bulk-count {
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  .bulk-btn {
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    padding: 0 12px;
+    color: var(--card-bg);
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .bulk-btn.retry {
+    background: var(--success);
+  }
+
+  .bulk-btn.flag {
+    background: var(--warning);
+  }
+
+  .bulk-btn.export {
+    background: var(--text-soft);
+  }
+
+  .bulk-clear {
+    border: none;
+    background: none;
+    color: var(--card-bg);
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bulk-clear:hover {
+    background: color-mix(in srgb, var(--card-bg) 16%, transparent);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    background: color-mix(in srgb, var(--text-dark) 45%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+
+  .modal-overlay[hidden] {
+    display: none;
+  }
+
+  .modal-card {
+    width: min(560px, 100%);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .modal-card.modal-xl {
+    width: min(980px, 100%);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-close-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .modal-close-btn:hover {
+    background: color-mix(in srgb, var(--border) 35%, var(--card-bg));
+  }
+
+  .modal-body {
+    padding: 16px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .modal-row {
+    display: grid;
+    gap: 4px;
+  }
+
+  .modal-row .label {
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .modal-row .value {
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .modal-warning {
+    border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border));
+    background: color-mix(in srgb, var(--warning) 10%, var(--card-bg));
+    color: var(--warning);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .btn-modal {
+    height: 38px;
+    border-radius: 10px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-modal.success {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--card-bg);
+  }
+
+  .btn-modal.danger {
+    border-color: var(--danger);
+    background: var(--danger);
+    color: var(--card-bg);
+  }
+
+  .receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .receipt-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    background: color-mix(in srgb, var(--border) 20%, var(--card-bg));
+  }
+
+  .receipt-item .k {
+    font-size: 11px;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .receipt-item .v {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-dark);
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1000;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.success i { color: var(--success); }
+  .toast.error i { color: var(--danger); }
+
+  @media (max-width: 1220px) {
+    .failed-kpi-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .failed-filter-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .failed-kpi-grid,
+    .failed-filter-row {
+      grid-template-columns: 1fr;
+    }
+
+    .bulk-action-bar {
+      left: 12px;
+      right: 12px;
+      transform: none;
+      border-radius: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .receipt-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<%
+  const rows = Array.isArray(transactions) ? transactions : [];
+  const current = Number(currentPageNumber || 1);
+  const pages = Number(totalPages || 1);
+  const perPageCurrent = Number(perPage || 10);
+  const total = Number(totalCount || 0);
+  const startItem = total === 0 ? 0 : ((current - 1) * perPageCurrent) + 1;
+  const endItem = Math.min(current * perPageCurrent, total);
+
+  const f = filters || {};
+  const formatMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+  const formatDateTime = (d) => {
+    if (!d) return '—';
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return '—';
+    return dt.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const reasonClass = (reason) => {
+    const r = String(reason || '').toLowerCase();
+    if (r.includes('insufficient') || r.includes('declined')) return 'red';
+    if (r.includes('timeout')) return 'orange';
+    if (r.includes('invalid')) return 'yellow';
+    if (r.includes('limit')) return 'purple';
+    if (r.includes('fraud')) return 'darkred';
+    return 'red';
+  };
+
+  const pageLink = (targetPage, targetLimit = perPageCurrent) => {
+    const params = new URLSearchParams();
+    if (f.search) params.set('search', f.search);
+    if (f.type) params.set('type', f.type);
+    if (f.dateFrom) params.set('dateFrom', f.dateFrom);
+    if (f.dateTo) params.set('dateTo', f.dateTo);
+    params.set('page', targetPage);
+    params.set('limit', targetLimit);
+    return `/admin/transactions/failed?${params.toString()}`;
+  };
+
+  const paginationPages = [];
+  const windowSize = 5;
+  let start = Math.max(1, current - Math.floor(windowSize / 2));
+  let end = Math.min(pages, start + windowSize - 1);
+  if (end - start + 1 < windowSize) {
+    start = Math.max(1, end - windowSize + 1);
+  }
+  for (let i = start; i <= end; i += 1) paginationPages.push(i);
+%>
+
+<div class="failed-transactions-page">
+  <section class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon failed-title-icon"><i class="fas fa-circle-xmark" aria-hidden="true"></i></span>
+        Failed Transactions
+      </h1>
+      <p class="admin-page-subtitle">All failed and declined payment transactions</p>
+      <nav class="failed-breadcrumb" aria-label="Breadcrumb">
+        <span><i class="fas fa-home" aria-hidden="true"></i></span>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        <span>Transactions</span>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        <span class="active">Failed Transactions</span>
+      </nav>
+    </div>
+
+    <div class="failed-header-actions">
+      <button type="button" id="exportAllBtn" class="btn-outline-admin btn-export-failed">
+        <i class="fas fa-file-export" aria-hidden="true"></i>
+        Export
+      </button>
+      <button type="button" id="retryAllBtn" class="btn-outline-admin btn-retry-all">
+        <i class="fas fa-rotate-right" aria-hidden="true"></i>
+        Retry All
+      </button>
+    </div>
+  </section>
+
+  <section class="failed-kpi-grid" aria-label="Failed transaction stats">
+    <article class="failed-stat-card">
+      <span class="failed-stat-icon danger"><i class="fas fa-circle-xmark" aria-hidden="true"></i></span>
+      <div>
+        <p class="failed-stat-value"><%= Number(totalFailed || 0).toLocaleString('en-IN') %></p>
+        <p class="failed-stat-label">Total Failed</p>
+        <span class="failed-trend-badge danger"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Monitoring</span>
+      </div>
+    </article>
+
+    <article class="failed-stat-card">
+      <span class="failed-stat-icon warning"><i class="fas fa-calendar-day" aria-hidden="true"></i></span>
+      <div>
+        <p class="failed-stat-value"><%= Number(failedToday || 0).toLocaleString('en-IN') %></p>
+        <p class="failed-stat-label">Failed Today</p>
+        <span class="failed-trend-badge warning"><i class="fas fa-clock" aria-hidden="true"></i> Today</span>
+      </div>
+    </article>
+
+    <article class="failed-stat-card">
+      <span class="failed-stat-icon danger"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></span>
+      <div>
+        <p class="failed-stat-value"><%= formatMoney(totalAmount || 0) %></p>
+        <p class="failed-stat-label">Total Amount Lost</p>
+        <span class="failed-trend-badge danger"><i class="fas fa-chart-line" aria-hidden="true"></i> Failed volume</span>
+      </div>
+    </article>
+
+    <article class="failed-stat-card">
+      <span class="failed-stat-icon success"><i class="fas fa-percent" aria-hidden="true"></i></span>
+      <div>
+        <p class="failed-stat-value">34%</p>
+        <p class="failed-stat-label">Retry Success Rate</p>
+        <span class="failed-trend-badge success"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Stable</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="failed-filter-card">
+    <div class="failed-filter-row">
+      <div class="search-wrap">
+        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="failedSearch" class="failed-input with-icon" type="text" value="<%= f.search || '' %>" placeholder="Search by Transaction ID, description...">
+      </div>
+
+      <select id="typeFilter" class="failed-select" aria-label="Transaction type filter">
+        <option value="all" <%= (f.type || 'all') === 'all' ? 'selected' : '' %>>All Types</option>
+        <option value="p2p_transfer" <%= f.type === 'p2p_transfer' ? 'selected' : '' %>>P2P Transfer</option>
+        <option value="merchant_payment" <%= f.type === 'merchant_payment' ? 'selected' : '' %>>Merchant Payment</option>
+        <option value="wallet_topup" <%= f.type === 'wallet_topup' ? 'selected' : '' %>>Wallet Top-Up</option>
+        <option value="refund" <%= f.type === 'refund' ? 'selected' : '' %>>Refund</option>
+        <option value="withdrawal" <%= f.type === 'withdrawal' ? 'selected' : '' %>>Withdrawal</option>
+      </select>
+
+      <input id="dateFrom" class="failed-input" type="date" value="<%= f.dateFrom || '' %>">
+      <input id="dateTo" class="failed-input" type="date" value="<%= f.dateTo || '' %>">
+
+      <button id="applyFiltersBtn" type="button" class="btn-primary-admin">
+        <i class="fas fa-filter" aria-hidden="true"></i>
+        Apply Filters
+      </button>
+
+      <button id="resetFilters" type="button" class="btn-outline-admin">
+        <i class="fas fa-rotate-left" aria-hidden="true"></i>
+        Reset
+      </button>
+    </div>
+  </section>
+
+  <section class="failed-table-card">
+    <div class="admin-table-wrapper">
+      <% if (!rows.length) { %>
+        <div class="failed-empty-state">
+          <i class="fas fa-circle-check" aria-hidden="true"></i>
+          <h3>No failed transactions found</h3>
+          <p>All transactions are running smoothly</p>
+        </div>
+      <% } else { %>
+        <table class="failed-table" id="failedTable">
+          <thead>
+            <tr>
+              <th>
+                <label class="wallet-checkbox" for="failedSelectAll">
+                  <input id="failedSelectAll" type="checkbox">
+                  <span class="wallet-checkbox-ui"></span>
+                </label>
+              </th>
+              <th>Txn ID</th>
+              <th>Type</th>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th class="amount-col">Amount (₹)</th>
+              <th>Failure Reason</th>
+              <th>Date &amp; Time</th>
+              <th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rows.forEach((tx, idx) => { %>
+              <tr data-transaction-id="<%= tx.transactionId %>">
+                <td>
+                  <label class="wallet-checkbox" for="failed-row-<%= idx %>">
+                    <input id="failed-row-<%= idx %>" type="checkbox" class="row-check" value="<%= tx.transactionId %>">
+                    <span class="wallet-checkbox-ui"></span>
+                  </label>
+                </td>
+                <td>
+                  <div class="txn-id-wrap">
+                    <span class="txn-id-text"><%= tx.txnId || tx.transactionId %></span>
+                    <button type="button" class="copy-txn-btn" data-txn-id="<%= tx.transactionId %>" title="Copy Txn ID">
+                      <i class="fas fa-copy" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+                <td><span class="type-badge"><%= tx.type || 'Wallet' %></span></td>
+                <td><%= tx.senderLabel || tx.sender?.name || '—' %></td>
+                <td><%= tx.receiverLabel || tx.receiver?.name || '—' %></td>
+                <td class="amount-cell"><%= formatMoney(tx.amount || 0) %></td>
+                <td>
+                  <span class="reason-pill <%= reasonClass(tx.failureReason || 'Unknown Error') %>">
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>
+                    <%= tx.failureReason || 'Unknown Error' %>
+                  </span>
+                </td>
+                <td><%= formatDateTime(tx.time || tx.TransactionTime) %></td>
+                <td class="action-cell actions-col">
+                  <button type="button" class="action-btn txn-dropdown-toggle" aria-label="Open actions">
+                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="action-dropdown">
+                    <a href="/admin/transactions/<%= tx.transactionId %>">
+                      <i class="fas fa-eye" aria-hidden="true"></i>
+                      View Details
+                    </a>
+
+                    <button type="button" class="open-retry-modal" data-open-modal="retryTxnModal" data-txn-id="<%= tx.transactionId %>" data-txn-display="<%= tx.txnId || tx.transactionId %>" data-amount="<%= tx.amount || 0 %>">
+                      <i class="fas fa-rotate-right" aria-hidden="true"></i>
+                      Retry Transaction
+                    </button>
+
+                    <button type="button" class="open-flag-modal" data-open-modal="flagFraudModal" data-txn-id="<%= tx.transactionId %>" data-txn-display="<%= tx.txnId || tx.transactionId %>">
+                      <i class="fas fa-flag" aria-hidden="true"></i>
+                      Flag as Fraud
+                    </button>
+
+                    <button
+                      type="button"
+                      class="open-receipt-modal"
+                      data-open-modal="viewReceiptModal"
+                      data-txn-id="<%= tx.transactionId %>"
+                      data-txn-display="<%= tx.txnId || tx.transactionId %>"
+                      data-type="<%= tx.type || 'Wallet' %>"
+                      data-amount="<%= tx.amount || 0 %>"
+                      data-sender="<%= tx.senderLabel || tx.sender?.name || '—' %>"
+                      data-receiver="<%= tx.receiverLabel || tx.receiver?.name || '—' %>"
+                      data-reason="<%= tx.failureReason || 'Unknown Error' %>"
+                      data-datetime="<%= formatDateTime(tx.time || tx.TransactionTime) %>"
+                      data-response="<%= tx.gatewayResponse || 'No gateway response' %>"
+                    >
+                      <i class="fas fa-file-lines" aria-hidden="true"></i>
+                      View Receipt
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="failed-pagination">
+    <p class="pagination-meta">Showing <%= startItem %>–<%= endItem %> of <%= total %> failed transactions</p>
+
+    <div class="pagination-controls" aria-label="Pagination controls">
+      <a class="page-btn <%= current <= 1 ? 'disabled' : '' %>" href="<%= current <= 1 ? '#' : pageLink(current - 1) %>">Prev</a>
+      <% paginationPages.forEach((p) => { %>
+        <a class="page-btn <%= p === current ? 'active' : '' %>" href="<%= pageLink(p) %>"><%= p %></a>
+      <% }) %>
+      <a class="page-btn <%= current >= pages ? 'disabled' : '' %>" href="<%= current >= pages ? '#' : pageLink(current + 1) %>">Next</a>
+    </div>
+
+    <label class="items-per-page">
+      <span>Items per page:</span>
+      <select id="itemsPerPage" class="items-select" aria-label="Items per page">
+        <option value="10" <%= perPageCurrent === 10 ? 'selected' : '' %>>10</option>
+        <option value="25" <%= perPageCurrent === 25 ? 'selected' : '' %>>25</option>
+        <option value="50" <%= perPageCurrent === 50 ? 'selected' : '' %>>50</option>
+      </select>
+    </label>
+  </section>
+</div>
+
+<div class="bulk-action-bar" id="bulkActionBar" hidden>
+  <span class="bulk-count" id="bulkSelectedCount">0 transactions selected</span>
+  <button type="button" class="bulk-btn retry" id="bulkRetryBtn"><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Selected</button>
+  <button type="button" class="bulk-btn flag" id="bulkFlagBtn"><i class="fas fa-flag" aria-hidden="true"></i> Flag Selected</button>
+  <button type="button" class="bulk-btn export" id="bulkExportBtn"><i class="fas fa-file-export" aria-hidden="true"></i> Export Selected</button>
+  <button type="button" class="bulk-clear" id="bulkClearBtn" aria-label="Clear selection"><i class="fas fa-times" aria-hidden="true"></i></button>
+</div>
+
+<div id="retryTxnModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Transaction</h3>
+      <button type="button" class="modal-close-btn" data-close-modal="retryTxnModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-row">
+        <span class="label">Transaction ID</span>
+        <span class="value" id="retryTxnIdText">—</span>
+      </div>
+      <div class="modal-row">
+        <span class="label">Amount</span>
+        <span class="value" id="retryTxnAmountText">₹0</span>
+      </div>
+      <p class="modal-warning">This will attempt to reprocess the payment.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal" data-close-modal="retryTxnModal">Cancel</button>
+        <button type="button" class="btn-modal success" id="confirmRetryBtn"><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="flagFraudModal" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3><i class="fas fa-flag" aria-hidden="true"></i> Flag as Fraud</h3>
+      <button type="button" class="modal-close-btn" data-close-modal="flagFraudModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="flagFraudForm">
+        <input type="hidden" id="flagTxnId">
+
+        <div class="modal-row">
+          <span class="label">Transaction ID</span>
+          <span class="value" id="flagTxnDisplay">—</span>
+        </div>
+
+        <div class="modal-row">
+          <label class="label" for="fraudType">Fraud Type</label>
+          <select id="fraudType" class="failed-select" required>
+            <option value="Suspicious Activity">Suspicious Activity</option>
+            <option value="Identity Theft">Identity Theft</option>
+            <option value="Unauthorized Access">Unauthorized Access</option>
+            <option value="Money Laundering">Money Laundering</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="modal-row">
+          <label class="label" for="fraudNotes">Notes</label>
+          <textarea id="fraudNotes" class="failed-textarea" required placeholder="Enter investigation notes..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-modal" data-close-modal="flagFraudModal">Cancel</button>
+          <button type="submit" class="btn-modal danger"><i class="fas fa-flag" aria-hidden="true"></i> Flag Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="viewReceiptModal" class="modal-overlay" hidden>
+  <div class="modal-card modal-xl">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-lines" aria-hidden="true"></i> Transaction Receipt</h3>
+      <div>
+        <button type="button" class="btn-modal" id="printReceiptBtn"><i class="fas fa-print" aria-hidden="true"></i> Print</button>
+        <button type="button" class="modal-close-btn" data-close-modal="viewReceiptModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="modal-body" id="receiptContent">
+      <div class="receipt-grid">
+        <div class="receipt-item"><div class="k">Transaction ID</div><div class="v" id="receiptTxnId">—</div></div>
+        <div class="receipt-item"><div class="k">Type</div><div class="v" id="receiptType">—</div></div>
+        <div class="receipt-item"><div class="k">Amount</div><div class="v" id="receiptAmount">₹0</div></div>
+        <div class="receipt-item"><div class="k">Sender</div><div class="v" id="receiptSender">—</div></div>
+        <div class="receipt-item"><div class="k">Receiver</div><div class="v" id="receiptReceiver">—</div></div>
+        <div class="receipt-item"><div class="k">Failure Reason</div><div class="v" id="receiptReason">—</div></div>
+        <div class="receipt-item"><div class="k">Date &amp; Time</div><div class="v" id="receiptDateTime">—</div></div>
+        <div class="receipt-item"><div class="k">Gateway Response</div><div class="v" id="receiptResponse">—</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedRetryTxnId = '';
+
+  function showToast(message, type) {
+    const node = document.createElement('div');
+    node.className = `toast ${type || 'success'}`;
+    node.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${message}</span>`;
+    document.body.appendChild(node);
+    setTimeout(() => node.remove(), 1800);
+  }
+
+  function toggleTxnDropdown(btn) {
+    const dropdown = btn.nextElementSibling;
+    const willOpen = !dropdown.classList.contains('open');
+
+    document.querySelectorAll('.action-dropdown.open').forEach((menu) => menu.classList.remove('open'));
+
+    if (willOpen) {
+      dropdown.classList.add('open');
+    }
+  }
+
+  async function retryTransaction(txnId) {
+    const response = await fetch(`/admin/transactions/${encodeURIComponent(txnId)}/retry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Retry failed');
+    }
+
+    return data;
+  }
+
+  function copyTxnId(text) {
+    if (!text) return;
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        showToast('Copied!', 'success');
+      })
+      .catch(() => {
+        showToast('Copy failed', 'error');
+      });
+  }
+
+  function getSelectedTxnIds() {
+    return Array.from(document.querySelectorAll('.row-check:checked')).map((el) => el.value).filter(Boolean);
+  }
+
+  function updateBulkBar() {
+    const ids = getSelectedTxnIds();
+    const bulkBar = document.getElementById('bulkActionBar');
+    const bulkSelectedCount = document.getElementById('bulkSelectedCount');
+    bulkBar.hidden = ids.length === 0;
+    bulkSelectedCount.textContent = `${ids.length} transaction${ids.length > 1 ? 's' : ''} selected`;
+  }
+
+  document.addEventListener('click', (event) => {
+    const dropdownToggle = event.target.closest('.txn-dropdown-toggle');
+    if (dropdownToggle) {
+      toggleTxnDropdown(dropdownToggle);
+      event.stopPropagation();
+      return;
+    }
+
+    if (!event.target.closest('.action-cell')) {
+      document.querySelectorAll('.action-dropdown.open').forEach((menu) => menu.classList.remove('open'));
+    }
+
+    const copyBtn = event.target.closest('.copy-txn-btn');
+    if (copyBtn) {
+      copyTxnId(copyBtn.dataset.txnId);
+    }
+
+    const retryBtn = event.target.closest('.open-retry-modal');
+    if (retryBtn) {
+      selectedRetryTxnId = retryBtn.dataset.txnId || '';
+      document.getElementById('retryTxnIdText').textContent = retryBtn.dataset.txnDisplay || selectedRetryTxnId || '—';
+      document.getElementById('retryTxnAmountText').textContent = `₹${Number(retryBtn.dataset.amount || 0).toLocaleString('en-IN')}`;
+    }
+
+    const flagBtn = event.target.closest('.open-flag-modal');
+    if (flagBtn) {
+      document.getElementById('flagTxnId').value = flagBtn.dataset.txnId || '';
+      document.getElementById('flagTxnDisplay').textContent = flagBtn.dataset.txnDisplay || flagBtn.dataset.txnId || '—';
+      document.getElementById('fraudNotes').value = '';
+      document.getElementById('fraudType').value = 'Suspicious Activity';
+    }
+
+    const receiptBtn = event.target.closest('.open-receipt-modal');
+    if (receiptBtn) {
+      document.getElementById('receiptTxnId').textContent = receiptBtn.dataset.txnDisplay || receiptBtn.dataset.txnId || '—';
+      document.getElementById('receiptType').textContent = receiptBtn.dataset.type || '—';
+      document.getElementById('receiptAmount').textContent = `₹${Number(receiptBtn.dataset.amount || 0).toLocaleString('en-IN')}`;
+      document.getElementById('receiptSender').textContent = receiptBtn.dataset.sender || '—';
+      document.getElementById('receiptReceiver').textContent = receiptBtn.dataset.receiver || '—';
+      document.getElementById('receiptReason').textContent = receiptBtn.dataset.reason || '—';
+      document.getElementById('receiptDateTime').textContent = receiptBtn.dataset.datetime || '—';
+      document.getElementById('receiptResponse').textContent = receiptBtn.dataset.response || '—';
+    }
+  });
+
+  document.querySelectorAll('.row-check').forEach((checkbox) => {
+    checkbox.addEventListener('change', updateBulkBar);
+  });
+
+  const selectAll = document.getElementById('failedSelectAll');
+  if (selectAll) {
+    selectAll.addEventListener('change', () => {
+      document.querySelectorAll('.row-check').forEach((checkbox) => {
+        checkbox.checked = selectAll.checked;
+      });
+      updateBulkBar();
+    });
+  }
+
+  document.getElementById('bulkClearBtn')?.addEventListener('click', () => {
+    document.querySelectorAll('.row-check').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    if (selectAll) selectAll.checked = false;
+    updateBulkBar();
+  });
+
+  document.getElementById('confirmRetryBtn')?.addEventListener('click', async () => {
+    if (!selectedRetryTxnId) return;
+
+    try {
+      await retryTransaction(selectedRetryTxnId);
+      showToast('Retry initiated successfully', 'success');
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      showToast(error.message || 'Retry failed', 'error');
+    }
+  });
+
+  document.getElementById('flagFraudForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const txnId = document.getElementById('flagTxnId').value;
+    const reason = document.getElementById('fraudType').value;
+    const notes = document.getElementById('fraudNotes').value.trim();
+
+    if (!notes) {
+      showToast('Notes are required', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/admin/transactions/${encodeURIComponent(txnId)}/flag`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason, notes })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Flag failed');
+      }
+
+      window.location.reload();
+    } catch (error) {
+      showToast(error.message || 'Flag failed', 'error');
+    }
+  });
+
+  document.getElementById('applyFiltersBtn')?.addEventListener('click', () => {
+    const search = document.getElementById('failedSearch').value.trim();
+    const type = document.getElementById('typeFilter').value;
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    const limit = document.getElementById('itemsPerPage').value || '10';
+
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (type && type !== 'all') params.set('type', type);
+    if (dateFrom) params.set('dateFrom', dateFrom);
+    if (dateTo) params.set('dateTo', dateTo);
+    params.set('limit', limit);
+    params.set('page', '1');
+
+    window.location.href = `/admin/transactions/failed?${params.toString()}`;
+  });
+
+  document.getElementById('resetFilters')?.addEventListener('click', () => {
+    document.getElementById('failedSearch').value = '';
+    document.getElementById('typeFilter').value = 'all';
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    window.location.href = '/admin/transactions/failed';
+  });
+
+  document.getElementById('itemsPerPage')?.addEventListener('change', (event) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', event.target.value);
+    params.set('page', '1');
+    window.location.href = `/admin/transactions/failed?${params.toString()}`;
+  });
+
+  document.getElementById('bulkRetryBtn')?.addEventListener('click', async () => {
+    const ids = getSelectedTxnIds();
+    if (!ids.length) return;
+
+    try {
+      const response = await fetch('/admin/transactions/bulk-retry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Bulk retry failed');
+      showToast('Bulk retry initiated', 'success');
+      setTimeout(() => window.location.reload(), 800);
+    } catch (error) {
+      showToast(error.message || 'Bulk retry failed', 'error');
+    }
+  });
+
+  document.getElementById('bulkFlagBtn')?.addEventListener('click', async () => {
+    const ids = getSelectedTxnIds();
+    if (!ids.length) return;
+
+    try {
+      const response = await fetch('/admin/transactions/bulk-flag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, reason: 'Suspicious Activity', notes: 'Flagged from failed transactions bulk action' })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Bulk flag failed');
+      showToast('Selected transactions flagged', 'success');
+      setTimeout(() => window.location.reload(), 800);
+    } catch (error) {
+      showToast(error.message || 'Bulk flag failed', 'error');
+    }
+  });
+
+  document.getElementById('bulkExportBtn')?.addEventListener('click', () => {
+    const ids = getSelectedTxnIds();
+    if (!ids.length) return;
+    window.location.href = `/admin/transactions/export?ids=${encodeURIComponent(ids.join(','))}&status=failed`;
+  });
+
+  document.getElementById('exportAllBtn')?.addEventListener('click', () => {
+    window.location.href = '/admin/transactions/export?status=failed';
+  });
+
+  document.getElementById('retryAllBtn')?.addEventListener('click', async () => {
+    const ids = Array.from(document.querySelectorAll('.row-check')).map((el) => el.value).filter(Boolean);
+    if (!ids.length) {
+      showToast('No failed transactions available', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/admin/transactions/bulk-retry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Retry all failed');
+      showToast('Retry queued for all listed failed transactions', 'success');
+      setTimeout(() => window.location.reload(), 900);
+    } catch (error) {
+      showToast(error.message || 'Retry all failed', 'error');
+    }
+  });
+
+  document.getElementById('printReceiptBtn')?.addEventListener('click', () => {
+    window.print();
+  });
+
+  document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.getAttribute('data-close-modal');
+      const modal = document.getElementById(modalId);
+      if (modal) modal.hidden = true;
+    });
+  });
+
+  document.querySelectorAll('[data-open-modal]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.getAttribute('data-open-modal');
+      const modal = document.getElementById(modalId);
+      if (modal) modal.hidden = false;
+    });
+  });
+</script>
