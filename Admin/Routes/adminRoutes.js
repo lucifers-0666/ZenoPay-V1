@@ -17,6 +17,7 @@ const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyC
 const AdminKYCController = require("../Controllers/AdminKYCController");
 const AdminOperationsController = require("../Controllers/AdminOperationsController");
 const AdminWalletController = require("../Controllers/AdminWalletController");
+const adminRefundController = require("../../controllers/admin/adminRefundController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -129,6 +130,14 @@ router.patch("/wallets/:id/status", requirePermission("transactions", "view"), A
 router.post("/wallets/:id/adjust-balance", requirePermission("transactions", "view"), AdminWalletController.adjustWalletBalance);
 router.post("/wallets/:id/reset-balance", requirePermission("transactions", "view"), AdminWalletController.resetWalletBalance);
 router.get("/wallets/:id", requirePermission("transactions", "view"), AdminWalletController.walletDetails);
+
+// ============ REFUNDS MANAGEMENT ROUTES ============
+router.get("/refunds", requirePermission("transactions", "view"), adminRefundController.refundsList);
+router.post("/refunds/bulk-action", requirePermission("transactions", "view"), adminRefundController.bulkRefundAction);
+router.get("/refunds/export", requirePermission("transactions", "view"), adminRefundController.exportRefunds);
+router.patch("/refunds/:id/approve", requirePermission("transactions", "view"), adminRefundController.approveRefund);
+router.patch("/refunds/:id/reject", requirePermission("transactions", "view"), adminRefundController.rejectRefund);
+router.get("/refunds/:id", requirePermission("transactions", "view"), adminRefundController.refundDetails);
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);

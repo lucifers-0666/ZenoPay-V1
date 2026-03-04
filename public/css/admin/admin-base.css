@@ -79,25 +79,27 @@ input, select, textarea { font-family: inherit; }
 
 .admin-layout {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   grid-template-rows: auto;
   min-height: 100vh;
   transition: grid-template-columns var(--t-normal);
 }
 
 .admin-layout.sidebar-collapsed {
-  grid-template-columns: var(--sidebar-collapsed) 1fr;
+  grid-template-columns: var(--sidebar-collapsed) minmax(0, 1fr);
 }
 
 .admin-main {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
   overflow-x: hidden;
 }
 
 .admin-content {
   flex: 1;
+  min-width: 0;
   padding: 28px 28px 48px;
   background: var(--bg-page);
   max-width: var(--content-max);
@@ -800,7 +802,9 @@ input, select, textarea { font-family: inherit; }
 
 /* ── Allow dropdowns to overflow table container ── */
 .admin-table-wrapper {
-  overflow: visible !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  max-width: 100%;
   position: relative;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -811,6 +815,23 @@ input, select, textarea { font-family: inherit; }
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
+  min-width: max-content;
+}
+
+.admin-table-wrapper table thead th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background: #F8FAFC;
+  box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+}
+
+.admin-table-wrapper table tbody td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  background: var(--card-bg);
+  box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
 }
 
 .admin-table-wrapper table thead tr th:first-child { border-radius: var(--radius-lg) 0 0 0; }

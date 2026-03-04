@@ -414,7 +414,11 @@
     overflow: visible;
     box-shadow: var(--shadow-sm);
   }
-  .kyc-table { width: 100%; border-collapse: collapse; }
+  .kyc-table-shell {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  .kyc-table { width: 100%; min-width: 1180px; border-collapse: collapse; }
   .kyc-table thead th {
     background: var(--bg-page);
     color: var(--text-soft);
@@ -426,6 +430,13 @@
     border-bottom: 1px solid var(--border);
     text-align: left;
     white-space: nowrap;
+  }
+  .kyc-table thead th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    background: var(--bg-page);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
   }
   .kyc-col-check { width: 44px; }
   .kyc-sortable { cursor: pointer; transition: color var(--trans-fast); }
@@ -444,6 +455,15 @@
     box-shadow: inset 3px 0 0 var(--primary);
   }
   .kyc-table tbody td { padding: 16px 20px; vertical-align: middle; }
+  .kyc-table tbody td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 4;
+    background: var(--card-bg);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
+  .kyc-table tbody tr:hover td:last-child { background: color-mix(in srgb, var(--primary) 4%, var(--card-bg)); }
+  .kyc-table tbody tr.selected td:last-child { background: color-mix(in srgb, var(--primary) 8%, var(--card-bg)); }
 
   .kyc-checkbox { display: inline-flex; align-items: center; }
   .kyc-checkbox input { position: absolute; opacity: 0; pointer-events: none; }

@@ -1,0 +1,36 @@
+<%
+  const r = refund || {};
+  const formatMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+  const formatDate = (d) => {
+    if (!d) return '—';
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return '—';
+    return dt.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+%>
+
+<section class="admin-page-header">
+  <div>
+    <h1 class="admin-page-title">
+      <span class="page-title-icon" style="background: linear-gradient(135deg, var(--primary), var(--success));"><i class="fas fa-rotate-left"></i></span>
+      Refund Details
+    </h1>
+    <p class="admin-page-subtitle">Review full request information and processing timeline</p>
+  </div>
+  <div>
+    <a href="/admin/refunds" class="btn-outline-admin"><i class="fas fa-arrow-left"></i> Back to Refunds</a>
+  </div>
+</section>
+
+<section class="stat-card" style="margin-top: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card-bg); box-shadow: var(--shadow-sm); padding: 16px;">
+  <div style="display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr));">
+    <div><strong>Refund ID:</strong> <%= r.refundId || r._id %></div>
+    <div><strong>Status:</strong> <%= r.status || 'pending' %></div>
+    <div><strong>Amount:</strong> <%= formatMoney(r.amount) %></div>
+    <div><strong>User:</strong> <%= r.userId?.name || 'Unknown User' %> (<%= r.userId?.email || '—' %>)</div>
+    <div><strong>Original Txn:</strong> <%= r.transactionId?.TransactionID || r.transactionRef || '—' %></div>
+    <div><strong>Requested At:</strong> <%= formatDate(r.createdAt) %></div>
+    <div style="grid-column: 1 / -1;"><strong>Reason:</strong> <%= r.reason || '—' %></div>
+    <div style="grid-column: 1 / -1;"><strong>Admin Note:</strong> <%= r.adminNote || '—' %></div>
+  </div>
+</section>
