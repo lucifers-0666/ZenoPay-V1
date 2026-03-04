@@ -107,34 +107,25 @@ const walletsList = async (req, res) => {
 
 const walletDetails = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    const wallet = await Wallet.findById(id).populate("userId", "name email phone createdAt FullName Email Mobile RegistrationDate");
+
+    if (!wallet) {
+      return res.status(404).render("admin/404");
+    }
+
+    // If a wallet transaction model/path is not yet available in this codebase,
+    // keep transactions empty to avoid runtime errors.
+    const transactions = [];
+
     res.locals.adminPage = "wallets";
     res.locals.pageTitle = "Wallet Details";
 
-    const walletIdParam = req.params.id;
-    const query = mongoose.Types.ObjectId.isValid(walletIdParam)
-      ? { $or: [{ walletId: walletIdParam }, { _id: walletIdParam }] }
-      : { walletId: walletIdParam };
-
-    const walletDoc = await Wallet.findOne(query)
-      .populate("userId", "name email FullName Email")
-      .lean();
-
-    const mapped = walletDoc ? mapWallet(walletDoc) : null;
-
-    const wallet = {
-      id: mapped?.walletId || walletIdParam,
-      name: mapped?.user?.name || "Unknown User",
-      email: mapped?.user?.email || "unknown@example.com",
-      balance: mapped?.balance || 0,
-      status: mapped?.statusLabel || "Active",
-    };
-
     res.render("admin/wallets/admin-wallet-details", {
-      page: "wallets",
-      title: `Wallet ${wallet.id}`,
       wallet,
-      admin: req.session.user,
-      user: req.session.user,
+      transactions,
+      pageTitle: "Wallet Details",
     });
   } catch (err) {
     console.error("walletDetails error:", err);
@@ -226,9 +217,118 @@ const adjustWalletBalance = async (req, res) => {
   }
 };
 
+const bulkWalletAction = async (req, res) => {
+  try {
+    const { walletIds, action } = req.body;
+
+    if (!walletIds || !Array.isArray(walletIds) || walletIds.length === 0) {
+      return res.status(400).json({ success: false, message: "No wallets selected" });
+    }
+
+    let newStatus;
+    if (action === "freeze") newStatus = "frozen";
+    if (action === "suspend") newStatus = "suspended";
+
+    if (!newStatus) {
+      return res.status(400).json({ success: false, message: "Invalid action" });
+    }
+
+    await Wallet.updateMany(
+      { _id: { $in: walletIds } },
+      { status: newStatus, updatedAt: new Date() }
+    );
+
+    return res.json({
+      success: true,
+      message: `${walletIds.length} wallet(s) ${newStatus} successfully`,
+      count: walletIds.length,
+    });
+  } catch (err) {
+    console.error("bulkWalletAction error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const exportWallets = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    let query = {};
+
+    if (ids) {
+      const idArray = String(ids)
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean);
+      query = { _id: { $in: idArray } };
+    }
+
+    const wallets = await Wallet.find(query)
+      .populate("userId", "name email FullName Email")
+      .lean();
+
+    const headers = [
+      "Wallet ID",
+      "User Name",
+      "Email",
+      "Balance",
+      "Total Credit",
+      "Total Debit",
+      "Status",
+      "Created At",
+    ];
+
+    const rows = wallets.map((w) => {
+      const user = w.userId || {};
+      return [
+        w.walletId || w._id,
+        user.name || user.FullName || "Unknown",
+        user.email || user.Email || "",
+        toNumber(w.balance),
+        toNumber(w.totalCredit),
+        toNumber(w.totalDebit),
+        w.status || "",
+        w.createdAt ? new Date(w.createdAt).toLocaleDateString("en-IN") : "",
+      ];
+    });
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", 'attachment; filename="wallets-export.csv"');
+    return res.send(csv);
+  } catch (err) {
+    console.error("exportWallets error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const resetWalletBalance = async (req, res) => {
+  try {
+    const wallet = await Wallet.findByIdAndUpdate(
+      req.params.id,
+      { balance: 0, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!wallet) {
+      return res.status(404).json({ success: false, message: "Wallet not found" });
+    }
+
+    return res.json({ success: true, message: "Balance reset to ₹0 successfully" });
+  } catch (err) {
+    console.error("resetWalletBalance error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   walletsList,
   walletDetails,
   updateWalletStatus,
   adjustWalletBalance,
+  bulkWalletAction,
+  exportWallets,
+  resetWalletBalance,
 };

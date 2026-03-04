@@ -20,7 +20,7 @@
     </div>
 
     <div class="wallets-header-actions">
-      <button type="button" class="btn-outline-admin wallets-export-btn">
+      <button id="exportAllBtn" type="button" class="btn-outline-admin wallets-export-btn">
         <i class="fas fa-file-export" aria-hidden="true"></i>
         Export
       </button>
@@ -71,7 +71,7 @@
       <input id="walletSearch" class="wallets-search-input" type="text" placeholder="Search by user name, email, wallet ID...">
     </div>
 
-    <select id="walletStatusFilter" class="admin-select wallets-filter-select" aria-label="Filter by status">
+    <select id="statusFilter" class="admin-select wallets-filter-select" aria-label="Filter by status">
       <option value="">All Status</option>
       <option value="Active">Active</option>
       <option value="Frozen">Frozen</option>
@@ -92,7 +92,7 @@
       <option value="low">Lowest Balance</option>
     </select>
 
-    <button id="resetWalletFilters" type="button" class="btn-outline-admin wallets-reset-btn">
+    <button id="resetFiltersBtn" type="button" class="btn-outline-admin wallets-reset-btn">
       <i class="fas fa-rotate-left" aria-hidden="true"></i>
       Reset Filters
     </button>
@@ -104,8 +104,8 @@
         <thead>
           <tr>
             <th>
-              <label class="wallet-checkbox" for="selectAllWallets">
-                <input id="selectAllWallets" type="checkbox">
+              <label class="wallet-checkbox" for="selectAllCheckbox">
+                <input id="selectAllCheckbox" type="checkbox">
                 <span class="wallet-checkbox-ui"></span>
               </label>
             </th>
@@ -132,7 +132,7 @@
               <tr data-status="<%= walletStatus %>" data-balance="<%= walletBalance %>">
                 <td>
                   <label class="wallet-checkbox" for="chk-<%= wallet.walletId || index %>">
-                    <input id="chk-<%= wallet.walletId || index %>" type="checkbox" class="wallet-row-check" data-wallet="<%= wallet.walletId || wallet._id %>">
+                    <input id="chk-<%= wallet.walletId || index %>" type="checkbox" class="wallet-row-check row-check" value="<%= wallet._id %>" data-wallet="<%= wallet.walletId || wallet._id %>">
                     <span class="wallet-checkbox-ui"></span>
                   </label>
                 </td>
@@ -160,30 +160,70 @@
                 </td>
                 <td><span class="wallet-badge status-badge <%= badgeClass %>"><%= walletStatus %></span></td>
                 <td class="text-soft"><%= wallet.lastTransaction || '—' %></td>
-                <td class="action-cell">
-                  <button type="button" class="action-btn" onclick="toggleDropdown(this)">
-                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                <td class="action-cell" style="position:relative; overflow:visible;">
+                  <button
+                    type="button"
+                    class="action-btn"
+                    data-wallet-id="<%= wallet._id %>"
+                    data-wallet-status="<%= wallet.status %>"
+                    onclick="toggleWalletDropdown(this)"
+                    style="background:none; border:none; cursor:pointer;
+                           width:32px; height:32px; border-radius:6px;
+                           display:inline-flex; align-items:center; justify-content:center;
+                           color:#94a3b8; font-size:1rem; transition:all 0.2s;"
+                  >
+                    <i class="fas fa-ellipsis-v"></i>
                   </button>
-                  <div class="action-dropdown">
-                    <a href="/admin/wallets/<%= wallet._id %>">
-                      <i class="fas fa-eye" style="color:#3B82F6;"></i> View Details
+
+                  <div
+                    class="wallet-dropdown"
+                    data-wallet-id="<%= wallet._id %>"
+                    data-wallet-status="<%= wallet.status %>"
+                    style="display:none; position:absolute; right:0; top:36px; z-index:9999;
+                           background:#fff; border:1px solid #e2e8f0; border-radius:10px;
+                           box-shadow:0 8px 24px rgba(0,0,0,0.12); min-width:200px; padding:6px 0;"
+                  >
+                    <a href="/admin/wallets/<%= wallet._id %>"
+                       style="display:flex; align-items:center; gap:10px; padding:9px 16px;
+                              text-decoration:none; color:#1e293b; font-size:0.85rem;">
+                      <i class="fas fa-eye" style="color:#3B82F6; width:16px;"></i> View Details
                     </a>
-                    <% if (wallet.status !== 'frozen') { %>
-                    <button type="button" onclick="walletAction('<%= wallet._id %>', 'freeze', this)">
-                      <i class="fas fa-snowflake" style="color:#0ea5e9;"></i> Freeze Wallet
+
+                    <% if (wallet.status !== 'frozen' && wallet.status !== 'suspended') { %>
+                    <button type="button"
+                      onclick="walletStatusAction('<%= wallet._id %>', 'freeze')"
+                      style="display:flex; align-items:center; gap:10px; padding:9px 16px;
+                             width:100%; background:none; border:none; cursor:pointer;
+                             color:#1e293b; font-size:0.85rem;">
+                      <i class="fas fa-snowflake" style="color:#0ea5e9; width:16px;"></i> Freeze Wallet
                     </button>
                     <% } %>
+
                     <% if (wallet.status === 'frozen') { %>
-                    <button type="button" onclick="walletAction('<%= wallet._id %>', 'unfreeze', this)">
-                      <i class="fas fa-fire" style="color:#22c55e;"></i> Unfreeze Wallet
+                    <button type="button"
+                      onclick="walletStatusAction('<%= wallet._id %>', 'unfreeze')"
+                      style="display:flex; align-items:center; gap:10px; padding:9px 16px;
+                             width:100%; background:none; border:none; cursor:pointer;
+                             color:#1e293b; font-size:0.85rem;">
+                      <i class="fas fa-fire" style="color:#22c55e; width:16px;"></i> Unfreeze Wallet
                     </button>
                     <% } %>
-                    <button type="button" onclick="openAdjustModal('<%= wallet._id %>', '<%= wallet.balance %>')">
-                      <i class="fas fa-indian-rupee-sign" style="color:#8B5CF6;"></i> Adjust Balance
+
+                    <button type="button"
+                      onclick="openAdjustModal('<%= wallet._id %>', '<%= wallet.balance %>')"
+                      style="display:flex; align-items:center; gap:10px; padding:9px 16px;
+                             width:100%; background:none; border:none; cursor:pointer;
+                             color:#1e293b; font-size:0.85rem;">
+                      <i class="fas fa-indian-rupee-sign" style="color:#8B5CF6; width:16px;"></i> Adjust Balance
                     </button>
+
                     <% if (wallet.status !== 'suspended') { %>
-                    <button type="button" class="danger" onclick="walletAction('<%= wallet._id %>', 'suspend', this)">
-                      <i class="fas fa-ban"></i> Suspend Wallet
+                    <button type="button"
+                      onclick="walletStatusAction('<%= wallet._id %>', 'suspend')"
+                      style="display:flex; align-items:center; gap:10px; padding:9px 16px;
+                             width:100%; background:none; border:none; cursor:pointer;
+                             color:#dc2626; font-size:0.85rem;">
+                      <i class="fas fa-ban" style="width:16px;"></i> Suspend Wallet
                     </button>
                     <% } %>
                   </div>
@@ -225,13 +265,40 @@
   </section>
 </div>
 
-<div class="wallets-bulk-bar" id="walletBulkBar" hidden>
-  <p class="wallets-bulk-count" id="walletBulkCount">0 wallets selected</p>
-  <div class="wallets-bulk-actions">
-    <button type="button" class="wallets-bulk-btn blue"><i class="fas fa-snowflake" aria-hidden="true"></i>Freeze Selected</button>
-    <button type="button" class="wallets-bulk-btn red"><i class="fas fa-ban" aria-hidden="true"></i>Suspend Selected</button>
-    <button type="button" class="wallets-bulk-btn gray"><i class="fas fa-file-export" aria-hidden="true"></i>Export Selected</button>
-  </div>
+<div id="bulkActionBar" style="display:none; position:fixed; bottom:24px; left:50%;
+     transform:translateX(-50%); background:#1e293b; border-radius:50px;
+     padding:10px 20px; gap:12px; align-items:center; z-index:999;
+     box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+
+  <span id="bulkSelectedCount" style="color:#fff; font-size:0.85rem; font-weight:500;
+        white-space:nowrap;">0 wallets selected</span>
+
+  <button id="bulkFreezeBtn" type="button"
+    style="display:flex; align-items:center; gap:6px; padding:8px 16px;
+           background:#3B82F6; color:#fff; border:none; border-radius:20px;
+           font-size:0.82rem; font-weight:600; cursor:pointer;">
+    <i class="fas fa-snowflake"></i> Freeze Selected
+  </button>
+
+  <button id="bulkSuspendBtn" type="button"
+    style="display:flex; align-items:center; gap:6px; padding:8px 16px;
+           background:#ef4444; color:#fff; border:none; border-radius:20px;
+           font-size:0.82rem; font-weight:600; cursor:pointer;">
+    <i class="fas fa-ban"></i> Suspend Selected
+  </button>
+
+  <button id="bulkExportBtn" type="button"
+    style="display:flex; align-items:center; gap:6px; padding:8px 16px;
+           background:#475569; color:#fff; border:none; border-radius:20px;
+           font-size:0.82rem; font-weight:600; cursor:pointer;">
+    <i class="fas fa-file-export"></i> Export Selected
+  </button>
+
+  <button id="bulkClearBtn" type="button"
+    style="background:none; border:none; color:#94a3b8; cursor:pointer;
+           padding:4px 8px; font-size:0.85rem; margin-left:4px;">
+    <i class="fas fa-times"></i>
+  </button>
 </div>
 
 <div id="freezeWalletModal" class="modal-overlay" hidden>
@@ -537,13 +604,16 @@
   }
 
   .admin-table {
-    table-layout: fixed;
     width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
   }
 
   .admin-table-wrapper {
-    overflow: visible !important;
-    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
   }
 
   .action-cell {
@@ -603,19 +673,48 @@
   }
 
   .action-btn:hover {
-    background: var(--hover-bg, #f1f5f9);
-    color: var(--primary);
+    background: #f1f5f9 !important;
+    color: #3B82F6 !important;
   }
 
-  .admin-table th:nth-child(1) { width: 40px; }
-  .admin-table th:nth-child(2) { min-width: 100px; }
+  /* All column headers uniform style */
+  .admin-table thead th {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 12px 16px;
+    white-space: nowrap;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  /* Override last th to center */
+  .admin-table thead th:last-child {
+    text-align: center;
+    padding: 12px 8px;
+  }
+
+  /* Last column — Actions */
+  .admin-table th:last-child,
+  .admin-table td:last-child {
+    width: 80px;
+    min-width: 80px;
+    text-align: center;
+    padding: 12px 8px;
+  }
+
+  /* Column min-widths to keep everything proportional */
+  .admin-table th:nth-child(1) { width: 44px; padding: 12px 8px; }
+  .admin-table th:nth-child(2) { min-width: 110px; }
   .admin-table th:nth-child(3) { min-width: 200px; }
-  .admin-table th:nth-child(4) { min-width: 110px; text-align: right; }
-  .admin-table th:nth-child(5) { min-width: 120px; text-align: right; }
-  .admin-table th:nth-child(6) { min-width: 110px; text-align: right; }
+  .admin-table th:nth-child(4) { min-width: 120px; text-align: right; }
+  .admin-table th:nth-child(5) { min-width: 130px; text-align: right; }
+  .admin-table th:nth-child(6) { min-width: 120px; text-align: right; }
   .admin-table th:nth-child(7) { min-width: 100px; text-align: center; }
-  .admin-table th:nth-child(8) { min-width: 140px; }
-  .admin-table th:nth-child(9) { width: 60px; text-align: center; }
+  .admin-table th:nth-child(8) { min-width: 150px; }
+  .admin-table th:nth-child(9) { width: 80px; text-align: center; }
 
   .wallets-table th,
   .wallets-table td {
@@ -624,10 +723,27 @@
     vertical-align: middle;
   }
 
-  .admin-table tbody tr td {
-    vertical-align: middle;
+  .admin-table tbody td {
     padding: 14px 16px;
+    vertical-align: middle;
+    font-size: 0.875rem;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
   }
+
+  /* Override action cell padding to center the button */
+  .admin-table tbody td:last-child {
+    padding: 8px;
+    text-align: center;
+  }
+
+  /* Mirror td alignment to match th */
+  .admin-table td:nth-child(4),
+  .admin-table td:nth-child(5),
+  .admin-table td:nth-child(6) { text-align: right; }
+
+  .admin-table td:nth-child(7) { text-align: center; }
 
   .wallets-table th {
     font-size: 11px;
@@ -1106,205 +1222,310 @@
 </style>
 
 <script>
-  function toggleDropdown(btn) {
-    const dropdown = btn.nextElementSibling;
-    const isOpen = dropdown.classList.contains('open');
 
-    document.querySelectorAll('.action-dropdown.open').forEach((d) => {
-      d.classList.remove('open');
-      d.style.top = '100%';
-      d.style.bottom = 'auto';
+  // ── Toggle dropdown on three-dot click ──
+  function toggleWalletDropdown(btn) {
+    const dropdown = btn.nextElementSibling;
+    const isVisible = dropdown.style.display === 'block';
+
+    // Close all open dropdowns first
+    document.querySelectorAll('.wallet-dropdown').forEach(function(d) {
+      d.style.display = 'none';
     });
 
-    if (!isOpen) {
-      dropdown.classList.add('open');
+    // Open this one if it was closed
+    if (!isVisible) {
+      dropdown.style.display = 'block';
+
+      // Flip upward if it goes off screen bottom
       const rect = dropdown.getBoundingClientRect();
-      if (rect.bottom > window.innerHeight - 20) {
+      if (rect.bottom > window.innerHeight - 10) {
         dropdown.style.top = 'auto';
-        dropdown.style.bottom = '100%';
+        dropdown.style.bottom = '36px';
+      } else {
+        dropdown.style.top = '36px';
+        dropdown.style.bottom = 'auto';
       }
     }
   }
 
-  function walletAction(walletId, action, btn) {
-    const labels = { freeze: 'Freeze', unfreeze: 'Unfreeze', suspend: 'Suspend' };
-    if (!confirm(`Are you sure you want to ${labels[action]} this wallet?`)) return;
+  // ── Close dropdown when clicking outside ──
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-cell')) {
+      document.querySelectorAll('.wallet-dropdown').forEach(function(d) {
+        d.style.display = 'none';
+      });
+    }
+  });
 
-    const dropdown = btn.closest('.action-dropdown');
-    if (dropdown) dropdown.classList.remove('open');
+  // ── Freeze / Unfreeze / Suspend wallet ──
+  function walletStatusAction(walletId, action) {
+    const messages = {
+      freeze:   'Are you sure you want to FREEZE this wallet?',
+      unfreeze: 'Are you sure you want to UNFREEZE this wallet?',
+      suspend:  'Are you sure you want to SUSPEND this wallet? This is a serious action.'
+    };
 
-    fetch(`/admin/wallets/${walletId}/status`, {
+    if (!confirm(messages[action])) return;
+
+    // Close all dropdowns
+    document.querySelectorAll('.wallet-dropdown').forEach(function(d) {
+      d.style.display = 'none';
+    });
+
+    fetch('/admin/wallets/' + walletId + '/status', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action })
+      body: JSON.stringify({ action: action })
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          const row = btn.closest('tr');
-          const badge = row ? row.querySelector('.status-badge') : null;
-          const statusMap = {
-            active: { text: 'Active', cls: 'badge-success' },
-            frozen: { text: 'Frozen', cls: 'badge-info' },
-            suspended: { text: 'Suspended', cls: 'badge-danger' }
-          };
-          const s = statusMap[data.status];
-          if (badge && s) {
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        // Find the row and update the status badge immediately
+        const row = document.querySelector('[data-wallet-id="' + walletId + '"]')?.closest('tr');
+        if (row) {
+          const badge = row.querySelector('.status-badge');
+          if (badge) {
+            const statusMap = {
+              active:    { text: 'Active',    bg: '#dcfce7', color: '#16a34a', border: '#bbf7d0' },
+              frozen:    { text: 'Frozen',    bg: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
+              suspended: { text: 'Suspended', bg: '#fee2e2', color: '#dc2626', border: '#fecaca' }
+            };
+            const s = statusMap[data.status];
             badge.textContent = s.text;
-            badge.className = `wallet-badge status-badge ${s.cls}`;
+            badge.style.background = s.bg;
+            badge.style.color = s.color;
+            badge.style.border = '1px solid ' + s.border;
           }
-          setTimeout(() => location.reload(), 800);
-        } else {
-          alert(data.message || 'Action failed');
         }
-      })
-      .catch(() => alert('Network error. Please try again.'));
+        // Reload after 1 second to refresh dropdown options
+        setTimeout(function() { location.reload(); }, 1000);
+      } else {
+        alert('Error: ' + (data.message || 'Action failed'));
+      }
+    })
+    .catch(function() {
+      alert('Network error. Please check your connection and try again.');
+    });
   }
 
+  // ── Open Adjust Balance Modal ──
   function openAdjustModal(walletId, currentBalance) {
-    const adjustWalletId = document.getElementById('adjustWalletId');
-    const balanceDisplay = document.getElementById('currentBalanceDisplay');
-    const amountInput = document.getElementById('adjustAmountInput');
-    const noteInput = document.getElementById('adjustNoteInput');
-    const modal = document.getElementById('adjustBalanceModal');
+    document.querySelectorAll('.wallet-dropdown').forEach(function(d) {
+      d.style.display = 'none';
+    });
 
-    if (adjustWalletId) adjustWalletId.value = walletId;
-    if (balanceDisplay) {
-      const amount = parseFloat(currentBalance || 0) || 0;
-      balanceDisplay.textContent = '₹' + amount.toLocaleString('en-IN');
-    }
+    var walletIdInput = document.getElementById('adjustWalletId');
+    var balanceDisplay = document.getElementById('currentBalanceDisplay');
+    var amountInput = document.getElementById('adjustAmountInput');
+
+    if (walletIdInput) walletIdInput.value = walletId;
+    if (balanceDisplay) balanceDisplay.textContent = '₹' + parseFloat(currentBalance || 0).toLocaleString('en-IN');
     if (amountInput) amountInput.value = '';
-    if (noteInput) noteInput.value = '';
 
+    // Open modal — try both admin-base.js pattern and direct style
+    var modal = document.getElementById('adjustBalanceModal');
     if (modal) {
       modal.hidden = false;
+      modal.style.display = 'flex';
       modal.classList.add('modal-open');
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const table = document.getElementById('walletsTable');
-    const selectAll = document.getElementById('selectAllWallets');
-    const rowChecks = Array.from(document.querySelectorAll('.wallet-row-check'));
-    const bulkBar = document.getElementById('walletBulkBar');
-    const bulkCount = document.getElementById('walletBulkCount');
-    const statusFilter = document.getElementById('walletStatusFilter');
-    const balanceFilter = document.getElementById('walletBalanceFilter');
-    const searchInput = document.getElementById('walletSearch');
-    const resetFiltersBtn = document.getElementById('resetWalletFilters');
+  // ── Submit Adjust Balance ──
+  var adjustForm = document.getElementById('adjustBalanceForm');
+  if (adjustForm) {
+    adjustForm.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    function parseBalance(text) {
-      return Number((text || '').replace(/[₹,\s]/g, '')) || 0;
-    }
+      var walletId = document.getElementById('adjustWalletId').value;
+      var typeEl   = document.querySelector('input[name="adjustType"]:checked');
+      var amount   = document.getElementById('adjustAmountInput').value;
+      var reasonEl = document.getElementById('adjustReasonSelect');
+      var noteEl   = document.getElementById('adjustNoteInput');
 
-    function updateBulkState() {
-      const selected = rowChecks.filter((check) => check.checked).length;
-      bulkCount.textContent = `${selected} wallets selected`;
-      bulkBar.hidden = selected === 0;
-    }
-
-    function applyFilters() {
-      const rows = Array.from(table.querySelectorAll('tbody tr'));
-      const q = (searchInput.value || '').trim().toLowerCase();
-      const status = statusFilter.value;
-      const range = balanceFilter.value;
-
-      rows.forEach((row) => {
-        const rowText = row.textContent.toLowerCase();
-        const rowStatus = row.getAttribute('data-status') || '';
-        const rowBalance = Number(row.getAttribute('data-balance') || 0);
-
-        let statusMatch = !status || rowStatus === status;
-        let searchMatch = !q || rowText.includes(q);
-        let balanceMatch = true;
-
-        if (range === '0-1000') balanceMatch = rowBalance >= 0 && rowBalance <= 1000;
-        if (range === '1000-10000') balanceMatch = rowBalance > 1000 && rowBalance <= 10000;
-        if (range === '10000-100000') balanceMatch = rowBalance > 10000 && rowBalance <= 100000;
-        if (range === '100000+') balanceMatch = rowBalance > 100000;
-
-        row.style.display = (statusMatch && searchMatch && balanceMatch) ? '' : 'none';
-      });
-    }
-
-    if (selectAll) {
-      selectAll.addEventListener('change', function () {
-        rowChecks.forEach((check) => {
-          if (check.closest('tr').style.display !== 'none') {
-            check.checked = selectAll.checked;
-          }
-        });
-        updateBulkState();
-      });
-    }
-
-    rowChecks.forEach((check) => {
-      check.addEventListener('change', updateBulkState);
-    });
-
-    [statusFilter, balanceFilter, searchInput].forEach((node) => {
-      if (!node) return;
-      node.addEventListener('input', applyFilters);
-      node.addEventListener('change', applyFilters);
-    });
-
-    if (resetFiltersBtn) {
-      resetFiltersBtn.addEventListener('click', function () {
-        searchInput.value = '';
-        statusFilter.value = '';
-        balanceFilter.value = '';
-        applyFilters();
-      });
-    }
-
-    document.querySelectorAll('.copy-wallet-btn').forEach((btn) => {
-      btn.addEventListener('click', function () {
-        const value = this.getAttribute('data-copy') || '';
-        if (!value || !navigator.clipboard) return;
-        navigator.clipboard.writeText(value).catch(() => {});
-      });
-    });
-
-    document.addEventListener('click', function (event) {
-      if (!event.target.closest('.action-cell')) {
-        document.querySelectorAll('.action-dropdown.open').forEach((d) => {
-          d.classList.remove('open');
-          d.style.top = '100%';
-          d.style.bottom = 'auto';
-        });
+      if (!typeEl || !amount || parseFloat(amount) <= 0) {
+        alert('Please fill in all required fields correctly.');
+        return;
       }
-    });
 
-    const adjustForm = document.getElementById('adjustBalanceForm');
-    if (adjustForm) {
-      adjustForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const walletId = document.getElementById('adjustWalletId')?.value;
-        const type = document.querySelector('input[name="adjustType"]:checked')?.value;
-        const amount = document.getElementById('adjustAmountInput')?.value;
-        const reason = document.getElementById('adjustReasonSelect')?.value;
-        const note = document.getElementById('adjustNoteInput')?.value;
-
-        fetch(`/admin/wallets/${walletId}/adjust-balance`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, amount, reason, note })
+      fetch('/admin/wallets/' + walletId + '/adjust-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type:   typeEl.value,
+          amount: parseFloat(amount),
+          reason: reasonEl ? reasonEl.value : 'other',
+          note:   noteEl ? noteEl.value : ''
         })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.success) {
-              alert('Balance adjusted successfully');
-              location.reload();
-            } else {
-              alert(data.message || 'Failed to adjust balance');
-            }
-          })
-          .catch(() => alert('Network error'));
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          alert('Balance adjusted successfully! New balance: ₹' + parseFloat(data.newBalance).toLocaleString('en-IN'));
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to adjust balance'));
+        }
+      })
+      .catch(function() {
+        alert('Network error. Please try again.');
       });
-    }
+    });
+  }
 
-    updateBulkState();
-    applyFilters();
+  // ── Filter: Search ──
+  var searchInput = document.getElementById('walletSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var query = this.value.toLowerCase();
+      document.querySelectorAll('.admin-table tbody tr').forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
+  }
+
+  // ── Filter: Status dropdown ──
+  var statusFilter = document.getElementById('statusFilter');
+  if (statusFilter) {
+    statusFilter.addEventListener('change', function() {
+      var val = this.value.toLowerCase();
+      document.querySelectorAll('.admin-table tbody tr').forEach(function(row) {
+        if (!val || val === 'all') {
+          row.style.display = '';
+        } else {
+          var badge = row.querySelector('.status-badge');
+          var status = badge ? badge.textContent.trim().toLowerCase() : '';
+          row.style.display = status === val ? '' : 'none';
+        }
+      });
+    });
+  }
+
+  // ── Reset Filters ──
+  var resetBtn = document.getElementById('resetFiltersBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      if (searchInput) searchInput.value = '';
+      if (statusFilter) statusFilter.value = '';
+      document.querySelectorAll('.admin-table tbody tr').forEach(function(row) {
+        row.style.display = '';
+      });
+    });
+  }
+
+  // ── Bulk select checkboxes ──
+  var selectAll = document.getElementById('selectAllCheckbox');
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      document.querySelectorAll('.row-check').forEach(function(cb) {
+        cb.checked = selectAll.checked;
+      });
+      updateBulkBar();
+    });
+  }
+
+  document.querySelectorAll('.row-check').forEach(function(cb) {
+    cb.addEventListener('change', updateBulkBar);
   });
+
+  function updateBulkBar() {
+    var checked = document.querySelectorAll('.row-check:checked').length;
+    var bulkBar = document.getElementById('bulkActionBar');
+    var bulkCount = document.getElementById('bulkSelectedCount');
+    if (bulkBar) {
+      bulkBar.style.display = checked > 0 ? 'flex' : 'none';
+    }
+    if (bulkCount) bulkCount.textContent = checked + ' wallet' + (checked > 1 ? 's' : '') + ' selected';
+  }
+
+  // ── Helper: get all checked wallet IDs ──
+  function getSelectedWalletIds() {
+    return Array.from(document.querySelectorAll('.row-check:checked'))
+      .map(function(cb) { return cb.value; })
+      .filter(Boolean);
+  }
+
+  // ── Bulk Freeze ──
+  var bulkFreezeBtn = document.getElementById('bulkFreezeBtn');
+  if (bulkFreezeBtn) {
+    bulkFreezeBtn.addEventListener('click', function() {
+      var ids = getSelectedWalletIds();
+      if (ids.length === 0) return;
+      if (!confirm('Freeze ' + ids.length + ' selected wallet(s)?')) return;
+
+      fetch('/admin/wallets/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletIds: ids, action: 'freeze' })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          alert(data.message);
+          location.reload();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(function() { alert('Network error. Please try again.'); });
+    });
+  }
+
+  // ── Bulk Suspend ──
+  var bulkSuspendBtn = document.getElementById('bulkSuspendBtn');
+  if (bulkSuspendBtn) {
+    bulkSuspendBtn.addEventListener('click', function() {
+      var ids = getSelectedWalletIds();
+      if (ids.length === 0) return;
+      if (!confirm('Suspend ' + ids.length + ' selected wallet(s)? This cannot be easily undone.')) return;
+
+      fetch('/admin/wallets/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletIds: ids, action: 'suspend' })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.success) {
+          alert(data.message);
+          location.reload();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(function() { alert('Network error. Please try again.'); });
+    });
+  }
+
+  // ── Bulk Export Selected ──
+  var bulkExportBtn = document.getElementById('bulkExportBtn');
+  if (bulkExportBtn) {
+    bulkExportBtn.addEventListener('click', function() {
+      var ids = getSelectedWalletIds();
+      if (ids.length === 0) return;
+      window.location.href = '/admin/wallets/export?ids=' + ids.join(',');
+    });
+  }
+
+  // ── Bulk Clear Selection ──
+  var bulkClearBtn = document.getElementById('bulkClearBtn');
+  if (bulkClearBtn) {
+    bulkClearBtn.addEventListener('click', function() {
+      document.querySelectorAll('.row-check').forEach(function(cb) { cb.checked = false; });
+      var selectAllCheckbox = document.getElementById('selectAllCheckbox');
+      if (selectAllCheckbox) selectAllCheckbox.checked = false;
+      updateBulkBar();
+    });
+  }
+
+  // ── Export All Wallets (top right button) ──
+  var exportAllBtn = document.getElementById('exportAllBtn');
+  if (exportAllBtn) {
+    exportAllBtn.addEventListener('click', function() {
+      window.location.href = '/admin/wallets/export';
+    });
+  }
+
 </script>

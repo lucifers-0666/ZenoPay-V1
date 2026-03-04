@@ -119,9 +119,12 @@ router.post("/transactions/:id/flag", requirePermission("transactions", "flag"),
 
 // ============ WALLET MANAGEMENT ROUTES ============
 router.get("/wallets", requirePermission("transactions", "view"), AdminWalletController.walletsList);
-router.get("/wallets/:id", requirePermission("transactions", "view"), AdminWalletController.walletDetails);
+router.post("/wallets/bulk-action", requirePermission("transactions", "view"), AdminWalletController.bulkWalletAction);
+router.get("/wallets/export", requirePermission("transactions", "view"), AdminWalletController.exportWallets);
 router.patch("/wallets/:id/status", requirePermission("transactions", "view"), AdminWalletController.updateWalletStatus);
 router.post("/wallets/:id/adjust-balance", requirePermission("transactions", "view"), AdminWalletController.adjustWalletBalance);
+router.post("/wallets/:id/reset-balance", requirePermission("transactions", "view"), AdminWalletController.resetWalletBalance);
+router.get("/wallets/:id", requirePermission("transactions", "view"), AdminWalletController.walletDetails);
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
