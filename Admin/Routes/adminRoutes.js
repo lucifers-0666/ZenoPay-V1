@@ -18,6 +18,7 @@ const AdminKYCController = require("../Controllers/AdminKYCController");
 const AdminOperationsController = require("../Controllers/AdminOperationsController");
 const AdminWalletController = require("../Controllers/AdminWalletController");
 const adminRefundController = require("../../controllers/admin/adminRefundController");
+const adminMgmtController = require("../../Controllers/admin/adminMgmtController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -147,6 +148,13 @@ router.get("/reports/export", requirePermission("reports", "export"), AdminDashb
 // ============ SETTINGS ROUTES ============
 router.get("/settings", requirePermission("settings", "view"), AdminDashboardController.getSettings);
 router.post("/settings", requirePermission("settings", "update"), AdminDashboardController.updateSettings);
+
+// ============ ADMIN MANAGEMENT ROUTES ============
+router.get("/admins", requirePermission("users", "view"), adminMgmtController.getAdminManagementPage);
+router.post("/admins/create", requirePermission("users", "create"), adminMgmtController.createAdmin);
+router.post("/admins/:id/status", requirePermission("users", "update"), adminMgmtController.updateAdminStatus);
+router.post("/admins/:id/role", requirePermission("users", "update"), adminMgmtController.updateAdminRole);
+router.post("/admins/:id/delete", requirePermission("users", "delete"), adminMgmtController.deleteAdmin);
 
 // ============ PAYMENT GATEWAY ROUTES ============
 router.get("/settings/payment-gateway", requirePermission("payment_gateway", "view"), AdminPaymentGatewayController.getPaymentGatewaySettings);

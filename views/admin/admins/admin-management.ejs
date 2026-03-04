@@ -1,0 +1,431 @@
+<%
+  const currentAdminPage = typeof adminPage !== 'undefined' ? adminPage : 'admins';
+  page = currentAdminPage;
+  const adminRows = Array.isArray(admins) ? admins : [];
+  const totalCount = stats?.totalAdmins || adminRows.length || 0;
+  const activeCount = stats?.activeAdmins || 0;
+  const inactiveCount = stats?.inactiveAdmins || 0;
+  const suspendedCount = stats?.suspendedAdmins || 0;
+%>
+
+<section class="admins-page" id="adminsPage">
+  <header class="admins-head">
+    <div>
+      <h1>Admin Management</h1>
+      <p>Manage platform admins, access level, and account status.</p>
+    </div>
+    <button type="button" class="btn-primary-admin" data-open-modal="createAdminModal">
+      <i class="fas fa-user-plus"></i>
+      <span>Add Admin</span>
+    </button>
+  </header>
+
+  <% if (success) { %>
+    <div class="admins-alert success"><i class="fas fa-check-circle"></i><span><%= success %></span></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="admins-alert error"><i class="fas fa-exclamation-triangle"></i><span><%= error %></span></div>
+  <% } %>
+
+  <section class="admins-stats">
+    <article class="admins-stat-card">
+      <p>Total Admins</p>
+      <h3><%= totalCount %></h3>
+    </article>
+    <article class="admins-stat-card">
+      <p>Active</p>
+      <h3 class="text-green"><%= activeCount %></h3>
+    </article>
+    <article class="admins-stat-card">
+      <p>Inactive</p>
+      <h3 class="text-amber"><%= inactiveCount %></h3>
+    </article>
+    <article class="admins-stat-card">
+      <p>Suspended</p>
+      <h3 class="text-red"><%= suspendedCount %></h3>
+    </article>
+  </section>
+
+  <section class="admins-toolbar">
+    <div class="admins-search-wrap">
+      <i class="fas fa-search"></i>
+      <input id="adminSearchInput" type="text" placeholder="Search by name, email, or Admin ID..." />
+    </div>
+    <select id="statusFilter" class="admins-select">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+      <option value="suspended">Suspended</option>
+    </select>
+  </section>
+
+  <section class="admins-table-wrapper">
+    <table class="admins-table" id="adminsTable">
+      <thead>
+        <tr>
+          <th>Admin</th>
+          <th>Admin ID</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="adminsTableBody">
+        <% if (!adminRows.length) { %>
+          <tr>
+            <td colspan="8" class="admins-empty">No admin records found.</td>
+          </tr>
+        <% } %>
+
+        <% adminRows.forEach((admin) => {
+          const status = (admin.AccountStatus || 'Active');
+          const statusClass = status.toLowerCase();
+          const roleLabel = admin.Role === 'admin' ? 'Admin' : (admin.Role || 'Admin');
+        %>
+          <tr data-name="<%= admin.FullName || '' %>" data-email="<%= admin.Email || '' %>" data-id="<%= admin.ZenoPayID || '' %>" data-status="<%= statusClass %>">
+            <td>
+              <div class="admin-user-cell">
+                <div class="admin-avatar">
+                  <% if (admin.ImagePath) { %>
+                    <img src="<%= admin.ImagePath %>" alt="<%= admin.FullName || 'Admin' %>" />
+                  <% } else { %>
+                    <span><%= (admin.FullName || 'A').charAt(0).toUpperCase() %></span>
+                  <% } %>
+                </div>
+                <div>
+                  <strong><%= admin.FullName || 'N/A' %></strong>
+                </div>
+              </div>
+            </td>
+            <td><code><%= admin.ZenoPayID || 'N/A' %></code></td>
+            <td><%= admin.Email || 'N/A' %></td>
+            <td><%= admin.Mobile || 'N/A' %></td>
+            <td><span class="role-pill"><%= roleLabel %></span></td>
+            <td><span class="status-badge <%= statusClass %>"><%= status %></span></td>
+            <td><%= admin.RegistrationDate ? new Date(admin.RegistrationDate).toLocaleDateString('en-IN') : 'N/A' %></td>
+            <td class="action-cell actions-col">
+              <button type="button" class="icon-action-btn action-toggle" aria-label="Open admin actions">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <div class="action-dropdown" role="menu" aria-label="Admin actions menu">
+                <button type="button" class="action-dropdown-item" data-open-modal="statusModal" data-id="<%= admin._id %>" data-name="<%= admin.FullName || '' %>" data-status="<%= status %>">
+                  <i class="fas fa-toggle-on"></i> Change Status
+                </button>
+                <button type="button" class="action-dropdown-item" data-open-modal="roleModal" data-id="<%= admin._id %>" data-name="<%= admin.FullName || '' %>">
+                  <i class="fas fa-user-shield"></i> Change Role
+                </button>
+                <div class="action-dropdown-separator"></div>
+                <button type="button" class="action-dropdown-item text-red" data-open-modal="deleteAdminModal" data-id="<%= admin._id %>" data-name="<%= admin.FullName || '' %>">
+                  <i class="fas fa-trash"></i> Delete Admin
+                </button>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </section>
+</section>
+
+<div id="createAdminModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="createAdminTitle">
+    <div class="modal-header">
+      <h2 id="createAdminTitle" class="modal-title">Create Admin</h2>
+      <button type="button" class="modal-close-btn" data-close-modal="createAdminModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form method="POST" action="/admin/admins/create" class="modal-body">
+      <label class="modal-field">
+        <span>Full Name</span>
+        <input type="text" name="fullName" required />
+      </label>
+      <label class="modal-field">
+        <span>Email</span>
+        <input type="email" name="email" required />
+      </label>
+      <label class="modal-field">
+        <span>Mobile (optional)</span>
+        <input type="text" name="mobile" maxlength="10" />
+      </label>
+      <label class="modal-field">
+        <span>Temporary Password</span>
+        <input type="password" name="password" minlength="8" required />
+      </label>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="createAdminModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal">Create Admin</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="statusModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="statusModalTitle">
+    <div class="modal-header">
+      <h2 id="statusModalTitle" class="modal-title">Update Status</h2>
+      <button type="button" class="modal-close-btn" data-close-modal="statusModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="statusForm" method="POST" action="" class="modal-body">
+      <p class="modal-copy">Update account status for <strong id="statusAdminName">this admin</strong>.</p>
+      <label class="modal-field">
+        <span>Status</span>
+        <select name="status" required>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </label>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="statusModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal">Update Status</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="roleModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="roleModalTitle">
+    <div class="modal-header">
+      <h2 id="roleModalTitle" class="modal-title">Update Role</h2>
+      <button type="button" class="modal-close-btn" data-close-modal="roleModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="roleForm" method="POST" action="" class="modal-body">
+      <p class="modal-copy">Assign role for <strong id="roleAdminName">this admin</strong>.</p>
+      <label class="modal-field">
+        <span>Role</span>
+        <select name="role" required>
+          <option value="admin">Admin</option>
+          <option value="super-admin">Super Admin</option>
+        </select>
+      </label>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="roleModal">Cancel</button>
+        <button type="submit" class="btn-primary-modal">Update Role</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="deleteAdminModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteAdminTitle">
+    <div class="modal-header">
+      <h2 id="deleteAdminTitle" class="modal-title">Delete Admin</h2>
+      <button type="button" class="modal-close-btn" data-close-modal="deleteAdminModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="deleteForm" method="POST" action="" class="modal-body">
+      <p class="modal-copy">Are you sure you want to delete <strong id="deleteAdminName">this admin</strong>? This action cannot be undone.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline-modal" data-close-modal="deleteAdminModal">Cancel</button>
+        <button type="submit" class="btn-danger-modal">Delete Admin</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .admins-page { display: grid; gap: 16px; }
+  .admins-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .admins-head h1 { margin: 0; font-size: clamp(1.3rem, 2vw, 1.7rem); color: var(--text-primary); }
+  .admins-head p { margin: 4px 0 0; color: var(--text-secondary); font-size: .92rem; }
+
+  .admins-alert { display:flex; align-items:center; gap:8px; padding: 10px 12px; border-radius: 10px; font-size: .9rem; }
+  .admins-alert.success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
+  .admins-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+  .admins-stats { display:grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 12px; }
+  .admins-stat-card { background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0); border-radius: 14px; padding: 14px; }
+  .admins-stat-card p { margin: 0 0 6px; color: var(--text-secondary); font-size: .82rem; }
+  .admins-stat-card h3 { margin: 0; font-size: 1.35rem; color: var(--text-primary); }
+  .admins-stat-card h3.text-green { color: #15803d; }
+  .admins-stat-card h3.text-amber { color: #b45309; }
+  .admins-stat-card h3.text-red { color: #b91c1c; }
+
+  .admins-toolbar { display:flex; gap: 12px; flex-wrap: wrap; align-items:center; background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0); border-radius: 14px; padding: 12px; }
+  .admins-search-wrap { flex: 1; min-width: 240px; position: relative; }
+  .admins-search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+  .admins-search-wrap input { width: 100%; height: 40px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 12px 0 36px; outline: none; }
+  .admins-search-wrap input:focus, .admins-select:focus, .modal-field input:focus, .modal-field select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.16); }
+  .admins-select { height: 40px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 10px; min-width: 170px; background: #fff; }
+
+  .admins-table-wrapper { overflow-x: auto; background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0); border-radius: 14px; }
+  .admins-table { width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; }
+  .admins-table th, .admins-table td { padding: 12px 14px; border-bottom: 1px solid #eef2f7; color: var(--text-secondary); font-size: .88rem; vertical-align: middle; text-align: left; background: #fff; }
+  .admins-table th { color: #64748b; font-weight: 700; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; position: sticky; top: 0; z-index: 2; }
+  .admins-table tr:hover td { background: #f8fafc; }
+
+  .admins-table .actions-col { min-width: 132px; width: 132px; text-align: right; position: sticky; right: 0; z-index: 3; background: inherit; }
+  .admins-table thead .actions-col { z-index: 4; background: #fff; }
+  .admins-table tr:hover .actions-col { background: #f8fafc; }
+
+  .admin-user-cell { display:flex; gap: 10px; align-items: center; }
+  .admin-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; display:grid; place-items:center; font-weight: 700; overflow:hidden; }
+  .admin-avatar img { width:100%; height:100%; object-fit: cover; }
+  .role-pill { display:inline-flex; align-items:center; border-radius: 999px; padding: 4px 10px; font-size: .75rem; background:#eef6ff; color:#1e40af; }
+  .status-badge { display:inline-flex; align-items:center; border-radius:999px; padding:4px 10px; font-size:.75rem; font-weight:600; text-transform:capitalize; }
+  .status-badge.active { background:#ecfdf3; color:#166534; }
+  .status-badge.inactive { background:#fff7ed; color:#9a3412; }
+  .status-badge.suspended { background:#fef2f2; color:#991b1b; }
+  .admins-empty { text-align:center; color:#64748b; padding: 22px 16px !important; }
+
+  .action-cell { position: relative; }
+  .icon-action-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: #475569; cursor: pointer; }
+  .icon-action-btn:hover { background: #f8fafc; border-color:#cbd5e1; }
+  .action-dropdown { position: absolute; right: 0; top: calc(100% + 8px); width: 200px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 18px 38px rgba(2, 6, 23, .16); background: #fff; padding: 8px; z-index: 30; display: none; }
+  .action-dropdown.open { display: block; }
+  .action-dropdown-item { width:100%; display:flex; align-items:center; gap:8px; border:0; background: transparent; text-align:left; border-radius: 8px; padding: 9px 10px; color:#334155; font-size:.86rem; cursor: pointer; }
+  .action-dropdown-item:hover { background:#f1f5f9; }
+  .action-dropdown-item.text-red { color:#b91c1c; }
+  .action-dropdown-separator { height:1px; background:#e2e8f0; margin:6px 0; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 60; align-items: center; justify-content: center; padding: 12px; }
+  .modal-card { width: min(520px, 96vw); border-radius: 16px; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 24px 50px rgba(2,6,23,.22); overflow: hidden; }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; padding: 14px 16px; border-bottom:1px solid #eef2f7; }
+  .modal-title { margin:0; color:#0f172a; font-size:1.06rem; }
+  .modal-close-btn { width: 34px; height: 34px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; cursor:pointer; }
+  .modal-body { display:grid; gap: 12px; padding: 16px; }
+  .modal-copy { margin:0; color:#475569; font-size:.9rem; }
+  .modal-field { display:grid; gap:6px; }
+  .modal-field span { font-size: .82rem; font-weight: 600; color: #334155; }
+  .modal-field input, .modal-field select { width: 100%; height: 40px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 10px; }
+  .modal-footer { display:flex; justify-content:flex-end; gap:10px; padding-top: 8px; }
+
+  @media (max-width: 980px) {
+    .admins-stats { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .admins-stats { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  (() => {
+    const body = document.getElementById('adminsTableBody');
+    const searchInput = document.getElementById('adminSearchInput');
+    const statusFilter = document.getElementById('statusFilter');
+
+    const openModal = (id) => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = (id) => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    };
+
+    const closeAllDropdowns = () => {
+      document.querySelectorAll('.action-dropdown.open').forEach((dropdown) => dropdown.classList.remove('open'));
+    };
+
+    const applyFilters = () => {
+      if (!body) return;
+      const q = (searchInput?.value || '').trim().toLowerCase();
+      const status = (statusFilter?.value || '').trim().toLowerCase();
+
+      Array.from(body.querySelectorAll('tr')).forEach((row) => {
+        if (row.querySelector('.admins-empty')) return;
+
+        const name = (row.getAttribute('data-name') || '').toLowerCase();
+        const email = (row.getAttribute('data-email') || '').toLowerCase();
+        const id = (row.getAttribute('data-id') || '').toLowerCase();
+        const rowStatus = (row.getAttribute('data-status') || '').toLowerCase();
+
+        const matchSearch = !q || name.includes(q) || email.includes(q) || id.includes(q);
+        const matchStatus = !status || rowStatus === status;
+
+        row.style.display = matchSearch && matchStatus ? '' : 'none';
+      });
+    };
+
+    document.querySelectorAll('.action-toggle').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const cell = btn.closest('.action-cell');
+        const menu = cell?.querySelector('.action-dropdown');
+        if (!menu) return;
+
+        const willOpen = !menu.classList.contains('open');
+        closeAllDropdowns();
+        if (willOpen) menu.classList.add('open');
+      });
+    });
+
+    document.querySelectorAll('[data-open-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const adminId = btn.getAttribute('data-id');
+        const adminName = btn.getAttribute('data-name') || 'this admin';
+        const adminStatus = btn.getAttribute('data-status') || 'Active';
+
+        if (modalId === 'statusModal' && adminId) {
+          const form = document.getElementById('statusForm');
+          if (form) form.action = `/admin/admins/${encodeURIComponent(adminId)}/status`;
+
+          const nameNode = document.getElementById('statusAdminName');
+          if (nameNode) nameNode.textContent = adminName;
+
+          const select = form?.querySelector('select[name="status"]');
+          if (select) select.value = adminStatus.toLowerCase();
+        }
+
+        if (modalId === 'roleModal' && adminId) {
+          const form = document.getElementById('roleForm');
+          if (form) form.action = `/admin/admins/${encodeURIComponent(adminId)}/role`;
+
+          const nameNode = document.getElementById('roleAdminName');
+          if (nameNode) nameNode.textContent = adminName;
+        }
+
+        if (modalId === 'deleteAdminModal' && adminId) {
+          const form = document.getElementById('deleteForm');
+          if (form) form.action = `/admin/admins/${encodeURIComponent(adminId)}/delete`;
+
+          const nameNode = document.getElementById('deleteAdminName');
+          if (nameNode) nameNode.textContent = adminName;
+        }
+
+        closeAllDropdowns();
+        openModal(modalId);
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach((modal) => {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      closeAllDropdowns();
+      document.querySelectorAll('.modal-overlay').forEach((modal) => {
+        if (modal.style.display === 'flex') {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.action-cell')) {
+        closeAllDropdowns();
+      }
+    });
+
+    searchInput?.addEventListener('input', applyFilters);
+    statusFilter?.addEventListener('change', applyFilters);
+  })();
+</script>
