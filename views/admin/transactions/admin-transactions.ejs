@@ -525,6 +525,7 @@
   .view-btn.active { color: #fff; background: var(--primary); }
 
   .tx-table-wrap { background: var(--card-bg); margin-bottom: 16px; }
+  .tx-table { min-width: 1540px; }
   .tx-table th {
     background: #F8FAFC;
     color: var(--text-soft);
@@ -536,6 +537,13 @@
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
+  .tx-table th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    background: #F8FAFC;
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
   .tx-table td {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-light);
@@ -543,10 +551,27 @@
     font-size: 13px;
     color: var(--text-mid);
   }
+  .tx-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 4;
+    background: var(--card-bg);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
+  .tx-table th:nth-child(2), .tx-table td:nth-child(2) { min-width: 160px; }
+  .tx-table th:nth-child(3), .tx-table td:nth-child(3) { min-width: 110px; }
+  .tx-table th:nth-child(4), .tx-table td:nth-child(4) { min-width: 190px; }
+  .tx-table th:nth-child(5), .tx-table td:nth-child(5) { min-width: 190px; }
+  .tx-table th:nth-child(6), .tx-table td:nth-child(6) { min-width: 130px; }
+  .tx-table th:nth-child(9), .tx-table td:nth-child(9) { min-width: 150px; }
+  .tx-table th:nth-child(11), .tx-table td:nth-child(11) { min-width: 86px; }
   .tx-table tbody tr { transition: background var(--trans-fast); animation: fadeInUp .2s ease-out both; }
   .tx-table tbody tr:hover { background: #FAFBFF; cursor: pointer; }
+  .tx-table tbody tr:hover td:last-child { background: #FAFBFF; }
   .tx-table tbody tr.flagged { background: rgba(245,158,11,0.05); box-shadow: inset 3px 0 0 var(--amber); }
+  .tx-table tbody tr.flagged td:last-child { background: rgba(245,158,11,0.05); }
   .tx-table tbody tr.failed { background: rgba(239,68,68,0.04); }
+  .tx-table tbody tr.failed td:last-child { background: rgba(239,68,68,0.04); }
 
   .table-check { display: inline-flex; }
   .table-check input { position: absolute; opacity: 0; pointer-events: none; }
@@ -746,7 +771,7 @@
     .summary-row.three { grid-template-columns: 1fr; }
     .summary-row.two { grid-template-columns: 1fr; }
     .tx-table-wrap { overflow-x: auto; }
-    .tx-table { min-width: 1560px; }
+    .tx-table { min-width: 1540px; }
   }
 
   @media (max-width: 980px) {

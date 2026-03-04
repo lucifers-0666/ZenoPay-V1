@@ -453,16 +453,33 @@
   .items-select {
     width: 74px;
     height: 34px;
-    border: 1px solid var(--border);
+    min-width: 1280px;
     border-radius: 8px;
     background: var(--card-bg);
     color: var(--text-dark);
   }
 
   .bulk-action-bar {
+  .failed-table th.actions-col {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    background: var(--card-bg);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
+  .failed-table td.actions-col {
+    position: sticky;
+    right: 0;
+    z-index: 4;
+    background: var(--card-bg);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
     position: fixed;
     left: 50%;
     bottom: 20px;
+  .failed-table tbody tr:hover td.actions-col {
+    background: color-mix(in srgb, var(--danger) 3%, var(--card-bg));
+  }
     transform: translateX(-50%);
     z-index: 600;
     border-radius: 999px;

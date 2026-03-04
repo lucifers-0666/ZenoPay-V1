@@ -271,7 +271,7 @@
   .table-meta-row strong { color: var(--text-main); }
   .btn-sm { height: 34px; font-size: 12px; }
 
-  .flagged-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  .flagged-table { width: 100%; min-width: 1180px; border-collapse: separate; border-spacing: 0; }
   .flagged-table thead tr { background: #F8FAFC; }
   .flagged-table th {
     padding: 13px 20px;
@@ -284,12 +284,30 @@
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
+  .flagged-table th:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    background: #F8FAFC;
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
   .flagged-table td {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-light);
     vertical-align: middle;
     background: rgba(245,158,11,0.03);
   }
+  .flagged-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 4;
+    background: rgba(245,158,11,0.03);
+    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
+  }
+  .flagged-table th:nth-child(2), .flagged-table td:nth-child(2) { min-width: 160px; }
+  .flagged-table th:nth-child(3), .flagged-table td:nth-child(3) { min-width: 220px; }
+  .flagged-table th:nth-child(4), .flagged-table td:nth-child(4) { min-width: 130px; }
+  .flagged-table th:nth-child(9), .flagged-table td:nth-child(9) { min-width: 86px; }
 
   .table-check { display: inline-flex; }
   .table-check input { position: absolute; opacity: 0; pointer-events: none; }
