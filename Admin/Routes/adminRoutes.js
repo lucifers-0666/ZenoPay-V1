@@ -19,6 +19,7 @@ const AdminOperationsController = require("../Controllers/AdminOperationsControl
 const AdminWalletController = require("../Controllers/AdminWalletController");
 const adminRefundController = require("../../controllers/admin/adminRefundController");
 const adminMgmtController = require("../../Controllers/admin/adminMgmtController");
+const adminSettingsController = require("../../Controllers/admin/adminSettingsController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -146,8 +147,14 @@ router.get("/reports", requirePermission("reports", "view"), AdminDashboardContr
 router.get("/reports/export", requirePermission("reports", "export"), AdminDashboardController.exportReports);
 
 // ============ SETTINGS ROUTES ============
-router.get("/settings", requirePermission("settings", "view"), AdminDashboardController.getSettings);
-router.post("/settings", requirePermission("settings", "update"), AdminDashboardController.updateSettings);
+router.get("/settings", requirePermission("settings", "view"), adminSettingsController.settingsPage);
+router.post("/settings/general", requirePermission("settings", "update"), adminSettingsController.updateGeneralSettings);
+router.post("/settings/payment", requirePermission("settings", "update"), adminSettingsController.updatePaymentSettings);
+router.post("/settings/security", requirePermission("settings", "update"), adminSettingsController.updateSecuritySettings);
+router.post("/settings/notification", requirePermission("settings", "update"), adminSettingsController.updateNotificationSettings);
+router.post("/settings/maintenance", requirePermission("settings", "update"), adminSettingsController.toggleMaintenance);
+router.post("/settings/reset", requirePermission("settings", "update"), adminSettingsController.resetSettings);
+router.post("/settings/force-logout", requirePermission("settings", "update"), adminSettingsController.forceLogoutAdmins);
 
 // ============ ADMIN MANAGEMENT ROUTES ============
 router.get("/admins", requirePermission("users", "view"), adminMgmtController.getAdminManagementPage);

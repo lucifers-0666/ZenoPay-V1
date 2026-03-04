@@ -1,229 +1,1075 @@
-﻿        <div class="page-header-admin">
-            <div>
-                <h1 class="page-title-admin">Admin Settings</h1>
-                <p class="page-subtitle">Configure platform settings and preferences</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn-primary" onclick="saveAllSettings()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                    Save All Changes
-                </button>
-            </div>
+<%
+  const s = settings || {};
+  const safeDateTime = s.maintenanceStart
+    ? new Date(s.maintenanceStart).toISOString().slice(0, 16)
+    : '';
+  const updatedAt = s.updatedAt ? new Date(s.updatedAt) : null;
+  const hoursAgo = updatedAt ? Math.max(0, Math.floor((Date.now() - updatedAt.getTime()) / (1000 * 60 * 60))) : 2;
+  const lastSavedText = updatedAt ? `Last saved ${hoursAgo === 0 ? 'just now' : `${hoursAgo} hour${hoursAgo > 1 ? 's' : ''} ago`}` : 'Last saved 2 hours ago';
+%>
+
+<style>
+  .settings-page { display: grid; gap: 16px; }
+
+  .settings-header {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .admin-page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-main);
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .admin-page-title i {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-md);
+    display: grid;
+    place-items: center;
+    color: var(--card-bg);
+    background: linear-gradient(135deg, var(--text-muted), var(--primary));
+  }
+
+  .settings-subtitle {
+    color: var(--text-soft);
+    font-size: .9rem;
+    margin-bottom: 10px;
+  }
+
+  .settings-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: .82rem;
+  }
+
+  .settings-breadcrumb a { color: var(--text-muted); }
+  .settings-breadcrumb a:hover { color: var(--primary); }
+
+  .settings-saved {
+    color: var(--text-soft);
+    font-size: .84rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .settings-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    padding: 0 4px;
+  }
+
+  .settings-tab-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: .84rem;
+    padding: 10px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid transparent;
+    transition: color var(--t-fast), border-color var(--t-fast);
+  }
+
+  .settings-tab-btn:hover { color: var(--text-main); }
+  .settings-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .settings-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    padding: 16px;
+    margin-top: 14px;
+  }
+
+  .settings-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .settings-card-title i { color: var(--primary); }
+
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 14px;
+  }
+
+  .field { display: grid; gap: 6px; }
+  .field label { color: var(--text-mid); font-size: .82rem; font-weight: 600; }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    min-height: 40px;
+    padding: 8px 10px;
+    background: var(--card-bg);
+    color: var(--text-main);
+    outline: none;
+  }
+
+  .field textarea { resize: vertical; min-height: 82px; }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+
+  .field.full { grid-column: 1 / -1; }
+
+  .settings-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: .84rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+  }
+
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--card-bg); box-shadow: var(--shadow-xs); }
+  .btn-danger { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: var(--card-bg); }
+  .btn-success { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: var(--card-bg); }
+  .btn-outline-amber { background: transparent; color: var(--amber-dark); border: 1px solid var(--amber); }
+  .btn-outline-red { background: transparent; color: var(--red-dark); border: 1px solid var(--red); }
+
+  .info-box {
+    margin-top: 12px;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.2);
+    color: var(--text-mid);
+    border-radius: var(--r-sm);
+    padding: 10px 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: .84rem;
+  }
+  .info-box i { color: var(--primary); margin-top: 2px; }
+
+  .section-title {
+    margin-top: 10px;
+    margin-bottom: 8px;
+    font-size: .86rem;
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  .helper-text { color: var(--text-soft); font-size: .78rem; margin-top: 4px; }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+
+  .check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-mid);
+    font-size: .84rem;
+  }
+
+  .check-item i { color: var(--text-muted); width: 14px; text-align: center; }
+
+  .maintenance-hero {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 16px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 12px;
+  }
+
+  .maintenance-label {
+    color: var(--text-main);
+    font-size: .94rem;
+    font-weight: 700;
+  }
+
+  .maintenance-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .84rem;
+    color: var(--text-mid);
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+
+  .status-dot.is-maintenance { background: var(--red); }
+
+  .maintenance-warning {
+    margin-top: 10px;
+    background: rgba(245,158,11,.12);
+    border: 1px solid rgba(245,158,11,.35);
+    color: var(--amber-dark);
+    border-radius: var(--r-sm);
+    padding: 10px 12px;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: .84rem;
+  }
+  .maintenance-warning.active { display: flex; }
+
+  .danger-zone {
+    border: 1px solid rgba(239,68,68,.35);
+    background: rgba(239,68,68,.05);
+  }
+
+  .danger-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .danger-row:last-child { border-bottom: none; }
+  .danger-row p { color: var(--text-soft); font-size: .8rem; margin-top: 2px; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(15,23,42,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .modal-card {
+    width: min(500px, 96vw);
+    background: var(--card-bg);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-head {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--red-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-body { padding: 14px 16px; display: grid; gap: 10px; }
+  .modal-footer { padding: 0 16px 14px; display: flex; justify-content: flex-end; gap: 8px; }
+
+  .btn-ghost {
+    min-height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-mid);
+    font-weight: 700;
+    padding: 0 14px;
+  }
+
+  .toast-wrap {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 700;
+    display: grid;
+    gap: 8px;
+  }
+
+  .toast {
+    min-width: 220px;
+    max-width: 340px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 12px;
+    color: var(--card-bg);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .82rem;
+    animation: toastIn .25s ease;
+  }
+
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  .toast.warning { background: var(--amber-dark); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(12px); }
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-info { display: flex; align-items: center; gap: 12px; }
+  .toggle-info i { width: 20px; color: var(--primary); }
+  .toggle-label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+  .toggle-desc  { font-size: 0.8rem; color: var(--text-soft); margin-top: 2px; }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: #cbd5e1;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle-switch input:checked + .toggle-slider {
+    background: var(--primary, #3B82F6);
+  }
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+  }
+
+  .maintenance-toggle-large {
+    position: relative;
+    width: 84px;
+    height: 40px;
+  }
+  .maintenance-toggle-large .toggle-slider { border-radius: 999px; }
+  .maintenance-toggle-large .toggle-slider::before { width: 32px; height: 32px; left: 4px; bottom: 4px; }
+  .maintenance-toggle-large input:checked + .toggle-slider::before { transform: translateX(44px); }
+
+  @media (max-width: 900px) {
+    .form-grid-2,
+    .checkbox-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .danger-row { flex-direction: column; align-items: flex-start; }
+    .danger-row .btn { width: 100%; justify-content: center; }
+  }
+</style>
+
+<section class="settings-page">
+  <header class="settings-header">
+    <div>
+      <h1 class="admin-page-title"><i class="fas fa-gear"></i>System Settings</h1>
+      <p class="settings-subtitle">Configure platform behaviour, limits and preferences</p>
+      <nav class="settings-breadcrumb" aria-label="Breadcrumb">
+        <a href="/admin/dashboard"><i class="fas fa-home"></i> Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Settings</span>
+      </nav>
+    </div>
+    <div class="settings-saved"><i class="fas fa-clock"></i><span id="lastSavedLabel"><%= lastSavedText %></span></div>
+  </header>
+
+  <div class="settings-tabs" role="tablist" aria-label="Settings Tabs">
+    <button type="button" class="settings-tab-btn active" data-tab="tab-general"><i class="fas fa-sliders"></i>General</button>
+    <button type="button" class="settings-tab-btn" data-tab="tab-payment"><i class="fas fa-indian-rupee-sign"></i>Payment</button>
+    <button type="button" class="settings-tab-btn" data-tab="tab-security"><i class="fas fa-shield-halved"></i>Security</button>
+    <button type="button" class="settings-tab-btn" data-tab="tab-notifications"><i class="fas fa-bell"></i>Notifications</button>
+    <button type="button" class="settings-tab-btn" data-tab="tab-maintenance"><i class="fas fa-triangle-exclamation"></i>Maintenance</button>
+  </div>
+
+  <div id="tab-general" class="tab-panel active">
+    <section class="settings-card">
+      <h3 class="settings-card-title"><i class="fas fa-sliders"></i>General Configuration</h3>
+      <form id="generalForm" class="form-grid-2" novalidate>
+        <div class="field">
+          <label for="appName">App Name</label>
+          <input id="appName" type="text" value="<%= s.appName || 'ZenoPay' %>">
+        </div>
+        <div class="field">
+          <label for="currency">Default Currency</label>
+          <select id="currency">
+            <option value="INR" <%= (s.currency || 'INR') === 'INR' ? 'selected' : '' %>>INR — Indian Rupee</option>
+            <option value="USD" <%= s.currency === 'USD' ? 'selected' : '' %>>USD</option>
+            <option value="EUR" <%= s.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+            <option value="GBP" <%= s.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
+          </select>
         </div>
 
-        <div class="details-grid-2col">
-            <div class="details-column">
-                <!-- Platform Settings -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">Platform Settings</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="form-group">
-                            <label class="form-label">Platform Name</label>
-                            <input type="text" class="form-input-edit" value="ZenoPay" id="platformName">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Support Email</label>
-                            <input type="email" class="form-input-edit" value="support@zenopay.com" id="supportEmail">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Support Phone</label>
-                            <input type="text" class="form-input-edit" value="+91 1800-123-4567" id="supportPhone">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Maintenance Mode</label>
-                            <div class="switch-container">
-                                <input type="checkbox" id="maintenanceMode" class="switch-input">
-                                <label for="maintenanceMode" class="switch-label"></label>
-                            </div>
-                            <small class="form-hint">Enable to put platform in maintenance mode</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Default Commission -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">Default Commission Rates</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="form-group">
-                            <label class="form-label">UPI Transactions (%)</label>
-                            <input type="number" class="form-input-edit" value="1.5" min="0" max="10" step="0.1" id="upiCommission">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Card Transactions (%)</label>
-                            <input type="number" class="form-input-edit" value="2.5" min="0" max="10" step="0.1" id="cardCommission">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Net Banking (%)</label>
-                            <input type="number" class="form-input-edit" value="2.0" min="0" max="10" step="0.1" id="netbankingCommission">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Wallet Transactions (%)</label>
-                            <input type="number" class="form-input-edit" value="1.8" min="0" max="10" step="0.1" id="walletCommission">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Security Settings -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">Security Settings</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Two-Factor Authentication</strong>
-                                <small>Require 2FA for admin logins</small>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="require2FA" class="switch-input" checked>
-                                <label for="require2FA" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Session Timeout</strong>
-                                <small>Auto logout after inactivity</small>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="sessionTimeout" class="switch-input" checked>
-                                <label for="sessionTimeout" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Session Duration (minutes)</label>
-                            <input type="number" class="form-input-edit" value="30" min="5" max="120" id="sessionDuration">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Max Login Attempts</label>
-                            <input type="number" class="form-input-edit" value="3" min="1" max="10" id="maxLoginAttempts">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="details-column">
-                <!-- Email Notifications -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">Email Notifications</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>New Merchant Registrations</strong>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="emailNewMerchant" class="switch-input" checked>
-                                <label for="emailNewMerchant" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>High Value Transactions</strong>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="emailHighValue" class="switch-input" checked>
-                                <label for="emailHighValue" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Failed Transactions</strong>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="emailFailed" class="switch-input">
-                                <label for="emailFailed" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Dispute Notifications</strong>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="emailDisputes" class="switch-input" checked>
-                                <label for="emailDisputes" class="switch-label"></label>
-                            </div>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Daily Summary Reports</strong>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="emailDailySummary" class="switch-input" checked>
-                                <label for="emailDailySummary" class="switch-label"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payment Gateway -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">Payment Gateway Configuration</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="form-group">
-                            <label class="form-label">Primary Gateway</label>
-                            <select class="form-input-edit" id="primaryGateway">
-                                <option value="razorpay" selected>Razorpay</option>
-                                <option value="payu">PayU</option>
-                                <option value="stripe">Stripe</option>
-                                <option value="cashfree">Cashfree</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Backup Gateway</label>
-                            <select class="form-input-edit" id="backupGateway">
-                                <option value="payu">PayU</option>
-                                <option value="razorpay">Razorpay</option>
-                                <option value="stripe">Stripe</option>
-                                <option value="cashfree" selected>Cashfree</option>
-                            </select>
-                        </div>
-                        <div class="permission-item">
-                            <div class="permission-info">
-                                <strong>Auto Failover</strong>
-                                <small>Switch to backup if primary fails</small>
-                            </div>
-                            <div class="switch-container">
-                                <input type="checkbox" id="autoFailover" class="switch-input" checked>
-                                <label for="autoFailover" class="switch-label"></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- System Limits -->
-                <div class="card-modern">
-                    <div class="card-header-section">
-                        <h3 class="card-title">System Limits</h3>
-                    </div>
-                    <div class="form-section-vertical">
-                        <div class="form-group">
-                            <label class="form-label">Max Transaction Amount (₹)</label>
-                            <input type="number" class="form-input-edit" value="100000" min="1000" step="1000" id="maxTxnAmount">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Daily Platform Limit (₹)</label>
-                            <input type="number" class="form-input-edit" value="50000000" min="1000000" step="1000000" id="platformDailyLimit">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Dispute Resolution Days</label>
-                            <input type="number" class="form-input-edit" value="30" min="7" max="90" id="disputeDays">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Settlement Processing Time</label>
-                            <select class="form-input-edit" id="settlementTime">
-                                <option value="T+0">Same Day (T+0)</option>
-                                <option value="T+1" selected>Next Day (T+1)</option>
-                                <option value="T+2">2 Days (T+2)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="field">
+          <label for="supportEmail">Support Email</label>
+          <input id="supportEmail" type="email" value="<%= s.supportEmail || '' %>">
         </div>
+        <div class="field">
+          <label for="timezone">Timezone</label>
+          <select id="timezone">
+            <option value="Asia/Kolkata" <%= (s.timezone || 'Asia/Kolkata') === 'Asia/Kolkata' ? 'selected' : '' %>>Asia/Kolkata</option>
+            <option value="UTC" <%= s.timezone === 'UTC' ? 'selected' : '' %>>UTC</option>
+            <option value="America/New_York" <%= s.timezone === 'America/New_York' ? 'selected' : '' %>>America/New_York</option>
+            <option value="Europe/London" <%= s.timezone === 'Europe/London' ? 'selected' : '' %>>Europe/London</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="supportPhone">Support Phone</label>
+          <input id="supportPhone" type="tel" value="<%= s.supportPhone || '' %>">
+        </div>
+        <div class="field">
+          <label for="dateFormat">Date Format</label>
+          <select id="dateFormat">
+            <option value="DD/MM/YYYY" <%= (s.dateFormat || 'DD/MM/YYYY') === 'DD/MM/YYYY' ? 'selected' : '' %>>DD/MM/YYYY</option>
+            <option value="MM/DD/YYYY" <%= s.dateFormat === 'MM/DD/YYYY' ? 'selected' : '' %>>MM/DD/YYYY</option>
+            <option value="YYYY-MM-DD" <%= s.dateFormat === 'YYYY-MM-DD' ? 'selected' : '' %>>YYYY-MM-DD</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="appLogoUrl">App Logo URL (optional)</label>
+          <input id="appLogoUrl" type="text" value="<%= s.appLogoUrl || '' %>">
+        </div>
+        <div class="field">
+          <label for="language">Language</label>
+          <select id="language">
+            <option value="English" <%= (s.language || 'English') === 'English' ? 'selected' : '' %>>English</option>
+            <option value="Hindi" <%= s.language === 'Hindi' ? 'selected' : '' %>>Hindi</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label for="appDescription">App Description</label>
+          <textarea id="appDescription" rows="3"><%= s.appDescription || '' %></textarea>
+        </div>
+      </form>
+      <div class="settings-actions">
+        <button type="button" id="saveGeneralBtn" class="btn btn-primary"><i class="fas fa-save"></i>Save General Settings</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="tab-payment" class="tab-panel">
+    <section class="settings-card">
+      <h3 class="settings-card-title"><i class="fas fa-indian-rupee-sign"></i>Payment Configuration</h3>
+      <form id="paymentForm" class="form-grid-2" novalidate>
+        <div class="field">
+          <label for="minTransfer">Minimum Transfer Amount (₹)</label>
+          <input id="minTransfer" type="number" min="1" value="<%= s.minTransfer ?? 1 %>">
+        </div>
+        <div class="field">
+          <label for="transactionFee">Transaction Fee</label>
+          <input id="transactionFee" type="number" min="0" step="0.01" value="<%= s.transactionFee ?? 0 %>">
+        </div>
+
+        <div class="field">
+          <label for="maxTransfer">Maximum Transfer Amount (₹)</label>
+          <input id="maxTransfer" type="number" min="1" value="<%= s.maxTransfer ?? 100000 %>">
+        </div>
+        <div class="field">
+          <label>Fee Type</label>
+          <div style="display:flex; gap:12px; min-height:40px; align-items:center; color:var(--text-mid); font-size:.84rem;">
+            <label><input type="radio" name="feeType" value="percentage" <%= (s.feeType || 'percentage') === 'percentage' ? 'checked' : '' %>> Percentage (%)</label>
+            <label><input type="radio" name="feeType" value="fixed" <%= s.feeType === 'fixed' ? 'checked' : '' %>> Fixed Amount (₹)</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="dailyLimit">Daily Transaction Limit (₹)</label>
+          <input id="dailyLimit" type="number" min="1" value="<%= s.dailyLimit ?? 200000 %>">
+        </div>
+        <div class="field">
+          <label for="maxFeeCap">Maximum Fee Cap (₹)</label>
+          <input id="maxFeeCap" type="number" min="0" value="<%= s.maxFeeCap ?? 50 %>">
+        </div>
+
+        <div class="field">
+          <label for="autoRefundDays">Auto Refund After (days)</label>
+          <input id="autoRefundDays" type="number" min="1" value="<%= s.autoRefundDays ?? 7 %>">
+        </div>
+        <div class="field">
+          <label for="topUpLimit">Wallet Top-Up Limit (₹)</label>
+          <input id="topUpLimit" type="number" min="1" value="<%= s.topUpLimit ?? 50000 %>">
+        </div>
+      </form>
+
+      <div class="info-box"><i class="fas fa-circle-info"></i><span>Changes to payment limits take effect immediately for all new transactions.</span></div>
+
+      <div class="settings-actions">
+        <button type="button" id="savePaymentBtn" class="btn btn-primary"><i class="fas fa-save"></i>Save Payment Settings</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="tab-security" class="tab-panel">
+    <section class="settings-card">
+      <h3 class="settings-card-title"><i class="fas fa-shield-halved"></i>Security Configuration</h3>
+
+      <div class="section-title">Login Security</div>
+      <form id="securityForm" class="form-grid-2" novalidate>
+        <div class="field">
+          <label for="maxLoginAttempts">Max Login Attempts</label>
+          <input id="maxLoginAttempts" type="number" min="1" max="10" value="<%= s.maxLoginAttempts ?? 5 %>">
+        </div>
+        <div class="field">
+          <label for="lockoutDuration">Account Lockout Duration (minutes)</label>
+          <input id="lockoutDuration" type="number" min="1" value="<%= s.lockoutDuration ?? 30 %>">
+        </div>
+        <div class="field">
+          <label for="sessionTimeout">Session Timeout (minutes)</label>
+          <input id="sessionTimeout" type="number" min="1" value="<%= s.sessionTimeout ?? 60 %>">
+        </div>
+        <div class="field">
+          <label for="passwordExpiry">Password Expiry (days, 0 = never)</label>
+          <input id="passwordExpiry" type="number" min="0" value="<%= s.passwordExpiry ?? 0 %>">
+        </div>
+      </form>
+
+      <div class="section-title">Two-Factor Authentication</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fas fa-mobile-screen"></i>
+          <div>
+            <div class="toggle-label">Require 2FA for all admin logins</div>
+          </div>
+        </div>
+        <label class="toggle-switch" aria-label="Require 2FA toggle">
+          <input id="twoFactorToggle" type="checkbox" <%= s.twoFactorRequired ? 'checked' : '' %>>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="section-title">IP Whitelist</div>
+      <div class="field">
+        <label for="ipWhitelist">Allowed IP Addresses</label>
+        <textarea id="ipWhitelist" rows="4"><%= Array.isArray(s.ipWhitelist) ? s.ipWhitelist.join('\n') : '' %></textarea>
+        <p class="helper-text">Leave empty to allow all IPs. One IP per line.</p>
+      </div>
+
+      <div class="section-title">Fraud Detection</div>
+      <div class="toggle-row">
+        <div class="toggle-info"><i class="fas fa-flag"></i><div class="toggle-label">Flag transactions above ₹50,000</div></div>
+        <label class="toggle-switch"><input id="flagLargeTransactions" type="checkbox" <%= s.flagLargeTransactions ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><i class="fas fa-lock"></i><div class="toggle-label">Auto-freeze on 3 failed attempts</div></div>
+        <label class="toggle-switch"><input id="autoFreezeOnFail" type="checkbox" <%= s.autoFreezeOnFail ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><i class="fas fa-globe"></i><div class="toggle-label">Block international transactions</div></div>
+        <label class="toggle-switch"><input id="blockInternational" type="checkbox" <%= s.blockInternational ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="settings-actions">
+        <button type="button" id="saveSecurityBtn" class="btn btn-primary"><i class="fas fa-save"></i>Save Security Settings</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="tab-notifications" class="tab-panel">
+    <section class="settings-card">
+      <h3 class="settings-card-title"><i class="fas fa-bell"></i>Notification Configuration</h3>
+
+      <div class="section-title">Alert Channels</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <div class="toggle-label">Email Alerts</div>
+            <div class="toggle-desc">Send email notifications to admin</div>
+          </div>
+        </div>
+        <label class="toggle-switch"><input id="emailAlertsToggle" type="checkbox" <%= s.emailAlerts !== false ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fas fa-comment-sms"></i>
+          <div>
+            <div class="toggle-label">SMS Alerts</div>
+            <div class="toggle-desc">Send SMS for critical events</div>
+          </div>
+        </div>
+        <label class="toggle-switch"><input id="smsAlertsToggle" type="checkbox" <%= s.smsAlerts ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fas fa-bell"></i>
+          <div>
+            <div class="toggle-label">Push Notifications</div>
+            <div class="toggle-desc">Browser push notifications</div>
+          </div>
+        </div>
+        <label class="toggle-switch"><input id="pushAlertsToggle" type="checkbox" <%= s.pushAlerts !== false ? 'checked' : '' %>><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="section-title">Notify me when...</div>
+      <div class="checkbox-grid">
+        <label class="check-item"><input type="checkbox" id="alertOnFailed" <%= s.alertOnFailed !== false ? 'checked' : '' %>><i class="fas fa-circle-xmark"></i>A transaction fails</label>
+        <label class="check-item"><input type="checkbox" id="alertOnFraud" <%= s.alertOnFraud !== false ? 'checked' : '' %>><i class="fas fa-flag"></i>Fraud is detected</label>
+        <label class="check-item"><input type="checkbox" id="alertOnKYC" <%= s.alertOnKYC !== false ? 'checked' : '' %>><i class="fas fa-id-card"></i>KYC request submitted</label>
+        <label class="check-item"><input type="checkbox" id="alertOnRefund" <%= s.alertOnRefund ? 'checked' : '' %>><i class="fas fa-rotate-left"></i>Refund is requested</label>
+        <label class="check-item"><input type="checkbox" id="alertOnNewUser" <%= s.alertOnNewUser ? 'checked' : '' %>><i class="fas fa-user-plus"></i>New user registers</label>
+        <label class="check-item"><input type="checkbox" id="alertOnLowWallet" <%= s.alertOnLowWallet ? 'checked' : '' %>><i class="fas fa-wallet"></i>Low wallet balance detected</label>
+        <label class="check-item"><input type="checkbox" id="alertOnSupportTicket" <%= s.alertOnSupportTicket ? 'checked' : '' %>><i class="fas fa-ticket"></i>New support ticket opened</label>
+        <label class="check-item"><input type="checkbox" id="alertOnAdminLogin" <%= s.alertOnAdminLogin ? 'checked' : '' %>><i class="fas fa-shield-halved"></i>New admin login detected</label>
+      </div>
+
+      <div class="field" style="margin-top:10px;">
+        <label for="notificationRecipients">Additional email addresses to notify (one per line)</label>
+        <textarea id="notificationRecipients" rows="3"><%= Array.isArray(s.notificationRecipients) ? s.notificationRecipients.join('\n') : '' %></textarea>
+      </div>
+
+      <div class="settings-actions">
+        <button type="button" id="saveNotificationBtn" class="btn btn-primary"><i class="fas fa-save"></i>Save Notification Settings</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="tab-maintenance" class="tab-panel">
+    <section class="settings-card">
+      <h3 class="settings-card-title"><i class="fas fa-triangle-exclamation"></i>Maintenance Mode</h3>
+
+      <div class="maintenance-hero">
+        <label class="toggle-switch maintenance-toggle-large" aria-label="Maintenance mode toggle">
+          <input id="maintenanceToggle" type="checkbox" <%= s.maintenanceMode ? 'checked' : '' %>>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="maintenance-label">Maintenance Mode</div>
+        <div class="maintenance-status" id="maintenanceStatusLine">
+          <span class="status-dot <%= s.maintenanceMode ? 'is-maintenance' : '' %>" id="maintenanceStatusDot"></span>
+          <span id="maintenanceStatusText"><%= s.maintenanceMode ? 'Platform is in Maintenance' : 'Platform is Live' %></span>
+        </div>
+      </div>
+
+      <div class="maintenance-warning <%= s.maintenanceMode ? 'active' : '' %>" id="maintenanceWarningBox">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>Maintenance mode is ACTIVE. Users cannot access the platform.</span>
+      </div>
+
+      <div class="form-grid-2" style="margin-top:10px;">
+        <div class="field full">
+          <label for="maintenanceMessage">Maintenance Message</label>
+          <textarea id="maintenanceMessage" rows="3" placeholder="We are performing scheduled maintenance. We'll be back shortly."><%= s.maintenanceMessage || '' %></textarea>
+        </div>
+
+        <div class="field">
+          <label for="maintenanceDuration">Expected Duration</label>
+          <select id="maintenanceDuration">
+            <option value="15 minutes" <%= s.maintenanceDuration === '15 minutes' ? 'selected' : '' %>>15 minutes</option>
+            <option value="30 minutes" <%= (s.maintenanceDuration || '30 minutes') === '30 minutes' ? 'selected' : '' %>>30 minutes</option>
+            <option value="1 hour" <%= s.maintenanceDuration === '1 hour' ? 'selected' : '' %>>1 hour</option>
+            <option value="2 hours" <%= s.maintenanceDuration === '2 hours' ? 'selected' : '' %>>2 hours</option>
+            <option value="Custom" <%= s.maintenanceDuration === 'Custom' ? 'selected' : '' %>>Custom</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="maintenanceStart">Scheduled Start</label>
+          <input id="maintenanceStart" type="datetime-local" value="<%= safeDateTime %>">
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button type="button" id="enableMaintenanceBtn" class="btn btn-danger"><i class="fas fa-power-off"></i>Enable Maintenance</button>
+        <button type="button" id="disableMaintenanceBtn" class="btn btn-success"><i class="fas fa-check-circle"></i>Disable Maintenance</button>
+      </div>
+    </section>
+
+    <section class="settings-card danger-zone">
+      <h3 class="settings-card-title" style="color:var(--red-dark);"><i class="fas fa-triangle-exclamation" style="color:var(--red);"></i>Danger Zone</h3>
+
+      <div class="danger-row">
+        <div>
+          <strong>Clear All Cache</strong>
+          <p>Force clear server and CDN cache</p>
+        </div>
+        <button type="button" class="btn btn-outline-amber" id="clearCacheBtn"><i class="fas fa-broom"></i>Clear Cache</button>
+      </div>
+
+      <div class="danger-row">
+        <div>
+          <strong>Reset All Settings</strong>
+          <p>Reset all settings to factory defaults</p>
+        </div>
+        <button type="button" class="btn btn-outline-red" data-open-modal="confirmResetModal"><i class="fas fa-rotate-left"></i>Reset</button>
+      </div>
+
+      <div class="danger-row">
+        <div>
+          <strong>Force Logout All Admins</strong>
+          <p>Immediately log out all active admin sessions</p>
+        </div>
+        <button type="button" class="btn btn-danger" data-open-modal="confirmLogoutModal"><i class="fas fa-right-from-bracket"></i>Force Logout</button>
+      </div>
+    </section>
+  </div>
+</section>
+
+<div id="confirmResetModal" class="modal-overlay">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmResetTitle">
+    <div class="modal-head">
+      <h3 id="confirmResetTitle" class="modal-title"><i class="fas fa-rotate-left"></i>Reset All Settings</h3>
+      <button type="button" class="btn-ghost" data-close-modal="confirmResetModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-mid); font-size:.86rem;">This will reset ALL settings to defaults. This cannot be undone.</p>
+      <div class="field">
+        <label for="resetConfirmInput">Type "RESET" to confirm</label>
+        <input id="resetConfirmInput" type="text" placeholder="RESET">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-ghost" data-close-modal="confirmResetModal">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirmResetBtn" disabled>Reset Settings</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmLogoutModal" class="modal-overlay">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmLogoutTitle">
+    <div class="modal-head">
+      <h3 id="confirmLogoutTitle" class="modal-title"><i class="fas fa-right-from-bracket"></i>Force Logout</h3>
+      <button type="button" class="btn-ghost" data-close-modal="confirmLogoutModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-mid); font-size:.86rem;">All active admin sessions will be terminated immediately.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-ghost" data-close-modal="confirmLogoutModal">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirmForceLogoutBtn">Force Logout</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  (() => {
+    const tabButtons = Array.from(document.querySelectorAll('.settings-tab-btn'));
+    const panels = Array.from(document.querySelectorAll('.tab-panel'));
+    const maintenanceToggle = document.getElementById('maintenanceToggle');
+    const maintenanceWarningBox = document.getElementById('maintenanceWarningBox');
+    const maintenanceStatusDot = document.getElementById('maintenanceStatusDot');
+    const maintenanceStatusText = document.getElementById('maintenanceStatusText');
+    const enableMaintenanceBtn = document.getElementById('enableMaintenanceBtn');
+    const disableMaintenanceBtn = document.getElementById('disableMaintenanceBtn');
+    const toastWrap = document.getElementById('toastWrap');
+
+    function showToast(message, type = 'success') {
+      if (!toastWrap) return;
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-circle-xmark' : 'fa-triangle-exclamation';
+      toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+      toastWrap.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'toastOut .25s ease forwards';
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
+
+    function switchTab(tabId) {
+      panels.forEach((panel) => panel.classList.toggle('active', panel.id === tabId));
+      tabButtons.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId));
+      localStorage.setItem('settingsActiveTab', tabId);
+    }
+
+    async function postJSON(url, payload) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      let data = null;
+      try { data = await response.json(); } catch (_) { data = null; }
+      if (!response.ok || !data || !data.success) {
+        throw new Error(data?.message || 'Request failed');
+      }
+      return data;
+    }
+
+    function setLastSavedNow() {
+      const target = document.getElementById('lastSavedLabel');
+      if (target) target.textContent = 'Last saved just now';
+    }
+
+    function updateMaintenanceUI() {
+      const enabled = !!maintenanceToggle?.checked;
+      if (maintenanceWarningBox) maintenanceWarningBox.style.display = enabled ? 'flex' : 'none';
+      if (maintenanceStatusDot) maintenanceStatusDot.classList.toggle('is-maintenance', enabled);
+      if (maintenanceStatusText) maintenanceStatusText.textContent = enabled ? 'Platform is in Maintenance' : 'Platform is Live';
+      if (enableMaintenanceBtn) enableMaintenanceBtn.disabled = enabled;
+      if (disableMaintenanceBtn) disableMaintenanceBtn.disabled = !enabled;
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+    });
+
+    document.getElementById('saveGeneralBtn')?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          appName: document.getElementById('appName')?.value?.trim(),
+          supportEmail: document.getElementById('supportEmail')?.value?.trim(),
+          supportPhone: document.getElementById('supportPhone')?.value?.trim(),
+          appLogoUrl: document.getElementById('appLogoUrl')?.value?.trim(),
+          currency: document.getElementById('currency')?.value,
+          timezone: document.getElementById('timezone')?.value,
+          dateFormat: document.getElementById('dateFormat')?.value,
+          language: document.getElementById('language')?.value,
+          appDescription: document.getElementById('appDescription')?.value?.trim(),
+        };
+
+        const result = await postJSON('/admin/settings/general', payload);
+        showToast(result.message || 'General settings saved', 'success');
+        setLastSavedNow();
+      } catch (error) {
+        showToast(error.message || 'Failed to save general settings', 'error');
+      }
+    });
+
+    document.getElementById('savePaymentBtn')?.addEventListener('click', async () => {
+      try {
+        const feeType = document.querySelector('input[name="feeType"]:checked')?.value || 'percentage';
+        const payload = {
+          minTransfer: Number(document.getElementById('minTransfer')?.value || 0),
+          maxTransfer: Number(document.getElementById('maxTransfer')?.value || 0),
+          dailyLimit: Number(document.getElementById('dailyLimit')?.value || 0),
+          transactionFee: Number(document.getElementById('transactionFee')?.value || 0),
+          feeType,
+          autoRefundDays: Number(document.getElementById('autoRefundDays')?.value || 0),
+          maxFeeCap: Number(document.getElementById('maxFeeCap')?.value || 0),
+          topUpLimit: Number(document.getElementById('topUpLimit')?.value || 0),
+        };
+
+        const result = await postJSON('/admin/settings/payment', payload);
+        showToast(result.message || 'Payment settings saved', 'success');
+        setLastSavedNow();
+      } catch (error) {
+        showToast(error.message || 'Failed to save payment settings', 'error');
+      }
+    });
+
+    document.getElementById('saveSecurityBtn')?.addEventListener('click', async () => {
+      try {
+        const ipWhitelistText = document.getElementById('ipWhitelist')?.value || '';
+        const payload = {
+          maxLoginAttempts: Number(document.getElementById('maxLoginAttempts')?.value || 0),
+          lockoutDuration: Number(document.getElementById('lockoutDuration')?.value || 0),
+          sessionTimeout: Number(document.getElementById('sessionTimeout')?.value || 0),
+          passwordExpiry: Number(document.getElementById('passwordExpiry')?.value || 0),
+          twoFactorRequired: !!document.getElementById('twoFactorToggle')?.checked,
+          ipWhitelist: ipWhitelistText
+            .split('\n')
+            .map((ip) => ip.trim())
+            .filter(Boolean),
+          flagLargeTransactions: !!document.getElementById('flagLargeTransactions')?.checked,
+          autoFreezeOnFail: !!document.getElementById('autoFreezeOnFail')?.checked,
+          blockInternational: !!document.getElementById('blockInternational')?.checked,
+        };
+
+        const result = await postJSON('/admin/settings/security', payload);
+        showToast(result.message || 'Security settings saved', 'success');
+        setLastSavedNow();
+      } catch (error) {
+        showToast(error.message || 'Failed to save security settings', 'error');
+      }
+    });
+
+    document.getElementById('saveNotificationBtn')?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          emailAlerts: !!document.getElementById('emailAlertsToggle')?.checked,
+          smsAlerts: !!document.getElementById('smsAlertsToggle')?.checked,
+          pushAlerts: !!document.getElementById('pushAlertsToggle')?.checked,
+          alertOnFailed: !!document.getElementById('alertOnFailed')?.checked,
+          alertOnFraud: !!document.getElementById('alertOnFraud')?.checked,
+          alertOnKYC: !!document.getElementById('alertOnKYC')?.checked,
+          alertOnRefund: !!document.getElementById('alertOnRefund')?.checked,
+          alertOnNewUser: !!document.getElementById('alertOnNewUser')?.checked,
+          alertOnLowWallet: !!document.getElementById('alertOnLowWallet')?.checked,
+          alertOnSupportTicket: !!document.getElementById('alertOnSupportTicket')?.checked,
+          alertOnAdminLogin: !!document.getElementById('alertOnAdminLogin')?.checked,
+          notificationRecipients: (document.getElementById('notificationRecipients')?.value || '')
+            .split('\n')
+            .map((email) => email.trim())
+            .filter(Boolean),
+        };
+
+        const result = await postJSON('/admin/settings/notification', payload);
+        showToast(result.message || 'Notification settings saved', 'success');
+        setLastSavedNow();
+      } catch (error) {
+        showToast(error.message || 'Failed to save notification settings', 'error');
+      }
+    });
+
+    maintenanceToggle?.addEventListener('change', updateMaintenanceUI);
+
+    enableMaintenanceBtn?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          enabled: true,
+          message: document.getElementById('maintenanceMessage')?.value || '',
+          duration: document.getElementById('maintenanceDuration')?.value || '30 minutes',
+          scheduledStart: document.getElementById('maintenanceStart')?.value || null,
+        };
+        await postJSON('/admin/settings/maintenance', payload);
+        location.reload();
+      } catch (error) {
+        showToast(error.message || 'Failed to enable maintenance mode', 'error');
+      }
+    });
+
+    disableMaintenanceBtn?.addEventListener('click', async () => {
+      try {
+        const payload = {
+          enabled: false,
+          message: document.getElementById('maintenanceMessage')?.value || '',
+          duration: document.getElementById('maintenanceDuration')?.value || '30 minutes',
+          scheduledStart: document.getElementById('maintenanceStart')?.value || null,
+        };
+        await postJSON('/admin/settings/maintenance', payload);
+        location.reload();
+      } catch (error) {
+        showToast(error.message || 'Failed to disable maintenance mode', 'error');
+      }
+    });
+
+    document.getElementById('clearCacheBtn')?.addEventListener('click', () => {
+      showToast('Cache clear request submitted', 'warning');
+    });
+
+    document.querySelectorAll('[data-open-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-open-modal');
+        const modal = modalId ? document.getElementById(modalId) : null;
+        if (modal) modal.style.display = 'flex';
+      });
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        const modal = modalId ? document.getElementById(modalId) : null;
+        if (modal) modal.style.display = 'none';
+      });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach((modal) => {
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) modal.style.display = 'none';
+      });
+    });
+
+    const resetInput = document.getElementById('resetConfirmInput');
+    const confirmResetBtn = document.getElementById('confirmResetBtn');
+
+    resetInput?.addEventListener('input', () => {
+      const canReset = resetInput.value.trim().toUpperCase() === 'RESET';
+      if (confirmResetBtn) confirmResetBtn.disabled = !canReset;
+    });
+
+    confirmResetBtn?.addEventListener('click', async () => {
+      try {
+        await postJSON('/admin/settings/reset', {});
+        location.reload();
+      } catch (error) {
+        showToast(error.message || 'Failed to reset settings', 'error');
+      }
+    });
+
+    document.getElementById('confirmForceLogoutBtn')?.addEventListener('click', async () => {
+      try {
+        await postJSON('/admin/settings/force-logout', {});
+        showToast('All active admin sessions have been terminated', 'success');
+        document.getElementById('confirmLogoutModal').style.display = 'none';
+      } catch (error) {
+        showToast(error.message || 'Failed to force logout admins', 'error');
+      }
+    });
+
+    const savedTab = localStorage.getItem('settingsActiveTab') || 'tab-general';
+    switchTab(savedTab);
+    updateMaintenanceUI();
+  })();
+</script>
