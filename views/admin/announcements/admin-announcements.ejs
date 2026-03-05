@@ -1,0 +1,1511 @@
+<style>
+  .announcements-page { display: grid; gap: 16px; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+  }
+
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: 4px 0 0 0;
+  }
+
+  .breadcrumb {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb i.fa-chevron-right { font-size: 0.6rem; }
+  .breadcrumb .current { color: var(--primary); font-weight: 600; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .stat-info { flex: 1; }
+
+  .stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 0 0 6px 0;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1;
+  }
+
+  .tab-filter-wrap {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .tab-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-tab {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-mid);
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+
+  .filter-tab.active {
+    color: var(--primary-dark);
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--card-bg));
+    box-shadow: inset 0 -2px 0 0 var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  }
+
+  .tab-badge {
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--card-bg);
+  }
+
+  .type-filter {
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 12px;
+    padding: 0 12px;
+    min-width: 200px;
+  }
+
+  .announcements-list {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+  }
+
+  .announcement-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .announcement-card:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  .announcement-card.published { border-left: 4px solid #22c55e; }
+  .announcement-card.draft { border-left: 4px solid #3B82F6; }
+  .announcement-card.scheduled { border-left: 4px solid #8B5CF6; }
+  .announcement-card.archived { border-left: 4px solid #94a3b8; opacity: 0.7; }
+
+  .announcement-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .announcement-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .announcement-type-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .announcement-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .announcement-header-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+
+  .badge-success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green-dark); border-color: color-mix(in srgb, var(--green) 30%, var(--card-bg)); }
+  .badge-info { background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); color: var(--primary-dark); border-color: color-mix(in srgb, var(--primary) 30%, var(--card-bg)); }
+  .badge-purple { background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg)); color: var(--secondary-dark); border-color: color-mix(in srgb, var(--secondary) 30%, var(--card-bg)); }
+  .badge-muted { background: color-mix(in srgb, var(--text-soft) 16%, var(--card-bg)); color: var(--text-mid); border-color: color-mix(in srgb, var(--text-soft) 28%, var(--card-bg)); }
+
+  .menu-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    background: var(--card-bg);
+    cursor: pointer;
+  }
+
+  .announcement-content {
+    font-size: 0.83rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin: 0 0 12px 52px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .announcement-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .announcement-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(100,116,139,0.08);
+    color: #64748b;
+  }
+
+  .announcement-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .ann-action-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text-soft);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .ann-action-btn:hover { background: var(--hover-bg); }
+  .ann-action-btn.publish:hover { color:#22c55e; border-color:#22c55e; }
+  .ann-action-btn.unpublish:hover { color:#f59e0b; border-color:#f59e0b; }
+  .ann-action-btn.edit:hover { color:#3B82F6; border-color:#3B82F6; }
+  .ann-action-btn.delete:hover { color:#ef4444; border-color:#ef4444; }
+
+  .empty-state {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 18px;
+    text-align: center;
+    color: var(--text-soft);
+  }
+
+  .empty-state > i { font-size: 56px; margin-bottom: 8px; }
+  .empty-state .btn-primary-admin i { font-size: 0.9rem; margin-bottom: 0; }
+  .empty-state h4 { margin: 0 0 6px; color: var(--text-dark); font-size: 1.1rem; }
+
+  .pagination-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 2px 2px;
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .pages { display: inline-flex; align-items: center; gap: 6px; }
+  .page-btn {
+    min-width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .page-btn.active { border-color: var(--primary); color: var(--primary-dark); }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-dark) 45%, transparent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 18px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-card {
+    width: min(760px, 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.red { color: var(--red-dark); }
+  .modal-title.green { color: var(--green-dark); }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .modal-body { padding: 14px 16px; display: grid; gap: 12px; }
+  .modal-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+  .field-label {
+    color: var(--text-mid);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    display: inline-block;
+  }
+
+  .field-input,
+  .field-select,
+  .field-textarea,
+  .field-date {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .field-textarea { min-height: 110px; resize: vertical; }
+  .field-select.type-info { border-left: 4px solid #3B82F6; }
+  .field-select.type-success { border-left: 4px solid #22c55e; }
+  .field-select.type-warning { border-left: 4px solid #f59e0b; }
+  .field-select.type-danger { border-left: 4px solid #ef4444; }
+  .field-select.type-maintenance { border-left: 4px solid #f97316; }
+  .field-select.type-feature { border-left: 4px solid #8B5CF6; }
+
+  .radio-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .radio-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-mid); }
+
+  .priority-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .priority-star {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #e2e8f0;
+    font-size: 1rem;
+    padding: 0;
+  }
+
+  .counter { text-align: right; color: var(--text-soft); font-size: 11px; margin-top: 4px; }
+
+  .live-preview-box {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    background: var(--bg-page);
+  }
+
+  .preview-title { font-size: 13px; font-weight: 700; color: var(--text-dark); margin: 0 0 8px; }
+  .small-note { color: var(--text-soft); font-size: 12px; }
+
+  .publish-info {
+    border: 1px solid color-mix(in srgb, var(--green) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--green) 10%, var(--card-bg));
+    color: var(--green-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .delete-warning {
+    border: 1px solid color-mix(in srgb, var(--red) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--red) 10%, var(--card-bg));
+    color: var(--red-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .preview-banner {
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .preview-banner-head { display: flex; align-items: flex-start; gap: 12px; }
+  .preview-banner-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+    color: var(--primary);
+  }
+
+  .preview-banner h3 { margin: 0; font-size: 1rem; color: var(--text-dark); }
+  .preview-banner p { margin: 4px 0 0; color: var(--text-mid); font-size: 0.88rem; line-height: 1.5; }
+
+  .preview-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .announcement-menu {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    min-width: 190px;
+    padding: 6px 0;
+  }
+
+  .announcement-menu button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-dark);
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.83rem;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .announcement-menu button:hover { background: var(--hover-bg); }
+  .announcement-menu button.delete { color: var(--red); }
+
+  .announcement-card.removing { animation: fadeSlideOut 0.3s ease forwards; }
+  @keyframes fadeSlideOut {
+    to { opacity:0; transform:translateX(20px); max-height:0; padding:0; margin:0; overflow:hidden; }
+  }
+
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .announcement-footer { flex-direction: column; align-items: flex-start; }
+    .announcement-actions { justify-content: flex-start; }
+  }
+
+  @media (max-width: 780px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<%
+  const safeAnnouncements = Array.isArray(announcements) ? announcements : [];
+  const safeFilters = filters || {};
+  const activeStatus = String(safeFilters.status || 'all').toLowerCase();
+  const activeType = String(safeFilters.type || 'all').toLowerCase();
+  const current = Number(currentPage || 1);
+  const pages = Math.max(1, Number(totalPages || 1));
+  const start = totalCount ? ((current - 1) * 10 + 1) : 0;
+  const end = Math.min(current * 10, Number(totalCount || 0));
+
+  const typeIcon = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t === 'success') return 'fa-circle-check';
+    if (t === 'warning') return 'fa-triangle-exclamation';
+    if (t === 'danger') return 'fa-circle-xmark';
+    if (t === 'maintenance') return 'fa-screwdriver-wrench';
+    if (t === 'feature') return 'fa-star';
+    return 'fa-circle-info';
+  };
+
+  const typeColor = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t === 'success') return '#22c55e';
+    if (t === 'warning') return '#f59e0b';
+    if (t === 'danger') return '#ef4444';
+    if (t === 'maintenance') return '#f97316';
+    if (t === 'feature') return '#8B5CF6';
+    return '#3B82F6';
+  };
+
+  const statusClass = (status) => {
+    const s = String(status || '').toLowerCase();
+    if (s === 'published') return 'badge-success';
+    if (s === 'draft') return 'badge-info';
+    if (s === 'scheduled') return 'badge-purple';
+    return 'badge-muted';
+  };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue) return '-';
+    return new Date(dateValue).toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  };
+
+  const audienceLabel = (aud) => {
+    const a = String(aud || 'all').toLowerCase();
+    if (a === 'users') return 'Users';
+    if (a === 'merchants') return 'Merchants';
+    if (a === 'admins') return 'Admins';
+    if (a === 'premium') return 'Premium Users';
+    return 'All Users';
+  };
+
+  const dateLabel = (a) => {
+    const s = String(a.status || '').toLowerCase();
+    if (s === 'published') return 'Published';
+    if (s === 'scheduled') return 'Scheduled for';
+    return 'Draft';
+  };
+
+  const dateValue = (a) => {
+    const s = String(a.status || '').toLowerCase();
+    if (s === 'published') return a.publishedAt || a.updatedAt || a.createdAt;
+    if (s === 'scheduled') return a.scheduledAt || a.updatedAt || a.createdAt;
+    return a.createdAt;
+  };
+%>
+
+<section class="announcements-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <i class="fas fa-bullhorn"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Announcements</h1>
+          <p class="page-subtitle">Create and manage platform-wide announcements</p>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current">Announcements</span>
+      </div>
+    </div>
+    <div>
+      <button class="btn-primary-admin" id="createAnnouncementBtn" type="button" data-open-modal="createModal">
+        <i class="fas fa-plus"></i> Create Announcement
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-bullhorn"></i></div>
+      <div class="stat-info"><p class="stat-label">Total</p><h3 class="stat-value"><%= Number(totalCount || 0) %></h3></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon" style="background:rgba(34,197,94,0.12); color:#22c55e;"><i class="fas fa-circle-check"></i></div>
+      <div class="stat-info"><p class="stat-label">Published</p><h3 class="stat-value"><%= Number(publishedCount || 0) %></h3></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon" style="background:rgba(59,130,246,0.12); color:#3B82F6;"><i class="fas fa-file-pen"></i></div>
+      <div class="stat-info"><p class="stat-label">Drafts</p><h3 class="stat-value"><%= Number(draftCount || 0) %></h3></div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon" style="background:rgba(139,92,246,0.12); color:#8B5CF6;"><i class="fas fa-clock"></i></div>
+      <div class="stat-info"><p class="stat-label">Scheduled</p><h3 class="stat-value"><%= Number(scheduledCount || 0) %></h3></div>
+    </article>
+  </section>
+
+  <section class="tab-filter-wrap">
+    <div class="tab-row">
+      <div class="tabs" id="announcementTabs">
+        <button class="filter-tab <%= activeStatus === 'all' ? 'active' : '' %>" type="button" data-status="all">All</button>
+        <button class="filter-tab <%= activeStatus === 'published' ? 'active' : '' %>" type="button" data-status="published">Published <span class="tab-badge" style="background:#22c55e;"><%= Number(publishedCount || 0) %></span></button>
+        <button class="filter-tab <%= activeStatus === 'draft' ? 'active' : '' %>" type="button" data-status="draft">Drafts <span class="tab-badge" style="background:#3B82F6;"><%= Number(draftCount || 0) %></span></button>
+        <button class="filter-tab <%= activeStatus === 'scheduled' ? 'active' : '' %>" type="button" data-status="scheduled">Scheduled <span class="tab-badge" style="background:#8B5CF6;"><%= Number(scheduledCount || 0) %></span></button>
+        <button class="filter-tab <%= activeStatus === 'archived' ? 'active' : '' %>" type="button" data-status="archived">Archived</button>
+      </div>
+
+      <select id="typeFilter" class="type-filter">
+        <option value="all">All Types</option>
+        <option value="info" <%= activeType === 'info' ? 'selected' : '' %>>Info</option>
+        <option value="success" <%= activeType === 'success' ? 'selected' : '' %>>Success</option>
+        <option value="warning" <%= activeType === 'warning' ? 'selected' : '' %>>Warning</option>
+        <option value="danger" <%= activeType === 'danger' ? 'selected' : '' %>>Danger</option>
+        <option value="maintenance" <%= activeType === 'maintenance' ? 'selected' : '' %>>Maintenance</option>
+        <option value="feature" <%= activeType === 'feature' ? 'selected' : '' %>>Feature Update</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="announcements-list">
+    <div id="announcementsList">
+      <% if (safeAnnouncements.length) { %>
+        <% safeAnnouncements.forEach((announcement) => { %>
+          <div class="announcement-card <%= announcement.status %>"
+            id="announcement-<%= announcement._id %>"
+            data-id="<%= announcement._id %>"
+            data-type="<%= announcement.type %>"
+            data-status="<%= announcement.status %>"
+            data-title="<%= announcement.title %>"
+            data-content="<%= announcement.content %>"
+            data-audience="<%= announcement.targetAudience %>"
+            data-priority="<%= Number(announcement.priority || 3) %>"
+            data-scheduled-at="<%= announcement.scheduledAt ? new Date(announcement.scheduledAt).toISOString().slice(0, 16) : '' %>">
+
+            <div class="announcement-header">
+              <div class="announcement-title-group">
+                <div class="announcement-type-icon" style="background:<%= typeColor(announcement.type) %>1A; color:<%= typeColor(announcement.type) %>;">
+                  <i class="fas <%= typeIcon(announcement.type) %>"></i>
+                </div>
+                <h3 class="announcement-title"><%= announcement.title %></h3>
+              </div>
+
+              <div class="announcement-header-right">
+                <span class="status-badge <%= statusClass(announcement.status) %>"><%= announcement.status %></span>
+                <button class="menu-btn" type="button" data-menu-trigger="true" title="More actions">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+
+            <p class="announcement-content"><%= announcement.content %></p>
+
+            <div class="announcement-footer">
+              <div class="announcement-meta">
+                <span class="meta-pill" style="background:rgba(59,130,246,0.08); color:#3B82F6;"><i class="fas fa-users"></i> <%= audienceLabel(announcement.targetAudience) %></span>
+                <span class="meta-pill" style="background:rgba(245,158,11,0.08); color:#f59e0b;">
+                  <i class="fas fa-signal"></i>
+                  Priority <%= Number(announcement.priority || 3) %>/5
+                  <span>
+                    <% for(let i=1; i<=5; i++) { %>
+                      <i class="fas fa-star" style="color: <%= i <= Number(announcement.priority || 3) ? '#f59e0b' : '#e2e8f0' %>; font-size:0.7rem;"></i>
+                    <% } %>
+                  </span>
+                </span>
+                <span class="meta-pill">
+                  <% if (announcement.status === 'published') { %>
+                    <i class="fas fa-circle-check" style="color:#22c55e;"></i>
+                  <% } else if (announcement.status === 'scheduled') { %>
+                    <i class="fas fa-clock" style="color:#8B5CF6;"></i>
+                  <% } else { %>
+                    <i class="fas fa-file-pen" style="color:#3B82F6;"></i>
+                  <% } %>
+                  <%= dateLabel(announcement) %> <%= formatDate(dateValue(announcement)) %>
+                </span>
+              </div>
+
+              <div class="announcement-actions">
+                <button class="ann-action-btn" type="button" data-action="preview"><i class="fas fa-eye"></i> Preview</button>
+                <button class="ann-action-btn edit" type="button" data-action="edit"><i class="fas fa-pen-to-square"></i> Edit</button>
+                <% if (announcement.status === 'draft') { %>
+                  <button class="ann-action-btn publish" type="button" data-action="publish"><i class="fas fa-paper-plane"></i> Publish</button>
+                <% } %>
+                <% if (announcement.status === 'published') { %>
+                  <button class="ann-action-btn unpublish" type="button" data-action="unpublish"><i class="fas fa-eye-slash"></i> Unpublish</button>
+                <% } %>
+                <button class="ann-action-btn delete" type="button" data-action="delete"><i class="fas fa-trash"></i> Delete</button>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="fas fa-bullhorn"></i>
+          <h4>No announcements found</h4>
+          <p>Create your first announcement</p>
+          <button class="btn-primary-admin" type="button" data-open-modal="createModal"><i class="fas fa-plus"></i> Create Announcement</button>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="pagination-row">
+      <span>Showing <%= start %>–<%= end %> of <%= Number(totalCount || 0) %> announcements</span>
+      <div class="pages" id="paginationBar">
+        <button class="page-btn" type="button" data-page="<%= Math.max(1, current - 1) %>" <%= current <= 1 ? 'disabled' : '' %>>Prev</button>
+        <% for (let i = 1; i <= pages; i++) { %>
+          <button class="page-btn <%= i === current ? 'active' : '' %>" type="button" data-page="<%= i %>"><%= i %></button>
+        <% } %>
+        <button class="page-btn" type="button" data-page="<%= Math.min(pages, current + 1) %>" <%= current >= pages ? 'disabled' : '' %>>Next</button>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div id="announcementDropdown" class="announcement-menu">
+  <button type="button" data-dd-action="preview"><i class="fas fa-eye" style="color:#64748b;"></i> Preview</button>
+  <button type="button" data-dd-action="edit"><i class="fas fa-pen-to-square" style="color:#3B82F6;"></i> Edit</button>
+  <button type="button" data-dd-action="publish"><i class="fas fa-paper-plane" style="color:#22c55e;"></i> Publish</button>
+  <button type="button" data-dd-action="unpublish"><i class="fas fa-eye-slash" style="color:#f59e0b;"></i> Unpublish</button>
+  <button type="button" data-dd-action="delete" class="delete"><i class="fas fa-trash"></i> Delete</button>
+</div>
+
+<div class="modal-overlay" id="createModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-plus"></i> Create Announcement</h3>
+      <button class="modal-close" type="button" data-close-modal="createModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="createAnnouncementForm">
+      <div class="modal-body">
+        <div>
+          <label class="field-label" for="createTitle">Announcement Title</label>
+          <input class="field-input" id="createTitle" type="text" required placeholder="e.g. Scheduled maintenance on March 10">
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="createType">Type</label>
+            <select class="field-select type-info" id="createType">
+              <option value="info">Info</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              <option value="danger">Danger</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="feature">Feature Update</option>
+            </select>
+
+            <label class="field-label" for="createAudience" style="margin-top:10px;">Target Audience</label>
+            <select class="field-select" id="createAudience">
+              <option value="all">All Users</option>
+              <option value="users">Users Only</option>
+              <option value="merchants">Merchants Only</option>
+              <option value="admins">Admins Only</option>
+              <option value="premium">Premium Users</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="field-label">Priority</label>
+            <input type="hidden" id="priorityInput" value="3">
+            <div class="priority-stars" id="priorityStars">
+              <button type="button" class="priority-star" data-value="1"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star" data-value="2"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star" data-value="3"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star" data-value="4"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star" data-value="5"><i class="fas fa-star"></i></button>
+            </div>
+            <div class="small-note">1 = Low, 3 = Normal, 5 = Urgent</div>
+
+            <label class="field-label" style="margin-top:10px;">Status</label>
+            <div class="radio-row">
+              <label class="radio-item"><input type="radio" name="createStatusMode" value="draft" checked> Draft</label>
+              <label class="radio-item"><input type="radio" name="createStatusMode" value="published"> Publish Now</label>
+              <label class="radio-item"><input type="radio" name="createStatusMode" value="scheduled"> Schedule</label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label" for="createContent">Content</label>
+          <textarea class="field-textarea" id="createContent" rows="5" minlength="10" maxlength="1000" required placeholder="Write your announcement content here..."></textarea>
+          <div class="counter" id="contentCounter">0 / 1000</div>
+        </div>
+
+        <div id="scheduledWrap" style="display:none;">
+          <label class="field-label" for="scheduledAtInput">Scheduled Date &amp; Time</label>
+          <input class="field-date" id="scheduledAtInput" type="datetime-local">
+        </div>
+
+        <div class="live-preview-box">
+          <h4 class="preview-title"><i class="fas fa-eye"></i> Live Preview</h4>
+          <div id="livePreviewCard" class="announcement-card draft" style="margin:0;">
+            <div class="announcement-header">
+              <div class="announcement-title-group">
+                <div id="liveIconWrap" class="announcement-type-icon" style="background:rgba(59,130,246,0.14); color:#3B82F6;"><i id="liveIcon" class="fas fa-circle-info"></i></div>
+                <h3 id="liveTitle" class="announcement-title">Announcement title preview</h3>
+              </div>
+              <span class="status-badge badge-info" id="liveStatus">draft</span>
+            </div>
+            <p id="liveContent" class="announcement-content" style="margin-left:52px;">Your content preview will appear here...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-modal-outline" type="button" data-close-modal="createModal">Cancel</button>
+        <button class="btn-modal-outline" id="saveDraftBtn" type="submit" data-submit-status="draft">Save as Draft</button>
+        <button class="btn-modal-primary" id="createPublishBtn" type="submit" data-submit-status="published"><i class="fas fa-paper-plane"></i> Create &amp; Publish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-pen-to-square"></i> Edit Announcement</h3>
+      <button class="modal-close" type="button" data-close-modal="editModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="editAnnouncementForm">
+      <input type="hidden" id="editAnnouncementId">
+      <div class="modal-body">
+        <div>
+          <label class="field-label" for="editTitle">Announcement Title</label>
+          <input class="field-input" id="editTitle" type="text" required>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="editType">Type</label>
+            <select class="field-select type-info" id="editType">
+              <option value="info">Info</option>
+              <option value="success">Success</option>
+              <option value="warning">Warning</option>
+              <option value="danger">Danger</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="feature">Feature Update</option>
+            </select>
+
+            <label class="field-label" for="editAudience" style="margin-top:10px;">Target Audience</label>
+            <select class="field-select" id="editAudience">
+              <option value="all">All Users</option>
+              <option value="users">Users Only</option>
+              <option value="merchants">Merchants Only</option>
+              <option value="admins">Admins Only</option>
+              <option value="premium">Premium Users</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Priority</label>
+            <input type="hidden" id="editPriorityInput" value="3">
+            <div class="priority-stars" id="editPriorityStars">
+              <button type="button" class="priority-star edit-priority-star" data-value="1"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star edit-priority-star" data-value="2"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star edit-priority-star" data-value="3"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star edit-priority-star" data-value="4"><i class="fas fa-star"></i></button>
+              <button type="button" class="priority-star edit-priority-star" data-value="5"><i class="fas fa-star"></i></button>
+            </div>
+
+            <label class="field-label" for="editScheduledAt" style="margin-top:10px;">Scheduled Date &amp; Time</label>
+            <input class="field-date" id="editScheduledAt" type="datetime-local">
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="editContent">Content</label>
+          <textarea class="field-textarea" id="editContent" rows="5" minlength="10" maxlength="1000" required></textarea>
+          <div class="counter" id="editContentCounter">0 / 1000</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-modal-outline" type="button" data-close-modal="editModal">Cancel</button>
+        <button class="btn-modal-primary" type="submit"><i class="fas fa-floppy-disk"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="previewModal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="width:min(680px,100%);">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-eye"></i> Preview Announcement</h3>
+      <button class="modal-close" type="button" data-close-modal="previewModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="previewBanner" class="preview-banner">
+        <div class="preview-banner-head">
+          <div id="previewIconWrap" class="preview-banner-icon"><i id="previewIcon" class="fas fa-circle-info"></i></div>
+          <div>
+            <h3 id="previewTitle">Announcement</h3>
+            <p id="previewContent">Content preview</p>
+          </div>
+        </div>
+        <div class="preview-meta">
+          <span class="meta-pill" id="previewAudience"><i class="fas fa-users"></i> All Users</span>
+          <span class="meta-pill" id="previewPriority"></span>
+          <span class="meta-pill" id="previewStatus"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-modal-outline" type="button" data-close-modal="previewModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="width:min(520px,100%);">
+    <div class="modal-header">
+      <h3 class="modal-title red"><i class="fas fa-trash"></i> Delete Announcement</h3>
+      <button class="modal-close" type="button" data-close-modal="deleteModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="deleteAnnouncementId">
+      <div class="delete-warning">This announcement will be permanently deleted.</div>
+      <p style="margin:0; color:var(--text-mid);">Are you sure you want to delete <strong id="deleteAnnouncementTitle">"-"</strong>?</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-modal-outline" type="button" data-close-modal="deleteModal">Cancel</button>
+      <button class="btn-modal-danger" id="confirmDeleteAnnouncementBtn" type="button"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="publishModal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="width:min(520px,100%);">
+    <div class="modal-header">
+      <h3 class="modal-title green"><i class="fas fa-paper-plane"></i> Publish Announcement</h3>
+      <button class="modal-close" type="button" data-close-modal="publishModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="publishAnnouncementId">
+      <div class="publish-info">This announcement will be visible to: <strong id="publishAudienceText">All Users</strong> immediately.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-modal-outline" type="button" data-close-modal="publishModal">Cancel</button>
+      <button class="btn-modal-primary" id="confirmPublishBtn" type="button"><i class="fas fa-paper-plane"></i> Publish Now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const tabs = Array.from(document.querySelectorAll('#announcementTabs .filter-tab'));
+    const typeFilter = document.getElementById('typeFilter');
+    const cards = () => Array.from(document.querySelectorAll('.announcement-card[data-id]'));
+    const dropdown = document.getElementById('announcementDropdown');
+    const createForm = document.getElementById('createAnnouncementForm');
+    const editForm = document.getElementById('editAnnouncementForm');
+    const createContent = document.getElementById('createContent');
+    const createTitle = document.getElementById('createTitle');
+    const createType = document.getElementById('createType');
+    const createAudience = document.getElementById('createAudience');
+    const counter = document.getElementById('contentCounter');
+    const editContent = document.getElementById('editContent');
+    const editCounter = document.getElementById('editContentCounter');
+    const scheduledWrap = document.getElementById('scheduledWrap');
+    const scheduledAtInput = document.getElementById('scheduledAtInput');
+    const priorityInput = document.getElementById('priorityInput');
+    const editPriorityInput = document.getElementById('editPriorityInput');
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    const createPublishBtn = document.getElementById('createPublishBtn');
+    const paginationBar = document.getElementById('paginationBar');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteAnnouncementBtn');
+    const confirmPublishBtn = document.getElementById('confirmPublishBtn');
+
+    let createSubmitStatus = 'draft';
+    let activeCard = null;
+
+    function showToast(message, type = 'success') {
+      const host = document.getElementById('toastContainer') || document.body;
+      const toast = document.createElement('div');
+      toast.className = `admin-toast ${type === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`;
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${String(message || '')}</span>`;
+      host.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 260);
+      }, 2200);
+    }
+
+    function getTypeMeta(type) {
+      const t = String(type || 'info').toLowerCase();
+      if (t === 'success') return { icon: 'fa-circle-check', color: '#22c55e' };
+      if (t === 'warning') return { icon: 'fa-triangle-exclamation', color: '#f59e0b' };
+      if (t === 'danger') return { icon: 'fa-circle-xmark', color: '#ef4444' };
+      if (t === 'maintenance') return { icon: 'fa-screwdriver-wrench', color: '#f97316' };
+      if (t === 'feature') return { icon: 'fa-star', color: '#8B5CF6' };
+      return { icon: 'fa-circle-info', color: '#3B82F6' };
+    }
+
+    function audienceLabel(value) {
+      const a = String(value || 'all').toLowerCase();
+      if (a === 'users') return 'Users Only';
+      if (a === 'merchants') return 'Merchants Only';
+      if (a === 'admins') return 'Admins Only';
+      if (a === 'premium') return 'Premium Users';
+      return 'All Users';
+    }
+
+    function openModal(id) {
+      document.getElementById(id)?.classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id)?.classList.remove('open');
+    }
+
+    function setTypeSelectBorder(selectEl) {
+      if (!selectEl) return;
+      selectEl.classList.remove('type-info', 'type-success', 'type-warning', 'type-danger', 'type-maintenance', 'type-feature');
+      const value = String(selectEl.value || 'info').toLowerCase();
+      selectEl.classList.add(`type-${value}`);
+    }
+
+    function switchAnnouncementTab(status) {
+      localStorage.setItem('admin_announcements_active_tab', status);
+      const url = new URL(window.location.href);
+      if (!status || status === 'all') url.searchParams.delete('status');
+      else url.searchParams.set('status', status);
+      url.searchParams.delete('page');
+      window.location.href = url.toString();
+    }
+
+    function applyTypeFilter() {
+      const selectedType = String(typeFilter?.value || 'all').toLowerCase();
+      cards().forEach((card) => {
+        const cardType = String(card.dataset.type || '').toLowerCase();
+        const visible = selectedType === 'all' || selectedType === cardType;
+        card.style.display = visible ? '' : 'none';
+      });
+    }
+
+    function setPriority(value) {
+      const v = Number(value || 3);
+      priorityInput.value = String(v);
+      document.querySelectorAll('#priorityStars .priority-star').forEach((s, i) => {
+        s.style.color = (i < v) ? '#f59e0b' : '#e2e8f0';
+      });
+    }
+
+    function setEditPriority(value) {
+      const v = Number(value || 3);
+      editPriorityInput.value = String(v);
+      document.querySelectorAll('#editPriorityStars .edit-priority-star').forEach((s, i) => {
+        s.style.color = (i < v) ? '#f59e0b' : '#e2e8f0';
+      });
+    }
+
+    function toggleScheduleInput() {
+      const selected = document.querySelector('input[name="createStatusMode"]:checked')?.value || 'draft';
+      scheduledWrap.style.display = selected === 'scheduled' ? '' : 'none';
+      if (selected !== 'scheduled') scheduledAtInput.value = '';
+      const liveStatus = document.getElementById('liveStatus');
+      liveStatus.textContent = selected;
+      liveStatus.className = 'status-badge ' + (selected === 'published' ? 'badge-success' : selected === 'scheduled' ? 'badge-purple' : 'badge-info');
+    }
+
+    function updateLivePreview() {
+      const title = (createTitle.value || '').trim() || 'Announcement title preview';
+      const content = (createContent.value || '').trim() || 'Your content preview will appear here...';
+      const type = createType.value || 'info';
+      const meta = getTypeMeta(type);
+
+      document.getElementById('liveTitle').textContent = title;
+      document.getElementById('liveContent').textContent = content;
+
+      const liveIcon = document.getElementById('liveIcon');
+      const liveIconWrap = document.getElementById('liveIconWrap');
+      liveIcon.className = `fas ${meta.icon}`;
+      liveIconWrap.style.color = meta.color;
+      liveIconWrap.style.background = `${meta.color}1A`;
+    }
+
+    function openEditModal(id, title, content, type, audience, priority, status, scheduledAt) {
+      document.getElementById('editAnnouncementId').value = id || '';
+      document.getElementById('editTitle').value = title || '';
+      document.getElementById('editContent').value = content || '';
+      document.getElementById('editType').value = type || 'info';
+      document.getElementById('editAudience').value = audience || 'all';
+      document.getElementById('editScheduledAt').value = scheduledAt || '';
+      setTypeSelectBorder(document.getElementById('editType'));
+      setEditPriority(Number(priority || 3));
+      editCounter.textContent = `${(content || '').length} / 1000`;
+      openModal('editModal');
+    }
+
+    function openPreviewModal(title, content, type, audience, priority, status) {
+      const meta = getTypeMeta(type);
+      const banner = document.getElementById('previewBanner');
+      const iconWrap = document.getElementById('previewIconWrap');
+      const icon = document.getElementById('previewIcon');
+      banner.style.borderTopColor = meta.color;
+      iconWrap.style.color = meta.color;
+      iconWrap.style.background = `${meta.color}1A`;
+      icon.className = `fas ${meta.icon}`;
+
+      document.getElementById('previewTitle').textContent = title || 'Announcement';
+      document.getElementById('previewContent').textContent = content || '-';
+      document.getElementById('previewAudience').innerHTML = `<i class="fas fa-users"></i> ${audienceLabel(audience)}`;
+
+      const p = Number(priority || 3);
+      let stars = '';
+      for (let i = 1; i <= 5; i += 1) {
+        stars += `<i class="fas fa-star" style="color:${i <= p ? '#f59e0b' : '#e2e8f0'}; font-size:0.72rem;"></i>`;
+      }
+      document.getElementById('previewPriority').innerHTML = `<i class="fas fa-signal"></i> Priority ${p}/5 ${stars}`;
+      document.getElementById('previewStatus').innerHTML = `<i class="fas fa-circle-info"></i> ${String(status || 'draft')}`;
+
+      openModal('previewModal');
+    }
+
+    function openDeleteModal(id, title) {
+      document.getElementById('deleteAnnouncementId').value = id || '';
+      document.getElementById('deleteAnnouncementTitle').textContent = `"${title || '-'}"`;
+      openModal('deleteModal');
+    }
+
+    function publishAnnouncement(id, audience) {
+      document.getElementById('publishAnnouncementId').value = id || '';
+      document.getElementById('publishAudienceText').textContent = audienceLabel(audience);
+      openModal('publishModal');
+    }
+
+    async function unpublishAnnouncement(id) {
+      if (!window.confirm('Move this announcement back to draft?')) return;
+      const resp = await fetch(`/admin/announcements/${encodeURIComponent(id)}/unpublish`, { method: 'PATCH' });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Unpublish failed', 'error');
+        return;
+      }
+      showToast(result.message || 'Moved to draft');
+      setTimeout(() => window.location.reload(), 350);
+    }
+
+    function closeDropdown() {
+      dropdown.style.display = 'none';
+      activeCard = null;
+    }
+
+    function openDropdownFor(button, card) {
+      activeCard = card;
+      const rect = button.getBoundingClientRect();
+      dropdown.style.display = 'block';
+      const h = dropdown.offsetHeight;
+      const w = dropdown.offsetWidth;
+      let top = rect.bottom + 4;
+      let left = rect.right - w;
+      if (top + h > window.innerHeight - 8) top = rect.top - h - 4;
+      if (left < 8) left = 8;
+      dropdown.style.top = `${top}px`;
+      dropdown.style.left = `${left}px`;
+
+      const status = String(card.dataset.status || '').toLowerCase();
+      dropdown.querySelector('[data-dd-action="publish"]').style.display = status === 'draft' ? 'flex' : 'none';
+      dropdown.querySelector('[data-dd-action="unpublish"]').style.display = status === 'published' ? 'flex' : 'none';
+    }
+
+    async function createAnnouncement(statusOverride) {
+      const statusMode = statusOverride || document.querySelector('input[name="createStatusMode"]:checked')?.value || 'draft';
+      const payload = {
+        title: createTitle.value.trim(),
+        content: createContent.value.trim(),
+        type: createType.value,
+        targetAudience: createAudience.value,
+        priority: Number(priorityInput.value || 3),
+        scheduledAt: statusMode === 'scheduled' ? (scheduledAtInput.value || null) : null,
+        status: statusMode,
+      };
+
+      const resp = await fetch('/admin/announcements/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Failed to create announcement', 'error');
+        return;
+      }
+      showToast(result.message || 'Announcement created successfully');
+      closeModal('createModal');
+      setTimeout(() => window.location.reload(), 350);
+    }
+
+    async function updateAnnouncement() {
+      const id = document.getElementById('editAnnouncementId').value;
+      const payload = {
+        title: document.getElementById('editTitle').value.trim(),
+        content: document.getElementById('editContent').value.trim(),
+        type: document.getElementById('editType').value,
+        targetAudience: document.getElementById('editAudience').value,
+        priority: Number(editPriorityInput.value || 3),
+        scheduledAt: document.getElementById('editScheduledAt').value || null,
+      };
+
+      const resp = await fetch(`/admin/announcements/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Update failed', 'error');
+        return;
+      }
+      showToast(result.message || 'Announcement updated');
+      setTimeout(() => window.location.reload(), 350);
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => switchAnnouncementTab(tab.dataset.status));
+    });
+
+    typeFilter?.addEventListener('change', () => {
+      applyTypeFilter();
+      const url = new URL(window.location.href);
+      const val = String(typeFilter.value || 'all');
+      if (val === 'all') url.searchParams.delete('type');
+      else url.searchParams.set('type', val);
+      url.searchParams.delete('page');
+      window.history.replaceState({}, '', url.toString());
+    });
+
+    createType?.addEventListener('change', () => {
+      setTypeSelectBorder(createType);
+      updateLivePreview();
+    });
+
+    createTitle?.addEventListener('input', updateLivePreview);
+    createContent?.addEventListener('input', () => {
+      if (createContent.value.length > 1000) {
+        createContent.value = createContent.value.substring(0, 1000);
+      }
+      counter.textContent = `${createContent.value.length} / 1000`;
+      updateLivePreview();
+    });
+
+    editContent?.addEventListener('input', () => {
+      if (editContent.value.length > 1000) {
+        editContent.value = editContent.value.substring(0, 1000);
+      }
+      editCounter.textContent = `${editContent.value.length} / 1000`;
+    });
+
+    document.querySelectorAll('input[name="createStatusMode"]').forEach((radio) => {
+      radio.addEventListener('change', toggleScheduleInput);
+    });
+
+    scheduledAtInput.min = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+    document.querySelectorAll('#priorityStars .priority-star').forEach((btn) => {
+      btn.addEventListener('click', () => setPriority(Number(btn.dataset.value || 3)));
+    });
+
+    document.querySelectorAll('#editPriorityStars .edit-priority-star').forEach((btn) => {
+      btn.addEventListener('click', () => setEditPriority(Number(btn.dataset.value || 3)));
+    });
+
+    saveDraftBtn?.addEventListener('click', () => {
+      createSubmitStatus = 'draft';
+    });
+
+    createPublishBtn?.addEventListener('click', () => {
+      createSubmitStatus = 'published';
+    });
+
+    createForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await createAnnouncement(createSubmitStatus);
+    });
+
+    editForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await updateAnnouncement();
+    });
+
+    paginationBar?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-page]');
+      if (!btn || btn.disabled) return;
+      const page = btn.getAttribute('data-page');
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', page);
+      window.location.href = url.toString();
+    });
+
+    document.addEventListener('click', (e) => {
+      const openBtn = e.target.closest('[data-open-modal]');
+      if (openBtn) {
+        openModal(openBtn.getAttribute('data-open-modal'));
+        closeDropdown();
+        return;
+      }
+
+      const closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        closeModal(closeBtn.getAttribute('data-close-modal'));
+        return;
+      }
+
+      const menuTrigger = e.target.closest('[data-menu-trigger="true"]');
+      if (menuTrigger) {
+        const card = menuTrigger.closest('.announcement-card');
+        if (dropdown.style.display === 'block' && activeCard === card) closeDropdown();
+        else openDropdownFor(menuTrigger, card);
+        return;
+      }
+
+      const actionBtn = e.target.closest('[data-action]');
+      if (actionBtn) {
+        const card = actionBtn.closest('.announcement-card');
+        if (!card) return;
+        const a = {
+          id: card.dataset.id,
+          title: card.dataset.title,
+          content: card.dataset.content,
+          type: card.dataset.type,
+          audience: card.dataset.audience,
+          priority: card.dataset.priority,
+          status: card.dataset.status,
+          scheduledAt: card.dataset.scheduledAt,
+        };
+
+        const action = actionBtn.dataset.action;
+        if (action === 'preview') openPreviewModal(a.title, a.content, a.type, a.audience, a.priority, a.status);
+        if (action === 'edit') openEditModal(a.id, a.title, a.content, a.type, a.audience, a.priority, a.status, a.scheduledAt);
+        if (action === 'publish') publishAnnouncement(a.id, a.audience);
+        if (action === 'unpublish') unpublishAnnouncement(a.id);
+        if (action === 'delete') openDeleteModal(a.id, a.title);
+      }
+
+      if (dropdown.style.display === 'block' && !e.target.closest('#announcementDropdown')) {
+        closeDropdown();
+      }
+    });
+
+    dropdown?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-dd-action]');
+      if (!btn || !activeCard) return;
+      const action = btn.dataset.ddAction;
+      const a = {
+        id: activeCard.dataset.id,
+        title: activeCard.dataset.title,
+        content: activeCard.dataset.content,
+        type: activeCard.dataset.type,
+        audience: activeCard.dataset.audience,
+        priority: activeCard.dataset.priority,
+        status: activeCard.dataset.status,
+        scheduledAt: activeCard.dataset.scheduledAt,
+      };
+
+      if (action === 'preview') openPreviewModal(a.title, a.content, a.type, a.audience, a.priority, a.status);
+      if (action === 'edit') openEditModal(a.id, a.title, a.content, a.type, a.audience, a.priority, a.status, a.scheduledAt);
+      if (action === 'publish') publishAnnouncement(a.id, a.audience);
+      if (action === 'unpublish') unpublishAnnouncement(a.id);
+      if (action === 'delete') openDeleteModal(a.id, a.title);
+      closeDropdown();
+    });
+
+    confirmPublishBtn?.addEventListener('click', async () => {
+      const id = document.getElementById('publishAnnouncementId').value;
+      const resp = await fetch(`/admin/announcements/${encodeURIComponent(id)}/publish`, { method: 'PATCH' });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Publish failed', 'error');
+        return;
+      }
+      showToast(result.message || 'Announcement published');
+      closeModal('publishModal');
+      setTimeout(() => window.location.reload(), 350);
+    });
+
+    confirmDeleteBtn?.addEventListener('click', async () => {
+      const id = document.getElementById('deleteAnnouncementId').value;
+      const card = document.getElementById(`announcement-${id}`);
+      const resp = await fetch(`/admin/announcements/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Delete failed', 'error');
+        return;
+      }
+
+      closeModal('deleteModal');
+      if (card) card.classList.add('removing');
+      showToast(result.message || 'Announcement deleted');
+      setTimeout(() => window.location.reload(), 350);
+    });
+
+    window.switchAnnouncementTab = switchAnnouncementTab;
+    window.setPriority = setPriority;
+    window.openEditModal = openEditModal;
+    window.openPreviewModal = openPreviewModal;
+    window.publishAnnouncement = publishAnnouncement;
+    window.unpublishAnnouncement = unpublishAnnouncement;
+    window.openDeleteModal = openDeleteModal;
+    window.showToast = showToast;
+
+    setPriority(3);
+    setEditPriority(3);
+    toggleScheduleInput();
+    setTypeSelectBorder(createType);
+    setTypeSelectBorder(document.getElementById('editType'));
+    updateLivePreview();
+    applyTypeFilter();
+
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) overlay.classList.remove('open');
+      });
+    });
+
+    window.addEventListener('scroll', closeDropdown, true);
+  })();
+</script>

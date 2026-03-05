@@ -25,6 +25,7 @@ const adminNotifController = require("../../Controllers/admin/adminNotifControll
 const adminProfileController = require("../../Controllers/admin/adminProfileController");
 const adminMerchantController = require("../../Controllers/admin/adminMerchantController");
 const adminBankController = require("../../Controllers/admin/adminBankController");
+const adminAnnouncementController = require("../../Controllers/admin/adminAnnouncementController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -102,6 +103,12 @@ router.delete("/notifications/clear-all", requirePermission("settings", "update"
 router.patch("/notifications/:id/read", requirePermission("settings", "update"), adminNotifController.markAsRead);
 router.delete("/notifications/:id", requirePermission("settings", "update"), adminNotifController.deleteNotification);
 router.post("/notifications/send", requirePermission("settings", "update"), adminNotifController.sendNotification);
+router.get("/announcements", requirePermission("settings", "view"), adminAnnouncementController.announcementsList);
+router.post("/announcements/create", requirePermission("settings", "update"), adminAnnouncementController.create);
+router.patch("/announcements/:id", requirePermission("settings", "update"), adminAnnouncementController.update);
+router.patch("/announcements/:id/publish", requirePermission("settings", "update"), adminAnnouncementController.publish);
+router.patch("/announcements/:id/unpublish", requirePermission("settings", "update"), adminAnnouncementController.unpublish);
+router.delete("/announcements/:id", requirePermission("settings", "delete"), adminAnnouncementController.delete);
 router.get("/pricing", requirePermission("settings", "view"), AdminOperationsController.getPricingManagement);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
