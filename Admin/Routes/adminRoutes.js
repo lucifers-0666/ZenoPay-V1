@@ -23,6 +23,7 @@ const adminSettingsController = require("../../Controllers/admin/adminSettingsCo
 const adminAuditController = require("../../Controllers/admin/adminAuditController");
 const adminNotifController = require("../../Controllers/admin/adminNotifController");
 const adminProfileController = require("../../Controllers/admin/adminProfileController");
+const adminMerchantController = require("../../Controllers/admin/adminMerchantController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -103,9 +104,14 @@ router.post("/notifications/send", requirePermission("settings", "update"), admi
 router.get("/pricing", requirePermission("settings", "view"), AdminOperationsController.getPricingManagement);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
-router.get("/merchants", requirePermission("merchants", "view"), AdminMerchantController.getAllMerchants);
+router.get("/merchants", requirePermission("merchants", "view"), adminMerchantController.merchantsList);
+router.get("/merchants/export", requirePermission("merchants", "view"), adminMerchantController.exportMerchants);
 router.get("/merchants/pending", requirePermission("merchants", "view"), AdminMerchantController.getPendingMerchants);
-router.get("/merchants/:id", requirePermission("merchants", "view"), AdminMerchantController.getMerchantDetails);
+router.get("/merchants/:id", requirePermission("merchants", "view"), adminMerchantController.merchantDetails);
+router.patch("/merchants/:id/status", requirePermission("merchants", "suspend"), adminMerchantController.updateStatus);
+router.patch("/merchants/:id/verify", requirePermission("merchants", "approve"), adminMerchantController.verifyMerchant);
+router.post("/merchants/bulk-action", requirePermission("merchants", "approve"), adminMerchantController.bulkAction);
+router.delete("/merchants/:id", requirePermission("merchants", "reject"), adminMerchantController.deleteMerchant);
 router.post("/merchants/:id/approve", requirePermission("merchants", "approve"), AdminMerchantController.approveMerchant);
 router.post("/merchants/:id/reject", requirePermission("merchants", "reject"), AdminMerchantController.rejectMerchant);
 router.post("/merchants/:id/suspend", requirePermission("merchants", "suspend"), AdminMerchantController.suspendMerchant);
