@@ -24,6 +24,7 @@ const adminAuditController = require("../../Controllers/admin/adminAuditControll
 const adminNotifController = require("../../Controllers/admin/adminNotifController");
 const adminProfileController = require("../../Controllers/admin/adminProfileController");
 const adminMerchantController = require("../../Controllers/admin/adminMerchantController");
+const adminBankController = require("../../Controllers/admin/adminBankController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -118,13 +119,17 @@ router.post("/merchants/:id/suspend", requirePermission("merchants", "suspend"),
 router.post("/merchants/:id/revoke-keys", requirePermission("merchants", "suspend"), AdminMerchantController.revokeApiKeys);
 
 // ============ BANK MANAGEMENT ROUTES ============
-router.get("/banks", requirePermission("banks", "view"), AdminBankController.getAllBanks);
+router.get("/banks", requirePermission("banks", "view"), adminBankController.banksList);
+router.post("/banks/add", requirePermission("banks", "create"), adminBankController.addBank);
+router.patch("/banks/:id/status", requirePermission("banks", "update"), adminBankController.updateStatus);
+router.patch("/banks/:id/priority", requirePermission("banks", "update"), adminBankController.updatePriority);
+router.patch("/banks/:id", requirePermission("banks", "update"), adminBankController.updateBank);
+router.delete("/banks/:id", requirePermission("banks", "delete"), adminBankController.deleteBank);
 router.get("/banks/pending", requirePermission("banks", "view"), AdminBankController.getPendingBanks);
 router.get("/banks/:id", requirePermission("banks", "view"), AdminBankController.getBankDetails);
 router.post("/banks/:id/approve", requirePermission("banks", "create"), AdminBankController.approveBank);
 router.post("/banks/:id/reject", requirePermission("banks", "delete"), AdminBankController.rejectBank);
 router.put("/banks/:id", requirePermission("banks", "update"), AdminBankController.updateBank);
-router.delete("/banks/:id", requirePermission("banks", "delete"), AdminBankController.deleteBank);
 
 // ============ TRANSACTION MANAGEMENT ROUTES ============
 router.get("/transactions", requirePermission("transactions", "view"), AdminTransactionController.getAllTransactions);

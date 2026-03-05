@@ -1,0 +1,1296 @@
+<style>
+  :root { --bank-cyan: color-mix(in srgb, var(--primary) 65%, var(--green) 35%); }
+
+  .banks-page { display: grid; gap: 16px; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+  }
+
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bank-cyan) 15%, var(--card-bg));
+    color: var(--bank-cyan);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: 4px 0 0 0;
+  }
+
+  .breadcrumb {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb i.fa-chevron-right { font-size: 0.6rem; color: var(--text-soft); }
+  .breadcrumb .current { color: var(--primary); font-weight: 600; }
+  .page-header-right { display: inline-flex; align-items: center; }
+
+  .btn-primary-admin,
+  .btn-outline-admin,
+  .btn-danger-modal {
+    height: 40px;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .btn-primary-admin {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--card-bg);
+  }
+
+  .btn-outline-admin {
+    background: var(--card-bg);
+    color: var(--text-mid);
+  }
+
+  .btn-danger-modal {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--card-bg);
+  }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .stat-icon.cyan { background: color-mix(in srgb, var(--bank-cyan) 15%, var(--card-bg)); color: var(--bank-cyan); }
+  .stat-icon.green { background: color-mix(in srgb, var(--green) 15%, var(--card-bg)); color: var(--green-dark); }
+  .stat-icon.blue  { background: color-mix(in srgb, var(--primary) 15%, var(--card-bg)); color: var(--primary); }
+  .stat-icon.red   { background: color-mix(in srgb, var(--red) 15%, var(--card-bg)); color: var(--red-dark); }
+
+  .stat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 0 0 4px 0;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1;
+  }
+
+  .filter-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+  }
+
+  .filter-input,
+  .filter-select {
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 0 12px;
+  }
+
+  .table-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: visible;
+  }
+
+  .admin-table-wrapper { overflow-x: auto; }
+
+  .banks-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .banks-table thead th {
+    background: var(--bg-page);
+    color: var(--text-mid);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 14px;
+    white-space: nowrap;
+  }
+
+  .banks-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .row-no { color: var(--text-soft); font-size: 0.82rem; }
+
+  .bank-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bank-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .bank-initial {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bank-cyan);
+    color: var(--card-bg);
+    font-weight: 800;
+    font-size: 0.88rem;
+  }
+
+  .bank-name { color: var(--text-dark); font-size: 0.9rem; font-weight: 700; }
+  .bank-code { color: var(--primary); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.74rem; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .badge-info { background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, var(--card-bg)); }
+  .badge-success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green-dark); border-color: color-mix(in srgb, var(--green) 30%, var(--card-bg)); }
+  .badge-warning { background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); color: var(--amber-dark); border-color: color-mix(in srgb, var(--amber) 30%, var(--card-bg)); }
+  .badge-purple { background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg)); color: var(--secondary); border-color: color-mix(in srgb, var(--secondary) 30%, var(--card-bg)); }
+  .badge-cyan { background: color-mix(in srgb, var(--bank-cyan) 14%, var(--card-bg)); color: var(--bank-cyan); border-color: color-mix(in srgb, var(--bank-cyan) 30%, var(--card-bg)); }
+  .badge-danger { background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); color: var(--red-dark); border-color: color-mix(in srgb, var(--red) 30%, var(--card-bg)); }
+
+  .ifsc-text { color: var(--text-mid); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.8rem; }
+
+  .priority-input {
+    width: 60px;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    background: var(--bg-page);
+    color: var(--text-dark);
+  }
+
+  .mode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-right: 4px;
+    border: 1px solid transparent;
+  }
+
+  .mode-pill.blue { background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 24%, var(--card-bg)); }
+  .mode-pill.green { background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); color: var(--green-dark); border-color: color-mix(in srgb, var(--green) 24%, var(--card-bg)); }
+  .mode-pill.purple { background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); color: var(--secondary); border-color: color-mix(in srgb, var(--secondary) 24%, var(--card-bg)); }
+  .mode-pill.amber { background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); color: var(--amber-dark); border-color: color-mix(in srgb, var(--amber) 24%, var(--card-bg)); }
+  .mode-pill.disabled { opacity: 0.3; }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--border);
+    transition: all var(--t-fast);
+    cursor: pointer;
+  }
+
+  .toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    transition: all var(--t-fast);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .toggle-switch input:checked + .toggle-slider {
+    background: var(--green);
+  }
+
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+  }
+
+  .bank-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .empty-state { padding: 36px 16px; text-align: center; color: var(--text-soft); }
+  .empty-state i { font-size: 2rem; margin-bottom: 8px; }
+  .empty-state h4 { color: var(--text-dark); font-size: 1rem; margin-bottom: 4px; }
+
+  .coverage-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+  }
+
+  .coverage-head {
+    margin-bottom: 12px;
+    color: var(--text-dark);
+    font-size: 1rem;
+    font-weight: 700;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .coverage-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    background: var(--bg-page);
+  }
+
+  .coverage-icon {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+
+  .coverage-count { font-size: 1.8rem; font-weight: 800; line-height: 1; color: var(--text-dark); margin-bottom: 6px; }
+  .coverage-label { font-size: 0.7rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 8px; }
+
+  .progress {
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--border-light);
+    overflow: hidden;
+  }
+
+  .progress > span { display: block; height: 100%; border-radius: 999px; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-dark) 45%, transparent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 16px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-card {
+    width: min(780px, 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.red { color: var(--red-dark); }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+  }
+
+  .modal-body { padding: 14px 16px; display: grid; gap: 12px; }
+  .modal-foot { padding: 12px 16px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 8px; }
+
+  .form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .field-group { display: grid; gap: 6px; }
+  .field-label { color: var(--text-mid); font-size: 12px; font-weight: 700; }
+  .field-help { color: var(--text-soft); font-size: 11px; }
+  .field-input, .field-select {
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    padding: 0 10px;
+    font-size: 0.85rem;
+  }
+
+  .mode-box {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-page);
+    padding: 10px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .mode-box h5 { font-size: 0.82rem; color: var(--text-dark); margin: 0; }
+
+  .mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .mode-row:last-child { border-bottom: none; }
+
+  .mode-row-info { display: grid; gap: 2px; }
+  .mode-row-title { color: var(--text-dark); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .mode-row-desc { color: var(--text-soft); font-size: 0.72rem; }
+
+  .warning-box {
+    border: 1px solid color-mix(in srgb, var(--red) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--red) 10%, var(--card-bg));
+    color: var(--red-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 0.82rem;
+  }
+
+  .merchant-dropdown button:hover,
+  .merchant-dropdown a:hover { background: var(--bg-page); }
+
+  .admin-toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 700;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+  }
+
+  .admin-toast.show { opacity: 1; transform: translateY(0); }
+  .admin-toast-success { border-color: color-mix(in srgb, var(--green) 30%, var(--border)); color: var(--green-dark); }
+  .admin-toast-error { border-color: color-mix(in srgb, var(--red) 30%, var(--border)); color: var(--red-dark); }
+
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-card { grid-template-columns: 1fr; }
+    .coverage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form-two-col { grid-template-columns: 1fr; }
+  }
+</style>
+
+<%
+  const safeBanks = Array.isArray(banks) ? banks : [];
+  const safeFilters = filters || {};
+  const total = Number(totalCount || 0);
+  const m = modeCoverage || {};
+  const pct = (n) => total > 0 ? Math.round((Number(n || 0) / total) * 100) : 0;
+
+  const typeClass = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t === 'public') return 'badge-info';
+    if (t === 'private') return 'badge-purple';
+    if (t === 'cooperative') return 'badge-success';
+    if (t === 'foreign') return 'badge-warning';
+    if (t === 'payments') return 'badge-cyan';
+    return 'badge-info';
+  };
+
+  const statusClass = (status) => String(status || '').toLowerCase() === 'active' ? 'badge-success' : 'badge-danger';
+%>
+
+<section class="banks-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <i class="fas fa-landmark"></i>
+        </div>
+        <div>
+          <h1 class="page-title">Banks</h1>
+          <p class="page-subtitle">Manage bank integrations and payment channel settings</p>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current">Banks</span>
+      </div>
+    </div>
+
+    <div class="page-header-right">
+      <button id="addBankBtn" class="btn-primary-admin" type="button" data-open-modal="addBankModal">
+        <i class="fas fa-plus"></i> Add Bank
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <div class="stat-icon cyan"><i class="fas fa-landmark"></i></div>
+      <div>
+        <p class="stat-label">Total Banks</p>
+        <h3 class="stat-value"><%= Number(totalCount || 0) %></h3>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+      <div>
+        <p class="stat-label">Active Banks</p>
+        <h3 class="stat-value"><%= Number(activeCount || 0) %></h3>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon blue"><i class="fas fa-mobile-screen"></i></div>
+      <div>
+        <p class="stat-label">UPI Enabled</p>
+        <h3 class="stat-value"><%= Number(upiCount || 0) %></h3>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-icon red"><i class="fas fa-circle-xmark"></i></div>
+      <div>
+        <p class="stat-label">Inactive</p>
+        <h3 class="stat-value"><%= Number(inactiveCount || 0) %></h3>
+      </div>
+    </article>
+  </section>
+
+  <section class="filter-card">
+    <input id="bankSearch" class="filter-input" type="text" placeholder="Search by bank name, IFSC prefix, code..." value="<%= safeFilters.search || '' %>">
+
+    <select id="statusFilter" class="filter-select">
+      <option value="all">All Status</option>
+      <option value="active" <%= safeFilters.status === 'active' ? 'selected' : '' %>>Active</option>
+      <option value="inactive" <%= safeFilters.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+    </select>
+
+    <select id="typeFilter" class="filter-select">
+      <option value="all">All Types</option>
+      <option value="public" <%= safeFilters.type === 'public' ? 'selected' : '' %>>Public Sector</option>
+      <option value="private" <%= safeFilters.type === 'private' ? 'selected' : '' %>>Private Sector</option>
+      <option value="cooperative" <%= safeFilters.type === 'cooperative' ? 'selected' : '' %>>Cooperative</option>
+      <option value="foreign" <%= safeFilters.type === 'foreign' ? 'selected' : '' %>>Foreign</option>
+      <option value="payments" <%= safeFilters.type === 'payments' ? 'selected' : '' %>>Payments Bank</option>
+    </select>
+
+    <button id="resetFilters" class="btn-outline-admin" type="button"><i class="fas fa-rotate-left"></i> Reset</button>
+  </section>
+
+  <section class="table-card">
+    <div class="admin-table-wrapper">
+      <table class="banks-table" id="banksTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Bank</th>
+            <th>Type</th>
+            <th>IFSC Prefix</th>
+            <th>Priority</th>
+            <th>Payment Modes</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="banksTableBody">
+          <% if (safeBanks.length) { %>
+            <% safeBanks.forEach((bank, idx) => { %>
+              <tr data-search="<%= `${bank.bankName || ''} ${bank.bankCode || ''} ${bank.ifscPrefix || ''}`.toLowerCase() %>" data-status="<%= bank.status || 'inactive' %>" data-type="<%= bank.type || 'public' %>">
+                <td class="row-no"><%= idx + 1 %></td>
+                <td>
+                  <div class="bank-cell">
+                    <% if (bank.logoUrl) { %>
+                      <img src="<%= bank.logoUrl %>" class="bank-logo" alt="<%= bank.bankName %>">
+                    <% } else { %>
+                      <span class="bank-initial"><%= String(bank.bankName || 'B').charAt(0).toUpperCase() %></span>
+                    <% } %>
+                    <div>
+                      <div class="bank-name"><%= bank.bankName %></div>
+                      <div class="bank-code"><%= bank.bankCode %></div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge <%= typeClass(bank.type) %>"><%= bank.type || 'public' %></span></td>
+                <td><span class="ifsc-text"><%= bank.ifscPrefix || '—' %></span></td>
+                <td>
+                  <input class="priority-input" type="number" min="1" value="<%= Number(bank.priority || 99) %>" data-bank-id="<%= bank._id %>" onblur="updatePriority(this)">
+                </td>
+                <td>
+                  <span class="mode-pill blue <%= bank.upiEnabled ? '' : 'disabled' %>"><i class="fas fa-mobile-screen"></i> UPI</span>
+                  <span class="mode-pill green <%= bank.neftEnabled ? '' : 'disabled' %>"><i class="fas fa-building-columns"></i> NEFT</span>
+                  <span class="mode-pill purple <%= bank.rtgsEnabled ? '' : 'disabled' %>"><i class="fas fa-bolt"></i> RTGS</span>
+                  <span class="mode-pill amber <%= bank.impsEnabled ? '' : 'disabled' %>"><i class="fas fa-right-left"></i> IMPS</span>
+                </td>
+                <td>
+                  <label class="toggle-switch">
+                    <input type="checkbox" data-bank-id="<%= bank._id %>" onchange="toggleBankStatus(this)" <%= String(bank.status) === 'active' ? 'checked' : '' %>>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </td>
+                <td style="position:relative;">
+                  <button class="bank-action-btn"
+                    type="button"
+                    onclick="toggleBankDropdown(this)"
+                    data-bank-id="<%= bank._id %>"
+                    data-bank-status="<%= bank.status %>"
+                    data-bank-upi="<%= bank.upiEnabled ? 'true' : 'false' %>"
+                    data-bank-name="<%= bank.bankName %>"
+                    data-bank-code="<%= bank.bankCode %>"
+                    data-ifsc-prefix="<%= bank.ifscPrefix || '' %>"
+                    data-bank-type="<%= bank.type || 'public' %>"
+                    data-bank-priority="<%= Number(bank.priority || 99) %>"
+                    data-logo-url="<%= bank.logoUrl || '' %>"
+                    data-neft="<%= bank.neftEnabled ? 'true' : 'false' %>"
+                    data-rtgs="<%= bank.rtgsEnabled ? 'true' : 'false' %>"
+                    data-imps="<%= bank.impsEnabled ? 'true' : 'false' %>">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <i class="fas fa-landmark"></i>
+                  <h4>No banks found</h4>
+                  <p>Add your first bank to get started</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="coverage-card">
+    <h3 class="coverage-head"><i class="fas fa-chart-pie"></i> Payment Mode Coverage</h3>
+
+    <div class="coverage-grid">
+      <article class="coverage-item">
+        <i class="fas fa-mobile-screen coverage-icon" style="color: var(--primary);"></i>
+        <div class="coverage-count"><%= Number(m.upi || 0) %></div>
+        <div class="coverage-label">UPI</div>
+        <div class="progress"><span class="coverage-fill" data-width="<%= pct(m.upi) %>" data-color="var(--primary)"></span></div>
+      </article>
+
+      <article class="coverage-item">
+        <i class="fas fa-building-columns coverage-icon" style="color: var(--green-dark);"></i>
+        <div class="coverage-count"><%= Number(m.neft || 0) %></div>
+        <div class="coverage-label">NEFT</div>
+        <div class="progress"><span class="coverage-fill" data-width="<%= pct(m.neft) %>" data-color="var(--green)"></span></div>
+      </article>
+
+      <article class="coverage-item">
+        <i class="fas fa-bolt coverage-icon" style="color: var(--secondary);"></i>
+        <div class="coverage-count"><%= Number(m.rtgs || 0) %></div>
+        <div class="coverage-label">RTGS</div>
+        <div class="progress"><span class="coverage-fill" data-width="<%= pct(m.rtgs) %>" data-color="var(--secondary)"></span></div>
+      </article>
+
+      <article class="coverage-item">
+        <i class="fas fa-right-left coverage-icon" style="color: var(--amber-dark);"></i>
+        <div class="coverage-count"><%= Number(m.imps || 0) %></div>
+        <div class="coverage-label">IMPS</div>
+        <div class="progress"><span class="coverage-fill" data-width="<%= pct(m.imps) %>" data-color="var(--amber)"></span></div>
+      </article>
+    </div>
+  </section>
+</section>
+
+<div class="modal-overlay" id="addBankModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-plus"></i> Add New Bank</h3>
+      <button class="modal-close" type="button" data-close-modal="addBankModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form id="addBankForm">
+      <div class="modal-body">
+        <div class="form-two-col">
+          <div class="field-group">
+            <label class="field-label" for="addBankName">Bank Name</label>
+            <input id="addBankName" class="field-input" type="text" placeholder="e.g. State Bank of India" required>
+          </div>
+
+          <div class="mode-box" style="grid-row: span 6;">
+            <h5>Enabled Payment Modes</h5>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-mobile-screen"></i> UPI Payments</div>
+                <div class="mode-row-desc">Enable UPI transfers for this bank</div>
+              </div>
+              <label class="toggle-switch"><input id="addUpiToggle" type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-building-columns"></i> NEFT Transfer</div>
+                <div class="mode-row-desc">Enable NEFT transactions</div>
+              </div>
+              <label class="toggle-switch"><input id="addNeftToggle" type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-bolt"></i> RTGS Transfer</div>
+                <div class="mode-row-desc">Enable RTGS for high-value transactions</div>
+              </div>
+              <label class="toggle-switch"><input id="addRtgsToggle" type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-right-left"></i> IMPS Transfer</div>
+                <div class="mode-row-desc">Enable instant IMPS payments</div>
+              </div>
+              <label class="toggle-switch"><input id="addImpsToggle" type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="addBankCode">Bank Code</label>
+            <input id="addBankCode" class="field-input" type="text" placeholder="e.g. SBI" required>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="addIfscPrefix">IFSC Prefix</label>
+            <input id="addIfscPrefix" class="field-input" type="text" placeholder="e.g. SBIN">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="addBankType">Bank Type</label>
+            <select id="addBankType" class="field-select">
+              <option value="public">Public Sector</option>
+              <option value="private">Private Sector</option>
+              <option value="cooperative">Cooperative</option>
+              <option value="foreign">Foreign</option>
+              <option value="payments">Payments Bank</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="addPriority">Priority</label>
+            <input id="addPriority" class="field-input" type="number" value="99" min="1">
+            <span class="field-help">Lower number = higher priority</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="addLogoUrl">Logo URL</label>
+            <input id="addLogoUrl" class="field-input" type="text" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-outline-admin" type="button" data-close-modal="addBankModal">Cancel</button>
+        <button class="btn-primary-admin" type="submit"><i class="fas fa-plus"></i> Add Bank</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editBankModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-pen-to-square"></i> Edit Bank</h3>
+      <button class="modal-close" type="button" data-close-modal="editBankModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <form id="editBankForm">
+      <input type="hidden" id="editBankId">
+      <div class="modal-body">
+        <div class="form-two-col">
+          <div class="field-group">
+            <label class="field-label" for="editBankName">Bank Name</label>
+            <input id="editBankName" class="field-input" type="text" required>
+          </div>
+
+          <div class="mode-box" style="grid-row: span 6;">
+            <h5>Enabled Payment Modes</h5>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-mobile-screen"></i> UPI Payments</div>
+                <div class="mode-row-desc">Enable UPI transfers for this bank</div>
+              </div>
+              <label class="toggle-switch"><input id="editUpiToggle" type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-building-columns"></i> NEFT Transfer</div>
+                <div class="mode-row-desc">Enable NEFT transactions</div>
+              </div>
+              <label class="toggle-switch"><input id="editNeftToggle" type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-bolt"></i> RTGS Transfer</div>
+                <div class="mode-row-desc">Enable RTGS for high-value transactions</div>
+              </div>
+              <label class="toggle-switch"><input id="editRtgsToggle" type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="mode-row">
+              <div class="mode-row-info">
+                <div class="mode-row-title"><i class="fas fa-right-left"></i> IMPS Transfer</div>
+                <div class="mode-row-desc">Enable instant IMPS payments</div>
+              </div>
+              <label class="toggle-switch"><input id="editImpsToggle" type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="editBankCode">Bank Code</label>
+            <input id="editBankCode" class="field-input" type="text" required>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="editIfscPrefix">IFSC Prefix</label>
+            <input id="editIfscPrefix" class="field-input" type="text">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="editBankType">Bank Type</label>
+            <select id="editBankType" class="field-select">
+              <option value="public">Public Sector</option>
+              <option value="private">Private Sector</option>
+              <option value="cooperative">Cooperative</option>
+              <option value="foreign">Foreign</option>
+              <option value="payments">Payments Bank</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="editPriority">Priority</label>
+            <input id="editPriority" class="field-input" type="number" min="1">
+            <span class="field-help">Lower number = higher priority</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="editLogoUrl">Logo URL</label>
+            <input id="editLogoUrl" class="field-input" type="text">
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-outline-admin" type="button" data-close-modal="editBankModal">Cancel</button>
+        <button class="btn-primary-admin" type="submit"><i class="fas fa-floppy-disk"></i> Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteBankModal" role="dialog" aria-modal="true">
+  <div class="modal-card" style="width:min(520px, 100%);">
+    <div class="modal-header">
+      <h3 class="modal-title red"><i class="fas fa-trash"></i> Delete Bank</h3>
+      <button class="modal-close" type="button" data-close-modal="deleteBankModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-box">Deleting this bank will remove it from all payment options. Users may be affected.</div>
+      <p>Bank: <strong id="deleteBankName">-</strong></p>
+      <input type="hidden" id="deleteBankId">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline-admin" type="button" data-close-modal="deleteBankModal">Cancel</button>
+      <button class="btn-danger-modal" type="button" id="confirmDeleteBankBtn"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="bankFloatingDropdown" class="merchant-dropdown" style="display:none; position:fixed; z-index:99999; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow-lg); min-width:200px; padding:6px 0;">
+  <button id="ddEditBank" type="button" style="display:flex; align-items:center; gap:10px; width:100%; padding:9px 16px; background:none; border:none; text-align:left; color:var(--text-dark); font-size:0.84rem;"><i class="fas fa-pen-to-square" style="color:var(--primary); width:16px;"></i> Edit Bank</button>
+  <button id="ddToggleUpi" type="button" style="display:flex; align-items:center; gap:10px; width:100%; padding:9px 16px; background:none; border:none; text-align:left; color:var(--text-dark); font-size:0.84rem;"><i class="fas fa-mobile-screen" style="color:var(--green-dark); width:16px;"></i> Toggle UPI</button>
+  <button id="ddActivate" type="button" style="display:flex; align-items:center; gap:10px; width:100%; padding:9px 16px; background:none; border:none; text-align:left; color:var(--text-dark); font-size:0.84rem;"><i class="fas fa-circle-check" style="color:var(--green-dark); width:16px;"></i> Activate</button>
+  <button id="ddDeactivate" type="button" style="display:flex; align-items:center; gap:10px; width:100%; padding:9px 16px; background:none; border:none; text-align:left; color:var(--text-dark); font-size:0.84rem;"><i class="fas fa-ban" style="color:var(--amber-dark); width:16px;"></i> Deactivate</button>
+  <button id="ddDeleteBank" type="button" style="display:flex; align-items:center; gap:10px; width:100%; padding:9px 16px; background:none; border:none; text-align:left; color:var(--red-dark); font-size:0.84rem;"><i class="fas fa-trash" style="width:16px;"></i> Delete</button>
+</div>
+
+<script>
+  (() => {
+    Array.from(document.querySelectorAll('.coverage-fill')).forEach((bar) => {
+      const width = Number.parseInt(bar.getAttribute('data-width') || '0', 10);
+      bar.style.width = `${Number.isFinite(width) ? Math.max(0, Math.min(100, width)) : 0}%`;
+      const color = bar.getAttribute('data-color');
+      if (color) bar.style.background = color;
+    });
+
+    const bankSearch = document.getElementById('bankSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const resetFilters = document.getElementById('resetFilters');
+    const rows = Array.from(document.querySelectorAll('#banksTableBody tr[data-search]'));
+
+    const floatingDropdown = document.getElementById('bankFloatingDropdown');
+    const ddActivate = document.getElementById('ddActivate');
+    const ddDeactivate = document.getElementById('ddDeactivate');
+    const ddEditBank = document.getElementById('ddEditBank');
+    const ddDeleteBank = document.getElementById('ddDeleteBank');
+    const ddToggleUpi = document.getElementById('ddToggleUpi');
+
+    let activeBank = null;
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `admin-toast ${type === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`;
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${message}</span>`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    }
+
+    function closeFloatingDropdown() {
+      if (floatingDropdown) {
+        floatingDropdown.style.display = 'none';
+        floatingDropdown._openBtn = null;
+      }
+    }
+
+    window.toggleBankDropdown = function toggleBankDropdown(btn) {
+      if (!floatingDropdown) return;
+
+      if (floatingDropdown.style.display === 'block' && floatingDropdown._openBtn === btn) {
+        closeFloatingDropdown();
+        return;
+      }
+
+      activeBank = {
+        id: btn.getAttribute('data-bank-id'),
+        status: btn.getAttribute('data-bank-status') || 'inactive',
+        upi: btn.getAttribute('data-bank-upi') === 'true',
+        name: btn.getAttribute('data-bank-name') || '',
+        bankCode: btn.getAttribute('data-bank-code') || '',
+        ifscPrefix: btn.getAttribute('data-ifsc-prefix') || '',
+        type: btn.getAttribute('data-bank-type') || 'public',
+        priority: btn.getAttribute('data-bank-priority') || '99',
+        logoUrl: btn.getAttribute('data-logo-url') || '',
+        neft: btn.getAttribute('data-neft') === 'true',
+        rtgs: btn.getAttribute('data-rtgs') === 'true',
+        imps: btn.getAttribute('data-imps') === 'true'
+      };
+
+      ddActivate.style.display = activeBank.status !== 'active' ? 'flex' : 'none';
+      ddDeactivate.style.display = activeBank.status === 'active' ? 'flex' : 'none';
+      ddToggleUpi.innerHTML = activeBank.upi
+        ? '<i class="fas fa-mobile-screen" style="color:var(--text-soft); width:16px;"></i> Disable UPI'
+        : '<i class="fas fa-mobile-screen" style="color:var(--green-dark); width:16px;"></i> Enable UPI';
+
+      floatingDropdown.style.display = 'block';
+      const rect = btn.getBoundingClientRect();
+      const width = 200;
+      let left = rect.right - width;
+      let top = rect.bottom + 4;
+      const ddHeight = floatingDropdown.offsetHeight;
+
+      if (top + ddHeight > window.innerHeight - 10) {
+        top = rect.top - ddHeight - 4;
+      }
+      if (left < 8) left = 8;
+
+      floatingDropdown.style.left = left + 'px';
+      floatingDropdown.style.top = top + 'px';
+      floatingDropdown._openBtn = btn;
+    };
+
+    window.toggleBankStatus = function toggleBankStatus(toggle) {
+      var bankId = toggle.getAttribute('data-bank-id');
+      var status = toggle.checked ? 'active' : 'inactive';
+      fetch('/admin/banks/' + bankId + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) {
+          toggle.checked = !toggle.checked;
+          alert('Error updating status');
+          return;
+        }
+        showToast('Bank status updated');
+      })
+      .catch(function () {
+        toggle.checked = !toggle.checked;
+        alert('Error updating status');
+      });
+    };
+
+    window.updatePriority = function updatePriority(input) {
+      var bankId = input.getAttribute('data-bank-id');
+      var priority = parseInt(input.value, 10);
+      if (isNaN(priority) || priority < 1) {
+        input.value = 99;
+        return;
+      }
+      fetch('/admin/banks/' + bankId + '/priority', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priority: priority })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) showToast('Priority updated');
+      });
+    };
+
+    window.openEditModal = function openEditModal(bankId, bankName, bankCode, ifscPrefix, type, priority, logoUrl, upi, neft, rtgs, imps) {
+      document.getElementById('editBankId').value = bankId;
+      document.getElementById('editBankName').value = bankName || '';
+      document.getElementById('editBankCode').value = bankCode || '';
+      document.getElementById('editIfscPrefix').value = ifscPrefix || '';
+      document.getElementById('editBankType').value = type || 'public';
+      document.getElementById('editPriority').value = priority || 99;
+      document.getElementById('editLogoUrl').value = logoUrl || '';
+      document.getElementById('editUpiToggle').checked = !!upi;
+      document.getElementById('editNeftToggle').checked = !!neft;
+      document.getElementById('editRtgsToggle').checked = !!rtgs;
+      document.getElementById('editImpsToggle').checked = !!imps;
+      openModal('editBankModal');
+    };
+
+    window.openDeleteModal = function openDeleteModal(bankId, bankName) {
+      document.getElementById('deleteBankId').value = bankId;
+      document.getElementById('deleteBankName').textContent = bankName || '-';
+      openModal('deleteBankModal');
+    };
+
+    function patchStatus(bankId, status) {
+      return fetch('/admin/banks/' + bankId + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      }).then(function (r) { return r.json(); });
+    }
+
+    function applyClientFilters() {
+      var q = (bankSearch.value || '').trim().toLowerCase();
+      var s = statusFilter.value;
+      var t = typeFilter.value;
+
+      rows.forEach(function (row) {
+        var passQ = !q || (row.dataset.search || '').includes(q);
+        var passS = s === 'all' || (row.dataset.status || '') === s;
+        var passT = t === 'all' || (row.dataset.type || '') === t;
+        row.style.display = passQ && passS && passT ? '' : 'none';
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var openBtn = e.target.closest('[data-open-modal]');
+      if (openBtn) {
+        openModal(openBtn.getAttribute('data-open-modal'));
+      }
+
+      var closeBtn = e.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        closeModal(closeBtn.getAttribute('data-close-modal'));
+        return;
+      }
+
+      if (floatingDropdown && !e.target.closest('#bankFloatingDropdown') && !e.target.closest('.bank-action-btn')) {
+        closeFloatingDropdown();
+      }
+    });
+
+    window.addEventListener('scroll', function () { closeFloatingDropdown(); }, true);
+
+    ddEditBank.addEventListener('click', function () {
+      closeFloatingDropdown();
+      if (!activeBank) return;
+      openEditModal(
+        activeBank.id,
+        activeBank.name,
+        activeBank.bankCode,
+        activeBank.ifscPrefix,
+        activeBank.type,
+        activeBank.priority,
+        activeBank.logoUrl,
+        activeBank.upi,
+        activeBank.neft,
+        activeBank.rtgs,
+        activeBank.imps
+      );
+    });
+
+    ddToggleUpi.addEventListener('click', function () {
+      closeFloatingDropdown();
+      if (!activeBank) return;
+      fetch('/admin/banks/' + activeBank.id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ upiEnabled: !activeBank.upi })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) {
+          showToast(data.message || 'Failed to update UPI', 'error');
+          return;
+        }
+        showToast('UPI mode updated');
+        setTimeout(function () { window.location.reload(); }, 450);
+      });
+    });
+
+    ddActivate.addEventListener('click', function () {
+      closeFloatingDropdown();
+      if (!activeBank) return;
+      patchStatus(activeBank.id, 'active').then(function (data) {
+        if (!data.success) return showToast(data.message || 'Failed to activate bank', 'error');
+        showToast('Bank activated successfully');
+        setTimeout(function () { window.location.reload(); }, 450);
+      });
+    });
+
+    ddDeactivate.addEventListener('click', function () {
+      closeFloatingDropdown();
+      if (!activeBank) return;
+      patchStatus(activeBank.id, 'inactive').then(function (data) {
+        if (!data.success) return showToast(data.message || 'Failed to deactivate bank', 'error');
+        showToast('Bank deactivated successfully');
+        setTimeout(function () { window.location.reload(); }, 450);
+      });
+    });
+
+    ddDeleteBank.addEventListener('click', function () {
+      closeFloatingDropdown();
+      if (!activeBank) return;
+      openDeleteModal(activeBank.id, activeBank.name);
+    });
+
+    document.getElementById('addBankForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var body = {
+        bankName: document.getElementById('addBankName').value,
+        bankCode: document.getElementById('addBankCode').value.toUpperCase(),
+        ifscPrefix: document.getElementById('addIfscPrefix').value.toUpperCase(),
+        type: document.getElementById('addBankType').value,
+        priority: document.getElementById('addPriority').value,
+        logoUrl: document.getElementById('addLogoUrl').value,
+        upiEnabled: document.getElementById('addUpiToggle').checked,
+        neftEnabled: document.getElementById('addNeftToggle').checked,
+        rtgsEnabled: document.getElementById('addRtgsToggle').checked,
+        impsEnabled: document.getElementById('addImpsToggle').checked
+      };
+
+      fetch('/admin/banks/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) return showToast(data.message || 'Failed to add bank', 'error');
+        showToast('Bank added successfully');
+        closeModal('addBankModal');
+        setTimeout(function () { window.location.reload(); }, 500);
+      });
+    });
+
+    document.getElementById('editBankForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var bankId = document.getElementById('editBankId').value;
+      var body = {
+        bankName: document.getElementById('editBankName').value,
+        bankCode: document.getElementById('editBankCode').value.toUpperCase(),
+        ifscPrefix: document.getElementById('editIfscPrefix').value.toUpperCase(),
+        type: document.getElementById('editBankType').value,
+        priority: document.getElementById('editPriority').value,
+        logoUrl: document.getElementById('editLogoUrl').value,
+        upiEnabled: document.getElementById('editUpiToggle').checked,
+        neftEnabled: document.getElementById('editNeftToggle').checked,
+        rtgsEnabled: document.getElementById('editRtgsToggle').checked,
+        impsEnabled: document.getElementById('editImpsToggle').checked
+      };
+
+      fetch('/admin/banks/' + bankId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) return showToast(data.message || 'Failed to update bank', 'error');
+        showToast('Bank updated successfully');
+        closeModal('editBankModal');
+        setTimeout(function () { window.location.reload(); }, 500);
+      });
+    });
+
+    document.getElementById('confirmDeleteBankBtn').addEventListener('click', function () {
+      var bankId = document.getElementById('deleteBankId').value;
+      fetch('/admin/banks/' + bankId, { method: 'DELETE' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.success) return showToast(data.message || 'Failed to delete bank', 'error');
+        showToast('Bank deleted successfully');
+        closeModal('deleteBankModal');
+        setTimeout(function () { window.location.reload(); }, 500);
+      });
+    });
+
+    bankSearch.addEventListener('input', applyClientFilters);
+    statusFilter.addEventListener('change', applyClientFilters);
+    typeFilter.addEventListener('change', applyClientFilters);
+
+    resetFilters.addEventListener('click', function () {
+      bankSearch.value = '';
+      statusFilter.value = 'all';
+      typeFilter.value = 'all';
+      applyClientFilters();
+    });
+  })();
+</script>
