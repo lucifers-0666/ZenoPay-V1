@@ -1,5 +1,8 @@
 const Merchant = require("../../Models/Merchant");
 const ZenoPayUser = require("../../Models/ZenoPayUser");
+const TransactionHistory = require("../../Models/TransactionHistory");
+const Refund = require("../../Models/Refund");
+const mongoose = require("mongoose");
 
 const toInt = (v, fallback = 1) => {
   const n = Number.parseInt(v, 10);
@@ -193,45 +196,141 @@ exports.exportMerchants = async (req, res) => {
 
 exports.merchantDetails = async (req, res) => {
   try {
-    const merchant = await Merchant.findById(req.params.id).lean();
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.redirect("/admin/merchants");
+    }
+
+    const merchant = await Merchant.findById(merchantId).lean();
     if (!merchant) {
-      return res.status(404).send("Merchant not found");
+      return res.redirect("/admin/merchants");
     }
 
     const owner = await ZenoPayUser.findOne({ ZenoPayID: merchant.ZenoPayId })
-      .select("FullName Email Mobile Address City State")
+      .select("_id FullName Email Mobile Address City State")
       .lean();
 
-    const details = {
-      ...merchant,
-      owner,
-      normalizedStatus: normalizeStatus(merchant),
+    const merchantNameRegex = merchant.BusinessName
+      ? new RegExp(String(merchant.BusinessName).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i")
+      : null;
+
+    const merchantTxnMatch = merchantNameRegex
+      ? {
+          $or: [
+            { ReceiverHolderName: merchantNameRegex },
+            { Description: merchantNameRegex },
+          ],
+        }
+      : {};
+
+    const transactions = await TransactionHistory.find(merchantTxnMatch)
+      .sort({ TransactionTime: -1 })
+      .limit(10)
+      .lean();
+
+    const volumeStatsRaw = await TransactionHistory.aggregate([
+      { $match: merchantTxnMatch },
+      {
+        $group: {
+          _id: null,
+          totalVolume: { $sum: "$Amount" },
+          totalCount: { $sum: 1 },
+          successCount: { $sum: { $cond: [{ $eq: ["$Status", "success"] }, 1, 0] } },
+          failedCount: { $sum: { $cond: [{ $eq: ["$Status", "failed"] }, 1, 0] } },
+        },
+      },
+    ]);
+
+    const refundMatch = owner?._id
+      ? { userId: new mongoose.Types.ObjectId(owner._id) }
+      : { _id: { $exists: false } };
+
+    const [refunds, pendingRefundsCount] = await Promise.all([
+      Refund.find(refundMatch).sort({ createdAt: -1 }).limit(5).lean(),
+      Refund.countDocuments({ ...refundMatch, status: "pending" }),
+    ]);
+
+    const statsRow = volumeStatsRaw[0] || {};
+    const totalVolumeRaw = statsRow.totalVolume;
+    const totalVolume = Number(totalVolumeRaw?.$numberDecimal || totalVolumeRaw || 0);
+    const totalCount = Number(statsRow.totalCount || merchant.TransactionCount || 0);
+    const successCount = Number(statsRow.successCount || 0);
+    const failedCount = Number(statsRow.failedCount || 0);
+
+    const status = String(merchant.Status || "").toLowerCase() || (merchant.IsActive ? "active" : "suspended");
+    const isVerified = Boolean(merchant.verifiedAt) || status === "active";
+
+    const merchantView = {
+      _id: merchant._id,
+      businessName: merchant.BusinessName || "Unnamed Merchant",
+      merchantId: merchant.ZenoPayId || String(merchant._id),
+      category: pickCategory(merchant.BusinessType),
+      businessType: merchant.BusinessType || "N/A",
+      gstNumber: merchant.GSTNumber || merchant.GstNumber || "",
+      panNumber: merchant.PANNumber || merchant.PanNumber || "",
+      website: merchant.BusinessWebsite || "",
+      description: merchant.BusinessDescription || "",
+      contactPerson: owner?.FullName || "",
+      name: owner?.FullName || "",
+      email: owner?.Email || "",
+      phone: owner?.Mobile || "",
+      supportEmail: merchant.SupportEmail || "",
+      city: owner?.City || merchant.City || "",
+      state: owner?.State || merchant.State || "",
+      pincode: merchant.Pincode || merchant.PostalCode || "",
+      address: owner?.Address || merchant.Address || "",
+      status,
+      isVerified,
+      verifiedAt: merchant.verifiedAt || null,
+      settlementCycle: merchant.SettlementCycle || "T+1",
+      bankName: merchant.BankName || "",
+      accountNumber: merchant.AccountNumber || "",
+      ifscCode: merchant.IFSCCode || merchant.IfscCode || "",
+      upiId: merchant.UpiId || "",
+      docs: {
+        gst: Boolean(merchant.GSTDocument || merchant.GstDocument),
+        pan: Boolean(merchant.PANDocument || merchant.PanDocument),
+        bank: Boolean(merchant.BankStatement),
+        license: Boolean(merchant.BusinessLicense),
+      },
+      createdAt: merchant.createdAt,
+      updatedAt: merchant.updatedAt,
     };
 
+    res.locals.adminPage = "merchants";
     return res.render("admin/merchants/admin-merchant-details", {
-      pageTitle: "Admin Merchant Details",
+      pageTitle: `${merchantView.businessName} — Merchant Details`,
       currentPage: "merchants",
       page: "merchants",
       adminPage: "merchants",
       admin: req.session.user,
-      merchant: details,
+      merchant: merchantView,
+      transactions,
+      refunds,
       stats: {
-        totalTransactions: Number(merchant.TransactionCount || 0),
-        totalAmount: Number(merchant.TotalVolume || 0),
-        successfulTransactions: Number(merchant.TransactionCount || 0),
-        failedTransactions: 0,
+        totalVolume,
+        totalCount,
+        successCount,
+        failedCount,
+        pendingRefunds: Number(pendingRefundsCount || 0),
       },
     });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Server error" });
+    console.error(err);
+    return res.status(500).send("Server Error");
   }
 };
 
 exports.updateStatus = async (req, res) => {
   try {
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.status(400).json({ success: false, message: "Invalid merchant id" });
+    }
+
     const { status } = req.body;
     const merchant = await Merchant.findByIdAndUpdate(
-      req.params.id,
+      merchantId,
       { Status: status, IsActive: status === "active", updatedAt: new Date() },
       { new: true }
     );
@@ -248,8 +347,13 @@ exports.updateStatus = async (req, res) => {
 
 exports.verifyMerchant = async (req, res) => {
   try {
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.status(400).json({ success: false, message: "Invalid merchant id" });
+    }
+
     const merchant = await Merchant.findByIdAndUpdate(
-      req.params.id,
+      merchantId,
       { Status: "active", IsActive: true, verifiedAt: new Date(), updatedAt: new Date() },
       { new: true }
     );
@@ -294,7 +398,12 @@ exports.bulkAction = async (req, res) => {
 
 exports.deleteMerchant = async (req, res) => {
   try {
-    const deleted = await Merchant.findByIdAndDelete(req.params.id);
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.status(400).json({ success: false, message: "Invalid merchant id" });
+    }
+
+    const deleted = await Merchant.findByIdAndDelete(merchantId);
     if (!deleted) {
       return res.status(404).json({ success: false, message: "Merchant not found" });
     }

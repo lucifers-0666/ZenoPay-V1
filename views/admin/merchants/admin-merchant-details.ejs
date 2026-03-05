@@ -1,131 +1,1286 @@
-<div class="page-header">
-  <h1 class="page-title">
-    <i class="fas fa-store" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
-    Merchant Details
-  </h1>
-</div>
+<style>
+  .merchant-details-page { display: grid; gap: 16px; }
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-2xl);">
-  <!-- Merchant Info -->
-  <div>
-    <div class="card" style="margin-bottom: var(--spacing-2xl);">
-      <div class="card-header">
-        <h2 class="card-title">Business Information</h2>
-      </div>
-      <div class="card-body">
-        <div class="form-group">
-          <label class="form-label">Business Name</label>
-          <p style="margin: 0;">Acme Store</p>
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    gap: 16px;
+  }
+
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg));
+    color: var(--secondary);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: 4px 0 0 0;
+  }
+
+  .breadcrumb {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb i.fa-chevron-right {
+    font-size: 0.6rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb a {
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+
+  .breadcrumb .current {
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .page-header-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .btn-header {
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-header-green-filled {
+    border-color: var(--green);
+    background: var(--green);
+    color: var(--card-bg);
+  }
+
+  .btn-header-green-outline {
+    border-color: var(--green);
+    color: var(--green-dark);
+  }
+
+  .btn-header-red-outline {
+    border-color: var(--red);
+    color: var(--red-dark);
+  }
+
+  .btn-header-gray-outline {
+    border-color: var(--border);
+    color: var(--text-mid);
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .kpi-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+  }
+
+  .kpi-icon.green {
+    background: color-mix(in srgb, var(--green) 12%, var(--card-bg));
+    color: var(--green-dark);
+  }
+
+  .kpi-icon.blue {
+    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+    color: var(--primary);
+  }
+
+  .kpi-icon.amber {
+    background: color-mix(in srgb, var(--amber) 14%, var(--card-bg));
+    color: var(--amber-dark);
+  }
+
+  .kpi-label {
+    margin: 0 0 4px 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-soft);
+  }
+
+  .kpi-value {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.65fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .detail-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+    padding: 20px 24px;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title i { color: var(--primary); }
+
+  .view-all-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+    padding: 4px 0;
+  }
+
+  .info-item.full-span { grid-column: 1 / -1; }
+
+  .info-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-soft);
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: var(--primary);
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    color: var(--text-mid);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 4px 10px;
+  }
+
+  .with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .with-icon i { color: var(--primary); }
+
+  .tx-list { margin-top: 4px; }
+
+  .tx-head {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    color: var(--text-soft);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 6px;
+  }
+
+  .tx-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tx-row:last-child { border-bottom: none; }
+
+  .tx-left, .tx-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tx-id {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  .amount-green {
+    color: var(--green-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .amount-red {
+    color: var(--red-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+
+  .badge-success {
+    background: color-mix(in srgb, var(--green) 14%, var(--card-bg));
+    color: var(--green-dark);
+    border-color: color-mix(in srgb, var(--green) 30%, var(--card-bg));
+  }
+
+  .badge-danger {
+    background: color-mix(in srgb, var(--red) 14%, var(--card-bg));
+    color: var(--red-dark);
+    border-color: color-mix(in srgb, var(--red) 30%, var(--card-bg));
+  }
+
+  .badge-warning {
+    background: color-mix(in srgb, var(--amber) 14%, var(--card-bg));
+    color: var(--amber-dark);
+    border-color: color-mix(in srgb, var(--amber) 30%, var(--card-bg));
+  }
+
+  .badge-info {
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+    color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 30%, var(--card-bg));
+  }
+
+  .status-badge-large {
+    font-size: 0.82rem;
+    padding: 6px 12px;
+  }
+
+  .status-grid {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .status-row .label {
+    color: var(--text-soft);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .status-row .value {
+    text-align: right;
+    color: var(--text-dark);
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .verified-note {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    margin-top: 4px;
+  }
+
+  .action-stack {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .action-btn {
+    width: 100%;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .action-btn.green-filled {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--card-bg);
+  }
+
+  .action-btn.green-outline {
+    border-color: var(--green);
+    color: var(--green-dark);
+  }
+
+  .action-btn.red-outline {
+    border-color: var(--red);
+    color: var(--red-dark);
+  }
+
+  .security-note {
+    margin-top: 10px;
+    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--card-bg));
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+    color: var(--primary-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .doc-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .doc-row {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .doc-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dark);
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .doc-name i { color: var(--primary); }
+
+  .doc-action {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .doc-foot-note {
+    margin-top: 10px;
+    font-size: 0.76rem;
+    color: var(--text-soft);
+    font-style: italic;
+  }
+
+  .refund-list { display: grid; gap: 8px; }
+
+  .refund-row {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .refund-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.72rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .refund-reason {
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    max-width: 230px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .refund-date {
+    color: var(--text-soft);
+    font-size: 0.74rem;
+    text-align: right;
+  }
+
+  .empty-state {
+    padding: 20px 8px;
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.86rem;
+  }
+
+  .empty-state i {
+    font-size: 1.4rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-dark) 44%, transparent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 16px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-card {
+    width: min(560px, 100%);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.green { color: var(--green-dark); }
+  .modal-title.red { color: var(--red-dark); }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .modal-body {
+    padding: 14px 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .modal-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .field-label {
+    color: var(--text-mid);
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+
+  .field-textarea,
+  .field-select {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: var(--radius-sm);
+    font-size: 0.84rem;
+    padding: 10px;
+  }
+
+  .field-textarea { min-height: 90px; resize: vertical; }
+
+  .info-box-green {
+    border: 1px solid color-mix(in srgb, var(--green) 30%, var(--card-bg));
+    background: color-mix(in srgb, var(--green) 10%, var(--card-bg));
+    color: var(--green-dark);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 0.8rem;
+  }
+
+  .muted { color: var(--text-soft); }
+
+  .admin-toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 700;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--card-bg);
+    color: var(--text-dark);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+  }
+
+  .admin-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .admin-toast-success {
+    border-color: color-mix(in srgb, var(--green) 30%, var(--border));
+    color: var(--green-dark);
+  }
+
+  .admin-toast-error {
+    border-color: color-mix(in srgb, var(--red) 30%, var(--border));
+    color: var(--red-dark);
+  }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .content-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 760px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-item.full-span { grid-column: auto; }
+    .page-header { flex-direction: column; }
+    .page-header-right { width: 100%; justify-content: flex-start; }
+  }
+</style>
+
+<%
+  const safeMerchant = merchant || {};
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const safeRefunds = Array.isArray(refunds) ? refunds : [];
+  const safeStats = stats || {};
+
+  const numberFrom = (value) => {
+    if (value && typeof value === 'object' && value.$numberDecimal) return Number(value.$numberDecimal);
+    const n = Number(value || 0);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const formatMoney = (value) => numberFrom(value).toLocaleString('en-IN');
+
+  const shortDate = (value) => {
+    if (!value) return '—';
+    return new Date(value).toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
+  };
+
+  const relativeTime = (value) => {
+    if (!value) return '—';
+    const then = new Date(value).getTime();
+    const now = Date.now();
+    const diff = Math.max(0, now - then);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+    const years = Math.floor(months / 12);
+    return `${years}y ago`;
+  };
+
+  const merchantStatus = String(safeMerchant.status || 'pending').toLowerCase();
+  const isVerified = Boolean(safeMerchant.isVerified);
+  const totalCount = Number(safeStats.totalCount || 0);
+  const successCount = Number(safeStats.successCount || 0);
+  const successRate = totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0;
+
+  const statusBadgeClass = (s) => {
+    const v = String(s || '').toLowerCase();
+    if (v === 'active' || v === 'success' || v === 'approved') return 'badge-success';
+    if (v === 'failed' || v === 'suspended' || v === 'rejected') return 'badge-danger';
+    if (v === 'verified') return 'badge-info';
+    return 'badge-warning';
+  };
+
+  const categoryIcon = (category) => {
+    const key = String(category || '').toLowerCase();
+    if (key === 'e-commerce') return 'fa-cart-shopping';
+    if (key === 'food & beverage') return 'fa-utensils';
+    if (key === 'travel') return 'fa-plane';
+    if (key === 'healthcare') return 'fa-heart-pulse';
+    if (key === 'education') return 'fa-graduation-cap';
+    if (key === 'retail') return 'fa-bag-shopping';
+    if (key === 'entertainment') return 'fa-film';
+    if (key === 'finance') return 'fa-landmark';
+    return 'fa-briefcase';
+  };
+
+  const maskedAccount = (account) => {
+    const digits = String(account || '').replace(/\D/g, '');
+    if (!digits) return 'Not provided';
+    const last4 = digits.slice(-4);
+    return `•••• •••• ${last4}`;
+  };
+
+  const txnLink = `/admin/transactions?merchant=${encodeURIComponent(String(safeMerchant._id || ''))}`;
+  const refundLink = `/admin/refunds?merchant=${encodeURIComponent(String(safeMerchant._id || ''))}`;
+%>
+
+<section class="merchant-details-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon">
+          <i class="fas fa-store"></i>
         </div>
-        
-        <div class="form-group">
-          <label class="form-label">Business Email</label>
-          <p style="margin: 0;">contact@acmestore.com</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Phone Number</label>
-          <p style="margin: 0;">+234 812 345 6789</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Business Type</label>
-          <p style="margin: 0;">Retail</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Business Address</label>
-          <p style="margin: 0;">123 Shopping Street, Lagos, Nigeria</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Registration Date</label>
-          <p style="margin: 0;">January 10, 2024</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Bank Information -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">Bank Information</h2>
-      </div>
-      <div class="card-body">
-        <div class="form-group">
-          <label class="form-label">Bank Name</label>
-          <p style="margin: 0;">First Bank</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Account Number</label>
-          <p style="margin: 0;">1234567890</p>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Account Name</label>
-          <p style="margin: 0;">ACME STORE</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Sidebar -->
-  <div>
-    <div class="card" style="margin-bottom: var(--spacing-2xl);">
-      <div class="card-header">
-        <h2 class="card-title">Status & Verification</h2>
-      </div>
-      <div class="card-body">
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Account Status</p>
-          <span class="badge badge-success">Active</span>
-        </div>
-        
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Verification Status</p>
-          <span class="badge badge-success">Verified</span>
-        </div>
-        
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Documents Status</p>
-          <span class="badge badge-success">Complete</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">Quick Stats</h2>
-      </div>
-      <div class="card-body">
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Total Sales</p>
-          <div style="font-size: var(--text-xl); font-weight: bold;">₦2.5M</div>
-        </div>
-        
-        <div style="margin-bottom: var(--spacing-lg);">
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Transactions</p>
-          <div style="font-size: var(--text-xl); font-weight: bold;">234</div>
-        </div>
-        
         <div>
-          <p style="margin: 0 0 var(--spacing-sm) 0; color: var(--text-light); font-size: var(--text-sm);">Success Rate</p>
-          <div style="font-size: var(--text-xl); font-weight: bold; color: var(--success);">99.5%</div>
+          <h1 class="page-title"><%= safeMerchant.businessName %></h1>
+          <p class="page-subtitle">
+            Merchant ID:
+            <span style="font-family: monospace; color: var(--primary);"><%= safeMerchant.merchantId || safeMerchant._id %></span>
+          </p>
         </div>
       </div>
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/admin/merchants">Merchants</a>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current"><%= safeMerchant.businessName %></span>
+      </div>
     </div>
+    <div class="page-header-right">
+      <% if (merchantStatus === 'active') { %>
+        <button type="button" id="headerSuspendBtn" class="btn-header btn-header-red-outline"><i class="fas fa-ban"></i> Suspend</button>
+      <% } else { %>
+        <button type="button" id="headerActivateBtn" class="btn-header btn-header-green-outline"><i class="fas fa-circle-check"></i> Activate</button>
+      <% } %>
+
+      <% if (!isVerified) { %>
+        <button type="button" id="headerVerifyBtn" class="btn-header btn-header-green-filled"><i class="fas fa-shield-halved"></i> Verify</button>
+      <% } %>
+
+      <a href="/admin/merchants" class="btn-header btn-header-gray-outline"><i class="fas fa-arrow-left"></i> Back to Merchants</a>
+    </div>
+  </header>
+
+  <section class="kpi-grid">
+    <article class="kpi-card">
+      <span class="kpi-icon green"><i class="fas fa-indian-rupee-sign"></i></span>
+      <div>
+        <p class="kpi-label">Total Volume</p>
+        <h3 class="kpi-value">₹<%= formatMoney(safeStats.totalVolume || 0) %></h3>
+      </div>
+    </article>
+
+    <article class="kpi-card">
+      <span class="kpi-icon blue"><i class="fas fa-arrow-right-arrow-left"></i></span>
+      <div>
+        <p class="kpi-label">Total Transactions</p>
+        <h3 class="kpi-value"><%= totalCount %></h3>
+      </div>
+    </article>
+
+    <article class="kpi-card">
+      <span class="kpi-icon green"><i class="fas fa-circle-check"></i></span>
+      <div>
+        <p class="kpi-label">Success Rate</p>
+        <h3 class="kpi-value"><%= successRate %>%</h3>
+      </div>
+    </article>
+
+    <article class="kpi-card">
+      <span class="kpi-icon amber"><i class="fas fa-rotate-left"></i></span>
+      <div>
+        <p class="kpi-label">Pending Refunds</p>
+        <h3 class="kpi-value"><%= Number(safeStats.pendingRefunds || 0) %></h3>
+      </div>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <div>
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-building"></i> Business Information</h2>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Business Name</div>
+            <div class="info-value"><%= safeMerchant.businessName %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Merchant ID</div>
+            <div class="info-value mono"><%= safeMerchant.merchantId || safeMerchant._id %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Category</div>
+            <div class="info-value">
+              <span class="category-badge"><i class="fas <%= categoryIcon(safeMerchant.category) %>"></i> <%= safeMerchant.category || 'Other' %></span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Business Type</div>
+            <div class="info-value"><%= safeMerchant.businessType || 'N/A' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">GST Number</div>
+            <div class="info-value"><%= safeMerchant.gstNumber || 'Not provided' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">PAN Number</div>
+            <div class="info-value"><%= safeMerchant.panNumber || 'Not provided' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Website</div>
+            <div class="info-value">
+              <% if (safeMerchant.website) { %>
+                <a href="<%= safeMerchant.website %>" target="_blank" rel="noopener noreferrer" class="view-all-link"><%= safeMerchant.website %></a>
+              <% } else { %>
+                Not provided
+              <% } %>
+            </div>
+          </div>
+
+          <div class="info-item full-span">
+            <div class="info-label">Description</div>
+            <div class="info-value"><%= safeMerchant.description || '—' %></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-address-card"></i> Contact Information</h2>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Contact Person</div>
+            <div class="info-value"><%= safeMerchant.contactPerson || safeMerchant.name || '—' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Email</div>
+            <div class="info-value with-icon"><i class="fas fa-envelope"></i> <span><%= safeMerchant.email || '—' %></span></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Phone</div>
+            <div class="info-value with-icon"><i class="fas fa-phone"></i> <span><%= safeMerchant.phone || '—' %></span></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Support Email</div>
+            <div class="info-value"><%= safeMerchant.supportEmail || '—' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">City</div>
+            <div class="info-value"><%= safeMerchant.city || '—' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">State</div>
+            <div class="info-value"><%= safeMerchant.state || '—' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Pincode</div>
+            <div class="info-value"><%= safeMerchant.pincode || '—' %></div>
+          </div>
+
+          <div class="info-item full-span">
+            <div class="info-label">Address</div>
+            <div class="info-value"><%= safeMerchant.address || '—' %></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-arrow-right-arrow-left"></i> Recent Transactions</h2>
+          <a class="view-all-link" href="<%= txnLink %>">View All</a>
+        </div>
+
+        <% if (safeTransactions.length) { %>
+          <div class="tx-list">
+            <div class="tx-head">
+              <span>TXN ID</span>
+              <span>Amount</span>
+              <span>Status</span>
+              <span>Date</span>
+            </div>
+            <% safeTransactions.forEach((txn) => { %>
+              <div class="tx-row">
+                <div class="tx-left">
+                  <span class="tx-id"><%= String(txn.TransactionID || txn._id || '').slice(0, 12) %></span>
+                  <span class="amount-green">₹<%= formatMoney(txn.Amount) %></span>
+                </div>
+                <div class="tx-right">
+                  <span class="badge <%= statusBadgeClass(txn.Status) %>"><%= txn.Status || 'pending' %></span>
+                  <span class="muted" style="font-size:0.75rem;"><%= shortDate(txn.TransactionTime || txn.createdAt) %></span>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            No transactions found
+          </div>
+        <% } %>
+      </article>
+    </div>
+
+    <div>
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-shield-halved"></i> Account Status</h2>
+        </div>
+
+        <div class="status-grid">
+          <div class="status-row">
+            <span class="label">Account Status</span>
+            <span class="value">
+              <span class="badge status-badge-large <%= statusBadgeClass(merchantStatus) %>"><%= merchantStatus %></span>
+            </span>
+          </div>
+
+          <div class="status-row">
+            <span class="label">Verification</span>
+            <span class="value">
+              <% if (isVerified) { %>
+                <span class="with-icon"><i class="fas fa-shield-halved" style="color: var(--green-dark);"></i><span class="badge badge-success">Verified</span></span>
+                <span class="verified-note">Since <%= shortDate(safeMerchant.verifiedAt || safeMerchant.updatedAt || safeMerchant.createdAt) %></span>
+              <% } else { %>
+                <span class="with-icon"><i class="fas fa-shield" style="color: var(--text-soft);"></i><span class="badge badge-warning">Not Verified</span></span>
+              <% } %>
+            </span>
+          </div>
+
+          <div class="status-row">
+            <span class="label">Member Since</span>
+            <span class="value with-icon"><i class="fas fa-calendar"></i> <%= shortDate(safeMerchant.createdAt) %></span>
+          </div>
+
+          <div class="status-row">
+            <span class="label">Last Updated</span>
+            <span class="value"><%= relativeTime(safeMerchant.updatedAt) %></span>
+          </div>
+        </div>
+
+        <div class="action-stack">
+          <% if (!isVerified) { %>
+            <button type="button" id="cardVerifyBtn" class="action-btn green-filled"><i class="fas fa-shield-halved"></i> Verify Merchant</button>
+          <% } %>
+
+          <% if (merchantStatus === 'active') { %>
+            <button type="button" id="cardSuspendBtn" class="action-btn red-outline"><i class="fas fa-ban"></i> Suspend Merchant</button>
+          <% } else { %>
+            <button type="button" id="cardActivateBtn" class="action-btn green-outline"><i class="fas fa-circle-check"></i> Activate Merchant</button>
+          <% } %>
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-landmark"></i> Settlement Details</h2>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Settlement Cycle</div>
+            <div class="info-value"><%= safeMerchant.settlementCycle || 'T+1' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Bank Name</div>
+            <div class="info-value"><%= safeMerchant.bankName || 'Not provided' %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">Account Number</div>
+            <div class="info-value mono"><%= maskedAccount(safeMerchant.accountNumber) %></div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">IFSC Code</div>
+            <div class="info-value"><%= safeMerchant.ifscCode || '—' %></div>
+          </div>
+
+          <div class="info-item full-span">
+            <div class="info-label">UPI ID</div>
+            <div class="info-value"><%= safeMerchant.upiId || '—' %></div>
+          </div>
+        </div>
+
+        <div class="security-note">
+          <i class="fas fa-circle-info"></i>
+          Bank details are encrypted and stored securely.
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-file-lines"></i> Documents</h2>
+        </div>
+
+        <div class="doc-list">
+          <div class="doc-row">
+            <span class="doc-name"><i class="fas fa-file-text"></i> GST Certificate</span>
+            <span class="badge <%= safeMerchant.docs && safeMerchant.docs.gst ? 'badge-success' : 'badge-danger' %>"><%= safeMerchant.docs && safeMerchant.docs.gst ? 'Submitted' : 'Missing' %></span>
+            <a href="#" class="doc-action">View</a>
+          </div>
+
+          <div class="doc-row">
+            <span class="doc-name"><i class="fas fa-id-card"></i> PAN Card</span>
+            <span class="badge <%= safeMerchant.docs && safeMerchant.docs.pan ? 'badge-success' : 'badge-danger' %>"><%= safeMerchant.docs && safeMerchant.docs.pan ? 'Submitted' : 'Missing' %></span>
+            <a href="#" class="doc-action">View</a>
+          </div>
+
+          <div class="doc-row">
+            <span class="doc-name"><i class="fas fa-landmark"></i> Bank Statement</span>
+            <span class="badge <%= safeMerchant.docs && safeMerchant.docs.bank ? 'badge-success' : 'badge-danger' %>"><%= safeMerchant.docs && safeMerchant.docs.bank ? 'Submitted' : 'Missing' %></span>
+            <a href="#" class="doc-action">View</a>
+          </div>
+
+          <div class="doc-row">
+            <span class="doc-name"><i class="fas fa-building"></i> Business License</span>
+            <span class="badge <%= safeMerchant.docs && safeMerchant.docs.license ? 'badge-success' : 'badge-danger' %>"><%= safeMerchant.docs && safeMerchant.docs.license ? 'Submitted' : 'Missing' %></span>
+            <a href="#" class="doc-action">View</a>
+          </div>
+        </div>
+
+        <p class="doc-foot-note">Document upload integration coming soon</p>
+      </article>
+
+      <article class="detail-card">
+        <div class="card-head">
+          <h2 class="card-title"><i class="fas fa-rotate-left"></i> Recent Refunds</h2>
+          <a class="view-all-link" href="<%= refundLink %>">View All</a>
+        </div>
+
+        <% if (safeRefunds.length) { %>
+          <div class="refund-list">
+            <% safeRefunds.forEach((refund) => { %>
+              <div class="refund-row">
+                <div>
+                  <div class="refund-id"><%= refund.refundId || refund._id %></div>
+                  <div class="amount-red">₹<%= formatMoney(refund.amount) %></div>
+                  <div class="refund-reason"><%= refund.reason || '—' %></div>
+                </div>
+                <div class="refund-date"><%= shortDate(refund.createdAt) %></div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-rotate-left"></i>
+            No refunds found
+          </div>
+        <% } %>
+      </article>
+    </div>
+  </section>
+</section>
+
+<div class="modal-overlay" id="verifyModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title green"><i class="fas fa-shield-halved"></i> Verify Merchant</h3>
+      <button class="modal-close" type="button" data-close-modal="verifyModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="verifyForm">
+      <div class="modal-body">
+        <strong><%= safeMerchant.businessName %></strong>
+        <div class="info-box-green">Verifying confirms business documents are valid and enables full payment capabilities.</div>
+        <div>
+          <label class="field-label" for="verifyAdminNote">Admin Note (optional)</label>
+          <textarea id="verifyAdminNote" class="field-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-header btn-header-gray-outline" type="button" data-close-modal="verifyModal">Cancel</button>
+        <button class="btn-header btn-header-green-filled" type="submit"><i class="fas fa-shield-halved"></i> Verify</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- Actions -->
-<div style="margin-top: var(--spacing-2xl); display: flex; gap: var(--spacing-base);">
-  <a href="/admin/merchants/<%= id %>/edit" class="btn btn-primary">
-    <i class="fas fa-edit"></i> Edit Details
-  </a>
-  <button class="btn btn-outline">
-    <i class="fas fa-comment"></i> Add Note
-  </button>
-  <button class="btn btn-error">
-    <i class="fas fa-ban"></i> Suspend Account
-  </button>
+<div class="modal-overlay" id="suspendModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title red"><i class="fas fa-ban"></i> Suspend Merchant</h3>
+      <button class="modal-close" type="button" data-close-modal="suspendModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="suspendForm">
+      <div class="modal-body">
+        <strong><%= safeMerchant.businessName %></strong>
+        <div>
+          <label class="field-label" for="suspendReason">Suspension Reason</label>
+          <select id="suspendReason" class="field-select" required>
+            <option value="Policy Violation">Policy Violation</option>
+            <option value="Fraud Suspected">Fraud Suspected</option>
+            <option value="Document Issues">Document Issues</option>
+            <option value="Chargebacks">Chargebacks</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="suspendNotes">Notes</label>
+          <textarea id="suspendNotes" class="field-textarea"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-header btn-header-gray-outline" type="button" data-close-modal="suspendModal">Cancel</button>
+        <button class="btn-header btn-header-red-outline" type="submit"><i class="fas fa-ban"></i> Suspend</button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<div class="modal-overlay" id="activateModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title green"><i class="fas fa-circle-check"></i> Activate Merchant</h3>
+      <button class="modal-close" type="button" data-close-modal="activateModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="activateForm">
+      <div class="modal-body">
+        <strong><%= safeMerchant.businessName %></strong>
+        <p class="muted">Are you sure you want to activate this merchant account?</p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-header btn-header-gray-outline" type="button" data-close-modal="activateModal">Cancel</button>
+        <button class="btn-header btn-header-green-filled" type="submit"><i class="fas fa-circle-check"></i> Activate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const merchantId = '<%= safeMerchant._id %>';
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `admin-toast ${type === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`;
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${message}</span>`;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 240);
+      }, 3000);
+    }
+
+    async function patchRequest(url, payload) {
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload ? JSON.stringify(payload) : undefined,
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        throw new Error(data.message || 'Request failed');
+      }
+      return data;
+    }
+
+    document.getElementById('headerVerifyBtn')?.addEventListener('click', () => openModal('verifyModal'));
+    document.getElementById('cardVerifyBtn')?.addEventListener('click', () => openModal('verifyModal'));
+    document.getElementById('headerSuspendBtn')?.addEventListener('click', () => openModal('suspendModal'));
+    document.getElementById('cardSuspendBtn')?.addEventListener('click', () => openModal('suspendModal'));
+    document.getElementById('headerActivateBtn')?.addEventListener('click', () => openModal('activateModal'));
+    document.getElementById('cardActivateBtn')?.addEventListener('click', () => openModal('activateModal'));
+
+    document.addEventListener('click', (event) => {
+      const closeBtn = event.target.closest('[data-close-modal]');
+      if (closeBtn) {
+        closeModal(closeBtn.getAttribute('data-close-modal'));
+        return;
+      }
+
+      const overlay = event.target.closest('.modal-overlay');
+      if (overlay && event.target === overlay) {
+        overlay.classList.remove('open');
+      }
+    });
+
+    document.getElementById('verifyForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        const note = document.getElementById('verifyAdminNote')?.value || '';
+        await patchRequest(`/admin/merchants/${encodeURIComponent(merchantId)}/verify`, { note });
+        showToast('Merchant verified!');
+        setTimeout(() => window.location.reload(), 500);
+      } catch (error) {
+        showToast(error.message || 'Failed to verify merchant', 'error');
+      }
+    });
+
+    document.getElementById('suspendForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        const reason = document.getElementById('suspendReason')?.value || 'Other';
+        const notes = document.getElementById('suspendNotes')?.value || '';
+        await patchRequest(`/admin/merchants/${encodeURIComponent(merchantId)}/status`, {
+          status: 'suspended',
+          reason,
+          notes,
+        });
+        showToast('Merchant suspended successfully');
+        setTimeout(() => window.location.reload(), 500);
+      } catch (error) {
+        showToast(error.message || 'Failed to suspend merchant', 'error');
+      }
+    });
+
+    document.getElementById('activateForm')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        await patchRequest(`/admin/merchants/${encodeURIComponent(merchantId)}/status`, { status: 'active' });
+        showToast('Merchant activated successfully');
+        setTimeout(() => window.location.reload(), 500);
+      } catch (error) {
+        showToast(error.message || 'Failed to activate merchant', 'error');
+      }
+    });
+  })();
+</script>
