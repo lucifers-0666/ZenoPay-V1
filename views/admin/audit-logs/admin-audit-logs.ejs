@@ -1,0 +1,712 @@
+<%
+  const safeLogs = Array.isArray(logs) ? logs : [];
+  const safeAdmins = Array.isArray(admins) ? admins : [];
+  const safeFilters = filters || {};
+  const cp = Number(currentPage) || 1;
+  const tp = Number(totalPages) || 1;
+  const ps = Number(pageSize) || 15;
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const startIdx = totalCount ? ((cp - 1) * ps + 1) : 0;
+  const endIdx = Math.min(cp * ps, Number(totalCount) || 0);
+
+  const formatDate = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
+  const formatTime = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const categoryLabel = (c) => {
+    const m = {
+      auth: 'Authentication',
+      user: 'User',
+      transaction: 'Transaction',
+      wallet: 'Wallet',
+      refund: 'Refund',
+      settings: 'Settings',
+      kyc: 'KYC',
+      system: 'System',
+    };
+    return m[c] || 'System';
+  };
+
+  const statusLabel = (s) => {
+    const m = { success: 'Success', failed: 'Failed', warning: 'Warning' };
+    return m[s] || 'Success';
+  };
+%>
+
+<style>
+  .audit-page { display:grid; gap:16px; }
+
+  .audit-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .audit-title-wrap { display:grid; gap:8px; }
+  .admin-page-title { margin:0; display:flex; align-items:center; gap:10px; color:var(--text-main); font-size:1.4rem; font-weight:800; }
+  .admin-page-title i { width:40px; height:40px; border-radius:var(--r-md); display:grid; place-items:center; color:var(--card-bg); background:linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+  .audit-subtitle { margin:0; color:var(--text-soft); font-size:.9rem; }
+  .audit-breadcrumb { display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:.82rem; }
+  .audit-breadcrumb a { color:var(--text-muted); }
+
+  .btn-outline-primary {
+    border:1px solid var(--primary);
+    color:var(--primary);
+    background:transparent;
+    border-radius:999px;
+    height:40px;
+    padding:0 14px;
+    font-size:.84rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .kpi-strip { display:grid; grid-template-columns:repeat(4, minmax(180px, 1fr)); gap:12px; }
+  .kpi-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; display:flex; align-items:center; gap:12px; box-shadow:var(--shadow-xs); }
+  .kpi-icon { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; color:var(--card-bg); }
+  .kpi-icon.blue { background:var(--primary); }
+  .kpi-icon.green { background:var(--green); }
+  .kpi-icon.red { background:var(--red); }
+  .kpi-icon.amber { background:var(--amber-dark); }
+  .kpi-label { margin:0; color:var(--text-soft); font-size:.78rem; }
+  .kpi-value { margin:3px 0 0; color:var(--text-main); font-size:1.25rem; font-weight:800; }
+
+  .filter-card,
+  .table-card { background:var(--card-bg); border:1px solid var(--border); border-radius:var(--r-md); box-shadow:var(--shadow-xs); }
+
+  .filter-bar {
+    padding:12px;
+    display:grid;
+    grid-template-columns: 1.3fr repeat(4, minmax(150px, 1fr)) auto auto;
+    gap:10px;
+    align-items:end;
+  }
+
+  .field { display:grid; gap:5px; }
+  .field label { color:var(--text-mid); font-size:.78rem; font-weight:600; }
+  .field input,
+  .field select {
+    border:1px solid var(--border);
+    border-radius:var(--r-sm);
+    min-height:38px;
+    padding:0 10px;
+    color:var(--text-main);
+    background:var(--card-bg);
+    outline:none;
+  }
+  .field input:focus,
+  .field select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+
+  .btn {
+    border:0;
+    border-radius:999px;
+    min-height:38px;
+    padding:0 14px;
+    font-size:.82rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+  }
+  .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:var(--card-bg); }
+  .btn-gray { background:var(--border-light); color:var(--text-mid); }
+
+  .table-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    border-bottom:1px solid var(--border-light);
+    flex-wrap:wrap;
+  }
+
+  .view-toggle { display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+  .view-btn {
+    border:0;
+    background:transparent;
+    color:var(--text-muted);
+    min-height:34px;
+    padding:0 12px;
+    font-size:.8rem;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .view-btn.active { background:var(--primary); color:var(--card-bg); }
+
+  .autorefresh { display:flex; align-items:center; gap:8px; color:var(--text-soft); font-size:.78rem; }
+
+  .table-shell { overflow-x:auto; max-width:100%; }
+  .audit-table { width:100%; min-width:1000px; border-collapse:separate; border-spacing:0; }
+  .audit-table th,
+  .audit-table td {
+    padding:10px 12px;
+    border-bottom:1px solid var(--border-light);
+    color:var(--text-mid);
+    background:var(--card-bg);
+    text-align:left;
+    vertical-align:middle;
+    font-size:.82rem;
+  }
+  .audit-table th { font-size:.74rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-soft); position:sticky; top:0; z-index:2; }
+  .audit-table tbody tr:hover td { background: #f8fafc; }
+
+  .actions-col { position:sticky; right:0; z-index:3; background:inherit; min-width:120px; }
+  .audit-table thead .actions-col { z-index:4; }
+
+  .row-index { color:var(--text-soft); font-size:.76rem; display:inline-flex; align-items:center; gap:6px; }
+  .row-expand-icon { transition:transform .2s ease; color:var(--text-soft); }
+  tr.expanded .row-expand-icon { transform:rotate(90deg); }
+
+  .timestamp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; display:grid; gap:2px; }
+  .timestamp .date { color:var(--text-main); font-size:.78rem; }
+  .timestamp .time { color:var(--text-soft); font-size:.74rem; }
+
+  .admin-cell { display:flex; align-items:center; gap:8px; }
+  .avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--secondary)); color:var(--card-bg); display:grid; place-items:center; font-weight:800; font-size:.74rem; }
+  .admin-name { color:var(--text-main); font-weight:600; font-size:.82rem; }
+  .role-pill { margin-top:2px; display:inline-flex; border-radius:999px; border:1px solid var(--border); color:var(--text-soft); padding:1px 7px; font-size:.68rem; }
+
+  .action-text { font-weight:700; }
+  .action-auth { color:var(--primary-dark); }
+  .action-user { color:var(--green-dark); }
+  .action-transaction { color:var(--secondary-dark); }
+  .action-wallet { color:#0891b2; }
+  .action-refund { color:var(--amber-dark); }
+  .action-settings { color:#b45309; }
+  .action-kyc { color:#0f766e; }
+  .action-system { color:var(--text-muted); }
+
+  .badge { display:inline-flex; align-items:center; border-radius:999px; font-size:.7rem; font-weight:700; padding:3px 8px; }
+  .cat-auth { background:rgba(59,130,246,.12); color:var(--primary-dark); }
+  .cat-user { background:rgba(16,185,129,.12); color:var(--green-dark); }
+  .cat-transaction { background:rgba(139,92,246,.14); color:var(--secondary-dark); }
+  .cat-wallet { background:rgba(6,182,212,.14); color:#0e7490; }
+  .cat-refund { background:rgba(249,115,22,.14); color:#c2410c; }
+  .cat-settings { background:rgba(245,158,11,.14); color:var(--amber-dark); }
+  .cat-kyc { background:rgba(20,184,166,.14); color:#0f766e; }
+  .cat-system { background:rgba(100,116,139,.14); color:#475569; }
+
+  .badge-success { background:rgba(16,185,129,.14); color:var(--green-dark); }
+  .badge-danger { background:rgba(239,68,68,.14); color:var(--red-dark); }
+  .badge-warning { background:rgba(245,158,11,.14); color:var(--amber-dark); }
+
+  .ip-cell { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.76rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:6px; }
+
+  .detail-row td { background:#f8fafc !important; }
+  .detail-grid { display:grid; gap:10px; }
+  .detail-item-title { font-size:.75rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:.03em; }
+  .detail-item-value { color:var(--text-main); font-size:.82rem; word-break:break-word; }
+  .meta-pre {
+    margin:0;
+    border:1px solid var(--border);
+    background:var(--card-bg);
+    border-radius:var(--r-sm);
+    padding:8px;
+    max-height:180px;
+    overflow:auto;
+    font-size:.74rem;
+    color:var(--text-mid);
+  }
+
+  .timeline-wrap { display:none; padding:8px 12px 12px; }
+  .timeline-group { margin-top:10px; }
+  .timeline-date { color:var(--text-main); font-weight:700; font-size:.84rem; margin-bottom:6px; }
+  .timeline-list { border-left:2px solid var(--border); margin-left:8px; padding-left:14px; display:grid; gap:10px; }
+  .timeline-item { position:relative; display:grid; gap:3px; }
+  .timeline-item::before { content:''; width:10px; height:10px; border-radius:50%; position:absolute; left:-20px; top:4px; background:var(--primary); }
+  .timeline-item.auth::before { background:var(--primary); }
+  .timeline-item.user::before { background:var(--green); }
+  .timeline-item.transaction::before { background:var(--secondary); }
+  .timeline-item.wallet::before { background:#06b6d4; }
+  .timeline-item.refund::before { background:#f97316; }
+  .timeline-item.settings::before { background:var(--amber); }
+  .timeline-item.kyc::before { background:#14b8a6; }
+  .timeline-item.system::before { background:#64748b; }
+
+  .timeline-line1 { color:var(--text-main); font-size:.82rem; font-weight:600; }
+  .timeline-line2 { color:var(--text-soft); font-size:.76rem; }
+
+  .empty-state { padding:24px 12px 30px; text-align:center; color:var(--text-soft); }
+  .empty-state i { font-size:2rem; color:var(--primary); margin-bottom:8px; display:block; }
+
+  .pagination {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:12px;
+    border-top:1px solid var(--border-light);
+  }
+  .pagination-meta { color:var(--text-soft); font-size:.78rem; }
+  .pagination-controls { display:inline-flex; gap:6px; align-items:center; }
+  .page-btn { border:1px solid var(--border); background:var(--card-bg); color:var(--text-mid); min-height:32px; min-width:32px; padding:0 9px; border-radius:8px; font-size:.76rem; font-weight:700; }
+  .page-btn.active { border-color:var(--primary); background:rgba(59,130,246,.08); color:var(--primary-dark); }
+  .page-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+  @media (max-width: 1180px) {
+    .filter-bar { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+  }
+
+  @media (max-width: 760px) {
+    .kpi-strip { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .filter-bar { grid-template-columns:1fr; }
+  }
+</style>
+
+<section class="audit-page">
+  <header class="audit-header">
+    <div class="audit-title-wrap">
+      <h1 class="admin-page-title"><i class="fas fa-scroll"></i>Audit Logs</h1>
+      <p class="audit-subtitle">Complete record of all admin actions and system events</p>
+      <nav class="audit-breadcrumb" aria-label="Breadcrumb">
+        <a href="/admin/dashboard"><i class="fas fa-home"></i> Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Audit Logs</span>
+      </nav>
+    </div>
+    <button type="button" class="btn-outline-primary" id="exportLogsBtn"><i class="fas fa-file-export"></i>Export</button>
+  </header>
+
+  <section class="kpi-strip">
+    <article class="kpi-card"><div class="kpi-icon blue"><i class="fas fa-clock"></i></div><div><p class="kpi-label">Total Logs Today</p><h3 class="kpi-value"><%= Number(todayCount) || 0 %></h3></div></article>
+    <article class="kpi-card"><div class="kpi-icon green"><i class="fas fa-right-to-bracket"></i></div><div><p class="kpi-label">Auth Events</p><h3 class="kpi-value"><%= Number(authCount) || 0 %></h3></div></article>
+    <article class="kpi-card"><div class="kpi-icon red"><i class="fas fa-circle-xmark"></i></div><div><p class="kpi-label">Failed Actions</p><h3 class="kpi-value"><%= Number(failedCount) || 0 %></h3></div></article>
+    <article class="kpi-card"><div class="kpi-icon amber"><i class="fas fa-gear"></i></div><div><p class="kpi-label">Settings Changes</p><h3 class="kpi-value"><%= Number(settingsCount) || 0 %></h3></div></article>
+  </section>
+
+  <section class="filter-card">
+    <div class="filter-bar">
+      <div class="field">
+        <label for="logSearch">Search</label>
+        <input id="logSearch" type="text" placeholder="Search action, description, IP address..." value="<%= safeFilters.search || '' %>">
+      </div>
+
+      <div class="field">
+        <label for="categoryFilter">Action Category</label>
+        <select id="categoryFilter">
+          <option value="all" <%= (safeFilters.action || 'all') === 'all' ? 'selected' : '' %>>All Categories</option>
+          <option value="auth" <%= safeFilters.action === 'auth' ? 'selected' : '' %>>Authentication</option>
+          <option value="user" <%= safeFilters.action === 'user' ? 'selected' : '' %>>User Management</option>
+          <option value="transaction" <%= safeFilters.action === 'transaction' ? 'selected' : '' %>>Transactions</option>
+          <option value="wallet" <%= safeFilters.action === 'wallet' ? 'selected' : '' %>>Wallets</option>
+          <option value="refund" <%= safeFilters.action === 'refund' ? 'selected' : '' %>>Refunds</option>
+          <option value="kyc" <%= safeFilters.action === 'kyc' ? 'selected' : '' %>>KYC</option>
+          <option value="settings" <%= safeFilters.action === 'settings' ? 'selected' : '' %>>Settings</option>
+          <option value="system" <%= safeFilters.action === 'system' ? 'selected' : '' %>>System</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="adminFilter">Admin</label>
+        <select id="adminFilter">
+          <option value="all">All Admins</option>
+          <% safeAdmins.forEach((a) => { %>
+            <option value="<%= a._id %>" <%= String(safeFilters.adminId || '') === String(a._id) ? 'selected' : '' %>><%= a.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="dateFrom">Date From</label>
+        <input id="dateFrom" type="date" value="<%= safeFilters.dateFrom || '' %>">
+      </div>
+
+      <div class="field">
+        <label for="dateTo">Date To</label>
+        <input id="dateTo" type="date" max="<%= todayIso %>" value="<%= safeFilters.dateTo || '' %>">
+      </div>
+
+      <button type="button" class="btn btn-primary" id="applyFiltersBtn"><i class="fas fa-filter"></i>Apply</button>
+      <button type="button" class="btn btn-gray" id="resetFilters"><i class="fas fa-rotate-left"></i>Reset</button>
+    </div>
+  </section>
+
+  <section class="table-card">
+    <div class="table-top">
+      <div class="pagination-meta">Audit Logs</div>
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="view-toggle" role="group" aria-label="Log view toggle">
+          <button type="button" class="view-btn active" data-view="table"><i class="fas fa-table"></i>Table View</button>
+          <button type="button" class="view-btn" data-view="timeline"><i class="fas fa-timeline"></i>Timeline View</button>
+        </div>
+        <label class="autorefresh">
+          <input type="checkbox" id="autoRefreshToggle">
+          <span>Auto refresh</span>
+          <span id="refreshCountdown"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="tableView">
+      <div class="table-shell">
+        <table class="audit-table" id="auditTable" data-current-page="<%= cp %>" data-total-pages="<%= tp %>">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Timestamp</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>IP Address</th>
+              <th class="actions-col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <% if (!safeLogs.length) { %>
+              <tr class="empty-holder"><td colspan="8">
+                <div class="empty-state">
+                  <i class="fas fa-scroll"></i>
+                  <h3 style="margin:0 0 6px; color:var(--text-main);">No audit logs found</h3>
+                  <p style="margin:0;">Admin actions will be recorded here</p>
+                </div>
+              </td></tr>
+            <% } %>
+
+            <% safeLogs.forEach((log, idx) => {
+              const c = (log.category || 'system').toLowerCase();
+              const st = (log.status || 'success').toLowerCase();
+              const displayName = log.adminId?.FullName || 'System';
+              const displayRole = log.adminId?.Role || 'system';
+              const initial = displayName.charAt(0).toUpperCase();
+              const desc = log.description || '';
+              const shortDesc = desc.length > 50 ? `${desc.slice(0, 50)}…` : desc;
+              const rowNo = (cp - 1) * ps + idx + 1;
+            %>
+              <tr data-log-row="<%= log._id %>" data-created-at="<%= log.createdAt ? new Date(log.createdAt).toISOString() : '' %>" data-admin="<%= displayName %>" data-action="<%= log.action || '' %>" data-description="<%= desc.replace(/"/g, '&quot;') %>" data-ip="<%= log.ipAddress || '' %>" data-category="<%= c %>" data-status="<%= st %>" data-detail='<%- JSON.stringify({ description: desc, targetId: log.targetId || "", targetType: log.targetType || "", userAgent: log.userAgent || "", metadata: log.metadata || null }).replace(/</g, "\\u003c") %>'>
+                <td>
+                  <span class="row-index"><i class="fas fa-chevron-right row-expand-icon"></i><%= rowNo %></span>
+                </td>
+                <td>
+                  <div class="timestamp">
+                    <span class="date"><%= formatDate(log.createdAt) %></span>
+                    <span class="time"><%= formatTime(log.createdAt) %></span>
+                  </div>
+                </td>
+                <td>
+                  <div class="admin-cell">
+                    <span class="avatar"><%= initial %></span>
+                    <div>
+                      <div class="admin-name"><%= displayName %></div>
+                      <span class="role-pill"><%= displayRole %></span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="action-text action-<%= c %>"><%= log.action || '-' %></span></td>
+                <td title="<%= desc %>"><%= shortDesc || '-' %></td>
+                <td><span class="badge cat-<%= c %>"><%= categoryLabel(c) %></span></td>
+                <td><span class="ip-cell"><i class="fas fa-network-wired"></i><%= log.ipAddress || '-' %></span></td>
+                <td class="actions-col">
+                  <span class="badge <%= st === 'failed' ? 'badge-danger' : (st === 'warning' ? 'badge-warning' : 'badge-success') %>"><%= statusLabel(st) %></span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="timelineView" class="timeline-wrap"></div>
+
+    <footer class="pagination">
+      <div class="pagination-meta">Showing <span id="rangeStart"><%= startIdx %></span>–<span id="rangeEnd"><%= endIdx %></span> of <span id="rangeTotal"><%= Number(totalCount) || 0 %></span> logs</div>
+      <div class="pagination-controls">
+        <button class="page-btn" id="prevPageBtn" <%= cp <= 1 ? 'disabled' : '' %>>Prev</button>
+        <% const maxPagesToShow = 5; const startP = Math.max(1, cp - 2); const endP = Math.min(tp, startP + maxPagesToShow - 1); for (let p = startP; p <= endP; p++) { %>
+          <button class="page-btn <%= p === cp ? 'active' : '' %>" data-page="<%= p %>"><%= p %></button>
+        <% } %>
+        <button class="page-btn" id="nextPageBtn" <%= cp >= tp ? 'disabled' : '' %>>Next</button>
+      </div>
+      <div class="pagination-controls">
+        <label class="pagination-meta" for="pageSize">Items:</label>
+        <select id="pageSize" class="page-btn" style="min-width:68px;">
+          <option value="15" <%= ps === 15 ? 'selected' : '' %>>15</option>
+          <option value="30" <%= ps === 30 ? 'selected' : '' %>>30</option>
+          <option value="50" <%= ps === 50 ? 'selected' : '' %>>50</option>
+        </select>
+      </div>
+    </footer>
+  </section>
+</section>
+
+<script>
+  (() => {
+    const query = new URLSearchParams(window.location.search);
+    const auditTable = document.getElementById('auditTable');
+    const tableView = document.getElementById('tableView');
+    const timelineView = document.getElementById('timelineView');
+    const viewButtons = Array.from(document.querySelectorAll('.view-btn'));
+    const tableBody = document.getElementById('auditTableBody');
+    const searchInput = document.getElementById('logSearch');
+    const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+    const refreshCountdown = document.getElementById('refreshCountdown');
+    const dateFromInput = document.getElementById('dateFrom');
+    const dateToInput = document.getElementById('dateTo');
+    let refreshInterval = null;
+    let counter = 30;
+    const todayIso = new Date().toISOString().slice(0, 10);
+
+    function clampDateToNotFuture(value) {
+      if (!value) return '';
+      return value > todayIso ? todayIso : value;
+    }
+    const totalPages = Number(auditTable?.dataset.totalPages || 1);
+    const currentPage = Number(auditTable?.dataset.currentPage || 1);
+
+    const serverLogs = Array.from(document.querySelectorAll('tr[data-log-row]')).map((row) => ({
+      id: row.getAttribute('data-log-row') || '',
+      createdAt: row.getAttribute('data-created-at') || '',
+      admin: row.getAttribute('data-admin') || 'System',
+      action: row.getAttribute('data-action') || '-',
+      category: (row.getAttribute('data-category') || 'system').toLowerCase(),
+      status: (row.getAttribute('data-status') || 'success').toLowerCase(),
+      description: row.getAttribute('data-description') || '',
+    }));
+
+    function switchLogView(view) {
+      const isTable = view === 'table';
+      tableView.style.display = isTable ? 'block' : 'none';
+      timelineView.style.display = isTable ? 'none' : 'block';
+      viewButtons.forEach((b) => b.classList.toggle('active', b.getAttribute('data-view') === view));
+      if (!isTable) renderTimeline();
+    }
+
+    function formatDateHeading(dateValue) {
+      const d = new Date(dateValue);
+      if (Number.isNaN(d.getTime())) return 'Unknown date';
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+      return isToday ? `Today — ${label}` : label;
+    }
+
+    function formatTimeLabel(dateValue) {
+      const d = new Date(dateValue);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderTimeline() {
+      const grouped = serverLogs.reduce((acc, log) => {
+        const key = new Date(log.createdAt).toDateString();
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(log);
+        return acc;
+      }, {});
+
+      const sections = Object.keys(grouped).map((key) => {
+        const logs = grouped[key];
+        const dateTitle = formatDateHeading(logs[0]?.createdAt);
+        const items = logs
+          .map((l) => `
+            <article class="timeline-item ${l.category}">
+              <div class="timeline-line1">${formatTimeLabel(l.createdAt)} • ${l.admin} • ${l.action}</div>
+              <div class="timeline-line2">${l.description || '-'} </div>
+            </article>
+          `)
+          .join('');
+
+        return `
+          <section class="timeline-group">
+            <h4 class="timeline-date">${dateTitle}</h4>
+            <div class="timeline-list">${items}</div>
+          </section>
+        `;
+      }).join('');
+
+      timelineView.innerHTML = sections || `
+        <div class="empty-state">
+          <i class="fas fa-scroll"></i>
+          <h3 style="margin:0 0 6px; color:var(--text-main);">No audit logs found</h3>
+          <p style="margin:0;">Admin actions will be recorded here</p>
+        </div>
+      `;
+    }
+
+    function removeExistingDetailRow() {
+      const existing = tableBody.querySelector('tr.detail-row');
+      if (existing) existing.remove();
+      tableBody.querySelectorAll('tr.expanded').forEach((r) => r.classList.remove('expanded'));
+    }
+
+    function toggleLogRow(row, logId) {
+      const next = row.nextElementSibling;
+      const isOpen = row.classList.contains('expanded') && next?.classList.contains('detail-row');
+      removeExistingDetailRow();
+      if (isOpen) return;
+
+      row.classList.add('expanded');
+      let detail = {};
+      try { detail = JSON.parse(row.getAttribute('data-detail') || '{}'); } catch (_) { detail = {}; }
+
+      const meta = detail.metadata ? JSON.stringify(detail.metadata, null, 2) : '{}';
+      const detailRow = document.createElement('tr');
+      detailRow.className = 'detail-row';
+      detailRow.innerHTML = `
+        <td colspan="8">
+          <div class="detail-grid">
+            <div>
+              <div class="detail-item-title">Full Description</div>
+              <div class="detail-item-value">${detail.description || '-'}</div>
+            </div>
+            <div>
+              <div class="detail-item-title">Target</div>
+              <div class="detail-item-value">${detail.targetType || '-'}${detail.targetType && detail.targetId ? ': ' : ''}${detail.targetId || ''}</div>
+            </div>
+            <div>
+              <div class="detail-item-title">User Agent</div>
+              <div class="detail-item-value">${detail.userAgent || '-'}</div>
+            </div>
+            <div>
+              <div class="detail-item-title">Metadata</div>
+              <pre class="meta-pre">${meta}</pre>
+            </div>
+          </div>
+        </td>
+      `;
+      row.after(detailRow);
+    }
+
+    function applyFilters(page = 1) {
+      const search = document.getElementById('logSearch').value.trim();
+      const action = document.getElementById('categoryFilter').value;
+      const adminId = document.getElementById('adminFilter').value;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = clampDateToNotFuture(document.getElementById('dateTo').value);
+      const limit = document.getElementById('pageSize').value;
+
+      if (dateToInput) dateToInput.value = dateTo;
+
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (action && action !== 'all') params.set('action', action);
+      if (adminId && adminId !== 'all') params.set('adminId', adminId);
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
+      if (limit) params.set('limit', limit);
+      params.set('page', String(page));
+
+      window.location.href = `/admin/audit-logs?${params.toString()}`;
+    }
+
+    function resetFilters() {
+      window.location.href = '/admin/audit-logs';
+    }
+
+    function exportLogs() {
+      const action = document.getElementById('categoryFilter').value;
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo = clampDateToNotFuture(document.getElementById('dateTo').value);
+
+      if (dateToInput) dateToInput.value = dateTo;
+
+      const params = new URLSearchParams();
+      if (action && action !== 'all') params.set('action', action);
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
+
+      window.location.href = `/admin/audit-logs/export?${params.toString()}`;
+    }
+
+    function liveSearchRows() {
+      const q = (searchInput.value || '').trim().toLowerCase();
+      const rows = Array.from(tableBody.querySelectorAll('tr[data-log-row]'));
+      rows.forEach((row) => {
+        const action = (row.getAttribute('data-action') || '').toLowerCase();
+        const description = (row.getAttribute('data-description') || '').toLowerCase();
+        const ip = (row.getAttribute('data-ip') || '').toLowerCase();
+        const show = !q || action.includes(q) || description.includes(q) || ip.includes(q);
+        row.style.display = show ? '' : 'none';
+        if (!show && row.classList.contains('expanded')) {
+          removeExistingDetailRow();
+        }
+      });
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      counter = 30;
+      refreshCountdown.textContent = `Refreshing in ${counter}s...`;
+      refreshInterval = setInterval(() => {
+        counter -= 1;
+        if (counter <= 0) {
+          window.location.reload();
+          return;
+        }
+        refreshCountdown.textContent = `Refreshing in ${counter}s...`;
+      }, 1000);
+    }
+
+    function stopAutoRefresh() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+      }
+      refreshCountdown.textContent = '';
+    }
+
+    viewButtons.forEach((btn) => {
+      btn.addEventListener('click', () => switchLogView(btn.getAttribute('data-view')));
+    });
+
+    document.getElementById('applyFiltersBtn').addEventListener('click', () => applyFilters(1));
+    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+    document.getElementById('exportLogsBtn').addEventListener('click', exportLogs);
+
+    document.querySelectorAll('tr[data-log-row]').forEach((row) => {
+      row.addEventListener('click', () => toggleLogRow(row, row.getAttribute('data-log-row')));
+    });
+
+    searchInput.addEventListener('input', liveSearchRows);
+
+    document.getElementById('prevPageBtn')?.addEventListener('click', () => {
+      const p = Number(query.get('page') || currentPage);
+      if (p > 1) applyFilters(p - 1);
+    });
+
+    document.getElementById('nextPageBtn')?.addEventListener('click', () => {
+      const p = Number(query.get('page') || currentPage);
+      if (p < totalPages) applyFilters(p + 1);
+    });
+
+    document.querySelectorAll('.page-btn[data-page]').forEach((btn) => {
+      btn.addEventListener('click', () => applyFilters(Number(btn.getAttribute('data-page'))));
+    });
+
+    document.getElementById('pageSize').addEventListener('change', () => applyFilters(1));
+
+    autoRefreshToggle?.addEventListener('change', () => {
+      if (autoRefreshToggle.checked) startAutoRefresh();
+      else stopAutoRefresh();
+    });
+
+    if (dateToInput) {
+      dateToInput.max = todayIso;
+      dateToInput.addEventListener('change', () => {
+        dateToInput.value = clampDateToNotFuture(dateToInput.value);
+      });
+    }
+
+    dateFromInput?.addEventListener('change', () => {
+      if (!dateToInput) return;
+      const maxDate = clampDateToNotFuture(todayIso);
+      dateToInput.max = maxDate;
+      if (dateToInput.value) {
+        dateToInput.value = clampDateToNotFuture(dateToInput.value);
+      }
+    });
+
+    switchLogView('table');
+  })();
+</script>

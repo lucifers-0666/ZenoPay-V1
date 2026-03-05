@@ -20,6 +20,8 @@ const AdminWalletController = require("../Controllers/AdminWalletController");
 const adminRefundController = require("../../controllers/admin/adminRefundController");
 const adminMgmtController = require("../../Controllers/admin/adminMgmtController");
 const adminSettingsController = require("../../Controllers/admin/adminSettingsController");
+const adminAuditController = require("../../Controllers/admin/adminAuditController");
+const adminNotifController = require("../../Controllers/admin/adminNotifController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -91,9 +93,13 @@ router.post("/kyc/:zenoPayId/resubmission", requirePermission("users", "update")
 // ============ SUPPORT & OPERATIONS ROUTES ============
 router.get("/support", requirePermission("users", "view"), AdminOperationsController.getSupportTickets);
 router.get("/support/:id", requirePermission("users", "view"), AdminOperationsController.getSupportTicketDetails);
-router.get("/notifications", requirePermission("settings", "view"), AdminOperationsController.getNotificationsCenter);
+router.get("/notifications", requirePermission("settings", "view"), adminNotifController.notificationsList);
+router.patch("/notifications/mark-all-read", requirePermission("settings", "update"), adminNotifController.markAllRead);
+router.delete("/notifications/clear-all", requirePermission("settings", "update"), adminNotifController.clearAll);
+router.patch("/notifications/:id/read", requirePermission("settings", "update"), adminNotifController.markAsRead);
+router.delete("/notifications/:id", requirePermission("settings", "update"), adminNotifController.deleteNotification);
+router.post("/notifications/send", requirePermission("settings", "update"), adminNotifController.sendNotification);
 router.get("/pricing", requirePermission("settings", "view"), AdminOperationsController.getPricingManagement);
-router.get("/audit-logs", requirePermission("reports", "view"), AdminOperationsController.getAuditLogs);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
 router.get("/merchants", requirePermission("merchants", "view"), AdminMerchantController.getAllMerchants);
@@ -145,6 +151,8 @@ router.get("/refunds/:id", requirePermission("transactions", "view"), adminRefun
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
 router.get("/reports", requirePermission("reports", "view"), AdminDashboardController.getReports);
 router.get("/reports/export", requirePermission("reports", "export"), AdminDashboardController.exportReports);
+router.get("/audit-logs/export", requirePermission("reports", "view"), adminAuditController.exportAuditLogs);
+router.get("/audit-logs", requirePermission("reports", "view"), adminAuditController.auditLogsList);
 
 // ============ SETTINGS ROUTES ============
 router.get("/settings", requirePermission("settings", "view"), adminSettingsController.settingsPage);

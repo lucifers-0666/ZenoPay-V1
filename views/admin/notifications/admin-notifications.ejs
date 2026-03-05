@@ -1,0 +1,1104 @@
+<style>
+  .notif-page {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .notif-breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .notif-breadcrumb i {
+    font-size: 11px;
+  }
+
+  .notif-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-danger-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--red);
+    color: var(--red);
+    background: var(--card-bg);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .btn-danger-outline:hover {
+    background: color-mix(in srgb, var(--red) 8%, var(--card-bg));
+  }
+
+  .btn-blue-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    background: var(--card-bg);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .btn-blue-outline:hover {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--card-bg);
+    font-size: 14px;
+  }
+
+  .stat-icon.blue { background: var(--primary); }
+  .stat-icon.red { background: var(--red); }
+  .stat-icon.green { background: var(--green); }
+  .stat-icon.amber { background: var(--amber); }
+
+  .stat-title {
+    color: var(--text-soft);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  .stat-value {
+    color: var(--text-dark);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  .notif-tabs {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    padding: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .notif-tab {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 999px;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .notif-tab.active {
+    color: var(--primary-dark);
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--card-bg));
+    box-shadow: inset 0 -2px 0 0 var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  }
+
+  .notif-tab-badge {
+    background: var(--red);
+    color: var(--card-bg);
+    font-size: 10px;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 1px 6px;
+    line-height: 1.2;
+  }
+
+  .notif-list-wrap {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 14px;
+  }
+
+  .notif-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    margin-bottom: 10px;
+    position: relative;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .notif-card:hover {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+  }
+
+  .notif-card.unread {
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+    border-left: 3px solid var(--primary);
+  }
+
+  .notif-card.read {
+    opacity: 0.85;
+  }
+
+  .notif-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .notif-icon.info { background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); color: var(--primary); }
+  .notif-icon.success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green); }
+  .notif-icon.warning { background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); color: var(--amber); }
+  .notif-icon.danger { background: color-mix(in srgb, var(--red) 14%, var(--card-bg)); color: var(--red); }
+  .notif-icon.system { background: color-mix(in srgb, var(--text-soft) 20%, var(--card-bg)); color: var(--text-mid); }
+
+  .notif-content { flex: 1; min-width: 0; }
+
+  .notif-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .notif-message {
+    font-size: 0.84rem;
+    color: var(--text-mid);
+    line-height: 1.45;
+    margin-bottom: 8px;
+  }
+
+  .notif-meta-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .notif-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    background: var(--bg-page);
+    padding: 2px 8px;
+  }
+
+  .notif-link {
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .notif-link:hover {
+    text-decoration: underline;
+  }
+
+  .notif-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .notif-time {
+    font-size: 0.78rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+
+  .notif-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .notif-card:hover .notif-actions { opacity: 1; }
+
+  .notif-action-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-soft);
+    transition: all 0.2s;
+  }
+
+  .notif-action-btn:hover { background: var(--bg-page); }
+  .notif-action-btn.delete:hover { color: var(--red); border-color: var(--red); }
+  .notif-action-btn.read:hover { color: var(--green); border-color: var(--green); }
+
+  .unread-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .notif-unread-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .notif-empty {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 34px 16px;
+    text-align: center;
+    color: var(--text-soft);
+  }
+
+  .notif-empty i {
+    font-size: 64px;
+    margin-bottom: 8px;
+    color: var(--text-soft);
+  }
+
+  .notif-empty h4 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+
+  .notif-list-footer {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 2px;
+  }
+
+  .load-more-btn {
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .load-more-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+  }
+
+  .all-seen {
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 600;
+    display: none;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-dark) 40%, transparent);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 18px;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  .modal-card {
+    width: min(620px, 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.danger {
+    color: var(--red);
+  }
+
+  .modal-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    background: var(--card-bg);
+  }
+
+  .modal-close:hover {
+    color: var(--text-dark);
+  }
+
+  .modal-body {
+    padding: 16px 18px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 5px;
+  }
+
+  .field-input,
+  .field-select,
+  .field-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .field-textarea {
+    min-height: 92px;
+    resize: vertical;
+  }
+
+  .field-input:focus,
+  .field-select:focus,
+  .field-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+
+  .counter {
+    text-align: right;
+    color: var(--text-soft);
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .modal-warning {
+    color: var(--text-mid);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .modal-footer {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn-modal-outline,
+  .btn-modal-primary,
+  .btn-modal-danger {
+    height: 38px;
+    border-radius: 999px;
+    padding: 0 15px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn-modal-outline {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+  }
+
+  .btn-modal-primary {
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: var(--card-bg);
+  }
+
+  .btn-modal-danger {
+    border: 1px solid var(--red);
+    background: var(--red);
+    color: var(--card-bg);
+  }
+
+  .notif-card.removing {
+    animation: slideOut 0.3s ease forwards;
+  }
+
+  @keyframes slideOut {
+    to {
+      opacity: 0;
+      transform: translateX(20px);
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+      border-width: 0;
+    }
+  }
+
+  @media (max-width: 980px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .notif-card {
+      flex-direction: column;
+    }
+
+    .notif-meta {
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-actions {
+      opacity: 1;
+    }
+  }
+</style>
+
+<%
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const safeFilters = filters || {};
+  const activeType = String(safeFilters.type || 'all').toLowerCase();
+  const current = Number(currentPage || 1);
+  const pages = Number(totalPages || 1);
+  const canLoadMore = current < pages;
+  const readCount = Math.max(0, Number(totalAll || 0) - Number(unreadCount || 0));
+%>
+
+<section class="notif-page" data-current-page="<%= current %>" data-total-pages="<%= pages %>" data-active-type="<%= activeType %>">
+  <div class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));"><i class="fas fa-bell"></i></span>
+        Notifications
+      </h1>
+      <p class="admin-page-subtitle">Manage and review all platform alerts and system events</p>
+      <div class="notif-breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <span>Notifications</span>
+      </div>
+    </div>
+
+    <div class="notif-header-actions">
+      <button id="markAllReadBtn" class="btn-blue-outline" type="button">
+        <i class="fas fa-check-double"></i>
+        Mark All Read
+      </button>
+      <button id="sendNotifBtn" class="btn-primary-admin" type="button" data-open-modal="sendNotifModal">
+        <i class="fas fa-paper-plane"></i>
+        Send Notification
+      </button>
+      <button id="clearAllBtn" class="btn-danger-outline" type="button" data-open-modal="clearAllModal">
+        <i class="fas fa-trash"></i>
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-icon blue"><i class="fas fa-bell"></i></span>
+      <div>
+        <div class="stat-title">Total Notifications</div>
+        <div class="stat-value" id="statTotalAll"><%= Number(totalAll || 0) %></div>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon red"><i class="fas fa-bell-slash"></i></span>
+      <div>
+        <div class="stat-title">Unread</div>
+        <div class="stat-value" id="statUnread"><%= Number(unreadCount || 0) %></div>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon green"><i class="fas fa-check-double"></i></span>
+      <div>
+        <div class="stat-title">Read</div>
+        <div class="stat-value" id="statRead"><%= readCount %></div>
+      </div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon amber"><i class="fas fa-calendar-day"></i></span>
+      <div>
+        <div class="stat-title">Today</div>
+        <div class="stat-value" id="statToday"><%= Number(todayCount || 0) %></div>
+      </div>
+    </article>
+  </section>
+
+  <nav class="notif-tabs" id="notifTabs">
+    <button class="notif-tab <%= activeType === 'all' ? 'active' : '' %>" id="tab-all" type="button" data-type="all">All</button>
+    <button class="notif-tab <%= activeType === 'unread' ? 'active' : '' %>" id="tab-unread" type="button" data-type="unread">Unread <span class="notif-tab-badge" id="unreadTabCount"><%= Number(unreadCount || 0) %></span></button>
+    <button class="notif-tab <%= activeType === 'transaction' ? 'active' : '' %>" id="tab-transaction" type="button" data-type="transaction">Transactions</button>
+    <button class="notif-tab <%= activeType === 'user' ? 'active' : '' %>" id="tab-user" type="button" data-type="user">Users</button>
+    <button class="notif-tab <%= activeType === 'kyc' ? 'active' : '' %>" id="tab-kyc" type="button" data-type="kyc">KYC</button>
+    <button class="notif-tab <%= activeType === 'security' ? 'active' : '' %>" id="tab-security" type="button" data-type="security">Security</button>
+    <button class="notif-tab <%= activeType === 'system' ? 'active' : '' %>" id="tab-system" type="button" data-type="system">System</button>
+  </nav>
+
+  <section class="notif-list-wrap">
+    <div id="notifList">
+      <% if (safeNotifications.length) { %>
+        <% safeNotifications.forEach((n) => { %>
+          <article class="notif-card <%= n.isRead ? 'read' : 'unread' %>" data-id="<%= n.id %>" data-category="<%= n.category %>" data-read="<%= n.isRead ? '1' : '0' %>">
+            <% if (!n.isRead) { %>
+              <span class="unread-dot notif-unread-dot"></span>
+            <% } %>
+            <div class="notif-icon <%= n.type %>">
+              <% if (n.type === 'success') { %>
+                <i class="fas fa-circle-check"></i>
+              <% } else if (n.type === 'warning') { %>
+                <i class="fas fa-triangle-exclamation"></i>
+              <% } else if (n.type === 'danger') { %>
+                <i class="fas fa-circle-xmark"></i>
+              <% } else if (n.type === 'system') { %>
+                <i class="fas fa-gear"></i>
+              <% } else { %>
+                <i class="fas fa-circle-info"></i>
+              <% } %>
+            </div>
+
+            <div class="notif-content">
+              <h3 class="notif-title"><%= n.title %></h3>
+              <p class="notif-message"><%= n.message %></p>
+              <div class="notif-meta-row">
+                <span class="notif-category"><%= n.category %></span>
+                <% if (n.link) { %>
+                  <a class="notif-link" href="<%= n.link %>" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-arrow-up-right-from-square"></i>
+                    Open link
+                  </a>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="notif-meta">
+              <span class="notif-time"><%= n.relativeTime %></span>
+              <div class="notif-actions">
+                <% if (!n.isRead) { %>
+                  <button class="notif-action-btn read" type="button" title="Mark as Read" data-action="read">
+                    <i class="fas fa-check"></i>
+                  </button>
+                <% } %>
+                <button class="notif-action-btn delete" type="button" title="Delete" data-action="delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <div class="notif-empty" id="notifEmptyState">
+          <i class="fas fa-bell-slash"></i>
+          <h4>No notifications found</h4>
+          <p>You're all caught up!</p>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="notif-list-footer">
+      <% if (canLoadMore) { %>
+        <button class="load-more-btn" id="loadMoreBtn" type="button">
+          <i class="fas fa-angles-down"></i>
+          Load More Notifications
+        </button>
+        <span class="all-seen" id="allSeenText" style="display:none;">You've seen all notifications</span>
+      <% } else { %>
+        <button class="load-more-btn" id="loadMoreBtn" type="button" style="display:none;">
+          <i class="fas fa-angles-down"></i>
+          Load More Notifications
+        </button>
+        <span class="all-seen" id="allSeenText" style="display:inline-flex;">You've seen all notifications</span>
+      <% } %>
+    </div>
+  </section>
+</section>
+
+<div class="modal-overlay" id="sendNotifModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-paper-plane"></i> Send Notification</h3>
+      <button type="button" class="modal-close" data-close-modal="sendNotifModal"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="sendNotifForm">
+      <div class="modal-body">
+        <div>
+          <label class="field-label" for="notifTitle">Notification Title</label>
+          <input id="notifTitle" name="title" class="field-input" type="text" required>
+        </div>
+
+        <div>
+          <label class="field-label" for="notifMessage">Message</label>
+          <textarea id="notifMessage" name="message" class="field-textarea" maxlength="300" required></textarea>
+          <div class="counter" id="messageCounter">0 / 300</div>
+        </div>
+
+        <div>
+          <label class="field-label" for="notifType">Type</label>
+          <select id="notifType" name="type" class="field-select">
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+            <option value="warning">Warning</option>
+            <option value="danger">Danger</option>
+            <option value="system">System</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="notifCategory">Category</label>
+          <select id="notifCategory" name="category" class="field-select">
+            <option value="transaction">Transaction</option>
+            <option value="user">User</option>
+            <option value="kyc">KYC</option>
+            <option value="refund">Refund</option>
+            <option value="security">Security</option>
+            <option value="system" selected>System</option>
+            <option value="wallet">Wallet</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="targetRole">Target Role</label>
+          <select id="targetRole" name="targetRole" class="field-select">
+            <option value="all">All Admins</option>
+            <option value="super_admin">Super Admin only</option>
+            <option value="moderators">Moderators</option>
+            <option value="support">Support Team</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="notifLink">Link URL (optional)</label>
+          <input id="notifLink" name="link" class="field-input" type="text" placeholder="Redirect URL when notification is clicked">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-outline" data-close-modal="sendNotifModal">Cancel</button>
+        <button type="submit" class="btn-modal-primary"><i class="fas fa-paper-plane"></i> Send Notification</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="clearAllModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title danger"><i class="fas fa-trash"></i> Clear All Notifications</h3>
+      <button type="button" class="modal-close" data-close-modal="clearAllModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-warning">This will permanently delete ALL notifications. This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-outline" data-close-modal="clearAllModal">Cancel</button>
+      <button type="button" class="btn-modal-danger" id="confirmClearAllBtn"><i class="fas fa-trash"></i> Clear All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const pageRoot = document.querySelector('.notif-page');
+    const notifList = document.getElementById('notifList');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const allSeenText = document.getElementById('allSeenText');
+    const unreadTabCount = document.getElementById('unreadTabCount');
+    const statUnread = document.getElementById('statUnread');
+    const statRead = document.getElementById('statRead');
+    const statTotalAll = document.getElementById('statTotalAll');
+    const messageInput = document.getElementById('notifMessage');
+    const messageCounter = document.getElementById('messageCounter');
+    const sendNotifForm = document.getElementById('sendNotifForm');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const confirmClearAllBtn = document.getElementById('confirmClearAllBtn');
+    const tabs = Array.from(document.querySelectorAll('.notif-tab'));
+
+    let currentPage = Number(pageRoot?.dataset.currentPage || 1);
+    let totalPages = Number(pageRoot?.dataset.totalPages || 1);
+    let currentTab = String(pageRoot?.dataset.activeType || 'all').toLowerCase();
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function getTypeIcon(type) {
+      if (type === 'success') return 'fa-circle-check';
+      if (type === 'warning') return 'fa-triangle-exclamation';
+      if (type === 'danger') return 'fa-circle-xmark';
+      if (type === 'system') return 'fa-gear';
+      return 'fa-circle-info';
+    }
+
+    function showToast(message, kind = 'success') {
+      const container = document.getElementById('toastContainer') || document.body;
+      const toast = document.createElement('div');
+      toast.className = `admin-toast ${kind === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`;
+      toast.innerHTML = `<i class="fas ${kind === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+      }, 2200);
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    }
+
+    function renderCard(n) {
+      const unreadClass = n.isRead ? 'read' : 'unread';
+      const readAttr = n.isRead ? '1' : '0';
+      const unreadDot = n.isRead ? '' : '<span class="unread-dot notif-unread-dot"></span>';
+      const readBtn = n.isRead
+        ? ''
+        : '<button class="notif-action-btn read" type="button" title="Mark as Read" data-action="read"><i class="fas fa-check"></i></button>';
+      const linkNode = n.link
+        ? `<a class="notif-link" href="${escapeHtml(n.link)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i>Open link</a>`
+        : '';
+
+      return `
+        <article class="notif-card ${unreadClass}" data-id="${escapeHtml(n.id)}" data-category="${escapeHtml(n.category)}" data-read="${readAttr}">
+          ${unreadDot}
+          <div class="notif-icon ${escapeHtml(n.type)}"><i class="fas ${getTypeIcon(n.type)}"></i></div>
+          <div class="notif-content">
+            <h3 class="notif-title">${escapeHtml(n.title)}</h3>
+            <p class="notif-message">${escapeHtml(n.message)}</p>
+            <div class="notif-meta-row">
+              <span class="notif-category">${escapeHtml(n.category)}</span>
+              ${linkNode}
+            </div>
+          </div>
+          <div class="notif-meta">
+            <span class="notif-time">${escapeHtml(n.relativeTime || 'just now')}</span>
+            <div class="notif-actions">
+              ${readBtn}
+              <button class="notif-action-btn delete" type="button" title="Delete" data-action="delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function ensureEmptyState() {
+      const cards = notifList.querySelectorAll('.notif-card').length;
+      let empty = document.getElementById('notifEmptyState');
+      if (cards === 0) {
+        if (!empty) {
+          empty = document.createElement('div');
+          empty.className = 'notif-empty';
+          empty.id = 'notifEmptyState';
+          empty.innerHTML = '<i class="fas fa-bell-slash"></i><h4>No notifications found</h4><p>You\'re all caught up!</p>';
+          notifList.appendChild(empty);
+        }
+      } else if (empty) {
+        empty.remove();
+      }
+    }
+
+    function updateUnreadCounters() {
+      const unreadDots = document.querySelectorAll('.notif-unread-dot').length;
+      const totalCards = document.querySelectorAll('.notif-card').length;
+      if (unreadTabCount) unreadTabCount.textContent = String(unreadDots);
+      if (statUnread) statUnread.textContent = String(unreadDots);
+      if (statRead) statRead.textContent = String(Math.max(0, totalCards - unreadDots));
+      if (statTotalAll) statTotalAll.textContent = String(totalCards);
+
+      const headerBadge = document.querySelector('.header-notif-badge, #headerNotifBadge');
+      if (headerBadge) {
+        headerBadge.textContent = String(unreadDots);
+        headerBadge.style.display = unreadDots > 0 ? 'inline-flex' : 'none';
+      }
+    }
+
+    async function switchNotifTab(type) {
+      currentTab = type || 'all';
+      const url = new URL(window.location.href);
+      if (currentTab === 'all') url.searchParams.delete('type');
+      else url.searchParams.set('type', currentTab);
+      url.searchParams.delete('status');
+      url.searchParams.set('page', '1');
+      window.location.href = url.toString();
+    }
+
+    async function markRead(notifId, cardEl) {
+      const resp = await fetch(`/admin/notifications/${encodeURIComponent(notifId)}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast('Failed to mark as read', 'error');
+        return;
+      }
+
+      cardEl.dataset.read = '1';
+      cardEl.classList.remove('unread');
+      cardEl.classList.add('read');
+      cardEl.querySelector('.notif-unread-dot')?.remove();
+      cardEl.querySelector('[data-action="read"]')?.remove();
+      updateUnreadCounters();
+      showToast('Notification marked as read');
+    }
+
+    async function deleteNotif(notifId, cardEl) {
+      const resp = await fetch(`/admin/notifications/${encodeURIComponent(notifId)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast('Failed to delete notification', 'error');
+        return;
+      }
+
+      cardEl.classList.add('removing');
+      setTimeout(() => {
+        cardEl.remove();
+        ensureEmptyState();
+        updateUnreadCounters();
+      }, 280);
+    }
+
+    async function loadMore() {
+      if (currentPage >= totalPages) {
+        loadMoreBtn.style.display = 'none';
+        allSeenText.style.display = 'inline-flex';
+        return;
+      }
+
+      const nextPage = currentPage + 1;
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+      const url = new URL('/admin/notifications', window.location.origin);
+      url.searchParams.set('page', String(nextPage));
+      if (currentTab && currentTab !== 'all') url.searchParams.set('type', currentTab);
+      url.searchParams.set('format', 'json');
+
+      const resp = await fetch(url.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+      });
+      const result = await resp.json().catch(() => ({}));
+
+      if (!resp.ok || !result.success) {
+        showToast('Failed to load more notifications', 'error');
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.innerHTML = '<i class="fas fa-angles-down"></i> Load More Notifications';
+        return;
+      }
+
+      result.notifications.forEach((item) => {
+        notifList.insertAdjacentHTML('beforeend', renderCard(item));
+      });
+
+      currentPage = Number(result.currentPage || nextPage);
+      totalPages = Number(result.totalPages || totalPages);
+
+      if (currentPage >= totalPages) {
+        loadMoreBtn.style.display = 'none';
+        allSeenText.style.display = 'inline-flex';
+      }
+
+      ensureEmptyState();
+      updateUnreadCounters();
+
+      loadMoreBtn.disabled = false;
+      loadMoreBtn.innerHTML = '<i class="fas fa-angles-down"></i> Load More Notifications';
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => switchNotifTab(tab.dataset.type));
+    });
+
+    notifList.addEventListener('click', async (event) => {
+      const actionBtn = event.target.closest('[data-action]');
+      if (!actionBtn) return;
+
+      const card = actionBtn.closest('.notif-card');
+      if (!card) return;
+      const notifId = card.dataset.id;
+
+      if (actionBtn.dataset.action === 'read') {
+        await markRead(notifId, card);
+      }
+
+      if (actionBtn.dataset.action === 'delete') {
+        await deleteNotif(notifId, card);
+      }
+    });
+
+    markAllReadBtn?.addEventListener('click', async () => {
+      const resp = await fetch('/admin/notifications/mark-all-read', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast('Unable to mark all as read', 'error');
+        return;
+      }
+      window.location.reload();
+    });
+
+    confirmClearAllBtn?.addEventListener('click', async () => {
+      const resp = await fetch('/admin/notifications/clear-all', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok || !result.success) {
+        showToast('Unable to clear notifications', 'error');
+        return;
+      }
+      window.location.reload();
+    });
+
+    messageInput?.addEventListener('input', () => {
+      messageCounter.textContent = `${messageInput.value.length} / 300`;
+    });
+
+    sendNotifForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(sendNotifForm);
+      const payload = Object.fromEntries(formData.entries());
+
+      const resp = await fetch('/admin/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await resp.json().catch(() => ({}));
+
+      if (!resp.ok || !result.success) {
+        showToast(result.message || 'Failed to send notification', 'error');
+        return;
+      }
+
+      showToast(result.message || 'Notification sent successfully');
+      closeModal('sendNotifModal');
+      setTimeout(() => window.location.reload(), 350);
+    });
+
+    loadMoreBtn?.addEventListener('click', loadMore);
+
+    document.querySelectorAll('[data-open-modal]').forEach((button) => {
+      button.addEventListener('click', () => openModal(button.dataset.openModal));
+    });
+
+    document.querySelectorAll('[data-close-modal]').forEach((button) => {
+      button.addEventListener('click', () => closeModal(button.dataset.closeModal));
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) overlay.classList.remove('open');
+      });
+    });
+
+    updateUnreadCounters();
+    ensureEmptyState();
+  })();
+</script>

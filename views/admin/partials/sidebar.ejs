@@ -1,8 +1,9 @@
 <%
   /* Safe defaults — prevent ReferenceError when locals are not passed */
-  const _page       = (typeof page       !== 'undefined') ? page       : '';
+  const _page       = (typeof page       !== 'undefined') ? page       : ((typeof adminPage !== 'undefined') ? adminPage : '');
   const _kycPending  = (typeof kycPending  !== 'undefined') ? kycPending  : 0;
   const _supportOpen = (typeof supportOpen !== 'undefined') ? supportOpen : 0;
+  const _unreadCount = (typeof unreadCount !== 'undefined') ? unreadCount : 0;
 %>
 
 <aside class="admin-sidebar" id="adminSidebar">
@@ -93,14 +94,14 @@
     <a href="/admin/reports" class="sidebar-link <%= _page === 'reports' ? 'active' : '' %>" data-tooltip="Reports">
       <i class="fas fa-file-alt"></i> <span>Reports</span>
     </a>
-    <a href="/admin/audit-logs" class="sidebar-link <%= _page === 'audit-logs' ? 'active' : '' %>" data-tooltip="Audit Logs">
-      <i class="fas fa-history"></i> <span>Audit Logs</span>
-    </a>
 
     <!-- PLATFORM -->
     <div class="sidebar-section-label">Platform</div>
     <a href="/admin/notifications" class="sidebar-link <%= _page === 'notifications' ? 'active' : '' %>" data-tooltip="Notifications">
       <i class="fas fa-bell"></i> <span>Notifications</span>
+      <% if (_unreadCount > 0) { %>
+        <span class="sidebar-badge"><%= _unreadCount %></span>
+      <% } %>
     </a>
     <a href="/admin/pricing" class="sidebar-link <%= _page === 'pricing' ? 'active' : '' %>" data-tooltip="Pricing">
       <i class="fas fa-tag"></i> <span>Pricing</span>
@@ -119,6 +120,9 @@
     </a>
     <a href="/admin/settings" class="sidebar-link <%= _page === 'settings' ? 'active' : '' %>" data-tooltip="Settings">
       <i class="fas fa-gear"></i> <span>Settings</span>
+    </a>
+    <a href="/admin/audit-logs" class="sidebar-link <%= _page === 'audit-logs' ? 'active' : '' %>" data-tooltip="Audit Logs">
+      <i class="fas fa-scroll"></i> <span>Audit Logs</span>
     </a>
 
   </nav>
