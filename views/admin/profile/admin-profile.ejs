@@ -1,0 +1,643 @@
+<style>
+  .profile-page { display: grid; gap: 16px; }
+  .profile-breadcrumb { display: inline-flex; gap: 8px; align-items: center; color: var(--text-soft); font-size: 12px; font-weight: 600; }
+
+  .profile-top-card, .profile-tab-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .profile-top-card { padding: 20px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+
+  .profile-identity { display: grid; grid-template-columns: 90px 1fr; gap: 14px; align-items: center; }
+  .avatar-wrap { text-align: center; }
+  .avatar-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--card-bg);
+    font-size: 2rem; font-weight: 800;
+  }
+  .change-photo { margin-top: 8px; font-size: 12px; color: var(--primary-dark); font-weight: 700; }
+  .change-photo:hover { text-decoration: underline; }
+
+  .identity-name { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin-bottom: 5px; }
+  .role-badge {
+    display: inline-flex; border-radius: 999px; padding: 3px 10px;
+    border: 1px solid var(--primary); color: var(--primary-dark);
+    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
+    font-size: 11px; text-transform: uppercase; font-weight: 800; letter-spacing: .04em;
+  }
+  .designation { margin-top: 6px; color: var(--text-muted); font-style: italic; font-size: 13px; }
+
+  .identity-meta { margin-top: 10px; display: grid; gap: 5px; }
+  .identity-meta-row { color: var(--text-mid); font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+
+  .quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .quick-item { border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 10px; background: var(--bg-page); }
+  .quick-label { font-size: 11px; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+  .quick-value { margin-top: 4px; color: var(--text-dark); font-size: 14px; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; }
+  .status-active { color: var(--green-dark); }
+
+  .profile-tabs { border: 1px solid var(--border); background: var(--card-bg); border-radius: var(--radius-lg); padding: 7px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .profile-tab {
+    border: 1px solid transparent; background: transparent; border-radius: 999px;
+    height: 38px; padding: 0 14px; color: var(--text-muted); font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .profile-tab.active {
+    color: var(--primary-dark);
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+    box-shadow: inset 0 -2px 0 0 var(--primary);
+  }
+
+  .profile-tab-panel { display: none; }
+  .profile-tab-panel.active { display: block; }
+
+  .profile-tab-card { padding: 16px; }
+  .tab-card-title { margin-bottom: 12px; font-size: 16px; color: var(--text-dark); font-weight: 800; display: inline-flex; gap: 8px; align-items: center; }
+
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+  .field { display: grid; gap: 5px; }
+  .field-label { color: var(--text-mid); font-size: 12px; font-weight: 700; }
+  .field-input, .field-textarea {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--card-bg); color: var(--text-dark); font-size: 13px; padding: 10px 12px;
+  }
+  .field-textarea { resize: vertical; min-height: 88px; }
+  .field-input[readonly], .field-input:disabled { background: var(--bg-page); color: var(--text-muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+  .span-2 { grid-column: span 2; }
+
+  .btn-primary-admin { border: 1px solid var(--primary); background: var(--primary); color: var(--card-bg); }
+  .btn-danger-outline {
+    display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--red); background: var(--card-bg); color: var(--red); font-size: 12px; font-weight: 700;
+  }
+
+  .password-grid { display: grid; gap: 10px; }
+  .password-wrap { position: relative; }
+  .password-toggle {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    color: var(--text-soft); background: var(--card-bg);
+  }
+
+  .strength-track { margin-top: 6px; height: 6px; border-radius: 999px; background: var(--border-light); overflow: hidden; }
+  .strength-fill { height: 100%; width: 0; background: var(--border); transition: width var(--t-fast), background var(--t-fast); }
+  .strength-label { margin-top: 5px; font-size: 12px; color: var(--text-muted); font-weight: 700; }
+
+  .pw-checklist { margin-top: 8px; display: grid; gap: 4px; }
+  .pw-check {
+    display: inline-flex; gap: 8px; align-items: center; color: var(--text-soft); font-size: 12px; font-weight: 600;
+  }
+  .pw-check i { color: var(--text-soft); }
+  .pw-check.met { color: var(--green-dark); }
+  .pw-check.met i { color: var(--green); }
+
+  .info-box {
+    margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px;
+    display: inline-flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text-mid);
+  }
+  .info-box.blue { background: color-mix(in srgb, var(--primary) 10%, var(--card-bg)); border-color: color-mix(in srgb, var(--primary) 35%, var(--card-bg)); }
+  .info-box.amber { background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); border-color: color-mix(in srgb, var(--amber) 35%, var(--card-bg)); }
+
+  .toggle-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+  .toggle-title { color: var(--text-dark); font-size: 14px; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; }
+  .toggle-sub { margin-top: 2px; color: var(--text-soft); font-size: 12px; }
+  .switch { position: relative; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; border-radius: 999px; background: var(--border); transition: var(--t-fast); }
+  .slider::before {
+    content: ''; position: absolute; width: 18px; height: 18px; top: 3px; left: 3px;
+    border-radius: 50%; background: var(--card-bg); transition: var(--t-fast);
+  }
+  .switch input:checked + .slider { background: var(--primary); }
+  .switch input:checked + .slider::before { transform: translateX(20px); }
+
+  .mini-list { display: grid; gap: 7px; }
+  .mini-row { border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-page); padding: 9px; display: flex; justify-content: space-between; gap: 8px; }
+  .mini-left { color: var(--text-mid); font-size: 12px; display: inline-flex; gap: 8px; align-items: center; }
+  .mini-right { color: var(--text-soft); font-size: 12px; }
+
+  .sessions-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .session-card {
+    border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg);
+    padding: 12px; display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 8px;
+  }
+  .session-main { display: inline-flex; gap: 10px; align-items: center; }
+  .session-title { font-size: 13px; color: var(--text-dark); font-weight: 700; }
+  .session-sub { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+  .session-current { margin-top: 3px; font-size: 11px; color: var(--green-dark); font-weight: 700; display: inline-flex; gap: 6px; align-items: center; }
+
+  .empty-state { text-align: center; border: 1px dashed var(--border); border-radius: var(--radius-lg); padding: 26px 12px; color: var(--text-soft); }
+  .empty-state i { font-size: 38px; margin-bottom: 8px; }
+  .empty-state h4 { color: var(--text-dark); font-weight: 800; margin-bottom: 4px; }
+
+  .timeline { display: grid; gap: 10px; }
+  .timeline-item { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: start; border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 10px; background: var(--bg-page); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; }
+  .dot.auth { background: var(--primary); }
+  .dot.user { background: var(--green); }
+  .dot.transaction { background: var(--secondary); }
+  .dot.wallet { background: color-mix(in srgb, var(--primary) 60%, var(--green) 40%); }
+  .dot.refund { background: color-mix(in srgb, var(--amber) 60%, var(--red) 40%); }
+  .dot.settings { background: var(--amber); }
+  .dot.system, .dot.kyc { background: var(--text-soft); }
+  .tl-title { color: var(--text-dark); font-size: 13px; font-weight: 700; }
+  .tl-desc { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+  .tl-time { color: var(--text-soft); font-size: 12px; white-space: nowrap; }
+
+  .audit-link { margin-top: 10px; display: inline-flex; gap: 8px; align-items: center; color: var(--primary-dark); font-size: 13px; font-weight: 700; }
+  .audit-link:hover { text-decoration: underline; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: color-mix(in srgb, var(--text-dark) 40%, transparent);
+    display: none; align-items: center; justify-content: center; z-index: 500; padding: 18px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card { width: min(500px, 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card-bg); box-shadow: var(--shadow-lg); }
+  .modal-header { padding: 14px 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { color: var(--red); font-size: 16px; font-weight: 800; display: inline-flex; gap: 8px; align-items: center; }
+  .modal-close { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 50%; color: var(--text-soft); background: var(--card-bg); }
+  .modal-body { padding: 14px 16px; color: var(--text-mid); font-size: 13px; line-height: 1.5; }
+  .modal-footer { padding: 12px 16px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 8px; }
+  .btn-modal-outline { border: 1px solid var(--border); background: var(--card-bg); color: var(--text-mid); border-radius: 999px; height: 36px; padding: 0 14px; font-size: 12px; font-weight: 700; }
+  .btn-modal-danger { border: 1px solid var(--red); background: var(--red); color: var(--card-bg); border-radius: 999px; height: 36px; padding: 0 14px; font-size: 12px; font-weight: 700; }
+
+  @media (max-width: 980px) {
+    .profile-top-card { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1; }
+    .quick-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<%
+  const safeAdmin = admin || {};
+  const safeRecent = Array.isArray(recentActivity) ? recentActivity : [];
+  const safeSessions = Array.isArray(sessions) ? sessions : [];
+  const safeLogins = Array.isArray(loginHistory) ? loginHistory : [];
+  const fmt = (d) => {
+    const dt = new Date(d);
+    return Number.isNaN(dt.getTime()) ? 'Not available' : dt.toLocaleString('en-IN');
+  };
+  const rel = (d) => {
+    if (helpers && typeof helpers.timeAgo === 'function') return helpers.timeAgo(d);
+    return 'just now';
+  };
+%>
+
+<section class="profile-page">
+  <header class="admin-page-header">
+    <div>
+      <h1 class="admin-page-title">
+        <span class="page-title-icon" style="background: linear-gradient(135deg, var(--primary), var(--secondary));"><i class="fas fa-circle-user"></i></span>
+        My Profile
+      </h1>
+      <p class="admin-page-subtitle">Manage your account details and security settings</p>
+      <div class="profile-breadcrumb"><i class="fas fa-home"></i><i class="fas fa-chevron-right"></i><span>Profile</span></div>
+    </div>
+  </header>
+
+  <article class="profile-top-card">
+    <div class="profile-identity">
+      <div class="avatar-wrap">
+        <div class="avatar-circle"><%= safeAdmin.initials || 'A' %></div>
+        <a class="change-photo" href="#">Change Photo</a>
+      </div>
+      <div>
+        <div class="identity-name"><%= safeAdmin.name || 'Admin User' %></div>
+        <span class="role-badge"><%= safeAdmin.role || 'admin' %></span>
+        <div class="designation"><%= safeAdmin.designation || 'Platform Administrator' %></div>
+        <div class="identity-meta">
+          <div class="identity-meta-row"><i class="fas fa-calendar"></i> Joined <%= (meta && meta.joinedLabel) || 'Not available' %></div>
+          <div class="identity-meta-row"><i class="fas fa-envelope"></i> <%= safeAdmin.email || 'Not set' %></div>
+          <div class="identity-meta-row"><i class="fas fa-phone"></i> <%= safeAdmin.phone || 'Not set' %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-grid">
+      <div class="quick-item">
+        <div class="quick-label">Account Status</div>
+        <div class="quick-value status-active"><i class="fas fa-shield-check"></i> Active</div>
+      </div>
+      <div class="quick-item">
+        <div class="quick-label">Last Login</div>
+        <div class="quick-value"><i class="fas fa-clock"></i> <%= (meta && meta.lastLoginLabel) || 'No recent logins' %></div>
+      </div>
+      <div class="quick-item">
+        <div class="quick-label">Total Actions</div>
+        <div class="quick-value"><i class="fas fa-scroll"></i> <%= (meta && meta.totalActions) || 0 %></div>
+      </div>
+      <div class="quick-item">
+        <div class="quick-label">2FA Status</div>
+        <div class="quick-value"><i class="fas fa-lock"></i> <span id="twoFactorStatusText"><%= safeAdmin.twoFactorEnabled ? 'Enabled' : 'Disabled' %></span></div>
+      </div>
+    </div>
+  </article>
+
+  <nav class="profile-tabs" id="profileTabs">
+    <button class="profile-tab active" id="tab-personal" type="button" data-tab="personal"><i class="fas fa-user"></i> Personal Info</button>
+    <button class="profile-tab" id="tab-security" type="button" data-tab="security"><i class="fas fa-shield-halved"></i> Security</button>
+    <button class="profile-tab" id="tab-sessions" type="button" data-tab="sessions"><i class="fas fa-desktop"></i> Active Sessions</button>
+    <button class="profile-tab" id="tab-activity" type="button" data-tab="activity"><i class="fas fa-clock-rotate-left"></i> Recent Activity</button>
+  </nav>
+
+  <section class="profile-tab-panel active" data-panel="personal">
+    <div class="profile-tab-card">
+      <h3 class="tab-card-title"><i class="fas fa-user"></i> Personal Information</h3>
+
+      <form id="profileForm" class="form-grid">
+        <div class="field">
+          <label class="field-label" for="fullName">Full Name</label>
+          <input class="field-input" id="fullName" name="name" type="text" required value="<%= safeAdmin.name || '' %>">
+        </div>
+        <div class="field">
+          <label class="field-label" for="emailAddress">Email Address</label>
+          <input class="field-input" id="emailAddress" name="email" type="email" required value="<%= safeAdmin.email || '' %>">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="phoneNumber">Phone Number</label>
+          <input class="field-input" id="phoneNumber" name="phone" type="tel" value="<%= safeAdmin.phone || '' %>">
+        </div>
+        <div class="field">
+          <label class="field-label" for="designation">Designation</label>
+          <input class="field-input" id="designation" name="designation" type="text" placeholder="e.g. Senior Admin, Finance Manager" value="<%= safeAdmin.designation || '' %>">
+        </div>
+
+        <div class="field">
+          <label class="field-label">Role</label>
+          <input class="field-input" type="text" value="<%= safeAdmin.role || 'admin' %>" readonly disabled>
+        </div>
+        <div class="field">
+          <label class="field-label">Admin ID</label>
+          <input class="field-input mono" type="text" value="<%= safeAdmin._id || '' %>" readonly>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Joined Date</label>
+          <input class="field-input" type="text" value="<%= (meta && meta.joinedLabel) || 'Not available' %>" readonly>
+        </div>
+        <div class="field">
+          <label class="field-label">Last Updated</label>
+          <input class="field-input" type="text" value="<%= (meta && meta.updatedLabel) || 'Not available' %>" readonly>
+        </div>
+
+        <div class="field span-2">
+          <label class="field-label" for="bio">Bio / Notes</label>
+          <textarea class="field-textarea" id="bio" name="bio" rows="3" placeholder="Write a short bio..."><%= safeAdmin.bio || '' %></textarea>
+        </div>
+
+        <div class="span-2">
+          <button class="btn-primary-admin" id="saveProfileBtn" type="button"><i class="fas fa-floppy-disk"></i> Save Profile</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="profile-tab-panel" data-panel="security">
+    <div class="profile-tab-card" style="margin-bottom:12px;">
+      <h3 class="tab-card-title"><i class="fas fa-key"></i> Change Password</h3>
+      <div class="password-grid" id="passwordForm">
+        <div class="field password-wrap">
+          <label class="field-label" for="currentPassword">Current Password</label>
+          <input class="field-input" id="currentPassword" type="password">
+          <button class="password-toggle" data-toggle-password="currentPassword" type="button"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="field password-wrap">
+          <label class="field-label" for="newPassword">New Password</label>
+          <input class="field-input" id="newPassword" type="password">
+          <button class="password-toggle" data-toggle-password="newPassword" type="button"><i class="fas fa-eye"></i></button>
+          <div class="strength-track"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-label" id="strengthLabel">Weak</div>
+          <div class="pw-checklist">
+            <div class="pw-check" id="check8chars"><i class="fas fa-circle-check"></i> At least 8 characters</div>
+            <div class="pw-check" id="checkUpper"><i class="fas fa-circle-check"></i> Contains uppercase letter</div>
+            <div class="pw-check" id="checkNumber"><i class="fas fa-circle-check"></i> Contains number</div>
+            <div class="pw-check" id="checkSymbol"><i class="fas fa-circle-check"></i> Contains special character (!@#$...)</div>
+          </div>
+        </div>
+        <div class="field password-wrap">
+          <label class="field-label" for="confirmPassword">Confirm New Password</label>
+          <input class="field-input" id="confirmPassword" type="password">
+          <button class="password-toggle" data-toggle-password="confirmPassword" type="button"><i class="fas fa-eye"></i></button>
+        </div>
+        <div>
+          <button class="btn-primary-admin" id="changePasswordBtn" type="button"><i class="fas fa-key"></i> Change Password</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-tab-card" style="margin-bottom:12px;">
+      <h3 class="tab-card-title"><i class="fas fa-mobile-screen"></i> Two-Factor Authentication</h3>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-title"><i class="fas fa-shield-halved"></i> Enable 2FA for this account</div>
+          <div class="toggle-sub">Add an extra layer of security to your login</div>
+        </div>
+        <label class="switch">
+          <input id="twoFactorToggle" type="checkbox" <%= safeAdmin.twoFactorEnabled ? 'checked' : '' %>>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <% if (safeAdmin.twoFactorEnabled) { %>
+        <div class="info-box blue" id="twoFaOnBox" style="display:inline-flex;"><i class="fas fa-circle-info"></i> 2FA is active. You will be asked for a verification code on each login.</div>
+        <div class="info-box amber" id="twoFaOffBox" style="display:none;"><i class="fas fa-triangle-exclamation"></i> Your account is less secure without 2FA. We strongly recommend enabling it.</div>
+      <% } else { %>
+        <div class="info-box blue" id="twoFaOnBox" style="display:none;"><i class="fas fa-circle-info"></i> 2FA is active. You will be asked for a verification code on each login.</div>
+        <div class="info-box amber" id="twoFaOffBox" style="display:inline-flex;"><i class="fas fa-triangle-exclamation"></i> Your account is less secure without 2FA. We strongly recommend enabling it.</div>
+      <% } %>
+    </div>
+
+    <div class="profile-tab-card">
+      <h3 class="tab-card-title"><i class="fas fa-clock-rotate-left"></i> Recent Login History</h3>
+      <% if (safeLogins.length) { %>
+        <div class="mini-list">
+          <% safeLogins.forEach((l) => { %>
+            <div class="mini-row">
+              <div class="mini-left"><i class="fas fa-right-to-bracket"></i> <%= fmt(l.createdAt) %> • <%= l.ipAddress || 'Unknown IP' %></div>
+              <div class="mini-right"><%= (l.metadata && l.metadata.device) || l.userAgent || 'Unknown device' %></div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state"><i class="fas fa-clock-rotate-left"></i><h4>No login history found</h4></div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="profile-tab-panel" data-panel="sessions">
+    <div class="profile-tab-card">
+      <div class="sessions-head">
+        <h3 class="tab-card-title" style="margin:0;"><i class="fas fa-desktop"></i> Active Sessions</h3>
+        <button class="btn-danger-outline" id="revokeAllBtn" type="button"><i class="fas fa-right-from-bracket"></i> Revoke All Other Sessions</button>
+      </div>
+      <p style="color:var(--text-soft); font-size:12px; margin-bottom:10px;">These are devices currently logged into your account.</p>
+
+      <% if (safeSessions.length) { %>
+        <% safeSessions.forEach((s) => { %>
+          <article class="session-card" data-session-id="<%= s._id %>">
+            <div class="session-main">
+              <i class="fas <%= s.deviceType === 'mobile' ? 'fa-mobile' : (s.deviceType === 'tablet' ? 'fa-tablet' : 'fa-desktop') %>"></i>
+              <div>
+                <div class="session-title"><%= s.browser || 'Browser' %> on <%= s.os || 'OS' %></div>
+                <div class="session-sub">IP: <%= s.ipAddress || 'Unknown' %></div>
+                <% if (s.current) { %>
+                  <div class="session-current"><i class="fas fa-circle"></i> Current Session</div>
+                <% } else { %>
+                  <div class="session-sub">Last active <%= rel(s.lastActive) %></div>
+                <% } %>
+              </div>
+            </div>
+            <% if (!s.current) { %>
+              <button class="btn-danger-outline" type="button" onclick="revokeSession('<%= s._id %>', this.closest('.session-card'))">Revoke</button>
+            <% } %>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <div class="empty-state">
+          <i class="fas fa-desktop"></i>
+          <h4>No active session data available</h4>
+          <p>Session tracking requires session store integration</p>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="profile-tab-panel" data-panel="activity">
+    <div class="profile-tab-card">
+      <h3 class="tab-card-title"><i class="fas fa-clock-rotate-left"></i> My Recent Activity</h3>
+      <% if (safeRecent.length) { %>
+        <div class="timeline">
+          <% safeRecent.forEach((a) => { %>
+            <article class="timeline-item">
+              <span class="dot <%= a.category || 'system' %>"></span>
+              <div>
+                <div class="tl-title"><%= a.action || 'Action' %></div>
+                <div class="tl-desc"><%= a.description || 'No description' %></div>
+              </div>
+              <div class="tl-time"><%= rel(a.createdAt) %></div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state"><i class="fas fa-clock"></i><h4>No recent activity found</h4></div>
+      <% } %>
+
+      <a class="audit-link" href="/admin/audit-logs?adminId=<%= safeAdmin._id %>"><i class="fas fa-arrow-right"></i> View Full Audit Log</a>
+    </div>
+  </section>
+</section>
+
+<div class="modal-overlay" id="revokeAllModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-right-from-bracket"></i> Revoke All Sessions</h3>
+      <button type="button" class="modal-close" data-close-modal="revokeAllModal"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">All other active sessions will be logged out immediately. You will remain logged in on this device only.</div>
+    <div class="modal-footer">
+      <button type="button" class="btn-modal-outline" data-close-modal="revokeAllModal">Cancel</button>
+      <button type="button" class="btn-modal-danger" id="confirmRevokeAllBtn">Revoke All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const tabs = Array.from(document.querySelectorAll('.profile-tab'));
+    const panels = Array.from(document.querySelectorAll('.profile-tab-panel'));
+    const profileForm = document.getElementById('profileForm');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+    const twoFactorToggle = document.getElementById('twoFactorToggle');
+    const twoFaOnBox = document.getElementById('twoFaOnBox');
+    const twoFaOffBox = document.getElementById('twoFaOffBox');
+    const revokeAllBtn = document.getElementById('revokeAllBtn');
+    const confirmRevokeAllBtn = document.getElementById('confirmRevokeAllBtn');
+
+    const currentPassword = document.getElementById('currentPassword');
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthLabel = document.getElementById('strengthLabel');
+    const check8chars = document.getElementById('check8chars');
+    const checkUpper = document.getElementById('checkUpper');
+    const checkNumber = document.getElementById('checkNumber');
+    const checkSymbol = document.getElementById('checkSymbol');
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer') || document.body;
+      const toast = document.createElement('div');
+      toast.className = `admin-toast ${type === 'error' ? 'admin-toast-error' : 'admin-toast-success'}`;
+      toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${String(message || '')}</span>`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+      }, 2300);
+    }
+
+    function switchProfileTab(tabId) {
+      tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === tabId));
+      panels.forEach((p) => p.classList.toggle('active', p.dataset.panel === tabId));
+      localStorage.setItem('profileActiveTab', tabId);
+    }
+
+    const savedTab = localStorage.getItem('profileActiveTab');
+    if (savedTab && panels.some((p) => p.dataset.panel === savedTab)) switchProfileTab(savedTab);
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => switchProfileTab(tab.dataset.tab)));
+
+    document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-toggle-password');
+        const input = document.getElementById(id);
+        const icon = btn.querySelector('i');
+        if (!input || !icon) return;
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        icon.classList.toggle('fa-eye', !show);
+        icon.classList.toggle('fa-eye-slash', show);
+      });
+    });
+
+    newPassword?.addEventListener('input', function () {
+      const val = this.value;
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const levels = ['', 'Weak', 'Fair', 'Strong', 'Very Strong'];
+      const colors = ['', 'var(--red)', 'var(--amber)', 'var(--green)', 'var(--green-dark)'];
+      strengthFill.style.width = (score * 25) + '%';
+      strengthFill.style.background = colors[score];
+      strengthLabel.textContent = levels[score] || 'Weak';
+
+      check8chars.classList.toggle('met', val.length >= 8);
+      checkUpper.classList.toggle('met', /[A-Z]/.test(val));
+      checkNumber.classList.toggle('met', /[0-9]/.test(val));
+      checkSymbol.classList.toggle('met', /[^A-Za-z0-9]/.test(val));
+    });
+
+    saveProfileBtn?.addEventListener('click', async () => {
+      const payload = Object.fromEntries(new FormData(profileForm).entries());
+      const resp = await fetch('/admin/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        showToast(data.message || 'Failed to update profile', 'error');
+        return;
+      }
+      showToast('Profile updated successfully');
+    });
+
+    changePasswordBtn?.addEventListener('click', async () => {
+      if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
+        showToast('Please fill all password fields', 'error');
+        return;
+      }
+      if (newPassword.value !== confirmPassword.value) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
+
+      const resp = await fetch('/admin/profile/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: currentPassword.value,
+          newPassword: newPassword.value,
+          confirmPassword: confirmPassword.value,
+        }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        showToast(data.message || 'Failed to change password', 'error');
+        return;
+      }
+
+      currentPassword.value = '';
+      newPassword.value = '';
+      confirmPassword.value = '';
+      strengthFill.style.width = '0%';
+      strengthLabel.textContent = 'Weak';
+      [check8chars, checkUpper, checkNumber, checkSymbol].forEach((c) => c.classList.remove('met'));
+      showToast('Password changed successfully');
+    });
+
+    twoFactorToggle?.addEventListener('change', async () => {
+      const enabled = Boolean(twoFactorToggle.checked);
+      const resp = await fetch('/admin/profile/toggle-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        twoFactorToggle.checked = !enabled;
+        showToast(data.message || 'Failed to update 2FA', 'error');
+        return;
+      }
+
+      twoFaOnBox.style.display = enabled ? 'inline-flex' : 'none';
+      twoFaOffBox.style.display = enabled ? 'none' : 'inline-flex';
+      const statusText = document.getElementById('twoFactorStatusText');
+      if (statusText) statusText.textContent = enabled ? 'Enabled' : 'Disabled';
+      showToast(data.message || '2FA updated');
+    });
+
+    function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add('open'); }
+    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('open'); }
+
+    revokeAllBtn?.addEventListener('click', () => openModal('revokeAllModal'));
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+    });
+
+    confirmRevokeAllBtn?.addEventListener('click', async () => {
+      const resp = await fetch('/admin/profile/sessions/all', { method: 'DELETE' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        showToast(data.message || 'Failed to revoke sessions', 'error');
+        return;
+      }
+      showToast('All other sessions revoked');
+      setTimeout(() => window.location.reload(), 350);
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+    });
+
+    window.revokeSession = async function revokeSession(sessionId, cardEl) {
+      const resp = await fetch(`/admin/profile/session/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.success) {
+        showToast(data.message || 'Failed to revoke session', 'error');
+        return;
+      }
+      if (cardEl) {
+        cardEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        cardEl.style.opacity = '0';
+        cardEl.style.transform = 'translateX(20px)';
+        setTimeout(() => cardEl.remove(), 260);
+      }
+      showToast('Session revoked');
+    };
+  })();
+</script>

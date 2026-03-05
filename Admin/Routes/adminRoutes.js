@@ -22,6 +22,7 @@ const adminMgmtController = require("../../Controllers/admin/adminMgmtController
 const adminSettingsController = require("../../Controllers/admin/adminSettingsController");
 const adminAuditController = require("../../Controllers/admin/adminAuditController");
 const adminNotifController = require("../../Controllers/admin/adminNotifController");
+const adminProfileController = require("../../Controllers/admin/adminProfileController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -179,6 +180,14 @@ router.post("/settings/payment-gateway/fees", requirePermission("payment_gateway
 router.post("/settings/payment-gateway/toggle-method", requirePermission("payment_gateway", "update"), AdminPaymentGatewayController.togglePaymentMethod);
 router.post("/settings/payment-gateway/advanced", requirePermission("payment_gateway", "update"), AdminPaymentGatewayController.updateAdvancedSettings);
 router.get("/settings/payment-gateway/config", requirePermission("payment_gateway", "view"), AdminPaymentGatewayController.getPaymentGatewayConfig);
+
+// ============ PROFILE ROUTES ============
+router.get("/profile", requirePermission("settings", "view"), adminProfileController.profilePage);
+router.post("/profile/update", requirePermission("settings", "update"), adminProfileController.updateProfile);
+router.post("/profile/change-password", requirePermission("settings", "update"), adminProfileController.changePassword);
+router.post("/profile/toggle-2fa", requirePermission("settings", "update"), adminProfileController.toggle2FA);
+router.delete("/profile/session/:sessionId", requirePermission("settings", "update"), adminProfileController.revokeSession);
+router.delete("/profile/sessions/all", requirePermission("settings", "update"), adminProfileController.revokeAllSessions);
 
 // ============ PRIVACY POLICY MANAGEMENT ROUTES ============
 router.get("/privacy-policy", requirePermission("settings", "view"), AdminPrivacyPolicyController.getPrivacyPolicyDashboard);
