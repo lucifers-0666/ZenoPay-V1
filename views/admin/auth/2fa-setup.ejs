@@ -1,39 +1,299 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h1 style="text-align: center; margin-bottom: var(--spacing-base); color: var(--text-dark);">
-      Reset Password
-    </h1>
-    <p style="text-align: center; color: var(--text-light); margin-bottom: var(--spacing-xl);">
-      Enter your new password
-    </p>
-    
-    <% if (typeof errors !== 'undefined' && errors) { %>
-      <div class="alert alert-error">
-        <%= errors %>
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-orb1"></div>
+    <div class="auth-left-orb2"></div>
+    <div class="auth-left-orb3"></div>
+    <div class="auth-left-dots"></div>
+
+    <div class="auth-brand">
+      <div class="auth-brand-icon" style="background: linear-gradient(135deg, #1D4ED8, #6B41E8); border: 1.5px solid rgba(255,255,255,0.3); box-shadow: 0 4px 16px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2);">
+        <i class="fas fa-shield-halved" style="color: #93C5FD;"></i>
       </div>
-    <% } %>
-    
-    <form method="POST" action="/admin/auth/reset-password">
-      <input type="hidden" name="token" value="<%= typeof token !== 'undefined' ? token : '' %>">
-      
-      <div class="form-group">
-        <label for="password" class="form-label">New Password</label>
-        <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
-        <small class="form-help">Minimum 8 characters, include uppercase, lowercase, and numbers</small>
+      <div>
+        <div class="auth-brand-name">ZenoPay</div>
       </div>
-      
-      <div class="form-group">
-        <label for="confirmPassword" class="form-label">Confirm Password</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required placeholder="••••••••">
+      <span class="auth-brand-tag">ADMIN</span>
+    </div>
+
+    <div class="auth-left-content">
+      <div class="auth-illustration-box" style="background: linear-gradient(145deg, #065F46, #10B981);">
+        <i class="fas fa-mobile-screen" style="color: #A7F3D0;"></i>
       </div>
-      
-      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-        <i class="fas fa-lock"></i> Reset Password
-      </button>
-      
-      <a href="/admin/auth/login" style="display: block; text-align: center; margin-top: var(--spacing-lg); color: var(--primary); text-decoration: none;">
-        Back to Login
-      </a>
-    </form>
+      <div class="auth-tagline">Two-Factor Authentication</div>
+      <div class="auth-tagline-sub">Add an extra layer of security to your account</div>
+
+      <div class="auth-features">
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #059669, #10B981);"><i class="fas fa-shield-halved" style="color: #A7F3D0;"></i></div>
+          <span>Protects against unauthorized access</span>
+        </div>
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #1D4ED8, #3B82F6);"><i class="fas fa-mobile-screen" style="color: #BFDBFE;"></i></div>
+          <span>Works with Google Authenticator</span>
+        </div>
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #9333EA, #A855F7);"><i class="fas fa-rotate" style="color: #E9D5FF;"></i></div>
+          <span>Codes refresh every 30 seconds</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-right-top">
+      <span class="auth-right-brand">
+        <i class="fas fa-shield-halved"></i>
+        ZenoPay Admin
+      </span>
+      <span class="auth-right-badge">Secure Portal</span>
+    </div>
+
+    <div class="auth-form-container">
+      <div class="auth-form-header">
+        <div class="auth-form-icon" style="background: linear-gradient(135deg, #065F46, #10B981);">
+          <i class="fas fa-shield-halved" style="color:#A7F3D0;"></i>
+        </div>
+        <h1 class="auth-form-title">Setup 2FA</h1>
+        <p class="auth-form-subtitle">Scan the QR code with your authenticator app</p>
+      </div>
+
+      <div class="auth-steps">
+        <div class="auth-step">
+          <span class="auth-step-dot active">1</span>
+          <span class="auth-step-label">Scan QR</span>
+        </div>
+        <span class="auth-step-line"></span>
+        <div class="auth-step">
+          <span class="auth-step-dot pending">2</span>
+          <span class="auth-step-label">Enter Code</span>
+        </div>
+        <span class="auth-step-line"></span>
+        <div class="auth-step">
+          <span class="auth-step-dot pending">3</span>
+          <span class="auth-step-label">Verified</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px; text-align:center;">
+        <div class="auth-qr-wrap">
+          <div class="auth-qr-box" id="qrBox">
+            <% if (locals.qrCodeUrl) { %>
+              <img src="<%= locals.qrCodeUrl %>" alt="QR Code" style="width:170px; height:170px; border-radius:12px;">
+            <% } else { %>
+              <i class="fas fa-qrcode" style="font-size:3rem; color:#CBD5E1;"></i>
+              <span>QR Code will appear here</span>
+            <% } %>
+          </div>
+        </div>
+
+        <button type="button" class="auth-manual-link" id="manualToggle">
+          <i class="fas fa-key"></i>
+          Can't scan? Enter manually
+        </button>
+
+        <div class="auth-secret-wrap" id="secretWrap">
+          <div class="auth-secret-label">Manual setup key</div>
+          <div class="auth-secret-key">
+            <code id="secretCode"><%= locals.secret || 'XXXX XXXX XXXX XXXX' %></code>
+            <button type="button" class="auth-copy-btn" id="copySecretBtn" aria-label="Copy secret key">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <form id="verify2faForm" novalidate>
+        <label class="auth-section-label"><i class="fas fa-mobile-screen" style="color:#10B981; margin-right:6px;"></i>Enter the 6-digit code from your app</label>
+        <div class="otp-group" id="otpGroup">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+          <input class="otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code">
+        </div>
+        <div class="auth-input-error" id="otpError" style="text-align:center;">Please enter a valid 6-digit code</div>
+
+        <button type="submit" class="auth-btn auth-btn-primary" id="verifyBtn">
+          <i class="fas fa-shield-halved"></i>
+          Verify &amp; Enable
+        </button>
+      </form>
+    </div>
   </div>
 </div>
+
+<script>
+  (function() {
+    var secretValue = '<%= locals.secret || "" %>';
+    var qrCodeValue = '<%= locals.qrCodeUrl || "" %>';
+
+    function setGeneratedData(data) {
+      if (!data) return;
+
+      if (data.secret) {
+        secretValue = data.secret;
+        document.getElementById('secretCode').textContent = data.secret;
+      }
+
+      if (data.qrCode) {
+        qrCodeValue = data.qrCode;
+        document.getElementById('qrBox').innerHTML = '<img src="' + data.qrCode + '" alt="QR Code" style="width:170px; height:170px; border-radius:12px;">';
+      }
+    }
+
+    if (!secretValue || !qrCodeValue) {
+      fetch('/admin/2fa/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data && data.success) {
+            setGeneratedData(data);
+          } else {
+            showAuthToast('Unable to generate QR code right now.', 'error');
+          }
+        })
+        .catch(function() {
+          showAuthToast('Failed to load 2FA setup data.', 'error');
+        });
+    }
+
+    var stepDot1 = document.querySelector('.auth-step:nth-child(1) .auth-step-dot');
+    var stepDot2 = document.querySelector('.auth-step:nth-child(3) .auth-step-dot');
+    var stepDot3 = document.querySelector('.auth-step:nth-child(5) .auth-step-dot');
+    var stepLine1 = document.querySelector('.auth-steps .auth-step-line:nth-of-type(1)');
+    var stepLine2 = document.querySelector('.auth-steps .auth-step-line:nth-of-type(2)');
+
+    function setStep(stage) {
+      if (stage === 1) {
+        stepDot1.className = 'auth-step-dot active';
+        stepDot2.className = 'auth-step-dot pending';
+        stepDot3.className = 'auth-step-dot pending';
+        stepLine1.classList.remove('done');
+        stepLine2.classList.remove('done');
+      } else if (stage === 2) {
+        stepDot1.className = 'auth-step-dot done';
+        stepDot2.className = 'auth-step-dot active step-green';
+        stepDot3.className = 'auth-step-dot pending';
+        stepLine1.classList.add('done');
+        stepLine2.classList.remove('done');
+      } else {
+        stepDot1.className = 'auth-step-dot done';
+        stepDot2.className = 'auth-step-dot done';
+        stepDot3.className = 'auth-step-dot done';
+        stepLine1.classList.add('done');
+        stepLine2.classList.add('done');
+      }
+    }
+
+    var manualToggle = document.getElementById('manualToggle');
+    var secretWrap = document.getElementById('secretWrap');
+    manualToggle.addEventListener('click', function() {
+      secretWrap.classList.toggle('visible');
+    });
+
+    document.getElementById('copySecretBtn').addEventListener('click', function() {
+      var copyBtn = this;
+      var text = document.getElementById('secretCode').textContent;
+      navigator.clipboard.writeText(text)
+        .then(function() {
+          copyBtn.classList.add('copied');
+          copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+          showAuthToast('Copied!', 'success');
+          setTimeout(function() {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+          }, 1500);
+        })
+        .catch(function() { showAuthToast('Copy failed.', 'error'); });
+    });
+
+    var inputs = Array.prototype.slice.call(document.querySelectorAll('.otp-input'));
+    inputs.forEach(function(input, index) {
+      input.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 1);
+        this.classList.toggle('filled', !!this.value);
+        var hasAny = inputs.some(function(inp) { return !!inp.value; });
+        setStep(hasAny ? 2 : 1);
+        if (this.value && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+        if (e.key === 'Backspace') {
+          setTimeout(function() {
+            var hasAny = inputs.some(function(inp) { return !!inp.value; });
+            setStep(hasAny ? 2 : 1);
+          }, 0);
+        }
+      });
+    });
+
+    document.getElementById('otpGroup').addEventListener('paste', function(e) {
+      e.preventDefault();
+      var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+      pasted.split('').forEach(function(ch, i) {
+        if (inputs[i]) {
+          inputs[i].value = ch;
+          inputs[i].classList.toggle('filled', !!ch);
+        }
+      });
+      setStep(pasted.length > 0 ? 2 : 1);
+      if (inputs[Math.min(pasted.length, 5)]) {
+        inputs[Math.min(pasted.length, 5)].focus();
+      }
+    });
+
+    document.getElementById('verify2faForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var code = inputs.map(function(inp) { return inp.value; }).join('');
+      var otpError = document.getElementById('otpError');
+
+      otpError.classList.remove('show');
+      inputs.forEach(function(inp) { inp.classList.remove('error'); });
+
+      if (!/^\d{6}$/.test(code)) {
+        otpError.classList.add('show');
+        inputs.forEach(function(inp) {
+          if (!inp.value) inp.classList.add('error');
+        });
+        return;
+      }
+
+      var verifyBtn = document.getElementById('verifyBtn');
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+      fetch('/admin/2fa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, secret: secretValue })
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data && data.success) {
+            setStep(3);
+            showAuthToast('2FA enabled successfully!', 'success');
+            setTimeout(function() {
+              window.location.href = '/admin/dashboard';
+            }, 1200);
+          } else {
+            showAuthToast((data && data.message) || 'Invalid verification code', 'error');
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = '<i class="fas fa-shield-halved"></i> Verify &amp; Enable';
+          }
+        })
+        .catch(function() {
+          showAuthToast('Verification failed. Please try again.', 'error');
+          verifyBtn.disabled = false;
+          verifyBtn.innerHTML = '<i class="fas fa-shield-halved"></i> Verify &amp; Enable';
+        });
+    });
+  })();
+</script>

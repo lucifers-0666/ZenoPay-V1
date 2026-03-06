@@ -1,38 +1,190 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h1 style="text-align: center; margin-bottom: var(--spacing-xl); color: var(--text-dark);">
-      <i class="fas fa-crown" style="color: var(--primary); margin-right: var(--spacing-sm);"></i>
-      ZenoPay Admin Login
-    </h1>
-    
-    <% if (typeof errors !== 'undefined' && errors) { %>
-      <div class="alert alert-error">
-        <%= errors %>
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-orb1"></div>
+    <div class="auth-left-orb2"></div>
+    <div class="auth-left-orb3"></div>
+    <div class="auth-left-dots"></div>
+
+    <div class="auth-brand">
+      <div class="auth-brand-icon" style="background: linear-gradient(135deg, #1D4ED8, #6B41E8); border: 1.5px solid rgba(255,255,255,0.3); box-shadow: 0 4px 16px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2);">
+        <i class="fas fa-shield-halved" style="color: #93C5FD;"></i>
       </div>
-    <% } %>
-    
-    <form method="POST" action="/admin/auth/login" style="margin-top: var(--spacing-xl);">
-      <div class="form-group">
-        <label for="email" class="form-label">Email Address</label>
-        <input type="email" id="email" name="email" class="form-input" required placeholder="admin@zenopay.com">
+      <div>
+        <div class="auth-brand-name">ZenoPay</div>
       </div>
-      
-      <div class="form-group">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" id="password" name="password" class="form-input" required placeholder="••••••••">
+      <span class="auth-brand-tag">ADMIN</span>
+    </div>
+
+    <div class="auth-left-content">
+      <div class="auth-illustration-box" style="background: linear-gradient(145deg, #1D4ED8, #3B82F6);">
+        <i class="fas fa-lock" style="color: #BFDBFE;"></i>
       </div>
-      
-      <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-        <label style="display: flex; align-items: center; font-weight: normal;">
-          <input type="checkbox" name="remember" style="margin-right: var(--spacing-sm);">
-          Remember me
-        </label>
-        <a href="/admin/auth/forgot-password" style="color: var(--primary); text-decoration: none; font-size: var(--text-sm);">Forgot password?</a>
+      <div class="auth-tagline">Secure Admin Portal</div>
+      <div class="auth-tagline-sub">
+        Manage your platform with complete control
+        and real-time visibility.
       </div>
-      
-      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-        <i class="fas fa-sign-in-alt"></i> Login
-      </button>
-    </form>
+
+      <div class="auth-features">
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #1D4ED8, #3B82F6);"><i class="fas fa-shield-halved" style="color: #BFDBFE;"></i></div>
+          <span>Enterprise-grade security</span>
+        </div>
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #059669, #10B981);"><i class="fas fa-chart-line" style="color: #A7F3D0;"></i></div>
+          <span>Real-time analytics dashboard</span>
+        </div>
+        <div class="auth-feature-item">
+          <div class="auth-feature-icon" style="background: linear-gradient(135deg, #D97706, #F59E0B);"><i class="fas fa-users-gear" style="color: #FDE68A;"></i></div>
+          <span>Complete user management</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-right-top">
+      <span class="auth-right-brand">
+        <i class="fas fa-shield-halved"></i>
+        ZenoPay Admin
+      </span>
+      <span class="auth-right-badge">Secure Portal</span>
+    </div>
+
+    <div class="auth-form-container">
+      <div class="auth-form-header">
+        <div class="auth-form-icon" style="background: linear-gradient(135deg, #1D4ED8, #3B82F6);">
+          <i class="fas fa-shield-halved" style="color:#BFDBFE;"></i>
+        </div>
+        <h1 class="auth-form-title">Welcome back</h1>
+        <p class="auth-form-subtitle">Sign in to your admin account</p>
+      </div>
+
+      <% if (locals.error) { %>
+        <div class="auth-alert error">
+          <i class="fas fa-circle-xmark"></i>
+          <%= error %>
+        </div>
+      <% } %>
+
+      <% if (locals.success) { %>
+        <div class="auth-alert success">
+          <i class="fas fa-circle-check"></i>
+          <%= success %>
+        </div>
+      <% } %>
+
+      <form action="/admin/login" method="POST" id="loginForm" novalidate>
+        <div class="auth-form-group">
+          <label class="auth-form-label">
+            <i class="fas fa-envelope" style="color:#3B82F6;"></i>
+            Email Address
+          </label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-envelope auth-input-icon"></i>
+            <input
+              type="email"
+              name="zenoPayId"
+              class="auth-input"
+              id="emailInput"
+              placeholder="admin@zenopay.com"
+              value="<%= locals.zenoPayId || '' %>"
+              required
+              autocomplete="email"
+            >
+          </div>
+          <div class="auth-input-error" id="emailError">Please enter a valid email address</div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-form-label">
+            <i class="fas fa-lock" style="color:#6B41E8;"></i>
+            Password
+          </label>
+          <div class="auth-input-wrap">
+            <i class="fas fa-lock auth-input-icon"></i>
+            <input
+              type="password"
+              name="password"
+              class="auth-input"
+              id="passwordInput"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            >
+            <button type="button" class="auth-input-toggle" onclick="togglePassword('passwordInput', this)">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="auth-input-error" id="passwordError">Password is required</div>
+        </div>
+
+        <div class="auth-footer-row">
+          <label class="auth-checkbox-label">
+            <input type="checkbox" name="remember">
+            Remember me for 30 days
+          </label>
+          <a href="/admin/forgot-password" class="auth-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="auth-btn auth-btn-primary" id="loginBtn">
+          <i class="fas fa-right-to-bracket"></i>
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-security-badge">
+        <div class="auth-security-item">
+          <i class="fas fa-shield-halved"></i>
+          SSL Encrypted
+        </div>
+        <div class="auth-security-dot"></div>
+        <div class="auth-security-item">
+          <i class="fas fa-lock"></i>
+          256-bit Security
+        </div>
+        <div class="auth-security-dot"></div>
+        <div class="auth-security-item">
+          <i class="fas fa-circle-check"></i>
+          PCI Compliant
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    var valid = true;
+    var email = document.getElementById('emailInput');
+    var pass = document.getElementById('passwordInput');
+    var emailErr = document.getElementById('emailError');
+    var passErr = document.getElementById('passwordError');
+
+    emailErr.classList.remove('show');
+    passErr.classList.remove('show');
+    email.classList.remove('error');
+    pass.classList.remove('error');
+
+    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+      email.classList.add('error');
+      emailErr.classList.add('show');
+      valid = false;
+    }
+
+    if (!pass.value) {
+      pass.classList.add('error');
+      passErr.classList.add('show');
+      valid = false;
+    }
+
+    if (!valid) {
+      e.preventDefault();
+      return;
+    }
+
+    var btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+  });
+</script>
