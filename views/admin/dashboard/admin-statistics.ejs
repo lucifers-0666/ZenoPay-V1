@@ -1,0 +1,1118 @@
+<style>
+  .statistics-page {
+    display: grid;
+    gap: 24px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .page-header-left { display: grid; gap: 8px; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99, 102, 241, 0.15);
+    color: #6366f1;
+    font-size: 1.25rem;
+  }
+
+  .page-title {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  .page-subtitle { margin: 2px 0 0 0; color: var(--text-soft); font-size: 14px; }
+
+  .breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-size: 12px;
+  }
+
+  .breadcrumb .current { color: var(--primary); font-weight: 700; }
+
+  .header-actions { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .control-select {
+    min-width: 170px;
+    height: 40px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: var(--radius-sm);
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .btn-outline-blue {
+    height: 40px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    background: var(--card-bg);
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    cursor: pointer;
+  }
+
+  .btn-outline-blue:hover {
+    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
+  }
+
+  .stats-tabs {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .stats-tab {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-soft, #94a3b8);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s;
+    margin-right: 4px;
+  }
+
+  .stats-tab:hover {
+    background: color-mix(in srgb, var(--text-soft) 15%, var(--card-bg));
+    color: var(--text-main);
+  }
+
+  .stats-tab.active {
+    background: var(--primary, #3B82F6);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .stats-panel { display: block; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .kpi-card,
+  .card {
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 24px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .kpi-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+  .kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+  }
+
+  .kpi-icon.green { background: color-mix(in srgb, var(--success) 15%, var(--card-bg)); color: var(--success); }
+  .kpi-icon.blue { background: color-mix(in srgb, var(--primary) 15%, var(--card-bg)); color: var(--primary); }
+  .kpi-icon.red { background: color-mix(in srgb, var(--error) 15%, var(--card-bg)); color: var(--error); }
+  .kpi-icon.purple { background: color-mix(in srgb, var(--secondary) 15%, var(--card-bg)); color: var(--secondary); }
+
+  .kpi-label {
+    margin: 0;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .kpi-value {
+    margin: 4px 0 0 0;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .kpi-trend { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .trend-text { font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .trend-text.positive, .trend-text.negative-good { color: var(--success); }
+
+  .sparkline-wrap { width: 84px; height: 28px; }
+  .sparkline-wrap canvas { width: 100% !important; height: 100% !important; }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.85fr 1fr;
+    gap: 24px;
+  }
+
+  .stack-grid { display: grid; gap: 24px; }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .card-head {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .chart-card-header { margin-bottom: 20px; }
+
+  .card-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-subtitle { margin: 2px 0 0 0; color: var(--text-soft); font-size: 12px; }
+
+  .card-body,
+  .table-wrap {
+    padding: 24px 28px;
+  }
+
+  .chart-holder-280 { height: 280px; }
+  .chart-holder-260 { height: 260px; }
+  .chart-holder-220 { height: 220px; }
+  .chart-holder-200 { height: 200px; }
+  .chart-holder-180 { height: 180px; }
+  .chart-holder-320 { height: 320px; }
+
+  canvas { margin-top: 8px; }
+
+  .chart-holder-280 canvas,
+  .chart-holder-260 canvas,
+  .chart-holder-220 canvas,
+  .chart-holder-200 canvas,
+  .chart-holder-180 canvas,
+  .chart-holder-320 canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .pie-wrap { position: relative; }
+
+  .pie-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    pointer-events: none;
+  }
+
+  .pie-center .label { color: var(--text-soft); font-size: 12px; }
+  .pie-center .value { color: var(--text-main); font-size: 1.15rem; font-weight: 800; margin-top: 2px; }
+
+  .legend-list { margin-top: 12px; display: grid; gap: 8px; }
+  .legend-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 12px; }
+  .legend-left { color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 999px; }
+  .legend-val { color: var(--text-main); font-weight: 800; }
+
+  .table-wrap { overflow-x: auto; }
+
+  .stats-table {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: collapse;
+  }
+
+  .stats-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-muted);
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+  }
+
+  .stats-table td {
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--slate-100);
+    color: var(--text-main);
+    font-size: 13px;
+    white-space: nowrap;
+    min-height: 56px;
+  }
+
+  .stats-table tbody tr:hover {
+    background: color-mix(in srgb, var(--primary) 4%, var(--card-bg));
+  }
+
+  .metric-name { font-weight: 700; }
+
+  .trend-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  .trend-pill.up {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 12%, var(--card-bg));
+    border: 1px solid color-mix(in srgb, var(--success) 35%, var(--card-bg));
+  }
+
+  .trend-pill.down {
+    color: var(--error);
+    background: color-mix(in srgb, var(--error) 12%, var(--card-bg));
+    border: 1px solid color-mix(in srgb, var(--error) 35%, var(--card-bg));
+  }
+
+  .merchant-link {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    text-transform: capitalize;
+  }
+
+  .status-chip.active {
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--success) 10%, var(--card-bg));
+  }
+
+  .status-chip.pending {
+    color: var(--warning);
+    border-color: color-mix(in srgb, var(--warning) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--warning) 10%, var(--card-bg));
+  }
+
+  .status-chip.suspended,
+  .status-chip.closed,
+  .status-chip.failed {
+    color: var(--error);
+    border-color: color-mix(in srgb, var(--error) 35%, var(--card-bg));
+    background: color-mix(in srgb, var(--error) 10%, var(--card-bg));
+  }
+
+  .share-cell { min-width: 170px; }
+
+  .share-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .share-top .percent { color: var(--text-main); font-weight: 800; }
+
+  .share-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--slate-100);
+    overflow: hidden;
+  }
+
+  .share-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  }
+
+  .mt-24 { margin-top: 24px; }
+
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 680px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .stats-tabs { width: 100%; }
+  }
+</style>
+
+<%
+  const safeStats = stats || {};
+  const safeDetailedStats = Array.isArray(detailedStats) ? detailedStats : [];
+  const safeTopMerchants = Array.isArray(topMerchants) ? topMerchants.slice(0, 5) : [];
+  const safeRecentTransactions = Array.isArray(recentTransactions) ? recentTransactions : [];
+  const safeRecentUsers = Array.isArray(recentUsers) ? recentUsers : [];
+  const safeUserStats = userStats || {};
+  const safeTxnStats = transactionStats || {};
+  const safeMerchantStats = merchantStats || {};
+  const safeFilters = filters || {};
+  const formatRupee = (value) => `₹${Number(value || 0).toLocaleString('en-IN')}`;
+  const fmtDate = (dateValue) => {
+    try {
+      return new Date(dateValue).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) {
+      return '-';
+    }
+  };
+%>
+
+<section class="statistics-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <h1 class="page-title">Statistics</h1>
+          <p class="page-subtitle">Deep insights into platform performance</p>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <span>Dashboard</span>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current">Statistics</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <select id="dateRangeSelect" class="control-select" onchange="window.location.href = '/admin/dashboard/statistics?range=' + this.value">
+        <option value="7" <%= (safeFilters.range === '7') ? 'selected' : '' %>>Last 7 Days</option>
+        <option value="30" <%= (!safeFilters.range || safeFilters.range === '30') ? 'selected' : '' %>>Last 30 Days</option>
+        <option value="90" <%= (safeFilters.range === '90') ? 'selected' : '' %>>Last 90 Days</option>
+        <option value="365" <%= (safeFilters.range === '365') ? 'selected' : '' %>>This Year</option>
+      </select>
+      <button onclick="exportReport()" id="exportReportBtn" type="button" class="btn-outline-blue">
+        <i class="fas fa-file-export"></i>
+        Export Report
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-tabs">
+    <button onclick="switchStatsTab('overview')" id="tab-overview" class="stats-tab active" type="button"><i class="fas fa-chart-pie"></i> Overview</button>
+    <button onclick="switchStatsTab('transactions')" id="tab-transactions" class="stats-tab" type="button"><i class="fas fa-arrow-right-arrow-left"></i> Transactions</button>
+    <button onclick="switchStatsTab('users')" id="tab-users" class="stats-tab" type="button"><i class="fas fa-users"></i> Users</button>
+    <button onclick="switchStatsTab('merchants')" id="tab-merchants" class="stats-tab" type="button"><i class="fas fa-store"></i> Merchants</button>
+  </section>
+
+  <div id="panel-overview" class="stats-panel">
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <div class="kpi-head">
+          <div>
+            <p class="kpi-label">Total Volume</p>
+            <h3 class="kpi-value">₹<%= safeStats.totalVolume || '128.5M' %></h3>
+          </div>
+          <div class="kpi-icon green"><i class="fas fa-indian-rupee-sign"></i></div>
+        </div>
+        <div class="kpi-trend">
+          <span class="trend-text positive"><i class="fas fa-arrow-trend-up"></i> +24.2% from last month</span>
+          <div class="sparkline-wrap"><canvas id="sparkline1"></canvas></div>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-head">
+          <div>
+            <p class="kpi-label">Total Transactions</p>
+            <h3 class="kpi-value"><%= safeStats.totalTransactions || '84,392' %></h3>
+          </div>
+          <div class="kpi-icon blue"><i class="fas fa-arrow-right-arrow-left"></i></div>
+        </div>
+        <div class="kpi-trend">
+          <span class="trend-text positive"><i class="fas fa-arrow-trend-up"></i> +18.2% from last month</span>
+          <div class="sparkline-wrap"><canvas id="sparkline2"></canvas></div>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-head">
+          <div>
+            <p class="kpi-label">Success Rate</p>
+            <h3 class="kpi-value"><%= safeStats.successRate || '97.8' %>%</h3>
+          </div>
+          <div class="kpi-icon green"><i class="fas fa-circle-check"></i></div>
+        </div>
+        <div class="kpi-trend">
+          <span class="trend-text positive"><i class="fas fa-arrow-trend-up"></i> +2.1% improvement</span>
+          <div class="sparkline-wrap"><canvas id="sparkline3"></canvas></div>
+        </div>
+      </article>
+
+      <article class="kpi-card">
+        <div class="kpi-head">
+          <div>
+            <p class="kpi-label">Chargebacks</p>
+            <h3 class="kpi-value"><%= safeStats.chargebacks || '127' %></h3>
+          </div>
+          <div class="kpi-icon red"><i class="fas fa-rotate-left"></i></div>
+        </div>
+        <div class="kpi-trend">
+          <span class="trend-text negative-good"><i class="fas fa-arrow-trend-down"></i> -5.8% from last month</span>
+          <div class="sparkline-wrap"><canvas id="sparkline4"></canvas></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="main-grid">
+      <div class="stack-grid">
+        <article class="card">
+          <div class="card-head chart-card-header">
+            <div>
+              <h3 class="card-title"><i class="fas fa-chart-line"></i> Transaction Volume</h3>
+              <p class="card-subtitle">Daily volume for selected period</p>
+            </div>
+            <select id="volumePeriodSelect" class="control-select" style="min-width:90px;" onchange="updateVolumeChart(this.value)">
+              <option value="7">7D</option>
+              <option value="30" selected>30D</option>
+              <option value="90">90D</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="chart-holder-280"><canvas id="volumeChart"></canvas></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head chart-card-header">
+            <div>
+              <h3 class="card-title"><i class="fas fa-chart-bar"></i> Transactions by Day</h3>
+              <p class="card-subtitle">Last 30 days comparison</p>
+            </div>
+            <select id="barPeriodSelect" class="control-select" style="min-width:90px;" onchange="updateBarChart(this.value)">
+              <option value="7">7D</option>
+              <option value="30" selected>30D</option>
+              <option value="90">90D</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="chart-holder-260"><canvas id="transactionBarChart"></canvas></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack-grid">
+        <article class="card">
+          <div class="card-head chart-card-header">
+            <div>
+              <h3 class="card-title"><i class="fas fa-chart-pie"></i> Channel Breakdown</h3>
+              <p class="card-subtitle">Traffic by source</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="pie-wrap">
+              <div class="chart-holder-200"><canvas id="channelPieChart"></canvas></div>
+              <div class="pie-center">
+                <span class="label">Traffic</span>
+                <span class="value">100%</span>
+              </div>
+            </div>
+            <div class="legend-list">
+              <div class="legend-row"><span class="legend-left"><span class="legend-dot" style="background:#3B82F6;"></span>Web</span><span class="legend-val">40.5%</span></div>
+              <div class="legend-row"><span class="legend-left"><span class="legend-dot" style="background:#22c55e;"></span>Mobile App</span><span class="legend-val">31.6%</span></div>
+              <div class="legend-row"><span class="legend-left"><span class="legend-dot" style="background:#8B5CF6;"></span>API</span><span class="legend-val">20.4%</span></div>
+              <div class="legend-row"><span class="legend-left"><span class="legend-dot" style="background:#f59e0b;"></span>Other</span><span class="legend-val">5.3%</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head chart-card-header">
+            <div>
+              <h3 class="card-title"><i class="fas fa-circle-xmark"></i> Failure Reasons</h3>
+              <p class="card-subtitle">Top causes of failed transactions</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-holder-180"><canvas id="failureChart"></canvas></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header">
+        <div>
+          <h3 class="card-title"><i class="fas fa-table-cells"></i> Detailed Statistics</h3>
+          <p class="card-subtitle">Key metrics comparison</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr><th>Metric</th><th>Today</th><th>Last 7 Days</th><th>Last 30 Days</th><th>Trend</th></tr>
+          </thead>
+          <tbody>
+            <% safeDetailedStats.forEach((row) => { %>
+              <tr>
+                <td class="metric-name"><%= row.metric %></td>
+                <td><%= row.today %></td>
+                <td><%= row.last7Days %></td>
+                <td><%= row.last30Days %></td>
+                <td><span class="trend-pill <%= row.improving ? 'up' : 'down' %>"><i class="fas <%= row.improving ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>"></i><%= row.trend %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card mt-24">
+      <div class="card-head chart-card-header">
+        <div>
+          <h3 class="card-title"><i class="fas fa-store"></i> Top Merchant Volume</h3>
+          <p class="card-subtitle">Highest performing merchants this period</p>
+        </div>
+        <a href="/admin/merchants" class="merchant-link">View All Merchants <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead>
+            <tr><th>Merchant</th><th>Volume</th><th>Volume Share</th><th>Transactions</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <% safeTopMerchants.forEach((merchant) => { %>
+              <tr>
+                <td class="metric-name"><%= merchant.merchant || merchant.name || 'Unknown Merchant' %></td>
+                <td><%= merchant.volumeText || formatRupee(merchant.volume) %></td>
+                <td class="share-cell">
+                  <div class="share-top"><span>Share</span><span class="percent"><%= merchant.share || '0.0%' %></span></div>
+                  <div class="share-track"><div class="share-fill" data-share="<%= merchant.share || '0%' %>" style="width:0%;"></div></div>
+                </td>
+                <td><%= merchant.transactions || 0 %></td>
+                <td><span class="status-chip <%= (merchant.status || 'active').toLowerCase() %>"><%= merchant.status || 'active' %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="panel-transactions" class="stats-panel" style="display:none;">
+    <section class="kpi-grid">
+      <article class="kpi-card"><p class="kpi-label">Total Txns</p><h3 class="kpi-value"><%= Number(safeTxnStats.total || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Success</p><h3 class="kpi-value"><%= Number(safeTxnStats.success || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Failed</p><h3 class="kpi-value"><%= Number(safeTxnStats.failed || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Avg Value</p><h3 class="kpi-value"><%= formatRupee(safeTxnStats.avgValue || 0) %></h3></article>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Transactions by Status per Day</h3></div>
+      <div class="card-body"><div class="chart-holder-320"><canvas id="transactionsStatusChart"></canvas></div></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-table-cells"></i> Recent Transactions</h3></div>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead><tr><th>TXN ID</th><th>Amount</th><th>Status</th><th>Merchant/User</th><th>Date</th></tr></thead>
+          <tbody>
+            <% safeRecentTransactions.forEach((t) => { %>
+              <tr>
+                <td><%= t.TransactionID || '-' %></td>
+                <td><%= formatRupee(t.Amount) %></td>
+                <td><span class="status-chip <%= String(t.Status || '').toLowerCase() %>"><%= t.Status || '-' %></span></td>
+                <td><%= t.SenderHolderName || '-' %></td>
+                <td><%= fmtDate(t.TransactionTime) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="panel-users" class="stats-panel" style="display:none;">
+    <section class="kpi-grid">
+      <article class="kpi-card"><p class="kpi-label">Total Users</p><h3 class="kpi-value"><%= Number(safeUserStats.totalUsers || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">New Today</p><h3 class="kpi-value"><%= Number(safeUserStats.newToday || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Active</p><h3 class="kpi-value"><%= Number(safeUserStats.activeUsers || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">KYC Pending</p><h3 class="kpi-value"><%= Number(safeUserStats.kycPending || 0).toLocaleString('en-IN') %></h3></article>
+    </section>
+
+    <section class="main-grid">
+      <article class="card">
+        <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-chart-line"></i> New User Registrations</h3></div>
+        <div class="card-body"><div class="chart-holder-320"><canvas id="usersGrowthChart"></canvas></div></div>
+      </article>
+      <article class="card">
+        <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-chart-pie"></i> User KYC Breakdown</h3></div>
+        <div class="card-body"><div class="chart-holder-220"><canvas id="usersKycChart"></canvas></div></div>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-table-cells"></i> Recently Registered Users</h3></div>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Registered</th></tr></thead>
+          <tbody>
+            <% safeRecentUsers.forEach((u) => { %>
+              <tr>
+                <td class="metric-name"><%= u.FullName || '-' %></td>
+                <td><%= u.Email || '-' %></td>
+                <td><span class="status-chip <%= String(u.KYCStatus || '').toLowerCase() %>"><%= u.KYCStatus || 'not_started' %></span></td>
+                <td><%= fmtDate(u.RegistrationDate) %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="panel-merchants" class="stats-panel" style="display:none;">
+    <section class="kpi-grid">
+      <article class="kpi-card"><p class="kpi-label">Total Merchants</p><h3 class="kpi-value"><%= Number(safeMerchantStats.total || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Active</p><h3 class="kpi-value"><%= Number(safeMerchantStats.active || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Verified</p><h3 class="kpi-value"><%= Number(safeMerchantStats.verified || 0).toLocaleString('en-IN') %></h3></article>
+      <article class="kpi-card"><p class="kpi-label">Volume</p><h3 class="kpi-value"><%= formatRupee(safeMerchantStats.volume || 0) %></h3></article>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Top 10 Merchants by Volume</h3></div>
+      <div class="card-body"><div class="chart-holder-320"><canvas id="merchantsVolumeChart"></canvas></div></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head chart-card-header"><h3 class="card-title"><i class="fas fa-table-cells"></i> Merchant Performance</h3></div>
+      <div class="table-wrap">
+        <table class="stats-table">
+          <thead><tr><th>Merchant</th><th>Volume</th><th>Volume Share</th><th>Transactions</th><th>Status</th></tr></thead>
+          <tbody>
+            <% safeTopMerchants.forEach((merchant) => { %>
+              <tr>
+                <td class="metric-name"><%= merchant.merchant || merchant.name || 'Unknown Merchant' %></td>
+                <td><%= merchant.volumeText || formatRupee(merchant.volume) %></td>
+                <td class="share-cell">
+                  <div class="share-top"><span>Share</span><span class="percent"><%= merchant.share || '0.0%' %></span></div>
+                  <div class="share-track"><div class="share-fill" data-share="<%= merchant.share || '0%' %>" style="width:0%;"></div></div>
+                </td>
+                <td><%= merchant.transactions || 0 %></td>
+                <td><span class="status-chip <%= (merchant.status || 'active').toLowerCase() %>"><%= merchant.status || 'active' %></span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>
+
+<input type="hidden" id="volumeLabelsData" value='<%- JSON.stringify(volumeLabels || []) %>'>
+<input type="hidden" id="volumeDataSet" value='<%- JSON.stringify(volumeData || []) %>'>
+<input type="hidden" id="successVolumeDataSet" value='<%- JSON.stringify(successVolumeData || []) %>'>
+<input type="hidden" id="txnLabelsData" value='<%- JSON.stringify(txnLabels || []) %>'>
+<input type="hidden" id="txnDataSet" value='<%- JSON.stringify(txnData || []) %>'>
+<input type="hidden" id="statusSuccessData" value='<%- JSON.stringify(statusSuccessData || []) %>'>
+<input type="hidden" id="statusFailedData" value='<%- JSON.stringify(statusFailedData || []) %>'>
+<input type="hidden" id="statusPendingData" value='<%- JSON.stringify(statusPendingData || []) %>'>
+<input type="hidden" id="userGrowthLabels" value='<%- JSON.stringify(userGrowthLabels || []) %>'>
+<input type="hidden" id="userGrowthData" value='<%- JSON.stringify(userGrowthData || []) %>'>
+<input type="hidden" id="kycBreakdown" value='<%- JSON.stringify(kycBreakdown || {}) %>'>
+<input type="hidden" id="topMerchantLabels" value='<%- JSON.stringify(topMerchantLabels || []) %>'>
+<input type="hidden" id="topMerchantVolumeData" value='<%- JSON.stringify(topMerchantVolumeData || []) %>'>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  var volumeChartInstance = null;
+  var barChartInstance = null;
+
+  function switchStatsTab(tabName) {
+    document.querySelectorAll('.stats-panel').forEach(function(p) { p.style.display = 'none'; });
+    document.querySelectorAll('.stats-tab').forEach(function(t) { t.classList.remove('active'); });
+
+    var panel = document.getElementById('panel-' + tabName);
+    if (panel) panel.style.display = 'block';
+
+    var tab = document.getElementById('tab-' + tabName);
+    if (tab) tab.classList.add('active');
+
+    localStorage.setItem('statsActiveTab', tabName);
+  }
+
+  function exportReport() {
+    var range = document.getElementById('dateRangeSelect').value || '30';
+    var btn = document.getElementById('exportReportBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+    btn.disabled = true;
+    window.location.href = '/admin/dashboard/statistics/export?range=' + range;
+    setTimeout(function() {
+      btn.innerHTML = '<i class="fas fa-file-export"></i> Export Report';
+      btn.disabled = false;
+    }, 2000);
+  }
+
+  function updateVolumeChart(days) {
+    fetch('/admin/dashboard/statistics/chart-data?type=volume&days=' + days)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (volumeChartInstance) {
+          volumeChartInstance.data.labels = data.labels || [];
+          volumeChartInstance.data.datasets[0].data = data.values || [];
+          volumeChartInstance.update();
+        }
+      })
+      .catch(function(err) { console.error('Chart update error:', err); });
+  }
+
+  function updateBarChart(days) {
+    fetch('/admin/dashboard/statistics/chart-data?type=transactions&days=' + days)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (barChartInstance) {
+          barChartInstance.data.labels = data.labels || [];
+          barChartInstance.data.datasets[0].data = data.values || [];
+          barChartInstance.update();
+        }
+      })
+      .catch(function(err) { console.error('Chart update error:', err); });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var saved = localStorage.getItem('statsActiveTab') || 'overview';
+    switchStatsTab(saved);
+
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js failed to load from CDN.');
+      return;
+    }
+
+    var readJson = function(id, fallback) {
+      var el = document.getElementById(id);
+      if (!el || !el.value) return fallback;
+      try { return JSON.parse(el.value); } catch (e) { return fallback; }
+    };
+
+    var volumeLabelsData = readJson('volumeLabelsData', []);
+    var volumeDataSet = readJson('volumeDataSet', []);
+    var successVolumeDataSet = readJson('successVolumeDataSet', []);
+    var txnLabelsData = readJson('txnLabelsData', []);
+    var txnDataSet = readJson('txnDataSet', []);
+
+    var statusSuccessDataSet = readJson('statusSuccessData', []);
+    var statusFailedDataSet = readJson('statusFailedData', []);
+    var statusPendingDataSet = readJson('statusPendingData', []);
+
+    var userGrowthLabelsData = readJson('userGrowthLabels', []);
+    var userGrowthDataSet = readJson('userGrowthData', []);
+
+    var kycData = readJson('kycBreakdown', {});
+    var topMerchantLabelsData = readJson('topMerchantLabels', []);
+    var topMerchantVolumeSet = readJson('topMerchantVolumeData', []);
+
+    document.querySelectorAll('.share-fill[data-share]').forEach(function(el) {
+      el.style.width = el.getAttribute('data-share') || '0%';
+    });
+
+    // ── SPARKLINES (mini trend charts) ──
+    var sparklineConfig = function(color, data) {
+      return {
+        type: 'line',
+        data: {
+          labels: ['','','','','','',''],
+          datasets: [{ data: data, borderColor: color,
+            borderWidth: 2, pointRadius: 0, tension: 0.4,
+            fill: false }]
+        },
+        options: {
+          responsive: true, animation: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      };
+    };
+
+    new Chart(document.getElementById('sparkline1'), sparklineConfig('#22c55e', [40,55,48,62,70,65,80]));
+    new Chart(document.getElementById('sparkline2'), sparklineConfig('#3B82F6', [30,45,40,55,50,65,70]));
+    new Chart(document.getElementById('sparkline3'), sparklineConfig('#22c55e', [95,96,97,96,98,97,98]));
+    new Chart(document.getElementById('sparkline4'), sparklineConfig('#ef4444', [10,8,12,9,7,8,6]));
+
+    // ── VOLUME LINE CHART ──
+    var volumeCtx = document.getElementById('volumeChart');
+    if (volumeCtx) {
+      volumeChartInstance = new Chart(volumeCtx, {
+        type: 'line',
+        data: {
+          labels: volumeLabelsData,
+          datasets: [{
+            label: 'Total Volume (₹)',
+            data: volumeDataSet,
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59,130,246,0.08)',
+            borderWidth: 2.5,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#3B82F6'
+          }, {
+            label: 'Successful (₹)',
+            data: successVolumeDataSet,
+            borderColor: '#22c55e',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: false,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            pointBackgroundColor: '#22c55e'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, labels: { color: '#64748b', boxWidth: 10, usePointStyle: true } },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) { return ' ₹' + Number(ctx.raw || 0).toLocaleString('en-IN'); }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#94a3b8' } },
+            y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#94a3b8', callback: function(v) { return '₹' + (v/1000).toFixed(0) + 'K'; } } }
+          }
+        }
+      });
+    }
+
+    // ── TRANSACTION BAR CHART ──
+    var barCtx = document.getElementById('transactionBarChart');
+    if (barCtx) {
+      var barGradient = barCtx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+      barGradient.addColorStop(0, 'rgba(96,165,250,0.95)');
+      barGradient.addColorStop(1, 'rgba(59,130,246,0.6)');
+
+      barChartInstance = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: txnLabelsData,
+          datasets: [{
+            label: 'Transactions',
+            data: txnDataSet,
+            backgroundColor: barGradient,
+            borderRadius: 4,
+            hoverBackgroundColor: '#3B82F6'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+            y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    // ── DOUGHNUT CHANNEL CHART ──
+    var pieCtx = document.getElementById('channelPieChart');
+    if (pieCtx) {
+      new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Web','Mobile App','API','Other'],
+          datasets: [{
+            data: [40.5, 31.6, 20.4, 5.3],
+            backgroundColor: ['#3B82F6','#22c55e','#8B5CF6','#f59e0b'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.label + ': ' + ctx.raw + '%'; } } }
+          }
+        }
+      });
+    }
+
+    // ── FAILURE HORIZONTAL BAR ──
+    var failCtx = document.getElementById('failureChart');
+    if (failCtx) {
+      new Chart(failCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Insufficient Balance','Bank Timeout','Invalid Details','Card Declined','Network Error'],
+          datasets: [{
+            data: [38, 24, 18, 12, 8],
+            backgroundColor: ['#ef4444','#f97316','#f59e0b','#fb923c','#fca5a5'],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: function(v) { return v + '%'; }, color: '#94a3b8', font: { size: 11 } }, max: 50 },
+            y: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    var txStatusCtx = document.getElementById('transactionsStatusChart');
+    if (txStatusCtx) {
+      new Chart(txStatusCtx, {
+        type: 'bar',
+        data: {
+          labels: txnLabelsData,
+          datasets: [
+            { label: 'Success', data: statusSuccessDataSet, backgroundColor: 'rgba(34,197,94,0.75)' },
+            { label: 'Failed', data: statusFailedDataSet, backgroundColor: 'rgba(239,68,68,0.75)' },
+            { label: 'Pending', data: statusPendingDataSet, backgroundColor: 'rgba(245,158,11,0.75)' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { x: { stacked: true }, y: { stacked: true } }
+        }
+      });
+    }
+
+    var usersGrowthCtx = document.getElementById('usersGrowthChart');
+    if (usersGrowthCtx) {
+      new Chart(usersGrowthCtx, {
+        type: 'line',
+        data: {
+          labels: userGrowthLabelsData,
+          datasets: [{
+            label: 'New Users',
+            data: userGrowthDataSet,
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139,92,246,0.12)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointRadius: 2
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+
+    var usersKycCtx = document.getElementById('usersKycChart');
+    if (usersKycCtx) {
+      new Chart(usersKycCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Approved/Verified', 'Pending', 'Rejected', 'Not Started'],
+          datasets: [{
+            data: [Number(kycData.approved || 0), Number(kycData.pending || 0), Number(kycData.rejected || 0), Number(kycData.notStarted || 0)],
+            backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#94a3b8'],
+            borderWidth: 0
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+
+    var merchantsVolumeCtx = document.getElementById('merchantsVolumeChart');
+    if (merchantsVolumeCtx) {
+      new Chart(merchantsVolumeCtx, {
+        type: 'bar',
+        data: {
+          labels: topMerchantLabelsData,
+          datasets: [{
+            label: 'Volume (₹)',
+            data: topMerchantVolumeSet,
+            backgroundColor: 'rgba(59,130,246,0.75)',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 11 } } },
+            y: { ticks: { color: '#94a3b8', callback: function(v) { return '₹' + (v/1000).toFixed(0) + 'K'; } } }
+          }
+        }
+      });
+    }
+  });
+</script>

@@ -75,6 +75,8 @@ router.use(requireRole("admin"));
 // ============ DASHBOARD ROUTES ============
 router.get("/dashboard", requirePermission("dashboard", "view"), AdminDashboardController.getDashboard);
 router.get("/dashboard/statistics", requirePermission("dashboard", "view"), AdminDashboardController.getStatistics);
+router.get("/dashboard/statistics/chart-data", requirePermission("dashboard", "view"), AdminDashboardController.getStatisticsChartData);
+router.get("/dashboard/statistics/export", requirePermission("dashboard", "view"), AdminDashboardController.exportStatistics);
 router.get("/dashboard/activity-monitor", requirePermission("dashboard", "view"), AdminDashboardController.getActivityMonitor);
 
 // ============ USER MANAGEMENT ROUTES ============
