@@ -26,8 +26,11 @@
     <a href="/admin/dashboard/statistics" class="sidebar-link <%= _page === 'statistics' ? 'active' : '' %>" data-tooltip="Statistics">
       <i class="fas fa-chart-line"></i> <span>Statistics</span>
     </a>
-    <a href="/admin/dashboard/activity-monitor" class="sidebar-link <%= _page === 'activity' ? 'active' : '' %>" data-tooltip="Activity Monitor">
+    <a href="/admin/dashboard/activity-monitor" class="sidebar-link <%= _page === 'activity-monitor' ? 'active' : '' %>" data-tooltip="Activity Monitor">
       <i class="fas fa-bolt"></i> <span>Activity Monitor</span>
+      <% if (typeof failedToday !== 'undefined' && failedToday > 0) { %>
+        <span class="sidebar-badge"><%= failedToday %></span>
+      <% } %>
     </a>
 
     <!-- USER MANAGEMENT -->

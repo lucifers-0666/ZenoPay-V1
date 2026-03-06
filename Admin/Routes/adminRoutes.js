@@ -26,6 +26,7 @@ const adminProfileController = require("../../Controllers/admin/adminProfileCont
 const adminMerchantController = require("../../Controllers/admin/adminMerchantController");
 const adminBankController = require("../../Controllers/admin/adminBankController");
 const adminAnnouncementController = require("../../Controllers/admin/adminAnnouncementController");
+const adminActivityController = require("../../Controllers/admin/adminActivityController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -77,7 +78,7 @@ router.get("/dashboard", requirePermission("dashboard", "view"), AdminDashboardC
 router.get("/dashboard/statistics", requirePermission("dashboard", "view"), AdminDashboardController.getStatistics);
 router.get("/dashboard/statistics/chart-data", requirePermission("dashboard", "view"), AdminDashboardController.getStatisticsChartData);
 router.get("/dashboard/statistics/export", requirePermission("dashboard", "view"), AdminDashboardController.exportStatistics);
-router.get("/dashboard/activity-monitor", requirePermission("dashboard", "view"), AdminDashboardController.getActivityMonitor);
+router.get("/dashboard/activity-monitor", requirePermission("dashboard", "view"), adminActivityController.activityMonitor);
 
 // ============ USER MANAGEMENT ROUTES ============
 router.get("/users", requirePermission("users", "view"), AdminUserController.getAllUsers);
