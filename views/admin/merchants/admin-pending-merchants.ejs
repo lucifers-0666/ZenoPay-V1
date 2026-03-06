@@ -1,0 +1,1293 @@
+<style>
+  .pending-page { display: grid; gap: 16px; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 16px;
+  }
+
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: 4px 0 0 0;
+  }
+
+  .breadcrumb {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb a { color: var(--text-soft); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--primary); }
+  .breadcrumb i.fa-chevron-right { font-size: 0.6rem; }
+  .breadcrumb .current { color: var(--primary); font-weight: 600; }
+
+  .page-header-right { display: inline-flex; align-items: center; gap: 10px; }
+
+  .btn-outline-admin {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    height: 40px;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+  }
+
+  .btn-outline-admin:hover { background: var(--bg-page); }
+  .btn-outline-green { border-color: #22c55e; color: #16a34a; }
+  .btn-outline-green:hover { background: rgba(34, 197, 94, 0.1); }
+  .btn-outline-green:disabled { opacity: .5; cursor: not-allowed; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-card.total-pending { border-left: 3px solid #f59e0b; }
+  .stat-card.new-today { border-left: 3px solid #3B82F6; }
+  .stat-card.avg-wait { border-left: 3px solid #8B5CF6; }
+  .stat-card.rejected { border-left: 3px solid #ef4444; }
+
+  .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .stat-info { flex: 1; }
+  .stat-label {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 0 0 6px 0;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1;
+  }
+
+  .stat-subtext { color: var(--text-soft); font-size: .78rem; margin-top: 5px; }
+
+  .pending-alert {
+    width: 100%;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-left: 4px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pending-alert .left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #92400e;
+  }
+
+  .btn-amber {
+    border: 1px solid #f59e0b;
+    background: #f59e0b;
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+    border-radius: 999px;
+    height: 34px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+
+  .btn-amber:hover { filter: brightness(.95); }
+
+  .filter-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+  }
+
+  .search-wrap { position: relative; }
+  .search-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: .8rem;
+  }
+
+  .filter-input, .filter-select {
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 0 12px;
+    width: 100%;
+  }
+
+  .search-wrap .filter-input { padding-left: 34px; }
+
+  .table-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .table-wrap { overflow-x: auto; }
+  .pending-table {
+    width: 100%;
+    min-width: 1180px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .pending-table thead th {
+    background: var(--bg-page);
+    color: var(--text-mid);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 14px;
+    white-space: nowrap;
+  }
+
+  .pending-table tbody td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .num-col { color: var(--text-soft); font-weight: 600; }
+
+  .business-cell { display: inline-flex; align-items: center; gap: 10px; }
+  .logo-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 158, 11, 0.16);
+    color: #b45309;
+    font-size: .85rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .business-name { font-size: .88rem; font-weight: 700; color: var(--text-dark); }
+  .merchant-id {
+    margin-top: 2px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--primary);
+    font-size: .74rem;
+  }
+
+  .contact-stack {
+    display: grid;
+    gap: 4px;
+    min-width: 220px;
+    max-width: 260px;
+  }
+
+  .contact-stack .line {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
+    color: var(--text-mid);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    color: var(--text-mid);
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .docs-group { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 5px; }
+  .doc-pill {
+    padding: 2px 7px;
+    border-radius: 12px;
+    font-size: 0.68rem;
+    font-weight: 600;
+  }
+
+  .doc-pill.submitted {
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+  }
+
+  .doc-pill.missing {
+    background: rgba(148,163,184,0.1);
+    color: #94a3b8;
+    border: 1px dashed #cbd5e1;
+  }
+
+  .doc-count { font-size: .72rem; color: var(--text-soft); }
+
+  .applied-date { color: var(--text-dark); font-size: .8rem; font-weight: 600; }
+  .applied-time { color: var(--text-soft); font-size: .72rem; margin-top: 2px; }
+
+  .wait-green { color: #22c55e; font-weight:600; }
+  .wait-amber { color: #f59e0b; font-weight:600; }
+  .wait-red { color: #ef4444; font-weight:600; animation: subtlePulse 2s infinite; }
+
+  @keyframes subtlePulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.6; }
+  }
+
+  .actions-cell { display: inline-flex; align-items: center; gap: 6px; }
+
+  .row-action-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+  }
+
+  .row-action-btn.verify:hover {
+    background:#22c55e; color:#fff; border-color:#22c55e;
+  }
+
+  .row-action-btn.reject:hover {
+    background:#ef4444; color:#fff; border-color:#ef4444;
+  }
+
+  .row-action-btn.view:hover {
+    background:var(--primary); color:#fff; border-color:var(--primary);
+  }
+
+  .empty-state { padding: 36px 14px; text-align: center; color: var(--text-soft); }
+  .empty-state i { font-size: 56px; color: #22c55e; margin-bottom: 10px; }
+  .empty-state h4 { color: var(--text-dark); font-weight: 800; margin: 0 0 6px 0; }
+  .empty-state p { margin: 0; }
+  .empty-state small { display: block; margin-top: 5px; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 18px;
+  }
+
+  .modal-card {
+    width: min(560px, 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-card.wide { width: min(700px, 100%); }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.green { color: #15803d; }
+  .modal-title.red { color: #dc2626; }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .modal-body { padding: 14px 16px; display: grid; gap: 10px; }
+  .modal-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .field-label { color: var(--text-mid); font-size: 12px; font-weight: 700; }
+  .field-select, .field-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .field-textarea { resize: vertical; min-height: 90px; }
+
+  .preview-card {
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    display: grid;
+    gap: 4px;
+    color: var(--text-mid);
+    font-size: .82rem;
+  }
+
+  .preview-card strong { color: var(--text-dark); }
+
+  .info-box-green {
+    border: 1px solid rgba(34,197,94,.35);
+    background: rgba(34,197,94,.08);
+    color: #166534;
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .warning-box-red {
+    border: 1px solid rgba(239,68,68,.35);
+    background: rgba(239,68,68,.08);
+    color: #991b1b;
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .quick-field {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: var(--bg-page);
+  }
+
+  .quick-field.full { grid-column: 1 / -1; }
+  .quick-field .k { font-size: .72rem; color: var(--text-soft); margin-bottom: 2px; }
+  .quick-field .v { font-size: .82rem; color: var(--text-dark); font-weight: 600; }
+
+  .doc-list { display: grid; gap: 7px; }
+  .doc-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+
+  .toast-wrap {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1400;
+    display: grid;
+    gap: 8px;
+  }
+
+  .admin-toast {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all .25s;
+  }
+
+  .admin-toast.show { opacity: 1; transform: translateY(0); }
+  .admin-toast-success i { color: #16a34a; }
+  .admin-toast-error i { color: #dc2626; }
+  .admin-toast-warning i { color: #d97706; }
+
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-card { grid-template-columns: 1fr; }
+    #bulkActionBar { left: 0 !important; }
+  }
+
+  @media (max-width: 760px) {
+    .page-header { flex-direction: column; align-items: stretch; }
+    .page-header-right { width: 100%; }
+    .btn-outline-admin { flex: 1; justify-content: center; }
+  }
+</style>
+
+<%
+  const safeMerchants = Array.isArray(merchants) ? merchants : [];
+  const safeFilters = filters || {};
+  const iconByCategory = (category) => {
+    const key = String(category || '').toLowerCase();
+    if (key.includes('food')) return 'fa-utensils';
+    if (key.includes('retail')) return 'fa-bag-shopping';
+    if (key.includes('electronic')) return 'fa-plug-circle-bolt';
+    if (key.includes('fashion')) return 'fa-shirt';
+    if (key.includes('service')) return 'fa-briefcase';
+    return 'fa-store';
+  };
+  const formatDate = (value) => {
+    const d = new Date(value || Date.now());
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+  const formatTime = (value) => {
+    const d = new Date(value || Date.now());
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  };
+  const escapeAttr = (v) => String(v || '').replace(/"/g, '&quot;');
+%>
+
+<section class="pending-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div>
+          <h1 class="page-title">Pending Merchants</h1>
+          <p class="page-subtitle">Review and verify pending merchant applications</p>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/admin/merchants">Merchants</a>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current">Pending</span>
+      </div>
+    </div>
+
+    <div class="page-header-right">
+      <a href="/admin/merchants" class="btn-outline-admin">
+        <i class="fas fa-arrow-left"></i> Back to All Merchants
+      </a>
+      <button type="button" class="btn-outline-admin btn-outline-green" id="bulkApproveBtn" disabled>
+        <i class="fas fa-check-double"></i> Bulk Approve
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card total-pending">
+      <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-hourglass-half"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Total Pending</p>
+        <h3 class="stat-value"><%= Number(totalPending || 0) %></h3>
+        <div class="stat-subtext">Awaiting review</div>
+      </div>
+    </article>
+
+    <article class="stat-card new-today">
+      <div class="stat-icon" style="background:rgba(59,130,246,0.12); color:#3B82F6;"><i class="fas fa-calendar-plus"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">New Today</p>
+        <h3 class="stat-value"><%= Number(pendingToday || 0) %></h3>
+        <div class="stat-subtext">Submitted today</div>
+      </div>
+    </article>
+
+    <article class="stat-card avg-wait">
+      <div class="stat-icon" style="background:rgba(139,92,246,0.12); color:#8B5CF6;"><i class="fas fa-clock"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Avg Wait Time</p>
+        <h3 class="stat-value"><%= avgWaitDays %> days</h3>
+        <div class="stat-subtext">Average waiting time</div>
+      </div>
+    </article>
+
+    <article class="stat-card rejected">
+      <div class="stat-icon" style="background:rgba(239,68,68,0.12); color:#ef4444;"><i class="fas fa-circle-xmark"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Rejected</p>
+        <h3 class="stat-value"><%= Number(rejectedCount || 0) %></h3>
+        <div class="stat-subtext">Total rejected</div>
+      </div>
+    </article>
+  </section>
+
+  <% if (Number(totalPending || 0) > 0) { %>
+    <section class="pending-alert">
+      <div class="left">
+        <i class="fas fa-triangle-exclamation" style="color:#f59e0b;"></i>
+        <span><%= totalPending %> merchant application(s) require your review</span>
+      </div>
+      <button type="button" class="btn-amber" id="reviewNowBtn"><i class="fas fa-list-check"></i> Review Now</button>
+    </section>
+  <% } %>
+
+  <section class="filter-card">
+    <div class="search-wrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input id="pendingSearch" class="filter-input" type="text" placeholder="Search by business name, email, phone..." value="<%= safeFilters.search || '' %>">
+    </div>
+
+    <select id="categoryFilter" class="filter-select">
+      <option value="all">All Categories</option>
+      <option value="Food & Beverage">Food & Beverage</option>
+      <option value="Retail">Retail</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Fashion">Fashion</option>
+      <option value="Services">Services</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <select id="dateRangeFilter" class="filter-select">
+      <option value="all">All Time</option>
+      <option value="today">Today</option>
+      <option value="7">Last 7 Days</option>
+      <option value="30">Last 30 Days</option>
+    </select>
+
+    <button id="resetFiltersBtn" class="btn-outline-admin" type="button"><i class="fas fa-rotate-left"></i> Reset</button>
+  </section>
+
+  <section class="table-card" id="pendingTableSection">
+    <div class="table-wrap">
+      <table class="pending-table">
+        <thead>
+          <tr>
+            <th><input id="selectAllCheckbox" type="checkbox"></th>
+            <th>#</th>
+            <th>Business</th>
+            <th>Contact</th>
+            <th>Category</th>
+            <th>Documents</th>
+            <th>Applied</th>
+            <th>Wait</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="pendingTableBody">
+          <% if (safeMerchants.length) { %>
+            <% safeMerchants.forEach((merchant, index) => { %>
+              <tr
+                class="pending-row"
+                data-search="<%= escapeAttr(`${merchant.businessName} ${merchant.email} ${merchant.phone}`.toLowerCase()) %>"
+                data-category="<%= escapeAttr(merchant.category || 'Other') %>"
+                data-applied-date="<%= new Date(merchant.appliedAt || Date.now()).toISOString() %>">
+
+                <td>
+                  <input
+                    class="merchant-row-cb"
+                    type="checkbox"
+                    data-merchant-id="<%= merchant.id %>">
+                </td>
+
+                <td class="num-col"><%= index + 1 %></td>
+
+                <td>
+                  <div class="business-cell">
+                    <span class="logo-circle"><%= String(merchant.businessName || 'M').charAt(0).toUpperCase() %></span>
+                    <div>
+                      <div class="business-name"><%= merchant.businessName %></div>
+                      <div class="merchant-id"><%= merchant.merchantId %></div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="contact-stack">
+                    <span class="line" title="<%= merchant.email %>"><i class="fas fa-envelope"></i> <%= merchant.email %></span>
+                    <span class="line"><i class="fas fa-phone"></i> <%= merchant.phone %></span>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="category-badge">
+                    <i class="fas <%= iconByCategory(merchant.category) %>"></i>
+                    <%= merchant.category || 'Other' %>
+                  </span>
+                </td>
+
+                <td>
+                  <div class="docs-group">
+                    <span class="doc-pill <%= merchant.docs?.gst ? 'submitted' : 'missing' %>">GST</span>
+                    <span class="doc-pill <%= merchant.docs?.pan ? 'submitted' : 'missing' %>">PAN</span>
+                    <span class="doc-pill <%= merchant.docs?.bank ? 'submitted' : 'missing' %>">BANK</span>
+                    <span class="doc-pill <%= merchant.docs?.license ? 'submitted' : 'missing' %>">LICENSE</span>
+                  </div>
+                  <div class="doc-count"><%= merchant.docsSubmitted || 0 %>/4 submitted</div>
+                </td>
+
+                <td>
+                  <div class="applied-date"><%= formatDate(merchant.appliedAt) %></div>
+                  <div class="applied-time"><%= formatTime(merchant.appliedAt) %></div>
+                </td>
+
+                <td>
+                  <span class="wait-value" data-applied="<%= new Date(merchant.appliedAt || Date.now()).toISOString() %>"><%= merchant.waitDays || 0 %> days</span>
+                </td>
+
+                <td>
+                  <div class="actions-cell">
+                    <button
+                      class="row-action-btn view"
+                      type="button"
+                      onclick="openQuickView('<%= merchant.id %>')">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+
+                    <button
+                      class="row-action-btn verify"
+                      type="button"
+                      onclick="openVerifyModal('<%= merchant.id %>','<%= escapeAttr(merchant.businessName) %>','<%= escapeAttr(merchant.email) %>','<%= escapeAttr(merchant.phone) %>','<%= formatDate(merchant.appliedAt) %>')">
+                      <i class="fas fa-check"></i> Verify
+                    </button>
+
+                    <button
+                      class="row-action-btn reject"
+                      type="button"
+                      onclick="openRejectModal('<%= merchant.id %>','<%= escapeAttr(merchant.businessName) %>','<%= escapeAttr(merchant.email) %>')">
+                      <i class="fas fa-xmark"></i> Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <i class="fas fa-circle-check"></i>
+                  <h4>All caught up!</h4>
+                  <p>No pending merchant applications</p>
+                  <small>New applications will appear here</small>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<div id="bulkActionBar" style="position:fixed; bottom:0; left:260px; right:0; background:var(--card-bg); border-top:2px solid var(--primary); padding:14px 28px; display:none; align-items:center; justify-content:space-between; z-index:1000; box-shadow:0 -4px 20px rgba(0,0,0,0.1);">
+  <div><span id="selectedCount">0</span> merchants selected</div>
+  <div style="display:inline-flex; align-items:center; gap:8px;">
+    <button id="bulkApproveSelectedBtn" class="btn-amber" type="button"><i class="fas fa-check-double"></i> Approve All Selected</button>
+    <button id="bulkRejectSelectedBtn" class="btn-outline-admin" style="border-color:#ef4444; color:#ef4444;" type="button"><i class="fas fa-xmark"></i> Reject All Selected</button>
+    <button id="bulkCancelBtn" class="btn-outline-admin" type="button"><i class="fas fa-xmark"></i> Cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="verifyPendingModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title green"><i class="fas fa-shield-halved"></i> Verify Merchant</h3>
+      <button type="button" class="modal-close" data-close="verifyPendingModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="verifyMerchantId">
+
+      <div class="preview-card">
+        <strong id="verifyBusinessName">-</strong>
+        <div>Email: <span id="verifyEmail">-</span></div>
+        <div>Phone: <span id="verifyPhone">-</span></div>
+        <div>Applied: <span id="verifyAppliedDate">-</span></div>
+      </div>
+
+      <div class="info-box-green">
+        <i class="fas fa-circle-info"></i>
+        Verifying this merchant will:
+        <br>• Enable payment processing
+        <br>• Send welcome email to merchant
+        <br>• Activate merchant dashboard
+      </div>
+
+      <div>
+        <label class="field-label" for="verifyNote">Admin Note (optional)</label>
+        <textarea id="verifyNote" class="field-textarea" placeholder="Add verification notes (optional)..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="verifyPendingModal">Cancel</button>
+      <button type="button" class="btn-amber" id="confirmVerifyBtn" style="background:#22c55e; border-color:#22c55e;"><i class="fas fa-shield-halved"></i> Verify Merchant</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rejectPendingModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title red"><i class="fas fa-circle-xmark"></i> Reject Application</h3>
+      <button type="button" class="modal-close" data-close="rejectPendingModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="rejectMerchantId">
+
+      <div class="preview-card">
+        <strong id="rejectBusinessName">-</strong>
+        <div>Email: <span id="rejectEmail">-</span></div>
+      </div>
+
+      <div class="warning-box-red">
+        <i class="fas fa-triangle-exclamation"></i>
+        Rejecting this application will notify the merchant via email.
+      </div>
+
+      <div>
+        <label class="field-label" for="rejectReason">Rejection Reason</label>
+        <select id="rejectReason" class="field-select" required>
+          <option value="">Select a reason...</option>
+          <option value="Incomplete Documents">Incomplete Documents</option>
+          <option value="Invalid Business Information">Invalid Business Information</option>
+          <option value="Duplicate Application">Duplicate Application</option>
+          <option value="Suspicious Activity">Suspicious Activity</option>
+          <option value="Does Not Meet Requirements">Does Not Meet Requirements</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="field-label" for="rejectNotes">Additional Notes</label>
+        <textarea id="rejectNotes" class="field-textarea" placeholder="Provide additional context for rejection..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="rejectPendingModal">Cancel</button>
+      <button type="button" class="btn-amber" id="confirmRejectBtn" style="background:#ef4444; border-color:#ef4444;"><i class="fas fa-circle-xmark"></i> Reject Application</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quickViewModal" role="dialog" aria-modal="true">
+  <div class="modal-card wide">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-eye"></i> Quick View</h3>
+      <button type="button" class="modal-close" data-close="quickViewModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="quick-grid">
+        <div class="quick-field"><div class="k">Business Name</div><div class="v" id="qvBusinessName">-</div></div>
+        <div class="quick-field"><div class="k">Merchant ID</div><div class="v" id="qvMerchantId">-</div></div>
+
+        <div class="quick-field"><div class="k">Email</div><div class="v" id="qvEmail">-</div></div>
+        <div class="quick-field"><div class="k">Phone</div><div class="v" id="qvPhone">-</div></div>
+
+        <div class="quick-field"><div class="k">Category</div><div class="v" id="qvCategory">-</div></div>
+        <div class="quick-field"><div class="k">Business Type</div><div class="v" id="qvBusinessType">-</div></div>
+
+        <div class="quick-field"><div class="k">GST</div><div class="v" id="qvGst">-</div></div>
+        <div class="quick-field"><div class="k">PAN</div><div class="v" id="qvPan">-</div></div>
+
+        <div class="quick-field"><div class="k">Applied Date</div><div class="v" id="qvAppliedDate">-</div></div>
+        <div class="quick-field"><div class="k">Wait Time</div><div class="v" id="qvWait">-</div></div>
+
+        <div class="quick-field full"><div class="k">Address</div><div class="v" id="qvAddress">-</div></div>
+      </div>
+
+      <div>
+        <div class="field-label" style="margin-bottom:6px;">Documents Status</div>
+        <div class="doc-list">
+          <div class="doc-line"><span>GST Document</span><span id="qvDocGst" class="doc-pill missing">Missing</span></div>
+          <div class="doc-line"><span>PAN Document</span><span id="qvDocPan" class="doc-pill missing">Missing</span></div>
+          <div class="doc-line"><span>Bank Document</span><span id="qvDocBank" class="doc-pill missing">Missing</span></div>
+          <div class="doc-line"><span>Business License</span><span id="qvDocLicense" class="doc-pill missing">Missing</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="quickViewModal">Close</button>
+      <button type="button" class="btn-amber" id="quickVerifyBtn" style="background:#22c55e; border-color:#22c55e;"><i class="fas fa-check"></i> Verify</button>
+      <button type="button" class="btn-outline-admin" id="quickRejectBtn" style="border-color:#ef4444; color:#ef4444;"><i class="fas fa-xmark"></i> Reject</button>
+    </div>
+  </div>
+</div>
+
+<div id="merchantFloatingDropdown" style="display:none; position:fixed; z-index:99999; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.15); min-width:200px; padding:6px 0;">
+  <button type="button" style="display:flex; align-items:center; gap:10px; padding:9px 16px; width:100%; background:none; border:none; color:var(--text-dark); font-size:0.85rem; text-align:left;">
+    <i class="fas fa-eye" style="color:#3B82F6; width:16px;"></i>
+    Quick Actions
+  </button>
+</div>
+
+<div class="toast-wrap" id="toastContainer"></div>
+
+<script>
+  var selectedMerchants = new Set();
+  var quickViewCurrentMerchantId = '';
+  var quickViewCurrentBusinessName = '';
+  var quickViewCurrentEmail = '';
+
+  function byId(id) { return document.getElementById(id); }
+
+  function showModal(id) {
+    var modal = byId(id);
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function hideModal(id) {
+    var modal = byId(id);
+    if (modal) modal.style.display = 'none';
+  }
+
+  function updateBulkBar() {
+    var bar = byId('bulkActionBar');
+    var count = selectedMerchants.size;
+    byId('selectedCount').textContent = count;
+    bar.style.display = count > 0 ? 'flex' : 'none';
+
+    var bulkBtn = byId('bulkApproveBtn');
+    if (bulkBtn) bulkBtn.disabled = count === 0;
+  }
+
+  function setDocBadge(el, submitted) {
+    if (!el) return;
+    el.className = 'doc-pill ' + (submitted ? 'submitted' : 'missing');
+    el.textContent = submitted ? 'Submitted' : 'Missing';
+  }
+
+  function closeAllModals() {
+    ['verifyPendingModal', 'rejectPendingModal', 'quickViewModal'].forEach(hideModal);
+  }
+
+  function openVerifyModal(merchantId, businessName, email, phone, appliedDate) {
+    byId('verifyMerchantId').value = merchantId;
+    byId('verifyBusinessName').textContent = businessName;
+    byId('verifyEmail').textContent = email;
+    byId('verifyPhone').textContent = phone;
+    byId('verifyAppliedDate').textContent = appliedDate;
+    showModal('verifyPendingModal');
+  }
+
+  function openRejectModal(merchantId, businessName, email) {
+    byId('rejectMerchantId').value = merchantId;
+    byId('rejectBusinessName').textContent = businessName;
+    byId('rejectEmail').textContent = email;
+    byId('rejectReason').value = '';
+    byId('rejectNotes').value = '';
+    showModal('rejectPendingModal');
+  }
+
+  function openQuickView(merchantId) {
+    fetch('/admin/merchants/' + merchantId + '/quick-info')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data || !data.id) {
+          showToast('Unable to load merchant details', 'error');
+          return;
+        }
+
+        quickViewCurrentMerchantId = data.id;
+        quickViewCurrentBusinessName = data.businessName || '';
+        quickViewCurrentEmail = data.email || '';
+
+        byId('qvBusinessName').textContent = data.businessName || '-';
+        byId('qvMerchantId').textContent = data.merchantId || '-';
+        byId('qvEmail').textContent = data.email || '-';
+        byId('qvPhone').textContent = data.phone || '-';
+        byId('qvCategory').textContent = data.category || '-';
+        byId('qvBusinessType').textContent = data.businessType || '-';
+        byId('qvGst').textContent = data.gstNumber || '-';
+        byId('qvPan').textContent = data.panNumber || '-';
+        byId('qvAppliedDate').textContent = data.appliedAt ? new Date(data.appliedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+        byId('qvWait').textContent = String(data.waitDays || 0) + ' days';
+        byId('qvAddress').textContent = data.address || '-';
+
+        setDocBadge(byId('qvDocGst'), !!(data.docs && data.docs.gst));
+        setDocBadge(byId('qvDocPan'), !!(data.docs && data.docs.pan));
+        setDocBadge(byId('qvDocBank'), !!(data.docs && data.docs.bank));
+        setDocBadge(byId('qvDocLicense'), !!(data.docs && data.docs.license));
+
+        showModal('quickViewModal');
+      })
+      .catch(function() {
+        showToast('Unable to load merchant details', 'error');
+      });
+  }
+
+  function showToast(message, type) {
+    var host = byId('toastContainer');
+    var toast = document.createElement('div');
+    var icon = 'fa-circle-check';
+    var kind = 'admin-toast-success';
+
+    if (type === 'error') { icon = 'fa-circle-exclamation'; kind = 'admin-toast-error'; }
+    if (type === 'warning') { icon = 'fa-triangle-exclamation'; kind = 'admin-toast-warning'; }
+
+    toast.className = 'admin-toast ' + kind;
+    toast.innerHTML = '<i class="fas ' + icon + '"></i><span>' + String(message || '') + '</span>';
+    host.appendChild(toast);
+
+    requestAnimationFrame(function() { toast.classList.add('show'); });
+    setTimeout(function() {
+      toast.classList.remove('show');
+      setTimeout(function() { toast.remove(); }, 250);
+    }, 2200);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var selectAll = byId('selectAllCheckbox');
+    var rowCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.merchant-row-cb'));
+    var searchInput = byId('pendingSearch');
+    var categoryFilter = byId('categoryFilter');
+    var dateRangeFilter = byId('dateRangeFilter');
+    var resetFiltersBtn = byId('resetFiltersBtn');
+    var reviewNowBtn = byId('reviewNowBtn');
+
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        rowCheckboxes.forEach(function(cb) {
+          cb.checked = selectAll.checked;
+          if (selectAll.checked) {
+            selectedMerchants.add(cb.dataset.merchantId);
+          } else {
+            selectedMerchants.delete(cb.dataset.merchantId);
+          }
+        });
+        updateBulkBar();
+      });
+    }
+
+    rowCheckboxes.forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        if (cb.checked) {
+          selectedMerchants.add(cb.dataset.merchantId);
+        } else {
+          selectedMerchants.delete(cb.dataset.merchantId);
+        }
+
+        if (selectAll) {
+          selectAll.checked = rowCheckboxes.length > 0 && rowCheckboxes.every(function(item) { return item.checked; });
+        }
+
+        updateBulkBar();
+      });
+    });
+
+    byId('bulkApproveBtn')?.addEventListener('click', function() {
+      byId('bulkApproveSelectedBtn')?.click();
+    });
+
+    byId('confirmVerifyBtn')?.addEventListener('click', function() {
+      var button = this;
+      var merchantId = byId('verifyMerchantId').value;
+      var note = byId('verifyNote').value;
+
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+      fetch('/admin/merchants/' + merchantId + '/verify', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminNote: note })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          showToast('Merchant verified successfully!', 'success');
+          setTimeout(function() { location.reload(); }, 1200);
+        } else {
+          showToast(data.message || 'Error', 'error');
+          button.disabled = false;
+          button.innerHTML = '<i class="fas fa-shield-halved"></i> Verify Merchant';
+        }
+      })
+      .catch(function() {
+        showToast('Network error', 'error');
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-shield-halved"></i> Verify Merchant';
+      });
+    });
+
+    byId('confirmRejectBtn')?.addEventListener('click', function() {
+      var merchantId = byId('rejectMerchantId').value;
+      var reason = byId('rejectReason').value;
+      var notes = byId('rejectNotes').value;
+
+      if (!reason) {
+        showToast('Please select a rejection reason', 'warning');
+        return;
+      }
+
+      fetch('/admin/merchants/' + merchantId + '/reject', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason, notes: notes })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          showToast('Application rejected', 'success');
+          setTimeout(function() { location.reload(); }, 1200);
+        } else {
+          showToast(data.message || 'Error', 'error');
+        }
+      })
+      .catch(function() {
+        showToast('Network error', 'error');
+      });
+    });
+
+    byId('quickVerifyBtn')?.addEventListener('click', function() {
+      hideModal('quickViewModal');
+      openVerifyModal(quickViewCurrentMerchantId, quickViewCurrentBusinessName, quickViewCurrentEmail, '-', '-');
+    });
+
+    byId('quickRejectBtn')?.addEventListener('click', function() {
+      hideModal('quickViewModal');
+      openRejectModal(quickViewCurrentMerchantId, quickViewCurrentBusinessName, quickViewCurrentEmail);
+    });
+
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#pendingTableBody .pending-row'));
+
+    function applyClientFilters() {
+      var q = String(searchInput?.value || '').toLowerCase().trim();
+      var category = String(categoryFilter?.value || 'all');
+      var range = String(dateRangeFilter?.value || 'all');
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      rows.forEach(function(row) {
+        var text = String(row.getAttribute('data-search') || '');
+        var rowCategory = String(row.getAttribute('data-category') || 'Other');
+        var appliedRaw = row.getAttribute('data-applied-date');
+        var applied = appliedRaw ? new Date(appliedRaw) : new Date();
+
+        var passSearch = !q || text.indexOf(q) !== -1;
+        var passCategory = category === 'all' || rowCategory === category;
+
+        var passDate = true;
+        if (range === 'today') {
+          var start = new Date(today);
+          var end = new Date(today);
+          end.setHours(23, 59, 59, 999);
+          passDate = applied >= start && applied <= end;
+        } else if (range === '7' || range === '30') {
+          var days = Number(range);
+          var since = new Date();
+          since.setHours(0, 0, 0, 0);
+          since.setDate(since.getDate() - (days - 1));
+          passDate = applied >= since;
+        }
+
+        row.style.display = (passSearch && passCategory && passDate) ? '' : 'none';
+      });
+    }
+
+    searchInput?.addEventListener('input', applyClientFilters);
+    categoryFilter?.addEventListener('change', applyClientFilters);
+    dateRangeFilter?.addEventListener('change', applyClientFilters);
+
+    resetFiltersBtn?.addEventListener('click', function() {
+      if (searchInput) searchInput.value = '';
+      if (categoryFilter) categoryFilter.value = 'all';
+      if (dateRangeFilter) dateRangeFilter.value = 'all';
+      applyClientFilters();
+    });
+
+    reviewNowBtn?.addEventListener('click', function() {
+      var section = byId('pendingTableSection');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    var waitCells = Array.prototype.slice.call(document.querySelectorAll('.wait-value'));
+    waitCells.forEach(function(cell) {
+      var applied = new Date(cell.getAttribute('data-applied'));
+      var now = new Date();
+      var days = Math.max(0, Math.floor((now.getTime() - applied.getTime()) / 86400000));
+      cell.textContent = days + ' days';
+      cell.classList.remove('wait-green', 'wait-amber', 'wait-red');
+
+      if (days <= 3) {
+        cell.classList.add('wait-green');
+      } else if (days <= 7) {
+        cell.classList.add('wait-amber');
+      } else {
+        cell.classList.add('wait-red');
+      }
+    });
+
+    byId('bulkApproveSelectedBtn')?.addEventListener('click', function() {
+      if (selectedMerchants.size === 0) {
+        showToast('No merchants selected', 'warning');
+        return;
+      }
+
+      var ids = Array.from(selectedMerchants);
+      Promise.all(ids.map(function(id) {
+        return fetch('/admin/merchants/' + id + '/verify', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adminNote: 'Bulk approved' })
+        });
+      }))
+      .then(function() {
+        showToast('Selected merchants approved', 'success');
+        setTimeout(function() { location.reload(); }, 1200);
+      })
+      .catch(function() {
+        showToast('Bulk approve failed', 'error');
+      });
+    });
+
+    byId('bulkRejectSelectedBtn')?.addEventListener('click', function() {
+      if (selectedMerchants.size === 0) {
+        showToast('No merchants selected', 'warning');
+        return;
+      }
+
+      var ids = Array.from(selectedMerchants);
+      Promise.all(ids.map(function(id) {
+        return fetch('/admin/merchants/' + id + '/reject', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Bulk rejected', notes: '' })
+        });
+      }))
+      .then(function() {
+        showToast('Selected merchants rejected', 'success');
+        setTimeout(function() { location.reload(); }, 1200);
+      })
+      .catch(function() {
+        showToast('Bulk reject failed', 'error');
+      });
+    });
+
+    byId('bulkCancelBtn')?.addEventListener('click', function() {
+      selectedMerchants.clear();
+      rowCheckboxes.forEach(function(cb) { cb.checked = false; });
+      if (selectAll) selectAll.checked = false;
+      updateBulkBar();
+    });
+
+    document.querySelectorAll('[data-close]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        hideModal(btn.getAttribute('data-close'));
+      });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          overlay.style.display = 'none';
+        }
+      });
+    });
+
+    updateBulkBar();
+    applyClientFilters();
+  });
+</script>

@@ -13,8 +13,8 @@ const bankSchema = new mongoose.Schema(
     logoUrl: { type: String, trim: true, default: "" },
     status: {
       type: String,
-      enum: ["active", "inactive"],
-      default: "active",
+      enum: ["active", "inactive", "pending", "rejected"],
+      default: "pending",
       index: true,
     },
     priority: { type: Number, default: 99, index: true },

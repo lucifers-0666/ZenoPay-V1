@@ -5,8 +5,11 @@
 // GET Payment Gateway Settings Page
 const getPaymentGatewaySettings = async (req, res) => {
   try {
+    res.locals.adminPage = "settings";
     res.render("admin/settings/admin-payment-gateway", {
       user: req.session.user,
+      page: "settings",
+      adminPage: "settings",
       pageTitle: "Admin Payment Gateway Settings - ZenoPay"
     });
   } catch (error) {

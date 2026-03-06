@@ -90,7 +90,7 @@ exports.addBank = async (req, res) => {
       impsEnabled: String(impsEnabled) === "true" || impsEnabled === true,
       priority: Number.parseInt(priority, 10) || 99,
       logoUrl: String(logoUrl || "").trim(),
-      status: "active",
+      status: "pending",
       updatedAt: new Date(),
     });
 
@@ -98,6 +98,111 @@ exports.addBank = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.pendingBanks = async (req, res) => {
+  try {
+    const { search = "" } = req.query;
+
+    const query = { status: "pending" };
+    if (search) {
+      query.$or = [
+        { bankName: { $regex: search, $options: "i" } },
+        { bankCode: { $regex: search, $options: "i" } },
+        { ifscPrefix: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const [banks, totalPending, pendingToday, rejectedCount, approvedCount] = await Promise.all([
+      Bank.find(query).sort({ createdAt: -1 }).lean(),
+      Bank.countDocuments({ status: "pending" }),
+      Bank.countDocuments({
+        status: "pending",
+        createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
+      }),
+      Bank.countDocuments({ status: "rejected" }),
+      Bank.countDocuments({ status: "active" }),
+    ]);
+
+    res.locals.adminPage = "banks";
+    return res.render("admin/banks/admin-pending-banks", {
+      banks,
+      totalPending,
+      pendingToday,
+      rejectedCount,
+      approvedCount,
+      filters: { search: search || "" },
+      pageTitle: "Pending Banks",
+      page: "banks",
+      adminPage: "banks",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Server Error");
+  }
+};
+
+exports.approveBank = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid bank id" });
+    }
+
+    const { adminNote } = req.body || {};
+    const bank = await Bank.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: "active",
+        approvedAt: new Date(),
+        adminNote: adminNote || "",
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
+    if (!bank) return res.status(404).json({ success: false, message: "Bank not found" });
+    return res.json({ success: true, message: "Bank approved successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.rejectBank = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid bank id" });
+    }
+
+    const { reason, notes } = req.body || {};
+    const bank = await Bank.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: "rejected",
+        rejectionReason: reason || "Rejected by admin",
+        rejectionNotes: notes || "",
+        rejectedAt: new Date(),
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
+    if (!bank) return res.status(404).json({ success: false, message: "Bank not found" });
+    return res.json({ success: true, message: "Bank rejected" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.bankInfo = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(404).json({});
+    }
+    const bank = await Bank.findById(req.params.id).lean();
+    return res.json(bank || {});
+  } catch (e) {
+    return res.status(500).json({});
   }
 };
 

@@ -358,9 +358,12 @@ const getNotificationsCenter = async (req, res) => {
       status: "Scheduled",
     });
 
+    res.locals.adminPage = "notifications";
     res.render("admin/admin-notifications", {
       pageTitle: "Notifications Center",
       currentPage: "notifications",
+      page: "notifications",
+      adminPage: "notifications",
       admin: req.session.user,
       breadcrumb: [
         { name: "Admin", url: "/admin/dashboard" },
@@ -412,9 +415,12 @@ const getPricingManagement = async (req, res) => {
       },
     ];
 
+    res.locals.adminPage = "pricing";
     res.render("admin/admin-pricing", {
       pageTitle: "Pricing Management",
       currentPage: "pricing",
+      page: "pricing",
+      adminPage: "pricing",
       admin: req.session.user,
       breadcrumb: [
         { name: "Admin", url: "/admin/dashboard" },
@@ -495,9 +501,12 @@ const getAuditLogs = async (req, res) => {
 
     const flagged = logs.filter((l) => l.severity !== "info");
 
+    res.locals.adminPage = "audit-logs";
     res.render("admin/admin-audit-logs", {
       pageTitle: "Audit Logs",
       currentPage: "audit-logs",
+      page: "audit-logs",
+      adminPage: "audit-logs",
       admin: req.session.user,
       breadcrumb: [
         { name: "Admin", url: "/admin/dashboard" },

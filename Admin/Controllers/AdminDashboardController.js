@@ -8,10 +8,12 @@ const Banks = require("../../Models/Banks");
 const getDashboard = async (req, res) => {
   try {
     // Render the new modern dashboard
+    res.locals.adminPage = "dashboard";
     res.render("admin/dashboard/admin-dashboard-overview", {
       user: req.session.user,
       title: "Dashboard",
       page: "dashboard",
+      adminPage: "dashboard",
       kycPending: 0,
       supportOpen: 0,
       pageTitle: "Admin Dashboard Overview - ZenoPay"
@@ -700,8 +702,11 @@ const getStatisticsData = async (req, res) => {
 // GET Activity Monitor Page
 const getActivityMonitor = async (req, res) => {
   try {
+    res.locals.adminPage = "activity-monitor";
     res.render("admin/dashboard/admin-real-time-monitor", {
       user: req.session.user,
+      page: "activity-monitor",
+      adminPage: "activity-monitor",
       pageTitle: "Admin Real-Time Monitor - ZenoPay"
     });
   } catch (error) {
@@ -763,9 +768,12 @@ const getLiveActivities = async (req, res) => {
 const getAnalytics = async (req, res) => {
   try {
     // Add analytics logic here
+    res.locals.adminPage = "analytics";
     res.render("admin/analytics/admin-business-analytics", {
       pageTitle: "Admin Business Analytics",
       currentPage: "analytics",
+      page: "analytics",
+      adminPage: "analytics",
       admin: req.session.user,
     });
   } catch (error) {
@@ -783,6 +791,7 @@ const getReports = async (req, res) => {
       pageTitle: "Reports & Analytics - ZenoPay Admin",
       page: "reports",
       currentPage: "reports",
+      adminPage: "reports",
       admin: req.session.user,
       user: req.session.user,
     });
@@ -806,9 +815,12 @@ const exportReports = async (req, res) => {
 // GET Settings Page
 const getSettings = async (req, res) => {
   try {
+    res.locals.adminPage = "settings";
     res.render("admin/settings/admin-system-settings", {
       pageTitle: "Admin System Settings",
       currentPage: "settings",
+      page: "settings",
+      adminPage: "settings",
       admin: req.session.user,
     });
   } catch (error) {
@@ -831,8 +843,11 @@ const updateSettings = async (req, res) => {
 // GET Payment Gateway Settings Page
 const getPaymentGatewaySettings = async (req, res) => {
   try {
+    res.locals.adminPage = "settings";
     res.render("admin/settings/admin-payment-gateway", {
       user: req.session.user,
+      page: "settings",
+      adminPage: "settings",
       pageTitle: "Payment Gateway Settings - ZenoPay Admin"
     });
   } catch (error) {

@@ -21,9 +21,12 @@ const getPrivacyPolicyDashboard = async (req, res) => {
       totalUsers = await ZenoPayUser.countDocuments({ Role: 'user' });
     }
     
+    res.locals.adminPage = "privacy";
     res.render("admin/privacy-policy-management", {
       user: req.session.user,
       pageTitle: "Privacy Policy Management - Admin",
+      page: "privacy",
+      adminPage: "privacy",
       policies,
       currentPolicy,
       acceptanceCount,
@@ -71,9 +74,12 @@ const getCreatePolicyForm = async (req, res) => {
       { id: 15, title: "Contact & Data Protection Officer", content: "", order: 15 }
     ];
     
+    res.locals.adminPage = "privacy";
     res.render("admin/privacy-policy-editor", {
       user: req.session.user,
       pageTitle: "Create Privacy Policy - Admin",
+      page: "privacy",
+      adminPage: "privacy",
       policy: null,
       suggestedVersion,
       defaultSections,
@@ -146,9 +152,12 @@ const getEditPolicyForm = async (req, res) => {
       return res.redirect("/admin/privacy-policy?error=Can only edit draft policies");
     }
     
+    res.locals.adminPage = "privacy";
     res.render("admin/privacy-policy-editor", {
       user: req.session.user,
       pageTitle: "Edit Privacy Policy - Admin",
+      page: "privacy",
+      adminPage: "privacy",
       policy,
       suggestedVersion: policy.version,
       defaultSections: policy.sections,

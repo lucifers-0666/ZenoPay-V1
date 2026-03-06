@@ -144,6 +144,128 @@ exports.merchantsList = async (req, res) => {
   }
 };
 
+const buildPendingQuery = ({ search = "" } = {}) => {
+  const query = {
+    $and: [
+      {
+        $or: [
+          { Status: "pending" },
+          { status: "pending" },
+          { isVerified: false },
+          { IsVerified: false },
+        ],
+      },
+      {
+        $and: [
+          { status: { $ne: "rejected" } },
+          { Status: { $ne: "rejected" } },
+        ],
+      },
+    ],
+  };
+
+  if (search) {
+    const regex = { $regex: search, $options: "i" };
+    query.$and.push({
+      $or: [
+        { BusinessName: regex },
+        { BusinessWebsite: regex },
+        { ZenoPayId: regex },
+      ],
+    });
+  }
+
+  return query;
+};
+
+const pendingDocState = (merchant) => ({
+  gst: Boolean(merchant?.GSTDocument || merchant?.GstDocument || merchant?.GSTNumber || merchant?.GstNumber),
+  pan: Boolean(merchant?.PANDocument || merchant?.PanDocument || merchant?.PANNumber || merchant?.PanNumber),
+  bank: Boolean(merchant?.BankStatement || merchant?.BankDetails || merchant?.IFSCCode || merchant?.IfscCode),
+  license: Boolean(merchant?.BusinessLicense || merchant?.TradeLicense || merchant?.LicenseNumber),
+});
+
+exports.pendingMerchants = async (req, res) => {
+  try {
+    const { search = "" } = req.query;
+
+    const query = buildPendingQuery({ search });
+    const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
+
+    const [merchantsRaw, totalPending, pendingToday, avgWaitDaysAgg, rejectedCount] = await Promise.all([
+      Merchant.find(query).sort({ createdAt: -1 }).lean(),
+      Merchant.countDocuments(buildPendingQuery({})),
+      Merchant.countDocuments({
+        ...buildPendingQuery({}),
+        createdAt: { $gte: startOfDay },
+      }),
+      Merchant.aggregate([
+        { $match: buildPendingQuery({}) },
+        {
+          $group: {
+            _id: null,
+            avgWait: {
+              $avg: {
+                $divide: [{ $subtract: [new Date(), "$createdAt"] }, 86400000],
+              },
+            },
+          },
+        },
+      ]),
+      Merchant.countDocuments({
+        $or: [{ status: "rejected" }, { Status: "rejected" }],
+      }),
+    ]);
+
+    const ownerIds = merchantsRaw.map((m) => m.ZenoPayId).filter(Boolean);
+    const owners = await ZenoPayUser.find({ ZenoPayID: { $in: ownerIds } })
+      .select("ZenoPayID Email Mobile FullName Address City State")
+      .lean();
+    const ownerMap = new Map(owners.map((u) => [u.ZenoPayID, u]));
+
+    const merchants = merchantsRaw.map((merchant) => {
+      const owner = ownerMap.get(merchant.ZenoPayId) || {};
+      const docs = pendingDocState(merchant);
+      const docsSubmitted = [docs.gst, docs.pan, docs.bank, docs.license].filter(Boolean).length;
+      const appliedAt = merchant.createdAt || new Date();
+      const waitDays = Math.max(0, Math.floor((Date.now() - new Date(appliedAt).getTime()) / 86400000));
+
+      return {
+        id: String(merchant._id),
+        merchantId: merchantIdLabel(merchant),
+        businessName: merchant.BusinessName || "Unnamed Merchant",
+        email: owner.Email || "Not available",
+        phone: owner.Mobile || "Not available",
+        category: pickCategory(merchant.BusinessType),
+        businessType: merchant.BusinessType || "Other",
+        gstNumber: merchant.GSTNumber || merchant.GstNumber || "Not provided",
+        panNumber: merchant.PANNumber || merchant.PanNumber || "Not provided",
+        address: owner.Address || merchant.Address || [owner.City, owner.State].filter(Boolean).join(", ") || "Not available",
+        docs,
+        docsSubmitted,
+        appliedAt,
+        waitDays,
+      };
+    });
+
+    res.locals.adminPage = "merchants";
+    return res.render("admin/merchants/admin-pending-merchants", {
+      merchants,
+      totalPending,
+      pendingToday,
+      avgWaitDays: avgWaitDaysAgg[0]?.avgWait?.toFixed(1) || "0",
+      rejectedCount,
+      filters: { search: search || "" },
+      pageTitle: "Pending Merchants",
+      page: "merchants",
+      adminPage: "merchants",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Server Error");
+  }
+};
+
 exports.exportMerchants = async (req, res) => {
   try {
     const { ids, status } = req.query;
@@ -365,6 +487,76 @@ exports.verifyMerchant = async (req, res) => {
     return res.json({ success: true, message: "Merchant verified successfully" });
   } catch (err) {
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.rejectMerchant = async (req, res) => {
+  try {
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.status(400).json({ success: false, message: "Invalid merchant id" });
+    }
+
+    const { reason, notes } = req.body || {};
+    const merchant = await Merchant.findByIdAndUpdate(
+      merchantId,
+      {
+        status: "rejected",
+        Status: "suspended",
+        IsActive: false,
+        rejectionReason: reason || "Rejected by admin",
+        rejectionNotes: notes || "",
+        rejectedAt: new Date(),
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
+    if (!merchant) {
+      return res.status(404).json({ success: false, message: "Merchant not found" });
+    }
+
+    return res.json({ success: true, message: "Merchant rejected successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.quickInfo = async (req, res) => {
+  try {
+    const merchantId = String(req.params.id || "").trim();
+    if (!mongoose.Types.ObjectId.isValid(merchantId)) {
+      return res.status(404).json({});
+    }
+
+    const merchant = await Merchant.findById(merchantId).lean();
+    if (!merchant) return res.status(404).json({});
+
+    const owner = await ZenoPayUser.findOne({ ZenoPayID: merchant.ZenoPayId })
+      .select("Email Mobile FullName Address City State")
+      .lean();
+
+    const docs = pendingDocState(merchant);
+    const appliedAt = merchant.createdAt || new Date();
+    const waitDays = Math.max(0, Math.floor((Date.now() - new Date(appliedAt).getTime()) / 86400000));
+
+    return res.json({
+      id: String(merchant._id),
+      merchantId: merchantIdLabel(merchant),
+      businessName: merchant.BusinessName || "Unnamed Merchant",
+      email: owner?.Email || "Not available",
+      phone: owner?.Mobile || "Not available",
+      category: pickCategory(merchant.BusinessType),
+      businessType: merchant.BusinessType || "Other",
+      gstNumber: merchant.GSTNumber || merchant.GstNumber || "Not provided",
+      panNumber: merchant.PANNumber || merchant.PanNumber || "Not provided",
+      appliedAt,
+      waitDays,
+      address: owner?.Address || merchant.Address || [owner?.City, owner?.State].filter(Boolean).join(", ") || "Not available",
+      docs,
+    });
+  } catch (err) {
+    return res.status(500).json({});
   }
 };
 

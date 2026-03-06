@@ -1,6 +1,6 @@
 <%
   /* Safe defaults — prevent ReferenceError when locals are not passed */
-  const _page       = (typeof page       !== 'undefined') ? page       : ((typeof adminPage !== 'undefined') ? adminPage : '');
+  const _page       = (typeof adminPage  !== 'undefined') ? adminPage  : ((typeof page !== 'undefined') ? page : '');
   const _kycPending  = (typeof kycPending  !== 'undefined') ? kycPending  : 0;
   const _supportOpen = (typeof supportOpen !== 'undefined') ? supportOpen : 0;
   const _unreadCount = (typeof unreadCount !== 'undefined') ? unreadCount : 0;
@@ -76,10 +76,10 @@
     <a href="/admin/transactions" class="sidebar-link <%= _page === 'transactions' ? 'active' : '' %>" data-tooltip="All Transactions">
       <i class="fas fa-exchange-alt"></i> <span>All Transactions</span>
     </a>
-    <a href="/admin/transactions/flagged" class="sidebar-link <%= _page === 'transactions-flagged' ? 'active' : '' %>" data-tooltip="Flagged">
+    <a href="/admin/transactions/flagged" class="sidebar-link <%= _page === 'flagged' ? 'active' : '' %>" data-tooltip="Flagged">
       <i class="fas fa-flag"></i> <span>Flagged</span>
     </a>
-    <a href="/admin/transactions/failed" class="sidebar-link <%= _page === 'transactions-failed' ? 'active' : '' %>" data-tooltip="Failed">
+    <a href="/admin/transactions/failed" class="sidebar-link <%= _page === 'failed' ? 'active' : '' %>" data-tooltip="Failed">
       <i class="fas fa-times-circle"></i> <span>Failed</span>
     </a>
     <a href="/admin/wallets" class="sidebar-link <%= _page === 'wallets' ? 'active' : '' %>" data-tooltip="Wallets">

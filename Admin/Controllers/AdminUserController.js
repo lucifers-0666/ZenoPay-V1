@@ -55,9 +55,12 @@ const getAllUsers = async (req, res) => {
       });
     }
 
+    res.locals.adminPage = "users";
     res.render("admin/users/admin-user-management", {
       pageTitle: "User Management",
       currentPage: "users",
+      page: "users",
+      adminPage: "users",
       admin: req.session.user,
       users,
       currentPage: page,
@@ -115,8 +118,11 @@ const getUserDetails = async (req, res) => {
       });
     }
 
+    res.locals.adminPage = "users";
     res.render("admin/users/admin-user-details", {
       pageTitle: "User Details",
+      page: "users",
+      adminPage: "users",
       user: userProfile,
       admin: req.session.user,
     });

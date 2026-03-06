@@ -45,9 +45,12 @@ const getAllMerchants = async (req, res) => {
       });
     }
 
+    res.locals.adminPage = "merchants";
     res.render("admin/merchants/admin-merchant-management", {
       pageTitle: "Merchant Management",
       currentPage: "merchants",
+      page: "merchants",
+      adminPage: "merchants",
       admin: req.session.user,
       merchants,
       pagination: {
@@ -72,9 +75,12 @@ const getPendingMerchants = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("ZenoPayId", "FullName Email Mobile");
 
+    res.locals.adminPage = "merchants-pending";
     res.render("admin/merchants/admin-merchant-approvals", {
       pageTitle: "Admin Merchant Approvals",
       currentPage: "merchants",
+      page: "merchants-pending",
+      adminPage: "merchants-pending",
       admin: req.session.user,
       merchants: pendingMerchants,
     });
@@ -106,9 +112,12 @@ const getMerchantDetails = async (req, res) => {
       failedTransactions: 0,
     };
 
+    res.locals.adminPage = "merchants";
     res.render("admin/merchants/admin-merchant-details", {
       pageTitle: "Admin Merchant Details",
       currentPage: "merchants",
+      page: "merchants",
+      adminPage: "merchants",
       admin: req.session.user,
       merchant,
       stats: transactionStats,

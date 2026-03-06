@@ -225,10 +225,12 @@ const getFlaggedTransactions = async (req, res) => {
     const highRiskCount = normalized.filter((tx) => Number(tx.risk?.score || 0) > 70).length;
     const flaggedVolume = normalized.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
 
+    res.locals.adminPage = "flagged";
     res.render("admin/transactions/admin-flagged-transactions", {
       pageTitle: "Flagged Transactions",
       currentPage: "transactions",
-      adminPage: "transactions",
+      adminPage: "flagged",
+      page: "flagged",
       hideBreadcrumb: true,
       admin: req.session.user,
       transactions: normalized,
@@ -353,11 +355,12 @@ const failedTransactions = async (req, res) => {
       };
     });
 
-    res.locals.adminPage = "transactions";
+    res.locals.adminPage = "failed";
     res.render("admin/transactions/admin-failed-transactions", {
       pageTitle: "Failed Transactions",
       currentPage: "transactions",
-      adminPage: "transactions",
+      adminPage: "failed",
+      page: "failed",
       hideBreadcrumb: true,
       admin: req.session.user,
       transactions: formattedTransactions,

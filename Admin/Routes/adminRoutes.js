@@ -73,6 +73,43 @@ router.use(isAdmin);
 // Then apply RBAC role requirement
 router.use(requireRole("admin"));
 
+// Fallback admin page resolver (controllers can still override with explicit values)
+const resolveAdminPageFromPath = (path = "") => {
+	if (path === "/dashboard" || path.startsWith("/dashboard?")) return "dashboard";
+	if (path.startsWith("/dashboard/statistics")) return "statistics";
+	if (path.startsWith("/dashboard/activity-monitor")) return "activity-monitor";
+	if (path === "/users" || /^\/users\/.+/.test(path)) return "users";
+	if (path.startsWith("/kyc")) return "kyc";
+	if (path.startsWith("/support")) return "support";
+	if (path.startsWith("/merchants/pending")) return "merchants-pending";
+	if (path.startsWith("/merchants")) return "merchants";
+	if (path.startsWith("/banks/pending")) return "banks-pending";
+	if (path.startsWith("/banks")) return "banks";
+	if (path.startsWith("/transactions/flagged")) return "flagged";
+	if (path.startsWith("/transactions/failed")) return "failed";
+	if (path.startsWith("/transactions")) return "transactions";
+	if (path.startsWith("/wallets")) return "wallets";
+	if (path.startsWith("/refunds")) return "refunds";
+	if (path.startsWith("/analytics")) return "analytics";
+	if (path.startsWith("/reports")) return "reports";
+	if (path.startsWith("/notifications")) return "notifications";
+	if (path.startsWith("/pricing")) return "pricing";
+	if (path.startsWith("/privacy-policy")) return "privacy";
+	if (path.startsWith("/admins")) return "admins";
+	if (path.startsWith("/settings")) return "settings";
+	if (path.startsWith("/audit-logs")) return "audit-logs";
+	if (path.startsWith("/announcements")) return "announcements";
+	if (path.startsWith("/profile")) return "profile";
+	return "";
+};
+
+router.use((req, res, next) => {
+	if (!res.locals.adminPage) {
+		res.locals.adminPage = resolveAdminPageFromPath(req.path || "");
+	}
+	next();
+});
+
 // ============ DASHBOARD ROUTES ============
 router.get("/dashboard", requirePermission("dashboard", "view"), AdminDashboardController.getDashboard);
 router.get("/dashboard/statistics", requirePermission("dashboard", "view"), AdminDashboardController.getStatistics);
@@ -117,10 +154,12 @@ router.get("/pricing", requirePermission("settings", "view"), AdminOperationsCon
 // ============ MERCHANT MANAGEMENT ROUTES ============
 router.get("/merchants", requirePermission("merchants", "view"), adminMerchantController.merchantsList);
 router.get("/merchants/export", requirePermission("merchants", "view"), adminMerchantController.exportMerchants);
-router.get("/merchants/pending", requirePermission("merchants", "view"), AdminMerchantController.getPendingMerchants);
+router.get("/merchants/pending", requirePermission("merchants", "view"), adminMerchantController.pendingMerchants);
+router.get("/merchants/:id/quick-info", requirePermission("merchants", "view"), adminMerchantController.quickInfo);
 router.get("/merchants/:id", requirePermission("merchants", "view"), adminMerchantController.merchantDetails);
 router.patch("/merchants/:id/status", requirePermission("merchants", "suspend"), adminMerchantController.updateStatus);
 router.patch("/merchants/:id/verify", requirePermission("merchants", "approve"), adminMerchantController.verifyMerchant);
+router.patch("/merchants/:id/reject", requirePermission("merchants", "reject"), adminMerchantController.rejectMerchant);
 router.post("/merchants/bulk-action", requirePermission("merchants", "approve"), adminMerchantController.bulkAction);
 router.delete("/merchants/:id", requirePermission("merchants", "reject"), adminMerchantController.deleteMerchant);
 router.post("/merchants/:id/approve", requirePermission("merchants", "approve"), AdminMerchantController.approveMerchant);
@@ -131,11 +170,14 @@ router.post("/merchants/:id/revoke-keys", requirePermission("merchants", "suspen
 // ============ BANK MANAGEMENT ROUTES ============
 router.get("/banks", requirePermission("banks", "view"), adminBankController.banksList);
 router.post("/banks/add", requirePermission("banks", "create"), adminBankController.addBank);
+router.get("/banks/pending", requirePermission("banks", "view"), adminBankController.pendingBanks);
+router.get("/banks/:id/info", requirePermission("banks", "view"), adminBankController.bankInfo);
+router.patch("/banks/:id/approve", requirePermission("banks", "update"), adminBankController.approveBank);
+router.patch("/banks/:id/reject", requirePermission("banks", "update"), adminBankController.rejectBank);
 router.patch("/banks/:id/status", requirePermission("banks", "update"), adminBankController.updateStatus);
 router.patch("/banks/:id/priority", requirePermission("banks", "update"), adminBankController.updatePriority);
 router.patch("/banks/:id", requirePermission("banks", "update"), adminBankController.updateBank);
 router.delete("/banks/:id", requirePermission("banks", "delete"), adminBankController.deleteBank);
-router.get("/banks/pending", requirePermission("banks", "view"), AdminBankController.getPendingBanks);
 router.get("/banks/:id", requirePermission("banks", "view"), AdminBankController.getBankDetails);
 router.post("/banks/:id/approve", requirePermission("banks", "create"), AdminBankController.approveBank);
 router.post("/banks/:id/reject", requirePermission("banks", "delete"), AdminBankController.rejectBank);
