@@ -1,0 +1,365 @@
+<%
+  const userInitials = String(user.name || '')
+    .split(' ')
+    .filter(Boolean)
+    .map(function (n) { return n[0]; })
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+%>
+
+<div class="page-content user-detail-page">
+  <nav class="breadcrumb-nav">
+    <a href="/admin/dashboard"><i class="fas fa-house"></i> Admin</a>
+    <i class="fas fa-chevron-right"></i>
+    <a href="/admin/users">User Management</a>
+    <i class="fas fa-chevron-right"></i>
+    <span><%= user.name %></span>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <a href="/admin/users" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Back to Users
+      </a>
+      <div>
+        <h1 class="page-title">User Profile</h1>
+        <p class="page-subtitle">Detailed information for <%= user.name %></p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <a href="/admin/users/<%= user._id %>/edit" class="btn btn-outline"><i class="fas fa-pen"></i> Edit User</a>
+      <% if (user.status === 'Active') { %>
+        <button class="btn btn-warning" onclick="quickAction('suspend','<%= user._id %>')"><i class="fas fa-ban"></i> Suspend</button>
+      <% } else { %>
+        <button class="btn btn-success" onclick="quickAction('activate','<%= user._id %>')"><i class="fas fa-circle-check"></i> Activate</button>
+      <% } %>
+      <button class="btn btn-danger" onclick="quickAction('delete','<%= user._id %>')"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+    <div class="profile-left">
+      <div class="card profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" data-avatar-color="<%= user.avatarColor || '#3B82F6' %>"><%= userInitials %></div>
+          <span class="avatar-status-dot <%= user.status==='Active' ? 'dot-green' : user.status==='Suspended' ? 'dot-red' : 'dot-gray' %>"></span>
+        </div>
+
+        <h2 class="profile-name"><%= user.name %></h2>
+        <p class="profile-uid">#<%= user.userId || '--' %></p>
+
+        <div class="profile-badges">
+          <% const statusClass = {
+            'Active': 'badge-success',
+            'Inactive': 'badge-neutral',
+            'Suspended': 'badge-danger'
+          }[user.status] || 'badge-neutral';
+
+          const roleClass = {
+            'Super Admin': 'badge-purple',
+            'Admin': 'badge-blue',
+            'Merchant': 'badge-cyan',
+            'User': 'badge-gray'
+          }[user.role] || 'badge-gray'; %>
+
+          <span class="badge <%= statusClass %>"><i class="fas fa-circle" style="font-size:0.4rem;"></i> <%= user.status %></span>
+          <span class="badge <%= roleClass %>"><%= user.role %></span>
+        </div>
+
+        <hr class="profile-divider">
+
+        <ul class="profile-info-list">
+          <li>
+            <div class="info-icon-wrap" style="background:rgba(59,130,246,0.1);"><i class="fas fa-envelope" style="color:#3B82F6;"></i></div>
+            <div>
+              <span class="info-label">Email</span>
+              <span class="info-value"><%= user.email %></span>
+            </div>
+          </li>
+          <li>
+            <div class="info-icon-wrap" style="background:rgba(16,185,129,0.1);"><i class="fas fa-phone" style="color:#10B981;"></i></div>
+            <div>
+              <span class="info-label">Phone</span>
+              <span class="info-value"><%= user.phone || 'Not provided' %></span>
+            </div>
+          </li>
+          <li>
+            <div class="info-icon-wrap" style="background:rgba(107,65,232,0.1);"><i class="fas fa-id-card" style="color:#7C3AED;"></i></div>
+            <div>
+              <span class="info-label">KYC Status</span>
+              <% const kycClass = {
+                'Verified': 'badge-success',
+                'Pending': 'badge-warning',
+                'Rejected': 'badge-danger',
+                'Not Submitted': 'badge-neutral'
+              }[user.kycStatus] || 'badge-neutral'; %>
+              <span class="badge <%= kycClass %> badge-sm"><%= user.kycStatus %></span>
+            </div>
+          </li>
+          <li>
+            <div class="info-icon-wrap" style="background:rgba(245,158,11,0.1);"><i class="fas fa-calendar" style="color:#F59E0B;"></i></div>
+            <div>
+              <span class="info-label">Joined</span>
+              <span class="info-value"><%= new Date(user.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) %></span>
+            </div>
+          </li>
+          <li>
+            <div class="info-icon-wrap" style="background:rgba(6,182,212,0.1);"><i class="fas fa-clock" style="color:#06B6D4;"></i></div>
+            <div>
+              <span class="info-label">Last Updated</span>
+              <span class="info-value"><%= new Date(user.updatedAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) %></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card balance-card">
+        <div class="balance-icon-wrap" style="background:linear-gradient(135deg,#059669,#10B981);"><i class="fas fa-wallet" style="color:#A7F3D0;"></i></div>
+        <div>
+          <span class="balance-label">Account Balance</span>
+          <span class="balance-amount">₹<%= (user.balance || 0).toLocaleString('en-IN', { minimumFractionDigits:2 }) %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-right">
+      <div class="profile-tabs">
+        <button class="profile-tab active" onclick="switchTab('overview',this)"><i class="fas fa-chart-pie"></i> Overview</button>
+        <button class="profile-tab" onclick="switchTab('transactions',this)"><i class="fas fa-arrow-right-arrow-left"></i> Transactions</button>
+        <button class="profile-tab" onclick="switchTab('activity',this)"><i class="fas fa-bolt"></i> Activity</button>
+        <button class="profile-tab" onclick="switchTab('security',this)"><i class="fas fa-shield-halved"></i> Security</button>
+      </div>
+
+      <div id="tab-overview" class="tab-content active">
+        <div class="profile-stats-row">
+          <div class="profile-stat-card">
+            <div class="pstat-icon" style="background:linear-gradient(135deg,#1D4ED8,#3B82F6);"><i class="fas fa-arrow-right-arrow-left" style="color:#BFDBFE;"></i></div>
+            <div>
+              <span class="pstat-label">Total Transactions</span>
+              <span class="pstat-value"><%= recentTransactions.length || 0 %></span>
+            </div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="pstat-icon" style="background:linear-gradient(135deg,#B45309,#F59E0B);"><i class="fas fa-indian-rupee-sign" style="color:#FDE68A;"></i></div>
+            <div>
+              <span class="pstat-label">Total Spent</span>
+              <span class="pstat-value">₹<%= recentTransactions.reduce((s,t) => s + (Number(t.amount)||0), 0).toLocaleString('en-IN') %></span>
+            </div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="pstat-icon" style="background:linear-gradient(135deg,#065F46,#10B981);"><i class="fas fa-calendar-check" style="color:#A7F3D0;"></i></div>
+            <div>
+              <span class="pstat-label">Days Active</span>
+              <span class="pstat-value"><%= Math.floor((Date.now() - new Date(user.createdAt)) / 86400000) %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card detail-card">
+          <div class="detail-card-header">
+            <h3><i class="fas fa-circle-info" style="color:#3B82F6;"></i> Account Details</h3>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="detail-label">User ID</span><span class="detail-value mono"><%= user.userId || '--' %></span></div>
+            <div class="detail-item"><span class="detail-label">MongoDB ID</span><span class="detail-value mono small"><%= user._id %></span></div>
+            <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value"><%= user.name %></span></div>
+            <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value"><%= user.email %></span></div>
+            <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value"><%= user.phone || '—' %></span></div>
+            <div class="detail-item"><span class="detail-label">Role</span><span class="detail-value"><%= user.role %></span></div>
+            <div class="detail-item"><span class="detail-label">Status</span><span class="detail-value"><%= user.status %></span></div>
+            <div class="detail-item"><span class="detail-label">KYC</span><span class="detail-value"><%= user.kycStatus %></span></div>
+            <div class="detail-item"><span class="detail-label">Balance</span><span class="detail-value">₹<%= (user.balance||0).toLocaleString('en-IN', {minimumFractionDigits:2}) %></span></div>
+            <div class="detail-item"><span class="detail-label">Registered</span><span class="detail-value"><%= new Date(user.createdAt).toLocaleString('en-IN') %></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-transactions" class="tab-content" style="display:none;">
+        <div class="card detail-card">
+          <div class="detail-card-header">
+            <h3><i class="fas fa-arrow-right-arrow-left" style="color:#10B981;"></i> Recent Transactions</h3>
+          </div>
+          <% if (!recentTransactions || recentTransactions.length === 0) { %>
+            <div class="empty-state">
+              <i class="fas fa-receipt" style="font-size:2.5rem;color:#CBD5E1;"></i>
+              <p>No transactions found</p>
+            </div>
+          <% } else { %>
+            <table class="detail-table">
+              <thead>
+                <tr><th>ID</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <% recentTransactions.forEach((tx) => { %>
+                  <tr>
+                    <td class="mono">#<%= String(tx._id).slice(-6) %></td>
+                    <td>₹<%= (Number(tx.amount)||0).toLocaleString('en-IN') %></td>
+                    <td><%= tx.type || tx.TransactionType || '—' %></td>
+                    <td><span class="badge badge-<%= (tx.status||tx.Status)==='Success' ? 'success' : 'warning' %>"><%= tx.status || tx.Status || '—' %></span></td>
+                    <td><%= new Date(tx.createdAt || tx.TransactionDate || Date.now()).toLocaleDateString('en-IN') %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </div>
+      </div>
+
+      <div id="tab-activity" class="tab-content" style="display:none;">
+        <div class="card detail-card">
+          <div class="detail-card-header">
+            <h3><i class="fas fa-bolt" style="color:#F59E0B;"></i> Recent Activity</h3>
+          </div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#3B82F6;"></div>
+              <div class="timeline-content">
+                <span class="timeline-label">Account Created</span>
+                <span class="timeline-time"><%= new Date(user.createdAt).toLocaleString('en-IN') %></span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:#10B981;"></div>
+              <div class="timeline-content">
+                <span class="timeline-label">Last Profile Update</span>
+                <span class="timeline-time"><%= new Date(user.updatedAt).toLocaleString('en-IN') %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-security" class="tab-content" style="display:none;">
+        <div class="card detail-card">
+          <div class="detail-card-header">
+            <h3><i class="fas fa-shield-halved" style="color:#7C3AED;"></i> Security Settings</h3>
+          </div>
+          <div class="security-items">
+            <div class="security-row">
+              <div class="security-info">
+                <i class="fas fa-lock" style="color:#3B82F6;"></i>
+                <div>
+                  <span class="security-label">Password</span>
+                  <span class="security-sub">Last changed: unknown</span>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="resetPassword('<%= user._id %>')">Reset Password</button>
+            </div>
+            <div class="security-row">
+              <div class="security-info">
+                <i class="fas fa-mobile-screen" style="color:#10B981;"></i>
+                <div>
+                  <span class="security-label">Two-Factor Auth</span>
+                  <span class="security-sub"><%= user.twoFactorEnabled ? 'Enabled' : 'Disabled' %></span>
+                </div>
+              </div>
+              <span class="badge <%= user.twoFactorEnabled ? 'badge-success' : 'badge-neutral' %>"><%= user.twoFactorEnabled ? 'ON' : 'OFF' %></span>
+            </div>
+            <div class="security-row">
+              <div class="security-info">
+                <i class="fas fa-ban" style="color:#EF4444;"></i>
+                <div>
+                  <span class="security-label">Account Status</span>
+                  <span class="security-sub">Current: <%= user.status %></span>
+                </div>
+              </div>
+              <% if (user.status === 'Active') { %>
+                <button class="btn btn-warning btn-sm" onclick="quickAction('suspend','<%= user._id %>')">Suspend Account</button>
+              <% } else { %>
+                <button class="btn btn-success btn-sm" onclick="quickAction('activate','<%= user._id %>')">Activate Account</button>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach((t) => {
+    t.style.display = 'none';
+  });
+  document.querySelectorAll('.profile-tab').forEach((b) => {
+    b.classList.remove('active');
+  });
+  const tab = document.getElementById('tab-' + name);
+  if (tab) tab.style.display = 'block';
+  btn.classList.add('active');
+}
+
+async function quickAction(action, id) {
+  const labels = {
+    suspend: 'Suspend this user?',
+    activate: 'Activate this user?',
+    delete: 'Delete this user permanently? This cannot be undone.'
+  };
+
+  if (!confirm(labels[action] || 'Proceed?')) return;
+
+  try {
+    const res = await fetch('/admin/users/bulk-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, userIds: [id] })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Action completed', 'success');
+      if (action === 'delete') {
+        setTimeout(() => { window.location.href = '/admin/users'; }, 1000);
+      } else {
+        setTimeout(() => location.reload(), 800);
+      }
+    } else {
+      showToast(data.error || 'Action failed', 'error');
+    }
+  } catch (_err) {
+    showToast('Action failed', 'error');
+  }
+}
+
+async function resetPassword(id) {
+  const password = prompt('Enter new password (min 8 chars):');
+  if (!password) return;
+  if (password.length < 8) {
+    showToast('Password must be at least 8 characters', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/admin/users/${id}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newPassword: password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Password reset successfully', 'success');
+    } else {
+      showToast(data.error || 'Reset failed', 'error');
+    }
+  } catch (_err) {
+    showToast('Reset failed', 'error');
+  }
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const avatar = document.querySelector('.profile-avatar[data-avatar-color]');
+  if (avatar) {
+    avatar.style.background = avatar.getAttribute('data-avatar-color') || '#3B82F6';
+  }
+});
+</script>
