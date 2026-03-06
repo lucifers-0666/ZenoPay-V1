@@ -1,0 +1,1276 @@
+<style>
+  :root { --pending-cyan: #06b6d4; }
+
+  .pending-banks-page { display: grid; gap: 16px; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 16px;
+  }
+
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+  .page-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-dark);
+    line-height: 1.15;
+  }
+
+  .page-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: 4px 0 0 0;
+  }
+
+  .breadcrumb {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-soft);
+  }
+
+  .breadcrumb a { color: var(--text-soft); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--primary); }
+  .breadcrumb i.fa-chevron-right { font-size: 0.6rem; }
+  .breadcrumb .current { color: var(--primary); font-weight: 600; }
+
+  .page-header-right { display: inline-flex; align-items: center; gap: 10px; }
+
+  .btn-outline-admin {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-mid);
+    height: 40px;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+  }
+
+  .btn-outline-admin:hover { background: var(--bg-page); }
+  .btn-outline-green { border-color: #22c55e; color: #16a34a; }
+  .btn-outline-green:hover { background: rgba(34, 197, 94, 0.08); }
+  .btn-outline-green:disabled { opacity: .5; cursor: not-allowed; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-card.total-pending { border-left: 3px solid #06b6d4; }
+  .stat-card.submitted-today { border-left: 3px solid #3B82F6; }
+  .stat-card.approved { border-left: 3px solid #22c55e; }
+  .stat-card.rejected { border-left: 3px solid #ef4444; }
+
+  .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.12rem;
+    flex-shrink: 0;
+  }
+
+  .stat-info { flex: 1; }
+
+  .stat-label {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 0 0 6px 0;
+  }
+
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1;
+  }
+
+  .stat-subtext { color: var(--text-soft); font-size: .78rem; margin-top: 5px; }
+
+  .pending-alert {
+    width: 100%;
+    background: rgba(6,182,212,0.08);
+    border: 1px solid rgba(6,182,212,0.25);
+    border-left: 4px solid #06b6d4;
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pending-alert .left {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #0e7490;
+  }
+
+  .btn-cyan {
+    border: 1px solid #06b6d4;
+    background: #06b6d4;
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 700;
+    border-radius: 999px;
+    height: 34px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+
+  .btn-cyan:hover { filter: brightness(.95); }
+
+  .filter-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 10px;
+  }
+
+  .search-wrap { position: relative; }
+  .search-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-soft);
+    font-size: .8rem;
+  }
+
+  .filter-input, .filter-select {
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 0 12px;
+    width: 100%;
+  }
+
+  .search-wrap .filter-input { padding-left: 34px; }
+
+  .table-card {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  .pending-banks-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .pending-banks-table thead th {
+    background: var(--bg-page);
+    color: var(--text-mid);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    white-space: nowrap;
+  }
+
+  .pending-banks-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .row-no { color: var(--text-soft); font-size: .82rem; }
+
+  .bank-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bank-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .bank-initial {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #06b6d4;
+    color: #fff;
+    font-weight: 800;
+    font-size: .88rem;
+  }
+
+  .bank-name { font-size: .9rem; color: var(--text-dark); font-weight: 700; }
+  .bank-code {
+    margin-top: 2px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #06b6d4;
+    font-size: .74rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .badge-info { background: color-mix(in srgb, var(--primary) 14%, var(--card-bg)); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 30%, var(--card-bg)); }
+  .badge-success { background: color-mix(in srgb, var(--green) 14%, var(--card-bg)); color: var(--green-dark); border-color: color-mix(in srgb, var(--green) 30%, var(--card-bg)); }
+  .badge-warning { background: color-mix(in srgb, var(--amber) 14%, var(--card-bg)); color: var(--amber-dark); border-color: color-mix(in srgb, var(--amber) 30%, var(--card-bg)); }
+  .badge-purple { background: color-mix(in srgb, var(--secondary) 14%, var(--card-bg)); color: var(--secondary); border-color: color-mix(in srgb, var(--secondary) 30%, var(--card-bg)); }
+  .badge-cyan { background: rgba(6,182,212,.14); color: #0891b2; border-color: rgba(6,182,212,.28); }
+
+  .ifsc-text { color: var(--text-mid); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; }
+  .ifsc-empty { color: var(--text-soft); font-style: italic; }
+
+  .mode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: .7rem;
+    font-weight: 600;
+    margin-right: 4px;
+    border: 1px solid transparent;
+  }
+
+  .mode-pill.blue { background: color-mix(in srgb, var(--primary) 12%, var(--card-bg)); color: var(--primary); border-color: color-mix(in srgb, var(--primary) 24%, var(--card-bg)); }
+  .mode-pill.green { background: color-mix(in srgb, var(--green) 12%, var(--card-bg)); color: var(--green-dark); border-color: color-mix(in srgb, var(--green) 24%, var(--card-bg)); }
+  .mode-pill.purple { background: color-mix(in srgb, var(--secondary) 12%, var(--card-bg)); color: var(--secondary); border-color: color-mix(in srgb, var(--secondary) 24%, var(--card-bg)); }
+  .mode-pill.amber { background: color-mix(in srgb, var(--amber) 12%, var(--card-bg)); color: var(--amber-dark); border-color: color-mix(in srgb, var(--amber) 24%, var(--card-bg)); }
+  .mode-pill.disabled { opacity: .3; }
+
+  .submitted-date { color: var(--text-dark); font-size: .8rem; font-weight: 600; }
+  .submitted-time { color: var(--text-soft); font-size: .72rem; margin-top: 2px; }
+
+  .wait-green { color: #22c55e; font-weight:600; }
+  .wait-amber { color: #f59e0b; font-weight:600; }
+  .wait-red { color: #ef4444; font-weight:600; animation: subtlePulse 2s infinite; }
+
+  @keyframes subtlePulse {
+    0%,100% { opacity:1; }
+    50% { opacity:0.6; }
+  }
+
+  .actions-cell { display: inline-flex; align-items: center; gap: 6px; }
+
+  .row-action-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+  }
+
+  .row-action-btn.approve:hover {
+    background:#22c55e; color:#fff; border-color:#22c55e;
+  }
+
+  .row-action-btn.reject:hover {
+    background:#ef4444; color:#fff; border-color:#ef4444;
+  }
+
+  .row-action-btn.view:hover {
+    background:var(--primary); color:#fff; border-color:var(--primary);
+  }
+
+  .empty-state { padding: 36px 14px; text-align: center; color: var(--text-soft); }
+  .empty-state i { font-size: 56px; color: #22c55e; margin-bottom: 10px; }
+  .empty-state h4 { color: var(--text-dark); font-weight: 800; margin: 0 0 6px 0; }
+  .empty-state p { margin: 0; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 18px;
+  }
+
+  .modal-card {
+    width: min(560px, 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .modal-card.quick { max-width: 600px; width: 100%; }
+
+  .modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-title.green { color: #15803d; }
+  .modal-title.red { color: #dc2626; }
+
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+
+  .modal-body { padding: 14px 16px; display: grid; gap: 10px; }
+  .modal-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .preview-card {
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    display: grid;
+    gap: 4px;
+    color: var(--text-mid);
+    font-size: .82rem;
+  }
+
+  .preview-card strong { color: var(--text-dark); font-size: .92rem; }
+  .preview-card .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #06b6d4; }
+
+  .field-label { color: var(--text-mid); font-size: 12px; font-weight: 700; }
+  .field-select, .field-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .field-textarea { resize: vertical; min-height: 90px; }
+
+  .info-box-green {
+    border: 1px solid rgba(34,197,94,.35);
+    background: rgba(34,197,94,.08);
+    color: #166534;
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .warning-box-red {
+    border: 1px solid rgba(239,68,68,.35);
+    background: rgba(239,68,68,.08);
+    color: #991b1b;
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .quick-field {
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: var(--bg-page);
+  }
+
+  .quick-field.full { grid-column: 1 / -1; }
+  .quick-field .k { font-size: .72rem; color: var(--text-soft); margin-bottom: 2px; }
+  .quick-field .v { font-size: .82rem; color: var(--text-dark); font-weight: 600; }
+
+  .mode-list { display: grid; gap: 6px; }
+  .mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+
+  .mode-state-on { color: #16a34a; font-weight: 700; }
+  .mode-state-off { color: var(--text-soft); font-weight: 700; }
+
+  .toast-wrap {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1400;
+    display: grid;
+    gap: 8px;
+  }
+
+  .admin-toast {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: .82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all .25s;
+  }
+
+  .admin-toast.show { opacity: 1; transform: translateY(0); }
+  .admin-toast-success i { color: #16a34a; }
+  .admin-toast-error i { color: #dc2626; }
+  .admin-toast-warning i { color: #d97706; }
+
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-card { grid-template-columns: 1fr; }
+    #bulkActionBar { left: 0 !important; }
+  }
+
+  @media (max-width: 760px) {
+    .page-header { flex-direction: column; align-items: stretch; }
+    .page-header-right { width: 100%; }
+    .btn-outline-admin { flex: 1; justify-content: center; }
+    .quick-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<%
+  const safeBanks = Array.isArray(banks) ? banks : [];
+  const safeFilters = filters || {};
+
+  const typeClass = (type) => {
+    const t = String(type || '').toLowerCase();
+    if (t === 'public') return 'badge-info';
+    if (t === 'private') return 'badge-purple';
+    if (t === 'cooperative') return 'badge-success';
+    if (t === 'foreign') return 'badge-warning';
+    if (t === 'payments') return 'badge-cyan';
+    return 'badge-info';
+  };
+
+  const formatDate = (value) => {
+    const d = new Date(value || Date.now());
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
+  const formatTime = (value) => {
+    const d = new Date(value || Date.now());
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const safeAttr = (v) => String(v || '').replace(/"/g, '&quot;');
+%>
+
+<section class="pending-banks-page">
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-title-wrap">
+        <div class="page-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div>
+          <h1 class="page-title">Pending Banks</h1>
+          <p class="page-subtitle">Review and approve pending bank additions</p>
+        </div>
+      </div>
+
+      <div class="breadcrumb">
+        <i class="fas fa-home"></i>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/admin/banks">Banks</a>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current">Pending</span>
+      </div>
+    </div>
+
+    <div class="page-header-right">
+      <a href="/admin/banks" class="btn-outline-admin">
+        <i class="fas fa-arrow-left"></i> Back to All Banks
+      </a>
+      <button id="bulkApproveBtn" type="button" class="btn-outline-admin btn-outline-green" disabled>
+        <i class="fas fa-check-double"></i> Approve All
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card total-pending">
+      <div class="stat-icon" style="background:rgba(6,182,212,.12); color:#06b6d4;"><i class="fas fa-hourglass-half"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Total Pending</p>
+        <h3 class="stat-value"><%= Number(totalPending || 0) %></h3>
+        <div class="stat-subtext">Awaiting approval</div>
+      </div>
+    </article>
+
+    <article class="stat-card submitted-today">
+      <div class="stat-icon" style="background:rgba(59,130,246,.12); color:#3B82F6;"><i class="fas fa-calendar-plus"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Submitted Today</p>
+        <h3 class="stat-value"><%= Number(pendingToday || 0) %></h3>
+        <div class="stat-subtext">Added today</div>
+      </div>
+    </article>
+
+    <article class="stat-card approved">
+      <div class="stat-icon" style="background:rgba(34,197,94,.12); color:#22c55e;"><i class="fas fa-circle-check"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Approved Banks</p>
+        <h3 class="stat-value"><%= Number(approvedCount || 0) %></h3>
+        <div class="stat-subtext">Currently active</div>
+      </div>
+    </article>
+
+    <article class="stat-card rejected">
+      <div class="stat-icon" style="background:rgba(239,68,68,.12); color:#ef4444;"><i class="fas fa-circle-xmark"></i></div>
+      <div class="stat-info">
+        <p class="stat-label">Rejected</p>
+        <h3 class="stat-value"><%= Number(rejectedCount || 0) %></h3>
+        <div class="stat-subtext">Total rejected</div>
+      </div>
+    </article>
+  </section>
+
+  <% if (Number(totalPending || 0) > 0) { %>
+    <section class="pending-alert">
+      <div class="left">
+        <i class="fas fa-circle-info" style="color:#06b6d4;"></i>
+        <span><%= totalPending %> bank(s) pending approval</span>
+      </div>
+      <button type="button" class="btn-cyan" id="reviewNowBtn"><i class="fas fa-list-check"></i> Review Now</button>
+    </section>
+  <% } %>
+
+  <section class="filter-card">
+    <div class="search-wrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input id="bankSearch" class="filter-input" type="text" placeholder="Search by bank name, code, IFSC prefix..." value="<%= safeFilters.search || '' %>">
+    </div>
+
+    <select id="typeFilter" class="filter-select">
+      <option value="all">All Types</option>
+      <option value="public">Public Sector</option>
+      <option value="private">Private Sector</option>
+      <option value="cooperative">Cooperative</option>
+      <option value="foreign">Foreign</option>
+      <option value="payments">Payments Bank</option>
+    </select>
+
+    <select id="dateFilter" class="filter-select">
+      <option value="all">All Time</option>
+      <option value="today">Today</option>
+      <option value="7">Last 7 Days</option>
+      <option value="30">Last 30 Days</option>
+    </select>
+
+    <button id="resetFilterBtn" type="button" class="btn-outline-admin"><i class="fas fa-rotate-left"></i> Reset</button>
+  </section>
+
+  <section class="table-card" id="pendingBanksTableSection">
+    <div class="table-wrap">
+      <table class="pending-banks-table">
+        <thead>
+          <tr>
+            <th><input id="selectAllBanks" type="checkbox"></th>
+            <th>#</th>
+            <th>Bank</th>
+            <th>Type</th>
+            <th>IFSC Prefix</th>
+            <th>Payment Modes</th>
+            <th>Submitted</th>
+            <th>Wait</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pendingBanksTableBody">
+          <% if (safeBanks.length) { %>
+            <% safeBanks.forEach((bank, index) => { %>
+              <tr
+                class="bank-table-row"
+                data-submitted="<%= new Date(bank.createdAt || Date.now()).toISOString() %>"
+                data-search="<%= safeAttr(`${bank.bankName || ''} ${bank.bankCode || ''} ${bank.ifscPrefix || ''}`.toLowerCase()) %>"
+                data-type="<%= bank.type || 'public' %>">
+                <td>
+                  <input class="bank-row-cb" type="checkbox" data-bank-id="<%= bank._id %>">
+                </td>
+                <td class="row-no"><%= index + 1 %></td>
+                <td>
+                  <div class="bank-cell">
+                    <% if (bank.logoUrl) { %>
+                      <img src="<%= bank.logoUrl %>" alt="<%= bank.bankName %>" class="bank-logo">
+                    <% } else { %>
+                      <span class="bank-initial"><%= String(bank.bankName || 'B').charAt(0).toUpperCase() %></span>
+                    <% } %>
+                    <div>
+                      <div class="bank-name"><%= bank.bankName %></div>
+                      <div class="bank-code"><%= bank.bankCode %></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge <%= typeClass(bank.type) %>"><%= bank.type || 'public' %></span>
+                </td>
+                <td>
+                  <% if (bank.ifscPrefix) { %>
+                    <span class="ifsc-text"><%= bank.ifscPrefix %></span>
+                  <% } else { %>
+                    <span class="ifsc-empty">—</span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="mode-pill blue <%= bank.upiEnabled ? '' : 'disabled' %>"><i class="fas fa-mobile-screen"></i> UPI</span>
+                  <span class="mode-pill green <%= bank.neftEnabled ? '' : 'disabled' %>"><i class="fas fa-building-columns"></i> NEFT</span>
+                  <span class="mode-pill purple <%= bank.rtgsEnabled ? '' : 'disabled' %>"><i class="fas fa-bolt"></i> RTGS</span>
+                  <span class="mode-pill amber <%= bank.impsEnabled ? '' : 'disabled' %>"><i class="fas fa-right-left"></i> IMPS</span>
+                </td>
+                <td>
+                  <div class="submitted-date"><%= formatDate(bank.createdAt) %></div>
+                  <div class="submitted-time"><%= formatTime(bank.createdAt) %></div>
+                </td>
+                <td>
+                  <span class="wait-days" data-submitted="<%= new Date(bank.createdAt || Date.now()).toISOString() %>">0 days</span>
+                </td>
+                <td>
+                  <div class="actions-cell">
+                    <button type="button" class="row-action-btn view" onclick="openBankQuickView('<%= bank._id %>')">
+                      <i class="fas fa-eye"></i> View
+                    </button>
+                    <button type="button" class="row-action-btn approve"
+                      data-bank-id="<%= bank._id %>"
+                      data-bank-name="<%= safeAttr(bank.bankName) %>"
+                      data-bank-code="<%= safeAttr(bank.bankCode) %>"
+                      data-bank-type="<%= safeAttr(bank.type || 'public') %>"
+                      onclick="openApproveFromButton(this)">
+                      <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button type="button" class="row-action-btn reject"
+                      data-bank-id="<%= bank._id %>"
+                      data-bank-name="<%= safeAttr(bank.bankName) %>"
+                      data-bank-code="<%= safeAttr(bank.bankCode) %>"
+                      onclick="openRejectFromButton(this)">
+                      <i class="fas fa-xmark"></i> Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <i class="fas fa-landmark"></i>
+                  <h4>All banks are up to date</h4>
+                  <p>No pending bank approvals at this time</p>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<div id="bulkActionBar" style="position:fixed; bottom:0; left:260px; right:0; background:var(--card-bg); border-top:2px solid #06b6d4; padding:14px 28px; display:none; align-items:center; justify-content:space-between; z-index:1000; box-shadow:0 -4px 20px rgba(0,0,0,0.1);">
+  <div><span id="selectedCount">0</span> banks selected</div>
+  <div style="display:inline-flex; align-items:center; gap:8px;">
+    <button id="bulkApproveSelectedBtn" class="btn-cyan" type="button"><i class="fas fa-check-double"></i> Approve Selected</button>
+    <button id="bulkRejectSelectedBtn" class="btn-outline-admin" style="border-color:#ef4444; color:#ef4444;" type="button"><i class="fas fa-xmark"></i> Reject Selected</button>
+    <button id="bulkCancelBtn" class="btn-outline-admin" type="button">Cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="approveBankModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title green"><i class="fas fa-check-circle"></i> Approve Bank</h3>
+      <button type="button" class="modal-close" data-close="approveBankModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="approveBankId">
+
+      <div class="preview-card">
+        <strong id="approveModalBankName">-</strong>
+        <div>Code: <span class="mono" id="approveModalBankCode">-</span></div>
+        <div>Type: <span id="approveModalBankType" class="badge badge-info">public</span></div>
+        <div>IFSC Prefix: <span id="approveModalIfsc">—</span></div>
+      </div>
+
+      <div>
+        <div class="field-label" style="margin-bottom:6px;">Payment Modes</div>
+        <div id="approveModalModes">
+          <span class="mode-pill blue disabled"><i class="fas fa-mobile-screen"></i> UPI</span>
+          <span class="mode-pill green disabled"><i class="fas fa-building-columns"></i> NEFT</span>
+          <span class="mode-pill purple disabled"><i class="fas fa-bolt"></i> RTGS</span>
+          <span class="mode-pill amber disabled"><i class="fas fa-right-left"></i> IMPS</span>
+        </div>
+      </div>
+
+      <div class="info-box-green">
+        <i class="fas fa-circle-info"></i>
+        Approving this bank will:
+        <br>• Make it available for user transactions
+        <br>• Enable selected payment modes
+        <br>• List it in the banks directory
+      </div>
+
+      <div>
+        <label class="field-label" for="approveNote">Admin Note (optional)</label>
+        <textarea id="approveNote" class="field-textarea" placeholder="Add approval notes (optional)..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="approveBankModal">Cancel</button>
+      <button type="button" class="btn-outline-admin" id="confirmApproveBtn" style="background:#22c55e; border-color:#22c55e; color:#fff;"><i class="fas fa-check-circle"></i> Approve Bank</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rejectBankModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title red"><i class="fas fa-circle-xmark"></i> Reject Bank</h3>
+      <button type="button" class="modal-close" data-close="rejectBankModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="rejectBankId">
+
+      <div class="preview-card">
+        <strong id="rejectModalBankName">-</strong>
+        <div>Code: <span class="mono" id="rejectModalBankCode">-</span></div>
+      </div>
+
+      <div class="warning-box-red">
+        <i class="fas fa-triangle-exclamation"></i>
+        This bank will be marked as rejected and will not be available for transactions.
+      </div>
+
+      <div>
+        <label class="field-label" for="rejectReason">Rejection Reason</label>
+        <select id="rejectReason" class="field-select" required>
+          <option value="">Select a reason...</option>
+          <option value="Duplicate Entry">Duplicate Entry</option>
+          <option value="Invalid Bank Details">Invalid Bank Details</option>
+          <option value="Incorrect IFSC Prefix">Incorrect IFSC Prefix</option>
+          <option value="Regulatory Restrictions">Regulatory Restrictions</option>
+          <option value="Incomplete Information">Incomplete Information</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="field-label" for="rejectNotes">Additional Notes</label>
+        <textarea id="rejectNotes" class="field-textarea" placeholder="Additional context for rejection..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="rejectBankModal">Cancel</button>
+      <button type="button" class="btn-outline-admin" id="confirmRejectBtn" style="background:#ef4444; border-color:#ef4444; color:#fff;"><i class="fas fa-circle-xmark"></i> Reject Bank</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bankQuickViewModal" role="dialog" aria-modal="true">
+  <div class="modal-card quick">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-eye"></i> Bank Details</h3>
+      <button type="button" class="modal-close" data-close="bankQuickViewModal"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="quick-grid">
+        <div class="quick-field"><div class="k">Bank Name</div><div class="v" id="qvBankName">-</div></div>
+        <div class="quick-field"><div class="k">Bank Code</div><div class="v" id="qvBankCode">-</div></div>
+
+        <div class="quick-field"><div class="k">Type</div><div class="v" id="qvType">-</div></div>
+        <div class="quick-field"><div class="k">IFSC Prefix</div><div class="v" id="qvIfsc">-</div></div>
+
+        <div class="quick-field"><div class="k">Priority</div><div class="v" id="qvPriority">-</div></div>
+        <div class="quick-field"><div class="k">Status</div><div class="v" id="qvStatus">pending</div></div>
+
+        <div class="quick-field"><div class="k">Logo URL</div><div class="v" id="qvLogo">-</div></div>
+        <div class="quick-field"><div class="k">Submitted Date</div><div class="v" id="qvSubmitted">-</div></div>
+      </div>
+
+      <div>
+        <div class="field-label" style="margin-bottom:6px;">Payment Modes</div>
+        <div class="mode-list">
+          <div class="mode-row"><span><i class="fas fa-mobile-screen"></i> UPI</span><span id="qvModeUpi" class="mode-state-off">disabled</span></div>
+          <div class="mode-row"><span><i class="fas fa-building-columns"></i> NEFT</span><span id="qvModeNeft" class="mode-state-off">disabled</span></div>
+          <div class="mode-row"><span><i class="fas fa-bolt"></i> RTGS</span><span id="qvModeRtgs" class="mode-state-off">disabled</span></div>
+          <div class="mode-row"><span><i class="fas fa-right-left"></i> IMPS</span><span id="qvModeImps" class="mode-state-off">disabled</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-outline-admin" data-close="bankQuickViewModal">Close</button>
+      <button type="button" class="btn-outline-admin" id="quickApproveBtn" style="background:#22c55e; border-color:#22c55e; color:#fff;"><i class="fas fa-check"></i> Approve</button>
+      <button type="button" class="btn-outline-admin" id="quickRejectBtn" style="border-color:#ef4444; color:#ef4444;"><i class="fas fa-xmark"></i> Reject</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastContainer"></div>
+
+<script>
+  var selectedBanks = new Set();
+  var quickViewBankId = '';
+  var quickViewBankName = '';
+  var quickViewBankCode = '';
+
+  function byId(id) { return document.getElementById(id); }
+
+  function showToast(message, type) {
+    var host = byId('toastContainer');
+    var toast = document.createElement('div');
+    var icon = 'fa-circle-check';
+    var klass = 'admin-toast-success';
+
+    if (type === 'error') { icon = 'fa-circle-exclamation'; klass = 'admin-toast-error'; }
+    if (type === 'warning') { icon = 'fa-triangle-exclamation'; klass = 'admin-toast-warning'; }
+
+    toast.className = 'admin-toast ' + klass;
+    toast.innerHTML = '<i class="fas ' + icon + '"></i><span>' + String(message || '') + '</span>';
+    host.appendChild(toast);
+    requestAnimationFrame(function () { toast.classList.add('show'); });
+
+    setTimeout(function () {
+      toast.classList.remove('show');
+      setTimeout(function () { toast.remove(); }, 250);
+    }, 2200);
+  }
+
+  function updateBulkBar() {
+    var bar = byId('bulkActionBar');
+    var count = selectedBanks.size;
+    byId('selectedCount').textContent = count;
+    bar.style.display = count > 0 ? 'flex' : 'none';
+    byId('bulkApproveBtn').disabled = count === 0;
+  }
+
+  function openApproveModal(bankId, bankName, bankCode, type) {
+    byId('approveBankId').value = bankId;
+    byId('approveModalBankName').textContent = bankName;
+    byId('approveModalBankCode').textContent = bankCode;
+
+    var typeEl = byId('approveModalBankType');
+    typeEl.className = 'badge';
+    var t = String(type || 'public').toLowerCase();
+    if (t === 'public') typeEl.classList.add('badge-info');
+    else if (t === 'private') typeEl.classList.add('badge-purple');
+    else if (t === 'cooperative') typeEl.classList.add('badge-success');
+    else if (t === 'foreign') typeEl.classList.add('badge-warning');
+    else typeEl.classList.add('badge-cyan');
+    typeEl.textContent = t;
+
+    byId('approveBankModal').style.display = 'flex';
+  }
+
+  function openApproveFromButton(btn) {
+    openApproveModal(
+      btn.getAttribute('data-bank-id') || '',
+      btn.getAttribute('data-bank-name') || '',
+      btn.getAttribute('data-bank-code') || '',
+      btn.getAttribute('data-bank-type') || 'public'
+    );
+  }
+
+  function openRejectModal(bankId, bankName, bankCode) {
+    byId('rejectBankId').value = bankId;
+    byId('rejectModalBankName').textContent = bankName;
+    byId('rejectModalBankCode').textContent = bankCode;
+    byId('rejectReason').value = '';
+    byId('rejectNotes').value = '';
+    byId('rejectBankModal').style.display = 'flex';
+  }
+
+  function openRejectFromButton(btn) {
+    openRejectModal(
+      btn.getAttribute('data-bank-id') || '',
+      btn.getAttribute('data-bank-name') || '',
+      btn.getAttribute('data-bank-code') || ''
+    );
+  }
+
+  function setModeState(el, enabled) {
+    if (!el) return;
+    el.className = enabled ? 'mode-state-on' : 'mode-state-off';
+    el.textContent = enabled ? 'enabled' : 'disabled';
+  }
+
+  function openBankQuickView(bankId) {
+    fetch('/admin/banks/' + bankId + '/info')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data._id) {
+          showToast('Unable to load bank info', 'error');
+          return;
+        }
+
+        quickViewBankId = data._id;
+        quickViewBankName = data.bankName || '';
+        quickViewBankCode = data.bankCode || '';
+
+        byId('qvBankName').textContent = data.bankName || '-';
+        byId('qvBankCode').textContent = data.bankCode || '-';
+        byId('qvType').textContent = data.type || '-';
+        byId('qvIfsc').textContent = data.ifscPrefix || '—';
+        byId('qvPriority').textContent = data.priority != null ? String(data.priority) : '-';
+        byId('qvStatus').textContent = data.status || 'pending';
+        byId('qvLogo').textContent = data.logoUrl || '—';
+        byId('qvSubmitted').textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+
+        setModeState(byId('qvModeUpi'), !!data.upiEnabled);
+        setModeState(byId('qvModeNeft'), !!data.neftEnabled);
+        setModeState(byId('qvModeRtgs'), !!data.rtgsEnabled);
+        setModeState(byId('qvModeImps'), !!data.impsEnabled);
+
+        var modeWrap = byId('approveModalModes');
+        if (modeWrap) {
+          modeWrap.innerHTML = '' +
+            '<span class="mode-pill blue ' + (data.upiEnabled ? '' : 'disabled') + '"><i class="fas fa-mobile-screen"></i> UPI</span>' +
+            '<span class="mode-pill green ' + (data.neftEnabled ? '' : 'disabled') + '"><i class="fas fa-building-columns"></i> NEFT</span>' +
+            '<span class="mode-pill purple ' + (data.rtgsEnabled ? '' : 'disabled') + '"><i class="fas fa-bolt"></i> RTGS</span>' +
+            '<span class="mode-pill amber ' + (data.impsEnabled ? '' : 'disabled') + '"><i class="fas fa-right-left"></i> IMPS</span>';
+        }
+
+        byId('approveModalIfsc').textContent = data.ifscPrefix || '—';
+        byId('bankQuickViewModal').style.display = 'flex';
+      })
+      .catch(function () {
+        showToast('Unable to load bank info', 'error');
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var selectAll = byId('selectAllBanks');
+
+    selectAll?.addEventListener('change', function () {
+      document.querySelectorAll('.bank-row-cb').forEach(function (cb) {
+        cb.checked = selectAll.checked;
+        if (selectAll.checked) {
+          selectedBanks.add(cb.dataset.bankId);
+        } else {
+          selectedBanks.delete(cb.dataset.bankId);
+        }
+      });
+      updateBulkBar();
+    });
+
+    document.querySelectorAll('.bank-row-cb').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        if (cb.checked) {
+          selectedBanks.add(cb.dataset.bankId);
+        } else {
+          selectedBanks.delete(cb.dataset.bankId);
+        }
+        updateBulkBar();
+      });
+    });
+
+    byId('confirmApproveBtn')?.addEventListener('click', function () {
+      var bankId = byId('approveBankId').value;
+      var note = byId('approveNote').value;
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
+
+      fetch('/admin/banks/' + bankId + '/approve', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminNote: note })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          showToast('Bank approved successfully!', 'success');
+          setTimeout(function () { location.reload(); }, 1200);
+        } else {
+          showToast(data.message || 'Error', 'error');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> Approve Bank';
+        }
+      })
+      .catch(function () {
+        showToast('Network error', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Approve Bank';
+      });
+    });
+
+    byId('confirmRejectBtn')?.addEventListener('click', function () {
+      var bankId = byId('rejectBankId').value;
+      var reason = byId('rejectReason').value;
+      var notes = byId('rejectNotes').value;
+
+      if (!reason) {
+        showToast('Please select a rejection reason', 'warning');
+        return;
+      }
+
+      fetch('/admin/banks/' + bankId + '/reject', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason, notes: notes })
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          showToast('Bank rejected', 'success');
+          setTimeout(function () { location.reload(); }, 1200);
+        } else {
+          showToast(data.message || 'Error', 'error');
+        }
+      })
+      .catch(function () {
+        showToast('Network error', 'error');
+      });
+    });
+
+    byId('quickApproveBtn')?.addEventListener('click', function () {
+      byId('bankQuickViewModal').style.display = 'none';
+      openApproveModal(quickViewBankId, quickViewBankName, quickViewBankCode, byId('qvType').textContent);
+    });
+
+    byId('quickRejectBtn')?.addEventListener('click', function () {
+      byId('bankQuickViewModal').style.display = 'none';
+      openRejectModal(quickViewBankId, quickViewBankName, quickViewBankCode);
+    });
+
+    byId('bulkApproveBtn')?.addEventListener('click', function () {
+      if (selectedBanks.size === 0) return;
+      if (!confirm('Approve ' + selectedBanks.size + ' bank(s)?')) return;
+
+      var promises = Array.from(selectedBanks).map(function (id) {
+        return fetch('/admin/banks/' + id + '/approve', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+      });
+
+      Promise.all(promises).then(function () {
+        showToast('Banks approved successfully!', 'success');
+        setTimeout(function () { location.reload(); }, 1200);
+      });
+    });
+
+    byId('bulkApproveSelectedBtn')?.addEventListener('click', function () {
+      byId('bulkApproveBtn')?.click();
+    });
+
+    byId('bulkRejectSelectedBtn')?.addEventListener('click', function () {
+      if (selectedBanks.size === 0) return;
+
+      var promises = Array.from(selectedBanks).map(function (id) {
+        return fetch('/admin/banks/' + id + '/reject', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Bulk rejected', notes: '' })
+        });
+      });
+
+      Promise.all(promises).then(function () {
+        showToast('Selected banks rejected', 'success');
+        setTimeout(function () { location.reload(); }, 1200);
+      });
+    });
+
+    byId('bulkCancelBtn')?.addEventListener('click', function () {
+      selectedBanks.clear();
+      document.querySelectorAll('.bank-row-cb').forEach(function (cb) { cb.checked = false; });
+      if (selectAll) selectAll.checked = false;
+      updateBulkBar();
+    });
+
+    byId('bankSearch')?.addEventListener('input', function () {
+      var q = this.value.toLowerCase();
+      document.querySelectorAll('.bank-table-row').forEach(function (row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    function applyCompositeFilters() {
+      var q = String(byId('bankSearch')?.value || '').toLowerCase().trim();
+      var type = String(byId('typeFilter')?.value || 'all');
+      var date = String(byId('dateFilter')?.value || 'all');
+
+      var now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      document.querySelectorAll('.bank-table-row').forEach(function (row) {
+        var txt = String(row.getAttribute('data-search') || '');
+        var rowType = String(row.getAttribute('data-type') || 'public');
+        var submittedRaw = row.getAttribute('data-submitted');
+        var submitted = submittedRaw ? new Date(submittedRaw) : new Date();
+
+        var passQ = !q || txt.indexOf(q) !== -1;
+        var passType = type === 'all' || rowType === type;
+
+        var passDate = true;
+        if (date === 'today') {
+          var s = new Date(now);
+          var e = new Date(now);
+          e.setHours(23,59,59,999);
+          passDate = submitted >= s && submitted <= e;
+        } else if (date === '7' || date === '30') {
+          var n = Number(date);
+          var since = new Date();
+          since.setHours(0,0,0,0);
+          since.setDate(since.getDate() - (n - 1));
+          passDate = submitted >= since;
+        }
+
+        row.style.display = (passQ && passType && passDate) ? '' : 'none';
+      });
+    }
+
+    byId('bankSearch')?.addEventListener('input', applyCompositeFilters);
+    byId('typeFilter')?.addEventListener('change', applyCompositeFilters);
+    byId('dateFilter')?.addEventListener('change', applyCompositeFilters);
+
+    byId('resetFilterBtn')?.addEventListener('click', function () {
+      if (byId('bankSearch')) byId('bankSearch').value = '';
+      if (byId('typeFilter')) byId('typeFilter').value = 'all';
+      if (byId('dateFilter')) byId('dateFilter').value = 'all';
+      applyCompositeFilters();
+    });
+
+    byId('reviewNowBtn')?.addEventListener('click', function () {
+      byId('pendingBanksTableSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.querySelectorAll('.wait-days').forEach(function (cell) {
+      var submitted = new Date(cell.getAttribute('data-submitted'));
+      var days = Math.max(0, Math.floor((Date.now() - submitted.getTime()) / 86400000));
+      cell.textContent = days + ' days';
+      cell.classList.remove('wait-green', 'wait-amber', 'wait-red');
+      if (days <= 2) cell.classList.add('wait-green');
+      else if (days <= 5) cell.classList.add('wait-amber');
+      else cell.classList.add('wait-red');
+    });
+
+    document.querySelectorAll('[data-close]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-close');
+        if (byId(id)) byId(id).style.display = 'none';
+      });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) overlay.style.display = 'none';
+      });
+    });
+
+    updateBulkBar();
+    applyCompositeFilters();
+  });
+</script>
