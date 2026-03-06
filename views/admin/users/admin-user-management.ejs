@@ -1,6 +1,64 @@
 <%
   const currentAdminPage = typeof adminPage !== 'undefined' ? adminPage : 'users';
   page = currentAdminPage;
+
+  const safeFilters = filters || {};
+  const safePagination = pagination || { current: 1, total: 1, count: 0, limit: 20, from: 0, to: 0 };
+  const safeStats = stats || {
+    totalUsers: 0,
+    verifiedKYC: 0,
+    pendingKYC: 0,
+    suspended: 0,
+    newToday: 0,
+    newTodayDiff: 0,
+    growthPct: null
+  };
+  const safeViewMode = typeof viewMode === 'string' ? viewMode : 'table';
+  const hasFilters = safeFilters.search || safeFilters.status || safeFilters.kyc || safeFilters.dateFrom || safeFilters.dateTo;
+
+  const buildQuery = (overrides = {}) => {
+    const obj = {
+      search: safeFilters.search || '',
+      status: safeFilters.status || '',
+      role: safeFilters.role || '',
+      kyc: safeFilters.kyc || '',
+      dateFrom: safeFilters.dateFrom || '',
+      dateTo: safeFilters.dateTo || '',
+      view: safeViewMode,
+      sort: safeFilters.sort || 'createdAt',
+      order: safeFilters.order || 'desc',
+      limit: safePagination.limit || 20,
+      page: safePagination.current || 1,
+      ...overrides
+    };
+
+    return Object.entries(obj)
+      .filter(([_, v]) => v !== '' && v !== null && typeof v !== 'undefined')
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join('&');
+  };
+
+  const initials = (name = '') => name
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const timeAgo = (dateValue) => {
+    const diffMs = Date.now() - new Date(dateValue).getTime();
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays <= 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} month${months > 1 ? 's' : ''} ago`;
+    }
+    const years = Math.floor(diffDays / 365);
+    return `${years} year${years > 1 ? 's' : ''} ago`;
+  };
 %>
 
 <section class="users-page" id="usersPage">
@@ -16,8 +74,8 @@
       <p class="users-subtitle">Manage all registered ZenoPay users</p>
     </div>
     <div class="users-title-actions">
-      <button class="users-btn users-btn-primary" id="openAddUserModal" type="button" data-open-modal="addUserModal"><i class="fas fa-plus"></i><span>Add User</span></button>
-      <button class="users-btn users-btn-outline" id="exportCsvBtn" type="button"><i class="fas fa-download"></i><span>Export CSV</span></button>
+      <button class="users-btn users-btn-primary" type="button" onclick="openAddUserModal()"><i class="fas fa-plus"></i><span>Add User</span></button>
+      <a class="users-btn users-btn-outline" id="exportCsvBtn" href="/admin/users/export?<%= buildQuery({ page: 1 }) %>"><i class="fas fa-download"></i><span>Export CSV</span></a>
     </div>
   </header>
 
@@ -26,8 +84,13 @@
       <div class="users-stat-icon users-stat-icon-blue"><i class="fas fa-users"></i></div>
       <div class="users-stat-body">
         <p class="users-stat-label">Total Users</p>
-        <h3 class="users-stat-value">24,583</h3>
-        <span class="users-trend users-trend-up"><i class="fas fa-arrow-up"></i>+12.5%</span>
+        <h3 class="users-stat-value"><%= Number(safeStats.totalUsers || 0).toLocaleString('en-IN') %></h3>
+        <% if (safeStats.growthPct !== null && safeStats.growthPct !== undefined) { %>
+          <span class="users-trend <%= parseFloat(safeStats.growthPct) >= 0 ? 'users-trend-up' : 'users-trend-down' %>">
+            <i class="fas fa-arrow-<%= parseFloat(safeStats.growthPct) >= 0 ? 'up' : 'down' %>"></i>
+            <%= Math.abs(parseFloat(safeStats.growthPct)) %>% vs last month
+          </span>
+        <% } %>
       </div>
     </article>
 
@@ -35,8 +98,7 @@
       <div class="users-stat-icon users-stat-icon-green"><i class="fas fa-user-check"></i></div>
       <div class="users-stat-body">
         <p class="users-stat-label">Verified (KYC)</p>
-        <h3 class="users-stat-value">18,240</h3>
-        <span class="users-trend users-trend-up"><i class="fas fa-arrow-up"></i>+8.1%</span>
+        <h3 class="users-stat-value"><%= Number(safeStats.verifiedKYC || 0).toLocaleString('en-IN') %></h3>
       </div>
     </article>
 
@@ -44,7 +106,7 @@
       <div class="users-stat-icon users-stat-icon-amber"><i class="fas fa-user-clock"></i></div>
       <div class="users-stat-body">
         <p class="users-stat-label">Pending KYC</p>
-        <h3 class="users-stat-value">3,891</h3>
+        <h3 class="users-stat-value"><%= Number(safeStats.pendingKYC || 0).toLocaleString('en-IN') %></h3>
         <span class="users-trend users-trend-neutral">Count only</span>
       </div>
     </article>
@@ -53,7 +115,7 @@
       <div class="users-stat-icon users-stat-icon-red"><i class="fas fa-user-times"></i></div>
       <div class="users-stat-body">
         <p class="users-stat-label">Suspended</p>
-        <h3 class="users-stat-value">124</h3>
+        <h3 class="users-stat-value"><%= Number(safeStats.suspended || 0).toLocaleString('en-IN') %></h3>
         <span class="users-trend users-trend-neutral">Count only</span>
       </div>
     </article>
@@ -62,111 +124,281 @@
       <div class="users-stat-icon users-stat-icon-purple"><i class="fas fa-user-plus"></i></div>
       <div class="users-stat-body">
         <p class="users-stat-label">New Today</p>
-        <h3 class="users-stat-value">47</h3>
-        <span class="users-trend users-trend-neutral">+5 from yesterday</span>
+        <h3 class="users-stat-value"><%= Number(safeStats.newToday || 0).toLocaleString('en-IN') %></h3>
+        <span class="users-trend users-trend-neutral"><%= (safeStats.newTodayDiff || 0) >= 0 ? '+' : '' %><%= safeStats.newTodayDiff || 0 %> from yesterday</span>
       </div>
     </article>
   </section>
 
-  <section class="users-filter-card">
+  <form id="filterForm" method="GET" action="/admin/users" class="users-filter-card">
     <div class="users-search-wrap">
       <i class="fas fa-search users-search-icon"></i>
-      <input id="userSearchInput" class="users-search-input" type="text" placeholder="Search by name, email, phone, user ID..." />
+      <input id="searchInput" name="search" value="<%= safeFilters.search || '' %>" class="users-search-input" type="text" placeholder="Search by name, email, phone, user ID..." />
     </div>
 
-    <select id="statusFilter" class="users-select-pill" aria-label="Status filter">
-      <option value="">All Status</option>
-      <option value="active">Active</option>
-      <option value="suspended">Suspended</option>
-      <option value="pending kyc">Pending KYC</option>
-      <option value="unverified">Unverified</option>
+    <select id="statusFilter" name="status" class="users-select-pill" aria-label="Status filter" onchange="this.form.submit()">
+      <option value="" <%= (safeFilters.status || '') === '' ? 'selected' : '' %>>All Status</option>
+      <option value="Active" <%= safeFilters.status === 'Active' ? 'selected' : '' %>>Active</option>
+      <option value="Inactive" <%= safeFilters.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+      <option value="Suspended" <%= safeFilters.status === 'Suspended' ? 'selected' : '' %>>Suspended</option>
     </select>
 
-    <select id="kycFilter" class="users-select-pill" aria-label="KYC filter">
-      <option value="">All KYC</option>
-      <option value="verified">Verified</option>
-      <option value="pending">Pending</option>
-      <option value="rejected">Rejected</option>
-      <option value="not submitted">Not Submitted</option>
+    <select id="kycFilter" name="kyc" class="users-select-pill" aria-label="KYC filter" onchange="this.form.submit()">
+      <option value="" <%= (safeFilters.kyc || '') === '' ? 'selected' : '' %>>All KYC</option>
+      <option value="Verified" <%= safeFilters.kyc === 'Verified' ? 'selected' : '' %>>Verified</option>
+      <option value="Pending" <%= safeFilters.kyc === 'Pending' ? 'selected' : '' %>>Pending</option>
+      <option value="Rejected" <%= safeFilters.kyc === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+      <option value="Not Submitted" <%= safeFilters.kyc === 'Not Submitted' ? 'selected' : '' %>>Not Submitted</option>
     </select>
 
-    <div class="users-date-wrap">
-      <label class="users-date-input-wrap"><i class="fas fa-calendar-alt"></i><input id="fromDate" class="users-date-input" type="date" aria-label="From date" /></label>
-      <label class="users-date-input-wrap"><i class="fas fa-calendar-alt"></i><input id="toDate" class="users-date-input" type="date" aria-label="To date" /></label>
+    <div class="filter-date-wrap users-date-input-wrap">
+      <i class="fas fa-calendar"></i>
+      <input
+        type="date"
+        name="dateFrom"
+        id="dateFrom"
+        value="<%= safeFilters.dateFrom || '' %>"
+        max="<%= new Date().toISOString().split('T')[0] %>"
+        onchange="submitFilterForm()"
+        class="filter-input filter-date users-date-input"
+        placeholder="From date"
+      >
     </div>
 
-    <button id="clearFiltersBtn" class="users-clear-filters" type="button" hidden><i class="fas fa-times"></i><span>Clear Filters</span></button>
-  </section>
+    <div class="filter-date-wrap users-date-input-wrap">
+      <i class="fas fa-calendar"></i>
+      <input
+        type="date"
+        name="dateTo"
+        id="dateTo"
+        value="<%= safeFilters.dateTo || '' %>"
+        max="<%= new Date().toISOString().split('T')[0] %>"
+        onchange="submitFilterForm()"
+        class="filter-input filter-date users-date-input"
+        placeholder="To date"
+      >
+    </div>
+
+    <input type="hidden" name="sort" value="<%= safeFilters.sort || 'createdAt' %>">
+    <input type="hidden" name="order" value="<%= safeFilters.order || 'desc' %>">
+    <input type="hidden" name="view" value="<%= safeViewMode %>">
+    <input type="hidden" name="limit" value="<%= safePagination.limit || 20 %>">
+
+    <button class="users-btn users-btn-primary" type="submit">Search</button>
+
+    <% if (hasFilters) { %>
+      <a id="clearFiltersBtn" class="users-clear-filters btn-clear-filters" href="/admin/users"><i class="fas fa-xmark"></i><span>Clear Filters</span></a>
+    <% } %>
+  </form>
 
   <section class="users-results-bar">
-    <p class="users-results-text" id="resultsMeta">Showing 1–20 of 24,583 users</p>
+    <p class="users-results-text" id="resultsMeta">Showing <%= safePagination.from %>–<%= safePagination.to %> of <%= safePagination.count %> users</p>
     <div class="users-results-controls">
-      <button class="users-mini-btn" type="button"><i class="fas fa-columns"></i><span>Columns</span></button>
-      <div class="users-view-switch" role="group" aria-label="View mode">
-        <button class="users-view-btn" type="button" aria-pressed="false"><i class="fas fa-th-large"></i><span>Grid</span></button>
-        <button class="users-view-btn active" type="button" aria-pressed="true"><i class="fas fa-list"></i><span>Table</span></button>
+      <div class="view-toggle-group" role="group" aria-label="View mode">
+        <button
+          type="button"
+          class="view-toggle-btn <%= safeViewMode === 'columns' ? 'active' : '' %>"
+          onclick="setViewMode('columns')"
+          title="Column View"
+          data-mode="columns">
+          <i class="fas fa-table-columns"></i>
+          Columns
+        </button>
+        <button
+          type="button"
+          class="view-toggle-btn <%= safeViewMode === 'grid' ? 'active' : '' %>"
+          onclick="setViewMode('grid')"
+          title="Grid View"
+          data-mode="grid">
+          <i class="fas fa-grip"></i>
+          Grid
+        </button>
+        <button
+          type="button"
+          class="view-toggle-btn <%= safeViewMode === 'table' ? 'active' : '' %>"
+          onclick="setViewMode('table')"
+          title="Table View"
+          data-mode="table">
+          <i class="fas fa-list"></i>
+          Table
+        </button>
       </div>
     </div>
   </section>
 
   <section class="users-table-shell">
+    <div id="tableView">
     <table class="users-table" id="usersTable">
       <thead>
         <tr>
           <th class="users-col-checkbox"><label class="users-checkbox"><input id="selectAllUsers" type="checkbox"><span class="users-checkbox-ui"><i class="fas fa-check"></i></span></label></th>
-          <th class="users-sortable active" data-sort="name">USER <i class="fas fa-sort"></i></th>
-          <th class="users-sortable" data-sort="contact">CONTACT <i class="fas fa-sort"></i></th>
-          <th>KYC</th>
-          <th>ROLE</th>
-          <th class="users-align-right users-sortable" data-sort="balance">BALANCE <i class="fas fa-sort"></i></th>
-          <th>STATUS</th>
-          <th class="users-sortable" data-sort="joined">JOINED <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'name' ? 'active' : '' %>" data-sort="name">USER <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'email' ? 'active' : '' %>" data-sort="email">CONTACT <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'kycStatus' ? 'active' : '' %>" data-sort="kycStatus">KYC <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'role' ? 'active' : '' %>" data-sort="role">ROLE <i class="fas fa-sort"></i></th>
+          <th class="users-align-right users-sortable <%= (safeFilters.sort || 'createdAt') === 'balance' ? 'active' : '' %>" data-sort="balance">BALANCE <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'status' ? 'active' : '' %>" data-sort="status">STATUS <i class="fas fa-sort"></i></th>
+          <th class="users-sortable <%= (safeFilters.sort || 'createdAt') === 'createdAt' ? 'active' : '' %>" data-sort="createdAt">JOINED <i class="fas fa-sort"></i></th>
           <th>ACTIONS</th>
         </tr>
       </thead>
-      <tbody id="usersTableBody"></tbody>
-      <tbody id="usersSkeletonBody" hidden>
-        <tr>
-          <td><div class="skeleton users-skeleton-check"></div></td>
-          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
-          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-mid users-align-right"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-mid"></div><div class="skeleton users-skeleton-small"></div></td>
-          <td><div class="skeleton users-skeleton-actions"></div></td>
-        </tr>
-        <tr>
-          <td><div class="skeleton users-skeleton-check"></div></td>
-          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
-          <td><div class="skeleton users-skeleton-wide"></div><div class="skeleton users-skeleton-mid"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-mid users-align-right"></div></td>
-          <td><div class="skeleton users-skeleton-pill"></div></td>
-          <td><div class="skeleton users-skeleton-mid"></div><div class="skeleton users-skeleton-small"></div></td>
-          <td><div class="skeleton users-skeleton-actions"></div></td>
-        </tr>
+      <tbody id="usersTableBody">
+        <% if (!users || users.length === 0) { %>
+          <tr>
+            <td colspan="9" class="empty-state" style="text-align:center;padding:2rem;">
+              <i class="fas fa-users-slash"></i>
+              <p>No users found matching your filters</p>
+              <a href="/admin/users">Clear filters</a>
+            </td>
+          </tr>
+        <% } else { %>
+          <% users.forEach((user) => { %>
+            <tr>
+              <td>
+                <label class="users-checkbox">
+                  <input type="checkbox" class="row-check user-checkbox" value="<%= user._id %>">
+                  <span class="users-checkbox-ui"><i class="fas fa-check"></i></span>
+                </label>
+              </td>
+              <td>
+                <div class="users-cell-user">
+                  <div class="users-avatar" style="background:<%= user.avatarColor || '#3B82F6' %>;"><%= initials(user.name) %></div>
+                  <div>
+                    <a href="/admin/users/<%= user._id %>" class="users-user-name"><%= user.name %></a>
+                    <p class="users-user-id">#<%= user.userId || '--' %></p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <p class="users-contact-mail"><%= user.email %></p>
+                <% if (user.phone) { %>
+                  <p class="users-contact-phone"><i class="fas fa-phone"></i><%= user.phone %></p>
+                <% } %>
+              </td>
+              <td>
+                <% const kycClass = {
+                  'Verified': 'users-pill users-pill-kyc-verified',
+                  'Pending': 'users-pill users-pill-kyc-pending',
+                  'Rejected': 'users-pill users-pill-kyc-rejected',
+                  'Not Submitted': 'users-pill users-pill-kyc-not'
+                }[user.kycStatus] || 'users-pill users-pill-kyc-not'; %>
+                <span class="<%= kycClass %>">
+                  <% if (user.kycStatus === 'Verified') { %><i class="fas fa-check-circle"></i><% } %>
+                  <% if (user.kycStatus === 'Pending') { %><i class="fas fa-clock"></i><% } %>
+                  <% if (user.kycStatus === 'Rejected') { %><i class="fas fa-times-circle"></i><% } %>
+                  <% if (user.kycStatus === 'Not Submitted') { %><i class="fas fa-minus-circle"></i><% } %>
+                  <%= user.kycStatus %>
+                </span>
+              </td>
+              <td>
+                <% const roleClass = {
+                  'Super Admin': 'users-pill users-pill-role-superadmin',
+                  'Admin': 'users-pill users-pill-role-admin',
+                  'Merchant': 'users-pill users-pill-role-merchant',
+                  'User': 'users-pill users-pill-role-user'
+                }[user.role] || 'users-pill users-pill-role-user'; %>
+                <span class="<%= roleClass %>"><%= user.role %></span>
+              </td>
+              <td class="users-align-right"><span class="users-balance">₹<%= Number(user.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></span></td>
+              <td>
+                <% const statusClass = {
+                  'Active': 'users-pill users-status-active',
+                  'Inactive': 'users-pill users-status-inactive',
+                  'Suspended': 'users-pill users-status-suspended'
+                }[user.status] || 'users-pill users-status-inactive'; %>
+                <span class="<%= statusClass %>"><i class="fas fa-circle"></i><%= user.status %></span>
+              </td>
+              <td>
+                <p class="users-joined-date"><%= new Date(user.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></p>
+                <p class="users-joined-age"><%= timeAgo(user.createdAt) %></p>
+              </td>
+              <td>
+                <div class="users-actions">
+                  <a class="users-action-btn" href="/admin/users/<%= user._id %>" title="View profile"><i class="fas fa-eye"></i></a>
+                  <a class="users-action-btn" href="/admin/users/<%= user._id %>/edit" title="Edit user"><i class="fas fa-user-edit"></i></a>
+                  <button class="users-action-btn" type="button" data-suspend-id="<%= user._id %>" title="Suspend user"><i class="fas fa-ban"></i></button>
+                  <button class="users-action-btn" type="button" data-delete-id="<%= user._id %>" title="Delete user"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
       </tbody>
     </table>
+    </div>
 
-    <div class="users-empty" id="usersEmpty" hidden>
+    <div id="gridView" class="users-grid-view" style="display:none; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px; padding:16px;">
+      <% users.forEach((user) => { %>
+      <div class="user-grid-card">
+        <div class="user-avatar-lg" style="background:<%= user.avatarColor || '#3B82F6' %>;"><%= initials(user.name) %></div>
+        <div class="user-grid-name"><%= user.name %></div>
+        <div class="user-grid-id">#<%= user.userId || '--' %></div>
+        <div class="user-grid-email"><%= user.email %></div>
+        <div class="user-grid-badges">
+          <span class="badge badge-<%= user.kycStatus==='Verified' ? 'success' : (user.kycStatus==='Rejected' ? 'danger' : 'warning') %>"><%= user.kycStatus %></span>
+          <span class="badge badge-<%= user.status==='Active' ? 'success' : (user.status==='Suspended' ? 'danger' : 'neutral') %>"><%= user.status %></span>
+        </div>
+        <div class="user-grid-balance">₹<%= Number(user.balance || 0).toLocaleString('en-IN') %></div>
+        <div class="user-grid-actions">
+          <a href="/admin/users/<%= user._id %>" class="btn-sm btn-outline">View</a>
+          <a href="/admin/users/<%= user._id %>/edit" class="btn-sm btn-primary">Edit</a>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+
+    <div id="columnsView" class="users-columns-view" style="display:none; flex-direction:row; flex-wrap:wrap; gap:8px; padding:16px;">
+      <% users.forEach((user) => { %>
+      <div class="user-col-item" style="width:calc(50% - 4px);">
+        <div class="user-avatar-sm" style="background:<%= user.avatarColor || '#3B82F6' %>;"><%= initials(user.name) %></div>
+        <div class="user-col-info">
+          <span class="user-col-name"><%= user.name %></span>
+          <span class="user-col-email"><%= user.email %></span>
+        </div>
+        <span class="badge badge-<%= user.status==='Active' ? 'success' : (user.status==='Suspended' ? 'danger' : 'neutral') %>"><%= user.status %></span>
+        <a href="/admin/users/<%= user._id %>" class="btn-icon-sm"><i class="fas fa-eye"></i></a>
+      </div>
+      <% }) %>
+    </div>
+
+    <div class="users-empty" id="usersEmpty" <%= users && users.length ? 'hidden' : '' %>>
       <i class="fas fa-users users-empty-icon"></i>
       <h3 class="users-empty-title">No users found</h3>
       <p class="users-empty-subtitle">Try adjusting your filters or search term</p>
-      <button id="clearFiltersEmptyBtn" class="users-btn users-btn-outline" type="button">Clear All Filters</button>
+      <a id="clearFiltersEmptyBtn" class="users-btn users-btn-outline" href="/admin/users">Clear All Filters</a>
     </div>
 
     <footer class="users-pagination-wrap">
-      <p class="users-pagination-meta" id="paginationMeta">Showing 1–20 of 24,583 users</p>
-      <div class="users-pagination-center" id="paginationCenter"></div>
+      <p class="users-pagination-meta" id="paginationMeta">Showing <%= safePagination.from %>–<%= safePagination.to %> of <%= safePagination.count %> users</p>
+      <div class="users-pagination-center" id="paginationCenter">
+        <% if (safePagination.total > 1) { %>
+          <% const startPage = Math.max(1, safePagination.current - 2); %>
+          <% const endPage = Math.min(safePagination.total, safePagination.current + 2); %>
+
+          <a href="/admin/users?<%= buildQuery({ page: Math.max(1, safePagination.current - 1) }) %>" class="users-page-btn <%= safePagination.current === 1 ? 'disabled' : '' %>"><i class="fas fa-chevron-left"></i></a>
+
+          <% if (startPage > 1) { %>
+            <a href="/admin/users?<%= buildQuery({ page: 1 }) %>" class="users-page-btn">1</a>
+            <% if (startPage > 2) { %><span class="users-page-btn">...</span><% } %>
+          <% } %>
+
+          <% for (let p = startPage; p <= endPage; p += 1) { %>
+            <a href="/admin/users?<%= buildQuery({ page: p }) %>" class="users-page-btn <%= p === safePagination.current ? 'active' : '' %>"><%= p %></a>
+          <% } %>
+
+          <% if (endPage < safePagination.total) { %>
+            <% if (endPage < safePagination.total - 1) { %><span class="users-page-btn">...</span><% } %>
+            <a href="/admin/users?<%= buildQuery({ page: safePagination.total }) %>" class="users-page-btn"><%= safePagination.total %></a>
+          <% } %>
+
+          <a href="/admin/users?<%= buildQuery({ page: Math.min(safePagination.total, safePagination.current + 1) }) %>" class="users-page-btn <%= safePagination.current === safePagination.total ? 'disabled' : '' %>"><i class="fas fa-chevron-right"></i></a>
+        <% } %>
+      </div>
       <label class="users-rows-wrap">Show:
         <select id="rowsPerPage" class="users-rows-select">
-          <option value="10">10</option>
-          <option value="20" selected>20</option>
-          <option value="50">50</option>
-          <option value="100">100</option>
+          <% [10, 20, 50, 100].forEach((n) => { %>
+            <option value="<%= n %>" <%= Number(safePagination.limit) === n ? 'selected' : '' %>><%= n %></option>
+          <% }) %>
         </select>
       </label>
     </footer>
@@ -175,66 +407,379 @@
 
 <div class="bulk-action-bar" id="bulkActionBar" hidden>
   <p class="bulk-action-count" id="bulkActionCount">0 users selected</p>
-  <button class="bulk-action-btn bulk-action-btn-light" type="button">Export Selected</button>
-  <button class="bulk-action-btn bulk-action-btn-primary" type="button">Send Notification</button>
-  <button class="bulk-action-btn bulk-action-btn-amber" type="button">Suspend Selected</button>
-  <button class="bulk-action-btn bulk-action-btn-red" type="button">Delete Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-light" type="button" onclick="bulkAction('activate')">Activate</button>
+  <button class="bulk-action-btn bulk-action-btn-amber" type="button" onclick="bulkAction('suspend')">Suspend Selected</button>
+  <button class="bulk-action-btn bulk-action-btn-red" type="button" onclick="bulkAction('delete')">Delete Selected</button>
   <button class="bulk-action-close" id="bulkActionClose" type="button" aria-label="Dismiss"><i class="fas fa-times"></i></button>
 </div>
 
 <div id="addUserModal" class="modal-overlay" style="display:none;">
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
+  <div class="modal-box">
     <div class="modal-header">
-      <div>
-        <h2 id="addUserTitle" class="modal-title">Add New User</h2>
-        <p class="modal-subtitle">Create a manual user account</p>
+      <div class="modal-title-wrap">
+        <div class="modal-icon" style="background:linear-gradient(135deg,#1D4ED8,#3B82F6);">
+          <i class="fas fa-user-plus" style="color:#BFDBFE;"></i>
+        </div>
+        <div>
+          <h2 class="modal-title">Add New User</h2>
+          <p class="modal-subtitle">Create a new ZenoPay account</p>
+        </div>
       </div>
-      <button type="button" id="closeAddUserModal" class="modal-close-btn" aria-label="Close modal" data-close-modal="addUserModal"><i class="fas fa-times"></i></button>
+      <button class="modal-close" type="button" onclick="closeAddUserModal()"><i class="fas fa-xmark"></i></button>
     </div>
 
-    <form id="addUserForm" class="modal-body">
-      <label class="users-field-wrap"><span>Full Name</span><div class="users-field-input-wrap"><i class="fas fa-user"></i><input name="fullName" type="text" required /></div></label>
-      <label class="users-field-wrap"><span>Email Address</span><div class="users-field-input-wrap"><i class="fas fa-envelope"></i><input name="email" type="email" required /></div></label>
-      <label class="users-field-wrap"><span>Phone Number</span><div class="users-field-input-wrap"><i class="fas fa-phone"></i><input name="phone" type="tel" required /></div></label>
+    <form id="addUserForm" onsubmit="submitAddUser(event)">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-user" style="color:#3B82F6;"></i> Full Name *</label>
+            <input type="text" name="name" id="addName" class="form-input" placeholder="e.g. Rahul Sharma" required minlength="2">
+            <span class="form-error" id="nameError"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-envelope" style="color:#06B6D4;"></i> Email Address *</label>
+            <input type="email" name="email" id="addEmail" class="form-input" placeholder="user@example.com" required>
+            <span class="form-error" id="emailError"></span>
+          </div>
+        </div>
 
-      <div class="users-field-grid">
-        <label class="users-field-wrap"><span>Role</span>
-          <select class="users-field-select" name="role" required>
-            <option>User</option>
-            <option>Merchant</option>
-            <option>Admin</option>
-          </select>
-        </label>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-phone" style="color:#10B981;"></i> Phone Number</label>
+            <input type="tel" name="phone" id="addPhone" class="form-input" placeholder="+91 98765 43210" pattern="[+]?[0-9\s\-]{10,15}">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-lock" style="color:#7C3AED;"></i> Password *</label>
+            <div class="input-with-toggle">
+              <input type="password" name="password" id="addPassword" class="form-input" placeholder="Min. 8 characters" required minlength="8">
+              <button type="button" onclick="togglePasswordVisibility('addPassword')"><i class="fas fa-eye"></i></button>
+            </div>
+            <span class="form-error" id="passwordError"></span>
+          </div>
+        </div>
 
-        <label class="users-field-wrap"><span>KYC Status</span>
-          <select class="users-field-select" name="kycStatus" required>
-            <option>Not Submitted</option>
-            <option>Verified</option>
-            <option>Pending</option>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-user-shield" style="color:#F59E0B;"></i> Role *</label>
+            <select name="role" class="form-input" required>
+              <option value="User">User</option>
+              <option value="Merchant">Merchant</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-circle-check" style="color:#10B981;"></i> Status *</label>
+            <select name="status" class="form-input" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><i class="fas fa-id-card" style="color:#EF4444;"></i> KYC Status</label>
+          <select name="kycStatus" class="form-input">
+            <option value="Not Submitted">Not Submitted</option>
+            <option value="Pending">Pending</option>
+            <option value="Verified">Verified</option>
+            <option value="Rejected">Rejected</option>
           </select>
-        </label>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" id="sendWelcome" name="sendWelcome" checked>
+          <label for="sendWelcome">Send welcome email to user</label>
+        </div>
       </div>
 
-      <label class="users-field-wrap"><span>Initial Password</span>
-        <div class="users-field-input-wrap">
-          <i class="fas fa-lock"></i>
-          <input id="passwordField" name="password" type="password" required />
-          <button type="button" class="users-password-toggle" id="passwordToggle"><i class="fas fa-eye"></i></button>
-        </div>
-      </label>
-
-      <label class="users-toggle-wrap">
-        <span>Send Welcome Email</span>
-        <span class="users-toggle users-toggle-on"><span class="users-toggle-knob"></span></span>
-      </label>
-
       <div class="modal-footer">
-        <button type="button" id="cancelAddUser" class="btn-outline-modal" data-close-modal="addUserModal">Cancel</button>
-        <button type="submit" class="btn-primary-modal"><i class="fas fa-check"></i><span>Create User</span></button>
+        <button type="button" class="btn btn-outline" onclick="closeAddUserModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="addUserSubmitBtn"><i class="fas fa-user-plus"></i> Create User</button>
       </div>
     </form>
   </div>
 </div>
 
 <link rel="stylesheet" href="/css/admin/admin-users.css">
-<script src="/js/admin/admin-users.js" defer></script>
+<script>
+  const selectAll = document.getElementById('selectAllUsers');
+  const bulkBar = document.getElementById('bulkActionBar');
+  const selectedCount = document.getElementById('bulkActionCount');
+  const rowsPerPage = document.getElementById('rowsPerPage');
+  const filterForm = document.getElementById('filterForm');
+
+  function submitFilterForm() {
+    const fromInput = document.getElementById('dateFrom');
+    const toInput = document.getElementById('dateTo');
+    if (!fromInput || !toInput || !filterForm) return;
+
+    const from = fromInput.value;
+    const to = toInput.value;
+
+    if (from && to && from > to) {
+      fromInput.value = to;
+      toInput.value = from;
+    }
+
+    filterForm.submit();
+  }
+
+  function getCheckboxes() {
+    return [...document.querySelectorAll('.user-checkbox')];
+  }
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.user-checkbox:checked');
+    if (selectedCount) {
+      selectedCount.textContent = `${checked.length} user${checked.length === 1 ? '' : 's'} selected`;
+    }
+    if (bulkBar) {
+      bulkBar.hidden = checked.length === 0;
+    }
+  }
+
+  selectAll?.addEventListener('change', () => {
+    getCheckboxes().forEach((cb) => {
+      cb.checked = selectAll.checked;
+    });
+    updateBulkBar();
+  });
+
+  getCheckboxes().forEach((cb) => cb.addEventListener('change', updateBulkBar));
+
+  async function bulkAction(action) {
+    const checked = [...document.querySelectorAll('.user-checkbox:checked')];
+    const userIds = checked.map((cb) => cb.value);
+    if (!userIds.length) return;
+
+    if (action === 'delete' && !confirm(`Delete ${userIds.length} users permanently?`)) return;
+
+    try {
+      const res = await fetch('/admin/users/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, userIds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Action completed', 'success');
+        setTimeout(() => window.location.reload(), 700);
+      } else {
+        showToast(data.error || 'Action failed', 'error');
+      }
+    } catch (_err) {
+      showToast('Action failed', 'error');
+    }
+  }
+
+  function clearSelection() {
+    getCheckboxes().forEach((cb) => {
+      cb.checked = false;
+    });
+    if (selectAll) selectAll.checked = false;
+    updateBulkBar();
+  }
+
+  document.getElementById('bulkActionClose')?.addEventListener('click', clearSelection);
+
+  async function bulkActionSingle(action, id) {
+    const res = await fetch('/admin/users/bulk-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, userIds: [id] })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Action completed', 'success');
+      setTimeout(() => window.location.reload(), 700);
+    } else {
+      showToast(data.error || 'Action failed', 'error');
+    }
+  }
+
+  document.querySelectorAll('[data-suspend-id]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-suspend-id');
+      if (!id || !confirm('Suspend this user?')) return;
+      await bulkActionSingle('suspend', id);
+    });
+  });
+
+  document.querySelectorAll('[data-delete-id]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-delete-id');
+      if (!id || !confirm('Delete this user permanently?')) return;
+      await bulkActionSingle('delete', id);
+    });
+  });
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `admin-toast admin-toast-${type}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 250);
+    }, 2600);
+  }
+
+  let searchTimeout;
+  document.getElementById('searchInput')?.addEventListener('input', function onSearchInput() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      filterForm?.submit();
+    }, 500);
+  });
+
+  document.getElementById('statusFilter')?.addEventListener('change', () => filterForm?.submit());
+  document.getElementById('kycFilter')?.addEventListener('change', () => filterForm?.submit());
+
+  function setViewMode(mode) {
+    localStorage.setItem('usersViewMode', mode);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', mode);
+    window.history.replaceState({}, '', url);
+
+    const viewField = filterForm?.querySelector('input[name="view"]');
+    if (viewField) viewField.value = mode;
+
+    const tableWrap = document.getElementById('tableView');
+    const gridWrap = document.getElementById('gridView');
+    const columnsWrap = document.getElementById('columnsView');
+
+    if (tableWrap) tableWrap.style.display = mode === 'table' ? 'block' : 'none';
+    if (gridWrap) gridWrap.style.display = mode === 'grid' ? 'grid' : 'none';
+    if (columnsWrap) columnsWrap.style.display = mode === 'columns' ? 'flex' : 'none';
+
+    document.querySelectorAll('.view-toggle-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.getAttribute('data-mode') === mode);
+    });
+  }
+
+  function openAddUserModal() {
+    const modal = document.getElementById('addUserModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('addName')?.focus(), 100);
+  }
+
+  function closeAddUserModal() {
+    const modal = document.getElementById('addUserModal');
+    const form = document.getElementById('addUserForm');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+    form?.reset();
+    document.querySelectorAll('.form-error').forEach((el) => {
+      el.textContent = '';
+    });
+  }
+
+  document.getElementById('addUserModal')?.addEventListener('click', function onOverlayClick(e) {
+    if (e.target === this) closeAddUserModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAddUserModal();
+  });
+
+  function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const btn = input?.nextElementSibling;
+    const icon = btn?.querySelector('i');
+    if (!input || !icon) return;
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+
+  async function submitAddUser(e) {
+    e.preventDefault();
+
+    document.querySelectorAll('.form-error').forEach((el) => {
+      el.textContent = '';
+    });
+
+    const btn = document.getElementById('addUserSubmitBtn');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = await fetch('/admin/users/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        closeAddUserModal();
+        showToast(`User "${result.user?.name || 'User'}" created successfully!`, 'success');
+        setTimeout(() => location.reload(), 1000);
+        return;
+      }
+
+      if (Array.isArray(result.errors)) {
+        result.errors.forEach((err) => {
+          const el = document.getElementById(`${err.field}Error`);
+          if (el) el.textContent = err.message;
+        });
+      }
+
+      showToast(result.error || 'Failed to create user', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-user-plus"></i> Create User';
+    } catch (_err) {
+      showToast('Network error. Please try again.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-user-plus"></i> Create User';
+    }
+  }
+
+  rowsPerPage?.addEventListener('change', function onRowsChange() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', this.value);
+    params.set('page', '1');
+    params.set('view', localStorage.getItem('usersViewMode') || '<%= safeViewMode %>');
+    window.location.href = '/admin/users?' + params.toString();
+  });
+
+  document.querySelectorAll('[data-sort]').forEach((th) => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      const params = new URLSearchParams(window.location.search);
+      const currentSort = params.get('sort') || '<%= safeFilters.sort || 'createdAt' %>';
+      const currentOrder = params.get('order') || '<%= safeFilters.order || 'desc' %>';
+      const newOrder = currentSort === field && currentOrder === 'asc' ? 'desc' : 'asc';
+      params.set('sort', field);
+      params.set('order', newOrder);
+      params.set('page', '1');
+      params.set('view', localStorage.getItem('usersViewMode') || '<%= safeViewMode %>');
+      window.location.href = '/admin/users?' + params.toString();
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('usersViewMode') || '<%= safeViewMode %>' || 'table';
+    setViewMode(saved);
+  });
+</script>

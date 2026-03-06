@@ -1060,35 +1060,107 @@ input, select, textarea { font-family: inherit; }
   flex-shrink: 0;
 }
 
-.stat-info .stat-value {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.1;
+.stat-card-info,
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 
+.stat-card-label,
 .stat-info .stat-label {
-  font-size: 11px;
-  color: var(--text-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94A3B8;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-top: 3px;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
 }
 
+.stat-card-value,
+.stat-info .stat-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.stat-card-value.amber { color: #D97706; }
+.stat-card-value.red { color: #DC2626; }
+
+/* Growth/change badge — compact single-line pill */
+.stat-change,
 .stat-trend {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 9999px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.4;
+  margin-top: 6px;
   width: fit-content;
+  max-width: 100%;
 }
 
-.stat-trend.up      { background: rgba(16,185,129,0.1);  color: var(--green); }
-.stat-trend.down    { background: rgba(239,68,68,0.1);   color: var(--red); }
-.stat-trend.neutral { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+/* Positive / growth — green */
+.stat-change.positive,
+.stat-change.up,
+.stat-trend.positive,
+.stat-trend.up {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Negative / decline — red */
+.stat-change.negative,
+.stat-change.down,
+.stat-trend.negative,
+.stat-trend.down {
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+/* Neutral / warning — amber */
+.stat-change.neutral,
+.stat-change.warning,
+.stat-trend.neutral,
+.stat-trend.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Arrow icon inside badge */
+.stat-change i,
+.stat-change .arrow,
+.stat-trend i,
+.stat-trend .arrow {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* The percentage number inside badge */
+.stat-change .pct,
+.stat-trend .pct {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* "from last month" label — lighter weight */
+.stat-change .label,
+.stat-trend .label {
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.85;
+}
 
 .flagged-row {
   transition: background var(--trans-fast);

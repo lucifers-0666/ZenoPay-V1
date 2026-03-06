@@ -119,8 +119,11 @@ router.get("/dashboard/activity-monitor", requirePermission("dashboard", "view")
 
 // ============ USER MANAGEMENT ROUTES ============
 router.get("/users", requirePermission("users", "view"), AdminUserController.getAllUsers);
+router.get("/users/export", requirePermission("users", "view"), AdminUserController.exportUsersCSV);
+router.post("/users/bulk-action", requirePermission("users", "update"), AdminUserController.bulkUserAction);
+router.post("/users/create", requirePermission("users", "create"), AdminUserController.createUser);
 router.get("/users/stats", requirePermission("users", "view"), AdminUserController.getUserStats);
-router.get("/users/:id", requirePermission("users", "view"), AdminUserController.getUserDetails);
+router.get("/users/:id", requirePermission("users", "view"), AdminUserController.getUserDetail);
 router.put("/users/:id", requirePermission("users", "update"), AdminUserController.updateUser);
 router.post("/users/:id/suspend", requirePermission("users", "suspend"), AdminUserController.suspendUser);
 router.post("/users/:id/activate", requirePermission("users", "suspend"), AdminUserController.activateUser);
