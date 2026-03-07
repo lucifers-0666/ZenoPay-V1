@@ -1,4 +1,5 @@
 const TransactionHistory = require("../../Models/TransactionHistory");
+const { sanitizeDateRange } = require("../../utils/dateUtils");
 
 const parseTxnNumericId = (value) => {
   const parsed = Number(value);
@@ -250,12 +251,27 @@ const getFlaggedTransactions = async (req, res) => {
 // GET Failed Transactions
 const failedTransactions = async (req, res) => {
   try {
-    const { search, type, dateFrom, dateTo, page = 1, limit = 10 } = req.query;
-    const safePage = Math.max(1, parseInt(page, 10) || 1);
-    const safeLimit = [10, 25, 50].includes(parseInt(limit, 10)) ? parseInt(limit, 10) : 10;
-    const skip = (safePage - 1) * safeLimit;
+    const search = String(req.query.search || "").trim();
+    const type = String(req.query.type || "").trim();
+    const reason = String(req.query.reason || "").trim();
+    const rawDateFrom = String(req.query.dateFrom || "").trim();
+    const rawDateTo = String(req.query.dateTo || "").trim();
+    const sanitizedDates = sanitizeDateRange(rawDateFrom, rawDateTo);
+    const dateFrom = sanitizedDates.dateFrom || "";
+    const dateTo = sanitizedDates.dateTo || "";
+    const fromDate = sanitizedDates.fromDate;
+    const toDateEnd = sanitizedDates.toDateEnd;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
 
-    const query = { Status: "failed" };
+    const parsedLimit = parseInt(req.query.limit, 10) || 10;
+    const allowedLimits = [10, 20, 25, 50, 100];
+    const safeLimit = allowedLimits.includes(parsedLimit) ? parsedLimit : 10;
+    const skip = (page - 1) * safeLimit;
+
+    const failedStatuses = ["failed", "Failed", "FAILED", "declined", "Declined"];
+    const query = {
+      Status: { $in: failedStatuses },
+    };
 
     if (search) {
       const regex = { $regex: search, $options: "i" };
@@ -264,11 +280,13 @@ const failedTransactions = async (req, res) => {
         { Description: regex },
         { SenderHolderName: regex },
         { ReceiverHolderName: regex },
+        { SenderAccountNumber: regex },
+        { ReceiverAccountNumber: regex },
         ...(numericSearch !== null ? [{ TransactionID: numericSearch }] : []),
       ];
     }
 
-    if (type && type !== "all") {
+    if (type && type.toLowerCase() !== "all") {
       const normalizedType = String(type).toLowerCase();
       if (normalizedType === "refund") {
         query.Description = { $regex: "refund|reversal", $options: "i" };
@@ -283,13 +301,30 @@ const failedTransactions = async (req, res) => {
       }
     }
 
-    if (dateFrom || dateTo) {
+    if (reason) {
+      const reasonRegexMap = {
+        "network timeout": "timeout|network",
+        "insufficient funds": "insufficient|balance",
+        "invalid account": "invalid|beneficiary|account",
+        declined: "decline|declined",
+      };
+      const key = reason.toLowerCase();
+      const reasonPattern = reasonRegexMap[key] || reason;
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { FailureReason: { $regex: reasonPattern, $options: "i" } },
+          { Description: { $regex: reasonPattern, $options: "i" } },
+        ],
+      });
+    }
+
+    if (fromDate || toDateEnd) {
       query.TransactionTime = {};
-      if (dateFrom) query.TransactionTime.$gte = new Date(dateFrom);
-      if (dateTo) {
-        const to = new Date(dateTo);
-        to.setHours(23, 59, 59, 999);
-        query.TransactionTime.$lte = to;
+      if (fromDate) query.TransactionTime.$gte = fromDate;
+      if (toDateEnd) query.TransactionTime.$lte = toDateEnd;
+      if (!query.TransactionTime.$gte && !query.TransactionTime.$lte) {
+        delete query.TransactionTime;
       }
     }
 
@@ -303,17 +338,18 @@ const failedTransactions = async (req, res) => {
         .sort({ TransactionTime: -1 })
         .skip(skip)
         .limit(safeLimit)
-        .lean(),
-      TransactionHistory.countDocuments(query),
-      TransactionHistory.countDocuments({ Status: "failed" }),
+        .lean()
+        .catch(() => []),
+      TransactionHistory.countDocuments(query).catch(() => 0),
+      TransactionHistory.countDocuments({ Status: { $in: failedStatuses } }).catch(() => 0),
       TransactionHistory.countDocuments({
-        Status: "failed",
+        Status: { $in: failedStatuses },
         TransactionTime: { $gte: startOfDay, $lte: endOfDay },
-      }),
+      }).catch(() => 0),
       TransactionHistory.aggregate([
-        { $match: { Status: "failed" } },
+        { $match: { Status: { $in: failedStatuses } } },
         { $group: { _id: null, total: { $sum: "$Amount" } } },
-      ]),
+      ]).catch(() => []),
     ]);
 
     const failureReasonFromDescription = (description = "") => {
@@ -356,7 +392,7 @@ const failedTransactions = async (req, res) => {
     });
 
     res.locals.adminPage = "failed";
-    res.render("admin/transactions/admin-failed-transactions", {
+    return res.render("admin/transactions/admin-failed-transactions", {
       pageTitle: "Failed Transactions",
       currentPage: "transactions",
       adminPage: "failed",
@@ -368,19 +404,46 @@ const failedTransactions = async (req, res) => {
       totalFailed,
       failedToday,
       totalAmount: totalAmountAgg[0] ? toNumber(totalAmountAgg[0].total) : 0,
-      currentPageNumber: safePage,
+      retrySuccessRate: 0,
+      currentPageNumber: page,
       perPage: safeLimit,
       totalPages: Math.max(1, Math.ceil(totalCount / safeLimit)),
       filters: {
-        search: search || "",
-        type: type || "all",
-        dateFrom: dateFrom || "",
-        dateTo: dateTo || "",
+        search,
+        type,
+        reason,
+        dateFrom,
+        dateTo,
       },
     });
   } catch (error) {
     console.error("Get failed transactions error:", error);
-    res.status(500).send("Error loading failed transactions");
+    res.locals.adminPage = "failed";
+    return res.render("admin/transactions/admin-failed-transactions", {
+      pageTitle: "Failed Transactions",
+      currentPage: "transactions",
+      adminPage: "failed",
+      page: "failed",
+      hideBreadcrumb: true,
+      admin: req.session?.user,
+      transactions: [],
+      totalCount: 0,
+      totalFailed: 0,
+      failedToday: 0,
+      totalAmount: 0,
+      retrySuccessRate: 0,
+      currentPageNumber: 1,
+      perPage: 10,
+      totalPages: 1,
+      filters: {
+        search: "",
+        type: "",
+        reason: "",
+        dateFrom: "",
+        dateTo: "",
+      },
+      error: `Unable to load transactions. ${error?.message || "Unknown error"}`,
+    });
   }
 };
 

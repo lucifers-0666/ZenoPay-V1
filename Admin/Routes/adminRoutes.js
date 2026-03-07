@@ -193,6 +193,37 @@ router.put("/banks/:id", requirePermission("banks", "update"), AdminBankControll
 // ============ TRANSACTION MANAGEMENT ROUTES ============
 router.get("/transactions", requirePermission("transactions", "view"), AdminTransactionController.getAllTransactions);
 router.get("/transactions/flagged", requirePermission("transactions", "flag"), AdminTransactionController.getFlaggedTransactions);
+// TEMP DEBUG ROUTE: remove after /admin/transactions/failed is confirmed stable
+router.get("/transactions/failed/debug", requirePermission("transactions", "view"), async (req, res) => {
+	try {
+		const TransactionHistory = require("../../Models/TransactionHistory");
+
+		const failedStatuses = ["failed", "Failed", "FAILED", "declined", "Declined"];
+		const count = await TransactionHistory.countDocuments({
+			Status: { $in: failedStatuses },
+		});
+
+		const one = await TransactionHistory.findOne({
+			Status: { $in: failedStatuses },
+		}).lean();
+
+		console.log("Failed count:", count);
+		console.log("Sample doc:", one);
+
+		return res.json({
+			success: true,
+			count,
+			sampleDoc: one,
+			message: "Controller query works fine",
+		});
+	} catch (err) {
+		return res.json({
+			success: false,
+			error: err?.message || "Unknown error",
+			stack: err?.stack || null,
+		});
+	}
+});
 router.get("/transactions/failed", requirePermission("transactions", "view"), AdminTransactionController.failedTransactions);
 router.post("/transactions/bulk-retry", requirePermission("transactions", "view"), AdminTransactionController.bulkRetryTransactions);
 router.post("/transactions/bulk-flag", requirePermission("transactions", "view"), AdminTransactionController.bulkFlagTransactions);

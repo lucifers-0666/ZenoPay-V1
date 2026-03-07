@@ -1,17 +1,6 @@
 const AuditLog = require("../../Models/AuditLog");
 const ZenoPayUser = require("../../Models/ZenoPayUser");
-
-const clampDateToToday = (rawDate) => {
-  if (!rawDate) return "";
-  const parsed = new Date(rawDate);
-  if (Number.isNaN(parsed.getTime())) return "";
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  parsed.setHours(0, 0, 0, 0);
-
-  return parsed > today ? today.toISOString().slice(0, 10) : parsed.toISOString().slice(0, 10);
-};
+const { sanitizeDateRange } = require("../../utils/dateUtils");
 
 const seedAuditLogsIfEmpty = async () => {
   const existing = await AuditLog.countDocuments({});
@@ -80,13 +69,13 @@ exports.auditLogsList = async (req, res) => {
       search = "",
       action = "all",
       adminId = "all",
-      dateFrom = "",
+      dateFrom: rawDateFrom = "",
       dateTo: rawDateTo = "",
       page = 1,
       limit = 15,
     } = req.query;
 
-    const dateTo = clampDateToToday(rawDateTo);
+    const { dateFrom, dateTo } = sanitizeDateRange(rawDateFrom, rawDateTo);
 
     const safeLimit = [15, 30, 50].includes(Number(limit)) ? Number(limit) : 15;
     const safePage = Math.max(1, Number(page) || 1);
@@ -160,8 +149,8 @@ exports.auditLogsList = async (req, res) => {
 
 exports.exportAuditLogs = async (req, res) => {
   try {
-    const { dateFrom = "", dateTo: rawDateTo = "", action = "" } = req.query;
-    const dateTo = clampDateToToday(rawDateTo);
+    const { action = "" } = req.query;
+    const { dateFrom, dateTo } = sanitizeDateRange(req.query.dateFrom, req.query.dateTo);
     const query = {};
 
     if (action && action !== "all") query.category = action;

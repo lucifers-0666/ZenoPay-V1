@@ -319,12 +319,12 @@
 
       <div class="field">
         <label for="dateFrom">Date From</label>
-        <input id="dateFrom" type="date" value="<%= safeFilters.dateFrom || '' %>">
+        <input id="dateFrom" type="date" class="date-from" data-date-pair="audit" data-date-role="from" value="<%= safeFilters.dateFrom || '' %>">
       </div>
 
       <div class="field">
         <label for="dateTo">Date To</label>
-        <input id="dateTo" type="date" max="<%= todayIso %>" value="<%= safeFilters.dateTo || '' %>">
+        <input id="dateTo" type="date" class="date-to" data-date-pair="audit" data-date-role="to" max="<%= todayIso %>" value="<%= safeFilters.dateTo || '' %>">
       </div>
 
       <button type="button" class="btn btn-primary" id="applyFiltersBtn"><i class="fas fa-filter"></i>Apply</button>

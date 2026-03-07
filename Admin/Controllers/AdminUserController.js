@@ -2,6 +2,7 @@ const User = require("../../Models/User");
 const BankAccount = require("../../Models/BankAccount");
 const TransactionHistory = require("../../Models/TransactionHistory");
 const bcrypt = require("bcryptjs");
+const { sanitizeDateRange } = require("../../utils/dateUtils");
 
 const statusToLegacyVariants = {
   Active: ["Active", "active"],
@@ -177,14 +178,16 @@ const getUsersList = async (req, res) => {
       status = "",
       role = "",
       kyc = "",
-      dateFrom = "",
-      dateTo = "",
+      dateFrom: rawDateFrom = "",
+      dateTo: rawDateTo = "",
       page = 1,
       limit = 20,
       sort = "createdAt",
       order = "desc",
       view = "table",
     } = req.query;
+
+    const { dateFrom, dateTo } = sanitizeDateRange(rawDateFrom, rawDateTo);
 
     const viewMode = ["table", "grid", "columns"].includes(String(view))
       ? String(view)
@@ -403,9 +406,11 @@ const exportUsersCSV = async (req, res) => {
       status = "",
       role = "",
       kyc = "",
-      dateFrom = "",
-      dateTo = "",
+      dateFrom: rawDateFrom = "",
+      dateTo: rawDateTo = "",
     } = req.query;
+
+    const { dateFrom, dateTo } = sanitizeDateRange(rawDateFrom, rawDateTo);
 
     const filter = buildUserFilter({ search, status, kyc, role, dateFrom, dateTo });
     const usersRaw = await User.find(filter)

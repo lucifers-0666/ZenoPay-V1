@@ -1,4 +1,5 @@
 const Refund = require("../../Models/Refund");
+const { sanitizeDateRange } = require("../../utils/dateUtils");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -6,35 +7,13 @@ const toNumber = (value) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-const normalizeDateBounds = (dateFrom, dateTo) => {
-  const bound = {};
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const clampToToday = (value) => {
-    if (!value) return null;
-    const dt = new Date(value);
-    if (Number.isNaN(dt.getTime())) return null;
-    return dt > todayEnd ? todayEnd : dt;
-  };
-
-  if (dateFrom) {
-    const from = clampToToday(dateFrom);
-    if (from && !Number.isNaN(from.getTime())) bound.$gte = from;
-  }
-  if (dateTo) {
-    const to = clampToToday(dateTo);
-    if (to && !Number.isNaN(to.getTime())) {
-      to.setHours(23, 59, 59, 999);
-      bound.$lte = to;
-    }
-  }
-  return Object.keys(bound).length ? bound : null;
-};
-
 exports.refundsList = async (req, res) => {
   try {
-    const { search, status, dateFrom, dateTo, page = 1, limit = 10 } = req.query;
+    const { search, status, page = 1, limit = 10 } = req.query;
+    const { dateFrom, dateTo, fromDate, toDateEnd } = sanitizeDateRange(
+      req.query.dateFrom,
+      req.query.dateTo
+    );
 
     const safePage = Math.max(1, parseInt(page, 10) || 1);
     const safeLimit = [10, 25, 50].includes(parseInt(limit, 10)) ? parseInt(limit, 10) : 10;
@@ -52,8 +31,11 @@ exports.refundsList = async (req, res) => {
       ];
     }
 
-    const dateBound = normalizeDateBounds(dateFrom, dateTo);
-    if (dateBound) query.createdAt = dateBound;
+    if (fromDate || toDateEnd) {
+      query.createdAt = {};
+      if (fromDate) query.createdAt.$gte = fromDate;
+      if (toDateEnd) query.createdAt.$lte = toDateEnd;
+    }
 
     const [refunds, totalCount, pendingCount, approvedCount, rejectedCount, totalAmount] = await Promise.all([
       Refund.find(query)
@@ -105,8 +87,8 @@ exports.refundsList = async (req, res) => {
       filters: {
         search: search || "",
         status: status || "all",
-        dateFrom: query.createdAt?.$gte ? new Date(query.createdAt.$gte).toISOString().slice(0, 10) : "",
-        dateTo: query.createdAt?.$lte ? new Date(query.createdAt.$lte).toISOString().slice(0, 10) : "",
+        dateFrom: dateFrom || "",
+        dateTo: dateTo || "",
       },
     });
   } catch (err) {

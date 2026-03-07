@@ -4,1417 +4,1049 @@
     gap: 16px;
   }
 
-  .failed-title-icon {
-    background: linear-gradient(135deg, var(--danger), var(--warning));
+  .ft-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
   }
-
-  .failed-breadcrumb {
-    margin-top: 8px;
-    display: inline-flex;
+  .ft-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ft-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    color: #94A3B8;
+  }
+  .ft-breadcrumb a {
+    color: #64748B;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .ft-breadcrumb a:hover { color: #3B82F6; }
+  .ft-breadcrumb .fa-chevron-right {
+    font-size: 0.55rem;
+    color: #CBD5E1;
+  }
+  .ft-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ft-title-icon {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg,
+      #991B1B, #EF4444);
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FECACA;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(239,68,68,0.25);
+  }
+  .ft-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0F172A;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .ft-subtitle {
+    font-size: 0.82rem;
+    color: #94A3B8;
+    margin: 3px 0 0;
+    font-weight: 500;
+  }
+  .ft-header-actions {
+    display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-soft);
-    font-size: 12px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .ft-btn-ghost {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px;
+    background: transparent;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    color: #64748B;
+    font-size: 0.83rem; font-weight: 600;
+    cursor: pointer; transition: all 0.18s;
+    font-family: inherit;
+  }
+  .ft-btn-ghost:hover {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: #334155;
+  }
+  .ft-btn-outline {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    background: #fff;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    color: #374151;
+    font-size: 0.83rem; font-weight: 600;
+    text-decoration: none; transition: all 0.18s;
+  }
+  .ft-btn-outline:hover {
+    border-color: #3B82F6;
+    color: #3B82F6;
+    background: #EFF6FF;
+  }
+  .ft-btn-primary {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    background: linear-gradient(135deg, #1D4ED8, #3B82F6);
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 0.83rem; font-weight: 700;
+    cursor: pointer; transition: all 0.18s;
+    font-family: inherit;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+  }
+  .ft-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(59,130,246,0.4);
+  }
+
+  .ft-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .ft-stat-card {
+    background: #fff;
+    border: 1px solid #F1F5F9;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .ft-stat-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .ft-stat-card.ft-stat-danger {
+    border-left: 3px solid #EF4444;
+  }
+  .ft-stat-icon {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: flex; align-items: center;
+    justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+  .ft-stat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .ft-stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+  .ft-stat-value {
+    font-size: 1.7rem;
+    font-weight: 900;
+    color: #0F172A;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+  .ft-stat-sub {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
     font-weight: 600;
+    color: #94A3B8;
+    margin-top: 2px;
   }
+  .ft-stat-sub i { font-size: 0.65rem; }
+  .ft-stat-stable { color: #10B981; }
 
-  .failed-breadcrumb .active {
-    color: var(--text-dark);
+  .ft-filter-bar {
+    background: #fff;
+    border: 1px solid #F1F5F9;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
-
-  .failed-header-actions {
+  .ft-filter-form {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
   }
-
-  .btn-export-failed {
-    border-color: var(--primary);
-    color: var(--primary);
+  .ft-filter-search {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+  }
+  .ft-filter-search i {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF; font-size: 0.82rem;
+  }
+  .ft-filter-input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #111827;
+    background: #F9FAFB;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .ft-filter-input:focus {
+    border-color: #3B82F6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+  }
+  .ft-filter-select {
+    padding: 9px 32px 9px 12px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    color: #374151;
+    background: #F9FAFB url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    min-width: 130px;
+  }
+  .ft-filter-select:focus {
+    border-color: #3B82F6;
+    background-color: #fff;
+  }
+  .ft-filter-date-wrap {
+    position: relative;
+  }
+  .ft-filter-date-wrap i {
+    position: absolute;
+    left: 11px; top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF; font-size: 0.75rem;
+    pointer-events: none;
+  }
+  .ft-filter-date {
+    padding: 9px 12px 9px 32px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.83rem;
+    color: #374151;
+    background: #F9FAFB;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 148px;
+  }
+  .ft-filter-date:focus {
+    border-color: #3B82F6;
+    background: #fff;
+  }
+  .ft-filter-apply {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 18px;
+    background: linear-gradient(135deg, #1D4ED8, #3B82F6);
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 0.83rem; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+    transition: all 0.18s;
+  }
+  .ft-filter-apply:hover {
+    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+    transform: translateY(-1px);
+  }
+  .ft-filter-clear {
+    display: flex; align-items: center; gap: 5px;
+    padding: 9px 14px;
+    background: #FEF2F2;
+    border: 1.5px solid #FECACA;
+    border-radius: 10px;
+    color: #DC2626; font-size: 0.83rem;
+    font-weight: 600; text-decoration: none;
+    white-space: nowrap; transition: all 0.18s;
+  }
+  .ft-filter-clear:hover {
+    background: #FEE2E2;
   }
 
-  .btn-retry-all {
-    border-color: var(--success);
-    color: var(--success);
+  .ft-table-wrap {
+    background: #fff;
+    border: 1px solid #F1F5F9;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
-
-  .failed-kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+  .ft-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 1120px;
   }
+  .ft-table th:nth-child(1) { width: 40px; }
+  .ft-table th:nth-child(2) { width: 180px; }
+  .ft-table th:nth-child(3) { width: 100px; }
+  .ft-table th:nth-child(4) { width: 160px; }
+  .ft-table th:nth-child(5) { width: 120px; }
+  .ft-table th:nth-child(6) { width: 110px; }
+  .ft-table th:nth-child(7) { width: 170px; }
+  .ft-table th:nth-child(8) { width: 140px; }
+  .ft-table th:nth-child(9) { width: 100px; }
 
-  .failed-stat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .failed-stat-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .failed-stat-icon.danger {
-    color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 14%, var(--card-bg));
-  }
-
-  .failed-stat-icon.warning {
-    color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 14%, var(--card-bg));
-  }
-
-  .failed-stat-icon.success {
-    color: var(--success);
-    background: color-mix(in srgb, var(--success) 14%, var(--card-bg));
-  }
-
-  .failed-stat-value {
-    margin: 0;
-    font-size: clamp(1.2rem, 2vw, 1.5rem);
-    line-height: 1.2;
-    color: var(--text-dark);
+  .ft-thead-row { background: #F8FAFC; }
+  .ft-th {
+    padding: 12px 14px;
+    font-size: 0.68rem;
     font-weight: 800;
-  }
-
-  .failed-stat-label {
-    margin-top: 4px;
-    font-size: 11px;
+    color: #64748B;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--text-soft);
+    text-align: left;
+    border-bottom: 1px solid #F1F5F9;
+    white-space: nowrap;
+  }
+  .ft-th-check { width: 40px; padding: 12px 16px; }
+  .ft-th-right { text-align: right; }
+  .ft-th-center { text-align: center; }
+
+  .ft-row {
+    border-bottom: 1px solid #F8FAFC;
+    transition: background 0.15s;
+  }
+  .ft-row:last-child { border-bottom: none; }
+  .ft-row:hover { background: #FFF5F5; }
+
+  .ft-td {
+    padding: 14px 14px;
+    font-size: 0.85rem;
+    color: #374151;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ft-td-check { padding: 14px 16px; }
+  .ft-td-right { text-align: right; }
+  .ft-td-actions { text-align: center; }
+
+  .ft-txn-id-wrap {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ft-txn-link {
+    font-size: 0.82rem;
     font-weight: 700;
+    color: #3B82F6;
+    font-family: 'Courier New', monospace;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ft-txn-link:hover { text-decoration: underline; }
+  .ft-copy-btn {
+    background: none; border: none;
+    color: #CBD5E1; cursor: pointer;
+    font-size: 0.75rem; padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .ft-copy-btn:hover { color: #64748B; }
+
+  .ft-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
-  .failed-trend-badge {
-    margin-top: 8px;
-    border-radius: 999px;
-    padding: 4px 9px;
+  .ft-reason-badge {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  .failed-trend-badge.danger {
-    color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 10%, var(--card-bg));
-  }
-
-  .failed-trend-badge.warning {
-    color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 10%, var(--card-bg));
-  }
-
-  .failed-trend-badge.success {
-    color: var(--success);
-    background: color-mix(in srgb, var(--success) 10%, var(--card-bg));
-  }
-
-  .failed-filter-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 14px;
-  }
-
-  .failed-filter-row {
-    display: grid;
-    grid-template-columns: 2fr repeat(3, minmax(140px, 1fr)) auto auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .search-wrap {
-    position: relative;
-  }
-
-  .search-wrap i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-soft);
-    font-size: 13px;
-  }
-
-  .failed-input,
-  .failed-select,
-  .failed-textarea {
-    width: 100%;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-dark);
-    border-radius: 10px;
-    font-size: 13px;
-  }
-
-  .failed-input,
-  .failed-select {
-    height: 40px;
-    padding: 0 12px;
-  }
-
-  .failed-input.with-icon {
-    padding-left: 36px;
-  }
-
-  .failed-textarea {
-    min-height: 100px;
-    padding: 10px 12px;
-    resize: vertical;
-  }
-
-  .failed-input:focus,
-  .failed-select:focus,
-  .failed-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 16%, transparent);
-  }
-
-  .failed-table-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-  }
-
-  .admin-table-wrapper {
-    overflow-x: auto;
-    overflow-y: visible;
-  }
-
-  .failed-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1220px;
-  }
-
-  .failed-table th {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-soft);
-    font-weight: 700;
-    text-align: left;
-    padding: 13px 14px;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-
-  .failed-table td {
-    padding: 13px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    color: var(--text-dark);
-    vertical-align: middle;
-    white-space: nowrap;
-  }
-
-  .failed-table tbody tr:hover {
-    background: color-mix(in srgb, var(--danger) 3%, var(--card-bg));
-  }
-
-  .failed-table .amount-cell {
-    color: var(--danger);
-    font-weight: 700;
-    text-align: right;
-  }
-
-  .failed-table th.amount-col,
-  .failed-table th.actions-col,
-  .failed-table td.actions-col {
-    text-align: right;
-  }
-
-  .txn-id-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .txn-id-text {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: var(--primary);
-    font-weight: 700;
-  }
-
-  .copy-txn-btn,
-  .action-btn {
-    background: none;
-    border: none;
-    color: var(--text-soft);
-    cursor: pointer;
-    border-radius: 8px;
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .copy-txn-btn:hover,
-  .action-btn:hover {
-    color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
-  }
-
-  .type-badge,
-  .reason-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
     padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  .type-badge {
-    color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 10%, var(--card-bg));
-  }
-
-  .reason-pill {
+    border-radius: 8px;
+    font-size: 0.75rem;
     font-weight: 600;
-  }
-
-  .reason-pill.red {
-    color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 12%, var(--card-bg));
-  }
-
-  .reason-pill.orange {
-    color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 12%, var(--card-bg));
-  }
-
-  .reason-pill.yellow {
-    color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 18%, var(--card-bg));
-  }
-
-  .reason-pill.purple {
-    color: var(--primary);
-    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
-  }
-
-  .reason-pill.darkred {
-    color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 18%, var(--card-bg));
-  }
-
-  .action-cell {
-    position: relative;
-    overflow: visible;
-  }
-
-  .action-dropdown {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    min-width: 210px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
-    z-index: 250;
-    display: none;
-    padding: 6px 0;
-  }
-
-  .action-dropdown.open {
-    display: block;
-  }
-
-  .action-dropdown a,
-  .action-dropdown button {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: none;
-    background: none;
-    text-decoration: none;
-    cursor: pointer;
-    color: var(--text-dark);
-    padding: 9px 14px;
-    font-size: 13px;
-    text-align: left;
-  }
-
-  .action-dropdown a:hover,
-  .action-dropdown button:hover {
-    background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
-  }
-
-  .action-dropdown .danger {
-    color: var(--danger);
-  }
-
-  .failed-empty-state {
-    text-align: center;
-    padding: 56px 20px;
-    display: grid;
-    gap: 8px;
-    justify-items: center;
-  }
-
-  .failed-empty-state i {
-    font-size: 52px;
-    color: var(--success);
-  }
-
-  .failed-empty-state h3 {
-    margin: 0;
-    color: var(--text-dark);
-    font-size: 20px;
-    font-weight: 800;
-  }
-
-  .failed-empty-state p {
-    margin: 0;
-    color: var(--text-soft);
-    font-size: 14px;
-  }
-
-  .failed-pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 12px 2px 2px;
-  }
-
-  .pagination-meta {
-    color: var(--text-soft);
-    font-size: 12px;
-  }
-
-  .pagination-controls {
-    display: inline-flex;
-    gap: 6px;
-    align-items: center;
-  }
-
-  .page-btn {
-    min-width: 34px;
-    height: 34px;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-dark);
-    border-radius: 8px;
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .page-btn.active {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--card-bg);
-  }
-
-  .page-btn.disabled {
-    pointer-events: none;
-    opacity: 0.5;
-  }
-
-  .items-per-page {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-soft);
-    font-size: 12px;
-  }
-
-  .items-select {
-    width: 74px;
-    height: 34px;
-    min-width: 1280px;
-    border-radius: 8px;
-    background: var(--card-bg);
-    color: var(--text-dark);
-  }
-
-  .bulk-action-bar {
-  .failed-table th.actions-col {
-    position: sticky;
-    right: 0;
-    z-index: 5;
-    background: var(--card-bg);
-    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
-  }
-  .failed-table td.actions-col {
-    position: sticky;
-    right: 0;
-    z-index: 4;
-    background: var(--card-bg);
-    box-shadow: -8px 0 12px -14px rgba(15, 23, 42, 0.32);
-  }
-    position: fixed;
-    left: 50%;
-    bottom: 20px;
-  .failed-table tbody tr:hover td.actions-col {
-    background: color-mix(in srgb, var(--danger) 3%, var(--card-bg));
-  }
-    transform: translateX(-50%);
-    z-index: 600;
-    border-radius: 999px;
-    background: var(--text-dark);
-    color: var(--card-bg);
-    padding: 10px 14px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .bulk-action-bar[hidden] {
-    display: none;
-  }
-
-  .bulk-count {
-    font-size: 12px;
-    font-weight: 700;
-    margin-right: 6px;
-  }
-
-  .bulk-btn {
-    height: 32px;
-    border-radius: 999px;
-    border: none;
-    padding: 0 12px;
-    color: var(--card-bg);
-    font-size: 12px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  .bulk-btn.retry {
-    background: var(--success);
-  }
-
-  .bulk-btn.flag {
-    background: var(--warning);
-  }
-
-  .bulk-btn.export {
-    background: var(--text-soft);
-  }
-
-  .bulk-clear {
-    border: none;
-    background: none;
-    color: var(--card-bg);
-    cursor: pointer;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .bulk-clear:hover {
-    background: color-mix(in srgb, var(--card-bg) 16%, transparent);
-  }
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 800;
-    background: color-mix(in srgb, var(--text-dark) 45%, transparent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
-  }
-
-  .modal-overlay[hidden] {
-    display: none;
-  }
-
-  .modal-card {
-    width: min(560px, 100%);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+    max-width: 160px;
     overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ft-reason-badge i { font-size: 0.7rem; flex-shrink: 0; }
+
+  .ft-amount-failed {
+    font-weight: 800;
+    color: #DC2626;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
   }
 
-  .modal-card.modal-xl {
-    width: min(980px, 100%);
+  .ft-date-wrap {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .ft-date {
+    font-size: 0.82rem;
+    color: #374151;
+    font-weight: 500;
+  }
+  .ft-time {
+    font-size: 0.72rem;
+    color: #94A3B8;
   }
 
-  .modal-header {
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
+  .ft-unknown {
+    color: #CBD5E1;
+    font-style: italic;
+    font-size: 0.82rem;
+  }
+
+  .ft-mono-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #475569;
+  }
+
+  .ft-row-actions {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .ft-row:hover .ft-row-actions { opacity: 1; }
+  .ft-action-btn {
+    width: 30px; height: 30px;
+    border: none; border-radius: 7px;
+    cursor: pointer; font-size: 0.78rem;
+    display: flex; align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .ft-action-view {
+    background: #EFF6FF; color: #3B82F6;
+  }
+  .ft-action-view:hover { background: #DBEAFE; }
+  .ft-action-retry {
+    background: #ECFDF5; color: #059669;
+  }
+  .ft-action-retry:hover { background: #D1FAE5; }
+  .ft-action-more {
+    background: #F1F5F9; color: #64748B;
+  }
+  .ft-action-more:hover { background: #E2E8F0; }
+
+  .ft-empty { padding: 60px 20px; }
+  .ft-empty-inner { text-align: center; }
+  .ft-empty-icon {
+    font-size: 2.5rem; margin-bottom: 14px;
+  }
+  .ft-empty-title {
+    font-size: 1rem; font-weight: 700;
+    color: #374151; margin: 0 0 6px;
+  }
+  .ft-empty-sub {
+    font-size: 0.83rem; color: #94A3B8;
+  }
+
+  .ft-table-footer {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    padding: 14px 20px;
+    background: #F8FAFC;
+    border-top: 1px solid #F1F5F9;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-radius: 0 0 14px 14px;
+  }
+  .ft-result-count {
+    font-size: 0.82rem;
+    color: #64748B;
+    white-space: nowrap;
+  }
+  .ft-result-count strong {
+    color: #374151;
+    font-weight: 700;
+  }
+  .ft-pagination {
+    display: flex;
     align-items: center;
-    gap: 10px;
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: var(--text-dark);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .modal-close-btn {
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 8px;
-    background: none;
-    color: var(--text-soft);
-    cursor: pointer;
-  }
-
-  .modal-close-btn:hover {
-    background: color-mix(in srgb, var(--border) 35%, var(--card-bg));
-  }
-
-  .modal-body {
-    padding: 16px;
-    display: grid;
-    gap: 12px;
-  }
-
-  .modal-row {
-    display: grid;
     gap: 4px;
   }
-
-  .modal-row .label {
-    color: var(--text-soft);
-    font-size: 12px;
-    font-weight: 600;
+  .ft-page-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 12px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    background: #fff;
+    color: #374151;
+    font-size: 0.8rem; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer; white-space: nowrap;
   }
-
-  .modal-row .value {
-    color: var(--text-dark);
-    font-size: 14px;
-    font-weight: 700;
+  .ft-page-btn:hover:not(.ft-page-disabled):not(.ft-page-active) {
+    border-color: #3B82F6; color: #3B82F6;
+    background: #EFF6FF;
   }
-
-  .modal-warning {
-    border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border));
-    background: color-mix(in srgb, var(--warning) 10%, var(--card-bg));
-    color: var(--warning);
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 13px;
+  .ft-page-active {
+    background: #3B82F6;
+    border-color: #3B82F6;
+    color: #fff;
   }
-
-  .modal-footer {
+  .ft-page-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .ft-per-page {
     display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 4px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.82rem;
+    color: #64748B;
+    white-space: nowrap;
   }
-
-  .btn-modal {
-    height: 38px;
-    border-radius: 10px;
-    padding: 0 14px;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-dark);
+  .ft-per-page select {
+    padding: 6px 10px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #374151;
+    background: #fff;
+    outline: none;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    font-family: inherit;
   }
 
-  .btn-modal.success {
-    border-color: var(--success);
-    background: var(--success);
-    color: var(--card-bg);
-  }
-
-  .btn-modal.danger {
-    border-color: var(--danger);
-    background: var(--danger);
-    color: var(--card-bg);
-  }
-
-  .receipt-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .receipt-item {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px;
-    background: color-mix(in srgb, var(--border) 20%, var(--card-bg));
-  }
-
-  .receipt-item .k {
-    font-size: 11px;
-    color: var(--text-soft);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
-  }
-
-  .receipt-item .v {
-    margin-top: 4px;
-    font-size: 13px;
-    color: var(--text-dark);
-    font-weight: 700;
-    word-break: break-word;
-  }
-
-  .toast {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    z-index: 1000;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    box-shadow: var(--shadow-sm);
-    padding: 10px 12px;
-    font-size: 13px;
-    color: var(--text-dark);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .toast.success i { color: var(--success); }
-  .toast.error i { color: var(--danger); }
-
-  @media (max-width: 1220px) {
-    .failed-kpi-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .failed-filter-row {
-      grid-template-columns: 1fr 1fr;
+  @media (max-width: 1200px) {
+    .ft-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 860px) {
-    .failed-kpi-grid,
-    .failed-filter-row {
+  @media (max-width: 900px) {
+    .ft-table {
+      min-width: 980px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .ft-stats-grid {
       grid-template-columns: 1fr;
     }
-
-    .bulk-action-bar {
-      left: 12px;
-      right: 12px;
-      transform: none;
-      border-radius: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
+    .ft-page-header {
+      align-items: stretch;
     }
-
-    .receipt-grid {
-      grid-template-columns: 1fr;
+    .ft-header-actions {
+      width: 100%;
     }
   }
 </style>
 
 <%
-  const rows = Array.isArray(transactions) ? transactions : [];
-  const current = Number(currentPageNumber || 1);
-  const pages = Number(totalPages || 1);
-  const perPageCurrent = Number(perPage || 10);
-  const total = Number(totalCount || 0);
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const safeFilters = filters || {};
+  const safePagination = {
+    current: Number(currentPageNumber || 1),
+    totalPages: Number(totalPages || 1),
+    total: Number(totalCount || 0),
+    limit: Number(perPage || 10),
+  };
+  const safeStats = {
+    totalFailed: Number(totalFailed || safePagination.total || safeTransactions.length || 0),
+    failedToday: Number(failedToday || 0),
+    totalAmountLost: Number(totalAmount || 0),
+    retrySuccessRate: Number(typeof retrySuccessRate !== 'undefined' ? retrySuccessRate : 0) || 0,
+  };
+
+  const rows = safeTransactions;
+  const current = safePagination.current;
+  const pages = safePagination.totalPages;
+  const perPageCurrent = safePagination.limit;
+  const total = safePagination.total;
   const startItem = total === 0 ? 0 : ((current - 1) * perPageCurrent) + 1;
   const endItem = Math.min(current * perPageCurrent, total);
 
-  const f = filters || {};
-  const formatMoney = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
-  const formatDateTime = (d) => {
-    if (!d) return '—';
-    const dt = new Date(d);
-    if (Number.isNaN(dt.getTime())) return '—';
-    return dt.toLocaleString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const f = safeFilters;
+
+  const stats = safeStats;
+
+  const pagination = {
+    from: startItem,
+    to: endItem,
+    total,
+    current,
+    totalPages: pages,
+    limit: perPageCurrent,
   };
 
-  const reasonClass = (reason) => {
-    const r = String(reason || '').toLowerCase();
-    if (r.includes('insufficient') || r.includes('declined')) return 'red';
-    if (r.includes('timeout')) return 'orange';
-    if (r.includes('invalid')) return 'yellow';
-    if (r.includes('limit')) return 'purple';
-    if (r.includes('fraud')) return 'darkred';
-    return 'red';
+  const filtersForLinks = {
+    search: f.search || '',
+    type: f.type || '',
+    reason: f.reason || '',
+    dateFrom: f.dateFrom || '',
+    dateTo: f.dateTo || '',
+    limit: String(perPageCurrent),
   };
 
-  const pageLink = (targetPage, targetLimit = perPageCurrent) => {
-    const params = new URLSearchParams();
-    if (f.search) params.set('search', f.search);
-    if (f.type) params.set('type', f.type);
-    if (f.dateFrom) params.set('dateFrom', f.dateFrom);
-    if (f.dateTo) params.set('dateTo', f.dateTo);
-    params.set('page', targetPage);
-    params.set('limit', targetLimit);
-    return `/admin/transactions/failed?${params.toString()}`;
+  const exportQuery = new URLSearchParams({ ...(filtersForLinks || {}), status: 'failed' }).toString();
+
+  const reasonColorsMap = {
+    'Network Timeout':   { bg:'#FFF7ED', color:'#C2410C', icon:'fa-wifi' },
+    'Insufficient Funds':{ bg:'#FEF2F2', color:'#DC2626', icon:'fa-wallet' },
+    'Invalid Account':   { bg:'#F5F3FF', color:'#7C3AED', icon:'fa-user-xmark' },
+    'Declined':          { bg:'#FEF2F2', color:'#DC2626', icon:'fa-ban' },
+    'Timeout':           { bg:'#FFF7ED', color:'#C2410C', icon:'fa-clock' }
   };
 
-  const paginationPages = [];
-  const windowSize = 5;
-  let start = Math.max(1, current - Math.floor(windowSize / 2));
-  let end = Math.min(pages, start + windowSize - 1);
-  if (end - start + 1 < windowSize) {
-    start = Math.max(1, end - windowSize + 1);
-  }
-  for (let i = start; i <= end; i += 1) paginationPages.push(i);
+  const typeColorsMap = {
+    'Wallet':        { bg:'#EFF6FF', color:'#2563EB', border:'#BFDBFE' },
+    'UPI':           { bg:'#F5F3FF', color:'#7C3AED', border:'#DDD6FE' },
+    'Card':          { bg:'#ECFDF5', color:'#059669', border:'#A7F3D0' },
+    'Bank Transfer': { bg:'#FFF7ED', color:'#C2410C', border:'#FED7AA' }
+  };
 %>
 
 <div class="failed-transactions-page">
-  <section class="admin-page-header">
-    <div>
-      <h1 class="admin-page-title">
-        <span class="page-title-icon failed-title-icon"><i class="fas fa-circle-xmark" aria-hidden="true"></i></span>
-        Failed Transactions
-      </h1>
-      <p class="admin-page-subtitle">All failed and declined payment transactions</p>
-      <nav class="failed-breadcrumb" aria-label="Breadcrumb">
-        <span><i class="fas fa-home" aria-hidden="true"></i></span>
-        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-        <span>Transactions</span>
-        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-        <span class="active">Failed Transactions</span>
+  <div class="ft-page-header">
+    <div class="ft-header-left">
+      <nav class="ft-breadcrumb">
+        <a href="/admin/dashboard">
+          <i class="fas fa-house"></i>
+        </a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/admin/transactions">Transactions</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Failed Transactions</span>
       </nav>
+      <div class="ft-title-wrap">
+        <div class="ft-title-icon">
+          <i class="fas fa-circle-xmark"></i>
+        </div>
+        <div>
+          <h1 class="ft-title">Failed Transactions</h1>
+          <p class="ft-subtitle">
+            All failed and declined payment transactions
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="failed-header-actions">
-      <button type="button" id="exportAllBtn" class="btn-outline-admin btn-export-failed">
-        <i class="fas fa-file-export" aria-hidden="true"></i>
-        Export
+    <div class="ft-header-actions">
+      <button class="ft-btn-ghost" id="refreshBtn" onclick="refreshPage()" title="Refresh data">
+        <i class="fas fa-rotate-right" id="refreshIcon"></i>
+        Refresh
       </button>
-      <button type="button" id="retryAllBtn" class="btn-outline-admin btn-retry-all">
-        <i class="fas fa-rotate-right" aria-hidden="true"></i>
-        Retry All
+
+      <a href="/admin/transactions/export?<%= exportQuery %>" class="ft-btn-outline">
+        <i class="fas fa-download"></i>
+        Export CSV
+      </a>
+
+      <button class="ft-btn-primary" id="retrySelectedBtn" style="display:none;" onclick="retrySelected()">
+        <i class="fas fa-rotate-left"></i>
+        Retry Selected
       </button>
     </div>
-  </section>
+  </div>
 
-  <section class="failed-kpi-grid" aria-label="Failed transaction stats">
-    <article class="failed-stat-card">
-      <span class="failed-stat-icon danger"><i class="fas fa-circle-xmark" aria-hidden="true"></i></span>
-      <div>
-        <p class="failed-stat-value"><%= Number(totalFailed || 0).toLocaleString('en-IN') %></p>
-        <p class="failed-stat-label">Total Failed</p>
-        <span class="failed-trend-badge danger"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Monitoring</span>
+  <div class="ft-stats-grid">
+    <div class="ft-stat-card ft-stat-danger">
+      <div class="ft-stat-icon" style="background:linear-gradient(135deg,#991B1B,#EF4444);">
+        <i class="fas fa-circle-xmark" style="color:#FECACA;"></i>
       </div>
-    </article>
-
-    <article class="failed-stat-card">
-      <span class="failed-stat-icon warning"><i class="fas fa-calendar-day" aria-hidden="true"></i></span>
-      <div>
-        <p class="failed-stat-value"><%= Number(failedToday || 0).toLocaleString('en-IN') %></p>
-        <p class="failed-stat-label">Failed Today</p>
-        <span class="failed-trend-badge warning"><i class="fas fa-clock" aria-hidden="true"></i> Today</span>
+      <div class="ft-stat-body">
+        <span class="ft-stat-label">Total Failed</span>
+        <span class="ft-stat-value"><%= stats.totalFailed || 0 %></span>
+        <span class="ft-stat-sub"><i class="fas fa-chart-line"></i>Monitoring</span>
       </div>
-    </article>
+    </div>
 
-    <article class="failed-stat-card">
-      <span class="failed-stat-icon danger"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></span>
-      <div>
-        <p class="failed-stat-value"><%= formatMoney(totalAmount || 0) %></p>
-        <p class="failed-stat-label">Total Amount Lost</p>
-        <span class="failed-trend-badge danger"><i class="fas fa-chart-line" aria-hidden="true"></i> Failed volume</span>
+    <div class="ft-stat-card">
+      <div class="ft-stat-icon" style="background:linear-gradient(135deg,#B45309,#F59E0B);">
+        <i class="fas fa-calendar-xmark" style="color:#FDE68A;"></i>
       </div>
-    </article>
-
-    <article class="failed-stat-card">
-      <span class="failed-stat-icon success"><i class="fas fa-percent" aria-hidden="true"></i></span>
-      <div>
-        <p class="failed-stat-value">34%</p>
-        <p class="failed-stat-label">Retry Success Rate</p>
-        <span class="failed-trend-badge success"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> Stable</span>
+      <div class="ft-stat-body">
+        <span class="ft-stat-label">Failed Today</span>
+        <span class="ft-stat-value"><%= stats.failedToday || 0 %></span>
+        <span class="ft-stat-sub"><i class="fas fa-clock"></i>Today</span>
       </div>
-    </article>
-  </section>
+    </div>
 
-  <section class="failed-filter-card">
-    <div class="failed-filter-row">
-      <div class="search-wrap">
-        <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
-        <input id="failedSearch" class="failed-input with-icon" type="text" value="<%= f.search || '' %>" placeholder="Search by Transaction ID, description...">
+    <div class="ft-stat-card">
+      <div class="ft-stat-icon" style="background:linear-gradient(135deg,#1D4ED8,#3B82F6);">
+        <i class="fas fa-indian-rupee-sign" style="color:#BFDBFE;"></i>
+      </div>
+      <div class="ft-stat-body">
+        <span class="ft-stat-label">Total Amount Lost</span>
+        <span class="ft-stat-value">₹<%= (stats.totalAmountLost || 0).toLocaleString('en-IN') %></span>
+        <span class="ft-stat-sub"><i class="fas fa-arrow-trend-down"></i>Failed volume</span>
+      </div>
+    </div>
+
+    <div class="ft-stat-card">
+      <div class="ft-stat-icon" style="background:linear-gradient(135deg,#065F46,#10B981);">
+        <i class="fas fa-rotate-left" style="color:#A7F3D0;"></i>
+      </div>
+      <div class="ft-stat-body">
+        <span class="ft-stat-label">Retry Success Rate</span>
+        <span class="ft-stat-value"><%= stats.retrySuccessRate || 0 %>%</span>
+        <span class="ft-stat-sub ft-stat-stable"><i class="fas fa-arrow-trend-up"></i>Stable</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ft-filter-bar">
+    <form id="failedFilterForm" method="GET" action="/admin/transactions/failed" class="ft-filter-form">
+      <div class="ft-filter-search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" name="search" id="failedSearch" value="<%= filters?.search || '' %>" placeholder="Search by Txn ID, sender, receiver..." class="ft-filter-input" oninput="debounceFilter()">
       </div>
 
-      <select id="typeFilter" class="failed-select" aria-label="Transaction type filter">
-        <option value="all" <%= (f.type || 'all') === 'all' ? 'selected' : '' %>>All Types</option>
-        <option value="p2p_transfer" <%= f.type === 'p2p_transfer' ? 'selected' : '' %>>P2P Transfer</option>
-        <option value="merchant_payment" <%= f.type === 'merchant_payment' ? 'selected' : '' %>>Merchant Payment</option>
-        <option value="wallet_topup" <%= f.type === 'wallet_topup' ? 'selected' : '' %>>Wallet Top-Up</option>
-        <option value="refund" <%= f.type === 'refund' ? 'selected' : '' %>>Refund</option>
-        <option value="withdrawal" <%= f.type === 'withdrawal' ? 'selected' : '' %>>Withdrawal</option>
+      <select name="type" class="ft-filter-select" onchange="this.form.submit()">
+        <option value="">All Types</option>
+        <option value="Wallet" <%= filters?.type==='Wallet'?'selected':'' %>>Wallet</option>
+        <option value="UPI" <%= filters?.type==='UPI'?'selected':'' %>>UPI</option>
+        <option value="Card" <%= filters?.type==='Card'?'selected':'' %>>Card</option>
+        <option value="Bank Transfer" <%= filters?.type==='Bank Transfer'?'selected':'' %>>Bank Transfer</option>
       </select>
 
-      <input id="dateFrom" class="failed-input" type="date" value="<%= f.dateFrom || '' %>">
-      <input id="dateTo" class="failed-input" type="date" value="<%= f.dateTo || '' %>">
+      <select name="reason" class="ft-filter-select" onchange="this.form.submit()">
+        <option value="">All Reasons</option>
+        <option value="Network Timeout" <%= filters?.reason==='Network Timeout'?'selected':'' %>>Network Timeout</option>
+        <option value="Insufficient Funds" <%= filters?.reason==='Insufficient Funds'?'selected':'' %>>Insufficient Funds</option>
+        <option value="Invalid Account" <%= filters?.reason==='Invalid Account'?'selected':'' %>>Invalid Account</option>
+        <option value="Declined" <%= filters?.reason==='Declined'?'selected':'' %>>Declined by Bank</option>
+      </select>
 
-      <button id="applyFiltersBtn" type="button" class="btn-primary-admin">
-        <i class="fas fa-filter" aria-hidden="true"></i>
-        Apply Filters
+      <div class="ft-filter-date-wrap">
+        <i class="fas fa-calendar"></i>
+        <input type="date" name="dateFrom" id="dateFrom_failed" value="<%= filters?.dateFrom || '' %>" class="ft-filter-date date-from" data-date-pair="failed" data-date-role="from" onchange="this.form.submit()">
+      </div>
+
+      <div class="ft-filter-date-wrap">
+        <i class="fas fa-calendar"></i>
+        <input type="date" name="dateTo" id="dateTo_failed" value="<%= filters?.dateTo || '' %>" class="ft-filter-date date-to" data-date-pair="failed" data-date-role="to" onchange="this.form.submit()">
+      </div>
+
+      <button type="submit" class="ft-filter-apply">
+        <i class="fas fa-filter"></i>
+        Apply
       </button>
 
-      <button id="resetFilters" type="button" class="btn-outline-admin">
-        <i class="fas fa-rotate-left" aria-hidden="true"></i>
-        Reset
-      </button>
-    </div>
-  </section>
-
-  <section class="failed-table-card">
-    <div class="admin-table-wrapper">
-      <% if (!rows.length) { %>
-        <div class="failed-empty-state">
-          <i class="fas fa-circle-check" aria-hidden="true"></i>
-          <h3>No failed transactions found</h3>
-          <p>All transactions are running smoothly</p>
-        </div>
-      <% } else { %>
-        <table class="failed-table" id="failedTable">
-          <thead>
-            <tr>
-              <th>
-                <label class="wallet-checkbox" for="failedSelectAll">
-                  <input id="failedSelectAll" type="checkbox">
-                  <span class="wallet-checkbox-ui"></span>
-                </label>
-              </th>
-              <th>Txn ID</th>
-              <th>Type</th>
-              <th>Sender</th>
-              <th>Receiver</th>
-              <th class="amount-col">Amount (₹)</th>
-              <th>Failure Reason</th>
-              <th>Date &amp; Time</th>
-              <th class="actions-col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% rows.forEach((tx, idx) => { %>
-              <tr data-transaction-id="<%= tx.transactionId %>">
-                <td>
-                  <label class="wallet-checkbox" for="failed-row-<%= idx %>">
-                    <input id="failed-row-<%= idx %>" type="checkbox" class="row-check" value="<%= tx.transactionId %>">
-                    <span class="wallet-checkbox-ui"></span>
-                  </label>
-                </td>
-                <td>
-                  <div class="txn-id-wrap">
-                    <span class="txn-id-text"><%= tx.txnId || tx.transactionId %></span>
-                    <button type="button" class="copy-txn-btn" data-txn-id="<%= tx.transactionId %>" title="Copy Txn ID">
-                      <i class="fas fa-copy" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                </td>
-                <td><span class="type-badge"><%= tx.type || 'Wallet' %></span></td>
-                <td><%= tx.senderLabel || tx.sender?.name || '—' %></td>
-                <td><%= tx.receiverLabel || tx.receiver?.name || '—' %></td>
-                <td class="amount-cell"><%= formatMoney(tx.amount || 0) %></td>
-                <td>
-                  <span class="reason-pill <%= reasonClass(tx.failureReason || 'Unknown Error') %>">
-                    <i class="fas fa-circle-info" aria-hidden="true"></i>
-                    <%= tx.failureReason || 'Unknown Error' %>
-                  </span>
-                </td>
-                <td><%= formatDateTime(tx.time || tx.TransactionTime) %></td>
-                <td class="action-cell actions-col">
-                  <button type="button" class="action-btn txn-dropdown-toggle" aria-label="Open actions">
-                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
-                  </button>
-
-                  <div class="action-dropdown">
-                    <a href="/admin/transactions/<%= tx.transactionId %>">
-                      <i class="fas fa-eye" aria-hidden="true"></i>
-                      View Details
-                    </a>
-
-                    <button type="button" class="open-retry-modal" data-open-modal="retryTxnModal" data-txn-id="<%= tx.transactionId %>" data-txn-display="<%= tx.txnId || tx.transactionId %>" data-amount="<%= tx.amount || 0 %>">
-                      <i class="fas fa-rotate-right" aria-hidden="true"></i>
-                      Retry Transaction
-                    </button>
-
-                    <button type="button" class="open-flag-modal" data-open-modal="flagFraudModal" data-txn-id="<%= tx.transactionId %>" data-txn-display="<%= tx.txnId || tx.transactionId %>">
-                      <i class="fas fa-flag" aria-hidden="true"></i>
-                      Flag as Fraud
-                    </button>
-
-                    <button
-                      type="button"
-                      class="open-receipt-modal"
-                      data-open-modal="viewReceiptModal"
-                      data-txn-id="<%= tx.transactionId %>"
-                      data-txn-display="<%= tx.txnId || tx.transactionId %>"
-                      data-type="<%= tx.type || 'Wallet' %>"
-                      data-amount="<%= tx.amount || 0 %>"
-                      data-sender="<%= tx.senderLabel || tx.sender?.name || '—' %>"
-                      data-receiver="<%= tx.receiverLabel || tx.receiver?.name || '—' %>"
-                      data-reason="<%= tx.failureReason || 'Unknown Error' %>"
-                      data-datetime="<%= formatDateTime(tx.time || tx.TransactionTime) %>"
-                      data-response="<%= tx.gatewayResponse || 'No gateway response' %>"
-                    >
-                      <i class="fas fa-file-lines" aria-hidden="true"></i>
-                      View Receipt
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
+      <% if (filters?.search || filters?.type || filters?.reason || filters?.dateFrom || filters?.dateTo) { %>
+      <a href="/admin/transactions/failed" class="ft-filter-clear">
+        <i class="fas fa-xmark"></i>
+        Clear
+      </a>
       <% } %>
-    </div>
-  </section>
-
-  <section class="failed-pagination">
-    <p class="pagination-meta">Showing <%= startItem %>–<%= endItem %> of <%= total %> failed transactions</p>
-
-    <div class="pagination-controls" aria-label="Pagination controls">
-      <a class="page-btn <%= current <= 1 ? 'disabled' : '' %>" href="<%= current <= 1 ? '#' : pageLink(current - 1) %>">Prev</a>
-      <% paginationPages.forEach((p) => { %>
-        <a class="page-btn <%= p === current ? 'active' : '' %>" href="<%= pageLink(p) %>"><%= p %></a>
-      <% }) %>
-      <a class="page-btn <%= current >= pages ? 'disabled' : '' %>" href="<%= current >= pages ? '#' : pageLink(current + 1) %>">Next</a>
-    </div>
-
-    <label class="items-per-page">
-      <span>Items per page:</span>
-      <select id="itemsPerPage" class="items-select" aria-label="Items per page">
-        <option value="10" <%= perPageCurrent === 10 ? 'selected' : '' %>>10</option>
-        <option value="25" <%= perPageCurrent === 25 ? 'selected' : '' %>>25</option>
-        <option value="50" <%= perPageCurrent === 50 ? 'selected' : '' %>>50</option>
-      </select>
-    </label>
-  </section>
-</div>
-
-<div class="bulk-action-bar" id="bulkActionBar" hidden>
-  <span class="bulk-count" id="bulkSelectedCount">0 transactions selected</span>
-  <button type="button" class="bulk-btn retry" id="bulkRetryBtn"><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Selected</button>
-  <button type="button" class="bulk-btn flag" id="bulkFlagBtn"><i class="fas fa-flag" aria-hidden="true"></i> Flag Selected</button>
-  <button type="button" class="bulk-btn export" id="bulkExportBtn"><i class="fas fa-file-export" aria-hidden="true"></i> Export Selected</button>
-  <button type="button" class="bulk-clear" id="bulkClearBtn" aria-label="Clear selection"><i class="fas fa-times" aria-hidden="true"></i></button>
-</div>
-
-<div id="retryTxnModal" class="modal-overlay" hidden>
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Transaction</h3>
-      <button type="button" class="modal-close-btn" data-close-modal="retryTxnModal"><i class="fas fa-times" aria-hidden="true"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-row">
-        <span class="label">Transaction ID</span>
-        <span class="value" id="retryTxnIdText">—</span>
-      </div>
-      <div class="modal-row">
-        <span class="label">Amount</span>
-        <span class="value" id="retryTxnAmountText">₹0</span>
-      </div>
-      <p class="modal-warning">This will attempt to reprocess the payment.</p>
-      <div class="modal-footer">
-        <button type="button" class="btn-modal" data-close-modal="retryTxnModal">Cancel</button>
-        <button type="button" class="btn-modal success" id="confirmRetryBtn"><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry Now</button>
-      </div>
-    </div>
+    </form>
   </div>
-</div>
 
-<div id="flagFraudModal" class="modal-overlay" hidden>
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3><i class="fas fa-flag" aria-hidden="true"></i> Flag as Fraud</h3>
-      <button type="button" class="modal-close-btn" data-close-modal="flagFraudModal"><i class="fas fa-times" aria-hidden="true"></i></button>
-    </div>
-    <div class="modal-body">
-      <form id="flagFraudForm">
-        <input type="hidden" id="flagTxnId">
+  <div class="ft-table-wrap">
+    <table class="ft-table">
+      <thead>
+        <tr class="ft-thead-row">
+          <th class="ft-th ft-th-check">
+            <input type="checkbox" id="selectAllFailed" onchange="toggleSelectAll(this)">
+          </th>
+          <th class="ft-th">TXN ID</th>
+          <th class="ft-th">TYPE</th>
+          <th class="ft-th">SENDER</th>
+          <th class="ft-th">RECEIVER</th>
+          <th class="ft-th ft-th-right">AMOUNT (₹)</th>
+          <th class="ft-th">FAILURE REASON</th>
+          <th class="ft-th">DATE & TIME</th>
+          <th class="ft-th ft-th-center">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!rows || rows.length === 0) { %>
+        <tr>
+          <td colspan="9" class="ft-empty">
+            <div class="ft-empty-inner">
+              <div class="ft-empty-icon">
+                <i class="fas fa-circle-check" style="color:#10B981;"></i>
+              </div>
+              <p class="ft-empty-title">No failed transactions</p>
+              <p class="ft-empty-sub">All transactions are processing normally</p>
+            </div>
+          </td>
+        </tr>
+        <% } else { %>
+        <% rows.forEach(txn => { 
+          const docId = txn._id || txn.transactionId;
+          const displayTxn = txn.txnId || (docId ? String(docId).slice(-12).toUpperCase() : '—');
+          const receiverText = txn.receiver || txn.receiverLabel || txn.receiver?.name || 'Unknown';
+          const senderText = txn.sender || txn.senderLabel || txn.sender?.name || txn.senderId || '—';
+          const txnType = txn.type || '—';
+          const amount = Number(txn.amount || 0);
+          const reason = txn.failureReason || 'Unknown';
+          const tc = typeColorsMap[txnType] || { bg:'#F1F5F9', color:'#64748B', border:'#E2E8F0' };
+          const rc = reasonColorsMap[reason] || { bg:'#F1F5F9', color:'#64748B', icon:'fa-circle-info' };
+          const createdDate = txn.createdAt || txn.time || txn.TransactionTime;
+        %>
+        <tr class="ft-row" onclick="viewTxnDetail('<%= docId %>')" style="cursor:pointer;">
+          <td class="ft-td ft-td-check" onclick="event.stopPropagation()">
+            <input type="checkbox" class="ft-checkbox" value="<%= docId %>" onchange="updateBulkBar()">
+          </td>
 
-        <div class="modal-row">
-          <span class="label">Transaction ID</span>
-          <span class="value" id="flagTxnDisplay">—</span>
-        </div>
+          <td class="ft-td">
+            <div class="ft-txn-id-wrap">
+              <a href="/admin/transactions/<%= docId %>" class="ft-txn-link" onclick="event.stopPropagation()">
+                #<%= displayTxn %>
+              </a>
+              <button class="ft-copy-btn" onclick="event.stopPropagation(); copyTxnId('<%= displayTxn %>')" title="Copy ID">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </td>
 
-        <div class="modal-row">
-          <label class="label" for="fraudType">Fraud Type</label>
-          <select id="fraudType" class="failed-select" required>
-            <option value="Suspicious Activity">Suspicious Activity</option>
-            <option value="Identity Theft">Identity Theft</option>
-            <option value="Unauthorized Access">Unauthorized Access</option>
-            <option value="Money Laundering">Money Laundering</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
+          <td class="ft-td">
+            <span class="ft-type-badge" style="<%= `background:${tc.bg};color:${tc.color};border:1px solid ${tc.border};` %>">
+              <%= txnType %>
+            </span>
+          </td>
 
-        <div class="modal-row">
-          <label class="label" for="fraudNotes">Notes</label>
-          <textarea id="fraudNotes" class="failed-textarea" required placeholder="Enter investigation notes..."></textarea>
-        </div>
+          <td class="ft-td">
+            <span class="ft-mono-text"><%= senderText %></span>
+          </td>
 
-        <div class="modal-footer">
-          <button type="button" class="btn-modal" data-close-modal="flagFraudModal">Cancel</button>
-          <button type="submit" class="btn-modal danger"><i class="fas fa-flag" aria-hidden="true"></i> Flag Transaction</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+          <td class="ft-td">
+            <span class="<%= (!receiverText || receiverText === 'Unknown') ? 'ft-unknown' : 'ft-mono-text' %>"><%= receiverText || 'Unknown' %></span>
+          </td>
 
-<div id="viewReceiptModal" class="modal-overlay" hidden>
-  <div class="modal-card modal-xl">
-    <div class="modal-header">
-      <h3><i class="fas fa-file-lines" aria-hidden="true"></i> Transaction Receipt</h3>
-      <div>
-        <button type="button" class="btn-modal" id="printReceiptBtn"><i class="fas fa-print" aria-hidden="true"></i> Print</button>
-        <button type="button" class="modal-close-btn" data-close-modal="viewReceiptModal"><i class="fas fa-times" aria-hidden="true"></i></button>
+          <td class="ft-td ft-td-right">
+            <span class="ft-amount-failed">₹<%= amount.toLocaleString('en-IN') %></span>
+          </td>
+
+          <td class="ft-td">
+            <span class="ft-reason-badge" style="<%= `background:${rc.bg};color:${rc.color};` %>">
+              <i class="fas <%= rc.icon %>"></i>
+              <%= reason %>
+            </span>
+          </td>
+
+          <td class="ft-td">
+            <div class="ft-date-wrap">
+              <span class="ft-date">
+                <%= createdDate ? new Date(createdDate).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—' %>
+              </span>
+              <span class="ft-time">
+                <%= createdDate ? new Date(createdDate).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12: true }) : '—' %>
+              </span>
+            </div>
+          </td>
+
+          <td class="ft-td ft-td-actions" onclick="event.stopPropagation()">
+            <div class="ft-row-actions">
+              <button class="ft-action-btn ft-action-view" onclick="viewTxnDetail('<%= docId %>')" title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="ft-action-btn ft-action-retry" onclick="retryTransaction('<%= docId %>')" title="Retry Transaction">
+                <i class="fas fa-rotate-left"></i>
+              </button>
+              <button class="ft-action-btn ft-action-more" onclick="toggleRowMenu(this, '<%= docId %>')" title="More options">
+                <i class="fas fa-ellipsis-vertical"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+
+    <div class="ft-table-footer">
+      <span class="ft-result-count">
+        Showing
+        <strong><%= pagination.from %>–<%= pagination.to %></strong>
+        of <strong><%= pagination.total %></strong>
+        failed transactions
+      </span>
+
+      <div class="ft-pagination">
+        <a href="?<%= new URLSearchParams({ ...(filters||{}), page: pagination.current - 1 }) %>" class="ft-page-btn <%= pagination.current <= 1 ? 'ft-page-disabled' : '' %>">
+          <i class="fas fa-chevron-left"></i>
+          Prev
+        </a>
+
+        <% for(let p = Math.max(1, pagination.current - 2); p <= Math.min(pagination.totalPages, pagination.current + 2); p++) { %>
+        <a href="?<%= new URLSearchParams({ ...(filters||{}), page: p }) %>" class="ft-page-btn <%= p === pagination.current ? 'ft-page-active' : '' %>">
+          <%= p %>
+        </a>
+        <% } %>
+
+        <a href="?<%= new URLSearchParams({ ...(filters||{}), page: pagination.current + 1 }) %>" class="ft-page-btn <%= pagination.current >= pagination.totalPages ? 'ft-page-disabled' : '' %>">
+          Next
+          <i class="fas fa-chevron-right"></i>
+        </a>
       </div>
-    </div>
-    <div class="modal-body" id="receiptContent">
-      <div class="receipt-grid">
-        <div class="receipt-item"><div class="k">Transaction ID</div><div class="v" id="receiptTxnId">—</div></div>
-        <div class="receipt-item"><div class="k">Type</div><div class="v" id="receiptType">—</div></div>
-        <div class="receipt-item"><div class="k">Amount</div><div class="v" id="receiptAmount">₹0</div></div>
-        <div class="receipt-item"><div class="k">Sender</div><div class="v" id="receiptSender">—</div></div>
-        <div class="receipt-item"><div class="k">Receiver</div><div class="v" id="receiptReceiver">—</div></div>
-        <div class="receipt-item"><div class="k">Failure Reason</div><div class="v" id="receiptReason">—</div></div>
-        <div class="receipt-item"><div class="k">Date &amp; Time</div><div class="v" id="receiptDateTime">—</div></div>
-        <div class="receipt-item"><div class="k">Gateway Response</div><div class="v" id="receiptResponse">—</div></div>
+
+      <div class="ft-per-page">
+        <span>Show</span>
+        <select onchange="changePerPage(this.value)">
+          <% [10,20,50,100].forEach(n => { %>
+          <option value="<%= n %>" <%= pagination.limit == n ? 'selected':'' %>><%= n %></option>
+          <% }) %>
+        </select>
+        <span>per page</span>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  let selectedRetryTxnId = '';
+// Debounce search
+let ft_timer;
+const ftCurrentFilters = <%- JSON.stringify(filters || {}) %>;
 
-  function showToast(message, type) {
-    const node = document.createElement('div');
-    node.className = `toast ${type || 'success'}`;
-    node.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${message}</span>`;
-    document.body.appendChild(node);
-    setTimeout(() => node.remove(), 1800);
+function changePerPage(limitValue) {
+  const params = new URLSearchParams(ftCurrentFilters || {});
+  params.set('limit', String(limitValue));
+  params.set('page', '1');
+  window.location.href = `?${params.toString()}`;
+}
+
+function debounceFilter() {
+  clearTimeout(ft_timer);
+  ft_timer = setTimeout(() =>
+    document.getElementById('failedFilterForm').submit()
+  , 500);
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.style.position = 'fixed';
+  toast.style.right = '18px';
+  toast.style.bottom = '18px';
+  toast.style.zIndex = '1000';
+  toast.style.borderRadius = '10px';
+  toast.style.padding = '10px 12px';
+  toast.style.fontSize = '13px';
+  toast.style.color = '#fff';
+  toast.style.background = type === 'error' ? '#DC2626' : '#10B981';
+  toast.style.boxShadow = '0 10px 20px rgba(15, 23, 42, .2)';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1800);
+}
+
+// Select all checkboxes
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.ft-checkbox')
+    .forEach(c => c.checked = cb.checked);
+  updateBulkBar();
+}
+function updateBulkBar() {
+  const checked = document.querySelectorAll(
+    '.ft-checkbox:checked').length;
+  const btn = document.getElementById('retrySelectedBtn');
+  if (btn) btn.style.display = checked > 0 ? 'flex' : 'none';
+}
+
+// Retry single
+async function retryTransaction(id) {
+  if (!confirm('Retry this transaction?')) return;
+  const res = await fetch(`/admin/transactions/${id}/retry`,
+    { method: 'POST',
+      headers: {'Content-Type':'application/json'} }
+  );
+  const data = await res.json();
+  showToast(data.success
+    ? 'Retry initiated successfully'
+    : 'Retry failed: ' + (data.message || data.error || 'Unknown error'),
+    data.success ? 'success' : 'error'
+  );
+  if (data.success)
+    setTimeout(() => location.reload(), 800);
+}
+
+// Retry selected
+async function retrySelected() {
+  const ids = [...document.querySelectorAll(
+    '.ft-checkbox:checked')].map(c => c.value);
+  if (!ids.length) return;
+  if (!confirm(`Retry ${ids.length} transactions?`)) return;
+
+  let res;
+  try {
+    res = await fetch('/admin/transactions/retry-bulk',
+      { method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ids }) }
+    );
+    if (res.status === 404) {
+      res = await fetch('/admin/transactions/bulk-retry',
+        { method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ ids }) }
+      );
+    }
+  } catch (_) {
+    showToast('Bulk retry failed', 'error');
+    return;
   }
 
-  function toggleTxnDropdown(btn) {
-    const dropdown = btn.nextElementSibling;
-    const willOpen = !dropdown.classList.contains('open');
+  const data = await res.json();
+  showToast(data.message || (data.success ? 'Bulk retry initiated' : 'Bulk retry failed'), data.success ? 'success' : 'error');
+  if (data.success) setTimeout(() => location.reload(), 800);
+}
 
-    document.querySelectorAll('.action-dropdown.open').forEach((menu) => menu.classList.remove('open'));
+// Copy TXN ID
+function copyTxnId(id) {
+  navigator.clipboard.writeText(id);
+  showToast('Transaction ID copied!', 'success');
+}
 
-    if (willOpen) {
-      dropdown.classList.add('open');
-    }
-  }
+// View detail
+function viewTxnDetail(id) {
+  window.location.href = `/admin/transactions/${id}`;
+}
 
-  async function retryTransaction(txnId) {
-    const response = await fetch(`/admin/transactions/${encodeURIComponent(txnId)}/retry`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const data = await response.json();
+// Refresh with spin animation
+function refreshPage() {
+  const icon = document.getElementById('refreshIcon');
+  icon.classList.add('fa-spin');
+  setTimeout(() => location.reload(), 300);
+}
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Retry failed');
-    }
-
-    return data;
-  }
-
-  function copyTxnId(text) {
-    if (!text) return;
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        showToast('Copied!', 'success');
-      })
-      .catch(() => {
-        showToast('Copy failed', 'error');
-      });
-  }
-
-  function getSelectedTxnIds() {
-    return Array.from(document.querySelectorAll('.row-check:checked')).map((el) => el.value).filter(Boolean);
-  }
-
-  function updateBulkBar() {
-    const ids = getSelectedTxnIds();
-    const bulkBar = document.getElementById('bulkActionBar');
-    const bulkSelectedCount = document.getElementById('bulkSelectedCount');
-    bulkBar.hidden = ids.length === 0;
-    bulkSelectedCount.textContent = `${ids.length} transaction${ids.length > 1 ? 's' : ''} selected`;
-  }
-
-  document.addEventListener('click', (event) => {
-    const dropdownToggle = event.target.closest('.txn-dropdown-toggle');
-    if (dropdownToggle) {
-      toggleTxnDropdown(dropdownToggle);
-      event.stopPropagation();
-      return;
-    }
-
-    if (!event.target.closest('.action-cell')) {
-      document.querySelectorAll('.action-dropdown.open').forEach((menu) => menu.classList.remove('open'));
-    }
-
-    const copyBtn = event.target.closest('.copy-txn-btn');
-    if (copyBtn) {
-      copyTxnId(copyBtn.dataset.txnId);
-    }
-
-    const retryBtn = event.target.closest('.open-retry-modal');
-    if (retryBtn) {
-      selectedRetryTxnId = retryBtn.dataset.txnId || '';
-      document.getElementById('retryTxnIdText').textContent = retryBtn.dataset.txnDisplay || selectedRetryTxnId || '—';
-      document.getElementById('retryTxnAmountText').textContent = `₹${Number(retryBtn.dataset.amount || 0).toLocaleString('en-IN')}`;
-    }
-
-    const flagBtn = event.target.closest('.open-flag-modal');
-    if (flagBtn) {
-      document.getElementById('flagTxnId').value = flagBtn.dataset.txnId || '';
-      document.getElementById('flagTxnDisplay').textContent = flagBtn.dataset.txnDisplay || flagBtn.dataset.txnId || '—';
-      document.getElementById('fraudNotes').value = '';
-      document.getElementById('fraudType').value = 'Suspicious Activity';
-    }
-
-    const receiptBtn = event.target.closest('.open-receipt-modal');
-    if (receiptBtn) {
-      document.getElementById('receiptTxnId').textContent = receiptBtn.dataset.txnDisplay || receiptBtn.dataset.txnId || '—';
-      document.getElementById('receiptType').textContent = receiptBtn.dataset.type || '—';
-      document.getElementById('receiptAmount').textContent = `₹${Number(receiptBtn.dataset.amount || 0).toLocaleString('en-IN')}`;
-      document.getElementById('receiptSender').textContent = receiptBtn.dataset.sender || '—';
-      document.getElementById('receiptReceiver').textContent = receiptBtn.dataset.receiver || '—';
-      document.getElementById('receiptReason').textContent = receiptBtn.dataset.reason || '—';
-      document.getElementById('receiptDateTime').textContent = receiptBtn.dataset.datetime || '—';
-      document.getElementById('receiptResponse').textContent = receiptBtn.dataset.response || '—';
-    }
-  });
-
-  document.querySelectorAll('.row-check').forEach((checkbox) => {
-    checkbox.addEventListener('change', updateBulkBar);
-  });
-
-  const selectAll = document.getElementById('failedSelectAll');
-  if (selectAll) {
-    selectAll.addEventListener('change', () => {
-      document.querySelectorAll('.row-check').forEach((checkbox) => {
-        checkbox.checked = selectAll.checked;
-      });
-      updateBulkBar();
-    });
-  }
-
-  document.getElementById('bulkClearBtn')?.addEventListener('click', () => {
-    document.querySelectorAll('.row-check').forEach((checkbox) => {
-      checkbox.checked = false;
-    });
-    if (selectAll) selectAll.checked = false;
-    updateBulkBar();
-  });
-
-  document.getElementById('confirmRetryBtn')?.addEventListener('click', async () => {
-    if (!selectedRetryTxnId) return;
-
-    try {
-      await retryTransaction(selectedRetryTxnId);
-      showToast('Retry initiated successfully', 'success');
-      setTimeout(() => window.location.reload(), 1000);
-    } catch (error) {
-      showToast(error.message || 'Retry failed', 'error');
-    }
-  });
-
-  document.getElementById('flagFraudForm')?.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const txnId = document.getElementById('flagTxnId').value;
-    const reason = document.getElementById('fraudType').value;
-    const notes = document.getElementById('fraudNotes').value.trim();
-
-    if (!notes) {
-      showToast('Notes are required', 'error');
-      return;
-    }
-
-    try {
-      const response = await fetch(`/admin/transactions/${encodeURIComponent(txnId)}/flag`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason, notes })
-      });
-
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Flag failed');
-      }
-
-      window.location.reload();
-    } catch (error) {
-      showToast(error.message || 'Flag failed', 'error');
-    }
-  });
-
-  document.getElementById('applyFiltersBtn')?.addEventListener('click', () => {
-    const search = document.getElementById('failedSearch').value.trim();
-    const type = document.getElementById('typeFilter').value;
-    const dateFrom = document.getElementById('dateFrom').value;
-    const dateTo = document.getElementById('dateTo').value;
-    const limit = document.getElementById('itemsPerPage').value || '10';
-
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (type && type !== 'all') params.set('type', type);
-    if (dateFrom) params.set('dateFrom', dateFrom);
-    if (dateTo) params.set('dateTo', dateTo);
-    params.set('limit', limit);
-    params.set('page', '1');
-
-    window.location.href = `/admin/transactions/failed?${params.toString()}`;
-  });
-
-  document.getElementById('resetFilters')?.addEventListener('click', () => {
-    document.getElementById('failedSearch').value = '';
-    document.getElementById('typeFilter').value = 'all';
-    document.getElementById('dateFrom').value = '';
-    document.getElementById('dateTo').value = '';
-    window.location.href = '/admin/transactions/failed';
-  });
-
-  document.getElementById('itemsPerPage')?.addEventListener('change', (event) => {
-    const params = new URLSearchParams(window.location.search);
-    params.set('limit', event.target.value);
-    params.set('page', '1');
-    window.location.href = `/admin/transactions/failed?${params.toString()}`;
-  });
-
-  document.getElementById('bulkRetryBtn')?.addEventListener('click', async () => {
-    const ids = getSelectedTxnIds();
-    if (!ids.length) return;
-
-    try {
-      const response = await fetch('/admin/transactions/bulk-retry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || 'Bulk retry failed');
-      showToast('Bulk retry initiated', 'success');
-      setTimeout(() => window.location.reload(), 800);
-    } catch (error) {
-      showToast(error.message || 'Bulk retry failed', 'error');
-    }
-  });
-
-  document.getElementById('bulkFlagBtn')?.addEventListener('click', async () => {
-    const ids = getSelectedTxnIds();
-    if (!ids.length) return;
-
-    try {
-      const response = await fetch('/admin/transactions/bulk-flag', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, reason: 'Suspicious Activity', notes: 'Flagged from failed transactions bulk action' })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || 'Bulk flag failed');
-      showToast('Selected transactions flagged', 'success');
-      setTimeout(() => window.location.reload(), 800);
-    } catch (error) {
-      showToast(error.message || 'Bulk flag failed', 'error');
-    }
-  });
-
-  document.getElementById('bulkExportBtn')?.addEventListener('click', () => {
-    const ids = getSelectedTxnIds();
-    if (!ids.length) return;
-    window.location.href = `/admin/transactions/export?ids=${encodeURIComponent(ids.join(','))}&status=failed`;
-  });
-
-  document.getElementById('exportAllBtn')?.addEventListener('click', () => {
-    window.location.href = '/admin/transactions/export?status=failed';
-  });
-
-  document.getElementById('retryAllBtn')?.addEventListener('click', async () => {
-    const ids = Array.from(document.querySelectorAll('.row-check')).map((el) => el.value).filter(Boolean);
-    if (!ids.length) {
-      showToast('No failed transactions available', 'error');
-      return;
-    }
-
-    try {
-      const response = await fetch('/admin/transactions/bulk-retry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || 'Retry all failed');
-      showToast('Retry queued for all listed failed transactions', 'success');
-      setTimeout(() => window.location.reload(), 900);
-    } catch (error) {
-      showToast(error.message || 'Retry all failed', 'error');
-    }
-  });
-
-  document.getElementById('printReceiptBtn')?.addEventListener('click', () => {
-    window.print();
-  });
-
-  document.querySelectorAll('[data-close-modal]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const modalId = btn.getAttribute('data-close-modal');
-      const modal = document.getElementById(modalId);
-      if (modal) modal.hidden = true;
-    });
-  });
-
-  document.querySelectorAll('[data-open-modal]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const modalId = btn.getAttribute('data-open-modal');
-      const modal = document.getElementById(modalId);
-      if (modal) modal.hidden = false;
-    });
-  });
+function toggleRowMenu(_btn, _id) {
+  showToast('More actions coming soon', 'success');
+}
 </script>

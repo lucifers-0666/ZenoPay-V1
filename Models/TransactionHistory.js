@@ -61,7 +61,7 @@ const TransactionHistorySchema = new mongoose.Schema({
   },
   Status: {
     type: String,
-    enum: ["success", "failed", "pending"],
+    enum: ["success", "failed", "declined", "pending"],
     default: "success",
   },
 });

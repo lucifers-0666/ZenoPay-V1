@@ -160,7 +160,9 @@
         value="<%= safeFilters.dateFrom || '' %>"
         max="<%= new Date().toISOString().split('T')[0] %>"
         onchange="submitFilterForm()"
-        class="filter-input filter-date users-date-input"
+        class="filter-input filter-date users-date-input date-from"
+        data-date-pair="users"
+        data-date-role="from"
         placeholder="From date"
       >
     </div>
@@ -174,7 +176,9 @@
         value="<%= safeFilters.dateTo || '' %>"
         max="<%= new Date().toISOString().split('T')[0] %>"
         onchange="submitFilterForm()"
-        class="filter-input filter-date users-date-input"
+        class="filter-input filter-date users-date-input date-to"
+        data-date-pair="users"
+        data-date-role="to"
         placeholder="To date"
       >
     </div>
