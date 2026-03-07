@@ -1,58 +1,172 @@
-<!-- Privacy Policy Management -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Privacy Policy Management</h1>
-    <p class="page-subtitle">Manage, version, and publish the platform privacy policy.</p>
-  </div>
-  <div class="page-actions">
-    <a href="/admin/privacy-policy/create" class="btn-primary"><i class="fas fa-plus"></i> Create New Version</a>
-  </div>
-</div>
+<style>
+  .pp-wrap { display:flex; flex-direction:column; gap:16px; }
+  .pp-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+  .pp-title { margin:0; color:#0F172A; font-size:1.5rem; font-weight:900; letter-spacing:-0.02em; display:flex; align-items:center; gap:10px; }
+  .pp-title i { color:#3B82F6; }
+  .pp-sub { margin:4px 0 0; color:#64748B; font-size:0.86rem; }
+  .pp-btn { border:none; border-radius:10px; background:#3B82F6; color:#fff; padding:10px 14px; font-size:0.82rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+  .pp-btn:hover { background:#2563EB; }
+  .pp-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .pp-kpi { background:#fff; border:1px solid #EEF2F7; border-radius:12px; padding:14px; box-shadow:0 1px 4px rgba(15,23,42,0.04); }
+  .pp-kpi-label { font-size:0.7rem; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
+  .pp-kpi-value { margin-top:6px; font-size:1.35rem; font-weight:900; color:#0F172A; letter-spacing:-0.02em; }
+  .pp-kpi-meta { margin-top:4px; font-size:0.74rem; color:#64748B; }
+  .pp-card { background:#fff; border:1px solid #EEF2F7; border-radius:14px; box-shadow:0 1px 4px rgba(15,23,42,0.04); overflow:hidden; }
+  .pp-card-head { padding:14px 16px; border-bottom:1px solid #F1F5F9; display:flex; align-items:center; justify-content:space-between; }
+  .pp-card-title { margin:0; font-size:0.95rem; color:#1E293B; font-weight:800; }
+  .pp-table-wrap { overflow:auto; }
+  .pp-table { width:100%; border-collapse:collapse; }
+  .pp-table th, .pp-table td { padding:12px 14px; border-bottom:1px solid #F1F5F9; text-align:left; font-size:0.82rem; }
+  .pp-table th { color:#94A3B8; text-transform:uppercase; letter-spacing:0.05em; font-size:0.69rem; font-weight:700; }
+  .pp-version { font-weight:800; color:#0F172A; }
+  .pp-badge { display:inline-flex; align-items:center; padding:4px 8px; border-radius:999px; font-size:0.69rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+  .pp-badge-published { background:#ECFDF3; color:#047857; }
+  .pp-badge-draft { background:#FEF3C7; color:#92400E; }
+  .pp-badge-archived { background:#F1F5F9; color:#475569; }
+  .pp-actions { display:flex; gap:6px; flex-wrap:wrap; }
+  .pp-action { border:1px solid #E2E8F0; background:#fff; color:#334155; border-radius:8px; padding:6px 9px; font-size:0.74rem; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  .pp-action:hover { border-color:#3B82F6; color:#3B82F6; }
+  .pp-empty { padding:30px; text-align:center; color:#64748B; }
+  @media (max-width:1060px) { .pp-kpis { grid-template-columns:repeat(2,1fr); } }
+</style>
 
-<div class="card">
-  <div class="card-header"><h2 class="card-title">Current Policy</h2></div>
-  <div class="card-body">
-    <% if (currentPolicy) { %>
-    <table class="data-table">
-      <thead><tr><th>Version</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong><%= currentPolicy.version %></strong></td>
-          <td><span class="badge badge-success">Active</span></td>
-          <td><%= currentPolicy.publishedAt ? new Date(currentPolicy.publishedAt).toLocaleDateString() : '—' %></td>
-          <td style="display:flex;gap:6px;">
-            <a href="/admin/privacy-policy/<%= currentPolicy._id %>/edit" class="btn-icon-sm"><i class="fas fa-edit"></i></a>
-            <a href="/admin/privacy-policy/<%= currentPolicy._id %>/preview" class="btn-icon-sm"><i class="fas fa-eye"></i></a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<%
+  const policyList = Array.isArray(policies) ? policies : [];
+  const totalPolicies = policyList.length;
+  const draftCount = policyList.filter((p) => p.status === 'draft').length;
+  const archivedCount = policyList.filter((p) => p.status === 'archived').length;
+%>
+
+<div class="pp-wrap">
+  <div class="pp-head">
+    <div>
+      <h1 class="pp-title"><i class="fas fa-user-shield"></i> Privacy Policy Management</h1>
+      <p class="pp-sub">Track versions, publish updates, and monitor user acceptance.</p>
+    </div>
+    <a href="/admin/privacy-policy/create" class="pp-btn"><i class="fas fa-plus"></i>Create New Version</a>
+  </div>
+
+  <div class="pp-kpis">
+    <article class="pp-kpi">
+      <div class="pp-kpi-label">Current Version</div>
+      <div class="pp-kpi-value"><%= currentPolicy ? currentPolicy.version : '—' %></div>
+      <div class="pp-kpi-meta"><%= currentPolicy ? 'Published policy in use' : 'No active policy yet' %></div>
+    </article>
+    <article class="pp-kpi">
+      <div class="pp-kpi-label">Acceptance Rate</div>
+      <div class="pp-kpi-value"><%= acceptancePercentage || 0 %>%</div>
+      <div class="pp-kpi-meta"><%= acceptanceCount || 0 %> of <%= totalUsers || 0 %> users</div>
+    </article>
+    <article class="pp-kpi">
+      <div class="pp-kpi-label">Draft Versions</div>
+      <div class="pp-kpi-value"><%= draftCount %></div>
+      <div class="pp-kpi-meta">Pending review and publish</div>
+    </article>
+    <article class="pp-kpi">
+      <div class="pp-kpi-label">Archived Versions</div>
+      <div class="pp-kpi-value"><%= archivedCount %></div>
+      <div class="pp-kpi-meta">Kept for audit trail</div>
+    </article>
+  </div>
+
+  <section class="pp-card">
+    <div class="pp-card-head">
+      <h2 class="pp-card-title">Policy Versions</h2>
+      <small style="color:#94A3B8;font-size:0.74rem;">Total: <%= totalPolicies %></small>
+    </div>
+
+    <% if (!policyList.length) { %>
+      <div class="pp-empty">
+        <p style="margin:0 0 8px;font-weight:700;">No privacy policy versions found.</p>
+        <p style="margin:0;">Start by creating your first policy draft.</p>
+      </div>
     <% } else { %>
-    <p class="empty-state">No policy published yet. <a href="/admin/privacy-policy/create">Create your first version</a>.</p>
+      <div class="pp-table-wrap">
+        <table class="pp-table">
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Status</th>
+              <th>Effective Date</th>
+              <th>Published Date</th>
+              <th>Change Summary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% policyList.forEach((policy) => { %>
+              <tr>
+                <td class="pp-version"><%= policy.version %> <%= currentPolicy && String(currentPolicy._id) === String(policy._id) ? '(Current)' : '' %></td>
+                <td>
+                  <span class="pp-badge pp-badge-<%= policy.status %>"><%= policy.status %></span>
+                </td>
+                <td><%= policy.effectiveDate ? new Date(policy.effectiveDate).toLocaleDateString() : '—' %></td>
+                <td><%= policy.publishedDate ? new Date(policy.publishedDate).toLocaleDateString() : '—' %></td>
+                <td title="<%= policy.changeSummary || '' %>"><%= (policy.changeSummary || 'No summary').slice(0, 70) %><%= (policy.changeSummary || '').length > 70 ? '…' : '' %></td>
+                <td>
+                  <div class="pp-actions">
+                    <a class="pp-action" href="/admin/privacy-policy/<%= policy._id %>/preview" target="_blank" rel="noopener"><i class="fas fa-eye"></i>Preview</a>
+                    <% if (policy.status === 'draft') { %>
+                      <a class="pp-action" href="/admin/privacy-policy/<%= policy._id %>/edit"><i class="fas fa-pen"></i>Edit</a>
+                      <button class="pp-action" type="button" onclick="publishPolicy('<%= policy._id %>')"><i class="fas fa-paper-plane"></i>Publish</button>
+                      <button class="pp-action" type="button" onclick="deletePolicy('<%= policy._id %>')"><i class="fas fa-trash"></i>Delete</button>
+                    <% } else if (policy.status === 'published') { %>
+                      <button class="pp-action" type="button" onclick="archivePolicy('<%= policy._id %>')"><i class="fas fa-box-archive"></i>Archive</button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     <% } %>
-  </div>
+  </section>
 </div>
 
-<% if (typeof allPolicies !== 'undefined' && allPolicies && allPolicies.length > 1) { %>
-<div class="card" style="margin-top:var(--spacing-xl);">
-  <div class="card-header"><h2 class="card-title">Version History</h2></div>
-  <div class="card-body">
-    <table class="data-table">
-      <thead><tr><th>Version</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
-      <tbody>
-        <% allPolicies.forEach(function(p) { %>
-        <tr>
-          <td><%= p.version %></td>
-          <td><span class="badge badge-<%= p.status === 'published' ? 'success' : 'warning' %>"><%= p.status %></span></td>
-          <td><%= p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—' %></td>
-          <td style="display:flex;gap:6px;">
-            <a href="/admin/privacy-policy/<%= p._id %>/edit" class="btn-icon-sm"><i class="fas fa-edit"></i></a>
-            <a href="/admin/privacy-policy/<%= p._id %>/preview" class="btn-icon-sm"><i class="fas fa-eye"></i></a>
-          </td>
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  </div>
-</div>
-<% } %>
+<script>
+  async function postAction(url, method = 'POST') {
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || 'Action failed');
+    }
+    return result;
+  }
+
+  async function publishPolicy(id) {
+    if (!confirm('Publish this draft privacy policy now?')) return;
+    try {
+      const result = await postAction(`/admin/privacy-policy/${id}/publish`);
+      showToast(result.message || 'Policy published', 'success');
+      setTimeout(() => window.location.reload(), 500);
+    } catch (error) {
+      showToast(error.message || 'Publish failed', 'error');
+    }
+  }
+
+  async function archivePolicy(id) {
+    if (!confirm('Archive this published policy?')) return;
+    try {
+      const result = await postAction(`/admin/privacy-policy/${id}/archive`);
+      showToast(result.message || 'Policy archived', 'success');
+      setTimeout(() => window.location.reload(), 500);
+    } catch (error) {
+      showToast(error.message || 'Archive failed', 'error');
+    }
+  }
+
+  async function deletePolicy(id) {
+    if (!confirm('Delete this draft policy permanently?')) return;
+    try {
+      const result = await postAction(`/admin/privacy-policy/${id}`, 'DELETE');
+      showToast(result.message || 'Policy deleted', 'success');
+      setTimeout(() => window.location.reload(), 500);
+    } catch (error) {
+      showToast(error.message || 'Delete failed', 'error');
+    }
+  }
+</script>

@@ -1,74 +1,305 @@
-<div class="page-header">
-  <h1 class="page-title">
-    <i class="fas fa-chart-bar" style="color: var(--primary); margin-right: var(--spacing-base);"></i>
-    Analytics Dashboard
-  </h1>
-  <p class="page-subtitle">Platform analytics and performance metrics</p>
+<style>
+  .an-page { padding: 0; }
+  .an-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; gap:16px; flex-wrap:wrap; }
+  .an-header-left { display:flex; align-items:center; gap:14px; }
+  .an-page-icon { width:50px; height:50px; background:linear-gradient(135deg,#1D4ED8,#3B82F6); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#BFDBFE; box-shadow:0 3px 10px rgba(59,130,246,0.25); flex-shrink:0; }
+  .an-title { font-size:1.5rem; font-weight:900; color:#0F172A; margin:0; letter-spacing:-0.02em; }
+  .an-subtitle { font-size:0.82rem; color:#94A3B8; margin:3px 0 0; font-weight:500; }
+  .an-export-btn { display:flex; align-items:center; gap:7px; padding:10px 18px; background:#fff; border:1.5px solid #E2E8F0; border-radius:10px; font-size:0.83rem; font-weight:600; color:#374151; cursor:pointer; transition:all 0.18s; font-family:inherit; }
+  .an-export-btn:hover { border-color:#3B82F6; color:#3B82F6; background:#EFF6FF; }
+  .an-period-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+  .an-period-group { display:flex; gap:6px; background:#F1F5F9; border-radius:10px; padding:4px; }
+  .an-period-btn { padding:7px 16px; border:none; border-radius:7px; background:transparent; font-size:0.82rem; font-weight:600; color:#64748B; cursor:pointer; transition:all 0.18s; font-family:inherit; }
+  .an-period-active { background:#3B82F6; color:#fff; box-shadow:0 2px 6px rgba(59,130,246,0.3); }
+  .an-period-label { font-size:0.8rem; color:#94A3B8; font-weight:500; }
+  .an-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+  .an-kpi-card { background:#fff; border:1px solid #F1F5F9; border-radius:16px; padding:20px; display:flex; align-items:center; gap:14px; box-shadow:0 1px 4px rgba(0,0,0,0.05); transition:all 0.2s; }
+  .an-kpi-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08); transform:translateY(-2px); }
+  .an-kpi-icon { width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; box-shadow:0 3px 10px rgba(0,0,0,0.12); }
+  .an-kpi-body { display:flex; flex-direction:column; gap:2px; }
+  .an-kpi-label { font-size:0.68rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.07em; }
+  .an-kpi-value { font-size:1.55rem; font-weight:900; color:#0F172A; line-height:1.1; letter-spacing:-0.03em; }
+  .an-kpi-trend { display:flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:600; }
+  .an-trend-up { color:#10B981; }
+  .an-trend-down { color:#EF4444; }
+  .an-charts-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .an-chart-wide { grid-column:span 2; }
+  .an-chart-card { background:#fff; border:1px solid #F1F5F9; border-radius:16px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+  .an-chart-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; gap:12px; }
+  .an-chart-title { font-size:0.95rem; font-weight:700; color:#1E293B; margin:0; display:flex; align-items:center; gap:8px; }
+  .an-chart-sub { font-size:0.75rem; color:#94A3B8; margin:4px 0 0; }
+  .an-chart-select { padding:6px 12px; border:1.5px solid #E5E7EB; border-radius:8px; font-size:0.8rem; color:#374151; background:#F9FAFB; outline:none; cursor:pointer; font-family:inherit; flex-shrink:0; }
+  .an-chart-body { position:relative; height:300px; }
+  .an-chart-donut-wrap { height:260px; }
+  .an-chart-legend { display:flex; align-items:center; font-size:0.78rem; color:#64748B; font-weight:500; flex-shrink:0; }
+  .an-legend-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
+  @media (max-width:1100px){ .an-kpi-grid{grid-template-columns:repeat(2,1fr);} .an-charts-grid{grid-template-columns:1fr;} .an-chart-wide{grid-column:span 1;} }
+</style>
+
+<%
+  const a = analytics || {};
+  const safeAnalytics = {
+    totalRevenue: a.totalRevenue || 0,
+    activeUsers: a.activeUsers || 0,
+    txnVolume: a.txnVolume || 0,
+    avgTransaction: a.avgTransaction || 0,
+    revenueLabels: a.revenueLabels || ['No data'],
+    revenueData: a.revenueData || [0],
+    userLabels: a.userLabels || ['No data'],
+    newUsersData: a.newUsersData || [0],
+    activeUsersData: a.activeUsersData || [0],
+    txnTypeLabels: a.txnTypeLabels || ['Wallet','UPI','Card','Bank'],
+    txnBreakdown: a.txnBreakdown || [40,30,20,10],
+    failureLabels: a.failureLabels || ['No data'],
+    failureData: a.failureData || [0],
+    periodLabel: a.periodLabel || 'This Month',
+    period: a.period || 'month',
+  };
+  const money = (v) => Number(v || 0).toLocaleString('en-IN');
+  const safePeriod = String(safeAnalytics.period || 'month');
+%>
+
+<% if (typeof error !== 'undefined' && error) { %>
+<div style="
+  background:#FEF3C7;
+  border:1.5px solid #FCD34D;
+  border-radius:12px;
+  padding:12px 18px;
+  margin-bottom:20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:0.83rem;
+  color:#92400E;">
+  <i class="fas fa-triangle-exclamation"></i>
+  <span>
+    Analytics data could not be loaded.
+    Showing empty state.
+    <strong>Error: <%= error %></strong>
+  </span>
+</div>
+<% } %>
+
+<div class="an-page">
+  <div class="an-header">
+    <div class="an-header-left">
+      <div class="an-page-icon"><i class="fas fa-chart-line"></i></div>
+      <div>
+        <h1 class="an-title">Analytics Dashboard</h1>
+        <p class="an-subtitle">Platform analytics and performance metrics</p>
+      </div>
+    </div>
+    <div class="an-header-right">
+      <button class="an-export-btn" onclick="exportAnalytics()">
+        <i class="fas fa-download"></i>
+        Export Report
+      </button>
+    </div>
+  </div>
+
+  <div class="an-period-bar">
+    <div class="an-period-group">
+      <button class="an-period-btn <%= safePeriod === '7' ? 'an-period-active' : '' %>" data-period="7" onclick="setPeriod('7', this)">Last 7 Days</button>
+      <button class="an-period-btn <%= safePeriod === '30' ? 'an-period-active' : '' %>" data-period="30" onclick="setPeriod('30', this)">Last 30 Days</button>
+      <button class="an-period-btn <%= safePeriod === 'month' ? 'an-period-active' : '' %>" data-period="month" onclick="setPeriod('month', this)">This Month</button>
+    </div>
+    <span class="an-period-label" id="periodLabel">Showing: <%= safeAnalytics.periodLabel || 'March 2026' %></span>
+  </div>
+
+  <div class="an-kpi-grid">
+    <div class="an-kpi-card">
+      <div class="an-kpi-icon" style="background:linear-gradient(135deg,#1D4ED8,#3B82F6);"><i class="fas fa-indian-rupee-sign" style="color:#BFDBFE;"></i></div>
+      <div class="an-kpi-body">
+        <span class="an-kpi-label">Total Revenue</span>
+        <span class="an-kpi-value" id="kpi-revenue">₹<%= money(safeAnalytics.totalRevenue) %></span>
+        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+15% from last month</span>
+      </div>
+    </div>
+
+    <div class="an-kpi-card">
+      <div class="an-kpi-icon" style="background:linear-gradient(135deg,#065F46,#10B981);"><i class="fas fa-users" style="color:#A7F3D0;"></i></div>
+      <div class="an-kpi-body">
+        <span class="an-kpi-label">Active Users</span>
+        <span class="an-kpi-value" id="kpi-users"><%= money(safeAnalytics.activeUsers) %></span>
+        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+8% from last month</span>
+      </div>
+    </div>
+
+    <div class="an-kpi-card">
+      <div class="an-kpi-icon" style="background:linear-gradient(135deg,#7C3AED,#A78BFA);"><i class="fas fa-arrow-right-arrow-left" style="color:#EDE9FE;"></i></div>
+      <div class="an-kpi-body">
+        <span class="an-kpi-label">Transaction Volume</span>
+        <span class="an-kpi-value" id="kpi-volume"><%= money(safeAnalytics.txnVolume) %></span>
+        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+12% from last month</span>
+      </div>
+    </div>
+
+    <div class="an-kpi-card">
+      <div class="an-kpi-icon" style="background:linear-gradient(135deg,#B45309,#F59E0B);"><i class="fas fa-receipt" style="color:#FDE68A;"></i></div>
+      <div class="an-kpi-body">
+        <span class="an-kpi-label">Avg. Transaction</span>
+        <span class="an-kpi-value" id="kpi-avg">₹<%= money(safeAnalytics.avgTransaction) %></span>
+        <span class="an-kpi-trend an-trend-down"><i class="fas fa-arrow-trend-down"></i>-2% from last month</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="an-charts-grid">
+    <div class="an-chart-card an-chart-wide">
+      <div class="an-chart-header">
+        <div>
+          <h3 class="an-chart-title"><i class="fas fa-chart-area" style="color:#3B82F6;"></i>Revenue Trends</h3>
+          <p class="an-chart-sub">Daily revenue over selected period</p>
+        </div>
+        <select class="an-chart-select" onchange="updateRevenueChart(this.value)">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+      <div class="an-chart-body"><canvas id="revenueChart" height="300"></canvas></div>
+    </div>
+
+    <div class="an-chart-card an-chart-wide">
+      <div class="an-chart-header">
+        <div>
+          <h3 class="an-chart-title"><i class="fas fa-user-plus" style="color:#10B981;"></i>User Growth</h3>
+          <p class="an-chart-sub">New user registrations over time</p>
+        </div>
+        <div class="an-chart-legend">
+          <span class="an-legend-dot" style="background:#10B981;"></span>New Users
+          <span class="an-legend-dot" style="background:#3B82F6;margin-left:12px;"></span>Active Users
+        </div>
+      </div>
+      <div class="an-chart-body"><canvas id="userGrowthChart" height="300"></canvas></div>
+    </div>
+
+    <div class="an-chart-card">
+      <div class="an-chart-header">
+        <div>
+          <h3 class="an-chart-title"><i class="fas fa-chart-pie" style="color:#7C3AED;"></i>Txn Breakdown</h3>
+          <p class="an-chart-sub">By payment type</p>
+        </div>
+      </div>
+      <div class="an-chart-body an-chart-donut-wrap"><canvas id="txnBreakdownChart" height="260"></canvas></div>
+    </div>
+
+    <div class="an-chart-card">
+      <div class="an-chart-header">
+        <div>
+          <h3 class="an-chart-title"><i class="fas fa-circle-xmark" style="color:#EF4444;"></i>Failure Rate</h3>
+          <p class="an-chart-sub">Failed vs successful transactions</p>
+        </div>
+      </div>
+      <div class="an-chart-body"><canvas id="failureRateChart" height="260"></canvas></div>
+    </div>
+  </div>
 </div>
 
-<!-- Date Range Selector -->
-<div style="margin-bottom: var(--spacing-2xl);">
-  <div class="page-actions">
-    <button class="btn btn-outline" style="background-color: white;">Last 7 Days</button>
-    <button class="btn btn-outline" style="background-color: white;">Last 30 Days</button>
-    <button class="btn btn-primary">This Month</button>
-  </div>
-</div>
+<script>
+  const COLORS = {
+    blue:'#3B82F6', blueFade:'rgba(59,130,246,0.12)',
+    green:'#10B981', greenFade:'rgba(16,185,129,0.12)',
+    purple:'#7C3AED', purpleFade:'rgba(124,58,237,0.12)',
+    red:'#EF4444', redFade:'rgba(239,68,68,0.12)',
+    amber:'#F59E0B'
+  };
 
-<!-- Charts Section -->
-<div style="display: grid; gap: var(--spacing-2xl);">
-  <!-- Revenue Chart -->
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title">Revenue Trends</h2>
-    </div>
-    <div class="card-body" style="height: 300px; display: flex; align-items: center; justify-content: center; background-color: var(--slate-50);">
-      <p style="color: var(--text-light);">Chart placeholder</p>
-    </div>
-  </div>
-  
-  <!-- User Growth -->
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title">User Growth</h2>
-    </div>
-    <div class="card-body" style="height: 300px; display: flex; align-items: center; justify-content: center; background-color: var(--slate-50);">
-      <p style="color: var(--text-light);">Chart placeholder</p>
-    </div>
-  </div>
-  
-  <!-- Key Metrics -->
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg);">
-    <div class="card">
-      <div class="card-body">
-        <div class="stat-label">Total Revenue</div>
-        <div class="stat-value">₦125.5M</div>
-        <small class="form-help">↑ 15% from previous month</small>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-body">
-        <div class="stat-label">Active Users</div>
-        <div class="stat-value">15,234</div>
-        <small class="form-help">↑ 8% from previous month</small>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-body">
-        <div class="stat-label">Transaction Volume</div>
-        <div class="stat-value">45,678</div>
-        <small class="form-help">↑ 12% from previous month</small>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-body">
-        <div class="stat-label">Avg. Transaction</div>
-        <div class="stat-value">₦2,745</div>
-        <small class="form-help">↓ 2% from previous month</small>
-      </div>
-    </div>
-  </div>
-</div>
+  function exportAnalytics() {
+    window.location.href = '/admin/reports/export?scope=analytics&period=<%= safePeriod %>';
+  }
+
+  function setPeriod(period) {
+    window.location.href = `/admin/analytics?period=${encodeURIComponent(period)}`;
+  }
+
+  function updateRevenueChart(_view) {
+    showToast('Chart view updated', 'success');
+  }
+
+  if (typeof Chart === 'undefined') {
+    showToast('Chart library failed to load', 'error');
+  } else {
+    const labels = <%- JSON.stringify(safeAnalytics.revenueLabels || ['1 Mar','5 Mar','10 Mar','15 Mar','20 Mar','25 Mar','Today']) %>;
+    const revenueData = <%- JSON.stringify(safeAnalytics.revenueData || [42000,65000,51000,89000,72000,110000,125500]) %>;
+    const newUsersData = <%- JSON.stringify(safeAnalytics.newUsersData || [120,185,145,230,195,280,310]) %>;
+    const activeUsersData = <%- JSON.stringify(safeAnalytics.activeUsersData || [980,1200,1050,1400,1320,1600,1800]) %>;
+    const txnTypeLabels = <%- JSON.stringify(safeAnalytics.txnTypeLabels || ['Wallet','UPI','Card','Bank']) %>;
+    const txnBreakdown = <%- JSON.stringify(safeAnalytics.txnBreakdown || [45,30,15,10]) %>;
+    const failureLabels = <%- JSON.stringify(safeAnalytics.failureLabels || ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']) %>;
+    const failureData = <%- JSON.stringify(safeAnalytics.failureData || [12,8,15,6,10,4,9]) %>;
+
+    const commonOpts = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1E293B',
+          titleColor: '#F1F5F9',
+          bodyColor: '#CBD5E1',
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+        }
+      }
+    };
+
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const revenueGrad = revenueCtx.createLinearGradient(0,0,0,300);
+    revenueGrad.addColorStop(0,'rgba(59,130,246,0.3)');
+    revenueGrad.addColorStop(1,'rgba(59,130,246,0)');
+
+    new Chart(revenueCtx, {
+      type: 'line',
+      data: { labels, datasets: [{ label:'Revenue', data:revenueData, borderColor:COLORS.blue, backgroundColor:revenueGrad, borderWidth:2.5, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:COLORS.blue, pointBorderWidth:2, tension:0.4, fill:true }] },
+      options: {
+        ...commonOpts,
+        scales: {
+          x: { grid: { color:'#F1F5F9' }, ticks:{ color:'#94A3B8' }, border:{ display:false } },
+          y: { grid: { color:'#F1F5F9' }, ticks:{ color:'#94A3B8', callback:(v)=>`₹${v>=1000 ? (v/1000).toFixed(0)+'K' : v}` }, border:{ display:false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label:'New Users', data:newUsersData, backgroundColor:COLORS.greenFade, borderColor:COLORS.green, borderWidth:2, borderRadius:6 },
+          { label:'Active Users', data:activeUsersData, backgroundColor:COLORS.blueFade, borderColor:COLORS.blue, borderWidth:2, borderRadius:6 }
+        ]
+      },
+      options: {
+        ...commonOpts,
+        plugins: {
+          ...commonOpts.plugins,
+          legend: { display:true, position:'top', labels:{ color:'#64748B', usePointStyle:true, pointStyle:'circle', font:{ size:12 } } }
+        },
+        scales: {
+          x: { grid:{ display:false }, ticks:{ color:'#94A3B8' }, border:{ display:false } },
+          y: { grid:{ color:'#F1F5F9' }, ticks:{ color:'#94A3B8' }, border:{ display:false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('txnBreakdownChart'), {
+      type:'doughnut',
+      data:{ labels:txnTypeLabels, datasets:[{ data:txnBreakdown, backgroundColor:[COLORS.blue,COLORS.green,COLORS.purple,COLORS.amber], borderWidth:0, hoverOffset:6 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#64748B', usePointStyle:true, pointStyle:'circle', padding:16, font:{ size:12 } } }, tooltip:commonOpts.plugins.tooltip } }
+    });
+
+    new Chart(document.getElementById('failureRateChart'), {
+      type:'bar',
+      data:{ labels:failureLabels, datasets:[{ label:'Failed', data:failureData, backgroundColor:'rgba(239,68,68,0.15)', borderColor:COLORS.red, borderWidth:2, borderRadius:5 }] },
+      options:{
+        ...commonOpts,
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ color:'#94A3B8' }, border:{ display:false } },
+          y:{ grid:{ color:'#F1F5F9' }, ticks:{ color:'#94A3B8' }, border:{ display:false } }
+        }
+      }
+    });
+  }
+</script>

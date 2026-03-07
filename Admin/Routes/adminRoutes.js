@@ -251,6 +251,29 @@ router.get("/refunds/:id", requirePermission("transactions", "view"), adminRefun
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
+// TEMP DEBUG ROUTE: remove after /admin/analytics is confirmed stable
+router.get("/analytics/debug", requirePermission("reports", "view"), async (req, res) => {
+	try {
+		const TransactionHistory = require("../../Models/TransactionHistory");
+		const ZenoPayUser = require("../../Models/ZenoPayUser");
+
+		const txnCount = await TransactionHistory.countDocuments();
+		const userCount = await ZenoPayUser.countDocuments({ Role: "user" });
+
+		return res.json({
+			success: true,
+			txnCount,
+			userCount,
+			message: "Analytics queries work fine",
+		});
+	} catch (err) {
+		return res.json({
+			success: false,
+			error: err?.message || "Unknown error",
+			stack: err?.stack || null,
+		});
+	}
+});
 router.get("/reports", requirePermission("reports", "view"), AdminDashboardController.getReports);
 router.get("/reports/export", requirePermission("reports", "export"), AdminDashboardController.exportReports);
 router.get("/audit-logs/export", requirePermission("reports", "view"), adminAuditController.exportAuditLogs);

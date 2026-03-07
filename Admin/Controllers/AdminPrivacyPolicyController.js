@@ -319,14 +319,20 @@ const previewPolicy = async (req, res) => {
     if (!policy) {
       return res.status(404).send("Policy not found");
     }
-    
-    res.render("privacy-policy", {
-      pageTitle: policy.metaTitle,
-      policy,
-      hasAccepted: true, // Admins preview as if accepted
-      isPreview: true,
-      user: req.session?.user || null,
-      isLoggedIn: !!req.session?.user  // Add this for header partial
+
+    const safeSections = Array.isArray(policy.sections)
+      ? policy.sections.sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
+      : [];
+
+    res.render("admin/privacy-policy/preview", {
+      layout: false,
+      pageTitle: policy.metaTitle || `Privacy Policy v${policy.version} - Preview`,
+      policy: {
+        ...policy.toObject(),
+        sections: safeSections
+      },
+      previewedAt: new Date(),
+      adminUser: req.session?.user || null
     });
   } catch (error) {
     console.error("Error previewing policy:", error);

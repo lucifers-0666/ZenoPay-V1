@@ -1,43 +1,247 @@
-<!-- Privacy Policy Editor -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title"><%= isEdit ? 'Edit Privacy Policy' : 'Create New Privacy Policy' %></h1>
-    <p class="page-subtitle"><%= isEdit ? 'Update an existing policy version.' : 'Draft a new version of the privacy policy.' %></p>
+<style>
+  .ppe-wrap { display:flex; flex-direction:column; gap:16px; }
+  .ppe-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .ppe-title { margin:0; font-size:1.5rem; font-weight:900; letter-spacing:-0.02em; color:#0F172A; display:flex; align-items:center; gap:10px; }
+  .ppe-title i { color:#3B82F6; }
+  .ppe-sub { margin:4px 0 0; color:#64748B; font-size:0.84rem; }
+  .ppe-head-actions { display:flex; gap:8px; }
+  .ppe-btn { border:none; border-radius:10px; padding:10px 14px; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+  .ppe-btn-primary { background:#3B82F6; color:#fff; }
+  .ppe-btn-primary:hover { background:#2563EB; }
+  .ppe-btn-light { background:#fff; color:#334155; border:1px solid #E2E8F0; }
+  .ppe-btn-light:hover { border-color:#3B82F6; color:#3B82F6; }
+
+  .ppe-layout { display:grid; grid-template-columns:2.2fr 1fr; gap:16px; }
+  .ppe-card { background:#fff; border:1px solid #EEF2F7; border-radius:14px; box-shadow:0 1px 4px rgba(15,23,42,0.04); }
+  .ppe-card-head { padding:14px 16px; border-bottom:1px solid #F1F5F9; }
+  .ppe-card-title { margin:0; color:#1E293B; font-weight:800; font-size:0.95rem; }
+  .ppe-card-body { padding:16px; }
+
+  .ppe-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ppe-field { display:flex; flex-direction:column; gap:6px; }
+  .ppe-field label { font-size:0.72rem; color:#94A3B8; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; }
+  .ppe-input, .ppe-textarea { border:1.5px solid #E2E8F0; border-radius:10px; padding:10px 12px; font-size:0.84rem; color:#0F172A; outline:none; font-family:inherit; }
+  .ppe-textarea { min-height:96px; resize:vertical; }
+  .ppe-input:focus, .ppe-textarea:focus { border-color:#3B82F6; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+
+  .ppe-section { border:1px solid #EEF2F7; border-radius:12px; padding:14px; margin-bottom:12px; }
+  .ppe-section-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .ppe-sec-title { margin:0; font-size:0.86rem; color:#1E293B; font-weight:800; }
+  .ppe-editor { background:#fff; }
+  .ppe-editor .ql-toolbar.ql-snow { border:1.5px solid #E2E8F0; border-radius:10px 10px 0 0; }
+  .ppe-editor .ql-container.ql-snow { border:1.5px solid #E2E8F0; border-top:none; border-radius:0 0 10px 10px; min-height:140px; font-size:0.84rem; }
+  .ppe-meta { display:grid; gap:12px; }
+  .ppe-note { font-size:0.78rem; color:#64748B; margin:0; line-height:1.6; }
+
+  @media (max-width:1100px) {
+    .ppe-layout { grid-template-columns:1fr; }
+    .ppe-grid { grid-template-columns:1fr; }
+  }
+</style>
+
+<%
+  const safeSections = Array.isArray(defaultSections) ? defaultSections : [];
+  const policyId = isEdit && policy ? policy._id : null;
+%>
+
+<div class="ppe-wrap">
+  <div class="ppe-head">
+    <div>
+      <h1 class="ppe-title"><i class="fas fa-file-shield"></i><%= isEdit ? 'Edit Privacy Policy' : 'Create Privacy Policy' %></h1>
+      <p class="ppe-sub"><%= isEdit ? 'Update your draft and publish when ready.' : 'Create a new policy version with section-by-section rich content.' %></p>
+    </div>
+    <div class="ppe-head-actions">
+      <a href="/admin/privacy-policy" class="ppe-btn ppe-btn-light"><i class="fas fa-arrow-left"></i>Back</a>
+      <button type="button" id="saveDraftBtn" class="ppe-btn ppe-btn-light"><i class="fas fa-save"></i>Save Draft</button>
+      <button type="button" id="savePublishBtn" class="ppe-btn ppe-btn-primary"><i class="fas fa-paper-plane"></i>Save & Publish</button>
+    </div>
   </div>
-  <div class="page-actions">
-    <a href="/admin/privacy-policy" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+
+  <div class="ppe-layout">
+    <section class="ppe-card">
+      <div class="ppe-card-head"><h2 class="ppe-card-title">Policy Sections</h2></div>
+      <div class="ppe-card-body">
+        <div id="sectionsContainer"></div>
+      </div>
+    </section>
+
+    <aside class="ppe-meta">
+      <section class="ppe-card">
+        <div class="ppe-card-head"><h2 class="ppe-card-title">Policy Metadata</h2></div>
+        <div class="ppe-card-body">
+          <div class="ppe-grid">
+            <div class="ppe-field">
+              <label for="version">Version *</label>
+              <input id="version" class="ppe-input" type="text" value="<%= suggestedVersion || (policy && policy.version) || '' %>" placeholder="e.g. 2.1" required>
+            </div>
+            <div class="ppe-field">
+              <label for="effectiveDate">Effective Date *</label>
+              <input id="effectiveDate" class="ppe-input" type="date" value="<%= policy && policy.effectiveDate ? new Date(policy.effectiveDate).toISOString().split('T')[0] : '' %>" required>
+            </div>
+            <div class="ppe-field" style="grid-column:1 / -1;">
+              <label for="changeSummary">Change Summary *</label>
+              <textarea id="changeSummary" class="ppe-textarea" placeholder="Describe key changes in this version" required><%= (policy && policy.changeSummary) || '' %></textarea>
+            </div>
+            <div class="ppe-field" style="grid-column:1 / -1;">
+              <label for="metaTitle">SEO Title</label>
+              <input id="metaTitle" class="ppe-input" type="text" value="<%= (policy && policy.metaTitle) || 'Privacy Policy - ZenoPay' %>">
+            </div>
+            <div class="ppe-field" style="grid-column:1 / -1;">
+              <label for="metaDescription">SEO Description</label>
+              <textarea id="metaDescription" class="ppe-textarea" style="min-height:80px;"><%= (policy && policy.metaDescription) || 'Learn how ZenoPay collects, uses, and protects your personal data.' %></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ppe-card">
+        <div class="ppe-card-head"><h2 class="ppe-card-title">Publishing Notes</h2></div>
+        <div class="ppe-card-body">
+          <p class="ppe-note">• Save Draft keeps this version editable.</p>
+          <p class="ppe-note">• Save & Publish sets it as active and notifies users.</p>
+          <p class="ppe-note">• All sections are sent as structured JSON for version tracking and analytics.</p>
+        </div>
+      </section>
+    </aside>
   </div>
 </div>
 
-<div class="card">
-  <div class="card-body">
-    <form method="POST" action="<%= isEdit && policy ? ('/admin/privacy-policy/' + policy._id + '?_method=PUT') : '/admin/privacy-policy/create' %>">
+<script>
+  const isEdit = <%- JSON.stringify(Boolean(isEdit)) %>;
+  const policyId = <%- JSON.stringify(policyId ? String(policyId) : null) %>;
+  const initialSections = <%- JSON.stringify(safeSections) %>;
+  const quillMap = new Map();
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-lg);">
-        <div class="form-group">
-          <label class="form-label">Version *</label>
-          <input type="text" name="version" class="form-input" value="<%= suggestedVersion || (policy && policy.version) || '' %>" required placeholder="e.g. 2.1">
+  function normalizeSections(sections) {
+    return (sections || []).map((s, idx) => ({
+      id: Number(s.id || idx + 1),
+      order: Number(s.order || idx + 1),
+      title: (s.title || `Section ${idx + 1}`).trim(),
+      content: s.content || ''
+    }));
+  }
+
+  function renderSections() {
+    const container = document.getElementById('sectionsContainer');
+    const sections = normalizeSections(initialSections);
+    container.innerHTML = sections.map((section, idx) => `
+      <article class="ppe-section" data-id="${section.id}" data-order="${section.order}">
+        <div class="ppe-section-top">
+          <h3 class="ppe-sec-title">Section ${idx + 1}</h3>
+          <small style="font-size:0.75rem;color:#94A3B8;">ID: ${section.id}</small>
         </div>
-        <div class="form-group">
-          <label class="form-label">Effective Date</label>
-          <input type="date" name="effectiveDate" class="form-input" value="<%= policy && policy.effectiveDate ? new Date(policy.effectiveDate).toISOString().split('T')[0] : '' %>">
+        <div class="ppe-field" style="margin-bottom:10px;">
+          <label>Title *</label>
+          <input type="text" class="ppe-input section-title" value="${escapeHtml(section.title)}" required>
         </div>
-      </div>
+        <div class="ppe-editor">
+          <div id="editor-${idx}" class="section-editor" data-editor-index="${idx}"></div>
+        </div>
+      </article>
+    `).join('');
 
-      <div class="form-group">
-        <label class="form-label">Change Summary *</label>
-        <textarea name="changeSummary" class="form-input" rows="3" required placeholder="Briefly describe what changed in this version"><%= (policy && policy.changeSummary) || '' %></textarea>
-      </div>
+    container.querySelectorAll('.section-editor').forEach((node) => {
+      const index = Number(node.dataset.editorIndex);
+      const section = sections[index];
+      if (typeof Quill === 'undefined') {
+        node.innerHTML = section.content || '';
+        return;
+      }
+      const quill = new Quill(node, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['link', 'blockquote'],
+            ['clean']
+          ]
+        },
+        placeholder: 'Write this section content...'
+      });
+      quill.root.innerHTML = section.content || '';
+      quillMap.set(index, quill);
+    });
+  }
 
-      <div class="form-group">
-        <label class="form-label">Policy Content *</label>
-        <textarea name="content" class="form-input" rows="20" required placeholder="Full privacy policy text (HTML allowed)"><%= (policy && policy.content) || '' %></textarea>
-      </div>
+  function escapeHtml(str) {
+    return String(str || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
 
-      <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-xl);">
-        <button type="submit" name="action" value="draft" class="btn-secondary"><i class="fas fa-save"></i> Save as Draft</button>
-        <button type="submit" name="action" value="publish" class="btn-primary"><i class="fas fa-paper-plane"></i> Save &amp; Publish</button>
-      </div>
-    </form>
-  </div>
-</div>
+  function collectPayload() {
+    const version = document.getElementById('version').value.trim();
+    const effectiveDate = document.getElementById('effectiveDate').value;
+    const changeSummary = document.getElementById('changeSummary').value.trim();
+    const metaTitle = document.getElementById('metaTitle').value.trim();
+    const metaDescription = document.getElementById('metaDescription').value.trim();
+
+    const sectionNodes = Array.from(document.querySelectorAll('.ppe-section'));
+    const sections = sectionNodes.map((node, idx) => {
+      const title = node.querySelector('.section-title').value.trim();
+      const order = Number(node.dataset.order || idx + 1);
+      const id = Number(node.dataset.id || idx + 1);
+      const quill = quillMap.get(idx);
+      const content = quill ? quill.root.innerHTML.trim() : '';
+      return { id, title, content, order };
+    });
+
+    if (!version || !effectiveDate || !changeSummary) {
+      throw new Error('Version, effective date, and change summary are required.');
+    }
+    if (!sections.length || sections.some((s) => !s.title || !s.content || s.content === '<p><br></p>')) {
+      throw new Error('All sections must include title and content.');
+    }
+
+    return { version, effectiveDate, changeSummary, sections, metaTitle, metaDescription };
+  }
+
+  async function savePolicy(shouldPublish = false) {
+    try {
+      const payload = collectPayload();
+      const url = isEdit ? `/admin/privacy-policy/${policyId}` : '/admin/privacy-policy/create';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const saveResponse = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const saveResult = await saveResponse.json();
+      if (!saveResponse.ok || !saveResult.success) {
+        throw new Error(saveResult.message || 'Failed to save policy');
+      }
+
+      const activePolicyId = isEdit ? policyId : saveResult.policyId;
+      if (shouldPublish) {
+        const publishResponse = await fetch(`/admin/privacy-policy/${activePolicyId}/publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const publishResult = await publishResponse.json();
+        if (!publishResponse.ok || !publishResult.success) {
+          throw new Error(publishResult.message || 'Policy saved, but publish failed');
+        }
+        showToast(publishResult.message || 'Policy published successfully', 'success');
+      } else {
+        showToast(saveResult.message || 'Draft saved successfully', 'success');
+      }
+
+      setTimeout(() => {
+        window.location.href = '/admin/privacy-policy';
+      }, 500);
+    } catch (error) {
+      showToast(error.message || 'Unable to save policy', 'error');
+    }
+  }
+
+  document.getElementById('saveDraftBtn').addEventListener('click', () => savePolicy(false));
+  document.getElementById('savePublishBtn').addEventListener('click', () => savePolicy(true));
+
+  renderSections();
+</script>

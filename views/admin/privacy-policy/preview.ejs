@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <% if (policy && policy.metaDescription) { %>
+    <meta name="description" content="<%= policy.metaDescription %>" />
+  <% } %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --green: #059669;
+      --amber: #d97706;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .preview-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(248, 250, 252, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .preview-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .badge.live { color: var(--green); border-color: #a7f3d0; background: #ecfdf3; }
+    .badge.draft { color: var(--amber); border-color: #fde68a; background: #fffbeb; }
+    .btns { display: flex; gap: 8px; }
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #334155;
+      border-radius: 9px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    .wrap {
+      max-width: 940px;
+      margin: 20px auto 48px;
+      padding: 0 18px;
+    }
+    .hero {
+      background: linear-gradient(145deg, #dbeafe, #eff6ff 55%, #ffffff);
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 26px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.7vw, 2rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+    .hero p {
+      margin: 8px 0 0;
+      color: #475569;
+      font-size: 0.92rem;
+    }
+
+    .content {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 26px;
+    }
+
+    .section {
+      padding: 16px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .section:last-child { border-bottom: none; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: 0.82rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section h2 {
+      margin: 0;
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .section-body {
+      color: #334155;
+      font-size: 0.94rem;
+    }
+    .section-body p { margin: 0 0 10px; }
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    @media print {
+      .preview-topbar { display: none !important; }
+      body { background: #fff; }
+      .wrap { margin: 0; max-width: 100%; }
+      .hero, .content { border: none; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-topbar">
+    <div class="preview-meta">
+      <strong style="color:#0f172a;">Admin Preview</strong>
+      <span class="badge <%= policy.status === 'published' ? 'live' : 'draft' %>"><i class="fas fa-circle"></i><%= policy.status || 'draft' %></span>
+      <span>Version <strong><%= policy.version || 'N/A' %></strong></span>
+      <span>Effective: <strong><%= policy.effectiveDate ? new Date(policy.effectiveDate).toLocaleDateString() : 'N/A' %></strong></span>
+      <span>Previewed: <strong><%= previewedAt ? new Date(previewedAt).toLocaleString() : '' %></strong></span>
+    </div>
+    <div class="btns">
+      <button type="button" class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <button type="button" class="btn" onclick="window.close()"><i class="fas fa-xmark"></i> Close</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1><%= policy.metaTitle || 'Privacy Policy' %></h1>
+      <p><%= policy.metaDescription || 'Preview how this policy will appear to end users.' %></p>
+    </section>
+
+    <section class="content">
+      <% if (policy && policy.sections && policy.sections.length) { %>
+        <% policy.sections.forEach((section, index) => { %>
+          <article class="section" id="section-<%= section.id || (index + 1) %>">
+            <div class="section-head">
+              <span class="num"><%= section.id || (index + 1) %></span>
+              <h2><%= section.title || ('Section ' + (index + 1)) %></h2>
+            </div>
+            <div class="section-body">
+              <%- section.content || '<p>No content provided for this section.</p>' %>
+            </div>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <div class="empty">
+          <i class="fas fa-file-circle-xmark" style="font-size:2.1rem;color:#cbd5e1;"></i>
+          <p style="margin:10px 0 0;font-weight:700;">No sections available for preview.</p>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

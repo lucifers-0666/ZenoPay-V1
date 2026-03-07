@@ -1,16 +1,409 @@
-<!-- Payment Gateway Settings -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Payment Gateway Settings</h1>
-    <p class="page-subtitle">Configure payment providers, fees, and transaction settings.</p>
+<style>
+  .pg-wrap { display:flex; flex-direction:column; gap:16px; }
+  .pg-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .pg-title { margin:0; font-size:1.45rem; font-weight:900; color:#0F172A; letter-spacing:-0.02em; display:flex; align-items:center; gap:10px; }
+  .pg-sub { margin:4px 0 0; color:#64748B; font-size:0.86rem; }
+  .pg-title i { color:#3B82F6; }
+  .pg-actions { display:flex; gap:10px; }
+  .pg-btn { border:none; border-radius:10px; padding:10px 14px; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:8px; }
+  .pg-btn-primary { background:#3B82F6; color:#fff; }
+  .pg-btn-primary:hover { background:#2563EB; }
+  .pg-btn-light { background:#fff; color:#374151; border:1px solid #E2E8F0; }
+  .pg-btn-light:hover { border-color:#3B82F6; color:#3B82F6; }
+
+  .pg-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+  .pg-card { background:#fff; border:1px solid #EEF2F7; border-radius:14px; box-shadow:0 1px 4px rgba(15,23,42,0.04); }
+  .pg-card-head { padding:16px 18px; border-bottom:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .pg-card-title { margin:0; font-size:0.96rem; font-weight:800; color:#1E293B; display:flex; align-items:center; gap:8px; }
+  .pg-card-body { padding:16px 18px; }
+
+  .pg-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .pg-field { display:flex; flex-direction:column; gap:6px; }
+  .pg-field label { font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94A3B8; }
+  .pg-input, .pg-select { width:100%; border:1.5px solid #E2E8F0; border-radius:10px; padding:10px 12px; font-size:0.84rem; color:#0F172A; background:#fff; outline:none; transition:border-color 0.18s, box-shadow 0.18s; }
+  .pg-input:focus, .pg-select:focus { border-color:#3B82F6; box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+  .pg-field-wide { grid-column:1 / -1; }
+  .pg-hint { margin:2px 0 0; color:#94A3B8; font-size:0.74rem; }
+
+  .pg-method-list { display:grid; gap:10px; }
+  .pg-method { display:flex; align-items:center; justify-content:space-between; gap:8px; border:1px solid #EEF2F7; border-radius:10px; padding:10px 12px; }
+  .pg-method-name { font-size:0.84rem; color:#334155; font-weight:700; display:flex; gap:8px; align-items:center; }
+  .pg-method-fee { font-size:0.75rem; color:#94A3B8; font-weight:600; }
+  .pg-switch { position:relative; width:42px; height:24px; border-radius:24px; background:#CBD5E1; cursor:pointer; transition:background 0.15s; }
+  .pg-switch span { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.15s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+  .pg-switch.on { background:#22C55E; }
+  .pg-switch.on span { left:21px; }
+
+  .pg-fees-table { width:100%; border-collapse:collapse; }
+  .pg-fees-table th, .pg-fees-table td { padding:10px 8px; border-bottom:1px solid #F1F5F9; text-align:left; font-size:0.8rem; }
+  .pg-fees-table th { color:#94A3B8; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; font-size:0.7rem; }
+  .pg-fees-table input { width:86px; border:1px solid #E2E8F0; border-radius:8px; padding:6px 8px; font-size:0.8rem; }
+
+  .pg-checks { display:grid; gap:10px; }
+  .pg-check { display:flex; align-items:center; justify-content:space-between; border:1px solid #EEF2F7; border-radius:10px; padding:10px 12px; }
+  .pg-check-title { font-size:0.82rem; font-weight:700; color:#334155; margin:0; }
+  .pg-check-desc { margin:3px 0 0; color:#94A3B8; font-size:0.74rem; }
+
+  .pg-status { display:inline-flex; align-items:center; gap:6px; font-size:0.74rem; font-weight:700; border-radius:999px; padding:6px 10px; background:#ECFDF3; color:#047857; }
+  .pg-status-dot { width:7px; height:7px; background:#10B981; border-radius:50%; }
+
+  @media (max-width:1080px) {
+    .pg-grid { grid-template-columns:1fr; }
+    .pg-form-grid { grid-template-columns:1fr; }
+  }
+</style>
+
+<div class="pg-wrap">
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title"><i class="fas fa-plug-circle-check"></i> Payment Gateway Settings</h1>
+      <p class="pg-sub">Configure credentials, methods, fees, security checks, and settlement behavior.</p>
+    </div>
+    <div class="pg-actions">
+      <button type="button" class="pg-btn pg-btn-light" id="btnTest"><i class="fas fa-vial"></i>Test Connection</button>
+      <button type="button" class="pg-btn pg-btn-primary" id="btnSave"><i class="fas fa-floppy-disk"></i>Save Changes</button>
+    </div>
+  </div>
+
+  <div class="pg-grid">
+    <div class="pg-main" style="display:flex;flex-direction:column;gap:16px;">
+      <section class="pg-card">
+        <div class="pg-card-head">
+          <h2 class="pg-card-title"><i class="fas fa-key" style="color:#3B82F6;"></i>Gateway Credentials</h2>
+          <span class="pg-status"><span class="pg-status-dot"></span><span id="gatewayStatus">Connection idle</span></span>
+        </div>
+        <div class="pg-card-body">
+          <form id="gatewayForm" class="pg-form-grid" autocomplete="off">
+            <div class="pg-field">
+              <label for="apiKey">API Key *</label>
+              <input id="apiKey" name="apiKey" class="pg-input" type="text" required placeholder="Enter provider API key" />
+            </div>
+            <div class="pg-field">
+              <label for="secretKey">Secret Key *</label>
+              <input id="secretKey" name="secretKey" class="pg-input" type="password" required placeholder="Enter provider secret" />
+            </div>
+            <div class="pg-field">
+              <label for="merchantId">Merchant ID *</label>
+              <input id="merchantId" name="merchantId" class="pg-input" type="text" required placeholder="MERCHANT_XXXXX" />
+            </div>
+            <div class="pg-field">
+              <label for="environment">Environment</label>
+              <select id="environment" name="environment" class="pg-select">
+                <option value="test">Test</option>
+                <option value="live">Live</option>
+              </select>
+            </div>
+            <div class="pg-field pg-field-wide">
+              <label for="webhookUrl">Webhook URL</label>
+              <input id="webhookUrl" name="webhookUrl" class="pg-input" type="url" placeholder="https://yourdomain.com/webhooks/payment" />
+              <p class="pg-hint">Receive status updates for payment success/failure events.</p>
+            </div>
+            <div class="pg-field">
+              <label for="successUrl">Success URL</label>
+              <input id="successUrl" name="successUrl" class="pg-input" type="url" placeholder="https://yourdomain.com/pay/success" />
+            </div>
+            <div class="pg-field">
+              <label for="failureUrl">Failure URL</label>
+              <input id="failureUrl" name="failureUrl" class="pg-input" type="url" placeholder="https://yourdomain.com/pay/failure" />
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="pg-card">
+        <div class="pg-card-head">
+          <h2 class="pg-card-title"><i class="fas fa-wallet" style="color:#10B981;"></i>Payment Methods</h2>
+          <small style="color:#94A3B8;font-size:0.75rem;">Toggle accepted methods</small>
+        </div>
+        <div class="pg-card-body">
+          <div class="pg-method-list" id="methodList"></div>
+        </div>
+      </section>
+
+      <section class="pg-card">
+        <div class="pg-card-head">
+          <h2 class="pg-card-title"><i class="fas fa-percent" style="color:#7C3AED;"></i>Transaction Fees</h2>
+          <button class="pg-btn pg-btn-light" id="btnSaveFees" type="button"><i class="fas fa-sack-dollar"></i>Update Fees</button>
+        </div>
+        <div class="pg-card-body" style="overflow:auto;">
+          <table class="pg-fees-table" id="feesTable">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Gateway Fee (%)</th>
+                <th>Platform Fee (%)</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <aside class="pg-side" style="display:flex;flex-direction:column;gap:16px;">
+      <section class="pg-card">
+        <div class="pg-card-head">
+          <h2 class="pg-card-title"><i class="fas fa-shield-halved" style="color:#EF4444;"></i>Security & Advanced</h2>
+        </div>
+        <div class="pg-card-body">
+          <div class="pg-checks" id="advancedChecks"></div>
+        </div>
+      </section>
+
+      <section class="pg-card">
+        <div class="pg-card-head"><h2 class="pg-card-title"><i class="fas fa-circle-info" style="color:#3B82F6;"></i>Tips</h2></div>
+        <div class="pg-card-body" style="font-size:0.8rem;color:#64748B;line-height:1.65;">
+          <p style="margin:0 0 8px;">• Use <strong>Test</strong> environment before switching to production.</p>
+          <p style="margin:0 0 8px;">• Keep webhook URL publicly accessible over HTTPS.</p>
+          <p style="margin:0;">• For live mode, verify retries and timeout settings to reduce false failures.</p>
+        </div>
+      </section>
+    </aside>
   </div>
 </div>
 
-<div class="card">
-  <div class="card-body">
-    <p style="color:var(--text-light);">Payment gateway configuration is active. Use the sections below to manage gateway settings.</p>
-    <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-lg);">
-      <a href="/admin/settings/payment-gateway/config" class="btn-primary"><i class="fas fa-cog"></i> Configure Gateway</a>
-    </div>
-  </div>
-</div>
+<script>
+  const state = {
+    methods: {
+      upi: { label: 'UPI', icon: 'fa-mobile-screen', enabled: true, fee: 1.5 },
+      cards: { label: 'Cards', icon: 'fa-credit-card', enabled: true, fee: 2.5 },
+      netbanking: { label: 'Net Banking', icon: 'fa-building-columns', enabled: false, fee: 2.5 },
+      wallets: { label: 'Wallets', icon: 'fa-wallet', enabled: true, fee: 1.5 },
+      emi: { label: 'EMI', icon: 'fa-calendar-check', enabled: false, fee: 3.0 }
+    },
+    advanced: {
+      autoSettlement: { label: 'Auto Settlement', desc: 'Automatically settle successful transactions', value: true },
+      paymentRetry: { label: 'Payment Retry', desc: 'Retry failed attempts based on rules', value: true },
+      duplicateCheck: { label: 'Duplicate Check', desc: 'Prevent duplicate transaction IDs', value: true },
+      paymentTimeout: { label: 'Payment Timeout', desc: 'Expire stale checkout sessions', value: true },
+      threeDSecure: { label: '3D Secure', desc: 'Enable additional card verification', value: true },
+      internationalPayments: { label: 'International Payments', desc: 'Allow cross-border transactions', value: false }
+    }
+  };
+
+  const methodList = document.getElementById('methodList');
+  const advancedChecks = document.getElementById('advancedChecks');
+  const feesTableBody = document.querySelector('#feesTable tbody');
+
+  function toggleClass(el, condition, className) {
+    if (condition) el.classList.add(className);
+    else el.classList.remove(className);
+  }
+
+  function renderMethods() {
+    methodList.innerHTML = Object.entries(state.methods).map(([key, item]) => `
+      <div class="pg-method">
+        <div>
+          <div class="pg-method-name"><i class="fas ${item.icon}" style="color:#3B82F6;"></i>${item.label}</div>
+          <div class="pg-method-fee">Gateway fee: ${Number(item.fee || 0).toFixed(2)}%</div>
+        </div>
+        <button type="button" class="pg-switch ${item.enabled ? 'on' : ''}" data-method="${key}" aria-label="toggle ${item.label}"><span></span></button>
+      </div>
+    `).join('');
+
+    methodList.querySelectorAll('.pg-switch').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const method = btn.dataset.method;
+        const nextEnabled = !state.methods[method].enabled;
+        try {
+          const response = await fetch('/admin/settings/payment-gateway/toggle-method', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method, enabled: nextEnabled })
+          });
+          const json = await response.json();
+          if (!response.ok || !json.success) throw new Error(json.message || 'Toggle failed');
+          state.methods[method].enabled = nextEnabled;
+          toggleClass(btn, nextEnabled, 'on');
+          showToast(json.message || 'Method updated', 'success');
+        } catch (err) {
+          showToast(err.message || 'Failed to update method', 'error');
+        }
+      });
+    });
+  }
+
+  function renderFees() {
+    feesTableBody.innerHTML = Object.entries(state.methods).map(([key, item]) => {
+      const gateway = Number(item.fee || 0);
+      const platform = Number(item.platformFee || 0.5);
+      return `
+        <tr data-method="${key}">
+          <td><strong>${item.label}</strong></td>
+          <td><input type="number" step="0.01" min="0" max="10" class="fee-gateway" value="${gateway.toFixed(2)}"></td>
+          <td><input type="number" step="0.01" min="0" max="10" class="fee-platform" value="${platform.toFixed(2)}"></td>
+          <td class="fee-total">${(gateway + platform).toFixed(2)}%</td>
+        </tr>
+      `;
+    }).join('');
+
+    feesTableBody.querySelectorAll('tr').forEach((row) => {
+      const gw = row.querySelector('.fee-gateway');
+      const pf = row.querySelector('.fee-platform');
+      const total = row.querySelector('.fee-total');
+      const recalc = () => {
+        const gv = Number(gw.value || 0);
+        const pv = Number(pf.value || 0);
+        total.textContent = `${(gv + pv).toFixed(2)}%`;
+      };
+      gw.addEventListener('input', recalc);
+      pf.addEventListener('input', recalc);
+    });
+  }
+
+  function renderAdvanced() {
+    advancedChecks.innerHTML = Object.entries(state.advanced).map(([key, item]) => `
+      <div class="pg-check">
+        <div>
+          <p class="pg-check-title">${item.label}</p>
+          <p class="pg-check-desc">${item.desc}</p>
+        </div>
+        <button type="button" class="pg-switch ${item.value ? 'on' : ''}" data-adv="${key}" aria-label="toggle ${item.label}"><span></span></button>
+      </div>
+    `).join('');
+
+    advancedChecks.querySelectorAll('.pg-switch').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.adv;
+        state.advanced[key].value = !state.advanced[key].value;
+        toggleClass(btn, state.advanced[key].value, 'on');
+      });
+    });
+  }
+
+  function getCredentialPayload() {
+    return {
+      apiKey: document.getElementById('apiKey').value.trim(),
+      secretKey: document.getElementById('secretKey').value.trim(),
+      merchantId: document.getElementById('merchantId').value.trim(),
+      webhookUrl: document.getElementById('webhookUrl').value.trim(),
+      successUrl: document.getElementById('successUrl').value.trim(),
+      failureUrl: document.getElementById('failureUrl').value.trim(),
+      environment: document.getElementById('environment').value,
+      paymentMethods: state.methods,
+      transactionFees: Object.fromEntries(Object.entries(state.methods).map(([k, v]) => [k, { gatewayFee: v.fee, platformFee: v.platformFee || 0.5 }]))
+    };
+  }
+
+  async function loadConfig() {
+    try {
+      const res = await fetch('/admin/settings/payment-gateway/config');
+      const json = await res.json();
+      if (!res.ok || !json.success || !json.data) throw new Error(json.message || 'Unable to load config');
+      const cfg = json.data;
+
+      document.getElementById('apiKey').value = cfg.apiKey || '';
+      document.getElementById('secretKey').value = cfg.secretKey || '';
+      document.getElementById('merchantId').value = cfg.merchantId || '';
+      document.getElementById('environment').value = cfg.environment || 'test';
+      document.getElementById('webhookUrl').value = cfg.webhookUrl || '';
+
+      if (cfg.paymentMethods && typeof cfg.paymentMethods === 'object') {
+        Object.keys(state.methods).forEach((key) => {
+          if (cfg.paymentMethods[key]) {
+            state.methods[key].enabled = Boolean(cfg.paymentMethods[key].enabled);
+            state.methods[key].fee = Number(cfg.paymentMethods[key].fee || state.methods[key].fee);
+          }
+        });
+      }
+
+      if (cfg.advancedSettings && typeof cfg.advancedSettings === 'object') {
+        Object.keys(state.advanced).forEach((key) => {
+          if (Object.prototype.hasOwnProperty.call(cfg.advancedSettings, key)) {
+            state.advanced[key].value = Boolean(cfg.advancedSettings[key]);
+          }
+        });
+      }
+    } catch (err) {
+      showToast(err.message || 'Could not load gateway config', 'error');
+    } finally {
+      renderMethods();
+      renderFees();
+      renderAdvanced();
+    }
+  }
+
+  document.getElementById('btnTest').addEventListener('click', async () => {
+    const payload = getCredentialPayload();
+    if (!payload.apiKey || !payload.secretKey || !payload.merchantId) {
+      showToast('API key, secret key and merchant ID are required', 'warning');
+      return;
+    }
+    const statusText = document.getElementById('gatewayStatus');
+    statusText.textContent = 'Testing...';
+    try {
+      const res = await fetch('/admin/settings/payment-gateway/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || 'Connection failed');
+      statusText.textContent = 'Connected';
+      showToast(json.message || 'Connection successful', 'success');
+    } catch (err) {
+      statusText.textContent = 'Connection failed';
+      showToast(err.message || 'Test failed', 'error');
+    }
+  });
+
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const payload = {
+      ...getCredentialPayload(),
+      advancedSettings: Object.fromEntries(Object.entries(state.advanced).map(([k, v]) => [k, v.value]))
+    };
+
+    if (!payload.apiKey || !payload.secretKey || !payload.merchantId) {
+      showToast('Fill required credentials before saving', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch('/admin/settings/payment-gateway/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || 'Save failed');
+
+      await fetch('/admin/settings/payment-gateway/advanced', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload.advancedSettings)
+      });
+
+      showToast(json.message || 'Settings saved', 'success');
+    } catch (err) {
+      showToast(err.message || 'Unable to save settings', 'error');
+    }
+  });
+
+  document.getElementById('btnSaveFees').addEventListener('click', async () => {
+    const rows = Array.from(feesTableBody.querySelectorAll('tr'));
+    try {
+      for (const row of rows) {
+        const method = row.dataset.method;
+        const gatewayFee = Number(row.querySelector('.fee-gateway').value || 0);
+        const platformFee = Number(row.querySelector('.fee-platform').value || 0);
+        state.methods[method].fee = gatewayFee;
+        state.methods[method].platformFee = platformFee;
+
+        const res = await fetch('/admin/settings/payment-gateway/fees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentMethod: method, gatewayFee, platformFee })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) throw new Error(json.message || `Failed for ${method}`);
+      }
+      showToast('Transaction fees updated successfully', 'success');
+      renderMethods();
+    } catch (err) {
+      showToast(err.message || 'Could not update fees', 'error');
+    }
+  });
+
+  loadConfig();
+</script>
