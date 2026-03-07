@@ -153,6 +153,10 @@ router.patch("/announcements/:id/publish", requirePermission("settings", "update
 router.patch("/announcements/:id/unpublish", requirePermission("settings", "update"), adminAnnouncementController.unpublish);
 router.delete("/announcements/:id", requirePermission("settings", "delete"), adminAnnouncementController.delete);
 router.get("/pricing", requirePermission("settings", "view"), AdminOperationsController.getPricingManagement);
+router.put("/pricing/:id", requirePermission("settings", "update"), AdminOperationsController.updatePricingPlan);
+router.post("/pricing/settings", requirePermission("settings", "update"), AdminOperationsController.updatePricingSettings);
+router.patch("/pricing/:id/archive", requirePermission("settings", "update"), AdminOperationsController.archivePricingPlan);
+router.patch("/pricing/:id/visibility", requirePermission("settings", "update"), AdminOperationsController.togglePricingPlanVisibility);
 
 // ============ MERCHANT MANAGEMENT ROUTES ============
 router.get("/merchants", requirePermission("merchants", "view"), adminMerchantController.merchantsList);

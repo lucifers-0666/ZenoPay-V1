@@ -3,47 +3,64 @@
  * Handles rendering of the pricing page
  */
 
+const Plan = require("../Models/Plan");
+const PricingSettings = require("../Models/PricingSettings");
+
+const toDisplayPlan = (plan, settings) => {
+  const monthlyPrice = Number(plan.monthlyPrice || 0);
+  const annualPrice = Number(plan.annualPrice || 0);
+  const discount = Number(plan.discount || settings.annualDiscount || 0);
+  const yearlyEquivalent = annualPrice > 0 ? annualPrice / 12 : 0;
+
+  return {
+    id: String(plan._id),
+    slug: plan.slug,
+    name: plan.name,
+    tagline: plan.tagline || "",
+    description: plan.description || "",
+    status: plan.status,
+    monthlyPrice,
+    annualPrice,
+    yearlyMonthlyEquivalent: yearlyEquivalent,
+    discount,
+    features: Array.isArray(plan.features) ? plan.features : [],
+    transactionFeeText: plan.transactionFeeText || "Custom pricing available",
+    volumeLimitText: plan.volumeLimitText || "Flexible volume limits",
+    monthlyTxLimit: Number(plan.monthlyTxLimit || 0),
+    showOnPricingPage: plan.showOnPricingPage !== false,
+    highlightPopular: !!plan.highlightPopular,
+    bestValue: !!plan.bestValue,
+    isCustomPricing: monthlyPrice <= 0 || annualPrice <= 0,
+  };
+};
+
 /**
  * Get Pricing Page
  * Renders the comprehensive pricing page with all plans
  */
-const getPricingPage = (req, res) => {
+const getPricingPage = async (req, res) => {
   try {
+    const [settingsDoc, plansFromDb] = await Promise.all([
+      PricingSettings.getSettings(),
+      Plan.getPublicPlans(),
+    ]);
+
+    const plans = plansFromDb.map((plan) => toDisplayPlan(plan, settingsDoc));
+
     res.render('pricing', {
       pageTitle: 'Pricing - ZenoPay | Transparent Payment Gateway Pricing',
       isLoggedIn: req.session?.isLoggedIn || false,
       user: req.session?.user || null,
-      // Optional: Add pricing metadata for SEO or dynamic content
       pricingData: {
-        plans: [
-          {
-            name: 'Starter',
-            monthlyPrice: 299,
-            yearlyPrice: 2999,
-            targetAudience: 'Individuals & Freelancers'
-          },
-          {
-            name: 'Professional',
-            monthlyPrice: 999,
-            yearlyPrice: 9999,
-            targetAudience: 'Small Businesses',
-            popular: true
-          },
-          {
-            name: 'Business',
-            monthlyPrice: 2999,
-            yearlyPrice: 29999,
-            targetAudience: 'Established Companies',
-            recommended: true
-          },
-          {
-            name: 'Enterprise',
-            monthlyPrice: 'Custom',
-            yearlyPrice: 'Custom',
-            targetAudience: 'Large Organizations'
-          }
-        ],
-        lastUpdated: new Date().toISOString().split('T')[0]
+        plans,
+        settings: {
+          applyGST: !!settingsDoc.applyGST,
+          gstRate: Number(settingsDoc.gstRate || 0),
+          annualDiscount: Number(settingsDoc.annualDiscount || 0),
+          studentDiscountEnabled: !!settingsDoc.studentDiscountEnabled,
+          studentDiscount: Number(settingsDoc.studentDiscount || 0),
+        },
+        lastUpdated: settingsDoc.updatedAt || new Date(),
       }
     });
   } catch (error) {
@@ -137,94 +154,66 @@ function getVolumeTier(volume) {
 /**
  * Compare Plans (Optional endpoint for dynamic comparison)
  */
-const comparePlans = (req, res) => {
+const comparePlans = async (req, res) => {
   try {
-    const plansComparison = {
-      starter: {
-        price: { monthly: 299, yearly: 2999 },
-        volumeLimit: 500000,
-        transactionLimit: 200,
-        features: {
-          paymentLinks: true,
-          apiAccess: false,
-          customBranding: false,
-          dedicatedSupport: false,
-          advancedAnalytics: false
+    const plans = await Plan.getPublicPlans();
+    const data = plans.reduce((acc, plan) => {
+      acc[plan.slug || String(plan._id)] = {
+        id: String(plan._id),
+        name: plan.name,
+        price: {
+          monthly: Number(plan.monthlyPrice || 0),
+          yearly: Number(plan.annualPrice || 0),
         },
+        discount: Number(plan.discount || 0),
+        monthlyTxLimit: Number(plan.monthlyTxLimit || 0),
         transactionFees: {
-          domestic: '2.5% + ₹3',
-          international: '3.5% + ₹5',
-          upi: '1.5%'
+          domestic: plan.transactionFeeText || "Custom",
         },
-        payoutSpeed: 'T+3'
-      },
-      professional: {
-        price: { monthly: 999, yearly: 9999 },
-        volumeLimit: 2500000,
-        transactionLimit: 1000,
-        features: {
-          paymentLinks: true,
-          apiAccess: true,
-          customBranding: true,
-          dedicatedSupport: false,
-          advancedAnalytics: true
-        },
-        transactionFees: {
-          domestic: '2.0% + ₹2',
-          international: '3.0% + ₹5',
-          upi: '1.0%'
-        },
-        payoutSpeed: 'T+2'
-      },
-      business: {
-        price: { monthly: 2999, yearly: 29999 },
-        volumeLimit: 10000000,
-        transactionLimit: 'unlimited',
-        features: {
-          paymentLinks: true,
-          apiAccess: true,
-          customBranding: true,
-          dedicatedSupport: true,
-          advancedAnalytics: true
-        },
-        transactionFees: {
-          domestic: '1.75% + ₹2',
-          international: '2.75% + ₹5',
-          upi: '0.8%'
-        },
-        payoutSpeed: 'T+1'
-      },
-      enterprise: {
-        price: { monthly: 'custom', yearly: 'custom' },
-        volumeLimit: 'unlimited',
-        transactionLimit: 'unlimited',
-        features: {
-          paymentLinks: true,
-          apiAccess: true,
-          customBranding: true,
-          dedicatedSupport: true,
-          advancedAnalytics: true,
-          customIntegrations: true,
-          sla: true
-        },
-        transactionFees: {
-          domestic: 'Custom (as low as 1.2%)',
-          international: 'Negotiable',
-          upi: '0.5%'
-        },
-        payoutSpeed: 'Instant'
-      }
-    };
-    
-    res.json({
-      success: true,
-      data: plansComparison
-    });
+        features: Array.isArray(plan.features) ? plan.features : [],
+        status: plan.status,
+      };
+      return acc;
+    }, {});
+
+    return res.json({ success: true, data });
   } catch (error) {
     console.error('Error comparing plans:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to retrieve plan comparison'
+    });
+  }
+};
+
+const getPricingData = async (req, res) => {
+  try {
+    const [settingsDoc, plansFromDb] = await Promise.all([
+      PricingSettings.getSettings(),
+      Plan.getPublicPlans(),
+    ]);
+
+    const plans = plansFromDb.map((plan) => toDisplayPlan(plan, settingsDoc));
+
+    return res.json({
+      success: true,
+      data: {
+        plans,
+        settings: {
+          applyGST: !!settingsDoc.applyGST,
+          gstRate: Number(settingsDoc.gstRate || 0),
+          annualDiscount: Number(settingsDoc.annualDiscount || 0),
+          studentDiscountEnabled: !!settingsDoc.studentDiscountEnabled,
+          studentDiscount: Number(settingsDoc.studentDiscount || 0),
+        },
+        lastUpdated: settingsDoc.updatedAt || new Date(),
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching pricing data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch pricing data',
     });
   }
 };
@@ -232,5 +221,6 @@ const comparePlans = (req, res) => {
 module.exports = {
   getPricingPage,
   calculateCustomQuote,
-  comparePlans
+  comparePlans,
+  getPricingData,
 };

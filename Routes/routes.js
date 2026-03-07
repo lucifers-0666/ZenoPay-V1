@@ -801,6 +801,7 @@ router.post("/api/legal/accept-terms", LegalPagesController.acceptTerms);
 
 // Pricing Routes
 router.get("/pricing", PricingController.getPricingPage);
+router.get("/api/pricing", PricingController.getPricingData);
 router.post("/api/pricing/calculate-quote", PricingController.calculateCustomQuote);
 router.get("/api/pricing/compare", PricingController.comparePlans);
 

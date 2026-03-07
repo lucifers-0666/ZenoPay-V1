@@ -1,6 +1,8 @@
 const ContactSubmission = require("../../Models/ContactSubmission");
 const Notification = require("../../Models/Notification");
 const TransactionHistory = require("../../Models/TransactionHistory");
+const Plan = require("../../Models/Plan");
+const PricingSettings = require("../../Models/PricingSettings");
 const mongoose = require("mongoose");
 
 const statusMapToUi = {
@@ -67,6 +69,106 @@ const toTicketNo = (doc) => {
   const y = dt.getFullYear();
   const sfx = String(doc._id || "").slice(-4).toUpperCase();
   return `#TKT-${y}-${sfx}`;
+};
+
+const toINR = (value = 0) => `₹${Math.round(Number(value) || 0).toLocaleString("en-IN")}`;
+
+const titleCase = (value = "") => {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return "Active";
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
+const seedDefaultPlansIfEmpty = async () => {
+  const count = await Plan.countDocuments();
+  if (count > 0) return;
+
+  await Plan.insertMany([
+    {
+      slug: "starter",
+      name: "Starter",
+      tagline: "For Individuals & Freelancers",
+      description: "Start quickly with essential payment capabilities.",
+      status: "active",
+      monthlyPrice: 299,
+      annualPrice: 2999,
+      discount: 16.4,
+      monthlyTxLimit: 200,
+      dailyTransferLimit: 50000,
+      apiCallsPerDay: 0,
+      transactionFeeText: "From 2.5% + ₹3 per transaction",
+      volumeLimitText: "Up to ₹5 lakhs/month",
+      features: ["200 transactions per month", "Payment links & QR codes", "Basic analytics dashboard", "Email support (48-hour response)", "Standard payout (T+3 days)"],
+      showOnPricingPage: true,
+      highlightPopular: false,
+      bestValue: false,
+      sortOrder: 1,
+      subscribers: 218,
+    },
+    {
+      slug: "professional",
+      name: "Professional",
+      tagline: "For Small Businesses",
+      description: "For growing teams that need APIs and deeper insights.",
+      status: "active",
+      monthlyPrice: 999,
+      annualPrice: 9999,
+      discount: 16.6,
+      monthlyTxLimit: 1000,
+      dailyTransferLimit: 200000,
+      apiCallsPerDay: 1000,
+      transactionFeeText: "From 2.0% + ₹2 per transaction",
+      volumeLimitText: "Up to ₹25 lakhs/month",
+      features: ["1,000 transactions per month", "API access (REST & Webhooks)", "Custom payment page branding", "Advanced analytics & reports", "Priority email (24-hour response)"],
+      showOnPricingPage: true,
+      highlightPopular: true,
+      bestValue: false,
+      sortOrder: 2,
+      subscribers: 542,
+    },
+    {
+      slug: "business",
+      name: "Business",
+      tagline: "For Established Companies",
+      description: "High-volume plan with premium support and speed.",
+      status: "beta",
+      monthlyPrice: 2999,
+      annualPrice: 29999,
+      discount: 16.7,
+      monthlyTxLimit: 0,
+      dailyTransferLimit: 1000000,
+      apiCallsPerDay: 10000,
+      transactionFeeText: "From 1.75% + ₹2 per transaction",
+      volumeLimitText: "Up to ₹1 crore/month",
+      features: ["Unlimited transactions", "Dedicated account manager", "Same-day payouts (T+1)", "Advanced fraud prevention", "Custom reporting & analytics"],
+      showOnPricingPage: true,
+      highlightPopular: false,
+      bestValue: true,
+      sortOrder: 3,
+      subscribers: 97,
+    },
+    {
+      slug: "enterprise",
+      name: "Enterprise",
+      tagline: "For Large Organizations",
+      description: "Custom pricing and white-glove support.",
+      status: "active",
+      monthlyPrice: 0,
+      annualPrice: 0,
+      discount: 0,
+      monthlyTxLimit: 0,
+      dailyTransferLimit: 0,
+      apiCallsPerDay: 0,
+      transactionFeeText: "Custom rates (as low as 1.2%)",
+      volumeLimitText: "Unlimited volume",
+      features: ["Unlimited transactions", "24/7 premium support", "Dedicated technical team", "Custom API development", "SLA guarantees"],
+      showOnPricingPage: true,
+      highlightPopular: false,
+      bestValue: false,
+      sortOrder: 4,
+      subscribers: 15,
+    },
+  ]);
 };
 
 const normalizeTicket = (doc) => {
@@ -379,41 +481,62 @@ const getNotificationsCenter = async (req, res) => {
 
 const getPricingManagement = async (req, res) => {
   try {
-    const plans = [
-      {
-        id: "starter",
-        name: "Starter",
-        status: "Active",
-        monthly: 299,
-        yearly: 2999,
-        subscribers: 218,
-        revenue: "₹64,782",
-        features: ["Up to 200 tx/month", "Basic dashboard", "Email support", "UPI + cards", "Daily payouts"],
-        highlighted: false,
-      },
-      {
-        id: "professional",
-        name: "Professional",
-        status: "Active",
-        monthly: 999,
-        yearly: 9990,
-        subscribers: 542,
-        revenue: "₹5,41,458",
-        features: ["Up to 2,000 tx/month", "Advanced analytics", "Priority support", "API access", "Smart retries"],
-        highlighted: true,
-      },
-      {
-        id: "business",
-        name: "Business",
-        status: "Beta",
-        monthly: 2999,
-        yearly: 29990,
-        subscribers: 97,
-        revenue: "₹2,90,903",
-        features: ["Unlimited transactions", "Dedicated CSM", "Custom webhooks", "Fraud insights", "Fast settlements"],
-        highlighted: false,
-      },
-    ];
+    await seedDefaultPlansIfEmpty();
+
+    const [settings, planDocs] = await Promise.all([
+      PricingSettings.getSettings(),
+      Plan.find({}).sort({ sortOrder: 1, createdAt: 1 }).lean(),
+    ]);
+
+    const plans = planDocs.map((plan) => {
+      const monthly = Number(plan.monthlyPrice || 0);
+      const yearly = Number(plan.annualPrice || 0);
+      const subscribers = Number(plan.subscribers || 0);
+
+      return {
+        _id: plan._id,
+        id: String(plan._id),
+        slug: plan.slug,
+        name: plan.name,
+        tagline: plan.tagline || "",
+        description: plan.description || "",
+        status: titleCase(plan.status),
+        monthly,
+        yearly,
+        monthlyPrice: monthly,
+        annualPrice: yearly,
+        discount: Number(plan.discount || 0),
+        monthlyTxLimit: Number(plan.monthlyTxLimit || 0),
+        dailyTransferLimit: Number(plan.dailyTransferLimit || 0),
+        apiCallsPerDay: Number(plan.apiCallsPerDay || 0),
+        subscribers,
+        revenue: toINR(monthly * subscribers),
+        features: Array.isArray(plan.features) ? plan.features : [],
+        highlighted: !!plan.highlightPopular || !!plan.bestValue,
+        highlightPopular: !!plan.highlightPopular,
+        bestValue: !!plan.bestValue,
+        showOnPricingPage: plan.showOnPricingPage !== false,
+      };
+    });
+
+    const mrrValue = plans.reduce((sum, plan) => sum + Number(plan.monthlyPrice || 0) * Number(plan.subscribers || 0), 0);
+    const arrValue = mrrValue * 12;
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const newThisMonth = planDocs.filter((plan) => plan.createdAt && new Date(plan.createdAt) >= startOfMonth).length;
+
+    const chartData = Array.isArray(settings.revenueChart) && settings.revenueChart.length
+      ? settings.revenueChart
+      : [
+          Math.round(mrrValue * 0.72),
+          Math.round(mrrValue * 0.81),
+          Math.round(mrrValue * 0.88),
+          Math.round(mrrValue * 0.93),
+          Math.round(mrrValue * 0.97),
+          Math.round(mrrValue),
+        ];
 
     res.locals.adminPage = "pricing";
     res.render("admin/admin-pricing", {
@@ -428,24 +551,181 @@ const getPricingManagement = async (req, res) => {
       ],
       plans,
       gst: {
-        enabled: true,
-        rate: 18,
-        gstNumber: "27AACCZ0000Z1Z0",
-        annualDiscount: 15,
-        studentDiscountEnabled: false,
-        studentDiscount: 10,
+        enabled: !!settings.applyGST,
+        rate: Number(settings.gstRate || 18),
+        gstNumber: settings.gstRegNumber || "",
+        annualDiscount: Number(settings.annualDiscount || 0),
+        studentDiscountEnabled: !!settings.studentDiscountEnabled,
+        studentDiscount: Number(settings.studentDiscount || 0),
       },
       revenue: {
-        mrr: "₹8,97,143",
-        arr: "₹1,07,65,716",
-        churn: "2.8%",
-        newThisMonth: 86,
-        chart: [52, 58, 61, 67, 72, 81],
+        mrr: toINR(mrrValue),
+        arr: toINR(arrValue),
+        churn: `${Number(settings.churnRate || 2.8).toFixed(1)}%`,
+        newThisMonth,
+        chart: chartData,
+        chartData,
       },
     });
   } catch (error) {
     console.error("Admin pricing management error:", error);
     res.status(500).send("Error loading pricing management");
+  }
+};
+
+const updatePricingPlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const payload = req.body || {};
+
+    const update = {};
+
+    if (typeof payload.name === "string") update.name = payload.name.trim();
+    if (typeof payload.tagline === "string") update.tagline = payload.tagline.trim();
+    if (typeof payload.description === "string") update.description = payload.description.trim();
+
+    if (payload.monthlyPrice !== undefined) {
+      const value = Number(payload.monthlyPrice);
+      if (Number.isFinite(value)) update.monthlyPrice = Math.max(0, value);
+    }
+
+    if (payload.annualPrice !== undefined) {
+      const value = Number(payload.annualPrice);
+      if (Number.isFinite(value)) update.annualPrice = Math.max(0, value);
+    }
+
+    if (payload.discount !== undefined) {
+      const value = Number(payload.discount);
+      if (Number.isFinite(value)) update.discount = Math.max(0, Math.min(100, value));
+    }
+
+    if (payload.monthlyTxLimit !== undefined) {
+      const value = Number(payload.monthlyTxLimit);
+      if (Number.isFinite(value)) update.monthlyTxLimit = Math.max(0, Math.trunc(value));
+    }
+
+    if (payload.dailyTransferLimit !== undefined) {
+      const value = Number(payload.dailyTransferLimit);
+      if (Number.isFinite(value)) update.dailyTransferLimit = Math.max(0, value);
+    }
+
+    if (payload.apiCallsPerDay !== undefined) {
+      const value = Number(payload.apiCallsPerDay);
+      if (Number.isFinite(value)) update.apiCallsPerDay = Math.max(0, Math.trunc(value));
+    }
+
+    if (Array.isArray(payload.features)) {
+      update.features = payload.features.map((feature) => String(feature || "").trim()).filter(Boolean);
+    } else if (typeof payload.features === "string") {
+      update.features = payload.features.split(/[\n,]/).map((feature) => feature.trim()).filter(Boolean);
+    }
+
+    if (typeof payload.showOnPricingPage === "boolean") update.showOnPricingPage = payload.showOnPricingPage;
+    if (typeof payload.highlightPopular === "boolean") update.highlightPopular = payload.highlightPopular;
+    if (typeof payload.bestValue === "boolean") update.bestValue = payload.bestValue;
+
+    if (typeof payload.status === "string") {
+      const status = payload.status.trim().toLowerCase();
+      if (["active", "beta", "archived"].includes(status)) {
+        update.status = status;
+      }
+    }
+
+    const updated = await Plan.findByIdAndUpdate(id, update, { new: true });
+
+    if (!updated) {
+      return res.status(404).json({ success: false, error: "Plan not found" });
+    }
+
+    return res.json({ success: true, plan: updated });
+  } catch (error) {
+    console.error("Admin update pricing plan error:", error);
+    return res.status(500).json({ success: false, error: "Unable to update plan" });
+  }
+};
+
+const updatePricingSettings = async (req, res) => {
+  try {
+    const settings = await PricingSettings.getSettings();
+    const payload = req.body || {};
+
+    if (typeof payload.enabled === "boolean") settings.applyGST = payload.enabled;
+
+    if (payload.rate !== undefined) {
+      const value = Number(payload.rate);
+      if (Number.isFinite(value)) settings.gstRate = Math.max(0, Math.min(100, value));
+    }
+
+    if (typeof payload.gstNumber === "string") {
+      settings.gstRegNumber = payload.gstNumber.trim().toUpperCase();
+    }
+
+    if (payload.annualDiscount !== undefined) {
+      const value = Number(payload.annualDiscount);
+      if (Number.isFinite(value)) settings.annualDiscount = Math.max(0, Math.min(100, value));
+    }
+
+    if (typeof payload.studentDiscountEnabled === "boolean") {
+      settings.studentDiscountEnabled = payload.studentDiscountEnabled;
+    }
+
+    if (payload.studentDiscount !== undefined) {
+      const value = Number(payload.studentDiscount);
+      if (Number.isFinite(value)) settings.studentDiscount = Math.max(0, Math.min(100, value));
+    }
+
+    await settings.save();
+
+    return res.json({ success: true, settings });
+  } catch (error) {
+    console.error("Admin update pricing settings error:", error);
+    return res.status(500).json({ success: false, error: "Unable to save settings" });
+  }
+};
+
+const archivePricingPlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await Plan.findByIdAndUpdate(
+      id,
+      { status: "archived", showOnPricingPage: false },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, error: "Plan not found" });
+    }
+
+    return res.json({ success: true, plan: updated });
+  } catch (error) {
+    console.error("Admin archive pricing plan error:", error);
+    return res.status(500).json({ success: false, error: "Unable to archive plan" });
+  }
+};
+
+const togglePricingPlanVisibility = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { show } = req.body || {};
+
+    if (typeof show !== "boolean") {
+      return res.status(400).json({ success: false, error: "show must be a boolean" });
+    }
+
+    const updated = await Plan.findByIdAndUpdate(
+      id,
+      { showOnPricingPage: show },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ success: false, error: "Plan not found" });
+    }
+
+    return res.json({ success: true, plan: updated });
+  } catch (error) {
+    console.error("Admin toggle pricing visibility error:", error);
+    return res.status(500).json({ success: false, error: "Unable to update visibility" });
   }
 };
 
@@ -535,5 +815,9 @@ module.exports = {
   getSupportTicketDetails,
   getNotificationsCenter,
   getPricingManagement,
+  updatePricingPlan,
+  updatePricingSettings,
+  archivePricingPlan,
+  togglePricingPlanVisibility,
   getAuditLogs,
 };
