@@ -4253,3 +4253,189 @@ section.stats,
     gap: 10px;
   }
 }
+
+/* ==========================================================================
+   Minor Theme + Spacing Fixes (2026-03-09)
+   ========================================================================== */
+
+/* Issue 1: Integration button should be purple gradient */
+.btn-integration,
+.integration-section .btn,
+.integration-section a.btn,
+.api-section .cta-btn {
+  background: linear-gradient(135deg, #4F46E5, #6B3FA0) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 14px 28px !important;
+  border-radius: 12px !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35) !important;
+}
+
+.btn-integration:hover,
+.integration-section .btn:hover,
+.integration-section a.btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+/* Issue 2: How-it-works button/meta/circle connector in purple family */
+.btn-journey,
+.steps-section .cta-btn,
+.how-it-works .cta-btn,
+.steps-cta-btn,
+.btn-steps {
+  background: linear-gradient(135deg, #4F46E5, #6B3FA0) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 16px 40px !important;
+  border-radius: 14px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35) !important;
+  letter-spacing: 0.01em !important;
+}
+
+.btn-journey:hover,
+.steps-cta-btn:hover,
+.btn-steps:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.45) !important;
+  color: #fff !important;
+}
+
+.step-time-badge,
+.steps-section .time-label,
+.how-it-works .time-label,
+[class*="takes-badge"],
+[class*="time-badge"],
+.step-meta,
+.step-item:nth-child(1) .step-meta,
+.step-item:nth-child(2) .step-meta,
+.step-item:nth-child(3) .step-meta {
+  color: #6B3FA0 !important;
+}
+
+.step-number,
+.step-circle,
+.steps-section .step-icon-circle,
+.step-item:nth-child(2) .step-number,
+.step-item:nth-child(3) .step-number {
+  background: linear-gradient(135deg, #4F46E5, #6B3FA0) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.step-connector,
+.step-line,
+.steps-section .connector,
+.steps-grid::before {
+  background: linear-gradient(to right, #4F46E5, #6B3FA0) !important;
+}
+
+/* Issue 3: FAQ CTA card/button should be purple-themed */
+.faq-cta-card,
+.faq-section .still-questions,
+.still-questions-card,
+.faq-cta-box,
+[class*="support-card"] {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.06), rgba(107, 63, 160, 0.08)) !important;
+  border: 1.5px solid rgba(107, 63, 160, 0.15) !important;
+  border-radius: 20px !important;
+  padding: 48px 40px !important;
+  text-align: center !important;
+  margin-top: 40px !important;
+}
+
+.faq-cta-card h3,
+.faq-cta-card h2,
+.still-questions-card h3,
+.faq-cta-box .faq-cta-title {
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  color: #0F172A !important;
+  margin-bottom: 8px !important;
+}
+
+.faq-cta-card p,
+.still-questions-card p,
+.faq-cta-box .faq-cta-text {
+  color: #64748B !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 24px !important;
+}
+
+.btn-support,
+.faq-cta-card .btn,
+.faq-cta-card a.btn,
+.still-questions-card .btn-contact,
+.btn-faq-cta,
+.faq-cta-box .btn,
+.faq-cta-box a.btn {
+  background: linear-gradient(135deg, #4F46E5, #6B3FA0) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 14px 32px !important;
+  border-radius: 12px !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+}
+
+.btn-support:hover,
+.faq-cta-card .btn:hover,
+.btn-faq-cta:hover,
+.faq-cta-box .btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4) !important;
+  color: #fff !important;
+}
+
+/* Issue 4 (part A): global section spacing tightening */
+.why-section,
+.features-section,
+.pricing-section,
+.faq-section,
+.integration-section,
+.api-section,
+.testimonials-section,
+.comparison-section,
+.use-cases-section,
+.payment-methods-section,
+.virtual-account-section {
+  padding: 80px 0 !important;
+}
+
+.stats-section {
+  padding: 60px 0 !important;
+}
+
+.security-section {
+  padding: 80px 0 !important;
+}
+
+.steps-section,
+.how-it-works-section {
+  padding: 80px 0 !important;
+}
