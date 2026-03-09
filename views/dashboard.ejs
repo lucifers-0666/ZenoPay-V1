@@ -168,6 +168,35 @@
                     </a>
                   </div>
 
+                  <div class="hero-live-ticker">
+                    <span class="ticker-label">
+                      <span class="ticker-dot"></span>
+                      Live
+                    </span>
+                    <div class="ticker-track" id="tickerTrack">
+                      <div class="ticker-item">
+                        <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                        Priya S. received ₹12,500 via UPI
+                      </div>
+                      <div class="ticker-item">
+                        <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                        Merchant #4821 settled ₹3,20,000
+                      </div>
+                      <div class="ticker-item">
+                        <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                        API call processed in 0.8 seconds
+                      </div>
+                      <div class="ticker-item">
+                        <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                        Rohan K. linked virtual account
+                      </div>
+                      <div class="ticker-item">
+                        <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                        ₹45,000 payout completed instantly
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Trust Badges Row -->
                   <div class="trust-badges-row">
                     <div class="trust-item">
@@ -245,6 +274,7 @@
             processed: (typeof stats !== 'undefined' && stats && typeof stats.processed !== 'undefined') ? stats.processed : 500,
             uptime: (typeof stats !== 'undefined' && stats && typeof stats.uptime !== 'undefined') ? stats.uptime : 99.9,
             settlementTime: (typeof stats !== 'undefined' && stats && typeof stats.settlementTime !== 'undefined') ? stats.settlementTime : 2,
+            countriesSupported: (typeof stats !== 'undefined' && stats && typeof stats.countriesSupported !== 'undefined') ? stats.countriesSupported : 22,
           }; %>
 
           <!-- Stats Section -->
@@ -323,6 +353,23 @@
                   <div class="stat-label">SETTLEMENT TIME</div>
                   <div class="stat-trend neutral stat-badge stat-badge-gray">
                     Industry fastest
+                  </div>
+                </div>
+
+                <div class="stat-item stat-card">
+                  <div class="stat-icon-wrapper stat-icon stat-icon-purple">
+                    <i class="fas fa-earth-asia"></i>
+                  </div>
+                  <div class="stat-number"
+                    data-target="<%= safeStats.countriesSupported %>"
+                    data-suffix="+"
+                    data-prefix="">
+                    0
+                  </div>
+                  <div class="stat-label">COUNTRIES SUPPORTED</div>
+                  <div class="stat-badge stat-badge-blue">
+                    <i class="fas fa-globe"></i>
+                    Cross-border payments
                   </div>
                 </div>
 
@@ -433,6 +480,375 @@
                   </a>
                 </div>
 
+              </div>
+            </div>
+          </section>
+
+          <section class="payment-methods-section" id="payment-methods">
+            <div class="container">
+
+              <div class="section-header">
+                <span class="section-tag">Payment Methods</span>
+                <h2 class="section-title">Accept Payments Any Way Your Customers Prefer</h2>
+                <p class="section-subtitle">
+                  From UPI to international cards — ZenoPay supports every major payment method in India and beyond.
+                </p>
+              </div>
+
+              <div class="pm-tabs">
+                <button class="pm-tab pm-tab-active" data-tab="upi" onclick="switchPMTab('upi', this)">UPI</button>
+                <button class="pm-tab" data-tab="cards" onclick="switchPMTab('cards', this)">Cards</button>
+                <button class="pm-tab" data-tab="netbanking" onclick="switchPMTab('netbanking', this)">Net Banking</button>
+                <button class="pm-tab" data-tab="wallets" onclick="switchPMTab('wallets', this)">Wallets</button>
+                <button class="pm-tab" data-tab="bnpl" onclick="switchPMTab('bnpl', this)">BNPL</button>
+              </div>
+
+              <div class="pm-content pm-content-active" id="tab-upi">
+                <div class="pm-layout">
+                  <div class="pm-left">
+                    <h3 class="pm-title">India's #1 Payment Method</h3>
+                    <p class="pm-desc">
+                      Accept UPI payments from any app — GPay, PhonePe, Paytm, BHIM and 200+ more. Sub-second settlement directly to your account.
+                    </p>
+                    <ul class="pm-features">
+                      <li><i class="fas fa-circle-check"></i>Instant settlement in &lt; 2 seconds</li>
+                      <li><i class="fas fa-circle-check"></i>UPI AutoPay for subscriptions</li>
+                      <li><i class="fas fa-circle-check"></i>Collect via QR code or payment link</li>
+                      <li><i class="fas fa-circle-check"></i>Zero MDR on UPI transactions</li>
+                    </ul>
+                    <div class="pm-apps">
+                      <span class="pm-app-chip">GPay</span>
+                      <span class="pm-app-chip">PhonePe</span>
+                      <span class="pm-app-chip">Paytm</span>
+                      <span class="pm-app-chip">BHIM</span>
+                      <span class="pm-app-chip">+200</span>
+                    </div>
+                  </div>
+                  <div class="pm-right">
+                    <div class="pm-visual pm-visual-upi">
+                      <div class="pm-visual-card">
+                        <div class="pm-visual-header">
+                          <span>ZenoPay Checkout</span>
+                          <span class="pm-visual-secure">🔒 Secure</span>
+                        </div>
+                        <div class="pm-visual-amount">₹2,499.00</div>
+                        <div class="pm-visual-upi-input">
+                          <i class="fas fa-mobile-screen" style="color:#6B3FA0;"></i>
+                          <span style="color:#94A3B8;">yourname@upi</span>
+                        </div>
+                        <div class="pm-visual-apps-row">
+                          <div class="pm-visual-app" style="background:#1A73E8;">G</div>
+                          <div class="pm-visual-app" style="background:#5F259F;">P</div>
+                          <div class="pm-visual-app" style="background:#002970;">B</div>
+                          <div class="pm-visual-app" style="background:#00BAF2;">PT</div>
+                        </div>
+                        <div class="pm-visual-btn">Pay with UPI</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pm-content" id="tab-cards">
+                <div class="pm-layout">
+                  <div class="pm-left">
+                    <h3 class="pm-title">All Major Cards Accepted</h3>
+                    <p class="pm-desc">
+                      Visa, Mastercard, RuPay, Amex — debit and credit cards from 150+ banks. EMI options available.
+                    </p>
+                    <ul class="pm-features">
+                      <li><i class="fas fa-circle-check"></i>3D Secure 2.0 authentication</li>
+                      <li><i class="fas fa-circle-check"></i>EMI up to 24 months on select banks</li>
+                      <li><i class="fas fa-circle-check"></i>International cards supported</li>
+                      <li><i class="fas fa-circle-check"></i>Saved cards with tokenization</li>
+                    </ul>
+                    <div class="pm-apps">
+                      <span class="pm-app-chip">Visa</span>
+                      <span class="pm-app-chip">Mastercard</span>
+                      <span class="pm-app-chip">RuPay</span>
+                      <span class="pm-app-chip">Amex</span>
+                    </div>
+                  </div>
+                  <div class="pm-right">
+                    <div class="pm-visual">
+                      <div class="pm-visual-card card-style">
+                        <div class="pm-card-chip"></div>
+                        <div class="pm-card-number">•••• •••• •••• 4242</div>
+                        <div class="pm-card-meta">
+                          <span>VALID THRU 12/28</span>
+                          <span>ROHIT SHARMA</span>
+                        </div>
+                        <div class="pm-card-networks">
+                          <div class="pm-network-circle" style="background:#EB001B;"></div>
+                          <div class="pm-network-circle" style="background:#F79E1B; margin-left:-10px; opacity:0.9;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pm-content" id="tab-netbanking">
+                <div class="pm-layout">
+                  <div class="pm-left">
+                    <h3 class="pm-title">150+ Banks Supported</h3>
+                    <p class="pm-desc">
+                      NEFT, RTGS, IMPS — all modes. Direct debit from SBI, HDFC, ICICI, Axis and 150+ more banks.
+                    </p>
+                    <ul class="pm-features">
+                      <li><i class="fas fa-circle-check"></i>Real-time payment confirmation</li>
+                      <li><i class="fas fa-circle-check"></i>IMPS for 24x7 instant transfers</li>
+                      <li><i class="fas fa-circle-check"></i>Corporate net banking support</li>
+                      <li><i class="fas fa-circle-check"></i>Bank-grade 256-bit SSL encryption</li>
+                    </ul>
+                  </div>
+                  <div class="pm-right">
+                    <div class="pm-banks-grid">
+                      <% ['SBI','HDFC','ICICI','Axis','Kotak','PNB','BOB','IDBI','Yes Bank','IndusInd'].forEach((b) => { %>
+                        <div class="pm-bank-chip"><%= b %></div>
+                      <% }) %>
+                      <div class="pm-bank-chip pm-bank-more">+140 more</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pm-content" id="tab-wallets">
+                <div class="pm-layout">
+                  <div class="pm-left">
+                    <h3 class="pm-title">Top Wallets, One Integration</h3>
+                    <p class="pm-desc">
+                      Accept wallet payments from Paytm, Amazon Pay, Mobikwik and more with high conversion checkout flows.
+                    </p>
+                    <ul class="pm-features">
+                      <li><i class="fas fa-circle-check"></i>One-click wallet checkout</li>
+                      <li><i class="fas fa-circle-check"></i>Wallet cashback compatibility</li>
+                      <li><i class="fas fa-circle-check"></i>Fast OTP-less repeat flow</li>
+                      <li><i class="fas fa-circle-check"></i>Real-time success webhooks</li>
+                    </ul>
+                    <div class="pm-apps">
+                      <span class="pm-app-chip">Paytm</span>
+                      <span class="pm-app-chip">Amazon Pay</span>
+                      <span class="pm-app-chip">Mobikwik</span>
+                      <span class="pm-app-chip">Freecharge</span>
+                    </div>
+                  </div>
+                  <div class="pm-right">
+                    <div class="pm-visual">
+                      <div class="pm-visual-card">
+                        <div class="pm-visual-header">
+                          <span>Wallet Checkout</span>
+                          <span class="pm-visual-secure">⚡ Fast</span>
+                        </div>
+                        <div class="pm-visual-amount">₹899.00</div>
+                        <div class="pm-visual-apps-row">
+                          <div class="pm-visual-app" style="background:#00BAF2;">PT</div>
+                          <div class="pm-visual-app" style="background:#FF9900;">AZ</div>
+                          <div class="pm-visual-app" style="background:#0EA5E9;">MW</div>
+                        </div>
+                        <div class="pm-visual-btn">Pay with Wallet</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pm-content" id="tab-bnpl">
+                <div class="pm-layout">
+                  <div class="pm-left">
+                    <h3 class="pm-title">Buy Now, Pay Later</h3>
+                    <p class="pm-desc">
+                      Boost cart conversion with popular BNPL providers and flexible EMI payment options at checkout.
+                    </p>
+                    <ul class="pm-features">
+                      <li><i class="fas fa-circle-check"></i>Zero-cost EMI options</li>
+                      <li><i class="fas fa-circle-check"></i>Eligibility check in milliseconds</li>
+                      <li><i class="fas fa-circle-check"></i>Higher AOV for merchants</li>
+                      <li><i class="fas fa-circle-check"></i>Automated repayment lifecycle</li>
+                    </ul>
+                    <div class="pm-apps">
+                      <span class="pm-app-chip">Simpl</span>
+                      <span class="pm-app-chip">LazyPay</span>
+                      <span class="pm-app-chip">ZestMoney</span>
+                      <span class="pm-app-chip">Axio</span>
+                    </div>
+                  </div>
+                  <div class="pm-right">
+                    <div class="pm-visual">
+                      <div class="pm-visual-card">
+                        <div class="pm-visual-header">
+                          <span>BNPL Offer</span>
+                          <span class="pm-visual-secure">✅ Eligible</span>
+                        </div>
+                        <div class="pm-visual-amount">₹4,800.00</div>
+                        <div class="pm-visual-upi-input">
+                          <i class="fas fa-calendar-days" style="color:#6B3FA0;"></i>
+                          <span style="color:#64748B;">Pay in 3 monthly installments</span>
+                        </div>
+                        <div class="pm-visual-btn">Continue with BNPL</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <section class="virtual-account-section" id="virtual-account">
+            <div class="container">
+              <div class="va-badge-row">
+                <span class="va-badge">
+                  <i class="fas fa-building-columns"></i>
+                  Virtual Payment Bank
+                </span>
+              </div>
+
+              <div class="va-layout">
+                <div class="va-content">
+                  <h2 class="va-title">
+                    Your Business Gets a
+                    <span class="va-title-highlight">Dedicated Virtual Bank Account</span>
+                  </h2>
+                  <p class="va-desc">
+                    Every business on ZenoPay gets a unique virtual account number with real IFSC code.
+                    Receive payments, issue payouts, and track every rupee — all from one place.
+                  </p>
+
+                  <div class="va-features-list">
+                    <div class="va-feature">
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); color:#2563EB;">
+                        <i class="fas fa-fingerprint"></i>
+                      </div>
+                      <div>
+                        <h4 class="va-feature-title">Unique Account per Customer</h4>
+                        <p class="va-feature-desc">
+                          Assign a separate virtual account to each customer/order for automatic payment matching.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="va-feature">
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5); color:#059669;">
+                        <i class="fas fa-bolt"></i>
+                      </div>
+                      <div>
+                        <h4 class="va-feature-title">Instant Auto-Reconciliation</h4>
+                        <p class="va-feature-desc">
+                          Payments auto-matched to orders the moment they hit your account. No manual matching ever.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="va-feature">
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE); color:#7C3AED;">
+                        <i class="fas fa-arrow-right-arrow-left"></i>
+                      </div>
+                      <div>
+                        <h4 class="va-feature-title">Bulk Payouts in One Click</h4>
+                        <p class="va-feature-desc">
+                          Pay vendors, salaries, refunds in bulk via NEFT/IMPS/UPI from your virtual account balance.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="va-feature">
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7); color:#D97706;">
+                        <i class="fas fa-shield-halved"></i>
+                      </div>
+                      <div>
+                        <h4 class="va-feature-title">RBI Compliant &amp; Insured</h4>
+                        <p class="va-feature-desc">
+                          All virtual accounts operate under RBI Payment Aggregator guidelines. Funds insured up to ₹5 lakh.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="va-cta-row">
+                    <a href="/register" class="btn-primary">Open Virtual Account Free</a>
+                    <a href="/docs/virtual-accounts" class="va-link">
+                      Learn how it works
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="va-visual-wrap">
+                  <div class="va-dashboard">
+                    <div class="va-dash-header">
+                      <span class="va-dash-title">Virtual Account</span>
+                      <span class="va-dash-status"><span class="va-dot"></span> Active</span>
+                    </div>
+
+                    <div class="va-account-info">
+                      <div class="va-info-row">
+                        <span class="va-info-label">Account Number</span>
+                        <span class="va-info-value va-mono">9820 4821 0012 3456</span>
+                      </div>
+                      <div class="va-info-row">
+                        <span class="va-info-label">IFSC Code</span>
+                        <span class="va-info-value va-mono">ZENO0000123</span>
+                      </div>
+                      <div class="va-info-row">
+                        <span class="va-info-label">Account Type</span>
+                        <span class="va-info-value">Current (Virtual)</span>
+                      </div>
+                    </div>
+
+                    <div class="va-balance-card">
+                      <span class="va-balance-label">Available Balance</span>
+                      <span class="va-balance-amount">₹3,24,850.00</span>
+                      <div class="va-balance-actions">
+                        <button class="va-act-btn" style="background:#EFF6FF; color:#2563EB;">
+                          <i class="fas fa-download"></i>
+                          Receive
+                        </button>
+                        <button class="va-act-btn" style="background:#ECFDF5; color:#059669;">
+                          <i class="fas fa-upload"></i>
+                          Send
+                        </button>
+                        <button class="va-act-btn" style="background:#F5F3FF; color:#7C3AED;">
+                          <i class="fas fa-list"></i>
+                          History
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="va-txn-list">
+                      <div class="va-txn-item">
+                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;">
+                          <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="va-txn-info">
+                          <span class="va-txn-name">Received from HDFC UPI</span>
+                          <span class="va-txn-time">2 min ago</span>
+                        </div>
+                        <span class="va-txn-amount va-credit">+₹12,500</span>
+                      </div>
+                      <div class="va-txn-item">
+                        <div class="va-txn-icon" style="background:#FEF2F2; color:#DC2626;">
+                          <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="va-txn-info">
+                          <span class="va-txn-name">Payout to Vendor #482</span>
+                          <span class="va-txn-time">15 min ago</span>
+                        </div>
+                        <span class="va-txn-amount va-debit">-₹8,200</span>
+                      </div>
+                      <div class="va-txn-item">
+                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;">
+                          <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="va-txn-info">
+                          <span class="va-txn-name">Auto-settled: Order #9821</span>
+                          <span class="va-txn-time">1 hr ago</span>
+                        </div>
+                        <span class="va-txn-amount va-credit">+₹4,999</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -556,6 +972,137 @@
             </div>
           </section>
 
+          <section class="security-section" id="security">
+            <div class="container">
+              <div class="section-header">
+                <span class="section-tag">Security &amp; Compliance</span>
+                <h2 class="section-title">Bank-Grade Security You Can Trust</h2>
+                <p class="section-subtitle">
+                  ZenoPay is built on the same security infrastructure as top Indian banks.
+                  Every transaction is encrypted, monitored, and compliant.
+                </p>
+              </div>
+
+              <div class="sec-cert-row">
+                <div class="sec-cert">
+                  <div class="sec-cert-icon"><i class="fas fa-shield-halved" style="color:#2563EB;"></i></div>
+                  <div class="sec-cert-name">PCI DSS</div>
+                  <div class="sec-cert-sub">Level 1 Certified</div>
+                </div>
+                <div class="sec-cert">
+                  <div class="sec-cert-icon"><i class="fas fa-building-columns" style="color:#7C3AED;"></i></div>
+                  <div class="sec-cert-name">RBI Licensed</div>
+                  <div class="sec-cert-sub">Payment Aggregator</div>
+                </div>
+                <div class="sec-cert">
+                  <div class="sec-cert-icon"><i class="fas fa-lock" style="color:#059669;"></i></div>
+                  <div class="sec-cert-name">ISO 27001</div>
+                  <div class="sec-cert-sub">Info Security Certified</div>
+                </div>
+                <div class="sec-cert">
+                  <div class="sec-cert-icon"><i class="fas fa-user-shield" style="color:#D97706;"></i></div>
+                  <div class="sec-cert-name">GDPR Ready</div>
+                  <div class="sec-cert-sub">Data Privacy Compliant</div>
+                </div>
+                <div class="sec-cert">
+                  <div class="sec-cert-icon"><i class="fas fa-file-contract" style="color:#DC2626;"></i></div>
+                  <div class="sec-cert-name">NPCI Member</div>
+                  <div class="sec-cert-sub">UPI Certified Partner</div>
+                </div>
+              </div>
+
+              <div class="sec-features-grid">
+                <div class="sec-feature-card">
+                  <div class="sec-feat-icon" style="background:#EFF6FF;color:#2563EB;"><i class="fas fa-lock"></i></div>
+                  <h4>256-bit SSL Encryption</h4>
+                  <p>Every byte of data transmitted through ZenoPay is encrypted with military-grade TLS 1.3 protocol.</p>
+                </div>
+                <div class="sec-feature-card">
+                  <div class="sec-feat-icon" style="background:#ECFDF5;color:#059669;"><i class="fas fa-eye"></i></div>
+                  <h4>24/7 Fraud Monitoring</h4>
+                  <p>AI-powered fraud detection flags suspicious activity in real-time. Zero liability for unauthorized transactions.</p>
+                </div>
+                <div class="sec-feature-card">
+                  <div class="sec-feat-icon" style="background:#F5F3FF;color:#7C3AED;"><i class="fas fa-key"></i></div>
+                  <h4>3D Secure Authentication</h4>
+                  <p>Every card transaction verified with OTP-based 3D Secure 2.0 to prevent unauthorized charges.</p>
+                </div>
+                <div class="sec-feature-card">
+                  <div class="sec-feat-icon" style="background:#FFF7ED;color:#D97706;"><i class="fas fa-database"></i></div>
+                  <h4>No Card Data Stored</h4>
+                  <p>We use RBI-compliant tokenization. Your card details are never stored on our servers.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="comparison-section" id="comparison">
+            <div class="container">
+              <div class="section-header">
+                <span class="section-tag">Why ZenoPay</span>
+                <h2 class="section-title">How We Compare</h2>
+              </div>
+
+              <div class="comp-table-wrap">
+                <table class="comp-table">
+                  <thead>
+                    <tr>
+                      <th class="comp-feature-col">Feature</th>
+                      <th class="comp-us-col">
+                        <div class="comp-us-header">
+                          <span class="comp-us-logo">ZenoPay</span>
+                          <span class="comp-us-badge">Recommended</span>
+                        </div>
+                      </th>
+                      <th>Competitor A</th>
+                      <th>Competitor B</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% const compData = [
+                      ['Virtual Bank Account', true, false, false],
+                      ['Zero Setup Fee', true, true, false],
+                      ['Settlement in 2 Sec', true, false, false],
+                      ['UPI AutoPay', true, true, true],
+                      ['Bulk Payouts', true, true, false],
+                      ['RBI Licensed', true, true, true],
+                      ['Free API Sandbox', true, true, false],
+                      ['24/7 Phone Support', true, false, false],
+                      ['White-label Gateway', true, false, false],
+                      ['Zero MDR on UPI', true, false, true],
+                    ]; %>
+                    <% compData.forEach(([feature, us, a, b]) => { %>
+                      <tr class="comp-row">
+                        <td class="comp-feature"><%= feature %></td>
+                        <td class="comp-us-cell">
+                          <% if (us) { %>
+                            <i class="fas fa-circle-check" style="color:#10B981; font-size:1.1rem;"></i>
+                          <% } else { %>
+                            <i class="fas fa-circle-xmark" style="color:#CBD5E1; font-size:1.1rem;"></i>
+                          <% } %>
+                        </td>
+                        <td class="comp-cell">
+                          <% if (a) { %>
+                            <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                          <% } else { %>
+                            <i class="fas fa-circle-xmark" style="color:#CBD5E1;"></i>
+                          <% } %>
+                        </td>
+                        <td class="comp-cell">
+                          <% if (b) { %>
+                            <i class="fas fa-circle-check" style="color:#10B981;"></i>
+                          <% } else { %>
+                            <i class="fas fa-circle-xmark" style="color:#CBD5E1;"></i>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
           <!-- Pricing Section -->
           <section class="pricing-section" id="pricing">
             <div class="container">
@@ -563,6 +1110,16 @@
               <div class="section-header">
                 <h2 class="section-title">Simple, Transparent Pricing</h2>
                 <p class="section-subtitle">No hidden fees. No surprises. Pay only for what you use.</p>
+              </div>
+
+              <div class="pricing-toggle-wrap">
+                <span class="toggle-label" id="monthlyLabel" style="font-weight:700;color:#0F172A;">Monthly</span>
+                <label class="pricing-toggle-switch">
+                  <input type="checkbox" id="billingToggle" onchange="toggleBilling(this)">
+                  <span class="pricing-toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="annualLabel" style="color:#94A3B8;">Annual</span>
+                <span class="toggle-save-badge">Save 20%</span>
               </div>
 
               <div class="pricing-grid">
@@ -573,7 +1130,7 @@
                     <h3 class="pricing-plan-name">Starter</h3>
                     <div class="pricing-amount">
                       <span class="pricing-currency">₹</span>
-                      <span class="pricing-price">0</span>
+                      <span class="pricing-price" data-monthly="0" data-annual="0">0</span>
                       <span class="pricing-period">/month</span>
                     </div>
                     <p class="pricing-description">Perfect for getting started</p>
@@ -615,7 +1172,7 @@
                     <h3 class="pricing-plan-name">Growth</h3>
                     <div class="pricing-amount">
                       <span class="pricing-currency">₹</span>
-                      <span class="pricing-price">999</span>
+                      <span class="pricing-price" data-monthly="999" data-annual="799">999</span>
                       <span class="pricing-period">/month</span>
                     </div>
                     <p class="pricing-description">For growing businesses</p>
@@ -701,6 +1258,76 @@
               <p class="pricing-footer-note">
                 All plans include: Instant settlements • Bank-level security • 24/7 monitoring • Free API access
               </p>
+            </div>
+          </section>
+
+          <section class="use-cases-section" id="use-cases">
+            <div class="container">
+              <div class="section-header">
+                <span class="section-tag">Use Cases</span>
+                <h2 class="section-title">Built for Every Business</h2>
+                <p class="section-subtitle">
+                  From solo freelancers to enterprise companies — ZenoPay adapts to your needs.
+                </p>
+              </div>
+
+              <div class="uc-grid">
+                <div class="uc-card" style="--uc-color:#3B82F6;">
+                  <div class="uc-icon"><i class="fas fa-store"></i></div>
+                  <h3 class="uc-title">E-Commerce Stores</h3>
+                  <p class="uc-desc">
+                    Accept payments on your website or app. Auto-reconcile orders, manage refunds, and track revenue in real-time.
+                  </p>
+                  <ul class="uc-list">
+                    <li>Razorpay/Stripe-like checkout widget</li>
+                    <li>Abandoned cart payment links</li>
+                    <li>COD + prepaid order management</li>
+                  </ul>
+                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="uc-card" style="--uc-color:#10B981;">
+                  <div class="uc-icon"><i class="fas fa-code"></i></div>
+                  <h3 class="uc-title">SaaS &amp; Subscriptions</h3>
+                  <p class="uc-desc">
+                    Recurring billing, plan upgrades, failed payment retries — all automated. Zero engineering overhead.
+                  </p>
+                  <ul class="uc-list">
+                    <li>UPI AutoPay & mandate management</li>
+                    <li>Dunning — auto-retry on failure</li>
+                    <li>Prorated billing on plan changes</li>
+                  </ul>
+                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="uc-card" style="--uc-color:#7C3AED;">
+                  <div class="uc-icon"><i class="fas fa-laptop-code"></i></div>
+                  <h3 class="uc-title">Freelancers &amp; Agencies</h3>
+                  <p class="uc-desc">
+                    Send professional payment links to clients. Accept partial payments, deposits, and milestone-based billing.
+                  </p>
+                  <ul class="uc-list">
+                    <li>Payment links via WhatsApp/email</li>
+                    <li>Invoice with tax calculation</li>
+                    <li>Multi-currency for global clients</li>
+                  </ul>
+                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="uc-card" style="--uc-color:#D97706;">
+                  <div class="uc-icon"><i class="fas fa-building"></i></div>
+                  <h3 class="uc-title">Enterprise &amp; Large Business</h3>
+                  <p class="uc-desc">
+                    Bulk payouts, vendor management, custom API integrations, dedicated account manager, and SLA-backed support.
+                  </p>
+                  <ul class="uc-list">
+                    <li>Bulk payout to 10,000+ vendors</li>
+                    <li>White-label payment gateway</li>
+                    <li>Custom MIS reports & analytics</li>
+                  </ul>
+                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -1031,6 +1658,53 @@
       <script src="/js/header.js"></script>
       <script src="/js/dashboard.js"></script>
       <script src="/js/premium-interactions.js"></script>
+      <script>
+        (function initTicker() {
+          const items = document.querySelectorAll('.ticker-item');
+          if (!items.length) return;
+          let current = 0;
+          items[0].classList.add('active');
+          setInterval(() => {
+            items[current].classList.remove('active');
+            current = (current + 1) % items.length;
+            items[current].classList.add('active');
+          }, 2800);
+        })();
+
+        function toggleBilling(cb) {
+          const isAnnual = cb.checked;
+          const monthlyLabel = document.getElementById('monthlyLabel');
+          const annualLabel = document.getElementById('annualLabel');
+
+          if (monthlyLabel) {
+            monthlyLabel.style.cssText = isAnnual
+              ? 'color:#94A3B8;font-weight:500'
+              : 'color:#0F172A;font-weight:700';
+          }
+
+          if (annualLabel) {
+            annualLabel.style.cssText = isAnnual
+              ? 'color:#0F172A;font-weight:700'
+              : 'color:#94A3B8;font-weight:500';
+          }
+
+          document.querySelectorAll('[data-monthly][data-annual]').forEach((el) => {
+            el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+          });
+        }
+
+        function switchPMTab(tab, btn) {
+          document.querySelectorAll('.pm-content').forEach((c) => c.classList.remove('pm-content-active'));
+          document.querySelectorAll('.pm-tab').forEach((b) => b.classList.remove('pm-tab-active'));
+          const target = document.getElementById('tab-' + tab);
+          if (target) {
+            target.classList.add('pm-content-active');
+          }
+          if (btn) {
+            btn.classList.add('pm-tab-active');
+          }
+        }
+      </script>
 </body>
 
 </html>
