@@ -59,6 +59,20 @@
   color: #E2E8F0;
 }
 
+/* Footer separator line for cleaner transition */
+.modern-footer::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(107, 63, 160, 0.4),
+    rgba(59, 130, 246, 0.4),
+    transparent
+  );
+}
+
 /* ═══════════════════════════════════
    4. NEWSLETTER SECTION (ENHANCED)
    ═══════════════════════════════════ */
@@ -66,10 +80,12 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: -60px; /* Overlap effect if placed below hero */
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
   position: relative;
   z-index: 10;
-  padding: 0 20px;
+  padding: 80px 20px 100px !important;
+  background: #13181F;
 }
 
 .newsletter-container {
@@ -83,10 +99,38 @@
   gap: 40px;
   flex-wrap: wrap;
   box-sizing: border-box;
-  background: linear-gradient(90deg, #1E3A8A 0%, #4F46E5 100%);
+  background: linear-gradient(135deg, #1D4ED8 0%, #4F46E5 50%, #6B3FA0 100%);
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(79, 70, 229, 0.2);
-  margin-bottom: 60px;
+  margin: 0 auto 80px !important;
+  position: relative !important;
+  bottom: auto !important;
+  transform: none !important;
+  overflow: hidden;
+}
+
+.newsletter-container::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.newsletter-container::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .newsletter-content {
@@ -189,7 +233,7 @@
   width: 100%;
   border-top: 1px solid rgba(30, 41, 59, 0.2);
   border-bottom: 1px solid rgba(30, 41, 59, 0.2);
-  background: #0F172A; /* Solid dark background for better contrast */
+  background: #0F172A;
   padding: 60px 0;
   margin-bottom: 60px;
 }
@@ -267,7 +311,7 @@
    SECTION 2: MAIN FOOTER CONTENT
    ═══════════════════════════════════ */
 .main-footer {
-  background: #0F172A;
+  background: #0D1117;
   width: 100%;
   padding: 0;
 }
@@ -598,6 +642,16 @@
   gap: 24px;
 }
 
+footer,
+.site-footer,
+.modern-footer,
+.main-footer {
+  margin-top: 0 !important;
+  padding-top: 60px;
+  position: relative;
+  z-index: 0;
+}
+
 /* 10. COPYRIGHT COPYRIGHT (ENHANCED) */
 .copyright-left {
   flex: 0 1 auto;
@@ -726,7 +780,7 @@
 @media (max-width: 1024px) {
   .newsletter-container {
     max-width: 90%;
-    margin-top: -40px;
+    margin-top: 0;
   }
 
   .stats-bar-container {
@@ -758,15 +812,17 @@
    ═══════════════════════════════════ */
 @media (max-width: 768px) {
   .newsletter-section {
-    padding: 0 16px;
+    padding: 24px 16px 84px !important;
   }
 
   .newsletter-container {
     flex-direction: column;
     align-items: center;
-    padding: 30px 20px;
-    gap: 24px;
+    padding: 28px 18px;
+    gap: 20px;
     text-align: center;
+    margin: 0 auto 64px !important;
+    border-radius: 18px;
   }
   
   .newsletter-content {
@@ -774,7 +830,14 @@
   }
   
   .newsletter-headline {
-    font-size: 24px;
+    font-size: 22px;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .newsletter-subtext {
+    font-size: 14px;
+    line-height: 1.55;
   }
 
   .newsletter-form {
@@ -790,12 +853,15 @@
   .newsletter-input {
     width: 100%;
     border-radius: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    padding: 14px 16px;
   }
 
   .newsletter-btn {
     border-radius: 10px;
     width: 100%;
+    min-height: 48px;
+    padding: 14px 16px;
   }
 
   /* Stats Bar Mobile */
@@ -873,5 +939,25 @@
 
   .payment-badges-row {
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-section {
+    padding: 20px 12px 72px !important;
+  }
+
+  .newsletter-container {
+    padding: 24px 14px;
+    gap: 16px;
+    margin: 0 auto 56px !important;
+  }
+
+  .newsletter-headline {
+    font-size: 20px;
+  }
+
+  .newsletter-btn {
+    min-height: 46px;
   }
 }

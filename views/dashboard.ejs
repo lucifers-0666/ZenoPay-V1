@@ -240,55 +240,88 @@
             </div>
           </section>
 
+          <% const safeStats = {
+            activeUsers: (typeof stats !== 'undefined' && stats && typeof stats.activeUsers !== 'undefined') ? stats.activeUsers : 10000,
+            processed: (typeof stats !== 'undefined' && stats && typeof stats.processed !== 'undefined') ? stats.processed : 500,
+            uptime: (typeof stats !== 'undefined' && stats && typeof stats.uptime !== 'undefined') ? stats.uptime : 99.9,
+            settlementTime: (typeof stats !== 'undefined' && stats && typeof stats.settlementTime !== 'undefined') ? stats.settlementTime : 2,
+          }; %>
+
           <!-- Stats Section -->
           <section class="stats-section">
             <div class="container">
               <div class="stats-grid">
 
-                <!-- Stat 1 -->
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper cyan">
+                <!-- Active Users -->
+                <div class="stat-item stat-card">
+                  <div class="stat-icon-wrapper cyan stat-icon stat-icon-blue">
                     <i class="fas fa-users"></i>
                   </div>
-                  <div class="stat-number" data-target="10000">0</div>
-                  <div class="stat-label">Active Users</div>
-                  <div class="stat-trend positive">
-                    <i class="fas fa-chart-line"></i> 23% this month
+                  <div class="stat-number"
+                    id="stat-users"
+                    data-target="<%= safeStats.activeUsers %>"
+                    data-suffix=""
+                    data-prefix="">
+                    0
+                  </div>
+                  <div class="stat-label">ACTIVE USERS</div>
+                  <div class="stat-trend positive stat-badge stat-badge-green">
+                    <i class="fas fa-arrow-trend-up"></i>
+                    23% this month
                   </div>
                 </div>
 
-                <!-- Stat 2 -->
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper emerald">
-                    <i class="fas fa-dollar-sign"></i>
+                <!-- Processed -->
+                <div class="stat-item stat-card">
+                  <div class="stat-icon-wrapper emerald stat-icon stat-icon-green">
+                    <i class="fas fa-check-circle"></i>
                   </div>
-                  <div class="stat-number">$50M+</div>
-                  <div class="stat-label">Processed</div>
-                  <div class="stat-trend positive">
-                    <i class="fas fa-chart-line"></i> 45% growth
+                  <div class="stat-number"
+                    id="stat-processed"
+                    data-target="<%= safeStats.processed %>"
+                    data-suffix="Cr+"
+                    data-prefix="₹">
+                    ₹0
+                  </div>
+                  <div class="stat-label">PROCESSED</div>
+                  <div class="stat-trend positive stat-badge stat-badge-green">
+                    <i class="fas fa-arrow-trend-up"></i>
+                    45% growth
                   </div>
                 </div>
 
-                <!-- Stat 3 -->
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper blue">
-                    <i class="fas fa-shield-alt"></i>
+                <!-- Uptime -->
+                <div class="stat-item stat-card">
+                  <div class="stat-icon-wrapper blue stat-icon stat-icon-blue-light">
+                    <i class="fas fa-shield-halved"></i>
                   </div>
-                  <div class="stat-number">99.9%</div>
-                  <div class="stat-label">Uptime</div>
-                  <div class="stat-trend neutral">
+                  <div class="stat-number"
+                    id="stat-uptime"
+                    data-target="<%= safeStats.uptime %>"
+                    data-suffix="%"
+                    data-prefix="">
+                    0%
+                  </div>
+                  <div class="stat-label">UPTIME</div>
+                  <div class="stat-trend neutral stat-badge stat-badge-gray">
                     Last 12 months
                   </div>
                 </div>
 
-                <!-- Stat 4 -->
-                <div class="stat-item">
-                  <div class="stat-icon-wrapper amber">
+                <!-- Settlement Time -->
+                <div class="stat-item stat-card">
+                  <div class="stat-icon-wrapper amber stat-icon stat-icon-yellow">
                     <i class="fas fa-bolt"></i>
                   </div>
-                  <div class="stat-number">&lt;2sec</div>
-                  <div class="stat-label">Settlement Time</div>
-                  <div class="stat-trend neutral">
+                  <div class="stat-number"
+                    id="stat-settlement"
+                    data-target="<%= safeStats.settlementTime %>"
+                    data-suffix=" Sec"
+                    data-prefix="">
+                    0
+                  </div>
+                  <div class="stat-label">SETTLEMENT TIME</div>
+                  <div class="stat-trend neutral stat-badge stat-badge-gray">
                     Industry fastest
                   </div>
                 </div>

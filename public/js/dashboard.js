@@ -141,99 +141,68 @@
   // ====================================
   // 3. COUNTER ANIMATIONS
   // ====================================
-  function animateCounter(element, target) {
-    const duration = 2000; // 2 seconds
-    const start = 0;
-    
-    // Safety check - if target is invalid, do nothing
-    if (typeof target !== 'number' || isNaN(target)) {
-      return;
-    }
-
-    let startTime = null;
-
-    function update(currentTime) {
-      if (!startTime) startTime = currentTime;
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(Math.max(elapsed / duration, 0), 1);
-
-      // Easing function (ease-out)
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      
-      // Calculate current value carefully
-      let current = Math.floor(start + (target - start) * easeOut);
-      
-      // Safety net for NaN during calculation
-      if (isNaN(current)) {
-        current = start;
-      }
-
-      element.textContent = current.toLocaleString();
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      } else {
-        // Ensure final value is exactly target
-        element.textContent = target.toLocaleString();
-      }
-    }
-
-    requestAnimationFrame(update);
-  }
-
   function initCounterAnimations() {
-    // First, ensure all stat-number elements are visible with their text
-    const allStatNumbers = document.querySelectorAll('.stat-number');
-    allStatNumbers.forEach(function (element) {
-      // If element is empty or shows 0, and has no data-target, keep its existing content
-      const hasDataTarget = element.hasAttribute('data-target');
-      const currentText = element.textContent.trim();
+    function animateCounters() {
+      const counters = document.querySelectorAll('[data-target]');
 
-      if (!hasDataTarget && (!currentText || currentText === '0')) {
-        // This is a static number element that should display as-is
-        // Don't modify it
-      } else if (!hasDataTarget && currentText) {
-        // Static number with content - ensure it's visible
-        element.style.opacity = '1';
-      }
-    });
+      counters.forEach((counter) => {
+        const target = parseFloat(counter.dataset.target);
 
-    const counters = document.querySelectorAll('.stat-number[data-target]');
+        if (isNaN(target)) {
+          console.warn('Counter has invalid target:', counter.dataset.target);
+          counter.textContent =
+            (counter.dataset.prefix || '') +
+            (counter.dataset.target || '0') +
+            (counter.dataset.suffix || '');
+          return;
+        }
 
-    if (counters.length === 0) {
-      return;
+        const prefix = counter.dataset.prefix || '';
+        const suffix = counter.dataset.suffix || '';
+        const isDecimal = target % 1 !== 0;
+        const duration = 2000;
+        const steps = 60;
+        const increment = target / steps;
+        let current = 0;
+        let step = 0;
+
+        const timer = setInterval(() => {
+          step += 1;
+          current += increment;
+
+          if (step >= steps) {
+            current = target;
+            clearInterval(timer);
+          }
+
+          counter.textContent =
+            prefix +
+            (isDecimal
+              ? current.toFixed(1)
+              : Math.floor(current).toLocaleString('en-IN')) +
+            suffix;
+        }, duration / steps);
+      });
     }
 
-    const observerOptions = {
-      threshold: 0.3,
-      rootMargin: '0px'
-    };
+    const statsSection = document.querySelector('.stats-section, #stats, .stats-grid');
 
-    const observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          const element = entry.target;
-          const targetValue = element.getAttribute('data-target');
-          const target = parseInt(targetValue, 10);
-
-          // Validate the parsed number
-          if (!isNaN(target) && target > 0) {
-            // Set initial value to 0 before animation
-            element.textContent = '0';
-            animateCounter(element, target);
-          } else {
-            // For non-numeric values, just display them as-is
-            // This handles cases like "$50M+", "99.9%", "<2sec"
-            element.textContent = targetValue || '0';
-          }
-          observer.unobserve(element);
-        }
-      });
-    }, observerOptions);
-
-    counters.forEach(function (counter) {
-      observer.observe(counter);
-    });
+    if (statsSection) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              animateCounters();
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      observer.observe(statsSection);
+    } else {
+      window.addEventListener('load', animateCounters);
+    }
   }
 
   // ====================================

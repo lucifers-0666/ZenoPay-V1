@@ -2847,3 +2847,278 @@ footer {
     transform: translateY(-5px);
   }
 }
+
+/* ==========================================================================
+   Landing Page Consistency Overrides (NaN/Spacing/Color Harmonization)
+   ========================================================================== */
+
+:root {
+  --zeno-purple: #6B3FA0;
+  --zeno-purple-dark: #4A2680;
+  --zeno-blue: #3B82F6;
+  --zeno-blue-dark: #1D4ED8;
+  --zeno-dark: #0D1117;
+  --zeno-dark-2: #13181F;
+  --zeno-dark-card: #1A2235;
+  --zeno-white: #FFFFFF;
+  --zeno-text-muted: #94A3B8;
+}
+
+/* Hero continuity */
+.hero-guest,
+.hero-section,
+section.hero {
+  background: linear-gradient(135deg, #2D1B69 0%, #6B3FA0 50%, #8B5CF6 100%) !important;
+}
+
+/* Section rhythm */
+main > section,
+.landing-page > section {
+  position: relative;
+}
+
+section.white-section,
+.why-section,
+.pricing-section,
+.faq-section,
+.steps-section,
+.integration-section,
+.testimonials-section,
+.features-section {
+  padding: 100px 0;
+  background: #FFFFFF;
+}
+
+.stats-section,
+.how-it-works-section,
+section.stats,
+.statistics-section {
+  padding: 90px 0;
+  background: #F8F9FF !important;
+  position: relative;
+  border-top: none;
+  border-bottom: none;
+}
+
+.stats-section::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(107, 63, 160, 0.08), transparent);
+  pointer-events: none;
+}
+
+/* Stats cards */
+.stats-section .stat-item,
+.stats-section .stat-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(107, 63, 160, 0.1) !important;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(107, 63, 160, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.25s ease;
+}
+
+.stats-section .stat-item:hover,
+.stats-section .stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(107, 63, 160, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(107, 63, 160, 0.2) !important;
+}
+
+.stats-section .stat-icon,
+.stats-section .stat-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.4rem;
+}
+
+.stats-section .stat-icon-blue,
+.stats-section .stat-icon-wrapper.cyan {
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE) !important;
+  color: #1D4ED8 !important;
+}
+
+.stats-section .stat-icon-green,
+.stats-section .stat-icon-wrapper.emerald {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5) !important;
+  color: #059669 !important;
+}
+
+.stats-section .stat-icon-blue-light,
+.stats-section .stat-icon-wrapper.blue {
+  background: linear-gradient(135deg, #EFF6FF, #BFDBFE) !important;
+  color: #2563EB !important;
+}
+
+.stats-section .stat-icon-yellow,
+.stats-section .stat-icon-wrapper.amber {
+  background: linear-gradient(135deg, #FFFBEB, #FDE68A) !important;
+  color: #D97706 !important;
+}
+
+.stats-section .stat-number {
+  font-size: 2.4rem !important;
+  font-weight: 900 !important;
+  color: #0F172A !important;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stats-section .stat-label {
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  color: #94A3B8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.stats-section .stat-badge,
+.stats-section .stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stats-section .stat-badge-green,
+.stats-section .stat-trend.positive {
+  background: #ECFDF5 !important;
+  color: #059669 !important;
+  border: 1px solid #A7F3D0;
+}
+
+.stats-section .stat-badge-gray,
+.stats-section .stat-trend.neutral {
+  background: #F1F5F9 !important;
+  color: #64748B !important;
+  border: 1px solid #E2E8F0;
+}
+
+/* Features/card harmonization */
+.feature-card {
+  border: 1px solid #F1F5F9;
+  border-radius: 16px;
+  transition: all 0.25s ease;
+}
+
+.feature-card:hover {
+  border-color: rgba(107, 63, 160, 0.15);
+  box-shadow: 0 8px 30px rgba(107, 63, 160, 0.08);
+  transform: translateY(-3px);
+}
+
+/* CTA spacing before footer */
+.businesses-cta-section,
+.join-cta-section,
+.final-cta-section {
+  padding-bottom: 100px !important;
+  margin-bottom: 0 !important;
+  z-index: 1;
+  background: linear-gradient(135deg, #2D1B69, #4A2680);
+}
+
+/* CTA button consistency */
+.btn-primary,
+.hero .cta-btn-primary,
+.btn-hero-primary {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED) !important;
+  border: none !important;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-weight: 700;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+}
+
+.btn-secondary,
+.hero .cta-btn-secondary,
+.btn-hero-secondary {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-weight: 600;
+  color: #fff;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover,
+.btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Popular plan emphasis */
+.pricing-card.popular,
+.pricing-card.featured {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+}
+
+/* Shared container consistency */
+.container,
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Mobile CTA polish */
+@media (max-width: 768px) {
+  .hero-cta-group,
+  .final-cta-buttons {
+    gap: 12px;
+  }
+
+  .btn-hero,
+  .btn-final-cta,
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    min-height: 48px;
+    padding: 13px 18px;
+    border-radius: 12px;
+  }
+
+  .final-cta-section {
+    padding-bottom: 92px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-cta-group,
+  .final-cta-buttons {
+    gap: 10px;
+  }
+
+  .btn-hero,
+  .btn-final-cta,
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    min-height: 46px;
+    padding: 12px 14px;
+  }
+}
