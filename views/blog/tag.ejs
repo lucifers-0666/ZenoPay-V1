@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>#<%= tag.name %> — ZenoPay Blog</title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <%- include('./partials/blog-sub-header', {
+    title: '#' + tag.name,
+    subtitle: 'Articles tagged with "' + tag.name + '"',
+    icon: 'fas fa-tag',
+    breadcrumb: 'Tag: #' + tag.name,
+    bgColor: 'linear-gradient(135deg, #1E0A3C 0%, #4A2680 50%, #7C3AED 100%)',
+    count: totalPosts
+  }) %>
+
+  <main class="blog-main">
+    <div class="container">
+      <div class="blog-list-topbar">
+        <p class="blog-list-info">Articles tagged <span class="tag-highlight">#<%= tag.name %></span></p>
+        <a href="/blog" class="back-to-blog-btn"><i class="fas fa-arrow-left"></i> All Articles</a>
+      </div>
+
+      <% if (relatedTags && relatedTags.length) { %>
+        <div class="related-tags-bar">
+          <span class="related-tags-label">Related:</span>
+          <% relatedTags.forEach((t) => { %>
+            <a href="/blog/tag/<%= encodeURIComponent(t.slug || t.name) %>" class="tag-item"><%= t.name %></a>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <div class="blog-posts-grid">
+        <% if (posts && posts.length > 0) { %>
+          <% posts.forEach((post) => { %>
+            <article class="blog-card" onclick="window.location='/blog/<%= post.slug %>'">
+              <div class="blog-card-progress"></div>
+              <div class="blog-card-img-wrap">
+                <img src="<%= post.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80' %>" alt="<%= post.title %>" loading="lazy" />
+                <div class="blog-card-readtime-overlay"><i class="fas fa-clock"></i> <%= post.reading_time_minutes || 5 %> min</div>
+              </div>
+              <div class="blog-card-body">
+                <h3 class="blog-card-title"><%= post.title %></h3>
+                <p class="blog-card-excerpt"><%= post.excerpt || '' %></p>
+                <div class="blog-card-footer">
+                  <div class="blog-card-author">
+                    <div class="blog-card-avatar"><%= ((post.author_id?.FullName || 'Z')[0]).toUpperCase() %></div>
+                    <div>
+                      <div class="blog-card-author-name"><%= post.author_id?.FullName || 'ZenoPay Team' %></div>
+                      <div class="blog-card-date"><%= new Date(post.published_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></div>
+                    </div>
+                  </div>
+                  <a href="/blog/<%= post.slug %>" class="blog-card-read-btn" onclick="event.stopPropagation()">Read <i class="fas fa-arrow-right"></i></a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="blog-empty-state">
+            <div class="empty-icon"><i class="fas fa-tag"></i></div>
+            <h3>No articles for #<%= tag.name %></h3>
+            <p>No posts available for this tag yet.</p>
+            <a href="/blog" class="btn-primary">Browse All Articles</a>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (totalPages > 1) { %>
+        <div class="blog-pagination">
+          <a href="/blog/tag/<%= encodeURIComponent(tag.slug) %>?page=<%= currentPage - 1 %>" class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"><i class="fas fa-chevron-left"></i></a>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="/blog/tag/<%= encodeURIComponent(tag.slug) %>?page=<%= i %>" class="page-btn <%= i === currentPage ? 'page-active' : '' %>"><%= i %></a>
+          <% } %>
+          <a href="/blog/tag/<%= encodeURIComponent(tag.slug) %>?page=<%= currentPage + 1 %>" class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"><i class="fas fa-chevron-right"></i></a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

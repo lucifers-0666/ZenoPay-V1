@@ -64,6 +64,9 @@ router.get("/page/:page", BlogController.getBlogHome);
 // Blog search
 router.get("/search", BlogController.searchBlog);
 
+// Newsletter subscribe page
+router.get("/newsletter/subscribe", BlogController.getNewsletterSubscribePage);
+
 // Individual blog post
 router.get("/:slug", BlogController.getBlogPost);
 
@@ -74,6 +77,7 @@ router.get("/category/:slug", BlogController.getBlogCategory);
 router.get("/tag/:slug", BlogController.getBlogTag);
 
 // Author archive
+router.get("/author/:id", BlogController.getBlogAuthor);
 router.get("/author/:slug", BlogController.getBlogAuthor);
 
 // Comment operations (Public)

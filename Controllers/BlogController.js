@@ -137,15 +137,21 @@ class BlogController {
       const query = req.query.q || "";
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const category = req.query.category || null;
+      const sort = req.query.sort || "relevance";
       const postsPerPage = 12;
 
       if (query.length < 2) {
-        return res.render("blog/search-results", {
+        return res.render("blog/search", {
           query,
+          posts: [],
           results: [],
           totalResults: 0,
+          totalPosts: 0,
           currentPage: 1,
           totalPages: 0,
+          currentSort: sort,
+          currentNavPage: "blog",
+          isLoggedIn: !!req.user,
           user: req.user,
         });
       }
@@ -170,7 +176,13 @@ class BlogController {
         searchQuery,
         { score: { $meta: "textScore" } }
       )
-        .sort({ score: { $meta: "textScore" } })
+        .sort(
+          sort === "latest"
+            ? { published_at: -1 }
+            : sort === "popular"
+              ? { view_count: -1 }
+              : { score: { $meta: "textScore" } }
+        )
         .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
         .populate("author_id", "FullName")
@@ -189,14 +201,19 @@ class BlogController {
       const categories = await BlogCategory.find({ is_active: true }).lean();
       const totalPages = Math.ceil(totalResults / postsPerPage);
 
-      res.render("blog/search-results", {
+      res.render("blog/search", {
         query,
+        posts: results,
         results,
         totalResults,
+        totalPosts: totalResults,
         categories,
         currentPage: page,
         totalPages,
+        currentSort: sort,
         selectedCategory: category || "all",
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
         user: req.user,
       });
     } catch (error) {
@@ -294,7 +311,7 @@ class BlogController {
         },
       }).lean();
 
-      res.render("blog/blog-post", {
+      res.render("blog/show", {
         post,
         comments,
         relatedPosts,
@@ -317,6 +334,7 @@ class BlogController {
     try {
       const categorySlug = req.params.slug;
       const page = Math.max(1, parseInt(req.query.page) || 1);
+      const sort = req.query.sort || "latest";
       const postsPerPage = 12;
 
       const category = await BlogCategory.findOne({
@@ -334,26 +352,39 @@ class BlogController {
         published_at: { $lte: new Date() },
       });
 
+      const sortOptions =
+        sort === "popular"
+          ? { view_count: -1 }
+          : sort === "oldest"
+            ? { published_at: 1 }
+            : { published_at: -1 };
+
       const posts = await BlogPost.find({
         category_id: category._id,
         status: "published",
         published_at: { $lte: new Date() },
       })
-        .sort({ published_at: -1 })
+        .sort(sortOptions)
         .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
         .populate("author_id", "FullName Email")
+        .populate("category_id", "name slug color")
         .lean();
 
       const categories = await BlogCategory.find({ is_active: true }).lean();
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-      res.render("blog/category-archive", {
+      res.render("blog/category", {
         category,
+        slug: categorySlug,
         posts,
+        totalPosts,
         categories,
         currentPage: page,
         totalPages,
+        currentSort: sort,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
         user: req.user,
       });
     } catch (error) {
@@ -393,16 +424,27 @@ class BlogController {
         .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
         .populate("author_id", "FullName Email")
+        .populate("category_id", "name slug color")
+        .lean();
+
+      const relatedTags = await BlogTag.find({ _id: { $ne: tag._id } })
+        .sort({ post_count: -1 })
+        .limit(8)
+        .select("name slug")
         .lean();
 
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-      res.render("blog/tag-archive", {
+      res.render("blog/tag", {
         tag,
         posts,
+        relatedTags,
         currentPage: page,
         totalPages,
         postCount: totalPosts,
+        totalPosts,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
         user: req.user,
       });
     } catch (error) {
@@ -417,7 +459,7 @@ class BlogController {
    */
   static async getBlogAuthor(req, res) {
     try {
-      const authorId = req.params.slug;
+      const authorId = req.params.id || req.params.slug;
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const postsPerPage = 12;
 
@@ -448,12 +490,15 @@ class BlogController {
 
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-      res.render("blog/author-archive", {
+      res.render("blog/author", {
         author,
         posts,
         currentPage: page,
         totalPages,
         postCount: totalPosts,
+        totalPosts,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
         user: req.user,
       });
     } catch (error) {
@@ -597,6 +642,19 @@ class BlogController {
   }
 
   /**
+   * GET /blog/newsletter/subscribe
+   * Newsletter subscribe landing page
+   */
+  static async getNewsletterSubscribePage(req, res) {
+    return res.render("blog/newsletter-subscribe", {
+      success: false,
+      currentNavPage: "blog",
+      isLoggedIn: !!req.user,
+      user: req.user,
+    });
+  }
+
+  /**
    * GET /blog/newsletter/confirm/:token
    * Verify newsletter subscription
    */
@@ -609,9 +667,12 @@ class BlogController {
       });
 
       if (!subscriber) {
-        return res
-          .status(404)
-          .render("error", { error: "Verification link invalid or expired" });
+        return res.status(404).render("blog/newsletter-confirm", {
+          confirmed: false,
+          currentNavPage: "blog",
+          isLoggedIn: !!req.user,
+          user: req.user,
+        });
       }
 
       subscriber.status = "active";
@@ -619,12 +680,21 @@ class BlogController {
       subscriber.verification_token = null;
       await subscriber.save();
 
-      res.render("blog/subscription-confirmed", { email: subscriber.email, user: req.user });
+      res.render("blog/newsletter-confirm", {
+        confirmed: true,
+        email: subscriber.email,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
+        user: req.user,
+      });
     } catch (error) {
       console.error("Newsletter verification error:", error);
-      res
-        .status(500)
-        .render("error", { error: "Verification failed" });
+      res.status(500).render("blog/newsletter-confirm", {
+        confirmed: false,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
+        user: req.user,
+      });
     }
   }
 
@@ -641,19 +711,33 @@ class BlogController {
       });
 
       if (!subscriber) {
-        return res
-          .status(404)
-          .render("error", { error: "Unsubscribe link invalid" });
+        return res.status(404).render("blog/newsletter-unsubscribe", {
+          unsubscribed: false,
+          currentNavPage: "blog",
+          isLoggedIn: !!req.user,
+          user: req.user,
+        });
       }
 
       subscriber.status = "unsubscribed";
       subscriber.unsubscribed_at = new Date();
       await subscriber.save();
 
-      res.render("blog/unsubscribed", { email: subscriber.email, user: req.user });
+      res.render("blog/newsletter-unsubscribe", {
+        unsubscribed: true,
+        email: subscriber.email,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
+        user: req.user,
+      });
     } catch (error) {
       console.error("Unsubscribe error:", error);
-      res.status(500).render("error", { error: "Unsubscribe failed" });
+      res.status(500).render("blog/newsletter-unsubscribe", {
+        unsubscribed: false,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
+        user: req.user,
+      });
     }
   }
 }

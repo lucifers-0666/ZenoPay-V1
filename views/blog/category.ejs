@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= category.name %> — ZenoPay Blog</title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <% 
+    const CAT_CONFIG = {
+      'payment-solutions': { icon: 'fas fa-credit-card', desc: 'How-to guides and best practices for accepting payments', color: 'linear-gradient(135deg,#1D4ED8 0%, #4F46E5 50%, #6B3FA0 100%)' },
+      'security-compliance': { icon: 'fas fa-shield-halved', desc: 'Security, RBI and compliance insights for safer growth', color: 'linear-gradient(135deg,#065F46 0%, #059669 50%, #10B981 100%)' },
+      'developer-guides': { icon: 'fas fa-code', desc: 'API docs, webhooks and integration tutorials', color: 'linear-gradient(135deg,#4C1D95 0%, #7C3AED 50%, #8B5CF6 100%)' },
+      'industry-news': { icon: 'fas fa-newspaper', desc: 'Latest trends and updates from fintech ecosystem', color: 'linear-gradient(135deg,#92400E 0%, #D97706 50%, #F59E0B 100%)' },
+      'product-updates': { icon: 'fas fa-rocket', desc: 'Fresh features and product announcements from ZenoPay', color: 'linear-gradient(135deg,#9F1239 0%, #E11D48 50%, #F43F5E 100%)' },
+      'business-tips': { icon: 'fas fa-lightbulb', desc: 'Practical growth ideas for merchants and businesses', color: 'linear-gradient(135deg,#14532D 0%, #16A34A 50%, #22C55E 100%)' },
+      'case-studies': { icon: 'fas fa-chart-line', desc: 'Real stories from businesses using ZenoPay', color: 'linear-gradient(135deg,#581C87 0%, #9333EA 50%, #A855F7 100%)' },
+    };
+
+    const cfg = CAT_CONFIG[category.slug] || {
+      icon: 'fas fa-folder',
+      desc: category.description || 'Articles in this category',
+      color: 'linear-gradient(135deg,#1E0A3C 0%, #6B3FA0 100%)'
+    };
+
+    function getCategoryName(post) {
+      return post?.category_id?.name || category.name || 'General';
+    }
+
+    function getCategoryClass(catName) {
+      const map = {
+        'Payment Solutions': 'badge-payment-solutions',
+        'Security & Compliance': 'badge-security-compliance',
+        'Developer Guides': 'badge-developer-guides',
+        'Industry News': 'badge-industry-news',
+        'Product Updates': 'badge-product-updates',
+        'Business Tips': 'badge-business-tips',
+        'Case Studies': 'badge-case-studies',
+      };
+      return map[catName] || 'badge-default';
+    }
+
+    function getImage(post) {
+      return post?.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80';
+    }
+
+    function pageLink(pageNo) {
+      return '/blog/category/' + encodeURIComponent(slug || category.slug) + '?page=' + pageNo + '&sort=' + encodeURIComponent(currentSort || 'latest');
+    }
+  %>
+
+  <%- include('./partials/blog-sub-header', {
+    title: category.name,
+    subtitle: cfg.desc,
+    icon: cfg.icon,
+    breadcrumb: category.name,
+    bgColor: cfg.color,
+    count: totalPosts
+  }) %>
+
+  <main class="blog-main">
+    <div class="container">
+      <div class="blog-list-topbar">
+        <p class="blog-list-info">Showing <strong><%= posts.length %></strong> of <strong><%= totalPosts %></strong> articles</p>
+        <div class="blog-sort-wrap">
+          <span class="blog-sort-label">Sort by:</span>
+          <select class="blog-sort-select" onchange="window.location.href='/blog/category/<%= slug || category.slug %>?sort=' + this.value">
+            <option value="latest" <%= currentSort === 'latest' ? 'selected' : '' %>>Latest</option>
+            <option value="popular" <%= currentSort === 'popular' ? 'selected' : '' %>>Popular</option>
+            <option value="oldest" <%= currentSort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="blog-posts-grid">
+        <% if (posts && posts.length > 0) { %>
+          <% posts.forEach((post) => { %>
+            <article class="blog-card" onclick="window.location='/blog/<%= post.slug %>'">
+              <div class="blog-card-progress"></div>
+              <div class="blog-card-img-wrap">
+                <img src="<%= getImage(post) %>" alt="<%= post.title %>" loading="lazy" />
+                <div class="blog-card-badge-overlay">
+                  <span class="badge <%= getCategoryClass(getCategoryName(post)) %>"><%= getCategoryName(post) %></span>
+                </div>
+                <div class="blog-card-readtime-overlay"><i class="fas fa-clock"></i> <%= post.reading_time_minutes || 5 %> min</div>
+              </div>
+              <div class="blog-card-body">
+                <h3 class="blog-card-title"><%= post.title %></h3>
+                <p class="blog-card-excerpt"><%= post.excerpt || '' %></p>
+                <div class="blog-card-footer">
+                  <div class="blog-card-author">
+                    <div class="blog-card-avatar"><%= ((post.author_id?.FullName || 'Z')[0]).toUpperCase() %></div>
+                    <div>
+                      <div class="blog-card-author-name"><%= post.author_id?.FullName || 'ZenoPay Team' %></div>
+                      <div class="blog-card-date"><%= new Date(post.published_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></div>
+                    </div>
+                  </div>
+                  <a href="/blog/<%= post.slug %>" class="blog-card-read-btn" onclick="event.stopPropagation()">Read <i class="fas fa-arrow-right"></i></a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="blog-empty-state">
+            <div class="empty-icon"><i class="<%= cfg.icon %>"></i></div>
+            <h3>No articles yet</h3>
+            <p>We’re working on new content for this category.</p>
+            <a href="/blog" class="btn-primary">Browse All Articles</a>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (totalPages > 1) { %>
+        <div class="blog-pagination">
+          <a href="<%= pageLink(currentPage - 1) %>" class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"><i class="fas fa-chevron-left"></i></a>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="<%= pageLink(i) %>" class="page-btn <%= i === currentPage ? 'page-active' : '' %>"><%= i %></a>
+          <% } %>
+          <a href="<%= pageLink(currentPage + 1) %>" class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"><i class="fas fa-chevron-right"></i></a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

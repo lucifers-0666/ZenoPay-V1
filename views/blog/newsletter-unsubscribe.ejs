@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unsubscribe — ZenoPay Blog</title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <section class="newsletter-page-hero">
+    <div class="container">
+      <div class="newsletter-page-card">
+        <% if (unsubscribed) { %>
+          <div class="nl-icon nl-icon-muted"><i class="fas fa-bell-slash"></i></div>
+          <h1 class="nl-title">You've Unsubscribed</h1>
+          <p class="nl-desc">You've been removed from the ZenoPay newsletter.</p>
+          <div class="nl-resubscribe">Changed your mind? <a href="/blog/newsletter/subscribe">Subscribe again</a></div>
+          <a href="/blog" class="btn-secondary-dark">Back to Blog</a>
+        <% } else { %>
+          <div class="nl-icon nl-icon-error"><i class="fas fa-triangle-exclamation"></i></div>
+          <h1 class="nl-title">Invalid Link</h1>
+          <p class="nl-desc">This unsubscribe link is invalid or expired.</p>
+          <a href="/blog" class="btn-primary">Back to Blog</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

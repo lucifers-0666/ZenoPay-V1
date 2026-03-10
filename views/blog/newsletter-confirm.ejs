@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsletter Confirmation — ZenoPay Blog</title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <section class="newsletter-page-hero">
+    <div class="container">
+      <div class="newsletter-page-card">
+        <% if (confirmed) { %>
+          <div class="nl-icon nl-icon-success"><i class="fas fa-circle-check"></i></div>
+          <h1 class="nl-title">You're Subscribed! 🎊</h1>
+          <p class="nl-desc">Welcome to the ZenoPay newsletter.</p>
+          <div class="nl-what-to-expect">
+            <h4>What you'll receive:</h4>
+            <ul>
+              <li><i class="fas fa-check" style="color:#10B981;"></i> Weekly fintech insights</li>
+              <li><i class="fas fa-check" style="color:#10B981;"></i> Product updates</li>
+              <li><i class="fas fa-check" style="color:#10B981;"></i> Payments best practices</li>
+            </ul>
+          </div>
+          <a href="/blog" class="btn-primary">Read Latest Articles <i class="fas fa-arrow-right"></i></a>
+        <% } else { %>
+          <div class="nl-icon nl-icon-error"><i class="fas fa-triangle-exclamation"></i></div>
+          <h1 class="nl-title">Invalid or Expired Link</h1>
+          <p class="nl-desc">This confirmation link is invalid or has expired.</p>
+          <a href="/blog/newsletter/subscribe" class="btn-primary">Subscribe Again</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>
