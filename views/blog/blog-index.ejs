@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — ZenoPay</title>
+  <meta name="description" content="Insights on fintech, digital payments, security, and developer guides from ZenoPay.">
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <% 
+    const categoryImages = {
+      'payment-solutions': [
+        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1571867424488-4565932edb41?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'security-compliance': [
+        'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'developer-guides': [
+        'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'industry-news': [
+        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'product-updates': [
+        'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'business-tips': [
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'case-studies': [
+        'https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+      'default': [
+        'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=450&fit=crop&auto=format&q=80',
+        'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=450&fit=crop&auto=format&q=80',
+      ],
+    };
+
+    function normalizeCategorySlug(post) {
+      const slugRaw = post?.category_id?.slug || post?.category || post?.category_name || 'default';
+      return String(slugRaw)
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+    }
+
+    function getCategoryName(post) {
+      return post?.category_id?.name || post?.category || 'General';
+    }
+
+    function getCategoryClass(cat) {
+      const map = {
+        'Payment Solutions': 'badge-payment-solutions',
+        'Security & Compliance': 'badge-security-compliance',
+        'Developer Guides': 'badge-developer-guides',
+        'Industry News': 'badge-industry-news',
+        'Product Updates': 'badge-product-updates',
+        'Business Tips': 'badge-business-tips',
+        'Case Studies': 'badge-case-studies',
+      };
+      return map[cat] || 'badge-default';
+    }
+
+    function getBlogImage(post, fallbackIndex = 0) {
+      const existing = post?.featured_image?.url || post?.image || '';
+      if (existing && !existing.includes('placeholder') && !existing.includes('default')) {
+        return existing;
+      }
+      const slug = normalizeCategorySlug(post);
+      const imgs = categoryImages[slug] || categoryImages['default'];
+      const idSeed = post?._id ? parseInt(String(post._id).slice(-2), 16) : fallbackIndex;
+      return imgs[Math.abs(idSeed) % imgs.length];
+    }
+
+    const featured = featuredPost || (posts && posts.length ? posts[0] : null);
+    const listPosts = featured
+      ? (posts || []).filter((p) => String(p._id) !== String(featured._id))
+      : (posts || []);
+
+    function formatDate(dateLike) {
+      if (!dateLike) return '—';
+      return new Date(dateLike).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function pageLink(pageNo) {
+      let href = '/blog?page=' + pageNo;
+      if (selectedCategory && selectedCategory !== 'all') {
+        href += '&category=' + encodeURIComponent(selectedCategory);
+      }
+      if (sortBy) {
+        href += '&sort=' + encodeURIComponent(sortBy);
+      }
+      return href;
+    }
+  %>
+
+  <section class="blog-hero">
+    <div class="blog-hero-bg"></div>
+    <div class="container">
+      <div class="blog-hero-content">
+        <span class="blog-hero-tag">
+          <i class="fas fa-rss"></i>
+          Knowledge Hub
+        </span>
+        <h1 class="blog-hero-title">ZenoPay Blog</h1>
+        <p class="blog-hero-subtitle">Insights on fintech, payments, and digital finance</p>
+      </div>
+
+      <div class="blog-search-wrap">
+        <div class="blog-search-box">
+          <i class="fas fa-search blog-search-icon"></i>
+          <input
+            type="text"
+            id="blogSearch"
+            class="blog-search-input"
+            placeholder="Search articles, guides, news..."
+            oninput="handleBlogSearch(this.value)"
+            autocomplete="off"
+          >
+          <div class="blog-search-suggestions" id="searchSuggestions">
+            <div class="search-suggestion-item" onclick="useSuggestion('UPI Payments Guide')">
+              <i class="fas fa-fire" style="color:#F97316;"></i>
+              UPI Payments Guide
+            </div>
+            <div class="search-suggestion-item" onclick="useSuggestion('Payment Gateway Integration')">
+              <i class="fas fa-fire" style="color:#F97316;"></i>
+              Payment Gateway Integration
+            </div>
+            <div class="search-suggestion-item" onclick="useSuggestion('KYC Compliance')">
+              <i class="fas fa-fire" style="color:#F97316;"></i>
+              KYC Compliance
+            </div>
+          </div>
+          <button class="blog-search-btn" onclick="submitBlogSearch()">Search</button>
+        </div>
+        <div class="blog-search-chips">
+          <span class="chip-label">Trending:</span>
+          <a href="/blog?tag=upi" class="search-chip">UPI</a>
+          <a href="/blog?tag=kyc" class="search-chip">KYC</a>
+          <a href="/blog?tag=api" class="search-chip">API</a>
+          <a href="/blog?tag=security" class="search-chip">Security</a>
+          <a href="/blog?tag=fintech" class="search-chip">Fintech</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="blog-main">
+    <div class="container">
+      <div class="blog-layout">
+        <aside class="blog-sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-widget">
+              <h3 class="sidebar-widget-title">Categories</h3>
+              <% 
+                let totalPostCount = 0;
+                if (categories && categories.length > 0) {
+                  totalPostCount = categories.reduce((sum, cat) => sum + (cat.postCount || 0), 0);
+                }
+              %>
+              <a href="/blog" class="sidebar-category-item <%= selectedCategory === 'all' ? 'active' : '' %>">
+                <span>All Articles</span>
+                <span class="sidebar-category-count"><%= totalPostCount %></span>
+              </a>
+              <% if (categories && categories.length > 0) { %>
+                <% categories.forEach((cat) => { %>
+                  <a href="/blog?category=<%= cat.slug %>" class="sidebar-category-item <%= selectedCategory === cat.slug ? 'active' : '' %>">
+                    <span><%= cat.name %></span>
+                    <span class="sidebar-category-count"><%= cat.postCount || 0 %></span>
+                  </a>
+                <% }) %>
+              <% } %>
+            </div>
+
+            <div class="sidebar-newsletter">
+              <div class="sidebar-newsletter-icon"><i class="fas fa-envelope"></i></div>
+              <h4>Subscribe to Newsletter</h4>
+              <p>Get weekly updates on fintech trends, security, and payment growth strategies.</p>
+              <form class="sidebar-newsletter-form" onsubmit="subscribeNewsletter(event)">
+                <input type="email" id="newsletterEmail" class="sidebar-newsletter-input" placeholder="Your email address" required>
+                <button type="submit" class="sidebar-newsletter-btn">
+                  Subscribe
+                  <i class="fas fa-arrow-right"></i>
+                </button>
+              </form>
+            </div>
+
+            <div class="sidebar-widget">
+              <h3 class="sidebar-widget-title">Trending Posts</h3>
+              <% if (trendingPosts && trendingPosts.length > 0) { %>
+                <% trendingPosts.forEach((post, idx) => { %>
+                  <a href="/blog/<%= post.slug %>" class="trending-post-item">
+                    <img
+                      src="<%= getBlogImage(post, idx) %>"
+                      alt="<%= post.title %>"
+                      class="trending-post-thumb"
+                      loading="lazy"
+                      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=320&h=220&fit=crop&auto=format&q=75'"
+                    >
+                    <div>
+                      <div class="trending-post-title"><%= post.title %></div>
+                      <div class="trending-post-meta"><%= formatDate(post.published_at) %> • <%= post.reading_time_minutes || 5 %> min</div>
+                    </div>
+                  </a>
+                <% }) %>
+              <% } %>
+            </div>
+
+            <div class="sidebar-widget">
+              <h3 class="sidebar-widget-title">Popular Tags</h3>
+              <div class="tag-cloud">
+                <% if (popularTags && popularTags.length > 0) { %>
+                  <% popularTags.forEach((tag) => { %>
+                    <a href="/blog/tag/<%= tag.slug %>" class="tag-item"><%= tag.name %></a>
+                  <% }) %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="blog-content">
+          <div class="blog-filter-row">
+            <div class="blog-filter-tabs">
+              <a href="/blog" class="blog-filter-tab <%= selectedCategory === 'all' ? 'active' : '' %>">All Posts</a>
+              <% if (categories && categories.length > 0) { %>
+                <% categories.forEach((cat) => { %>
+                  <a href="/blog?category=<%= cat.slug %>" class="blog-filter-tab <%= selectedCategory === cat.slug ? 'active' : '' %>"><%= cat.name %></a>
+                <% }) %>
+              <% } %>
+            </div>
+            <div class="blog-sort-wrap">
+              <label class="blog-sort-label" for="sortSelect">Sort by:</label>
+              <select id="sortSelect" class="blog-sort-select" onchange="changeSortOrder(this.value)">
+                <option value="latest" <%= sortBy === 'latest' ? 'selected' : '' %>>Latest</option>
+                <option value="popular" <%= sortBy === 'popular' ? 'selected' : '' %>>Most Viewed</option>
+                <option value="trending" <%= sortBy === 'trending' ? 'selected' : '' %>>Trending</option>
+              </select>
+            </div>
+          </div>
+
+          <% if (featured) { %>
+            <article class="blog-featured" onclick="window.location='/blog/<%= featured.slug %>'">
+              <div class="blog-featured-img">
+                <img
+                  src="<%= getBlogImage(featured, 0) %>"
+                  alt="<%= featured.title %>"
+                  loading="eager"
+                  onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=600&fit=crop&auto=format&q=85'"
+                >
+                <div class="featured-img-overlay"></div>
+              </div>
+
+              <div class="blog-featured-body">
+                <div class="featured-top">
+                  <span class="badge <%= getCategoryClass(getCategoryName(featured)) %>"><%= getCategoryName(featured) %></span>
+                  <span class="featured-badge"><i class="fas fa-star"></i> Featured</span>
+                </div>
+                <h2 class="featured-title"><%= featured.title %></h2>
+                <p class="featured-excerpt"><%= featured.excerpt || featured.description || '' %></p>
+                <div class="featured-meta">
+                  <div class="blog-card-author">
+                    <div class="blog-card-avatar"><%= ((featured.author_id && featured.author_id.FullName) ? featured.author_id.FullName : 'Z')[0].toUpperCase() %></div>
+                    <div>
+                      <div class="blog-card-author-name"><%= (featured.author_id && featured.author_id.FullName) ? featured.author_id.FullName : 'ZenoPay Team' %></div>
+                      <div class="blog-card-date"><%= formatDate(featured.published_at || featured.createdAt) %></div>
+                    </div>
+                  </div>
+                  <a href="/blog/<%= featured.slug %>" class="btn-primary featured-cta" onclick="event.stopPropagation()">
+                    Read Article
+                    <i class="fas fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+            </article>
+          <% } %>
+
+          <% if (listPosts && listPosts.length > 0) { %>
+            <div class="blog-posts-grid">
+              <% listPosts.forEach((post, idx) => { %>
+                <article class="blog-card" onclick="window.location='/blog/<%= post.slug %>'">
+                  <div class="blog-card-progress"></div>
+
+                  <div class="blog-card-img-wrap">
+                    <img
+                      src="<%= getBlogImage(post, idx + 1) %>"
+                      alt="<%= post.title %>"
+                      loading="lazy"
+                      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
+                    >
+                    <div class="blog-card-badge-overlay">
+                      <span class="badge <%= getCategoryClass(getCategoryName(post)) %>"><%= getCategoryName(post) %></span>
+                    </div>
+                    <div class="blog-card-readtime-overlay">
+                      <i class="fas fa-clock"></i>
+                      <%= post.reading_time_minutes || post.readTime || '5' %> min
+                    </div>
+                  </div>
+
+                  <div class="blog-card-body">
+                    <h3 class="blog-card-title"><%= post.title %></h3>
+                    <p class="blog-card-excerpt"><%= post.excerpt || post.description || '' %></p>
+
+                    <div class="blog-card-footer">
+                      <div class="blog-card-author">
+                        <div class="blog-card-avatar"><%= ((post.author_id && post.author_id.FullName) ? post.author_id.FullName : 'D')[0].toUpperCase() %></div>
+                        <div>
+                          <div class="blog-card-author-name"><%= (post.author_id && post.author_id.FullName) ? post.author_id.FullName : 'ZenoPay Team' %></div>
+                          <div class="blog-card-date"><%= formatDate(post.published_at || post.createdAt) %></div>
+                        </div>
+                      </div>
+                      <a href="/blog/<%= post.slug %>" class="blog-card-read-btn" onclick="event.stopPropagation()">
+                        Read
+                        <i class="fas fa-arrow-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+
+            <% if (totalPages > 1) { %>
+              <div class="blog-pagination">
+                <a href="<%= pageLink(currentPage - 1) %>" class="page-btn page-prev <%= currentPage <= 1 ? 'disabled' : '' %>">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <a href="<%= pageLink(i) %>" class="page-btn <%= i === currentPage ? 'page-active' : '' %>"><%= i %></a>
+                <% } %>
+
+                <a href="<%= pageLink(currentPage + 1) %>" class="page-btn page-next <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h2>No articles found</h2>
+              <p>We couldn't find any articles matching your criteria. Try another category or search query.</p>
+              <a href="/blog" class="btn-primary">View All Posts</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    function handleBlogSearch(val) {
+      const sugg = document.getElementById('searchSuggestions');
+      if (!sugg) return;
+      if (val.length > 1) {
+        sugg.style.display = 'block';
+      } else {
+        sugg.style.display = 'none';
+      }
+    }
+
+    function useSuggestion(text) {
+      const input = document.getElementById('blogSearch');
+      if (!input) return;
+      input.value = text;
+      submitBlogSearch();
+    }
+
+    function submitBlogSearch() {
+      const val = (document.getElementById('blogSearch')?.value || '').trim();
+      if (val) {
+        window.location.href = '/blog/search?q=' + encodeURIComponent(val);
+      }
+    }
+
+    function subscribeNewsletter(event) {
+      event.preventDefault();
+      const email = document.getElementById('newsletterEmail')?.value;
+      if (!email) return;
+
+      fetch('/blog/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'blog_sidebar' })
+      })
+      .then((r) => r.json())
+      .then((data) => {
+        alert(data.message || 'Thank you for subscribing!');
+        const emailInput = document.getElementById('newsletterEmail');
+        if (emailInput) emailInput.value = '';
+      })
+      .catch((err) => {
+        console.error('Subscription error:', err);
+        alert('Subscription failed. Please try again.');
+      });
+    }
+
+    function changeSortOrder(value) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('sort', value);
+      params.set('page', '1');
+      window.location.href = '/blog?' + params.toString();
+    }
+
+    document.addEventListener('click', function (evt) {
+      const box = document.querySelector('.blog-search-box');
+      const suggestions = document.getElementById('searchSuggestions');
+      if (!box || !suggestions) return;
+      if (!box.contains(evt.target)) {
+        suggestions.style.display = 'none';
+      }
+    });
+
+    document.getElementById('blogSearch')?.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitBlogSearch();
+      }
+    });
+  </script>
+</body>
+</html>

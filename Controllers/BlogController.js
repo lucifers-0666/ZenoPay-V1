@@ -19,7 +19,13 @@ class BlogController {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const category = req.query.category || null;
       const sort = req.query.sort || "latest"; // latest, popular, trending
+      const viewTemplate = req.query.view || "blog-index";
       const postsPerPage = 12;
+
+      const allowedTemplates = new Set(["blog-index"]);
+      const templateToRender = allowedTemplates.has(viewTemplate)
+        ? viewTemplate
+        : "blog-index";
 
       // Build query
       let query = { status: "published", published_at: { $lte: new Date() } };
@@ -58,10 +64,34 @@ class BlogController {
         .populate("category_id", "name slug color")
         .lean();
 
-      // Get categories for sidebar
-      const categories = await BlogCategory.find({ is_active: true })
+      // Get categories for sidebar with live post counts
+      const categoryCounts = await BlogPost.aggregate([
+        {
+          $match: {
+            status: "published",
+            published_at: { $lte: new Date() },
+          },
+        },
+        {
+          $group: {
+            _id: "$category_id",
+            postCount: { $sum: 1 },
+          },
+        },
+      ]);
+
+      const categoryCountMap = new Map(
+        categoryCounts.map((item) => [String(item._id), item.postCount])
+      );
+
+      const categories = (await BlogCategory.find({ is_active: true })
         .sort({ display_order: 1 })
-        .lean();
+        .lean()).map((cat) => ({
+        ...cat,
+        postCount:
+          categoryCountMap.get(String(cat._id)) ??
+          (typeof cat.post_count === "number" ? cat.post_count : 0),
+      }));
 
       // Get popular tags
       const popularTags = await BlogTag.find()
@@ -78,7 +108,7 @@ class BlogController {
 
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-      res.render("blog/blog-home", {
+      res.render(`blog/${templateToRender}`, {
         featuredPost,
         posts,
         categories,
@@ -88,6 +118,8 @@ class BlogController {
         totalPages,
         selectedCategory: category || "all",
         sortBy: sort,
+        currentNavPage: "blog",
+        isLoggedIn: !!req.user,
         user: req.user,
       });
     } catch (error) {
