@@ -20,6 +20,37 @@ body {
   background: var(--blog-bg);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatY {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* Shared navbar (partial) basic support */
 .navbar {
   max-width: 1200px;
@@ -660,6 +691,7 @@ body {
   transition: all 0.3s ease;
   background: #fff;
   box-shadow: 0 8px 30px rgba(107, 63, 160, 0.07);
+  animation: fadeInUp 0.45s ease both;
 }
 
 .blog-featured:hover {
@@ -782,6 +814,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  animation: fadeInUp 0.45s ease both;
 }
 
 .blog-card:hover {
@@ -967,6 +1000,48 @@ body {
   background: #fff;
 }
 
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  text-decoration: none !important;
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+}
+
+/* remove unwanted underline/background artifacts on links */
+.blog-main a,
+.blog-sub-hero a,
+.newsletter-page-hero a,
+.blog-breadcrumb a,
+.blog-card a,
+.search-result-card a,
+.tag-item,
+.back-to-blog-btn,
+.blog-card-read-btn,
+.search-chip,
+.page-btn,
+.nl-resubscribe a,
+.nl-resubscribe-link {
+  text-decoration: none !important;
+  background-image: none !important;
+}
+
+.blog-main a:hover,
+.blog-sub-hero a:hover,
+.newsletter-page-hero a:hover,
+.blog-breadcrumb a:hover,
+.nl-resubscribe-link:hover {
+  text-decoration: none !important;
+}
+
 .page-btn:hover:not(.disabled) {
   border-color: #6B3FA0;
   color: #6B3FA0;
@@ -1113,6 +1188,7 @@ body {
   align-items: center;
   gap: 20px;
   margin-top: 16px;
+  animation: fadeInUp 0.5s ease both;
 }
 
 .blog-sub-hero-icon {
@@ -1128,6 +1204,57 @@ body {
   color: #fff;
   flex-shrink: 0;
   backdrop-filter: blur(10px);
+  animation: floatY 3.2s ease-in-out infinite;
+}
+
+.blog-sub-quick-links {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.blog-sub-quick-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.blog-sub-quick-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.blog-sub-hero-media {
+  margin-left: auto;
+  width: min(320px, 35%);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  animation: fadeInUp 0.6s ease both;
+}
+
+.blog-sub-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.blog-sub-hero-media:hover img {
+  transform: scale(1.04);
 }
 
 .blog-sub-hero-title {
@@ -1292,6 +1419,7 @@ body {
   cursor: pointer;
   transition: all 0.25s ease;
   align-items: stretch;
+  animation: fadeInUp 0.4s ease both;
 }
 
 .search-result-card:hover {
@@ -1403,6 +1531,7 @@ body {
   align-items: center;
   gap: 28px;
   margin-top: 20px;
+  animation: fadeInUp 0.5s ease both;
 }
 
 .author-hero-avatar {
@@ -1472,6 +1601,16 @@ body {
   padding: 48px 44px;
   text-align: center;
   box-shadow: 0 20px 60px rgba(107, 63, 160, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  animation: fadeInUp 0.5s ease both;
+}
+
+.nl-hero-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #F1F5F9;
 }
 
 .nl-icon {
@@ -1603,6 +1742,28 @@ body {
   text-decoration: none;
 }
 
+.nl-resubscribe-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #6B3FA0;
+  font-weight: 700;
+  padding: 8px 0;
+  text-decoration: none;
+}
+
+.nl-resubscribe-link::after {
+  content: "\f061";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 0.8rem;
+}
+
+.nl-resubscribe-link:hover {
+  color: #4F46E5;
+}
+
 @media (max-width: 640px) {
   .search-result-card {
     grid-template-columns: 1fr;
@@ -1620,6 +1781,12 @@ body {
   .author-hero-layout {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .blog-sub-hero-media {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
   }
 
   .newsletter-page-card {

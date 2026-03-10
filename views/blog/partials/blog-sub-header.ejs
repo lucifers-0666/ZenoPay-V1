@@ -22,7 +22,19 @@
             <%= count %> article<%= count !== 1 ? 's' : '' %>
           </span>
         <% } %>
+
+        <div class="blog-sub-quick-links">
+          <a href="/blog"><i class="fas fa-house"></i> All Posts</a>
+          <a href="/blog/search?q=payments"><i class="fas fa-search"></i> Search</a>
+          <a href="/blog/newsletter/subscribe"><i class="fas fa-envelope"></i> Newsletter</a>
+        </div>
       </div>
+
+      <% if (heroImage) { %>
+        <div class="blog-sub-hero-media">
+          <img src="<%= heroImage %>" alt="<%= title %>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=600&h=340&fit=crop&auto=format&q=80'" />
+        </div>
+      <% } %>
     </div>
   </div>
 </section>
