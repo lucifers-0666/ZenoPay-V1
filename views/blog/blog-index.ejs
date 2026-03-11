@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
+<body class="page-transition-ready">
   <%- include('../partials/navbar') %>
 
   <% 
@@ -303,7 +303,7 @@
                       src="<%= getBlogImage(post, idx + 1) %>"
                       alt="<%= post.title %>"
                       loading="lazy"
-                      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
+                      onerror="this.onerror=null;const fallbacks={'Payment Solutions':'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80','Security & Compliance':'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80','Developer Guides':'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80','Industry News':'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80','Product Updates':'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80','Business Tips':'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80','Case Studies':'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80'};this.src=fallbacks['<%= getCategoryName(post) %>']||'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
                     >
                     <div class="blog-card-badge-overlay">
                       <span class="badge <%= getCategoryClass(getCategoryName(post)) %>"><%= getCategoryName(post) %></span>
@@ -365,6 +365,7 @@
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/js/blog-animations.js"></script>
 
   <script>
     function handleBlogSearch(val) {

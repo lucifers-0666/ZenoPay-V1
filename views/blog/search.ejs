@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
+<body class="page-transition-ready">
   <%- include('../partials/navbar') %>
 
   <%- include('./partials/blog-sub-header', {
@@ -18,8 +18,7 @@
       : ('No results found for "' + query + '"'),
     icon: 'fas fa-magnifying-glass',
     breadcrumb: 'Search Results',
-    bgColor: 'linear-gradient(135deg, #1E0A3C 0%, #2D1B69 40%, #6B3FA0 100%)',
-    heroImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&h=500&fit=crop&auto=format&q=80'
+    bgColor: 'linear-gradient(135deg, #1E0A3C 0%, #2D1B69 40%, #6B3FA0 100%)'
   }) %>
 
   <main class="blog-main">
@@ -29,6 +28,13 @@
           <i class="fas fa-search blog-search-icon"></i>
           <input type="text" name="q" value="<%= query %>" class="blog-search-input" placeholder="Search again..." />
           <button type="submit" class="blog-search-btn">Search</button>
+        </div>
+        <div class="blog-search-chips" style="margin-top:12px;">
+          <span class="chip-label">Browse:</span>
+          <a href="/blog/category/payment-solutions" class="search-chip">Payments</a>
+          <a href="/blog/category/developer-guides" class="search-chip">Dev Guides</a>
+          <a href="/blog/category/security-compliance" class="search-chip">Security</a>
+          <a href="/blog/category/industry-news" class="search-chip">News</a>
         </div>
       </form>
 
@@ -47,9 +53,15 @@
 
         <div class="search-results-list">
           <% posts.forEach((post) => { %>
+            <% const catName = (post.category_id && post.category_id.name) ? post.category_id.name : 'General'; %>
             <article class="search-result-card" onclick="window.location='/blog/<%= post.slug %>'">
               <div class="search-result-img">
-                <img src="<%= post.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=300&h=200&fit=crop&auto=format&q=80' %>" alt="<%= post.title %>" loading="lazy" />
+                <img
+                  src="<%= post.image || post.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=300&h=200&fit=crop&auto=format&q=80' %>"
+                  alt="<%= post.title %>"
+                  loading="lazy"
+                  onerror="this.onerror=null;const fallbacks={'Payment Solutions':'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80','Security & Compliance':'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80','Developer Guides':'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80','Industry News':'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80','Product Updates':'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80','Business Tips':'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80','Case Studies':'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80'};this.src=fallbacks['<%= catName %>']||'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
+                />
               </div>
               <div class="search-result-body">
                 <div class="search-result-top">
@@ -63,7 +75,7 @@
                 <h3 class="search-result-title"><%= post.title %></h3>
                 <p class="search-result-excerpt"><%- post.excerpt || '' %></p>
                 <div class="search-result-footer">
-                  <span class="search-result-url">/blog/<%= post.slug %></span>
+                  <span class="search-result-url" data-url="/blog/<%= post.slug %>">/blog/<%= post.slug %></span>
                   <a href="/blog/<%= post.slug %>" class="blog-card-read-btn" onclick="event.stopPropagation()">Read Article <i class="fas fa-arrow-right"></i></a>
                 </div>
               </div>
@@ -97,5 +109,6 @@
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/js/blog-animations.js"></script>
 </body>
 </html>

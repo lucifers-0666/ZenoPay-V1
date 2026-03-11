@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
+<body class="page-transition-ready">
   <%- include('../partials/navbar') %>
 
   <section class="blog-sub-hero" style="--hero-color: linear-gradient(135deg, #1E0A3C 0%, #2D1B69 35%, #4A2680 65%, #6B3FA0 100%)">
@@ -47,10 +47,16 @@
       <div class="blog-posts-grid">
         <% if (posts && posts.length > 0) { %>
           <% posts.forEach((post) => { %>
+            <% const catName = (post.category_id && post.category_id.name) ? post.category_id.name : 'General'; %>
             <article class="blog-card" onclick="window.location='/blog/<%= post.slug %>'">
               <div class="blog-card-progress"></div>
               <div class="blog-card-img-wrap">
-                <img src="<%= post.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80' %>" alt="<%= post.title %>" loading="lazy" />
+                <img
+                  src="<%= post.image || post.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80' %>"
+                  alt="<%= post.title %>"
+                  loading="lazy"
+                  onerror="this.onerror=null;const fallbacks={'Payment Solutions':'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80','Security & Compliance':'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80','Developer Guides':'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80','Industry News':'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80','Product Updates':'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80','Business Tips':'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80','Case Studies':'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80'};this.src=fallbacks['<%= catName %>']||'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
+                />
                 <div class="blog-card-readtime-overlay"><i class="fas fa-clock"></i> <%= post.reading_time_minutes || 5 %> min</div>
               </div>
               <div class="blog-card-body">
@@ -76,5 +82,6 @@
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/js/blog-animations.js"></script>
 </body>
 </html>

@@ -1,57 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subscribe — ZenoPay Blog</title>
-  <link rel="stylesheet" href="/css/header.css" />
-  <link rel="stylesheet" href="/css/blog.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter — ZenoPay Blog</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/blog.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-  <%- include('../partials/navbar') %>
+<body class="page-transition-ready">
+<%- include('../partials/navbar') %>
 
-  <section class="newsletter-page-hero">
-    <div class="container">
-      <div class="newsletter-page-card">
-        <img class="nl-hero-image" src="https://images.unsplash.com/photo-1586769852836-bc069f19e1b6?w=900&h=500&fit=crop&auto=format&q=80" alt="Newsletter updates" loading="lazy" />
-        <% if (success) { %>
-          <div class="nl-icon nl-icon-success"><i class="fas fa-envelope-circle-check"></i></div>
-          <h1 class="nl-title">Almost There! 🎉</h1>
-          <p class="nl-desc">We've sent a confirmation email to <strong><%= email %></strong>. Please verify from your inbox.</p>
-          <a href="/blog" class="btn-primary">Back to Blog</a>
-        <% } else { %>
-          <div class="nl-icon nl-icon-default"><i class="fas fa-envelope"></i></div>
-          <h1 class="nl-title">Stay Ahead in Fintech</h1>
-          <p class="nl-desc">Join our newsletter for weekly insights on payments and growth.</p>
-          <form class="nl-form" onsubmit="subscribeFromPage(event)">
-            <input type="email" class="nl-input" id="newsletterEmailPage" placeholder="Your email address" required />
-            <button type="submit" class="btn-primary nl-submit-btn"><i class="fas fa-paper-plane"></i> Subscribe for Free</button>
-          </form>
-          <p class="nl-privacy"><i class="fas fa-lock" style="color:#10B981;"></i> No spam ever. Unsubscribe anytime.</p>
-        <% } %>
+<section class="newsletter-page-section">
+  <div class="container">
+    <div class="newsletter-page-card animate-fade-up">
+
+      <% if (success) { %>
+
+      <div class="nl-success-animation">
+        <div class="nl-icon nl-icon-success animate-pop">
+          <i class="fas fa-envelope-circle-check"></i>
+        </div>
+        <div class="nl-confetti">
+          <span></span><span></span>
+          <span></span><span></span>
+          <span></span><span></span>
+        </div>
       </div>
+
+      <h1 class="nl-title">Almost There! 🎉</h1>
+      <p class="nl-desc">
+        We've sent a confirmation email to<br>
+        <strong class="nl-email-highlight"><%= email %></strong>
+      </p>
+
+      <div class="nl-steps">
+        <div class="nl-step nl-step-done">
+          <div class="nl-step-num"><i class="fas fa-check"></i></div>
+          <span>Email entered</span>
+        </div>
+        <div class="nl-step-line nl-step-line-done"></div>
+        <div class="nl-step nl-step-active">
+          <div class="nl-step-num nl-pulse">2</div>
+          <span>Confirm email</span>
+        </div>
+        <div class="nl-step-line"></div>
+        <div class="nl-step">
+          <div class="nl-step-num">3</div>
+          <span>Get updates</span>
+        </div>
+      </div>
+
+      <div class="nl-action-group">
+        <a href="/blog" class="btn-primary">
+          <i class="fas fa-arrow-left"></i>
+          Back to Blog
+        </a>
+      </div>
+
+      <% } else { %>
+
+      <div class="nl-icon nl-icon-default animate-float">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+
+      <h1 class="nl-title">Stay Ahead in Fintech</h1>
+      <p class="nl-desc">
+        Join <strong>10,000+</strong>
+        subscribers getting weekly insights
+        on payments, fintech &amp;
+        digital banking.
+      </p>
+
+      <div class="nl-benefits">
+        <div class="nl-benefit-item">
+          <div class="nl-benefit-icon">
+            <i class="fas fa-bolt" style="color:#F59E0B;"></i>
+          </div>
+          <span>Weekly fintech insights</span>
+        </div>
+        <div class="nl-benefit-item">
+          <div class="nl-benefit-icon">
+            <i class="fas fa-rocket" style="color:#6B3FA0;"></i>
+          </div>
+          <span>ZenoPay product updates</span>
+        </div>
+        <div class="nl-benefit-item">
+          <div class="nl-benefit-icon">
+            <i class="fas fa-shield-halved" style="color:#10B981;"></i>
+          </div>
+          <span>Security tips & compliance</span>
+        </div>
+      </div>
+
+      <form action="/blog/newsletter/subscribe" method="POST" class="nl-form" id="nlForm">
+        <div class="nl-input-group">
+          <i class="fas fa-user nl-input-icon"></i>
+          <input type="text" name="name" class="nl-input" placeholder="Your name">
+        </div>
+        <div class="nl-input-group">
+          <i class="fas fa-envelope nl-input-icon"></i>
+          <input type="email" name="email" class="nl-input" placeholder="your@email.com" required>
+        </div>
+        <button type="submit" class="btn-primary nl-submit-btn" id="nlSubmitBtn">
+          <span class="nl-btn-text">
+            <i class="fas fa-paper-plane"></i>
+            Subscribe for Free
+          </span>
+          <span class="nl-btn-loading" style="display:none;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            Subscribing...
+          </span>
+        </button>
+      </form>
+
+      <p class="nl-privacy">
+        <i class="fas fa-lock" style="color:#10B981;font-size:0.75rem;"></i>
+        No spam ever.
+        Unsubscribe anytime with one click.
+      </p>
+
+      <% } %>
     </div>
-  </section>
+  </div>
+</section>
 
-  <%- include('../partials/footer') %>
-
-  <script>
-    function subscribeFromPage(event) {
-      event.preventDefault();
-      const email = document.getElementById('newsletterEmailPage').value;
-      fetch('/blog/newsletter/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'newsletter_page' })
-      })
-      .then((r) => r.json())
-      .then((data) => {
-        alert(data.message || 'Please check your inbox to confirm.');
-        window.location.reload();
-      })
-      .catch(() => alert('Subscription failed. Please try again.'));
-    }
-  </script>
+<%- include('../partials/footer') %>
+<script src="/js/blog-animations.js"></script>
+<script>
+const form = document.getElementById('nlForm');
+if (form) {
+  form.addEventListener('submit', () => {
+    document.querySelector('.nl-btn-text').style.display = 'none';
+    document.querySelector('.nl-btn-loading').style.display = 'flex';
+  });
+}
+</script>
 </body>
 </html>

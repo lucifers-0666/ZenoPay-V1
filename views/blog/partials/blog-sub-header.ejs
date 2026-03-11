@@ -1,4 +1,4 @@
-<section class="blog-sub-hero" style="--hero-color: <%= bgColor || 'linear-gradient(135deg, #1E0A3C 0%, #2D1B69 35%, #4A2680 65%, #6B3FA0 100%)' %>">
+<section class="blog-sub-hero <%= heroClass || '' %>" style="<%= heroStyle || ('--hero-color: ' + (bgColor || 'linear-gradient(135deg, #1E0A3C 0%, #2D1B69 35%, #4A2680 65%, #6B3FA0 100%)')) %>">
   <div class="blog-sub-hero-bg"></div>
   <div class="container">
     <nav class="blog-breadcrumb">
@@ -30,11 +30,6 @@
         </div>
       </div>
 
-      <% if (heroImage) { %>
-        <div class="blog-sub-hero-media">
-          <img src="<%= heroImage %>" alt="<%= title %>" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=600&h=340&fit=crop&auto=format&q=80'" />
-        </div>
-      <% } %>
     </div>
   </div>
 </section>

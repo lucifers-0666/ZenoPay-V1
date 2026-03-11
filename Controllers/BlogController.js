@@ -7,6 +7,68 @@ const BlogAnalytics = require("../Models/BlogAnalytics");
 const User = require("../Models/ZenoPayUser");
 const { body, validationResult, query } = require("express-validator");
 
+const CATEGORY_IMAGES = {
+  "Payment Solutions": [
+    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1580519542036-c47de6196ba5?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Security & Compliance": [
+    "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Developer Guides": [
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Industry News": [
+    "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Product Updates": [
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Business Tips": [
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+  "Case Studies": [
+    "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=450&fit=crop&auto=format&q=80",
+  ],
+};
+
+function getCategoryDefaultImage(post) {
+  const cat =
+    post?.category_id?.name || post?.category || post?.category_name || "";
+  const imgs = CATEGORY_IMAGES[cat] || [
+    "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80",
+    "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=450&fit=crop&auto=format&q=80",
+  ];
+
+  const seed = post?._id ? parseInt(post._id.toString().slice(-2), 16) : 0;
+  return imgs[seed % imgs.length];
+}
+
+function withResolvedImage(posts = []) {
+  return posts.map((p) => {
+    const existing = p?.featured_image?.url || p?.image || "";
+    const isHttpImage = typeof existing === "string" && /^https?:\/\//i.test(existing);
+    return {
+      ...p,
+      image: isHttpImage ? existing : getCategoryDefaultImage(p),
+    };
+  });
+}
+
 class BlogController {
   // ============ PUBLIC BLOG PAGES ============
 
@@ -106,14 +168,19 @@ class BlogController {
         .select("_id title slug published_at reading_time_minutes")
         .lean();
 
+      const resolvedPosts = withResolvedImage(posts);
+      const resolvedTrending = withResolvedImage(trendingPosts);
+      const resolvedFeatured = featuredPost
+        ? withResolvedImage([featuredPost])[0]
+        : null;
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
       res.render(`blog/${templateToRender}`, {
-        featuredPost,
-        posts,
+        featuredPost: resolvedFeatured,
+        posts: resolvedPosts,
         categories,
         popularTags,
-        trendingPosts,
+        trendingPosts: resolvedTrending,
         currentPage: page,
         totalPages,
         selectedCategory: category || "all",
@@ -199,12 +266,13 @@ class BlogController {
       });
 
       const categories = await BlogCategory.find({ is_active: true }).lean();
+      const resolvedResults = withResolvedImage(results);
       const totalPages = Math.ceil(totalResults / postsPerPage);
 
       res.render("blog/search", {
         query,
-        posts: results,
-        results,
+        posts: resolvedResults,
+        results: resolvedResults,
         totalResults,
         totalPosts: totalResults,
         categories,
@@ -372,12 +440,13 @@ class BlogController {
         .lean();
 
       const categories = await BlogCategory.find({ is_active: true }).lean();
+      const resolvedPosts = withResolvedImage(posts);
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
       res.render("blog/category", {
         category,
         slug: categorySlug,
-        posts,
+        posts: resolvedPosts,
         totalPosts,
         categories,
         currentPage: page,
@@ -433,11 +502,12 @@ class BlogController {
         .select("name slug")
         .lean();
 
+      const resolvedPosts = withResolvedImage(posts);
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
       res.render("blog/tag", {
         tag,
-        posts,
+        posts: resolvedPosts,
         relatedTags,
         currentPage: page,
         totalPages,
@@ -488,11 +558,12 @@ class BlogController {
         .populate("category_id", "name slug")
         .lean();
 
+      const resolvedPosts = withResolvedImage(posts);
       const totalPages = Math.ceil(totalPosts / postsPerPage);
 
       res.render("blog/author", {
         author,
-        posts,
+        posts: resolvedPosts,
         currentPage: page,
         totalPages,
         postCount: totalPosts,

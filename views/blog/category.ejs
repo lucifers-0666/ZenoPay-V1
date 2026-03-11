@@ -8,18 +8,60 @@
   <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
+<body class="page-transition-ready">
   <%- include('../partials/navbar') %>
 
   <% 
     const CAT_CONFIG = {
-      'payment-solutions': { icon: 'fas fa-credit-card', desc: 'How-to guides and best practices for accepting payments', color: 'linear-gradient(135deg,#1D4ED8 0%, #4F46E5 50%, #6B3FA0 100%)' },
-      'security-compliance': { icon: 'fas fa-shield-halved', desc: 'Security, RBI and compliance insights for safer growth', color: 'linear-gradient(135deg,#065F46 0%, #059669 50%, #10B981 100%)' },
-      'developer-guides': { icon: 'fas fa-code', desc: 'API docs, webhooks and integration tutorials', color: 'linear-gradient(135deg,#4C1D95 0%, #7C3AED 50%, #8B5CF6 100%)' },
-      'industry-news': { icon: 'fas fa-newspaper', desc: 'Latest trends and updates from fintech ecosystem', color: 'linear-gradient(135deg,#92400E 0%, #D97706 50%, #F59E0B 100%)' },
-      'product-updates': { icon: 'fas fa-rocket', desc: 'Fresh features and product announcements from ZenoPay', color: 'linear-gradient(135deg,#9F1239 0%, #E11D48 50%, #F43F5E 100%)' },
-      'business-tips': { icon: 'fas fa-lightbulb', desc: 'Practical growth ideas for merchants and businesses', color: 'linear-gradient(135deg,#14532D 0%, #16A34A 50%, #22C55E 100%)' },
-      'case-studies': { icon: 'fas fa-chart-line', desc: 'Real stories from businesses using ZenoPay', color: 'linear-gradient(135deg,#581C87 0%, #9333EA 50%, #A855F7 100%)' },
+      'payment-solutions': {
+        name: 'Payment Solutions',
+        icon: 'fas fa-credit-card',
+        desc: 'How-to guides, tutorials, and best practices for accepting payments',
+        color: 'linear-gradient(135deg,rgba(29,78,216,0.92) 0%,rgba(79,70,229,0.92) 50%,rgba(107,63,160,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'security-compliance': {
+        name: 'Security & Compliance',
+        icon: 'fas fa-shield-halved',
+        desc: 'Stay secure and compliant with RBI, PCI DSS, and fraud prevention',
+        color: 'linear-gradient(135deg,rgba(6,95,70,0.93) 0%,rgba(5,150,105,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'developer-guides': {
+        name: 'Developer Guides',
+        icon: 'fas fa-code',
+        desc: 'API docs, webhooks, SDKs and integration tutorials',
+        color: 'linear-gradient(135deg,rgba(76,29,149,0.93) 0%,rgba(124,58,237,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'industry-news': {
+        name: 'Industry News',
+        icon: 'fas fa-newspaper',
+        desc: 'Latest trends, RBI updates, and fintech industry news',
+        color: 'linear-gradient(135deg,rgba(146,64,14,0.93) 0%,rgba(217,119,6,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'product-updates': {
+        name: 'Product Updates',
+        icon: 'fas fa-rocket',
+        desc: 'New features, improvements, and product announcements',
+        color: 'linear-gradient(135deg,rgba(159,18,57,0.93) 0%,rgba(225,29,72,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'business-tips': {
+        name: 'Business Tips',
+        icon: 'fas fa-lightbulb',
+        desc: 'Growth strategies and best practices for merchants',
+        color: 'linear-gradient(135deg,rgba(20,83,45,0.93) 0%,rgba(22,163,74,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
+      'case-studies': {
+        name: 'Case Studies',
+        icon: 'fas fa-chart-line',
+        desc: 'Real success stories from businesses using ZenoPay',
+        color: 'linear-gradient(135deg,rgba(88,28,135,0.93) 0%,rgba(147,51,234,0.9) 100%)',
+        heroBg: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1400&h=400&fit=crop&auto=format&q=60',
+      },
     };
 
     const cfg = CAT_CONFIG[category.slug] || {
@@ -46,7 +88,7 @@
     }
 
     function getImage(post) {
-      return post?.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80';
+      return post?.image || post?.featured_image?.url || 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80';
     }
 
     function pageLink(pageNo) {
@@ -59,8 +101,8 @@
     subtitle: cfg.desc,
     icon: cfg.icon,
     breadcrumb: category.name,
-    bgColor: cfg.color,
-    heroImage: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&h=500&fit=crop&auto=format&q=80',
+    heroClass: 'blog-sub-hero-img',
+    heroStyle: '--hero-color: ' + cfg.color + '; --hero-bg-img: url(\'' + cfg.heroBg + '\')',
     count: totalPosts
   }) %>
 
@@ -84,7 +126,12 @@
             <article class="blog-card" onclick="window.location='/blog/<%= post.slug %>'">
               <div class="blog-card-progress"></div>
               <div class="blog-card-img-wrap">
-                <img src="<%= getImage(post) %>" alt="<%= post.title %>" loading="lazy" />
+                <img
+                  src="<%= getImage(post) %>"
+                  alt="<%= post.title %>"
+                  loading="lazy"
+                  onerror="this.onerror=null;const fallbacks={'Payment Solutions':'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop&auto=format&q=80','Security & Compliance':'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=800&h=450&fit=crop&auto=format&q=80','Developer Guides':'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop&auto=format&q=80','Industry News':'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=450&fit=crop&auto=format&q=80','Product Updates':'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=450&fit=crop&auto=format&q=80','Business Tips':'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=450&fit=crop&auto=format&q=80','Case Studies':'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop&auto=format&q=80'};this.src=fallbacks['<%= getCategoryName(post) %>']||'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=800&h=450&fit=crop&auto=format&q=80'"
+                />
                 <div class="blog-card-badge-overlay">
                   <span class="badge <%= getCategoryClass(getCategoryName(post)) %>"><%= getCategoryName(post) %></span>
                 </div>
@@ -116,6 +163,25 @@
         <% } %>
       </div>
 
+      <div class="related-categories-bar">
+        <h4>
+          <i class="fas fa-th-large"></i>
+          Explore Other Categories
+        </h4>
+        <div class="related-categories-grid">
+          <% const otherCats = Object.entries(CAT_CONFIG)
+            .filter(([s]) => s !== (slug || category.slug))
+            .slice(0, 4);
+            otherCats.forEach(([s, c]) => { %>
+            <a href="/blog/category/<%= s %>" class="related-cat-card">
+              <i class="<%= c.icon %>"></i>
+              <%= c.name %>
+              <i class="fas fa-arrow-right related-cat-arrow"></i>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+
       <% if (totalPages > 1) { %>
         <div class="blog-pagination">
           <a href="<%= pageLink(currentPage - 1) %>" class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"><i class="fas fa-chevron-left"></i></a>
@@ -129,5 +195,6 @@
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/js/blog-animations.js"></script>
 </body>
 </html>
