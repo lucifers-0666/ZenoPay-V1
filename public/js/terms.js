@@ -1,168 +1,159 @@
 /**
- * Terms page interactions:
- * - Sticky-aware TOC scroll spy
- * - Smooth section navigation with header offset
- * - Back-to-top + print actions
+ * ZenoPay Terms Page — Sticky TOC + Scroll Spy
+ * Clean rewrite: no transform on ancestors, pure viewport sticky
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
-  const NAVBAR_HEIGHT = 80;
-  const ACTIVE_OFFSET = NAVBAR_HEIGHT + 40;
+  // ── Config ──────────────────────────────────────────
+  // Must match --navbar-height in terms.css
+  const NAVBAR_H = parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--navbar-height') || '72'
+  );
+  const OFFSET = NAVBAR_H + 24; // extra breathing room
 
-  const tocLinks = Array.from(document.querySelectorAll('.toc-item[data-section]'));
-  const sections = Array.from(document.querySelectorAll('.terms-section[id]'));
-  const tocWrapper = document.querySelector('.terms-toc-wrapper');
-  const backToTopBtn = document.getElementById('backToTop');
+  // ── Elements ─────────────────────────────────────────
+  const tocLinks  = [...document.querySelectorAll('.toc-item[data-section]')];
+  const sections  = [...document.querySelectorAll('.terms-section[id]')];
+  const tocWrap   = document.querySelector('.terms-toc-wrapper');
+  const backToTop = document.getElementById('backToTop');
+  const mobileBtn = document.querySelector('.mobile-toc-toggle');
 
-  if (!tocLinks.length || !sections.length) {
-    return;
-  }
+  if (!tocLinks.length || !sections.length) return;
 
-  let currentActive = sections[0]?.id || '';
+  // ── Active state ──────────────────────────────────────
+  let activeId = sections[0]?.id || '';
 
-  function setActive(sectionId, shouldScrollToc = true) {
-    tocLinks.forEach((link) => {
-      const isActive = link.dataset.section === sectionId;
-      link.classList.toggle('toc-active', isActive);
-
-      if (isActive) {
-        link.setAttribute('aria-current', 'true');
-      } else {
-        link.removeAttribute('aria-current');
-      }
+  function setActive(id, autoScrollToc = true) {
+    tocLinks.forEach(link => {
+      const on = link.dataset.section === id;
+      link.classList.toggle('toc-active', on);
+      on ? link.setAttribute('aria-current', 'true')
+         : link.removeAttribute('aria-current');
     });
 
-    if (!shouldScrollToc || !tocWrapper) {
-      return;
-    }
-
-    const activeLink = document.querySelector(`.toc-item[data-section="${sectionId}"]`);
+    if (!autoScrollToc || !tocWrap) return;
+    const activeLink = tocWrap.querySelector(`.toc-item[data-section="${id}"]`);
     if (activeLink) {
-      const targetScrollTop = activeLink.offsetTop - (tocWrapper.clientHeight / 2) + (activeLink.clientHeight / 2);
-      tocWrapper.scrollTo({
-        top: Math.max(0, targetScrollTop),
-        behavior: 'smooth'
-      });
+      const target = activeLink.offsetTop - tocWrap.clientHeight / 2 + activeLink.clientHeight / 2;
+      tocWrap.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
     }
   }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          currentActive = entry.target.id;
-          setActive(currentActive);
+  // ── Intersection Observer (primary spy) ──────────────
+  const io = new IntersectionObserver(
+    entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          activeId = e.target.id;
+          setActive(activeId);
         }
       });
     },
     {
       root: null,
-      rootMargin: `-${ACTIVE_OFFSET}px 0px -40% 0px`,
+      rootMargin: `-${OFFSET}px 0px -45% 0px`,
       threshold: 0
     }
   );
+  sections.forEach(s => io.observe(s));
 
-  sections.forEach((section) => observer.observe(section));
-
+  // ── Scroll fallback (catches edge cases) ─────────────
   let scrollTimer;
   window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
-      const scrollY = window.scrollY;
+      const y = window.scrollY;
 
-      let closest = null;
-      let closestDist = Infinity;
-
-      sections.forEach((section) => {
-        const rect = section.getBoundingClientRect();
-        const distFromTop = Math.abs(rect.top - ACTIVE_OFFSET);
-
-        if (rect.top <= ACTIVE_OFFSET && distFromTop < closestDist) {
-          closest = section;
-          closestDist = distFromTop;
+      // Find section whose top is closest to & at/above OFFSET
+      let best = null, bestDist = Infinity;
+      sections.forEach(s => {
+        const top = s.getBoundingClientRect().top;
+        if (top <= OFFSET) {
+          const dist = Math.abs(top - OFFSET);
+          if (dist < bestDist) { best = s; bestDist = dist; }
         }
       });
 
-      if (closest && closest.id !== currentActive) {
-        currentActive = closest.id;
-        setActive(currentActive);
+      // Bottom of page → highlight last section
+      const atBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 20;
+      if (atBottom) best = sections[sections.length - 1];
+
+      if (best && best.id !== activeId) {
+        activeId = best.id;
+        setActive(activeId);
       }
 
-      const docHeight = document.documentElement.scrollHeight;
-      const winHeight = window.innerHeight;
-
-      if (scrollY + winHeight >= docHeight - 20) {
-        const lastSection = sections[sections.length - 1];
-        if (lastSection && lastSection.id !== currentActive) {
-          currentActive = lastSection.id;
-          setActive(currentActive);
-        }
-      }
-
-      if (backToTopBtn) {
-        backToTopBtn.classList.toggle('visible', scrollY > 300);
-      }
+      // Back to top button
+      if (backToTop) backToTop.classList.toggle('visible', y > 300);
     }, 10);
   }, { passive: true });
 
-  tocLinks.forEach((link) => {
-    link.addEventListener('click', (e) => {
+  // ── TOC link clicks ───────────────────────────────────
+  tocLinks.forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
+      const id = link.dataset.section;
+      const target = document.getElementById(id);
+      if (!target) return;
 
-      const targetId = link.dataset.section;
-      const target = document.getElementById(targetId);
-      if (!target) {
-        return;
+      activeId = id;
+      setActive(id);
+
+      const pos = target.getBoundingClientRect().top + window.scrollY - NAVBAR_H - 16;
+      window.scrollTo({ top: pos, behavior: 'smooth' });
+      history.pushState(null, '', `#${id}`);
+
+      // Close mobile TOC after click
+      if (window.innerWidth <= 768 && tocWrap) {
+        tocWrap.classList.add('toc-hidden');
+        if (mobileBtn) mobileBtn.textContent = '☰ Table of Contents';
       }
-
-      currentActive = targetId;
-      setActive(targetId);
-
-      const targetPos = target.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16;
-      window.scrollTo({
-        top: targetPos,
-        behavior: 'smooth'
-      });
-
-      history.pushState(null, '', `#${targetId}`);
     });
   });
 
+  // ── Hash on load ──────────────────────────────────────
   if (window.location.hash) {
-    const hashId = window.location.hash.slice(1);
-    const target = document.getElementById(hashId);
-
+    const id = window.location.hash.slice(1);
+    const target = document.getElementById(id);
     if (target) {
       setTimeout(() => {
-        const targetPos = target.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16;
-        window.scrollTo({
-          top: targetPos,
-          behavior: 'smooth'
-        });
-        currentActive = hashId;
-        setActive(hashId);
+        const pos = target.getBoundingClientRect().top + window.scrollY - NAVBAR_H - 16;
+        window.scrollTo({ top: pos, behavior: 'smooth' });
+        activeId = id;
+        setActive(id);
       }, 300);
     }
   }
 
-  setActive(currentActive || 'section-1', false);
+  // ── Init active ───────────────────────────────────────
+  setActive(activeId, false);
 
-  if (backToTopBtn) {
-    backToTopBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  // ── Back to top ───────────────────────────────────────
+  if (backToTop) {
+    backToTop.addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    );
+  }
+
+  // ── Print buttons ─────────────────────────────────────
+  document.querySelectorAll('.download-btn, .print-btn').forEach(btn => {
+    btn.addEventListener('click', () => window.print());
+  });
+
+  // ── Mobile TOC toggle ─────────────────────────────────
+  if (mobileBtn && tocWrap) {
+    // Hide sidebar on mobile by default
+    if (window.innerWidth <= 768) {
+      tocWrap.classList.add('toc-hidden');
+      mobileBtn.textContent = '☰ Table of Contents';
+    }
+
+    mobileBtn.addEventListener('click', () => {
+      const hidden = tocWrap.classList.toggle('toc-hidden');
+      mobileBtn.textContent = hidden ? '☰ Table of Contents' : '✕ Close Contents';
     });
-  }
-
-  const downloadBtn = document.querySelector('.download-btn');
-  const printBtn = document.querySelector('.print-btn');
-
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', () => window.print());
-  }
-
-  if (printBtn) {
-    printBtn.addEventListener('click', () => window.print());
   }
 });
