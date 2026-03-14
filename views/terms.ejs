@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle || 'Terms & Conditions - ZenoPay' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/terms.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <section class="terms-hero" aria-labelledby="terms-page-title">
+    <div class="terms-hero-content">
+      <div class="hero-icon-wrap" aria-hidden="true">
+        <i class="fas fa-file-contract hero-icon"></i>
+      </div>
+      <p class="hero-eyebrow">Legal Documentation</p>
+      <h1 id="terms-page-title" class="hero-title">Terms &amp; Conditions</h1>
+      <p class="hero-subtitle">These Terms govern the use of ZenoPay services, products, websites, APIs, and payment infrastructure.</p>
+      <div class="hero-meta" aria-label="Document metadata">
+        <span class="meta-badge effective-badge">
+          <i class="fas fa-calendar-check" aria-hidden="true"></i>
+          <span>Last updated: March 14, 2026</span>
+        </span>
+        <span class="meta-badge version-badge">
+          <i class="fas fa-code-branch" aria-hidden="true"></i>
+          <span>Version 3.0</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <main class="terms-page-main">
+    <div class="terms-page">
+      <div class="terms-container">
+        <button
+          id="mobileTocToggle"
+          class="mobile-toc-toggle"
+          type="button"
+          aria-controls="termsTocPanel"
+          aria-expanded="false"
+          aria-label="Toggle table of contents"
+        >
+          <i class="fas fa-list" aria-hidden="true"></i>
+          <span>Table of Contents</span>
+        </button>
+
+        <div class="terms-layout">
+          <aside class="terms-toc-wrapper is-collapsed-mobile" id="termsTocPanel" aria-label="Table of Contents">
+            <nav class="terms-toc" aria-labelledby="termsTocTitle">
+              <div class="terms-toc-header">
+                <p class="terms-toc-kicker">Navigate</p>
+                <h2 class="terms-toc-title" id="termsTocTitle">Table of Contents</h2>
+              </div>
+
+              <div class="terms-toc-links">
+                <a href="#section-1" class="toc-item toc-active" data-section="section-1" aria-current="true">
+                  <span class="toc-num">1</span>
+                  <span class="toc-text">Introduction &amp; Acceptance</span>
+                </a>
+                <a href="#section-2" class="toc-item" data-section="section-2">
+                  <span class="toc-num">2</span>
+                  <span class="toc-text">Definitions</span>
+                </a>
+                <a href="#section-3" class="toc-item" data-section="section-3">
+                  <span class="toc-num">3</span>
+                  <span class="toc-text">User Eligibility</span>
+                </a>
+                <a href="#section-4" class="toc-item" data-section="section-4">
+                  <span class="toc-num">4</span>
+                  <span class="toc-text">Account Registration</span>
+                </a>
+                <a href="#section-5" class="toc-item" data-section="section-5">
+                  <span class="toc-num">5</span>
+                  <span class="toc-text">User Responsibilities</span>
+                </a>
+                <a href="#section-6" class="toc-item" data-section="section-6">
+                  <span class="toc-num">6</span>
+                  <span class="toc-text">Payment Terms</span>
+                </a>
+                <a href="#section-7" class="toc-item" data-section="section-7">
+                  <span class="toc-num">7</span>
+                  <span class="toc-text">Fees &amp; Charges</span>
+                </a>
+                <a href="#section-8" class="toc-item" data-section="section-8">
+                  <span class="toc-num">8</span>
+                  <span class="toc-text">Privacy &amp; Data Protection</span>
+                </a>
+                <a href="#section-9" class="toc-item" data-section="section-9">
+                  <span class="toc-num">9</span>
+                  <span class="toc-text">Prohibited Activities</span>
+                </a>
+                <a href="#section-10" class="toc-item" data-section="section-10">
+                  <span class="toc-num">10</span>
+                  <span class="toc-text">Intellectual Property</span>
+                </a>
+                <a href="#section-11" class="toc-item" data-section="section-11">
+                  <span class="toc-num">11</span>
+                  <span class="toc-text">Limitation of Liability</span>
+                </a>
+                <a href="#section-12" class="toc-item" data-section="section-12">
+                  <span class="toc-num">12</span>
+                  <span class="toc-text">Dispute Resolution</span>
+                </a>
+                <a href="#section-13" class="toc-item" data-section="section-13">
+                  <span class="toc-num">13</span>
+                  <span class="toc-text">Account Termination &amp; Suspension</span>
+                </a>
+                <a href="#section-14" class="toc-item" data-section="section-14">
+                  <span class="toc-num">14</span>
+                  <span class="toc-text">Changes to Terms</span>
+                </a>
+                <a href="#section-15" class="toc-item" data-section="section-15">
+                  <span class="toc-num">15</span>
+                  <span class="toc-text">Contact Information</span>
+                </a>
+              </div>
+
+              <div class="sidebar-actions">
+                <button id="termsPrintButton" class="action-btn" type="button" aria-label="Print Terms and Conditions">
+                  <i class="fas fa-print" aria-hidden="true"></i>
+                  <span>Print</span>
+                </button>
+                <button id="termsDownloadButton" class="action-btn action-btn-primary" type="button" aria-label="Download Terms and Conditions PDF">
+                  <i class="fas fa-download" aria-hidden="true"></i>
+                  <span>Download PDF</span>
+                </button>
+              </div>
+            </nav>
+          </aside>
+
+          <div class="terms-content-shell">
+            <article class="terms-content" aria-label="Terms and Conditions content">
+              <section id="section-1" class="terms-section" aria-labelledby="section-1-title">
+                <div class="section-header">
+                  <span class="section-number">1</span>
+                  <div>
+                    <p class="section-kicker">Overview</p>
+                    <h2 id="section-1-title" class="section-title">Introduction &amp; Acceptance of Terms</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>Welcome to ZenoPay. These Terms and Conditions (“Terms”) govern your access to and use of ZenoPay’s websites, hosted payment pages, merchant tools, APIs, mobile experiences, dashboards, settlement features, and any related services that we make available from time to time (collectively, the “Services”). By accessing, browsing, registering for, integrating with, or using any part of the Services, you agree to be bound by these Terms.</p>
+                  <p>ZenoPay operates as a modern fintech platform that helps individuals, merchants, and business partners move money, collect payments, manage balances, and monitor transactions. Because our Services are connected to regulated financial flows, your use of the Services is subject to operational, security, risk, and compliance requirements that are essential to protecting users and the broader payment ecosystem.</p>
+
+                  <div class="callout-box info-callout">
+                    <i class="fas fa-circle-info callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Important Notice</strong>
+                      Review these Terms carefully before creating an account or processing transactions through ZenoPay. If you do not agree to these Terms, you must not use the Services.
+                    </div>
+                  </div>
+
+                  <h3 class="subsection-title">Binding Agreement</h3>
+                  <p>These Terms form a binding legal agreement between you and ZenoPay. If you are accessing or using the Services on behalf of a company, institution, or other legal entity, you represent and warrant that you are authorized to bind that entity to these Terms, and references to “you” will include that entity.</p>
+
+                  <h3 class="subsection-title">Supplemental Policies</h3>
+                  <p>Your use of specific features may also be governed by product guidelines, implementation documentation, privacy notices, fee schedules, acceptable use rules, and security requirements published by ZenoPay. Where applicable, those supplemental materials are incorporated into these Terms by reference.</p>
+                </div>
+              </section>
+
+              <section id="section-2" class="terms-section" aria-labelledby="section-2-title">
+                <div class="section-header">
+                  <span class="section-number">2</span>
+                  <div>
+                    <p class="section-kicker">Key Terms</p>
+                    <h2 id="section-2-title" class="section-title">Definitions</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>For clarity and consistency throughout these Terms, the following definitions apply:</p>
+
+                  <dl class="definition-list">
+                    <div class="definition-item">
+                      <dt>Account</dt>
+                      <dd>The ZenoPay profile, dashboard access, and associated credentials used to access and manage the Services.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Merchant</dt>
+                      <dd>Any business, sole proprietor, nonprofit, or other organization using ZenoPay to accept, route, reconcile, or settle payments.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Customer</dt>
+                      <dd>An end user, payer, buyer, subscriber, or recipient who interacts with a Merchant or directly uses ZenoPay features.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Payment Method</dt>
+                      <dd>Any supported card, bank account, wallet, transfer rail, local method, tokenized credential, or alternative payment instrument connected to the Services.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Transaction</dt>
+                      <dd>Any payment authorization, capture, payout, transfer, refund, reversal, chargeback, adjustment, or settlement event processed through ZenoPay.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Content</dt>
+                      <dd>Any text, data, software, designs, documentation, trademarks, layouts, graphics, or other material made available through the Services.</dd>
+                    </div>
+                    <div class="definition-item">
+                      <dt>Applicable Law</dt>
+                      <dd>All local, national, international, regulatory, sanctions, anti-money laundering, privacy, consumer, and financial-services rules that apply to your use of the Services.</dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
+
+              <section id="section-3" class="terms-section" aria-labelledby="section-3-title">
+                <div class="section-header">
+                  <span class="section-number">3</span>
+                  <div>
+                    <p class="section-kicker">Who May Use ZenoPay</p>
+                    <h2 id="section-3-title" class="section-title">User Eligibility</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>To use the Services, you must meet our eligibility requirements at all times. Eligibility may vary by feature, geography, payment method, and risk profile.</p>
+
+                  <h3 class="subsection-title">Minimum Age and Legal Capacity</h3>
+                  <p>You must be at least 18 years old, or the age of majority in your jurisdiction, and have the legal authority to enter into binding contracts. If you access the Services on behalf of a business, you must be duly authorized to act for that business.</p>
+
+                  <h3 class="subsection-title">Supported Jurisdictions</h3>
+                  <p>ZenoPay may only be available in selected countries or regions. Access to the Services may be restricted, limited, or suspended where regulatory approval is unavailable or where service delivery would create unacceptable legal or operational risk.</p>
+
+                  <div class="callout-box warning-callout">
+                    <i class="fas fa-triangle-exclamation callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Restricted Use</strong>
+                      You may not use ZenoPay if you are located in, ordinarily resident in, or operating from a sanctioned or prohibited jurisdiction, or if you are included on any relevant watchlist or denied-party list.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-4" class="terms-section" aria-labelledby="section-4-title">
+                <div class="section-header">
+                  <span class="section-number">4</span>
+                  <div>
+                    <p class="section-kicker">Getting Started</p>
+                    <h2 id="section-4-title" class="section-title">Account Registration</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>To access certain features, you must create an Account and provide accurate, current, and complete information during onboarding and throughout your use of the Services.</p>
+
+                  <h3 class="subsection-title">Registration Information</h3>
+                  <ul>
+                    <li>Provide truthful identity, contact, and business information.</li>
+                    <li>Keep your registration details updated whenever circumstances change.</li>
+                    <li>Provide beneficial ownership or business control details when requested.</li>
+                    <li>Submit supporting records for verification, risk review, or compliance checks.</li>
+                  </ul>
+
+                  <h3 class="subsection-title">Security Obligations</h3>
+                  <p>You are responsible for protecting your credentials, API keys, access tokens, and authentication devices. You must promptly notify ZenoPay if you suspect unauthorized activity, compromised access, or security weaknesses affecting your Account.</p>
+
+                  <h3 class="subsection-title">Verification and Review</h3>
+                  <p>ZenoPay may conduct identity verification, business due diligence, sanctions screening, fraud review, and ongoing risk monitoring before or after activation. We may decline, delay, or restrict an Account until required checks are completed.</p>
+                </div>
+              </section>
+
+              <section id="section-5" class="terms-section" aria-labelledby="section-5-title">
+                <div class="section-header">
+                  <span class="section-number">5</span>
+                  <div>
+                    <p class="section-kicker">Your Ongoing Duties</p>
+                    <h2 id="section-5-title" class="section-title">User Responsibilities</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>You are responsible for using the Services lawfully, ethically, and in accordance with industry best practices. This includes maintaining internal controls appropriate for your transaction volume and business model.</p>
+
+                  <ul>
+                    <li>Use the Services only for authorized and legitimate business or personal purposes.</li>
+                    <li>Ensure that any data submitted to ZenoPay is accurate, lawful, and properly consented.</li>
+                    <li>Review transaction activity and reconcile balances regularly.</li>
+                    <li>Maintain sufficient fraud, chargeback, and customer support controls.</li>
+                    <li>Cooperate with operational, security, and regulatory inquiries.</li>
+                  </ul>
+
+                  <div class="callout-box info-callout">
+                    <i class="fas fa-shield-halved callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Operational Best Practice</strong>
+                      Merchants should maintain a clear refund policy, visible business descriptors, timely customer support channels, and documented escalation workflows to reduce disputes and customer harm.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-6" class="terms-section" aria-labelledby="section-6-title">
+                <div class="section-header">
+                  <span class="section-number">6</span>
+                  <div>
+                    <p class="section-kicker">Transaction Flow</p>
+                    <h2 id="section-6-title" class="section-title">Payment Terms</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>ZenoPay provides infrastructure that enables payment initiation, authorization, capture, transfer, settlement, reconciliation, and payout workflows. The timing and availability of these processes may vary depending on risk, banking partners, and payment rails.</p>
+
+                  <h3 class="subsection-title">Processing and Settlement</h3>
+                  <p>Authorizations, captures, and settlements are subject to network rules, banking cut-off times, fraud controls, holds, and reconciliation procedures. Settlement timing displayed in your dashboard is an estimate and may change based on operational review.</p>
+
+                  <h3 class="subsection-title">Refunds, Reversals, and Holds</h3>
+                  <p>ZenoPay may process refunds, reversals, reserves, or temporary holds where required to manage risk, comply with law, support investigations, or resolve disputes. Funds may be delayed while suspicious or incomplete activity is reviewed.</p>
+
+                  <h3 class="subsection-title">Third-Party Dependencies</h3>
+                  <p>Certain outcomes depend on banks, card networks, local schemes, and external service providers. ZenoPay is not responsible for delays caused solely by third-party infrastructure outside our reasonable control.</p>
+                </div>
+              </section>
+
+              <section id="section-7" class="terms-section" aria-labelledby="section-7-title">
+                <div class="section-header">
+                  <span class="section-number">7</span>
+                  <div>
+                    <p class="section-kicker">Commercial Terms</p>
+                    <h2 id="section-7-title" class="section-title">Fees &amp; Charges</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>Your use of the Services may be subject to fees, including transaction fees, payout fees, chargeback fees, currency conversion fees, subscription charges, platform fees, implementation fees, or custom enterprise pricing.</p>
+
+                  <ul>
+                    <li>Fees may be disclosed in your dashboard, pricing page, contract, or merchant schedule.</li>
+                    <li>Fees may be deducted directly from balances, settlements, or payout amounts.</li>
+                    <li>You remain responsible for taxes, levies, and duties associated with your use of the Services.</li>
+                    <li>ZenoPay may revise fees with notice where permitted by Applicable Law or contract.</li>
+                  </ul>
+
+                  <div class="callout-box warning-callout">
+                    <i class="fas fa-file-invoice-dollar callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Chargeback Costs</strong>
+                      Disputed or reversed transactions may give rise to additional network, administrative, and recovery costs, which may be assessed to your Account as permitted by your pricing terms.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-8" class="terms-section" aria-labelledby="section-8-title">
+                <div class="section-header">
+                  <span class="section-number">8</span>
+                  <div>
+                    <p class="section-kicker">Data Handling</p>
+                    <h2 id="section-8-title" class="section-title">Privacy &amp; Data Protection</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>Your privacy matters to us. Our collection, use, storage, transfer, and protection of personal data are governed by our Privacy Policy and relevant data protection laws.</p>
+
+                  <h3 class="subsection-title">How Data Is Used</h3>
+                  <p>ZenoPay may use personal and transaction data to provide the Services, prevent fraud, perform verification, support analytics, comply with legal obligations, improve product performance, and communicate operational notices.</p>
+
+                  <h3 class="subsection-title">Security Measures</h3>
+                  <p>We use layered administrative, technical, and organizational safeguards, which may include encryption, access control, monitoring, logging, rate limits, credential rotation, and network segmentation.</p>
+
+                  <div class="callout-box info-callout">
+                    <i class="fas fa-lock callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Shared Responsibility</strong>
+                      ZenoPay secures the platform infrastructure, but you remain responsible for securing your endpoints, application integrations, customer notices, permissions, and internal access controls.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-9" class="terms-section" aria-labelledby="section-9-title">
+                <div class="section-header">
+                  <span class="section-number">9</span>
+                  <div>
+                    <p class="section-kicker">What Is Not Allowed</p>
+                    <h2 id="section-9-title" class="section-title">Prohibited Activities</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>You may not use the Services in a way that is illegal, abusive, deceptive, harmful, or likely to expose ZenoPay, our users, or payment partners to undue risk.</p>
+
+                  <ul>
+                    <li>Fraud, impersonation, identity theft, phishing, or deceptive practices.</li>
+                    <li>Money laundering, sanctions evasion, terrorist financing, or facilitation of illegal trade.</li>
+                    <li>Use of the Services for prohibited goods, restricted industries, or unauthorized high-risk activity.</li>
+                    <li>Reverse engineering, scraping, or attempting unauthorized system access.</li>
+                    <li>Uploading malware, interfering with service integrity, or circumventing limits or safeguards.</li>
+                  </ul>
+
+                  <div class="callout-box warning-callout">
+                    <i class="fas fa-ban callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Enforcement</strong>
+                      ZenoPay may immediately suspend processing, freeze balances where permitted, or terminate access if we reasonably believe your use of the Services violates these Terms or creates risk to others.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-10" class="terms-section" aria-labelledby="section-10-title">
+                <div class="section-header">
+                  <span class="section-number">10</span>
+                  <div>
+                    <p class="section-kicker">Ownership</p>
+                    <h2 id="section-10-title" class="section-title">Intellectual Property</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>The Services, including software, workflows, interfaces, designs, trademarks, logos, documentation, and platform content, are owned by ZenoPay or our licensors and are protected under intellectual property laws.</p>
+
+                  <h3 class="subsection-title">Limited License</h3>
+                  <p>Subject to compliance with these Terms, ZenoPay grants you a limited, revocable, non-exclusive, non-transferable license to access and use the Services solely for their intended purpose.</p>
+
+                  <h3 class="subsection-title">Restrictions</h3>
+                  <ul>
+                    <li>You may not copy, modify, resell, sublicense, or distribute the Services except as expressly permitted.</li>
+                    <li>You may not remove proprietary notices or present ZenoPay branding as your own.</li>
+                    <li>You may not use our marks without prior written consent.</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="section-11" class="terms-section" aria-labelledby="section-11-title">
+                <div class="section-header">
+                  <span class="section-number">11</span>
+                  <div>
+                    <p class="section-kicker">Risk Allocation</p>
+                    <h2 id="section-11-title" class="section-title">Limitation of Liability</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>To the maximum extent permitted by Applicable Law, ZenoPay is not liable for indirect, incidental, special, consequential, exemplary, or punitive damages, or for lost profits, lost data, lost revenue, or business interruption arising out of or related to the Services.</p>
+                  <p>Where liability cannot lawfully be excluded, ZenoPay’s aggregate liability will be limited to the amounts paid by you to ZenoPay for the affected Services in the three months preceding the event giving rise to the claim, or the minimum amount required by law, whichever is greater.</p>
+
+                  <div class="callout-box info-callout">
+                    <i class="fas fa-scale-balanced callout-icon" aria-hidden="true"></i>
+                    <div class="callout-content">
+                      <strong>Scope of Limitation</strong>
+                      These limitations apply regardless of the theory of liability and even if a limited remedy fails of its essential purpose, except where exclusions are not permitted by law.
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section id="section-12" class="terms-section" aria-labelledby="section-12-title">
+                <div class="section-header">
+                  <span class="section-number">12</span>
+                  <div>
+                    <p class="section-kicker">Resolving Issues</p>
+                    <h2 id="section-12-title" class="section-title">Dispute Resolution</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>If a dispute arises, the parties agree to make reasonable efforts to resolve it informally before initiating formal proceedings. Prompt notice and supporting information should be provided to enable efficient investigation.</p>
+
+                  <h3 class="subsection-title">Informal Resolution</h3>
+                  <p>You should first contact ZenoPay support or legal operations with a detailed description of the issue, affected transactions, and the relief requested. Many issues can be resolved through reconciliation, clarification, or operational review.</p>
+
+                  <h3 class="subsection-title">Formal Proceedings</h3>
+                  <p>If a dispute cannot be resolved informally, it may be submitted to the competent courts or dispute forums specified by applicable contract or law. Nothing in this section prevents either party from seeking interim injunctive relief where necessary to protect rights or prevent imminent harm.</p>
+                </div>
+              </section>
+
+              <section id="section-13" class="terms-section" aria-labelledby="section-13-title">
+                <div class="section-header">
+                  <span class="section-number">13</span>
+                  <div>
+                    <p class="section-kicker">Ending Access</p>
+                    <h2 id="section-13-title" class="section-title">Account Termination &amp; Suspension</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>You may stop using the Services at any time, subject to any outstanding contractual, operational, or settlement obligations. ZenoPay may suspend or terminate all or part of the Services where necessary to manage security, legal, reputational, or financial risk.</p>
+
+                  <ul>
+                    <li>We may suspend access during investigations, risk reviews, or suspected misuse.</li>
+                    <li>Termination does not eliminate payment obligations, dispute exposure, or compliance retention duties.</li>
+                    <li>ZenoPay may retain transaction records and required data for audit, legal, tax, or compliance purposes.</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="section-14" class="terms-section" aria-labelledby="section-14-title">
+                <div class="section-header">
+                  <span class="section-number">14</span>
+                  <div>
+                    <p class="section-kicker">Updates</p>
+                    <h2 id="section-14-title" class="section-title">Changes to Terms</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>ZenoPay may update these Terms periodically to reflect product changes, legal developments, market practices, or security enhancements. When material changes are made, we may provide notice by posting updated Terms, updating the effective date, or issuing communications through the dashboard, email, or other reasonable channels.</p>
+                  <p>Your continued use of the Services after the effective date of revised Terms constitutes acceptance of those changes unless Applicable Law requires a different form of consent.</p>
+                </div>
+              </section>
+
+              <section id="section-15" class="terms-section" aria-labelledby="section-15-title">
+                <div class="section-header">
+                  <span class="section-number">15</span>
+                  <div>
+                    <p class="section-kicker">Get in Touch</p>
+                    <h2 id="section-15-title" class="section-title">Contact Information</h2>
+                  </div>
+                </div>
+                <div class="section-body">
+                  <p>If you have questions about these Terms, need clarification regarding your obligations, or wish to raise a formal concern, please contact the appropriate team below.</p>
+
+                  <div class="contact-grid">
+                    <article class="contact-card">
+                      <i class="fas fa-envelope contact-icon" aria-hidden="true"></i>
+                      <h3>Legal Inquiries</h3>
+                      <p>legal@zenopay.com</p>
+                    </article>
+                    <article class="contact-card">
+                      <i class="fas fa-headset contact-icon" aria-hidden="true"></i>
+                      <h3>Customer Support</h3>
+                      <p>support@zenopay.com</p>
+                    </article>
+                    <article class="contact-card">
+                      <i class="fas fa-shield-halved contact-icon" aria-hidden="true"></i>
+                      <h3>Privacy Office</h3>
+                      <p>privacy@zenopay.com</p>
+                    </article>
+                    <article class="contact-card">
+                      <i class="fas fa-phone contact-icon" aria-hidden="true"></i>
+                      <h3>Phone Support</h3>
+                      <p>+1 (800) 936-6729</p>
+                    </article>
+                  </div>
+
+                  <div class="address-box">
+                    <p><strong>ZenoPay Legal Operations</strong></p>
+                    <p>123 Financial District Avenue</p>
+                    <p>Suite 800</p>
+                    <p>San Francisco, CA 94111</p>
+                    <p>United States</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="terms-contact-card" aria-labelledby="terms-support-title">
+                <i class="fas fa-scale-balanced contact-card-icon" aria-hidden="true"></i>
+                <h2 id="terms-support-title" class="contact-card-title">Need clarification before you continue?</h2>
+                <p class="contact-card-text">Our legal and support teams can help explain operational, billing, compliance, and account-related questions about these Terms.</p>
+                <div class="contact-card-actions">
+                  <a href="mailto:legal@zenopay.com" class="btn-primary-gradient">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                    <span>Contact Legal Team</span>
+                  </a>
+                  <a href="/privacy" class="btn-outline">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span>View Privacy Policy</span>
+                  </a>
+                </div>
+              </section>
+
+              <footer class="terms-footer-note">
+                <p><small>These Terms are intended to provide a clear operational framework for using ZenoPay. Specific services, merchant agreements, partner schedules, or regulated products may include additional terms that apply alongside this document.</small></p>
+                <p><small>© 2026 ZenoPay Technologies Inc. All rights reserved. ZenoPay and related marks are proprietary to their respective owners.</small></p>
+              </footer>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <button id="backToTop" class="back-to-top-btn" type="button" aria-label="Back to top">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  </button>
+
+  <%- include('partials/footer') %>
+
+  <script src="/js/terms.js"></script>
+</body>
+</html>
