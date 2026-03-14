@@ -785,6 +785,7 @@ router.get("/ref/:code", ReferralController.handleReferralLink);
 
 // Legal Pages Routes
 router.get("/terms", LegalPagesController.getTermsPage);
+router.get("/privacy", LegalPagesController.getPrivacyPage);
 router.get("/about", LegalPagesController.getAboutPage);
 router.get("/help", LegalPagesController.getHelpPage);
 router.get("/faq", LegalPagesController.getHelpPage); // Alias for /help
