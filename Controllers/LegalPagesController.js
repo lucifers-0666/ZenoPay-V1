@@ -3,6 +3,25 @@
  * Handles rendering of legal documents (Terms, Privacy Policy)
  */
 
+// Get Terms & Conditions page
+const getTermsPage = (req, res) => {
+  try {
+    res.render('terms', {
+      pageTitle: 'Terms & Conditions - ZenoPay',
+      isLoggedIn: req.session?.isLoggedIn || false,
+      user: req.session?.user || null
+    });
+  } catch (error) {
+    console.error('Error rendering terms page:', error);
+    res.status(500).render('error-500', {
+      pageTitle: 'Error - ZenoPay',
+      error: 'Failed to load Terms & Conditions',
+      isLoggedIn: false,
+      user: null
+    });
+  }
+};
+
 // Get Privacy Policy page
 const getPrivacyPage = (req, res) => {
   try {
@@ -121,6 +140,7 @@ const getAPIDocsPage = (req, res) => {
 };
 
 module.exports = {
+  getTermsPage,
   getPrivacyPage,
   getAboutPage,
   getHelpPage,

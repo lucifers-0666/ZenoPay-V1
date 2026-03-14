@@ -785,7 +785,7 @@ router.get("/api/referral/leaderboard", ReferralController.getLeaderboard);
 router.get("/ref/:code", ReferralController.handleReferralLink);
 
 // Legal Pages Routes
-router.get("/terms", (req, res) => res.redirect("/privacy"));
+router.get("/terms", LegalPagesController.getTermsPage);
 router.get("/privacy", PrivacyPolicyController.getPrivacyPolicy); // Dynamic Privacy Policy
 router.get("/privacy-policy", PrivacyPolicyController.getPrivacyPolicy); // Alias
 router.get("/privacy-policy/archive", PrivacyPolicyController.getPrivacyPolicyArchive);
