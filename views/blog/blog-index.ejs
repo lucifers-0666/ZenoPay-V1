@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog — ZenoPay</title>
   <meta name="description" content="Insights on fintech, digital payments, security, and developer guides from ZenoPay.">
+  <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/header.css" />
   <link rel="stylesheet" href="/css/blog.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body class="page-transition-ready">
-  <%- include('../partials/navbar') %>
+  <%- include('../partials/header') %>
 
   <% 
     const categoryImages = {
@@ -109,6 +110,10 @@
       }
       return href;
     }
+
+    const currentCategory =
+      selectedCategory && selectedCategory !== 'all' ? selectedCategory : '';
+    const searchQuery = '';
   %>
 
   <section class="blog-hero">
@@ -162,7 +167,7 @@
     </div>
   </section>
 
-  <main class="blog-main">
+  <main class="modern-main blog-main">
     <div class="container">
       <div class="blog-layout">
         <aside class="blog-sidebar">
@@ -239,10 +244,10 @@
         <div class="blog-content">
           <div class="blog-filter-row">
             <div class="blog-filter-tabs">
-              <a href="/blog" class="blog-filter-tab <%= selectedCategory === 'all' ? 'active' : '' %>">All Posts</a>
+              <a href="/blog" class="blog-filter-tab <%= !currentCategory && !searchQuery ? 'active' : '' %>">All Posts</a>
               <% if (categories && categories.length > 0) { %>
                 <% categories.forEach((cat) => { %>
-                  <a href="/blog?category=<%= cat.slug %>" class="blog-filter-tab <%= selectedCategory === cat.slug ? 'active' : '' %>"><%= cat.name %></a>
+                  <a href="/blog?category=<%= cat.slug %>" class="blog-filter-tab <%= currentCategory === cat.slug ? 'active' : '' %>"><%= cat.name %></a>
                 <% }) %>
               <% } %>
             </div>
@@ -365,6 +370,7 @@
   </main>
 
   <%- include('../partials/footer') %>
+  <script src="/js/header.js"></script>
   <script src="/js/blog-animations.js"></script>
 
   <script>
