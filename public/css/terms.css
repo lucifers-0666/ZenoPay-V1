@@ -203,95 +203,110 @@ html {
 
 .terms-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 48px;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
   align-items: start;
-  position: relative;
-  overflow: visible;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    SIDEBAR NAVIGATION
    ═══════════════════════════════════════════════════════════════════ */
 
-.terms-sidebar {
-  position: relative;
-  /* align-self: flex-start; REMOVED to allow sidebar to stretch */
-}
-
-.sidebar-sticky {
-  position: -webkit-sticky;
+.terms-toc-wrapper {
   position: sticky;
-  top: 100px;
-  /* align-self removed - it conflicts with position: sticky */
-  height: auto;
-  overflow: visible;
-  background: var(--bg-light);
+  top: 88px;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 63, 160, 0.2) transparent;
+}
+
+.terms-toc-wrapper::-webkit-scrollbar {
+  width: 3px;
+}
+
+.terms-toc-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(107, 63, 160, 0.25);
+  border-radius: 3px;
+}
+
+.terms-toc {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
-  padding: 24px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  z-index: 100;
-  will-change: transform;
+  padding: 20px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.sidebar-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--border-color);
+.terms-toc-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 20px 12px;
+  border-bottom: 1px solid #F1F5F9;
+  margin-bottom: 8px;
 }
 
-.toc-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 24px;
-}
-
-.toc-link {
+.toc-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  gap: 10px;
+  padding: 9px 16px;
+  margin: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #64748B;
   text-decoration: none;
-  color: var(--text-secondary);
-  font-size: 14px;
-  transition: all 0.3s ease;
-  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  border: 1.5px solid transparent;
 }
 
-.toc-link:hover {
-  background: white;
-  color: var(--primary-blue);
+.toc-item:hover {
+  background: rgba(107, 63, 160, 0.05);
+  color: #6B3FA0;
+  border-color: rgba(107, 63, 160, 0.1);
 }
 
-.toc-link.active {
-  background: var(--primary-blue);
-  color: white;
-  font-weight: 600;
+.toc-item.toc-active {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(107, 63, 160, 0.12) 100%);
+  color: #4F46E5;
+  font-weight: 700;
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
 }
 
-.toc-number {
+.toc-num {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: #F1F5F9;
+  color: #94A3B8;
+  font-size: 0.68rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--primary-blue);
-  font-size: 12px;
-  font-weight: 700;
   flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
-.toc-link.active .toc-number {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+.toc-item.toc-active .toc-num {
+  background: linear-gradient(135deg, #4F46E5, #6B3FA0);
+  color: #FFFFFF;
+}
+
+.toc-item:hover .toc-num {
+  background: rgba(107, 63, 160, 0.12);
+  color: #6B3FA0;
 }
 
 .toc-text {
@@ -304,6 +319,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin: 8px 20px 0;
   padding-top: 16px;
   border-top: 1px solid var(--border-color);
 }
@@ -363,10 +379,6 @@ html {
   .mobile-toc-toggle {
     display: block;
   }
-  
-  .toc-nav.mobile-hidden {
-    display: none !important;
-  }
 }
 
 /* Section Animation Classes (No transform to avoid breaking sticky) */
@@ -406,19 +418,25 @@ html {
    ═══════════════════════════════════════════════════════════════════ */
 
 .terms-content {
-  background: white;
-  /* No card styling, just content */
+  min-width: 0;
 }
 
 .terms-section {
-  margin-bottom: 48px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #F3F4F6;
-  scroll-margin-top: 100px;
+  scroll-margin-top: 96px;
+  padding-top: 8px;
+  padding-bottom: 48px;
+  margin-bottom: 0;
+  border-bottom: 1px solid #F8FAFC;
 }
 
 .terms-section:last-of-type {
   border-bottom: none;
+}
+
+.page-wrapper,
+.terms-page,
+.modern-main {
+  overflow: visible !important;
 }
 
 /* Section Header */
@@ -770,23 +788,28 @@ html {
    ═══════════════════════════════════════════════════════════════════ */
 
 /* Keep sticky behavior until mobile/tablet sizes */
+@media (max-width: 1024px) {
+  .terms-layout {
+    grid-template-columns: 260px 1fr;
+    gap: 28px;
+    padding: 28px 16px 60px;
+  }
+}
+
 @media (max-width: 768px) {
   .terms-layout {
     grid-template-columns: 1fr;
     gap: 32px;
   }
 
-  .terms-sidebar {
-    order: -1;
+  .terms-toc-wrapper {
+    position: relative;
+    top: 0;
+    max-height: none;
   }
 
-  .sidebar-sticky {
-    position: static;
-    top: auto;
-  }
-
-  .sidebar-actions {
-    flex-direction: row;
+  .terms-toc {
+    margin-bottom: 24px;
   }
 }
 
@@ -843,13 +866,8 @@ html {
     font-size: 18px;
   }
 
-  .sidebar-sticky {
-    padding: 20px;
-  }
-
-  .toc-nav {
-    max-height: 300px;
-    overflow-y: auto;
+  .terms-toc {
+    padding: 16px 0;
   }
 }
 
@@ -893,7 +911,7 @@ html {
    ═══════════════════════════════════════════════════════════════════ */
 
 @media print {
-  .terms-sidebar,
+  .terms-toc-wrapper,
   .back-to-top-btn,
   .terms-hero,
   .sidebar-actions,
@@ -932,7 +950,7 @@ html {
 }
 
 /* Focus styles */
-.toc-link:focus-visible,
+.toc-item:focus-visible,
 .action-btn:focus-visible,
 .btn-primary-gradient:focus-visible,
 .btn-outline:focus-visible,
