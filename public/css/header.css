@@ -2,10 +2,6 @@
    ZENOPAY MODERN HEADER - COMPREHENSIVE NAVIGATION SYSTEM
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════════════════
-   ROOT VARIABLES & TOKENS
-   ═══════════════════════════════════════════════════════════════════ */
-
 :root {
   /* Premium Fintech Color System */
   --primary: #3B82F6;
@@ -94,10 +90,12 @@
   --transition-medium: 0.2s ease;
   --transition-slow: 0.3s ease;
 
-  /* Z-index Layers */
+  /* Z-index Layers
+     FIX: --z-mobile-menu must be HIGHER than --z-header so the overlay
+     slides over the sticky header correctly on all pages. */
   --z-header: 1000;
-  --z-dropdown: 100;
-  --z-mobile-menu: 999;
+  --z-dropdown: 1100;
+  --z-mobile-menu: 1001;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -122,7 +120,6 @@
   padding-bottom: 0;
 }
 
-/* Scrolled State */
 .zenopay-header.scrolled {
   height: var(--header-height-scrolled);
   box-shadow: var(--header-shadow-scrolled);
@@ -144,7 +141,6 @@
   gap: 24px;
 }
 
-/* Header Spacer (prevents content jump with sticky header) */
 .header-spacer {
   height: var(--header-height);
 }
@@ -168,9 +164,7 @@
   transition: opacity var(--transition-medium);
 }
 
-.logo-link:hover {
-  opacity: 0.85;
-}
+.logo-link:hover { opacity: 0.85; }
 
 .logo-icon {
   width: 36px;
@@ -208,10 +202,7 @@
   justify-content: center;
 }
 
-/* Nav Items */
-.nav-item {
-  position: relative;
-}
+.nav-item { position: relative; }
 
 .nav-button,
 .nav-link {
@@ -244,24 +235,18 @@
   font-weight: 600;
 }
 
-/* Nav item with dropdown open */
-.nav-item.open .nav-button {
-  background: var(--bg-hover);
-}
+.nav-item.open .nav-button { background: var(--bg-hover); }
 
-/* Chevron Icon */
 .nav-chevron {
   font-size: 14px;
   color: var(--text-muted);
   transition: transform var(--transition-medium);
 }
 
-.nav-item.open .nav-chevron {
-  transform: rotate(180deg);
-}
+.nav-item.open .nav-chevron { transform: rotate(180deg); }
 
 /* ═══════════════════════════════════════════════════════════════════
-   DROPDOWN MENU STYLES (Simple Dropdown)
+   DROPDOWN MENU STYLES
    ═══════════════════════════════════════════════════════════════════ */
 
 .dropdown-menu {
@@ -290,7 +275,6 @@
   pointer-events: all;
 }
 
-/* Dropdown Items */
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -316,14 +300,12 @@
   text-align: center;
 }
 
-/* Dropdown Separator */
 .dropdown-separator {
   margin: 8px 0;
   height: 1px;
   background: var(--header-border);
 }
 
-/* Dropdown CTA */
 .dropdown-cta {
   display: flex;
   align-items: center;
@@ -344,14 +326,9 @@
   transform: translateX(2px);
 }
 
-.dropdown-cta i {
-  font-size: 14px;
-}
+.dropdown-cta i { font-size: 14px; }
 
-/* Wide Dropdown (2 Columns) */
-.dropdown-menu.wide-dropdown {
-  min-width: 480px;
-}
+.dropdown-menu.wide-dropdown { min-width: 480px; }
 
 .dropdown-columns {
   display: grid;
@@ -370,7 +347,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   MEGA MENU STYLES (Products)
+   MEGA MENU STYLES
    ═══════════════════════════════════════════════════════════════════ */
 
 .mega-menu-dropdown {
@@ -420,7 +397,6 @@
   margin-bottom: 12px;
 }
 
-/* Mega Menu Items */
 .mega-menu-item {
   display: flex;
   align-items: flex-start;
@@ -432,9 +408,7 @@
   transition: background var(--transition-fast);
 }
 
-.mega-menu-item:hover {
-  background: var(--bg-light);
-}
+.mega-menu-item:hover { background: var(--bg-light); }
 
 .item-icon {
   display: flex;
@@ -448,9 +422,7 @@
   transition: background var(--transition-fast);
 }
 
-.mega-menu-item:hover .item-icon {
-  background: var(--bg-light-blue);
-}
+.mega-menu-item:hover .item-icon { background: var(--bg-light-blue); }
 
 .item-icon i {
   font-size: 18px;
@@ -477,7 +449,6 @@
   line-height: 1.4;
 }
 
-/* Mega Menu Footer CTA */
 .mega-menu-footer {
   margin-top: 24px;
   padding-top: 24px;
@@ -515,7 +486,6 @@
   flex-shrink: 0;
 }
 
-/* Dashboard Link */
 .action-link {
   display: flex;
   align-items: center;
@@ -534,14 +504,9 @@
   color: var(--text-primary);
 }
 
-.action-link i {
-  font-size: 18px;
-}
+.action-link i { font-size: 18px; }
 
-/* Icon Buttons (Help, Notifications) */
-.action-icon-wrapper {
-  position: relative;
-}
+.action-icon-wrapper { position: relative; }
 
 .action-icon-btn,
 .help-btn {
@@ -559,9 +524,7 @@
 }
 
 .action-icon-btn:hover,
-.help-btn:hover {
-  background: var(--bg-hover);
-}
+.help-btn:hover { background: var(--bg-hover); }
 
 .action-icon-btn i,
 .help-btn i {
@@ -571,11 +534,8 @@
 }
 
 .action-icon-btn:hover i,
-.help-btn:hover i {
-  color: var(--brand-blue);
-}
+.help-btn:hover i { color: var(--brand-blue); }
 
-/* Notification Badge */
 .notification-badge {
   position: absolute;
   top: 8px;
@@ -593,7 +553,6 @@
   border: 2px solid white;
 }
 
-/* Profile Avatar Button */
 .profile-avatar-btn {
   display: flex;
   align-items: center;
@@ -609,9 +568,7 @@
   overflow: hidden;
 }
 
-.profile-avatar-btn:hover {
-  border-color: var(--brand-blue);
-}
+.profile-avatar-btn:hover { border-color: var(--brand-blue); }
 
 .avatar-image {
   width: 100%;
@@ -631,7 +588,6 @@
   font-weight: 700;
 }
 
-/* Header Buttons (Login, Sign Up) */
 .btn-header {
   display: flex;
   align-items: center;
@@ -658,9 +614,7 @@
   background: var(--bg-active);
 }
 
-.btn-login i {
-  font-size: 16px;
-}
+.btn-login i { font-size: 16px; }
 
 .btn-signup {
   color: white;
@@ -676,13 +630,8 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
 }
 
-.btn-signup:active {
-  transform: translateY(0);
-}
-
-.btn-signup i {
-  font-size: 16px;
-}
+.btn-signup:active { transform: translateY(0); }
+.btn-signup i { font-size: 16px; }
 
 /* ═══════════════════════════════════════════════════════════════════
    NOTIFICATIONS DROPDOWN
@@ -741,9 +690,7 @@
   transition: background var(--transition-fast);
 }
 
-.mark-read-btn:hover {
-  background: var(--bg-active);
-}
+.mark-read-btn:hover { background: var(--bg-active); }
 
 .notifications-list {
   max-height: 400px;
@@ -759,13 +706,8 @@
   transition: background var(--transition-fast);
 }
 
-.notification-item:hover {
-  background: var(--bg-light);
-}
-
-.notification-item.unread {
-  background: var(--bg-active);
-}
+.notification-item:hover { background: var(--bg-light); }
+.notification-item.unread { background: var(--bg-active); }
 
 .notification-icon {
   display: flex;
@@ -777,28 +719,12 @@
   flex-shrink: 0;
 }
 
-.notification-icon.success {
-  background: #D1FAE5;
-  color: #059669;
-}
+.notification-icon.success { background: #D1FAE5; color: #059669; }
+.notification-icon.info    { background: #DBEAFE; color: #3B82F6; }
+.notification-icon.warning { background: #FEF3C7; color: #F59E0B; }
+.notification-icon i { font-size: 18px; }
 
-.notification-icon.info {
-  background: #DBEAFE;
-  color: #3B82F6;
-}
-
-.notification-icon.warning {
-  background: #FEF3C7;
-  color: #F59E0B;
-}
-
-.notification-icon i {
-  font-size: 18px;
-}
-
-.notification-content {
-  flex: 1;
-}
+.notification-content { flex: 1; }
 
 .notification-title {
   font-size: 14px;
@@ -833,9 +759,7 @@
   transition: color var(--transition-fast);
 }
 
-.view-all-link:hover {
-  color: var(--brand-purple);
-}
+.view-all-link:hover { color: var(--brand-purple); }
 
 /* ═══════════════════════════════════════════════════════════════════
    PROFILE DROPDOWN
@@ -894,10 +818,7 @@
   font-weight: 700;
 }
 
-.profile-user-details {
-  flex: 1;
-  min-width: 0;
-}
+.profile-user-details { flex: 1; min-width: 0; }
 
 .profile-user-name {
   font-size: 15px;
@@ -953,17 +874,9 @@
   background: var(--header-border);
 }
 
-.profile-menu-item.logout-item {
-  color: #EF4444;
-}
-
-.profile-menu-item.logout-item:hover {
-  background: #FEE2E2;
-}
-
-.profile-menu-item.logout-item i {
-  color: #EF4444;
-}
+.profile-menu-item.logout-item { color: #EF4444; }
+.profile-menu-item.logout-item:hover { background: #FEE2E2; }
+.profile-menu-item.logout-item i { color: #EF4444; }
 
 /* ═══════════════════════════════════════════════════════════════════
    MOBILE MENU TOGGLE
@@ -982,9 +895,7 @@
   transition: background var(--transition-medium);
 }
 
-.mobile-menu-toggle:hover {
-  background: var(--bg-hover);
-}
+.mobile-menu-toggle:hover { background: var(--bg-hover); }
 
 .mobile-menu-toggle i {
   font-size: 22px;
@@ -993,6 +904,9 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    MOBILE MENU OVERLAY
+   FIX: overlay is now outside <header> in the HTML, so position:fixed
+   top:var(--header-height) works correctly on ALL pages.
+   z-index:1001 ensures it slides OVER the sticky header (z:1000).
    ═══════════════════════════════════════════════════════════════════ */
 
 .mobile-menu-overlay {
@@ -1019,7 +933,6 @@
   gap: 16px;
 }
 
-/* Mobile User Info */
 .mobile-user-info {
   display: flex;
   align-items: center;
@@ -1048,10 +961,7 @@
   font-weight: 700;
 }
 
-.mobile-user-details {
-  flex: 1;
-  min-width: 0;
-}
+.mobile-user-details { flex: 1; min-width: 0; }
 
 .mobile-user-name {
   font-size: 17px;
@@ -1068,7 +978,6 @@
   white-space: nowrap;
 }
 
-/* Mobile Nav */
 .mobile-nav {
   display: flex;
   flex-direction: column;
@@ -1111,9 +1020,7 @@
   text-align: center;
 }
 
-.mobile-nav-item.expandable {
-  justify-content: space-between;
-}
+.mobile-nav-item.expandable { justify-content: space-between; }
 
 .nav-item-content {
   display: flex;
@@ -1127,17 +1034,10 @@
   transition: transform var(--transition-medium);
 }
 
-.mobile-nav-section.expanded .expand-icon {
-  transform: rotate(180deg);
-}
+.mobile-nav-section.expanded .expand-icon { transform: rotate(180deg); }
 
-.mobile-nav-item.logout {
-  color: #EF4444;
-}
-
-.mobile-nav-item.logout i {
-  color: #EF4444;
-}
+.mobile-nav-item.logout { color: #EF4444; }
+.mobile-nav-item.logout i { color: #EF4444; }
 
 .mobile-nav-divider {
   margin: 12px 0;
@@ -1145,7 +1045,6 @@
   background: var(--header-border);
 }
 
-/* Mobile Submenu */
 .mobile-submenu {
   display: none;
   flex-direction: column;
@@ -1155,9 +1054,7 @@
   margin-bottom: 8px;
 }
 
-.mobile-nav-section.expanded .mobile-submenu {
-  display: flex;
-}
+.mobile-nav-section.expanded .mobile-submenu { display: flex; }
 
 .mobile-submenu-item {
   padding: 10px 16px;
@@ -1173,7 +1070,6 @@
   color: var(--text-primary);
 }
 
-/* Mobile CTA Buttons */
 .mobile-cta-buttons {
   display: flex;
   flex-direction: column;
@@ -1215,122 +1111,48 @@
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
-.mobile-btn i {
-  font-size: 18px;
-}
+.mobile-btn i { font-size: 18px; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RESPONSIVE DESIGN - TABLET & MOBILE
+   RESPONSIVE DESIGN
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Tablet (< 1024px) */
 @media (max-width: 1024px) {
-  :root {
-    --header-padding-x: 24px;
-  }
-  
-  .header-main-nav {
-    gap: 4px;
-  }
-  
-  .nav-button,
-  .nav-link {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-  
-  .mega-menu-dropdown {
-    width: 700px;
-  }
-  
-  .mega-menu-grid {
-    gap: 24px;
-  }
+  :root { --header-padding-x: 24px; }
+  .header-main-nav { gap: 4px; }
+  .nav-button, .nav-link { padding: 10px 12px; font-size: 14px; }
+  .mega-menu-dropdown { width: 700px; }
+  .mega-menu-grid { gap: 24px; }
 }
 
-/* Mobile (< 768px) */
 @media (max-width: 768px) {
   :root {
     --header-height: 60px;
     --header-padding-x: 16px;
   }
-  
-  .header-spacer {
-    height: 60px;
-  }
-  
-  .logo-text {
-    font-size: 18px;
-  }
-  
-  .logo-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .logo-badge {
-    font-size: 10px;
-    padding: 3px 8px;
-  }
-  
-  /* Hide desktop navigation */
-  .desktop-nav,
-  .desktop-only {
-    display: none !important;
-  }
-  
-  /* Show mobile menu toggle */
-  .mobile-menu-toggle {
-    display: flex;
-  }
-  
-  /* Adjust button sizes */
-  .btn-signup {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-  
-  .btn-signup span {
-    display: none;
-  }
-  
-  .btn-signup i {
-    font-size: 18px;
-  }
-  
-  /* Adjust action icons for mobile */
-  .action-icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .action-icon-btn i {
-    font-size: 18px;
-  }
+  .header-spacer { height: 60px; }
+  .logo-text { font-size: 18px; }
+  .logo-icon { width: 32px; height: 32px; }
+  .logo-badge { font-size: 10px; padding: 3px 8px; }
+  .desktop-nav, .desktop-only { display: none !important; }
+  .mobile-menu-toggle { display: flex; }
+  .btn-signup { padding: 10px 20px; font-size: 14px; }
+  .btn-signup span { display: none; }
+  .btn-signup i { font-size: 18px; }
+  .action-icon-btn { width: 36px; height: 36px; }
+  .action-icon-btn i { font-size: 18px; }
 }
 
-/* Small Mobile (< 480px) */
 @media (max-width: 480px) {
-  .header-actions-section {
-    gap: 8px;
-  }
-  
-  .notifications-dropdown {
-    width: calc(100vw - 32px);
-    right: -8px;
-  }
-  
-  .profile-dropdown {
-    width: calc(100vw - 32px);
-    right: -8px;
-  }
+  .header-actions-section { gap: 8px; }
+  .notifications-dropdown { width: calc(100vw - 32px); right: -8px; }
+  .profile-dropdown { width: calc(100vw - 32px); right: -8px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    ACCESSIBILITY & FOCUS STATES
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Focus visible for keyboard navigation */
 .nav-button:focus-visible,
 .nav-link:focus-visible,
 .dropdown-item:focus-visible,
@@ -1340,11 +1162,8 @@
   outline-offset: 2px;
 }
 
-/* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1352,44 +1171,22 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ANIMATIONS & KEYFRAMES
+   ANIMATIONS
    ═══════════════════════════════════════════════════════════════════ */
 
 @keyframes slideInFromTop {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
-.zenopay-header {
-  animation: slideInFromTop 0.4s ease-out;
-}
+.zenopay-header { animation: slideInFromTop 0.4s ease-out; }
 
 /* ═══════════════════════════════════════════════════════════════════
    UTILITY CLASSES
    ═══════════════════════════════════════════════════════════════════ */
 
-.desktop-only {
-  display: flex !important;
-}
+.desktop-only { display: flex !important; }
+@media (max-width: 768px) { .desktop-only { display: none !important; } }
 
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
-
-.mobile-only {
-  display: none !important;
-}
-
-@media (max-width: 768px) {
-  .mobile-only {
-    display: flex !important;
-  }
-}
+.mobile-only { display: none !important; }
+@media (max-width: 768px) { .mobile-only { display: flex !important; } }
