@@ -191,17 +191,12 @@ html {
 
 /* ═══════════════════════════════════════════════════════════════════
    MAIN CONTAINER & LAYOUT
-   FIX: Removed padding from .terms-container (was blocking sticky).
-        Padding moved into .terms-layout so the sticky scroll context
-        is the viewport, not a padded inner container.
    ═══════════════════════════════════════════════════════════════════ */
 
 .terms-container {
   max-width: 1280px;
   margin: 0 auto;
-  /* FIX: padding removed here — it was creating a nested scroll
-     context that prevented position:sticky from working correctly */
-  padding: 0;
+  padding: 60px 40px;
   position: relative;
   overflow: visible;
 }
@@ -210,12 +205,10 @@ html {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 40px;
-  /* FIX: align-items:start is REQUIRED for sticky in CSS Grid */
   align-items: start;
   max-width: 1200px;
   margin: 0 auto;
-  /* FIX: padding moved here from .terms-container */
-  padding: 60px 40px 80px;
+  padding: 40px 24px 80px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -224,12 +217,8 @@ html {
 
 .terms-toc-wrapper {
   position: sticky;
-  /* FIX: changed top from 88px to 24px.
-     88px was pushing the TOC below the viewport on many screens.
-     If your navbar is fixed/sticky and ~64px tall, use top: 80px.
-     Adjust this value to match your actual navbar height. */
-  top: 24px;
-  max-height: calc(100vh - 48px);
+  top: 88px;
+  max-height: calc(100vh - 112px);
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -444,7 +433,6 @@ html {
   border-bottom: none;
 }
 
-/* FIX: Ensure any ancestor wrappers don't break sticky with overflow:hidden */
 .page-wrapper,
 .terms-page,
 .modern-main {
@@ -839,7 +827,7 @@ html {
   }
 
   .terms-container {
-    padding: 0 20px;
+    padding: 40px 20px;
   }
 
   .section-title {

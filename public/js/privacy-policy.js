@@ -9,49 +9,102 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log(`Privacy Policy loaded - Version: ${policyVersion}, User logged in: ${isUserLoggedIn}`);
 
   // Sticky TOC Functionality
-  const sidebar = document.getElementById('termsSidebar');
-  const tocLinks = document.querySelectorAll('.toc-link');
-  const sections = document.querySelectorAll('.terms-section');
+  const tocWrapper = document.getElementById('termsSidebar');
+  const tocLinks = Array.from(document.querySelectorAll('.toc-item[data-section]'));
+  const sections = Array.from(document.querySelectorAll('.terms-section[id]'));
+  const NAVBAR_HEIGHT = 80;
+  const ACTIVE_OFFSET = NAVBAR_HEIGHT + 40;
+  let currentActive = sections[0] ? sections[0].id : '';
 
-  // Intersection Observer for active section highlighting
-  const observerOptions = {
-    root: null,
-    rootMargin: '-20% 0px -70% 0px',
-    threshold: 0
-  };
+  function setActive(sectionId, shouldScrollToc = true) {
+    tocLinks.forEach(link => {
+      const isActive = link.dataset.section === sectionId;
+      link.classList.toggle('toc-active', isActive);
 
+      if (isActive) {
+        link.setAttribute('aria-current', 'true');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const sectionId = entry.target.id;
-        tocLinks.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('data-section') === sectionId) {
-            link.classList.add('active');
+    if (!shouldScrollToc || !tocWrapper) {
+      return;
+    }
+
+    const activeLink = document.querySelector(`.toc-item[data-section="${sectionId}"]`);
+    if (activeLink) {
+      const targetScrollTop = activeLink.offsetTop - (tocWrapper.clientHeight / 2) + (activeLink.clientHeight / 2);
+      tocWrapper.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  if (tocLinks.length && sections.length) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          currentActive = entry.target.id;
+          setActive(currentActive);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: `-${ACTIVE_OFFSET}px 0px -40% 0px`,
+      threshold: 0
+    });
+
+    sections.forEach(section => observer.observe(section));
+
+    let scrollTimer;
+    window.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        let closest = null;
+        let closestDist = Infinity;
+
+        sections.forEach(section => {
+          const rect = section.getBoundingClientRect();
+          const distFromTop = Math.abs(rect.top - ACTIVE_OFFSET);
+
+          if (rect.top <= ACTIVE_OFFSET && distFromTop < closestDist) {
+            closest = section;
+            closestDist = distFromTop;
           }
         });
-      }
+
+        if (closest && closest.id !== currentActive) {
+          currentActive = closest.id;
+          setActive(currentActive);
+        }
+      }, 10);
+    }, { passive: true });
+
+    tocLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.dataset.section;
+        const targetSection = document.getElementById(targetId);
+
+        if (targetSection) {
+          currentActive = targetId;
+          setActive(targetId);
+
+          const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+
+          history.pushState(null, '', `#${targetId}`);
+        }
+      });
     });
-  }, observerOptions);
 
-  sections.forEach(section => observer.observe(section));
-
-  // Smooth scroll for TOC links
-  tocLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetId = link.getAttribute('href').substring(1);
-      const targetSection = document.getElementById(targetId);
-
-      if (targetSection) {
-        targetSection.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  });
+    setActive(currentActive, false);
+  }
 
   // Search Functionality
   const searchInput = document.getElementById('searchInput');

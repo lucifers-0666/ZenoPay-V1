@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/header.css">
   <link rel="stylesheet" href="/css/footer.css">
-  <link rel="stylesheet" href="/css/terms.css">
+  <link rel="stylesheet" href="/css/privacy-policy.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .search-container {
@@ -149,8 +149,8 @@
     <div class="terms-layout">
       
       <!-- Sidebar Table of Contents (Desktop) -->
-      <aside class="terms-sidebar" id="termsSidebar">
-        <div class="sidebar-sticky">
+      <aside class="terms-toc-wrapper" id="termsSidebar">
+        <div class="terms-toc">
           <% if (!isPreview && policy && policy.status === 'published') { %>
           <!-- Search Box -->
           <div class="search-container">
@@ -164,20 +164,18 @@
             <div class="search-results" id="searchResults"></div>
           </div>
           <% } %>
-          
-          <h3 class="sidebar-title">Table of Contents</h3>
-          <nav class="toc-nav">
+
+          <div class="terms-toc-title">Table of Contents</div>
             <% if (policy && policy.sections) { %>
               <% policy.sections.forEach((section, index) => { %>
               <a href="#section-<%= section.id %>" 
-                 class="toc-link <%= index === 0 ? 'active' : '' %>" 
+                 class="toc-item <%= index === 0 ? 'toc-active' : '' %>" 
                  data-section="section-<%= section.id %>">
-                <span class="toc-number"><%= section.id %></span>
+                <span class="toc-num"><%= section.id %></span>
                 <span class="toc-text"><%= section.title %></span>
               </a>
               <% }); %>
             <% } %>
-          </nav>
           
           <!-- Action Buttons -->
           <div class="sidebar-actions">

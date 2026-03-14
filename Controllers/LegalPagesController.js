@@ -3,25 +3,6 @@
  * Handles rendering of legal documents (Terms, Privacy Policy)
  */
 
-// Get Terms & Conditions page
-const getTermsPage = (req, res) => {
-  try {
-    res.render('terms', {
-      pageTitle: 'Terms & Conditions - ZenoPay',
-      isLoggedIn: req.session?.isLoggedIn || false,
-      user: req.session?.user || null
-    });
-  } catch (error) {
-    console.error('Error rendering terms page:', error);
-    res.status(500).render('error-500', {
-      pageTitle: 'Error - ZenoPay',
-      error: 'Failed to load Terms & Conditions',
-      isLoggedIn: false,
-      user: null
-    });
-  }
-};
-
 // Get Privacy Policy page
 const getPrivacyPage = (req, res) => {
   try {
@@ -99,58 +80,6 @@ const getContactPage = (req, res) => {
   }
 };
 
-// API endpoint to get terms version info
-const getTermsVersion = (req, res) => {
-  try {
-    res.json({
-      success: true,
-      version: '2.0',
-      effectiveDate: '2026-01-01',
-      lastUpdated: '2026-01-29',
-      sections: 15
-    });
-  } catch (error) {
-    console.error('Error getting terms version:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve terms version'
-    });
-  }
-};
-
-// API endpoint to accept terms
-const acceptTerms = async (req, res) => {
-  try {
-    if (!req.session?.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
-    }
-
-    const ZenoPayDetails = require('../Models/ZenoPayUser');
-    const userId = req.session.user._id;
-
-    // Update user's terms acceptance
-    await ZenoPayDetails.findByIdAndUpdate(userId, {
-      TermsAccepted: true,
-      TermsAcceptedDate: new Date(),
-      TermsVersion: '2.0'
-    });
-
-    res.json({
-      success: true,
-      message: 'Terms accepted successfully'
-    });
-  } catch (error) {
-    console.error('Error accepting terms:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to record terms acceptance'
-    });
-  }
-};
-
 // Get API Integration page
 const getAPIIntegrationPage = (req, res) => {
   try {
@@ -192,13 +121,10 @@ const getAPIDocsPage = (req, res) => {
 };
 
 module.exports = {
-  getTermsPage,
   getPrivacyPage,
   getAboutPage,
   getHelpPage,
   getContactPage,
   getAPIIntegrationPage,
   getAPIDocsPage,
-  getTermsVersion,
-  acceptTerms
 };
