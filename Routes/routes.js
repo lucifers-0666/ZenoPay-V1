@@ -63,6 +63,7 @@ const upload = multer({
 
 // Auth & Dashboard
 router.get("/", DashboardController.getDashboard);
+router.get("/dashboard", DashboardController.getDashboard);
 router.get("/register", LoginController.getRegister);
 router.post("/register", LoginController.postRegister);
 router.get("/signup", LoginController.getRegister);
@@ -631,6 +632,7 @@ router.post("/settings/notifications", SettingsController.updateNotificationPref
 router.post("/settings/deactivate", SettingsController.deactivateAccount);
 
 // Merchant
+router.get("/create-api-key", MerchantController.getApiKeyPage);
 router.post("/api/merchant/register", MerchantController.registerMerchant);
 router.post("/api/merchant/regenerate-keys", MerchantController.regenerateApiKeys);
 router.post("/api/merchant/settings", MerchantController.updateMerchantSettings);
@@ -651,6 +653,7 @@ router.post("/open-account", BankController.postOpenAccount);
 router.get("/register-bank", BranchController.getBankBranches);
 router.post("/register-bank", BranchController.postBankBranch);
 router.get("/banks", BranchController.getAllBanks);
+router.get("/banks-list", BranchController.getAllBanks);
 router.get("/api/banks", async (req, res) => {
   try {
     const BankBranch = require("../Models/Banks");
@@ -665,6 +668,7 @@ router.get("/api/banks", async (req, res) => {
 
 // Transfer
 router.get("/send-to", TransferController.getTransferMoney);
+router.get("/send-money", TransferController.getTransferMoney);
 router.post("/api/send-money", TransferController.postTransferMoney);
 router.post("/api/verify-receiver", TransferController.verifyReceiver);
 router.get("/api/today-stats", TransferController.getDailyTransactionSummary);
@@ -695,10 +699,12 @@ router.get(
 
 // Transaction History
 router.get("/Transaction-History", TransactionInfoController.getTransactionHistory);
+router.get("/transaction-history", TransactionInfoController.getTransactionHistory);
 router.get("/transaction/:transactionId", TransactionInfoController.getTransactionDetails);
 
 // KYC Verification
 router.get("/kyc", KYCController.getKYCVerification);
+router.get("/kyc-verification", KYCController.getKYCVerification);
 router.get("/verification-status", KYCController.getVerificationStatusPage);
 router.post("/kyc/submit", KYCController.submitKYCDocuments);
 router.get("/kyc/status", KYCController.getKYCStatus);
@@ -770,6 +776,7 @@ router.get("/api/receipt/verify/:receiptId", ReceiptsController.verifyReceiptApi
 
 // Referral Program Routes
 router.get("/referral", ReferralController.getReferralPage);
+router.get("/referral-program", ReferralController.getReferralPage);
 
 // API Routes for Referral Program
 router.get("/api/referral/code", ReferralController.getReferralCode);
