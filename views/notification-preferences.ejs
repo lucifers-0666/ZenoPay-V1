@@ -550,6 +550,7 @@
   </style>
 </head>
 <body>
+  <%- include('partials/header') %>
   <% const emailAddress = (user && user.Email) ? user.Email : 'user@example.com'; %>
   <% const phoneRaw = (user && user.PhoneNumber) ? String(user.PhoneNumber) : '+91 98765 XXXXX'; %>
 
@@ -996,5 +997,6 @@
       applyPausedState();
     })();
   </script>
+  <%- include('partials/footer') %>
 </body>
 </html>

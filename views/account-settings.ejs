@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/account-settings.css">
 </head>
 <body>
+    <%- include('partials/header') %>
     <div class="account-settings-container" data-zenopay-id="<%= user.ZenoPayID %>">
         <!-- Page Header -->
         <div class="page-header">
@@ -577,5 +578,6 @@
     <div id="toast-container" class="toast-container"></div>
 
     <script src="/js/account-settings.js"></script>
+    <%- include('partials/footer') %>
 </body>
 </html>

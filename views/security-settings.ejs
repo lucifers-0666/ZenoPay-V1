@@ -650,6 +650,7 @@
   </style>
 </head>
 <body>
+  <%- include('partials/header') %>
   <% const score = security?.score ?? 85; %>
   <% const ringLength = 251.2; %>
   <% const ringOffset = ringLength - ((Math.max(0, Math.min(100, score)) / 100) * ringLength); %>
@@ -844,5 +845,6 @@
       });
     })();
   </script>
+  <%- include('partials/footer') %>
 </body>
 </html>

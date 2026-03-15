@@ -613,6 +613,7 @@
   </style>
 </head>
 <body>
+  <%- include('partials/header') %>
   <% const available = Number(balance || 2450); %>
   <% const accountList = (accounts && accounts.length) ? accounts : [
     { id: 'acc1', bankName: 'HDFC Bank', holder: 'Rahul Sharma', accountMasked: 'XXXX XXXX 8834', ifsc: 'HDFC0001234' },
@@ -881,5 +882,6 @@
       update();
     })();
   </script>
+  <%- include('partials/footer') %>
 </body>
 </html>

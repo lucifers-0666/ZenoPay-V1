@@ -452,6 +452,7 @@
   </style>
 </head>
 <body class="<%= mode === 'maintenance' ? 'maintenance-body' : 'status-body' %>">
+  <%- include('partials/header') %>
   <% if (mode === 'status') { %>
     <div class="wrapper">
       <section class="hero">
@@ -601,5 +602,6 @@
       })();
     </script>
   <% } %>
+  <%- include('partials/footer') %>
 </body>
 </html>
