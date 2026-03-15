@@ -7,10 +7,10 @@
 }
 
 :root {
-  /* Premium Fintech Color System */
-  --primary: #3B82F6;
-  --primary-dark: #2563EB;
-  --primary-light: #60A5FA;
+  /* Shared auth token alignment */
+  --primary: #4a6cf7;
+  --primary-dark: #2d3a9a;
+  --primary-light: #7f96ff;
   --secondary: #8B5CF6;
   --secondary-dark: #7C3AED;
   --success: #10B981;
@@ -19,10 +19,9 @@
   --accent-dark: #D97706;
 
   /* Legacy colors for compatibility */
-  --primary-dark: #1b3c53;
-  --primary-blue: #3B82F6;
-  --primary-blue-light: #60A5FA;
-  --primary-blue-lighter: #93C5FD;
+  --primary-blue: #4a6cf7;
+  --primary-blue-light: #7f96ff;
+  --primary-blue-lighter: #b8c6ff;
   --accent-beige: #d2c1b6;
   --light-cream: #f9f3ef;
 
@@ -48,8 +47,8 @@
   --slate-900: #1F2937;
 
   /* Text Colors */
-  --text-dark: #2c3e50;
-  --text-light: #6c757d;
+  --text-dark: #1a1a2e;
+  --text-light: #6b7280;
 
   /* Accent Colors */
   --emerald-500: #10B981;
@@ -90,13 +89,13 @@ body {
 /* ============ LEFT SIDE: BRAND SECTION ============ */
 .brand-section {
   flex: 0 0 40%;
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(180deg, #1a1f5e 0%, #2d3a9a 52%, #4a6cf7 100%);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  padding: 2.5rem;
 }
 
 .brand-overlay {
@@ -159,10 +158,10 @@ body {
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
-  padding: 1.5rem;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 15px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
@@ -173,9 +172,9 @@ body {
 }
 
 .feature-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   background: rgba(234, 216, 192, 0.2);
   display: flex;
   align-items: center;
@@ -285,14 +284,14 @@ body {
 /* ============ RIGHT SIDE: FORM SECTION ============ */
 .form-section {
   flex: 0 0 60%;
-  padding: 2rem;
+  padding: 2.4rem;
   overflow-y: auto;
   background: var(--white);
   position: relative;
 }
 
 .form-wrapper {
-  max-width: 500px;
+  max-width: 480px;
   margin: 0 auto;
   animation: fadeIn 0.8s ease;
 }
@@ -318,11 +317,11 @@ body {
 }
 
 .form-header h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--text-dark);
   margin-bottom: 0.5rem;
-  letter-spacing: -1px;
+  letter-spacing: -0.02em;
 }
 
 .form-header p {
@@ -339,12 +338,13 @@ body {
 }
 
 .social-btn {
-  padding: 0.9rem 1.5rem;
-  border-radius: 12px;
-  border: 2px solid var(--border-color);
+  height: 46px;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
   background: var(--white);
   color: var(--text-dark);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -355,8 +355,8 @@ body {
 }
 
 .social-btn:hover {
-  border-color: var(--text-dark);
-  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
   box-shadow: 0 8px 20px var(--shadow);
 }
 
@@ -409,7 +409,7 @@ body {
 }
 
 .form-label {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-dark);
   display: flex;
@@ -423,10 +423,11 @@ body {
 }
 
 .form-input {
-  padding: 0.9rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 1rem;
+  height: 48px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
   background: var(--white);
   color: var(--text-dark);
@@ -435,9 +436,9 @@ body {
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 4px rgba(69, 104, 130, 0.1);
-  transform: translateY(-2px);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+  transform: none;
 }
 
 .form-input::placeholder {
@@ -475,10 +476,11 @@ body {
 
 .country-code {
   flex: 0 0 100px;
-  padding: 0.9rem;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 1rem;
+  height: 48px;
+  padding: 0.7rem;
+  border: 1.5px solid var(--input-border);
+  border-radius: 10px;
+  font-size: 0.9rem;
   background: var(--white);
   color: var(--text-dark);
   cursor: pointer;
@@ -487,8 +489,8 @@ body {
 
 .country-code:focus {
   outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 4px rgba(69, 104, 130, 0.1);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
 }
 
 .phone-input {
@@ -661,8 +663,9 @@ body {
 
 /* Submit Button */
 .submit-btn {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+  height: 52px;
+  padding: 0.9rem 1.25rem;
+  background: linear-gradient(135deg, #4a6cf7, #2d3a9a);
   color: var(--white);
   border: none;
   border-radius: 12px;
@@ -679,8 +682,8 @@ body {
 }
 
 .submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(69, 104, 130, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(45, 58, 154, 0.25);
 }
 
 .submit-btn:active {
@@ -928,6 +931,20 @@ body {
 }
 
 @media (max-width: 768px) {
+  .brand-section {
+    display: none;
+  }
+
+  .form-section {
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 24px;
+  }
+
+  .form-wrapper {
+    max-width: 480px;
+  }
+
   .form-header h1 {
     font-size: 2rem;
   }

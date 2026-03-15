@@ -92,6 +92,9 @@ app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+if (process.env.NODE_ENV !== "production") {
+  app.set("view cache", false);
+}
 
 // EJS Layouts - admin routes set res.locals.layout in their router middleware
 // Non-admin routes use the pass-through views/layout.ejs (just <%- body %>)
