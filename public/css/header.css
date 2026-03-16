@@ -25,7 +25,6 @@
   --header-bg:          rgba(255,255,255,0.97);
   --header-shadow:      0 1px 0 #E5E7EB, 0 2px 12px rgba(0,0,0,0.06);
 
-  /* KEY: header is STICKY so spacer must be 0 — sticky does NOT need a spacer */
   --header-height:      68px;
   --header-padding-x:   48px;
   --container-max:      1280px;
@@ -33,7 +32,8 @@
   --z-header:           1000;
   --z-dropdown:         1100;
   --z-mobile-menu:      1100;
-  --z-mobile-nav:       900;
+  /* FIXED: bottom nav must be ABOVE footer (footer is usually z-index 1 or auto) */
+  --z-mobile-nav:       9999;
 
   --ease:               0.18s ease;
   --ease-slow:          0.28s ease;
@@ -62,9 +62,6 @@
   box-shadow: 0 1px 0 #E5E7EB, 0 4px 24px rgba(0,0,0,0.1);
 }
 
-/* CRITICAL FIX: sticky header does NOT need a spacer.
-   The spacer caused the double-height empty gap.
-   Set to 0 so it takes up no space. */
 .header-spacer { height: 0; display: none; }
 
 .header-inner {
@@ -431,7 +428,6 @@
   pointer-events: none;
 }
 
-/* Dashboard quick link */
 .dashboard-link {
   display: flex;
   align-items: center;
@@ -448,7 +444,6 @@
 .dashboard-link:hover { background: var(--bg-hover); color: var(--text-primary); }
 .dashboard-link i { font-size: 17px; }
 
-/* Avatar button */
 .avatar-btn {
   display: flex;
   align-items: center;
@@ -480,7 +475,6 @@
   font-weight: 700;
 }
 
-/* Auth buttons */
 .btn-login {
   display: flex;
   align-items: center;
@@ -736,7 +730,7 @@
 .mobile-toggle i { font-size: 21px; color: var(--text-secondary); }
 
 /* ═══════════════════════════════════════════════
-   MOBILE MENU
+   MOBILE MENU OVERLAY
    ═══════════════════════════════════════════════ */
 
 .mobile-overlay {
@@ -887,19 +881,23 @@
 
 .mob-btn i { font-size: 17px; }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAVIGATION BAR — FIXED, CONSISTENT ALL PAGES
+   ═══════════════════════════════════════════════════════════ */
 
-/* ===== MOBILE BOTTOM NAVIGATION ===== */
-
+/* Hidden on desktop by default */
 .mobile-bottom-nav {
-  display: none; /* hidden on desktop by default */
+  display: none;
 }
 
+/* Spacer hidden on desktop */
 .mobile-bottom-spacer {
   display: none;
 }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════ */
 
 @media (max-width: 1024px) {
   :root { --header-padding-x: 24px; }
@@ -923,26 +921,31 @@
   .action-btn { width: 34px; height: 34px; }
   .action-btn i { font-size: 17px; }
 
-  /* Show bottom nav only on mobile */
+  /* ─── BOTTOM NAV: VISIBLE ON MOBILE ─── */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    /* FIXED: z-index 9999 ensures it sits above footer and ALL page content */
     z-index: 9999;
-    background: #161B22;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    /* FIXED: solid opaque background — no transparency so footer cannot bleed through */
+    background: #13181F;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    /* FIXED: padding-bottom uses safe-area for iPhone home bar */
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.55);
     justify-content: space-around;
-    align-items: center;
+    align-items: stretch;
+    /* FIXED: min-height prevents nav from being too small on small phones */
+    min-height: 60px;
   }
 
-  /* Spacer pushes page content up so bottom nav doesnt cover it */
+  /* FIXED: Spacer height = nav height + safe area — pushes ALL page content up */
   .mobile-bottom-spacer {
     display: block;
-    height: 72px;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Each nav item */
@@ -951,21 +954,24 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     text-decoration: none;
     color: #64748B;
     flex: 1;
-    padding: 4px 8px;
+    padding: 4px 6px;
     transition: color 0.2s ease;
     position: relative;
     min-width: 0;
+    /* FIXED: pointer-events must be auto so taps work */
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Icon wrapper */
   .mobile-nav-icon {
     position: relative;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -974,27 +980,27 @@
   }
 
   .mobile-nav-icon i {
-    font-size: 18px;
+    font-size: 19px;
     transition: color 0.2s ease;
   }
 
   /* Label text */
   .mobile-nav-label {
     font-size: 10px;
-    font-family: var(--zenopay-font-sans);
     font-weight: 500;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
     white-space: nowrap;
     transition: color 0.2s ease;
+    line-height: 1;
   }
 
-  /* Active state — teal/blue highlight like the demo */
+  /* Active state — cyan highlight */
   .mobile-nav-item.active {
     color: #06B6D4;
   }
 
   .mobile-nav-item.active .mobile-nav-icon {
-    background: rgba(6, 182, 212, 0.12);
+    background: rgba(6, 182, 212, 0.15);
     transform: translateY(-2px);
   }
 
@@ -1009,7 +1015,7 @@
 
   /* Hover state */
   .mobile-nav-item:hover .mobile-nav-icon {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.07);
   }
 
   /* Notification badge */
@@ -1028,23 +1034,27 @@
     align-items: center;
     justify-content: center;
     padding: 0 3px;
-    border: 2px solid #161B22;
+    /* FIXED: border color matches the nav bg */
+    border: 2px solid #13181F;
   }
 
-  /* Hide the top hamburger/mobile menu button when bottom nav is active */
+  /* FIXED: hide hamburger toggle — bottom nav replaces it */
   .zenopay-header .mobile-toggle {
-    display: none;
-  }
-
-  /* Simplify top header on mobile — show only logo + avatar */
-  .zenopay-header .header-nav,
-  .zenopay-header .dropdown,
-  .zenopay-header .mega-menu {
     display: none !important;
   }
 
+  /* FIXED: hide the slide-out mobile overlay — bottom nav is used instead */
   .mobile-overlay {
     display: none !important;
+  }
+
+  /* FIXED: force footer to stay below bottom nav — no z-index competition */
+  footer,
+  .site-footer,
+  .zenopay-footer,
+  [class*="footer"] {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -1052,6 +1062,10 @@
   .header-actions { gap: 6px; }
   .notif-dropdown { width: calc(100vw - 28px); right: -8px; }
   .profile-drop   { width: calc(100vw - 28px); right: -8px; }
+
+  /* Slightly smaller icons on very small phones */
+  .mobile-nav-icon i { font-size: 17px; }
+  .mobile-nav-label  { font-size: 9px; }
 }
 
 /* ═══════════════════════════════════════════════
@@ -1075,7 +1089,6 @@
   }
 }
 
-/* Animate on first load */
 @keyframes headerIn {
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
