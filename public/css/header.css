@@ -891,6 +891,16 @@
    RESPONSIVE
    ═══════════════════════════════════════════════ */
 
+/* ===== MOBILE BOTTOM NAVIGATION ===== */
+
+.mobile-bottom-nav {
+  display: none; /* hidden on desktop by default */
+}
+
+.mobile-bottom-spacer {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   :root { --header-padding-x: 24px; }
   .nav-btn, .nav-link { font-size: 13.5px; padding: 8px 11px; }
@@ -912,6 +922,130 @@
   .btn-signup { padding: 9px 12px; }
   .action-btn { width: 34px; height: 34px; }
   .action-btn i { font-size: 17px; }
+
+  /* Show bottom nav only on mobile */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #161B22;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  /* Spacer pushes page content up so bottom nav doesnt cover it */
+  .mobile-bottom-spacer {
+    display: block;
+    height: 72px;
+  }
+
+  /* Each nav item */
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    color: #64748B;
+    flex: 1;
+    padding: 4px 8px;
+    transition: color 0.2s ease;
+    position: relative;
+    min-width: 0;
+  }
+
+  /* Icon wrapper */
+  .mobile-nav-icon {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .mobile-nav-icon i {
+    font-size: 18px;
+    transition: color 0.2s ease;
+  }
+
+  /* Label text */
+  .mobile-nav-label {
+    font-size: 10px;
+    font-family: var(--zenopay-font-sans);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+
+  /* Active state — teal/blue highlight like the demo */
+  .mobile-nav-item.active {
+    color: #06B6D4;
+  }
+
+  .mobile-nav-item.active .mobile-nav-icon {
+    background: rgba(6, 182, 212, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .mobile-nav-item.active .mobile-nav-icon i {
+    color: #06B6D4;
+  }
+
+  .mobile-nav-item.active .mobile-nav-label {
+    color: #06B6D4;
+    font-weight: 600;
+  }
+
+  /* Hover state */
+  .mobile-nav-item:hover .mobile-nav-icon {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Notification badge */
+  .mobile-nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #EF4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 2px solid #161B22;
+  }
+
+  /* Hide the top hamburger/mobile menu button when bottom nav is active */
+  .zenopay-header .mobile-toggle {
+    display: none;
+  }
+
+  /* Simplify top header on mobile — show only logo + avatar */
+  .zenopay-header .header-nav,
+  .zenopay-header .dropdown,
+  .zenopay-header .mega-menu {
+    display: none !important;
+  }
+
+  .mobile-overlay {
+    display: none !important;
+  }
 }
 
 @media (max-width: 480px) {
