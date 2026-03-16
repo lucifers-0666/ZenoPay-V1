@@ -3,7 +3,8 @@
    Applies to: /admin/* and /blog/admin/*
    ============================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+@import url('/css/global-fonts.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
 
 :root {
   /* Core tokens (matched to user-side palette) */
@@ -94,7 +95,7 @@ html, body { min-height: 100%; }
 
 body,
 body.admin-body {
-  font-family: 'Inter', 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: var(--zenopay-font-sans);
   background: var(--bg-page);
   color: var(--text-main);
   line-height: 1.55;
