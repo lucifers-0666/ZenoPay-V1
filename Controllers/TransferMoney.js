@@ -11,7 +11,7 @@ const getTransferMoney = async (req, res) => {
 
     // Fetch all accounts for this user
     console.log('[getTransferMoney] Querying BankAccount...');
-    const accounts = await BankAccount.find({ ZenoPayId: zenoPayId }).lean();
+    const accounts = (await BankAccount.find({ ZenoPayId: zenoPayId }).lean()) || [];
     console.log(`[getTransferMoney] Query returned: ${accounts ? accounts.length + ' accounts' : 'null'}`);
     
     if (!accounts || accounts.length === 0) {
@@ -41,7 +41,7 @@ const getTransferMoney = async (req, res) => {
     }
 
     console.log('[getTransferMoney] About to render send-money template');
-    res.render("send-money", {
+    return res.render("send-money", {
       pageTitle: "Send Money",
       currentPage: "send-money",
       accounts: accounts || [],
@@ -55,10 +55,9 @@ const getTransferMoney = async (req, res) => {
     console.error(`[getTransferMoney] Error message: ${err.message}`);
     console.error(`[getTransferMoney] Error stack:`, err.stack);
     console.error(`[getTransferMoney] Full error object:`, err);
-    res.status(500).json({
-      error: 'Failed to load Send Money page',
-      message: err.message,
-      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
     });
   }
 };

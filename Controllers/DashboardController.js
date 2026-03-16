@@ -12,23 +12,17 @@ const getDashboard = async (req, res) => {
       pageTitle: "Dashboard",
       currentPage: "dashboard",
       user: req.session.user || null,
+      accounts: [],
+      transactions: [],
       qrCode: req.session.qrCode || null,
       isLoggedIn: req.session.isLoggedIn || false,
       stats,
     });
-  } catch (_err) {
-    res.render("dashboard", {
-      pageTitle: "Dashboard",
-      currentPage: "dashboard",
-      user: req.session.user || null,
-      qrCode: req.session.qrCode || null,
-      isLoggedIn: req.session.isLoggedIn || false,
-      stats: {
-        activeUsers: 10000,
-        processed: 500,
-        uptime: 99.9,
-        settlementTime: 2,
-      },
+  } catch (err) {
+    console.error("Error loading dashboard:", err);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
     });
   }
 };

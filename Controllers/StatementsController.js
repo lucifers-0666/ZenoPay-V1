@@ -92,6 +92,7 @@ exports.getStatementsPage = async (req, res) => {
       pageTitle: 'Monthly Statements - ZenoPay',
       user: req.session?.user || { FullName: 'Demo User', ZenoPayID: 'demo-user' },
       isLoggedIn: !!req.session?.user,
+      statements: [],
       currentMonthStats: currentMonthStats || {
         totalSpent: 3250.00,
         moneySent: { amount: 3250.00, count: 28 },
@@ -101,7 +102,10 @@ exports.getStatementsPage = async (req, res) => {
     });
   } catch (error) {
     console.error('[Statements] CRITICAL ERROR:', error);
-    res.status(500).render('error-500');
+    return res.status(500).render('error-500', {
+      pageTitle: 'Server Error - ZenoPay',
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
   }
 };
 

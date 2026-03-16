@@ -1,4 +1,21 @@
 <!-- ZenoPay Header v2 — Auth-aware, fully linked, no empty spacer gap -->
+<%
+  const currentUser = typeof user !== 'undefined' ? user : null;
+  const loggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : !!currentUser;
+  const currentUserName = (currentUser && (currentUser.Name || currentUser.FullName)) ? (currentUser.Name || currentUser.FullName) : 'User';
+  const currentUserInitial = currentUserName.charAt(0).toUpperCase();
+%>
+<script>
+  (function ensureHeaderCss() {
+    var href = '/css/header.css';
+    if (!document.querySelector('link[href="' + href + '"]')) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+  })();
+</script>
 <header class="zenopay-header" id="zenoHeader">
   <div class="header-inner">
 
@@ -182,7 +199,7 @@
     <!-- ── RIGHT ACTIONS ── -->
     <div class="header-actions">
 
-      <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && user) { %>
+      <% if (loggedIn && currentUser) { %>
 
         <!-- LOGGED IN: Dashboard link -->
         <a href="/" class="dashboard-link desktop-only">
@@ -235,22 +252,22 @@
         <!-- Profile -->
         <div class="action-wrapper" id="profileWrapper">
           <button class="avatar-btn" id="profileBtn" aria-label="Profile menu">
-            <% if (user.ProfilePicture) { %>
-              <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="avatar-img" />
+            <% if (currentUser.ProfilePicture) { %>
+              <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="avatar-img" />
             <% } else { %>
-              <div class="avatar-initials"><%= user.Name.charAt(0).toUpperCase() %></div>
+              <div class="avatar-initials"><%= currentUserInitial %></div>
             <% } %>
           </button>
           <div class="profile-drop" id="profileDrop">
             <div class="profile-info">
-              <% if (user.ProfilePicture) { %>
-                <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="profile-avatar-lg" />
+              <% if (currentUser.ProfilePicture) { %>
+                <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="profile-avatar-lg" />
               <% } else { %>
-                <div class="profile-avatar-lg placeholder"><%= user.Name.charAt(0).toUpperCase() %></div>
+                <div class="profile-avatar-lg placeholder"><%= currentUserInitial %></div>
               <% } %>
               <div class="profile-detail">
-                <div class="profile-name"><%= user.Name %></div>
-                <div class="profile-email"><%= user.Email || user.ZenoPayID %></div>
+                <div class="profile-name"><%= currentUserName %></div>
+                <div class="profile-email"><%= currentUser.Email || currentUser.ZenoPayID %></div>
               </div>
             </div>
             <div class="profile-menu">
@@ -323,18 +340,18 @@
 <div class="mobile-overlay" id="mobileOverlay">
   <div class="mobile-inner">
 
-    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn && user) { %>
+    <% if (loggedIn && currentUser) { %>
 
       <!-- LOGGED IN mobile -->
       <div class="mobile-user-card">
-        <% if (user.ProfilePicture) { %>
-          <img src="<%= user.ProfilePicture %>" alt="<%= user.Name %>" class="mob-avatar" />
+        <% if (currentUser.ProfilePicture) { %>
+          <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="mob-avatar" />
         <% } else { %>
-          <div class="mob-avatar placeholder"><%= user.Name.charAt(0).toUpperCase() %></div>
+          <div class="mob-avatar placeholder"><%= currentUserInitial %></div>
         <% } %>
         <div>
-          <div class="mob-user-name"><%= user.Name %></div>
-          <div class="mob-user-email"><%= user.Email || user.ZenoPayID %></div>
+          <div class="mob-user-name"><%= currentUserName %></div>
+          <div class="mob-user-email"><%= currentUser.Email || currentUser.ZenoPayID %></div>
         </div>
       </div>
 

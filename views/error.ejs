@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Error - ZenoPay</title>
+  <link rel="stylesheet" href="/css/header.css" />
   <style>
     body { font-family: Arial, sans-serif; background:#f6f7fb; color:#1f2937; margin:0; }
     .wrap { max-width:720px; margin:80px auto; background:#fff; border-radius:12px; padding:32px; box-shadow:0 8px 30px rgba(0,0,0,.08); }
@@ -13,6 +14,7 @@
   </style>
 </head>
 <body>
+  <%- include('partials/header') %>
   <div class="wrap">
     <h1>Something went wrong</h1>
     <p class="msg"><%= typeof error !== 'undefined' && error ? error : 'An unexpected error occurred.' %></p>

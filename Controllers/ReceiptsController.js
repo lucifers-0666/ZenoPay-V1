@@ -109,11 +109,15 @@ exports.getReceiptsPage = async (req, res) => {
     res.render('receipts', {
       pageTitle: 'Payment Receipts - ZenoPay',
       user: req.session?.user || { FullName: 'Demo User', ZenoPayID: 'demo-user' },
+      receipts: [],
       stats: stats
     });
   } catch (error) {
     console.error('[Receipts] CRITICAL ERROR:', error);
-    res.status(500).render('error-500');
+    return res.status(500).render('error-500', {
+      pageTitle: 'Server Error - ZenoPay',
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
   }
 };
 

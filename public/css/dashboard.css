@@ -141,9 +141,6 @@ section:first-of-type {
   --transition-slow: 500ms ease;
 
   /* Z-index */
-  --z-header: 50;
-  --z-mobile-menu: 60;
-  --z-mobile-nav: 40;
 }
 
 /* ====================================
@@ -218,13 +215,13 @@ button {
   transition: var(--transition-base);
 }
 
-.header-container {
+.modern-header .header-container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-.header-content {
+.modern-header .header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -232,7 +229,7 @@ button {
 }
 
 /* Logo */
-.header-logo {
+.modern-header .header-logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -242,24 +239,24 @@ button {
   cursor: pointer;
 }
 
-.header-logo .logo-icon {
+.modern-header .header-logo .logo-icon {
   width: 40px;
   height: 40px;
 }
 
-.logo-text {
+.modern-header .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
 }
 
 /* Desktop Navigation */
-.header-nav {
+.modern-header .header-nav {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
 
-.nav-link {
+.modern-header .nav-link {
   font-size: 0.938rem;
   font-weight: 500;
   color: var(--slate-700);
@@ -267,11 +264,11 @@ button {
   position: relative;
 }
 
-.nav-link:hover {
+.modern-header .nav-link:hover {
   color: var(--primary-cyan-600);
 }
 
-.nav-link::after {
+.modern-header .nav-link::after {
   content: '';
   position: absolute;
   bottom: -4px;
@@ -282,12 +279,12 @@ button {
   transition: var(--transition-base);
 }
 
-.nav-link:hover::after {
+.modern-header .nav-link:hover::after {
   width: 100%;
 }
 
 /* Header Actions */
-.header-actions {
+.modern-header .header-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -348,11 +345,11 @@ button {
 }
 
 /* Responsive Helpers */
-.desktop-only {
+.modern-header .desktop-only {
   display: flex;
 }
 
-.mobile-only {
+.modern-header .mobile-only {
   display: none;
 }
 
@@ -2244,7 +2241,7 @@ button {
 
 /* Tablet (768px - 1024px) */
 @media (max-width: 1024px) {
-  .header-nav {
+  .modern-header .header-nav {
     gap: 1.5rem;
   }
 
@@ -2293,11 +2290,11 @@ button {
     padding-bottom: 64px;
   }
 
-  .desktop-only {
+  .modern-header .desktop-only {
     display: none !important;
   }
 
-  .mobile-only {
+  .modern-header .mobile-only {
     display: flex !important;
   }
 
@@ -2541,8 +2538,6 @@ html {
 .hero-logged-in,
 .hero-guest {
   margin-top: 0;
-  padding-top: 120px;
-  /* Space for fixed header */
 }
 
 /* 1. STATS SECTION */

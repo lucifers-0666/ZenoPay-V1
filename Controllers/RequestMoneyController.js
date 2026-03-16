@@ -35,11 +35,15 @@ const getRequestMoneyPage = async (req, res) => {
       pageTitle: "Request Money",
       isLoggedIn: true,
       user,
+      accounts: [],
       templates,
     });
   } catch (error) {
     console.error("Error loading request money page:", error);
-    res.status(500).send("Unable to load Request Money page");
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
   }
 };
 
@@ -189,6 +193,7 @@ const getRequestMoneyDetailsPage = async (req, res) => {
       pageTitle: "Money Request Details",
       isLoggedIn: true,
       user,
+      accounts: [],
       request,
       status,
       meta,
@@ -199,7 +204,10 @@ const getRequestMoneyDetailsPage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading request money details page:", error);
-    res.status(500).send("Unable to load Request Money details");
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
   }
 };
 
