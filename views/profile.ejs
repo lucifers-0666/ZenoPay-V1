@@ -5,534 +5,828 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZenoPay Profile</title>
     <link rel="stylesheet" href="/css/header.css" />
-    <link rel="stylesheet" href="/css/dashboard.css" />
-    <link rel="stylesheet" href="/css/profile.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <style>
+      :root {
+        --bg-main: #f8fafc;
+        --bg-card: rgba(255, 255, 255, 0.92);
+        --bg-input: #ffffff;
+        --border-soft: #e2e8f0;
+        --border-input: #e2e8f0;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --blue: #3b82f6;
+        --purple: #8b5cf6;
+        --green: #10b981;
+        --primary-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        --card-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg-main) 100%);
+        color: var(--text-primary);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .profile-main {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 20px 16px 42px;
+      }
+
+      .profile-shell {
+        background: transparent;
+      }
+
+      .profile-hero {
+        background:
+          radial-gradient(circle at top left, rgba(59, 130, 246, 0.26) 0%, transparent 42%),
+          radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.32) 0%, transparent 46%),
+          linear-gradient(135deg, #102a6b 0%, #1d4ed8 45%, #6d28d9 100%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+        padding: 24px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 24px;
+        align-items: center;
+      }
+
+      .avatar-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .avatar-ring {
+        width: 106px;
+        height: 106px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        padding: 3px;
+        box-shadow: 0 10px 26px rgba(59, 130, 246, 0.35);
+      }
+
+      .avatar-core {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1d4ed8;
+        font-size: 2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .avatar-upload-btn {
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+        border-radius: 999px;
+        height: 36px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        font-size: 0.84rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .avatar-upload-btn:hover {
+        background: rgba(255, 255, 255, 0.28);
+        border-color: rgba(255, 255, 255, 0.52);
+      }
+
+      .hero-name {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.15;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .hero-meta {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .zp-id-badge {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        gap: 0.55rem;
+        align-items: center;
+      }
+
+      .copy-zpid-btn {
+        border: 0;
+        background: transparent;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      .hero-subline {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .hero-line {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.92rem;
+        display: inline-flex;
+        gap: 0.55rem;
+        align-items: center;
+      }
+
+      .hero-line i {
+        color: #bfdbfe;
+      }
+
+      .status-row {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .status-pill {
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .status-pill.verified {
+        color: #e8fff5;
+        border-color: rgba(167, 243, 208, 0.3);
+        background: rgba(16, 185, 129, 0.22);
+      }
+
+      .status-pill.kyc {
+        color: #eff6ff;
+        border-color: rgba(191, 219, 254, 0.35);
+        background: rgba(59, 130, 246, 0.24);
+      }
+
+      .tab-nav {
+        margin-top: 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 0 16px;
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+      }
+
+      .tab-btn {
+        border: 0;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 14px 8px;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        transition: color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .tab-btn:hover {
+        color: #1d4ed8;
+      }
+
+      .tab-btn.active {
+        color: #1f2937;
+        border-bottom-color: var(--blue);
+      }
+
+      .tab-panel {
+        margin-top: 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: var(--card-shadow);
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .section-title {
+        margin: 0 0 16px;
+        color: var(--text-primary);
+        font-size: 1.02rem;
+        font-weight: 700;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .info-grid.three-col {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .info-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid var(--border-input);
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr);
+        gap: 10px;
+        align-items: flex-start;
+        transition: border-color 0.2s ease;
+      }
+
+      .info-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+      }
+
+      .info-card.span-full {
+        grid-column: 1 / -1;
+      }
+
+      .info-icon {
+        color: var(--blue);
+        margin-top: 2px;
+      }
+
+      .info-label {
+        margin: 0;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .info-value {
+        margin: 6px 0 0;
+        color: var(--text-primary);
+        font-size: 15px;
+        font-weight: 500;
+        word-break: break-word;
+      }
+
+      .edit-btn-wrap {
+        margin-top: 16px;
+      }
+
+      .btn-gradient {
+        border: 0;
+        border-radius: 8px;
+        padding: 12px 28px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 600;
+        background: var(--primary-gradient);
+        color: #fff;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .btn-gradient:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.35);
+      }
+
+      .list-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .account-card,
+      .debit-visual-wrap {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid var(--border-input);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .account-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .account-bank {
+        font-weight: 700;
+        color: var(--text-primary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+      }
+
+      .account-bank i {
+        color: var(--blue);
+      }
+
+      .pill-primary {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid rgba(16, 185, 129, 0.45);
+        color: #047857;
+        background: rgba(16, 185, 129, 0.14);
+      }
+
+      .account-number {
+        margin-top: 10px;
+        color: var(--text-primary);
+        font-size: 1.02rem;
+        letter-spacing: 0.04em;
+      }
+
+      .account-meta {
+        margin-top: 8px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .row-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn-soft,
+      .btn-outline {
+        border-radius: 8px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        padding: 9px 13px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn-soft {
+        border: 1px solid var(--border-input);
+        background: #ffffff;
+        color: var(--text-primary);
+      }
+
+      .btn-outline {
+        border: 1px solid rgba(59, 130, 246, 0.45);
+        background: transparent;
+        color: #1d4ed8;
+      }
+
+      .btn-outline:hover {
+        background: rgba(59, 130, 246, 0.08);
+      }
+
+      .add-btn-wrap {
+        margin-top: 14px;
+      }
+
+      .debit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 12px;
+      }
+
+      .debit-visual {
+        border-radius: 12px;
+        padding: 16px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6 70%);
+        border: 1px solid rgba(191, 219, 254, 0.55);
+        min-height: 178px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .debit-visual .top {
+        display: flex;
+        justify-content: space-between;
+        color: #e2e8f0;
+        font-size: 0.85rem;
+      }
+
+      .debit-num {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+      }
+
+      .debit-foot {
+        display: flex;
+        justify-content: space-between;
+        color: #dbeafe;
+        font-size: 0.85rem;
+      }
+
+      .empty-state {
+        border: 1px dashed var(--border-input);
+        background: rgba(59, 130, 246, 0.04);
+        border-radius: 10px;
+        padding: 18px;
+        color: var(--text-secondary);
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+          justify-items: start;
+        }
+
+        .avatar-wrap {
+          align-items: flex-start;
+        }
+
+        .info-grid,
+        .info-grid.three-col {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Sidebar -->
+    <%
+      const fullName = user?.fullName || user?.FullName || user?.Name || 'Not provided';
+      const zenoPayId = user?.zenoPayId || user?.ZenoPayID || 'ZP-XXXXXX';
+      const email = user?.email || user?.Email || '';
+      const mobile = user?.mobile || user?.Mobile || '';
+      const dobRaw = user?.dob || user?.DOB;
+      const dob = dobRaw ? new Date(dobRaw).toLocaleDateString('en-IN') : 'Not provided';
+      const gender = user?.gender || user?.Gender || 'Not provided';
+      const fatherName = user?.fatherName || user?.FatherName || 'Not provided';
+      const motherName = user?.motherName || user?.MotherName || 'Not provided';
+      const address = user?.address || user?.Address || 'Not provided';
+      const city = user?.city || user?.City || 'Not provided';
+      const state = user?.state || user?.State || 'Not provided';
+      const pincode = user?.pincode || user?.Pincode || 'Not provided';
+      const profileInitial = (fullName || 'Z').charAt(0).toUpperCase();
+      const memberSinceRaw = user?.registrationDate || user?.RegistrationDate || user?.createdAt;
+      const memberSince = memberSinceRaw ? new Date(memberSinceRaw).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Not available';
+      const isProfileVerified = Boolean(user?.isVerified ?? user?.IsVerified ?? true);
+      const rawKycStatus = (user?.kycStatus || user?.KYCStatus || 'Complete').toString().toLowerCase();
+      const isKycComplete = ['complete', 'completed', 'verified', 'approved'].includes(rawKycStatus);
+      const linkedAccounts = (typeof accounts !== 'undefined' && accounts) ? accounts : ((typeof bankAccounts !== 'undefined' && bankAccounts) ? bankAccounts : []);
+      const linkedCards = (typeof cards !== 'undefined' && cards && cards.length)
+        ? cards
+        : linkedAccounts.filter((a) => a?.DebitCardNumber || a?.cardNumber);
+      const maskAccountNumber = (value) => {
+        const safe = String(value || '').replace(/\s+/g, '');
+        const last4 = safe.slice(-4);
+        return last4 ? `••••${last4}` : '••••0000';
+      };
+      const maskCardNumber = (value) => {
+        const safe = String(value || '').replace(/\s+/g, '');
+        const last4 = safe.slice(-4) || '0000';
+        return `•••• •••• •••• ${last4}`;
+      };
+    %>
+
     <%- include('partials/header') %>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="profile-container">
-        <!-- Profile Header -->
-        <div class="profile-header">
-          <div class="profile-header-content">
-            <img
-              src="<%= user.ImagePath ? user.ImagePath : 'https://placehold.co/150x150?text=' + user.FullName.charAt(0) %>"
-              alt="Profile"
-              class="profile-avatar"
-            />
-            <div class="profile-info">
-              <h1 class="profile-name">
-                <i class="fas fa-user-circle"></i>
-                <%= user.FullName %>
-              </h1>
-              <p class="profile-email">
-                <i class="fas fa-envelope"></i>
-                <%= user.Email %>
-              </p>
-              <div class="profile-stats">
-                <% if (accountCount > 0) { %>
-                <div class="stat-item">
-                  <i class="fas fa-wallet"></i>
-                  <div>
-                    <span class="stat-label">Total Balance</span>
-                    <div class="stat-balance-container">
-                      <span
-                        class="stat-value"
-                        id="totalBalance"
-                        data-balance="₹ <%= totalBalance.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
-                        >₹ XX,XXX.XX</span
-                      >
-                      <button
-                        class="stat-toggle-btn"
-                        onclick="toggleBalance('totalBalance', 'totalBalanceIcon')"
-                      >
-                        <i class="fas fa-eye" id="totalBalanceIcon"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <% } %>
-                <div class="stat-item">
-                  <i class="fas fa-calendar-check"></i>
-                  <div>
-                    <span class="stat-label">Member Since</span>
-                    <span class="stat-value"
-                      ><%= new
-                      Date(user.RegistrationDate).toLocaleDateString('en-US', {
-                      month: 'short', year: 'numeric' }) %></span
-                    >
-                  </div>
-                </div>
+    <main class="profile-main">
+      <div class="profile-shell">
+        <section class="profile-hero">
+          <div class="hero-grid">
+            <div class="avatar-wrap">
+              <div class="avatar-ring">
+                <div class="avatar-core"><%= profileInitial %></div>
               </div>
+              <button type="button" class="avatar-upload-btn">
+                <i class="fas fa-camera"></i>
+                Upload Photo
+              </button>
             </div>
-          </div>
-        </div>
 
-        <!-- Navigation Tabs -->
-        <div class="profile-tabs">
-          <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('personal')">
-              <i class="fas fa-user"></i>
-              Personal Info
-            </button>
-            <button class="tab-btn" onclick="switchTab('accounts')">
-              <i class="fas fa-university"></i>
-              Bank Accounts
-            </button>
-            <button class="tab-btn" onclick="switchTab('cards')">
-              <i class="fas fa-credit-card"></i>
-              Debit Cards
-            </button>
-          </div>
-        </div>
+            <div>
+              <h1 class="hero-name"><%= fullName %></h1>
 
-        <!-- Tab Content -->
-        <!-- Personal Information Tab -->
-        <div id="tab-personal" class="tab-content active">
-          <div class="profile-section">
-            <h2 class="section-title">
-              <i class="fas fa-info-circle"></i>
-              Complete Profile Details
-            </h2>
-
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-user"></i>
-                  Full Name
-                </div>
-                <div class="info-value"><%= user.FullName %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
+              <div class="hero-meta">
+                <span class="zp-id-badge">
                   <i class="fas fa-id-badge"></i>
-                  ZenoPay ID
-                </div>
-                <div class="info-value"><%= user.ZenoPayID %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-envelope"></i>
-                  Email Address
-                </div>
-                <div class="info-value"><%= user.Email %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-phone"></i>
-                  Mobile Number
-                </div>
-                <div class="info-value"><%= user.Mobile %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-calendar-alt"></i>
-                  Date of Birth
-                </div>
-                <div class="info-value">
-                  <%= new Date(user.DOB).toLocaleDateString('en-IN') %>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-venus-mars"></i>
-                  Gender
-                </div>
-                <div class="info-value"><%= user.Gender %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-male"></i>
-                  Father's Name
-                </div>
-                <div class="info-value"><%= user.FatherName %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-female"></i>
-                  Mother's Name
-                </div>
-                <div class="info-value"><%= user.MotherName || 'N/A' %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-map-marker-alt"></i>
-                  Address
-                </div>
-                <div class="info-value"><%= user.Address %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-city"></i>
-                  City
-                </div>
-                <div class="info-value"><%= user.City %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-map"></i>
-                  State
-                </div>
-                <div class="info-value"><%= user.State %></div>
-              </div>
-
-              <div class="info-item">
-                <div class="info-label">
-                  <i class="fas fa-mailbox"></i>
-                  Pincode
-                </div>
-                <div class="info-value"><%= user.Pincode %></div>
-              </div>
-            </div>
-
-            <div class="action-buttons">
-              <span class="verified-badge">
-                <i class="fas fa-check-circle"></i>
-                Verified Profile
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bank Accounts Tab -->
-        <div id="tab-accounts" class="tab-content">
-          <div class="profile-section">
-            <h2 class="section-title">
-              <i class="fas fa-university"></i>
-              My Bank Accounts
-            </h2>
-
-            <div class="bank-accounts-grid">
-              <% if (bankAccounts && bankAccounts.length > 0) { %> <%
-              bankAccounts.forEach((account, index) => { %>
-              <div class="bank-card">
-                <div class="bank-card-header">
-                  <div class="bank-name">
-                    <i class="fas fa-university"></i>
-                    <%= account.BankName %>
-                  </div>
-                  <div
-                    class="bank-status-badge <%= account.AccountStatus.toLowerCase() %>"
-                  >
-                    <i
-                      class="fas fa-<%= account.AccountStatus === 'Active' ? 'check-circle' : 'exclamation-circle' %>"
-                    ></i>
-                    <%= account.AccountStatus %>
-                  </div>
-                </div>
-                <div class="bank-card-body">
-                  <div class="bank-logo-container">
-                    <img
-                      src="/Images/bgFavicon.png"
-                      alt="ZenoPay"
-                      class="bank-logo-img"
-                    />
-                  </div>
-                  <div class="bank-account-info">
-                    <div class="account-number-section">
-                      <span class="account-label">Account Number</span>
-                      <div class="account-number-container">
-                        <span class="account-number"
-                          ><%= account.AccountNumber.replace(/(.{4})/g, '$1').trim() %></span
-                        >
-                        <button
-                          class="copy-btn"
-                          onclick="copyAccountNumber('<%= account.AccountNumber %>', this)"
-                        >
-                          <i class="fas fa-copy"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="account-type-section">
-                      <span class="account-label">Account Type</span>
-                      <span class="account-type"
-                        ><%= account.AccountType %></span
-                      >
-                    </div>
-                  </div>
-                  <div class="bank-card-actions">
-                    <div class="bank-id-section">
-                      <span class="bank-id-label">Bank ID</span>
-                      <span class="bank-id-value"><%= account.BankId %></span>
-                    </div>
-                    <div class="bank-id-section">
-                      <span class="bank-id-label">Branch</span>
-                      <span class="bank-id-value"
-                        ><%= account.BankCity %>, <%= account.BankState %></span
-                      >
-                    </div>
-                  </div>
-                  <div class="balance-container">
-                    <div class="balance-label">Available Balance</div>
-                    <div class="balance-amount-container">
-                      <div
-                        class="balance-amount"
-                        id="balance<%= index + 1 %>"
-                        data-balance="₹ <%= parseFloat(account.Balance.toString()).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %>"
-                      >
-                        ₹ XX,XXX.XX
-                      </div>
-                      <button
-                        class="balance-toggle-btn"
-                        onclick="toggleBalance('balance<%= index + 1 %>', 'balanceIcon<%= index + 1 %>')"
-                      >
-                        <i
-                          class="fas fa-eye"
-                          id="balanceIcon<%= index + 1 %>"
-                        ></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <% }); %> <% } else { %>
-              <div class="no-data-message">
-                <i class="fas fa-inbox"></i>
-                <p>No bank accounts found. Open your first account!</p>
-              </div>
-              <% } %>
-            </div>
-
-            <div class="action-buttons">
-              <a href="/open-account" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                Open New Account
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Debit Cards Tab -->
-        <div id="tab-cards" class="tab-content">
-          <div class="profile-section">
-            <h2 class="section-title">
-              <i class="fas fa-credit-card"></i>
-              My Debit Cards
-            </h2>
-
-            <div class="debit-cards-container">
-              <% if (bankAccounts && bankAccounts.length > 0) { %> <%
-              bankAccounts.forEach((account, index) => { %>
-              <div
-                class="debit-card <%= index % 2 === 0 ? '' : 'debit-card-dark' %>"
-              >
-                <div class="card-top-section">
-                  <div class="card-bank-name-top">
-                    <%= account.BankName.toUpperCase() %>
-                  </div>
-                  <div
-                    class="card-status-badge <%= account.DebitCardStatus.toLowerCase() %>"
-                  >
-                    <i
-                      class="fas fa-<%= account.DebitCardStatus === 'Active' ? 'check-circle' : 'exclamation-circle' %>"
-                    ></i>
-                    <%= account.DebitCardStatus %>
-                  </div>
-                </div>
-                <div class="card-chip">
-                  <i class="fas fa-microchip"></i>
-                </div>
-                <div class="card-logo">
-                  <img
-                    src="/Images/bgFavicon.png"
-                    alt="ZenoPay"
-                    class="zenopay-logo-img"
-                  />
-                </div>
-                <div class="card-number-container">
-                  <div
-                    class="card-number"
-                    id="cardNum<%= index + 1 %>"
-                    data-number="<%= account.DebitCardNumber.replace(/(.{4})/g, '$1 ').trim() %>"
-                  >
-                    **** **** **** <%= account.DebitCardNumber.slice(-4) %>
-                  </div>
-                  <button
-                    class="card-toggle-btn"
-                    onclick="toggleCardNumber('cardNum<%= index + 1 %>', 'cardIcon<%= index + 1 %>')"
-                  >
-                    <i class="fas fa-eye" id="cardIcon<%= index + 1 %>"></i>
+                  <span id="zpidText"><%= zenoPayId %></span>
+                  <button class="copy-zpid-btn" id="copyZpidBtn" type="button" title="Copy ZenoPay ID">
+                    <i class="fas fa-copy"></i>
                   </button>
-                </div>
-                <div class="card-details">
-                  <div class="card-holder">
-                    <div class="card-label">CARD HOLDER</div>
-                    <div class="card-value"><%= account.NameOnCard %></div>
-                  </div>
-                  <div class="card-expiry">
-                    <div class="card-label">VALID THRU</div>
-                    <div class="card-value"><%= account.CardExpiry %></div>
-                  </div>
-                  <div class="card-cvv">
-                    <div class="card-label">CVV</div>
-                    <div class="card-cvv-container">
-                      <div
-                        class="card-value"
-                        id="cvv<%= index + 1 %>"
-                        data-cvv="<%= account.CardCVV %>"
-                      >
-                        ***
-                      </div>
-                      <button
-                        class="card-cvv-btn"
-                        onclick="toggleCVV('cvv<%= index + 1 %>', 'cvvIcon<%= index + 1 %>')"
-                      >
-                        <i class="fas fa-eye" id="cvvIcon<%= index + 1 %>"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                </span>
               </div>
-              <% }); %> <% } else { %>
-              <div class="no-data-message">
-                <i class="fas fa-inbox"></i>
-                <p>
-                  No debit cards found. Open a bank account to get your card!
-                </p>
+
+              <div class="hero-subline">
+                <span class="hero-line"><i class="fas fa-envelope"></i> <%= email || 'Not provided' %></span>
+                <span class="hero-line"><i class="fas fa-calendar-alt"></i> Member Since: <%= memberSince %></span>
               </div>
-              <% } %>
+
+              <div class="status-row">
+                <span class="status-pill verified">
+                  <i class="fas <%= isProfileVerified ? 'fa-circle-check' : 'fa-circle-xmark' %>"></i>
+                  <%= isProfileVerified ? 'Verified Profile' : 'Profile Pending' %>
+                </span>
+                <span class="status-pill kyc">
+                  <i class="fas <%= isKycComplete ? 'fa-lock' : 'fa-lock-open' %>"></i>
+                  <%= isKycComplete ? 'KYC Complete' : 'KYC Pending' %>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Mobile Footer Navigation -->
-      <footer class="mobile-footer">
-        <nav class="footer-nav">
-          <a href="/dashboard" class="footer-nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="/transfer-money" class="footer-nav-item">
-            <i class="fas fa-exchange-alt"></i>
-            <span>Transfer</span>
-          </a>
-          <a href="/profile" class="footer-nav-item active">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-          </a>
-          <a href="/notifications" class="footer-nav-item">
-            <i class="fas fa-bell"></i>
-            <span>Alerts</span>
-          </a>
-          <a href="/shop" class="footer-nav-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Shop</span>
-          </a>
+        <nav class="tab-nav" aria-label="Profile tabs">
+          <button class="tab-btn active" type="button" data-tab="personal">
+            <i class="fas fa-user"></i> Personal Info
+          </button>
+          <button class="tab-btn" type="button" data-tab="accounts">
+            <i class="fas fa-building-columns"></i> Bank Accounts
+          </button>
+          <button class="tab-btn" type="button" data-tab="cards">
+            <i class="fas fa-credit-card"></i> Debit Cards
+          </button>
         </nav>
-      </footer>
 
-      <script src="/js/header.js"></script>
-      <script>
-        // Tab Switching Function
-        function switchTab(tabName) {
-          // Hide all tab contents
-          const tabContents = document.querySelectorAll(".tab-content");
-          tabContents.forEach((content) => {
-            content.classList.remove("active");
-          });
+        <section id="tab-personal" class="tab-panel active">
+          <h2 class="section-title">Personal Information</h2>
 
-          // Remove active class from all buttons
-          const tabButtons = document.querySelectorAll(".tab-btn");
-          tabButtons.forEach((btn) => {
-            btn.classList.remove("active");
-          });
+          <div class="info-grid">
+            <div class="info-card">
+              <i class="fas fa-user info-icon"></i>
+              <div>
+                <p class="info-label">Full Name</p>
+                <p class="info-value"><%= user?.fullName || user?.FullName || 'Not provided' %></p>
+              </div>
+            </div>
 
-          // Show selected tab content
-          document.getElementById("tab-" + tabName).classList.add("active");
+            <div class="info-card">
+              <i class="fas fa-id-badge info-icon"></i>
+              <div>
+                <p class="info-label">ZenoPay ID</p>
+                <p class="info-value"><%= user?.zenoPayId || user?.ZenoPayID || 'ZP-XXXXXX' %></p>
+              </div>
+            </div>
 
-          // Add active class to clicked button
-          event.target.closest(".tab-btn").classList.add("active");
-        }
+            <div class="info-card">
+              <i class="fas fa-envelope info-icon"></i>
+              <div>
+                <p class="info-label">Email Address</p>
+                <p class="info-value"><%= user?.email || user?.Email || '' %></p>
+              </div>
+            </div>
 
-        // Toggle Card Number Visibility
-        function toggleCardNumber(cardId, iconId) {
-          const cardElement = document.getElementById(cardId);
-          const iconElement = document.getElementById(iconId);
-          const fullNumber = cardElement.getAttribute("data-number");
-          const maskedNumber = "**** **** **** " + fullNumber.slice(-4);
+            <div class="info-card">
+              <i class="fas fa-mobile-screen-button info-icon"></i>
+              <div>
+                <p class="info-label">Mobile Number</p>
+                <p class="info-value"><%= user?.mobile || user?.Mobile || '' %></p>
+              </div>
+            </div>
 
-          if (cardElement.textContent.includes("*")) {
-            cardElement.textContent = fullNumber;
-            iconElement.classList.remove("fa-eye");
-            iconElement.classList.add("fa-eye-slash");
-          } else {
-            cardElement.textContent = maskedNumber;
-            iconElement.classList.remove("fa-eye-slash");
-            iconElement.classList.add("fa-eye");
-          }
-        }
+            <div class="info-card">
+              <i class="fas fa-calendar-days info-icon"></i>
+              <div>
+                <p class="info-label">Date of Birth</p>
+                <p class="info-value"><%= user?.dob ? new Date(user.dob).toLocaleDateString('en-IN') : (user?.DOB ? new Date(user.DOB).toLocaleDateString('en-IN') : 'Not provided') %></p>
+              </div>
+            </div>
 
-        // Toggle CVV Visibility
-        function toggleCVV(cvvId, iconId) {
-          const cvvElement = document.getElementById(cvvId);
-          const iconElement = document.getElementById(iconId);
-          const fullCVV = cvvElement.getAttribute("data-cvv");
+            <div class="info-card">
+              <i class="fas fa-venus-mars info-icon"></i>
+              <div>
+                <p class="info-label">Gender</p>
+                <p class="info-value"><%= user?.gender || user?.Gender || 'Not provided' %></p>
+              </div>
+            </div>
 
-          if (cvvElement.textContent === "***") {
-            cvvElement.textContent = fullCVV;
-            iconElement.classList.remove("fa-eye");
-            iconElement.classList.add("fa-eye-slash");
-          } else {
-            cvvElement.textContent = "***";
-            iconElement.classList.remove("fa-eye-slash");
-            iconElement.classList.add("fa-eye");
-          }
-        }
+            <div class="info-card">
+              <i class="fas fa-user-tie info-icon"></i>
+              <div>
+                <p class="info-label">Father's Name</p>
+                <p class="info-value"><%= user?.fatherName || user?.FatherName || 'Not provided' %></p>
+              </div>
+            </div>
 
-        // Toggle Balance Visibility
-        function toggleBalance(balanceId, iconId) {
-          const balanceElement = document.getElementById(balanceId);
-          const iconElement = document.getElementById(iconId);
-          const actualBalance = balanceElement.getAttribute("data-balance");
+            <div class="info-card">
+              <i class="fas fa-user info-icon"></i>
+              <div>
+                <p class="info-label">Mother's Name</p>
+                <p class="info-value"><%= user?.motherName || user?.MotherName || 'Not provided' %></p>
+              </div>
+            </div>
 
-          if (balanceElement.textContent.includes("XX")) {
-            balanceElement.textContent = actualBalance;
-            iconElement.classList.remove("fa-eye");
-            iconElement.classList.add("fa-eye-slash");
-          } else {
-            balanceElement.textContent = "₹ XX,XXX.XX";
-            iconElement.classList.remove("fa-eye-slash");
-            iconElement.classList.add("fa-eye");
-          }
-        }
+            <div class="info-card span-full">
+              <i class="fas fa-location-dot info-icon"></i>
+              <div>
+                <p class="info-label">Address</p>
+                <p class="info-value"><%= user?.address || user?.Address || 'Not provided' %></p>
+              </div>
+            </div>
+          </div>
 
-        // Copy Account Number
-        function copyAccountNumber(accountNumber, button) {
-          navigator.clipboard.writeText(accountNumber).then(() => {
-            const icon = button.querySelector("i");
-            icon.classList.remove("fa-copy");
-            icon.classList.add("fa-check");
-            button.style.background = "rgba(40, 167, 69, 0.4)";
+          <div class="info-grid three-col" style="margin-top: 12px">
+            <div class="info-card">
+              <i class="fas fa-city info-icon"></i>
+              <div>
+                <p class="info-label">City</p>
+                <p class="info-value"><%= user?.city || user?.City || 'Not provided' %></p>
+              </div>
+            </div>
+            <div class="info-card">
+              <i class="fas fa-map info-icon"></i>
+              <div>
+                <p class="info-label">State</p>
+                <p class="info-value"><%= user?.state || user?.State || 'Not provided' %></p>
+              </div>
+            </div>
+            <div class="info-card">
+              <i class="fas fa-mailbox info-icon"></i>
+              <div>
+                <p class="info-label">Pincode</p>
+                <p class="info-value"><%= user?.pincode || user?.Pincode || 'Not provided' %></p>
+              </div>
+            </div>
+          </div>
 
-            setTimeout(() => {
-              icon.classList.remove("fa-check");
-              icon.classList.add("fa-copy");
-              button.style.background = "rgba(255, 255, 255, 0.2)";
-            }, 2000);
-          });
-        }
-      </script>
+          <div class="edit-btn-wrap">
+            <a href="/account-settings" class="btn-gradient">
+              <i class="fas fa-pen"></i>
+              Edit Profile
+            </a>
+          </div>
+        </section>
+
+        <section id="tab-accounts" class="tab-panel">
+          <h2 class="section-title">Linked Bank Accounts</h2>
+
+          <% if (linkedAccounts && linkedAccounts.length > 0) { %>
+            <div class="list-stack">
+              <% linkedAccounts.forEach((account, index) => { %>
+                <article class="account-card">
+                  <div class="account-head">
+                    <div class="account-bank">
+                      <i class="fas fa-building-columns"></i>
+                      <span><%= account?.bankName || account?.BankName || 'Bank Account' %></span>
+                    </div>
+                    <% if (index === 0) { %>
+                      <span class="pill-primary">Primary</span>
+                    <% } %>
+                  </div>
+
+                  <div class="account-number"><%= maskAccountNumber(account?.accountNumber || account?.AccountNumber) %></div>
+                  <div class="account-meta">
+                    IFSC: <%= account?.ifsc || account?.IFSC || account?.BankId || 'Not provided' %>
+                    • Branch: <%= account?.branch || account?.Branch || account?.BankCity || 'Not provided' %>
+                  </div>
+
+                  <div class="row-actions">
+                    <button type="button" class="btn-soft">Remove</button>
+                    <% if (index !== 0) { %>
+                      <button type="button" class="btn-outline">Set Primary</button>
+                    <% } %>
+                  </div>
+                </article>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="empty-state">No bank accounts linked yet.</div>
+          <% } %>
+
+          <div class="add-btn-wrap">
+            <a href="/banks-list" class="btn-outline">
+              <i class="fas fa-plus"></i>
+              Add Bank Account
+            </a>
+          </div>
+        </section>
+
+        <section id="tab-cards" class="tab-panel">
+          <h2 class="section-title">Linked Debit Cards</h2>
+
+          <% if (linkedCards && linkedCards.length > 0) { %>
+            <div class="debit-grid">
+              <% linkedCards.forEach((card) => { %>
+                <article class="debit-visual-wrap">
+                  <div class="debit-visual">
+                    <div class="top">
+                      <span><%= (card?.bankName || card?.BankName || 'ZenoPay Bank').toUpperCase() %></span>
+                      <span><%= card?.cardType || card?.CardType || 'VISA' %></span>
+                    </div>
+                    <div class="debit-num"><%= maskCardNumber(card?.cardNumber || card?.DebitCardNumber) %></div>
+                    <div class="debit-foot">
+                      <span>EXP: <%= card?.expiry || card?.CardExpiry || 'MM/YY' %></span>
+                      <span><%= card?.nameOnCard || card?.NameOnCard || fullName %></span>
+                    </div>
+                  </div>
+                  <div class="row-actions" style="margin-top: 10px">
+                    <button type="button" class="btn-soft">Remove Card</button>
+                  </div>
+                </article>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="empty-state">No debit cards linked yet.</div>
+          <% } %>
+
+          <div class="add-btn-wrap">
+            <a href="/payment-methods" class="btn-outline">
+              <i class="fas fa-plus"></i>
+              Add New Card
+            </a>
+          </div>
+        </section>
+      </div>
     </main>
-    <script src="/js/header.js"></script>
-    <%- include('partials/MobileNav') %>
+
     <%- include('partials/footer') %>
+
+    <script src="/js/header.js"></script>
+    <script>
+      (function () {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', function () {
+            const target = this.dataset.tab;
+
+            tabs.forEach((item) => item.classList.remove('active'));
+            panels.forEach((panel) => panel.classList.remove('active'));
+
+            this.classList.add('active');
+            const panel = document.getElementById('tab-' + target);
+            if (panel) panel.classList.add('active');
+          });
+        });
+
+        const copyBtn = document.getElementById('copyZpidBtn');
+        const zpIdNode = document.getElementById('zpidText');
+        if (copyBtn && zpIdNode) {
+          copyBtn.addEventListener('click', async function () {
+            const zpId = (zpIdNode.textContent || '').trim();
+            if (!zpId) return;
+
+            try {
+              await navigator.clipboard.writeText(zpId);
+              const icon = this.querySelector('i');
+              if (icon) {
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+              }
+              setTimeout(() => {
+                const i = this.querySelector('i');
+                if (i) {
+                  i.classList.remove('fa-check');
+                  i.classList.add('fa-copy');
+                }
+              }, 1200);
+            } catch (e) {
+              console.error('Copy failed', e);
+            }
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

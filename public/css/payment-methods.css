@@ -58,19 +58,19 @@
   --info: #456882;
 
   /* Page-specific tokens */
-  --bg: #1F2937;
-  --card: #2c3e50;
-  --card-hover: #374151;
-  --muted: #94A3B8;
-  --text: #F8FAFC;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --card-hover: #F8FAFC;
+  --muted: #6B7280;
+  --text: #1F2937;
   --primary-strong: #2563EB;
   --primary-soft: rgba(59, 130, 246, 0.14);
   --success-soft: rgba(16, 185, 129, 0.12);
   --warning-soft: rgba(245, 158, 11, 0.14);
   --danger: #dc3545;
   --danger-soft: rgba(220, 53, 69, 0.14);
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --border: #E2E8F0;
+  --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
   --radius: 16px;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
@@ -78,9 +78,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.08), transparent 25%),
-              radial-gradient(circle at 80% 0%, rgba(46, 204, 113, 0.08), transparent 20%),
-              var(--bg);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--bg) 100%);
   color: var(--text);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   min-height: 100vh;
@@ -131,7 +129,7 @@ body {
 
 /* EMPTY STATE */
 .empty-state {
-  background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), var(--card);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 60px 40px;
@@ -163,7 +161,7 @@ body {
 
 /* METHODS SECTION */
 .methods-section {
-  background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)), var(--card);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
@@ -193,7 +191,7 @@ body {
 }
 
 .count-badge {
-  background: rgba(255, 255, 255, 0.06);
+  background: #EFF6FF;
   color: var(--text);
   padding: 4px 10px;
   border-radius: 12px;
@@ -222,7 +220,7 @@ body {
 
 .payment-card {
   position: relative;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px;
@@ -232,7 +230,7 @@ body {
 
 .payment-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.12);
 }
 
 .card-top {
@@ -257,7 +255,7 @@ body {
 
 .card-icon {
   font-size: 32px;
-  color: var(--muted);
+  color: #94A3B8;
 }
 
 .card-actions {
@@ -333,7 +331,7 @@ body {
 }
 
 .bank-item {
-  background: rgba(255, 255, 255, 0.03);
+  background: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
@@ -344,7 +342,7 @@ body {
 }
 
 .bank-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #F8FAFC;
   border-color: var(--primary);
 }
 
@@ -405,7 +403,7 @@ body {
 }
 
 .wallet-item {
-  background: rgba(255, 255, 255, 0.03);
+  background: #FFFFFF;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
@@ -416,7 +414,7 @@ body {
 }
 
 .wallet-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #F8FAFC;
 }
 
 .wallet-icon {
@@ -475,7 +473,7 @@ body {
 }
 
 .connection-status.disconnected {
-  background: rgba(255, 255, 255, 0.05);
+  background: #F1F5F9;
   color: var(--muted);
 }
 
@@ -505,13 +503,13 @@ body {
 }
 
 .btn-secondary {
-  background: rgba(255,255,255,0.06);
+  background: #FFFFFF;
   color: var(--text);
   border: 1px solid var(--border);
 }
 
 .btn-ghost {
-  background: transparent;
+  background: #FFFFFF;
   color: var(--text);
   border: 1px solid var(--border);
 }
@@ -538,7 +536,7 @@ body {
 
 .btn-icon {
   border: none;
-  background: rgba(255,255,255,0.05);
+  background: #FFFFFF;
   color: var(--text);
   border-radius: 50%;
   width: 32px;
@@ -551,7 +549,7 @@ body {
 }
 
 .btn-icon:hover {
-  background: rgba(255,255,255,0.1);
+  background: #EFF6FF;
   transform: scale(1.05);
 }
 
@@ -597,7 +595,7 @@ body {
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: #F8FAFC;
 }
 
 .dropdown-item:disabled {
@@ -625,7 +623,7 @@ body {
 .modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(15, 23, 42, 0.38);
   backdrop-filter: blur(4px);
 }
 

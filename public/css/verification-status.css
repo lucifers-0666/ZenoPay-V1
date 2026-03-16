@@ -84,6 +84,7 @@
     --space-xl: 32px;
     --space-2xl: 48px;
     --transition: 200ms ease;
+    color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -406,24 +407,6 @@ body {
     .timeline-item { grid-template-columns: 1fr; }
     .timeline-marker { display: none; }
     .timeline-content { margin-left: 0; }
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --text-primary: #F9FAFB;
-        --text-secondary: #D1D5DB;
-        --text-light: #9CA3AF;
-        --bg-primary: #1F2937;
-        --bg-secondary: #111827;
-        --bg-tertiary: #374151;
-        --border-light: #4B5563;
-        --border-medium: #6B7280;
-        --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
-    }
-
-    body { background: var(--bg-secondary); }
-    .timeline-content, .checklist, .rejection-box, .faq-list details { background: var(--bg-tertiary); }
 }
 
 @media (prefers-reduced-motion: reduce) {
