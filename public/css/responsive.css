@@ -1,0 +1,521 @@
+/* ============================================================
+   ZENOPAY — GLOBAL RESPONSIVE STYLESHEET
+   Loaded on every page via header.ejs (ensureHeaderResources)
+   Applied AFTER all page-specific CSS to allow overrides.
+   ============================================================ */
+
+/* ── 1. BOX-SIZING — prevents overflow on all elements ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── 2. PREVENT HORIZONTAL SCROLL on any page ── */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ── 3. FLUID MEDIA — never overflow their container ── */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── 4. FLUID TYPOGRAPHY + SPACING TOKENS ── */
+:root {
+  --font-xs:   clamp(10px, 2vw, 12px);
+  --font-sm:   clamp(12px, 2.5vw, 14px);
+  --font-base: clamp(14px, 3vw, 16px);
+  --font-md:   clamp(16px, 3.5vw, 18px);
+  --font-lg:   clamp(18px, 4vw, 22px);
+  --font-xl:   clamp(22px, 5vw, 28px);
+  --font-2xl:  clamp(26px, 6vw, 36px);
+  --font-3xl:  clamp(30px, 7vw, 48px);
+
+  --space-xs:  clamp(4px, 1vw, 8px);
+  --space-sm:  clamp(8px, 2vw, 12px);
+  --space-md:  clamp(12px, 3vw, 20px);
+  --space-lg:  clamp(20px, 4vw, 32px);
+  --space-xl:  clamp(32px, 5vw, 48px);
+  --space-2xl: clamp(48px, 7vw, 80px);
+
+  --container-px: clamp(16px, 5vw, 80px);
+}
+
+/* ── 5. GLOBAL HEADING FLUID SIZES ── */
+h1 { font-size: clamp(26px, 6vw, 52px); }
+h2 { font-size: clamp(22px, 5vw, 40px); }
+h3 { font-size: clamp(18px, 4vw, 28px); }
+h4 { font-size: clamp(15px, 3vw, 20px); }
+p  { font-size: clamp(14px, 2.5vw, 16px); line-height: 1.6; }
+
+/* ── 6. CONTAINER — always centered, never overflows ── */
+.container,
+.page-container,
+.section-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+
+/* ── 7. RESPONSIVE GRID HELPERS ── */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+.responsive-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+.responsive-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1024px) {
+  .responsive-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .responsive-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .responsive-grid-4,
+  .responsive-grid-3,
+  .responsive-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.hero-section {
+  padding: var(--space-2xl) var(--container-px);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.hero-title   { font-size: var(--font-3xl); }
+.hero-subtitle { font-size: var(--font-base); }
+
+.hero-cta-group {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding-top: var(--space-lg);
+  }
+  .hero-image { display: none; }
+  .hero-cta-group { justify-content: center; }
+}
+
+/* Stats/Features Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+.dashboard-layout {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.dashboard-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0; /* CRITICAL: prevents overflow in flex children */
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout { flex-direction: column; }
+  .dashboard-sidebar { display: none; }
+  .dashboard-main {
+    width: 100%;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-sm);
+}
+
+@media (max-width: 1024px) {
+  .quick-actions-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .quick-actions-grid { grid-template-columns: repeat(4, 1fr); }
+  .quick-action-label { font-size: 10px; }
+}
+
+/* Balance Card */
+.balance-card {
+  padding: var(--space-lg);
+  border-radius: 16px;
+}
+
+.balance-amount { font-size: var(--font-2xl); }
+
+@media (max-width: 480px) {
+  .balance-card { padding: var(--space-md); border-radius: 12px; }
+}
+
+/* ============================================================
+   PAYMENT PAGES — Send / Add / Request / Withdraw
+   ============================================================ */
+.payment-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .payment-layout { grid-template-columns: 1fr 300px; }
+}
+
+@media (max-width: 768px) {
+  .payment-layout { grid-template-columns: 1fr; }
+  .payment-summary     { order: 2; }
+  .payment-form-section { order: 1; }
+}
+
+/* Forms — always full width on mobile */
+.form-group { width: 100%; }
+
+/* Payment method selector */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+@media (max-width: 600px) {
+  .payment-methods-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Amount preset buttons */
+.amount-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.amount-preset-btn {
+  min-width: 80px;
+  min-height: 40px;
+  flex: 1;
+}
+
+/* ============================================================
+   TRANSACTION TABLE → CARD LIST ON MOBILE
+   ============================================================ */
+.transaction-table { width: 100%; border-collapse: collapse; }
+.transactions-table { width: 100%; border-collapse: collapse; }
+
+@media (max-width: 768px) {
+  /* ── Profile transaction table ── */
+  .transaction-table thead { display: none; }
+  .transaction-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: var(--space-md, 16px);
+    margin-bottom: var(--space-sm, 10px);
+    border: 1px solid var(--card-border, #e5e7eb);
+  }
+  .transaction-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border: none;
+    font-size: var(--font-sm, 13px);
+  }
+  .transaction-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-muted, #6b7280);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  /* ── Transaction history page table ── */
+  .transactions-table-wrapper { overflow-x: visible; }
+  .transactions-table thead { display: none; }
+  .transactions-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .transactions-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border: none;
+    font-size: 13px;
+  }
+  .transactions-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 11px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+  .transactions-table td.txn-icon-cell { display: none; } /* hide icon column */
+  .transactions-table td.txn-actions   { justify-content: flex-end; }
+  .transactions-table td.txn-actions::before { display: none; }
+}
+
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
+.profile-banner-inner {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 1024px) {
+  .profile-info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .profile-banner-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .profile-header-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-info-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ============================================================
+   MODALS & BOTTOM SHEETS
+   ============================================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-content {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh;
+  }
+}
+
+/* ============================================================
+   TOUCH & TAP TARGETS — minimum 44×44 px
+   ============================================================ */
+button, a,
+input[type="checkbox"], input[type="radio"],
+.clickable, .tab-item, .nav-item, .card-link {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Remove double-tap zoom delay */
+button, a {
+  touch-action: manipulation;
+}
+
+/* ── Prevent iOS input zoom (font-size must be ≥16px) ── */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="tel"],
+select,
+textarea {
+  font-size: 16px !important;
+  width: 100%;
+  min-height: 44px;
+}
+
+/* ============================================================
+   PAGE-LEVEL BOTTOM PADDING — prevents bottom-nav overlap
+   ============================================================ */
+@media (max-width: 768px) {
+  main,
+  .main-content,
+  .page-content,
+  .dashboard-content,
+  .content-wrapper,
+  .modern-main {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* ============================================================
+   HEADER BOTTOM NAV — force footer below it
+   ============================================================ */
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9999;
+    background: #13181F;
+    min-height: 60px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mobile-bottom-spacer {
+    display: block;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+  footer, .site-footer, .zenopay-footer, .modern-footer {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ============================================================
+   FOOTER — bottom padding to clear mobile nav
+   ============================================================ */
+@media (max-width: 768px) {
+  .footer-bottom,
+  .bottom-bar-row {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  .payment-badges-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-icons-row,
+  .payment-badges-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+/* ============================================================
+   EXTRA SMALL PHONES — 360px and below
+   ============================================================ */
+@media (max-width: 360px) {
+  :root {
+    --container-px: 12px;
+  }
+  .header-inner { padding: 0 12px; }
+  .balance-amount { font-size: 22px; }
+  .quick-action-label { font-size: 9px; }
+}
+
+/* ============================================================
+   SMALL PHONES — 480px and below
+   ============================================================ */
+@media (max-width: 480px) {
+  .bank-accounts-grid,
+  .debit-cards-container {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-stats {
+    gap: 10px;
+  }
+  .stat-item {
+    padding: 10px 12px;
+  }
+}
+
+/* ============================================================
+   MEDIUM — phones landscape + small tablets (768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .search-icon { top: auto; }
+  .drawer-body  { padding: 16px; }
+  .transaction-drawer {
+    width: 100%;
+    right: 0;
+    border-radius: 20px 20px 0 0;
+    top: auto;
+    bottom: -100%;
+    transition: bottom 0.3s ease;
+    height: 85vh;
+  }
+  .transaction-drawer.show {
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* ============================================================
+   LARGE — tablets portrait (1024px)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .footer-inner-wrapper { padding: 0 24px; }
+  .stats-bar-container  { padding: 0 24px; }
+}
+
+/* ============================================================
+   EXTRA LARGE — tablets landscape + small laptops (1280px)
+   ============================================================ */
+@media (max-width: 1280px) {
+  :root { --container-px: clamp(16px, 4vw, 48px); }
+}

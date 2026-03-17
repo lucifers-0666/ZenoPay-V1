@@ -9,6 +9,13 @@ let currentFilters = {
   search: ''
 };
 let selectedReceiptForEmail = null;
+const MONGO_OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
+
+function isValidReceiptId(receiptId) {
+  const id = String(receiptId ?? '').trim();
+  if (!id || id === 'null' || id === 'undefined') return false;
+  return MONGO_OBJECT_ID_REGEX.test(id);
+}
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
@@ -260,6 +267,11 @@ function applyQuickFilter(filter) {
 
 // View receipt detail
 async function viewReceipt(receiptId) {
+  if (!isValidReceiptId(receiptId)) {
+    showToast('Invalid receipt selected', 'error');
+    return;
+  }
+
   try {
     const modal = document.getElementById('receipt-modal');
     const body = document.getElementById('receipt-detail-body');
@@ -381,6 +393,11 @@ async function viewReceipt(receiptId) {
 
 // Download receipt
 async function downloadReceipt(receiptId) {
+  if (!isValidReceiptId(receiptId)) {
+    showToast('Invalid receipt selected', 'error');
+    return;
+  }
+
   try {
     showToast('Generating PDF...', 'info');
     
@@ -406,6 +423,11 @@ async function downloadReceipt(receiptId) {
 
 // Email receipt
 function emailReceipt(receiptId) {
+  if (!isValidReceiptId(receiptId)) {
+    showToast('Invalid receipt selected', 'error');
+    return;
+  }
+
   selectedReceiptForEmail = receiptId;
   closeReceiptModal();
   document.getElementById('email-modal').classList.add('active');
@@ -414,6 +436,11 @@ function emailReceipt(receiptId) {
 // Send email
 async function sendEmail() {
   const email = document.getElementById('email-address').value;
+
+  if (!isValidReceiptId(selectedReceiptForEmail)) {
+    showToast('Please select a valid receipt first', 'error');
+    return;
+  }
   
   if (!email) {
     showToast('Please enter an email address', 'error');
@@ -482,6 +509,7 @@ function closeReceiptModal() {
 function closeEmailModal() {
   document.getElementById('email-modal').classList.remove('active');
   document.getElementById('email-address').value = '';
+  selectedReceiptForEmail = null;
 }
 
 // Show/hide empty state

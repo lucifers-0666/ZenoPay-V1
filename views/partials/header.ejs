@@ -15,6 +15,29 @@
       document.head.appendChild(link);
     }
 
+    /* Inject responsive.css AFTER header.css so it can override */
+    var rHref = '/css/responsive.css';
+    if (!document.querySelector('link[href="' + rHref + '"]')) {
+      var rLink = document.createElement('link');
+      rLink.rel = 'stylesheet';
+      rLink.href = rHref;
+      document.head.appendChild(rLink);
+    }
+
+    /* Inject site favicon globally */
+    var faviconHref = '/Images/bgFavicon.png';
+    var existingFavicon = document.querySelector('link[rel="icon"]');
+    if (existingFavicon) {
+      existingFavicon.href = faviconHref;
+      existingFavicon.type = 'image/png';
+    } else {
+      var faviconLink = document.createElement('link');
+      faviconLink.rel = 'icon';
+      faviconLink.type = 'image/png';
+      faviconLink.href = faviconHref;
+      document.head.appendChild(faviconLink);
+    }
+
     var viewportMeta = document.querySelector('meta[name="viewport"]');
     if (viewportMeta) {
       var viewportContent = viewportMeta.getAttribute('content') || '';

@@ -151,23 +151,23 @@
                             <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Date">
                           <div style="font-size: 0.85rem; font-weight: 600;">
                             <%= txn.date %><br>
                             <span style="color: #9CA3AF; font-size: 0.8rem;"><%= txn.time || 'N/A' %></span>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Description">
                           <div class="txn-description">
                             <div class="txn-name"><%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %></div>
                             <div class="txn-note"><%= txn.note || txn.reference || 'No note' %></div>
                           </div>
                         </td>
-                        <td class="txn-method"><%= txn.paymentMethod || 'Unknown' %></td>
-                        <td class="txn-amount <%= txn.isCredit ? 'positive' : 'negative' %>">
+                        <td data-label="Method" class="txn-method"><%= txn.paymentMethod || 'Unknown' %></td>
+                        <td data-label="Amount" class="txn-amount <%= txn.isCredit ? 'positive' : 'negative' %>">
                           <%= txn.isCredit ? '+' : '-' %>₹<%= (Number(txn.amount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
                         </td>
-                        <td style="text-align: center;">
+                        <td data-label="Status" style="text-align: center;">
                           <span class="status-badge status-<%= txn.status || 'pending' %>">
                             <i class="fas <%= txn.status === 'success' ? 'fa-check-circle' : txn.status === 'pending' ? 'fa-clock' : 'fa-times-circle' %>"></i>
                             <%= txn.status || 'pending' %>

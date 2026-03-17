@@ -5,8 +5,16 @@ const Receipt = require('../Models/Receipt');
 const receiptPdfGenerator = require('../Services/receiptPdfGenerator');
 const EmailService = require('../Services/EmailService');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 
 const RECEIPT_ID_REGEX = /^ZP-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
+
+const isValidObjectIdParam = (value) => {
+  const normalized = String(value ?? '').trim();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') return false;
+  return OBJECT_ID_REGEX.test(normalized) && mongoose.Types.ObjectId.isValid(normalized);
+};
 
 const formatReceiptId = (raw = '') => {
   const cleaned = String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 14);
@@ -184,6 +192,10 @@ exports.getReceiptDetail = async (req, res) => {
     const userId = req.session?.user?.ZenoPayID || 'demo-user';
     const { id } = req.params;
 
+    if (!isValidObjectIdParam(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid receipt ID' });
+    }
+
     const receipt = await Receipt.findOne({
       _id: id,
       user_id: userId
@@ -205,6 +217,10 @@ exports.getReceiptByTransaction = async (req, res) => {
   try {
     const userId = req.session?.user?.ZenoPayID || 'demo-user';
     const { transaction_id } = req.params;
+
+    if (!isValidObjectIdParam(transaction_id)) {
+      return res.status(400).json({ success: false, message: 'Invalid transaction ID' });
+    }
 
     let receipt = await Receipt.findOne({
       transaction_id: transaction_id,
@@ -235,6 +251,10 @@ exports.downloadReceiptPDF = async (req, res) => {
     const userId = req.session?.user?.ZenoPayID || 'demo-user';
     const { id } = req.params;
 
+    if (!isValidObjectIdParam(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid receipt ID' });
+    }
+
     const receipt = await Receipt.findOne({
       _id: id,
       user_id: userId
@@ -264,6 +284,10 @@ exports.emailReceipt = async (req, res) => {
     const userId = req.session?.user?.ZenoPayID || 'demo-user';
     const { id } = req.params;
     const { email } = req.body;
+
+    if (!isValidObjectIdParam(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid receipt ID' });
+    }
 
     if (!email) {
       return res.status(400).json({ success: false, message: 'Email address is required' });
