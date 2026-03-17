@@ -22,7 +22,7 @@
   --bg-light:           #F9FAFB;
   --bg-light-blue:      #DBEAFE;
 
-  --header-bg:          rgba(255,255,255,0.97);
+  --header-bg:          rgba(255,255,255,0.98);
   --header-shadow:      0 1px 0 #E5E7EB, 0 2px 12px rgba(0,0,0,0.06);
 
   --header-height:      68px;
@@ -31,8 +31,7 @@
 
   --z-header:           1000;
   --z-dropdown:         1100;
-  --z-mobile-menu:      1100;
-  /* FIXED: bottom nav must be ABOVE footer (footer is usually z-index 1 or auto) */
+  --z-mobile-menu:      1200;
   --z-mobile-nav:       9999;
 
   --ease:               0.18s ease;
@@ -40,29 +39,45 @@
 }
 
 /* ═══════════════════════════════════════════════
-   HEADER BASE
+   HEADER BASE — FIXED (always visible on scroll)
    ═══════════════════════════════════════════════ */
 
 .zenopay-header {
-  position: sticky;
+  /* FIXED: changed from sticky to fixed so header stays visible
+     on ALL pages regardless of parent overflow/transform/layout */
+  position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
   height: var(--header-height);
   background: var(--header-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--header-border);
   box-shadow: var(--header-shadow);
   z-index: var(--z-header);
-  transition: box-shadow var(--ease-slow);
+  transition: box-shadow var(--ease-slow), background var(--ease-slow);
 }
 
 .zenopay-header.scrolled {
+  background: rgba(255,255,255,1);
   box-shadow: 0 1px 0 #E5E7EB, 0 4px 24px rgba(0,0,0,0.1);
 }
 
-.header-spacer { height: 0; display: none; }
+/* FIXED: spacer is now ENABLED — pushes page content below fixed header.
+   Without this, page content slides under the header. */
+.header-spacer {
+  height: var(--header-height);
+  display: block;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .header-spacer {
+    height: var(--header-height); /* 58px on mobile, set below */
+  }
+}
 
 .header-inner {
   max-width: var(--container-max);
@@ -885,15 +900,8 @@
    MOBILE BOTTOM NAVIGATION BAR — FIXED, CONSISTENT ALL PAGES
    ═══════════════════════════════════════════════════════════ */
 
-/* Hidden on desktop by default */
-.mobile-bottom-nav {
-  display: none;
-}
-
-/* Spacer hidden on desktop */
-.mobile-bottom-spacer {
-  display: none;
-}
+.mobile-bottom-nav   { display: none; }
+.mobile-bottom-spacer { display: none; }
 
 /* ═══════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
@@ -928,27 +936,21 @@
     bottom: 0;
     left: 0;
     right: 0;
-    /* FIXED: z-index 9999 ensures it sits above footer and ALL page content */
     z-index: 9999;
-    /* FIXED: solid opaque background — no transparency so footer cannot bleed through */
     background: #13181F;
-    border-top: 1px solid rgba(255, 255, 255, 0.10);
-    /* FIXED: padding-bottom uses safe-area for iPhone home bar */
+    border-top: 1px solid rgba(255,255,255,0.10);
     padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.55);
     justify-content: space-around;
     align-items: stretch;
-    /* FIXED: min-height prevents nav from being too small on small phones */
     min-height: 60px;
   }
 
-  /* FIXED: Spacer height = nav height + safe area — pushes ALL page content up */
   .mobile-bottom-spacer {
     display: block;
     height: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Each nav item */
   .mobile-nav-item {
     display: flex;
     flex-direction: column;
@@ -962,12 +964,10 @@
     transition: color 0.2s ease;
     position: relative;
     min-width: 0;
-    /* FIXED: pointer-events must be auto so taps work */
     pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Icon wrapper */
   .mobile-nav-icon {
     position: relative;
     width: 30px;
@@ -979,12 +979,8 @@
     transition: background 0.2s ease, transform 0.15s ease;
   }
 
-  .mobile-nav-icon i {
-    font-size: 19px;
-    transition: color 0.2s ease;
-  }
+  .mobile-nav-icon i { font-size: 19px; transition: color 0.2s ease; }
 
-  /* Label text */
   .mobile-nav-label {
     font-size: 10px;
     font-weight: 500;
@@ -994,31 +990,12 @@
     line-height: 1;
   }
 
-  /* Active state — cyan highlight */
-  .mobile-nav-item.active {
-    color: #06B6D4;
-  }
+  .mobile-nav-item.active { color: #06B6D4; }
+  .mobile-nav-item.active .mobile-nav-icon { background: rgba(6,182,212,0.15); transform: translateY(-2px); }
+  .mobile-nav-item.active .mobile-nav-icon i { color: #06B6D4; }
+  .mobile-nav-item.active .mobile-nav-label { color: #06B6D4; font-weight: 600; }
+  .mobile-nav-item:hover .mobile-nav-icon { background: rgba(255,255,255,0.07); }
 
-  .mobile-nav-item.active .mobile-nav-icon {
-    background: rgba(6, 182, 212, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .mobile-nav-item.active .mobile-nav-icon i {
-    color: #06B6D4;
-  }
-
-  .mobile-nav-item.active .mobile-nav-label {
-    color: #06B6D4;
-    font-weight: 600;
-  }
-
-  /* Hover state */
-  .mobile-nav-item:hover .mobile-nav-icon {
-    background: rgba(255, 255, 255, 0.07);
-  }
-
-  /* Notification badge */
   .mobile-nav-badge {
     position: absolute;
     top: -4px;
@@ -1034,25 +1011,13 @@
     align-items: center;
     justify-content: center;
     padding: 0 3px;
-    /* FIXED: border color matches the nav bg */
     border: 2px solid #13181F;
   }
 
-  /* FIXED: hide hamburger toggle — bottom nav replaces it */
-  .zenopay-header .mobile-toggle {
-    display: none !important;
-  }
+  .zenopay-header .mobile-toggle { display: none !important; }
+  .mobile-overlay { display: none !important; }
 
-  /* FIXED: hide the slide-out mobile overlay — bottom nav is used instead */
-  .mobile-overlay {
-    display: none !important;
-  }
-
-  /* FIXED: force footer to stay below bottom nav — no z-index competition */
-  footer,
-  .site-footer,
-  .zenopay-footer,
-  [class*="footer"] {
+  footer, .site-footer, .zenopay-footer, [class*="footer"] {
     position: relative;
     z-index: 1;
   }
@@ -1062,8 +1027,6 @@
   .header-actions { gap: 6px; }
   .notif-dropdown { width: calc(100vw - 28px); right: -8px; }
   .profile-drop   { width: calc(100vw - 28px); right: -8px; }
-
-  /* Slightly smaller icons on very small phones */
   .mobile-nav-icon i { font-size: 17px; }
   .mobile-nav-label  { font-size: 9px; }
 }

@@ -1,4 +1,4 @@
-<!-- ZenoPay Header v2 — Auth-aware, fully linked, no empty spacer gap -->
+<!-- ZenoPay Header v2 — Auth-aware, fully linked, fixed position -->
 <%
   const currentUser = typeof user !== 'undefined' ? user : null;
   const loggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : !!currentUser;
@@ -15,7 +15,6 @@
       document.head.appendChild(link);
     }
 
-    /* Inject responsive.css AFTER header.css so it can override */
     var rHref = '/css/responsive.css';
     if (!document.querySelector('link[href="' + rHref + '"]')) {
       var rLink = document.createElement('link');
@@ -24,7 +23,6 @@
       document.head.appendChild(rLink);
     }
 
-    /* Inject site favicon globally */
     var faviconHref = '/Images/bgFavicon.png';
     var existingFavicon = document.querySelector('link[rel="icon"]');
     if (existingFavicon) {
@@ -56,6 +54,7 @@
     }
   })();
 </script>
+
 <header class="zenopay-header" id="zenoHeader">
   <div class="header-inner">
 
@@ -169,28 +168,27 @@
         </div>
       </div>
 
-      <!-- DEVELOPERS dropdown -->
+      <!-- DEVELOPERS dropdown
+           REMOVED: System Status (kept only in Support) -->
       <div class="nav-item">
         <button class="nav-btn" aria-haspopup="true" aria-expanded="false">
           Developers <i class="fas fa-chevron-down nav-chevron"></i>
         </button>
         <div class="dropdown">
           <a href="/api-docs" class="drop-item"><i class="fas fa-book"></i> API Documentation</a>
-           <a href="/api-integration" class="drop-item"><i class="fas fa-puzzle-piece"></i> Integration Guide</a>
-           <a href="/create-api-key" class="drop-item"><i class="fas fa-key"></i> Create API Key</a>
-          <div class="drop-sep"></div>
-          <a href="/system-status" class="drop-item"><i class="fas fa-signal"></i> System Status</a>
+          <a href="/api-integration" class="drop-item"><i class="fas fa-puzzle-piece"></i> Integration Guide</a>
+          <a href="/create-api-key" class="drop-item"><i class="fas fa-key"></i> Create API Key</a>
           <div class="drop-sep"></div>
           <a href="/api-docs" class="drop-cta">View Docs <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
 
-      <!-- PRICING direct -->
+      <!-- PRICING — top-level only (REMOVED from Company dropdown) -->
       <div class="nav-item">
         <a href="/pricing" class="nav-link">Pricing</a>
       </div>
 
-      <!-- SUPPORT dropdown -->
+      <!-- SUPPORT dropdown — System Status lives HERE only -->
       <div class="nav-item">
         <button class="nav-btn" aria-haspopup="true" aria-expanded="false">
           Support <i class="fas fa-chevron-down nav-chevron"></i>
@@ -201,7 +199,7 @@
               <div class="dropdown-col-title">Help</div>
               <a href="/help" class="drop-item"><i class="fas fa-circle-question"></i> Help Center / FAQs</a>
               <a href="/contact" class="drop-item"><i class="fas fa-headset"></i> Contact Support</a>
-                <a href="/support" class="drop-item"><i class="fas fa-life-ring"></i> Support Center</a>
+              <a href="/support" class="drop-item"><i class="fas fa-life-ring"></i> Support Center</a>
               <a href="/report-issue" class="drop-item"><i class="fas fa-flag"></i> Report an Issue</a>
               <a href="/disputes" class="drop-item"><i class="fas fa-gavel"></i> Dispute Management</a>
               <a href="/system-status" class="drop-item"><i class="fas fa-signal"></i> System Status</a>
@@ -218,19 +216,18 @@
         </div>
       </div>
 
-      <!-- COMPANY dropdown -->
+      <!-- COMPANY dropdown — REMOVED duplicate Pricing link -->
       <div class="nav-item">
         <button class="nav-btn" aria-haspopup="true" aria-expanded="false">
           Company <i class="fas fa-chevron-down nav-chevron"></i>
         </button>
         <div class="dropdown">
           <a href="/about" class="drop-item"><i class="fas fa-building"></i> About Us</a>
-          <a href="/pricing" class="drop-item"><i class="fas fa-tags"></i> Pricing</a>
           <a href="/referral-program" class="drop-item"><i class="fas fa-gift"></i> Referral Program</a>
           <div class="drop-sep"></div>
           <a href="/contact" class="drop-item"><i class="fas fa-envelope"></i> Contact Us</a>
-            <a href="/shop" class="drop-item"><i class="fas fa-store"></i> Shop</a>
-            <a href="/blog" class="drop-item"><i class="fas fa-rss"></i> Blog</a>
+          <a href="/shop" class="drop-item"><i class="fas fa-store"></i> Shop</a>
+          <a href="/blog" class="drop-item"><i class="fas fa-rss"></i> Blog</a>
         </div>
       </div>
 
@@ -241,7 +238,6 @@
 
       <% if (loggedIn && currentUser) { %>
 
-        <!-- LOGGED IN: Dashboard link -->
         <a href="/" class="dashboard-link desktop-only">
           <i class="fas fa-th-large"></i> Dashboard
         </a>
@@ -319,16 +315,16 @@
               <a href="/verification-status" class="pmenu-item"><i class="fas fa-badge-check"></i> Verification Status</a>
               <a href="/kyc-verification" class="pmenu-item"><i class="fas fa-id-card"></i> KYC Verification</a>
               <a href="/banks-list" class="pmenu-item"><i class="fas fa-building-columns"></i> Banks & Cards</a>
-                <a href="/beneficiaries" class="pmenu-item"><i class="fas fa-users"></i> Beneficiaries</a>
-                <a href="/payment-methods" class="pmenu-item"><i class="fas fa-wallet"></i> Payment Methods</a>
-                <a href="/receipts" class="pmenu-item"><i class="fas fa-receipt"></i> Receipts</a>
+              <a href="/beneficiaries" class="pmenu-item"><i class="fas fa-users"></i> Beneficiaries</a>
+              <a href="/payment-methods" class="pmenu-item"><i class="fas fa-wallet"></i> Payment Methods</a>
+              <a href="/receipts" class="pmenu-item"><i class="fas fa-receipt"></i> Receipts</a>
               <a href="/transaction-history" class="pmenu-item"><i class="fas fa-history"></i> Transaction History</a>
               <a href="/statements" class="pmenu-item"><i class="fas fa-file-lines"></i> Statements</a>
               <a href="/referral-program" class="pmenu-item"><i class="fas fa-gift"></i> Referral Program</a>
               <div class="pmenu-sep"></div>
               <a href="/help" class="pmenu-item"><i class="fas fa-circle-question"></i> Help Center</a>
               <a href="/contact" class="pmenu-item"><i class="fas fa-headset"></i> Contact Support</a>
-                <a href="/change-password" class="pmenu-item"><i class="fas fa-key"></i> Change Password</a>
+              <a href="/change-password" class="pmenu-item"><i class="fas fa-key"></i> Change Password</a>
               <div class="pmenu-sep"></div>
               <a href="/logout" class="pmenu-item logout"><i class="fas fa-sign-out-alt"></i> Log Out</a>
             </div>
@@ -371,61 +367,45 @@
   </div>
 </header>
 
-<!-- MOBILE BOTTOM NAVIGATION — shown only on mobile -->
+<!-- MOBILE BOTTOM NAVIGATION -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
   <a href="/dashboard" class="mobile-nav-item" data-page="dashboard">
-    <div class="mobile-nav-icon">
-      <i class="fas fa-home"></i>
-    </div>
+    <div class="mobile-nav-icon"><i class="fas fa-home"></i></div>
     <span class="mobile-nav-label">Dashboard</span>
   </a>
-
   <a href="/send-money" class="mobile-nav-item" data-page="send">
-    <div class="mobile-nav-icon">
-      <i class="fas fa-paper-plane"></i>
-    </div>
+    <div class="mobile-nav-icon"><i class="fas fa-paper-plane"></i></div>
     <span class="mobile-nav-label">Send</span>
   </a>
-
   <a href="/transaction-history" class="mobile-nav-item" data-page="history">
-    <div class="mobile-nav-icon">
-      <i class="fas fa-history"></i>
-    </div>
+    <div class="mobile-nav-icon"><i class="fas fa-history"></i></div>
     <span class="mobile-nav-label">History</span>
   </a>
-
   <a href="/add-money" class="mobile-nav-item" data-page="payments">
-    <div class="mobile-nav-icon">
-      <i class="fas fa-wallet"></i>
-    </div>
+    <div class="mobile-nav-icon"><i class="fas fa-wallet"></i></div>
     <span class="mobile-nav-label">Payments</span>
   </a>
-
   <a href="/notifications" class="mobile-nav-item" data-page="alerts">
     <div class="mobile-nav-icon">
       <i class="fas fa-bell"></i>
-      <!-- Notification badge (shown if unread notifications exist) -->
       <span class="mobile-nav-badge" id="mobileNavBadge" style="display:none;">3</span>
     </div>
     <span class="mobile-nav-label">Alerts</span>
   </a>
 </nav>
 
-<!-- Spacer so bottom nav doesn't overlap page content on mobile -->
+<!-- Spacer so bottom nav does not overlap page content on mobile -->
 <div class="mobile-bottom-spacer"></div>
 
-<!-- SPACER: hidden (sticky header doesn't need a spacer — see CSS) -->
+<!-- FIXED: header-spacer now has height so content sits below fixed header -->
 <div class="header-spacer"></div>
 
-<!-- ================================================================
-     MOBILE OVERLAY  (outside <header> so position:fixed works)
-     ================================================================ -->
+<!-- MOBILE OVERLAY -->
 <div class="mobile-overlay" id="mobileOverlay">
   <div class="mobile-inner">
 
     <% if (loggedIn && currentUser) { %>
 
-      <!-- LOGGED IN mobile -->
       <div class="mobile-user-card">
         <% if (currentUser.ProfilePicture) { %>
           <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="mob-avatar" />
@@ -452,18 +432,17 @@
         <a href="/security-settings" class="mob-item"><i class="fas fa-shield-halved"></i> Security</a>
         <a href="/notifications" class="mob-item"><i class="fas fa-bell"></i> Notifications</a>
         <a href="/help" class="mob-item"><i class="fas fa-circle-question"></i> Help Center</a>
-          <a href="/support" class="mob-item"><i class="fas fa-life-ring"></i> Support Center</a>
-          <a href="/beneficiaries" class="mob-item"><i class="fas fa-users"></i> Beneficiaries</a>
+        <a href="/support" class="mob-item"><i class="fas fa-life-ring"></i> Support Center</a>
+        <a href="/beneficiaries" class="mob-item"><i class="fas fa-users"></i> Beneficiaries</a>
         <div class="mob-divider"></div>
-            <a href="/shop" class="mob-item"><i class="fas fa-store"></i> Shop</a>
-            <a href="/blog" class="mob-item"><i class="fas fa-rss"></i> Blog</a>
-            <div class="mob-divider"></div>
+        <a href="/shop" class="mob-item"><i class="fas fa-store"></i> Shop</a>
+        <a href="/blog" class="mob-item"><i class="fas fa-rss"></i> Blog</a>
+        <div class="mob-divider"></div>
         <a href="/logout" class="mob-item logout"><i class="fas fa-sign-out-alt"></i> Log Out</a>
       </nav>
 
     <% } else { %>
 
-      <!-- NOT LOGGED IN mobile -->
       <nav class="mob-nav">
 
         <div class="mob-section">
@@ -481,6 +460,7 @@
           </div>
         </div>
 
+        <!-- DEVELOPERS — REMOVED duplicate System Status -->
         <div class="mob-section">
           <button class="mob-item expandable">
             <div class="mob-item-inner"><i class="fas fa-code"></i> Developers</div>
@@ -490,12 +470,13 @@
             <a href="/api-docs" class="mob-sub-item">API Documentation</a>
             <a href="/api-integration" class="mob-sub-item">Integration Guide</a>
             <a href="/create-api-key" class="mob-sub-item">Create API Key</a>
-            <a href="/system-status" class="mob-sub-item">System Status</a>
           </div>
         </div>
 
+        <!-- PRICING — top-level only -->
         <a href="/pricing" class="mob-item"><i class="fas fa-tag"></i> Pricing</a>
 
+        <!-- SUPPORT — System Status lives HERE -->
         <div class="mob-section">
           <button class="mob-item expandable">
             <div class="mob-item-inner"><i class="fas fa-headset"></i> Support</div>
@@ -504,14 +485,16 @@
           <div class="mob-sub">
             <a href="/help" class="mob-sub-item">Help Center</a>
             <a href="/contact" class="mob-sub-item">Contact Support</a>
-              <a href="/support" class="mob-sub-item">Support Center</a>
+            <a href="/support" class="mob-sub-item">Support Center</a>
             <a href="/report-issue" class="mob-sub-item">Report an Issue</a>
             <a href="/disputes" class="mob-sub-item">Disputes</a>
+            <a href="/system-status" class="mob-sub-item">System Status</a>
             <a href="/privacy" class="mob-sub-item">Privacy Policy</a>
             <a href="/terms" class="mob-sub-item">Terms of Service</a>
           </div>
         </div>
 
+        <!-- COMPANY — REMOVED duplicate Pricing -->
         <div class="mob-section">
           <button class="mob-item expandable">
             <div class="mob-item-inner"><i class="fas fa-building"></i> Company</div>
@@ -519,11 +502,10 @@
           </button>
           <div class="mob-sub">
             <a href="/about" class="mob-sub-item">About Us</a>
-            <a href="/pricing" class="mob-sub-item">Pricing</a>
             <a href="/referral-program" class="mob-sub-item">Referral Program</a>
             <a href="/contact" class="mob-sub-item">Contact Us</a>
-              <a href="/shop" class="mob-sub-item">Shop</a>
-              <a href="/blog" class="mob-sub-item">Blog</a>
+            <a href="/shop" class="mob-sub-item">Shop</a>
+            <a href="/blog" class="mob-sub-item">Blog</a>
           </div>
         </div>
 
@@ -546,12 +528,10 @@
 (function() {
   const header = document.getElementById('zenoHeader');
 
-  // Scroll class
   window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > 10);
   }, { passive: true });
 
-  // Desktop dropdowns & mega menus
   document.querySelectorAll('.header-nav .nav-item').forEach(item => {
     const btn = item.querySelector('.nav-btn');
     if (!btn) return;
@@ -570,9 +550,8 @@
     });
   });
 
-  // Notifications
-  const notifWrapper = document.getElementById('notifWrapper');
-  const notifBtn    = document.getElementById('notifBtn');
+  const notifWrapper  = document.getElementById('notifWrapper');
+  const notifBtn     = document.getElementById('notifBtn');
   if (notifBtn && notifWrapper) {
     notifBtn.addEventListener('click', e => {
       e.stopPropagation();
@@ -581,7 +560,6 @@
     });
   }
 
-  // Profile
   const profileWrapper = document.getElementById('profileWrapper');
   const profileBtn     = document.getElementById('profileBtn');
   if (profileBtn && profileWrapper) {
@@ -592,7 +570,6 @@
     });
   }
 
-  // Help wrapper (guest)
   const helpWrapper = document.getElementById('helpWrapper');
   if (helpWrapper) {
     const helpBtn = helpWrapper.querySelector('.action-btn');
@@ -610,7 +587,6 @@
     });
   }
 
-  // Close on outside click
   document.addEventListener('click', () => {
     document.querySelectorAll('.header-nav .nav-item.open').forEach(o => {
       o.classList.remove('open');
@@ -620,7 +596,6 @@
     closeAllActions();
   });
 
-  // Mobile toggle
   const mobileToggle  = document.getElementById('mobileToggle');
   const mobileOverlay = document.getElementById('mobileOverlay');
   const mobOpenIcon   = document.getElementById('mobOpenIcon');
@@ -630,63 +605,45 @@
     mobileToggle.addEventListener('click', () => {
       const open = mobileOverlay.classList.toggle('open');
       document.body.style.overflow = open ? 'hidden' : '';
-      mobOpenIcon.style.display  = open ? 'none'  : '';
-      mobCloseIcon.style.display = open ? ''      : 'none';
+      mobOpenIcon.style.display  = open ? 'none' : '';
+      mobCloseIcon.style.display = open ? ''     : 'none';
     });
   }
 
-  // Mobile expandable sections
   document.querySelectorAll('.mob-section .mob-item.expandable').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.closest('.mob-section').classList.toggle('expanded');
     });
   });
 
-  // Mark all notifications read
   const markReadBtn = document.querySelector('.mark-read-btn');
   if (markReadBtn) {
     markReadBtn.addEventListener('click', () => {
       document.querySelectorAll('.notif-item.unread').forEach(n => n.classList.remove('unread'));
       const badge = document.querySelector('.notif-badge');
       if (badge) badge.style.display = 'none';
-
       const mobileBadge = document.getElementById('mobileNavBadge');
       if (mobileBadge) mobileBadge.style.display = 'none';
     });
   }
 
-  // Auto-set active tab for mobile bottom nav based on current URL path
   const path = window.location.pathname;
-  const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
-
-  mobileNavItems.forEach(item => {
+  document.querySelectorAll('.mobile-nav-item').forEach(item => {
     item.classList.remove('active');
     const page = item.getAttribute('data-page');
-
-    if (page === 'dashboard' && (path === '/' || path === '/dashboard')) {
-      item.classList.add('active');
-    } else if (page === 'send' && path.includes('send-money')) {
-      item.classList.add('active');
-    } else if (page === 'history' && path.includes('transaction-history')) {
-      item.classList.add('active');
-    } else if (page === 'payments' && (path.includes('add-money') || path.includes('withdraw') || path.includes('payment'))) {
-      item.classList.add('active');
-    } else if (page === 'alerts' && path.includes('notifications')) {
-      item.classList.add('active');
-    }
+    if (page === 'dashboard' && (path === '/' || path === '/dashboard')) item.classList.add('active');
+    else if (page === 'send' && path.includes('send-money')) item.classList.add('active');
+    else if (page === 'history' && path.includes('transaction-history')) item.classList.add('active');
+    else if (page === 'payments' && (path.includes('add-money') || path.includes('withdraw') || path.includes('payment'))) item.classList.add('active');
+    else if (page === 'alerts' && path.includes('notifications')) item.classList.add('active');
   });
 
-  // Mirror top notification badge count to mobile badge when available
-  const topBadge = document.querySelector('.notif-badge');
+  const topBadge    = document.querySelector('.notif-badge');
   const mobileBadge = document.getElementById('mobileNavBadge');
   if (mobileBadge && topBadge) {
-    const topBadgeHidden = topBadge.style.display === 'none' || topBadge.textContent.trim() === '';
-    if (topBadgeHidden) {
-      mobileBadge.style.display = 'none';
-    } else {
-      mobileBadge.textContent = topBadge.textContent.trim();
-      mobileBadge.style.display = 'flex';
-    }
+    const hidden = topBadge.style.display === 'none' || topBadge.textContent.trim() === '';
+    if (hidden) { mobileBadge.style.display = 'none'; }
+    else { mobileBadge.textContent = topBadge.textContent.trim(); mobileBadge.style.display = 'flex'; }
   }
 })();
 </script>
