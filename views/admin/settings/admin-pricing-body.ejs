@@ -1123,7 +1123,7 @@ kbd {
 </style>
 
 <script>
-const pricingPlans = <%- JSON.stringify(plans || []) %>;
+const pricingPlans = JSON.parse('<%- JSON.stringify(plans || []).replace(/</g, "\\u003c") %>');
 
 function showToast(msg, type='success') {
   const t = document.createElement('div');
@@ -1355,7 +1355,7 @@ document.addEventListener('keydown', e => {
     Chart.register(ChartDataLabels);
   }
 
-  const chartValues = <%- JSON.stringify((revenue && (revenue.chartData || revenue.chart)) || [620000,710000,780000,820000,870000,897143]) %>;
+  const chartValues = JSON.parse('<%- JSON.stringify((revenue && (revenue.chartData || revenue.chart)) || [620000,710000,780000,820000,870000,897143]).replace(/</g, "\\u003c") %>');
   const normalizedValues = Array.isArray(chartValues) ? chartValues.map((v) => Number(v || 0)) : [620000,710000,780000,820000,870000,897143];
   const datasetValues = normalizedValues.every((v) => v <= 1000) ? [620000,710000,780000,820000,870000,897143] : normalizedValues;
 
