@@ -9,6 +9,11 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
 const blogRoutes = require("./Routes/blogRoutes");
+const authRoutes = require("./Routes/authRoutes");
+const userRoutes = require("./Routes/userRoutes");
+const merchantFeatureRoutes = require("./Routes/merchantRoutes");
+const adminApiRoutes = require("./Routes/adminRoutes");
+const apiRoutes = require("./Routes/apiRoutes");
 const expressLayouts = require("express-ejs-layouts");
 
 const PORT = process.env.PORT || 3000;
@@ -129,7 +134,11 @@ try {
 }
 
 // User routes
-app.use(require("./Routes/routes"));
+app.use(authRoutes);
+app.use(userRoutes);
+app.use(merchantFeatureRoutes);
+app.use(adminApiRoutes);
+app.use(apiRoutes);
 
 // Blog routes
 app.use("/blog", blogRoutes);

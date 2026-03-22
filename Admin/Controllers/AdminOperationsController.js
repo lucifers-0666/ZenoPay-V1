@@ -461,7 +461,7 @@ const getNotificationsCenter = async (req, res) => {
     });
 
     res.locals.adminPage = "notifications";
-    res.render("admin/admin-notifications", {
+    res.render("admin/notifications/admin-notifications", {
       pageTitle: "Notifications Center",
       currentPage: "notifications",
       page: "notifications",
@@ -539,7 +539,7 @@ const getPricingManagement = async (req, res) => {
         ];
 
     res.locals.adminPage = "pricing";
-    res.render("admin/admin-pricing", {
+    res.render("admin/settings/admin-pricing", {
       pageTitle: "Pricing Management",
       currentPage: "pricing",
       page: "pricing",
@@ -782,7 +782,7 @@ const getAuditLogs = async (req, res) => {
     const flagged = logs.filter((l) => l.severity !== "info");
 
     res.locals.adminPage = "audit-logs";
-    res.render("admin/admin-audit-logs", {
+    res.render("admin/audit-logs/admin-audit-logs", {
       pageTitle: "Audit Logs",
       currentPage: "audit-logs",
       page: "audit-logs",
