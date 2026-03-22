@@ -882,7 +882,7 @@
         setTimeout(() => statsStrip.classList.remove('highlight'), 600);
 
         // Log detailed stats for debugging
-        console.log('📊 Stats Updated:', {
+        console.log('Stats Updated:', {
           total: state.payments.length,
           active,
           dueWeek,
@@ -993,14 +993,14 @@
           const p = state.payments.find((x) => x.id === index);
           if (!p) return;
 
-          console.log(`🔧 Action: ${action}, Payment ID: ${index}, Before count: ${state.payments.length}`);
+          console.log(`Action: ${action}, Payment ID: ${index}, Before count: ${state.payments.length}`);
 
           if (action === 'pause') {
             p.status = p.status === 'paused' ? 'active' : 'paused';
-            console.log(`⏸️  Toggled status to: ${p.status}`);
+            console.log(`Toggled status to: ${p.status}`);
           } else if (action === 'delete') {
             state.payments = state.payments.filter((x) => x.id !== p.id);
-            console.log(`🗑️  Deleted payment. After count: ${state.payments.length}`);
+            console.log(`Deleted payment. After count: ${state.payments.length}`);
           } else if (action === 'pay') {
             window.location.href = `/payment/success?amount=${encodeURIComponent(p.amount)}&to=${encodeURIComponent(p.recipient)}&method=${encodeURIComponent(p.method)}&type=Scheduled%20Payment`;
             return;
