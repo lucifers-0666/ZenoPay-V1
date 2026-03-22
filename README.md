@@ -53,12 +53,14 @@ ZenoPay is a full-stack digital payments platform built with Node.js, Express, M
 ## Project Structure (high level)
 
 - `app.js` — main app bootstrap
-- `Controllers/`, `Models/`, `Routes/`, `Services/` — core backend modules
-- `Admin/` — admin controllers/middleware/routes/public assets
-- `Merchant/` — merchant feature routes/controllers
+- `Controllers/`, `Models/`, `Routes/`, `Services/` — core backend modules (inside `ZenoPay/`)
+- `Admin/` — active admin controllers/middleware/routes/public assets (inside `ZenoPay/Admin`)
+- `Merchant/` — active merchant routes/controllers (inside `ZenoPay/Merchant`)
 - `views/` — EJS templates
 - `public/` — static assets
 - `tests/` — test suites
+
+> Note: this README describes the runtime app under `ZenoPay/`.
 
 ## Local Setup
 
