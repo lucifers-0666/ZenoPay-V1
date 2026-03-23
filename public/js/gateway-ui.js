@@ -240,12 +240,18 @@
                 <!-- Debit Card Form -->
                 <div id="cardForm" class="payment-form active">
                   <div class="input-group">
-                    <label>Card Number</label>
+                    <label>Token Provider</label>
+                    <select id="cardProvider">
+                      <option value="stripe">Stripe</option>
+                      <option value="razorpay">Razorpay</option>
+                    </select>
+                  </div>
+                  <div class="input-group">
+                    <label>Card Token ID</label>
                     <input
                       type="text"
-                      id="cardNumber"
-                      placeholder="1234 5678 9012 3456"
-                      maxlength="19"
+                      id="cardToken"
+                      placeholder="pm_xxx / tok_xxx / token_xxx"
                     />
                   </div>
                   <div class="input-row">
@@ -258,18 +264,9 @@
                         maxlength="5"
                       />
                     </div>
-                    <div class="input-group">
-                      <label>CVV</label>
-                      <input
-                        type="password"
-                        id="cvv"
-                        placeholder="123"
-                        maxlength="3"
-                      />
-                    </div>
                   </div>
                   <div class="input-group">
-                    <label>Cardholder Name</label>
+                    <label>Cardholder Name (optional)</label>
                     <input type="text" id="cardName" placeholder="John Doe" />
                   </div>
                 </div>
@@ -391,11 +388,29 @@
         
         if (currentMethod === "card") {
           paymentData = {
-            cardNumber: document.getElementById("cardNumber").value,
-            expiryDate: document.getElementById("expiryDate").value,
-            cvv: document.getElementById("cvv").value,
+            cardProvider: document.getElementById("cardProvider").value,
+            cardToken: document.getElementById("cardToken").value,
             cardName: document.getElementById("cardName").value,
           };
+
+          const verifyResponse = await fetch("/api/payment/verify-customer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cardProvider: paymentData.cardProvider,
+              cardToken: paymentData.cardToken,
+            }),
+          });
+
+          const verifyResult = await verifyResponse.json();
+          if (!verifyResult.success) {
+            alert(verifyResult.error || "Invalid card token");
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Send OTP";
+            return;
+          }
+
+          zenoPayId = verifyResult.data?.zenoPayId || null;
         } else if (currentMethod === "upi") {
           zenoPayId = document.getElementById("upiId").value;
         } else if (currentMethod === "mobile") {
@@ -556,13 +571,9 @@
     });
 
     // Card number formatting
-    const cardNumberInput = document.getElementById("cardNumber");
-    if (cardNumberInput) {
-      cardNumberInput.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/\s/g, "");
-        let formattedValue = value.match(/.{1,4}/g)?.join(" ") || value;
-        e.target.value = formattedValue;
-      });
+    const cardTokenInput = document.getElementById("cardToken");
+    if (cardTokenInput) {
+      cardTokenInput.addEventListener("input", () => {});
     }
 
     // Expiry date formatting

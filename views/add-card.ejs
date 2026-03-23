@@ -69,11 +69,7 @@
               <div class="card-bg"></div>
               <div class="card-content">
                 <div class="magnetic-strip"></div>
-                <div class="signature-panel">
-                  <div class="cvv-box">
-                    <span id="cvv-display">•••</span>
-                  </div>
-                </div>
+                <div class="signature-panel"></div>
                 <div class="card-info">
                   <p>This card is the property of the cardholder. Misuse is criminal offense.</p>
                 </div>
@@ -93,6 +89,33 @@
       <!-- Form Section -->
       <section class="form-section">
         <form id="add-card-form" class="card-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="label" for="token-provider">
+                Token Provider
+                <span class="required">*</span>
+              </label>
+              <select id="token-provider" class="input select" required>
+                <option value="stripe" <%= cardTokenization?.provider === 'stripe' ? 'selected' : '' %>>Stripe</option>
+                <option value="razorpay" <%= cardTokenization?.provider === 'razorpay' ? 'selected' : '' %>>Razorpay</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="token-id">
+                Token ID
+                <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="token-id"
+                class="input"
+                placeholder="pm_xxx / tok_xxx / token_xxx"
+                required
+              />
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="label" for="card-number">
               Card Number
@@ -156,24 +179,7 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="label" for="cvv">
-                CVV
-                <span class="required">*</span>
-                <span class="tooltip-trigger" data-tooltip="3-digit code on the back of your card">
-                  <i class="fas fa-circle-question"></i>
-                </span>
-              </label>
-              <input
-                type="text"
-                id="cvv"
-                class="input"
-                placeholder="123"
-                maxlength="4"
-                autocomplete="cc-csc"
-                required
-              />
-            </div>
+            
           </div>
 
           <div class="divider">
@@ -274,6 +280,12 @@
 
   <div class="toast" id="toast" hidden></div>
 
+  <script>
+    window.ZenoPayCardTokenization = {
+      provider: "<%= cardTokenization?.provider || 'stripe' %>",
+      required: <%= cardTokenization?.required ? 'true' : 'false' %>
+    };
+  </script>
   <script src="/js/add-card.js"></script>
   <%- include('partials/footer') %>
 </body>

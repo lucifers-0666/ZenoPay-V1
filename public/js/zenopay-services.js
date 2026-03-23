@@ -200,26 +200,15 @@
                   <form id="zenoIdentifierForm">
                     <div id="cardFormZeno" class="payment-form active">
                       <div class="input-group">
-                        <label>Card Number</label>
-                        <input type="text" id="zenoCardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
+                        <label>Token Provider</label>
+                        <select id="zenoCardProvider">
+                          <option value="stripe">Stripe</option>
+                          <option value="razorpay">Razorpay</option>
+                        </select>
                       </div>
                       <div class="input-group">
-                        <label>Name on Card</label>
-                        <input type="text" id="zenoNameOnCard" placeholder="Enter name on card" />
-                      </div>
-                      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                        <div class="input-group">
-                          <label>Expiry (MM/YY)</label>
-                          <input type="text" id="zenoCardExpiry" placeholder="MM/YY" maxlength="5" />
-                        </div>
-                        <div class="input-group">
-                          <label>CVV</label>
-                          <input type="password" id="zenoCardCVV" placeholder="CVV" maxlength="3" />
-                        </div>
-                        <div class="input-group">
-                          <label>Card PIN</label>
-                          <input type="password" id="zenoCardPIN" placeholder="4-digit PIN" maxlength="4" />
-                        </div>
+                        <label>Card Token ID</label>
+                        <input type="text" id="zenoCardToken" placeholder="pm_xxx / tok_xxx / token_xxx" />
                       </div>
                     </div>
 
@@ -528,7 +517,7 @@
 
     getUserIdentifier() {
       const inputs = {
-        card: document.getElementById('zenoCardNumber'),
+        card: document.getElementById('zenoCardToken'),
         upi: document.getElementById('zenoUpiId'),
         mobile: document.getElementById('zenoMobile'),
         email: document.getElementById('zenoEmail')
@@ -552,13 +541,11 @@
         this.userIdentifier = this.getUserIdentifier();
 
         if (this.currentMethod === 'card') {
-          const nameOnCard = document.getElementById('zenoNameOnCard').value.trim();
-          const cardExpiry = document.getElementById('zenoCardExpiry').value.trim();
-          const cvv = document.getElementById('zenoCardCVV').value.trim();
-          const pin = document.getElementById('zenoCardPIN').value.trim();
+          const cardProvider = document.getElementById('zenoCardProvider').value;
+          const cardToken = document.getElementById('zenoCardToken').value.trim();
 
-          if (!nameOnCard || !cardExpiry || !cvv || !pin) {
-            this.showError('zenoIdentifierError', 'Please fill all card details');
+          if (!cardProvider || !cardToken) {
+            this.showError('zenoIdentifierError', 'Please provide token provider and card token');
             btn.disabled = false;
             btn.textContent = originalText;
             return;
@@ -567,11 +554,8 @@
           this.modal.showLoader('Verifying card details...');
           
           const verifyResult = await this.api.verifyCustomer({
-            cardNumber: this.userIdentifier,
-            cvv: cvv,
-            cardPin: pin,
-            nameOnCard: nameOnCard,
-            cardExpiry: cardExpiry
+            cardToken,
+            cardProvider,
           });
 
           this.modal.hideLoader();

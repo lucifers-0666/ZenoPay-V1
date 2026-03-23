@@ -27,18 +27,18 @@ const cardNumberInput = document.getElementById('card-number');
 const cardholderNameInput = document.getElementById('cardholder-name');
 const expiryMonthSelect = document.getElementById('expiry-month');
 const expiryYearSelect = document.getElementById('expiry-year');
-const cvvInput = document.getElementById('cvv');
 const card3D = document.getElementById('card-3d');
 const cardNumberDisplay = document.getElementById('card-number-display');
 const cardholderDisplay = document.getElementById('cardholder-display');
 const expiryDisplay = document.getElementById('expiry-display');
-const cvvDisplay = document.getElementById('cvv-display');
 const brandLogo = document.getElementById('brand-logo');
 const brandIcon = document.getElementById('brand-icon');
 const cardNumberError = document.getElementById('card-number-error');
 const form = document.getElementById('add-card-form');
 const submitBtn = document.getElementById('submit-btn');
 const toast = document.getElementById('toast');
+const tokenProviderSelect = document.getElementById('token-provider');
+const tokenIdInput = document.getElementById('token-id');
 
 // Populate year options
 function populateYears() {
@@ -228,27 +228,6 @@ function updateExpiryDisplay() {
   }
 }
 
-cvvInput.addEventListener('input', (e) => {
-  let value = e.target.value.replace(/\D/g, '');
-  
-  // Limit to 4 digits (Amex can have 4)
-  if (value.length > 4) {
-    value = value.slice(0, 4);
-  }
-  
-  e.target.value = value;
-  cvvDisplay.textContent = value ? value : '•••';
-});
-
-// Flip card on CVV focus
-cvvInput.addEventListener('focus', () => {
-  card3D.classList.add('flipped');
-});
-
-cvvInput.addEventListener('blur', () => {
-  card3D.classList.remove('flipped');
-});
-
 // Form validation and submission
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -288,11 +267,13 @@ form.addEventListener('submit', async (e) => {
     showToast('Card has expired', 'error');
     return;
   }
-  
-  // Validate CVV
-  if (!cvvInput.value || cvvInput.value.length < 3) {
-    showToast('Please enter a valid CVV', 'error');
-    cvvInput.focus();
+
+  // Validate tokenized card fields
+  const tokenProvider = tokenProviderSelect?.value;
+  const tokenId = (tokenIdInput?.value || '').trim();
+  if (!tokenProvider || !tokenId) {
+    showToast('Please provide token provider and token ID', 'error');
+    tokenIdInput?.focus();
     return;
   }
   
@@ -302,11 +283,13 @@ form.addEventListener('submit', async (e) => {
   
   try {
     const formData = {
-      cardNumber: cardNumber,
+      tokenId: tokenId,
+      provider: tokenProvider,
+      brand: detectCardBrand(cardNumber) || 'unknown',
+      last4: cardNumber.slice(-4),
       cardholderName: cardholderNameInput.value.trim(),
       expiryMonth: month,
       expiryYear: year,
-      cvv: cvvInput.value,
       billingAddress: {
         addressLine1: document.getElementById('address-line1').value.trim(),
         city: document.getElementById('city').value.trim(),

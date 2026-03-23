@@ -18,6 +18,7 @@ const expressLayouts = require("express-ejs-layouts");
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
+const isProduction = process.env.NODE_ENV === "production";
 
 app.set("trust proxy", 1);
 
@@ -55,6 +56,10 @@ if (DB_PATH && DB_PATH !== 'your_mongodb_connection_string') {
     usingMemoryStore = true;
   }
 } else {
+  if (isProduction) {
+    console.error("❌ No MongoDB URI configured in production. Refusing to start with memory sessions.");
+    process.exit(1);
+  }
   console.warn("⚠️  No MongoDB URI configured. Using memory store for sessions.");
   usingMemoryStore = true;
 }
@@ -228,6 +233,16 @@ mongoose.connection.on('reconnected', () => {
   console.log("=".repeat(60) + "\n");
 
   const dbConnected = await connectDB();
+
+  if (isProduction && !dbConnected) {
+    console.error("❌ Startup aborted: MongoDB is required in production.");
+    process.exit(1);
+  }
+
+  if (isProduction && (!store || usingMemoryStore)) {
+    console.error("❌ Startup aborted: Persistent MongoDB session store is required in production.");
+    process.exit(1);
+  }
   
   app.listen(PORT, () => {
     console.log("\n" + "=".repeat(60));

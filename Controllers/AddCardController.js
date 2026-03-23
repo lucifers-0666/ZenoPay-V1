@@ -1,4 +1,6 @@
 const ZenoPayUser = require("../Models/ZenoPayUser");
+const CardToken = require("../Models/CardToken");
+const tokenizationService = require("../Services/cardTokenizationService");
 
 // GET: Add Card Page
 const getAddCardPage = async (req, res) => {
@@ -14,6 +16,10 @@ const getAddCardPage = async (req, res) => {
       pageTitle: "Add New Card",
       isLoggedIn: true,
       user,
+      cardTokenization: {
+        provider: tokenizationService.getDefaultProvider(),
+        required: tokenizationService.isTokenizationRequired(),
+      },
     });
   } catch (error) {
     console.error("Error loading add card page:", error);
@@ -25,50 +31,79 @@ const getAddCardPage = async (req, res) => {
 const addCard = async (req, res) => {
   try {
     const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const {
+      tokenId,
+      provider,
+      brand,
+      last4,
+      cardholderName,
+      expiryMonth,
+      expiryYear,
+      setAsDefault,
+    } = req.body || {};
 
-    // Validation
-    if (!cardNumber || !cardholderName || !expiryMonth || !expiryYear || !cvv) {
-      return res.status(400).json({ success: false, message: "All card fields are required" });
+    if (!tokenId || !provider || !last4) {
+      return res.status(400).json({
+        success: false,
+        message: "Tokenized card details are required (provider, tokenId, last4)",
+      });
     }
 
-    // Detect card brand
-    const cleanCardNumber = cardNumber.replace(/\s/g, "");
-    let brand = "unknown";
-    if (/^4/.test(cleanCardNumber)) brand = "visa";
-    else if (/^5[1-5]/.test(cleanCardNumber)) brand = "mastercard";
-    else if (/^3[47]/.test(cleanCardNumber)) brand = "amex";
-    else if (/^6(?:011|5)/.test(cleanCardNumber)) brand = "discover";
-
-    // Luhn algorithm validation
-    const isValidCard = validateLuhn(cleanCardNumber);
-    if (!isValidCard) {
-      return res.status(400).json({ success: false, message: "Invalid card number" });
+    const tokenCheck = await tokenizationService.verifyToken(provider, tokenId);
+    if (!tokenCheck.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `Card token verification failed: ${tokenCheck.reason || "Invalid token"}`,
+      });
     }
 
-    // Expiry validation
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
-    const fullYear = parseInt(`20${expiryYear}`);
-
-    if (fullYear < currentYear || (fullYear === currentYear && parseInt(expiryMonth) < currentMonth)) {
-      return res.status(400).json({ success: false, message: "Card has expired" });
+    const normalizedProvider = String(provider).toLowerCase();
+    const normalizedLast4 = String(last4).replace(/\D/g, "").slice(-4);
+    if (normalizedLast4.length !== 4) {
+      return res.status(400).json({ success: false, message: "Invalid last4 value" });
     }
 
-    const last4 = cleanCardNumber.slice(-4);
+    if (setAsDefault) {
+      await CardToken.updateMany({ ZenoPayId: zenoPayId }, { $set: { isDefault: false } });
+    }
 
-    // TODO: In production, encrypt and store card via payment gateway (Stripe, etc.)
-    // For now, just acknowledge
+    const cardDoc = await CardToken.findOneAndUpdate(
+      {
+        provider: normalizedProvider,
+        tokenId: tokenCheck.normalizedTokenId || tokenId,
+      },
+      {
+        $set: {
+          ZenoPayId: zenoPayId,
+          provider: normalizedProvider,
+          tokenId: tokenCheck.normalizedTokenId || tokenId,
+          brand: tokenCheck.details?.brand || brand || "unknown",
+          last4: tokenCheck.details?.last4 || normalizedLast4,
+          cardholderName: String(cardholderName || "").trim(),
+          expiryMonth: tokenCheck.details?.exp_month || String(expiryMonth || "").padStart(2, "0"),
+          expiryYear: tokenCheck.details?.exp_year || String(expiryYear || ""),
+          isDefault: !!setAsDefault,
+          status: "active",
+          metadata: {
+            tokenVerificationWarning: tokenCheck.warning || null,
+          },
+        },
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
     res.json({
       success: true,
       message: "Card added successfully",
       card: {
-        brand,
-        last4,
-        cardholderName,
-        expiryMonth,
-        expiryYear,
-        isDefault: setAsDefault,
+        id: String(cardDoc._id),
+        provider: cardDoc.provider,
+        brand: cardDoc.brand,
+        last4: cardDoc.last4,
+        cardholderName: cardDoc.cardholderName,
+        expiryMonth: cardDoc.expiryMonth,
+        expiryYear: cardDoc.expiryYear,
+        isDefault: cardDoc.isDefault,
       },
     });
   } catch (error) {
@@ -76,28 +111,6 @@ const addCard = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to add card" });
   }
 };
-
-// Luhn algorithm for card validation
-function validateLuhn(cardNumber) {
-  let sum = 0;
-  let isEven = false;
-
-  for (let i = cardNumber.length - 1; i >= 0; i--) {
-    let digit = parseInt(cardNumber[i]);
-
-    if (isEven) {
-      digit *= 2;
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-
-    sum += digit;
-    isEven = !isEven;
-  }
-
-  return sum % 10 === 0;
-}
 
 module.exports = {
   getAddCardPage,

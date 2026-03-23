@@ -6,6 +6,8 @@ const Notification = require("../Models/Notification");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const emailService = require("../Services/EmailService");
 const { createCardFingerprint, comparePin, normalizeCardNumber } = require("../utils/cardSecurity");
+const CardToken = require("../Models/CardToken");
+const tokenizationService = require("../Services/cardTokenizationService");
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStore = new Map();
@@ -653,16 +655,88 @@ const processPayment = async (req, res) => {
 
 const verifyCustomer = async (req, res) => {
   try {
-    const { zenoPayId, email, mobile, otp, cardNumber, cvv, cardPin, nameOnCard, cardExpiry } = req.body;
+    const { zenoPayId, email, mobile, otp, cardNumber, cardToken, cardProvider, cardPin, nameOnCard, cardExpiry } = req.body;
 
-    if (!zenoPayId && !email && !mobile && !cardNumber) {
+    if (!zenoPayId && !email && !mobile && !cardNumber && !cardToken) {
       return res.status(400).json({
         success: false,
-        error: "ZenoPay ID, Email, Mobile, or Card Number is required",
+        error: "ZenoPay ID, Email, Mobile, Card Number, or Card Token is required",
       });
     }
 
-    if (cardNumber) {
+    if (cardToken || cardNumber) {
+      const tokenizationRequired = tokenizationService.isTokenizationRequired();
+
+      if (tokenizationRequired && !cardToken) {
+        return res.status(400).json({
+          success: false,
+          error: "Card token is required in production. Please use tokenized card checkout.",
+        });
+      }
+
+      if (cardToken) {
+        const provider = String(cardProvider || tokenizationService.getDefaultProvider()).toLowerCase();
+        const tokenCheck = await tokenizationService.verifyToken(provider, cardToken);
+
+        if (!tokenCheck.valid) {
+          return res.status(401).json({
+            success: false,
+            error: tokenCheck.reason || "Invalid card token",
+          });
+        }
+
+        const savedCard = await CardToken.findOne({
+          provider,
+          tokenId: tokenCheck.normalizedTokenId || cardToken,
+          status: "active",
+        });
+
+        if (!savedCard) {
+          return res.status(404).json({
+            success: false,
+            error: "Card token not linked. Please add this card first.",
+          });
+        }
+
+        const tokenUser = await ZenoPayUser.findOne({ ZenoPayID: savedCard.ZenoPayId });
+        if (!tokenUser) {
+          return res.status(404).json({
+            success: false,
+            error: "Linked user for this card token was not found",
+          });
+        }
+
+        const tokenAccounts = await BankAccount.find({ ZenoPayId: tokenUser.ZenoPayID });
+
+        return res.json({
+          success: true,
+          data: {
+            zenoPayId: tokenUser.ZenoPayID,
+            name: tokenUser.FullName,
+            email: tokenUser.Email,
+            mobile: tokenUser.Mobile,
+            hasAccount: tokenAccounts.length > 0,
+            balance: tokenAccounts.length > 0 ? parseFloat(tokenAccounts[0].Balance.toString()) : 0,
+            bankAccounts: tokenAccounts.map(acc => ({
+              accountNumber: acc.AccountNumber,
+              bankName: acc.BankName,
+              balance: parseFloat(acc.Balance.toString())
+            })),
+            cardToken: savedCard.tokenId,
+            cardProvider: savedCard.provider,
+            isCardPayment: true,
+          },
+        });
+      }
+
+      // Legacy card-number path (non-production compatibility only)
+      if (tokenizationRequired) {
+        return res.status(400).json({
+          success: false,
+          error: "Card number flow is disabled in production. Use tokenized card checkout.",
+        });
+      }
+
       if (!cardPin || !nameOnCard || !cardExpiry) {
         return res.status(400).json({
           success: false,
@@ -830,16 +904,64 @@ const verifyCustomer = async (req, res) => {
 // Send OTP
 const sendPaymentOTP = async (req, res) => {
   try {
-    const { zenoPayId, mobile, email, cardNumber } = req.body;
+    const { zenoPayId, mobile, email, cardNumber, cardToken, cardProvider } = req.body;
 
-    if (!zenoPayId && !mobile && !email && !cardNumber) {
+    if (!zenoPayId && !mobile && !email && !cardNumber && !cardToken) {
       return res.status(400).json({
         success: false,
         error: "At least one identifier is required",
       });
     }
 
-    if (cardNumber) {
+    if (cardToken || cardNumber) {
+      const tokenizationRequired = tokenizationService.isTokenizationRequired();
+
+      if (cardToken) {
+        const provider = String(cardProvider || tokenizationService.getDefaultProvider()).toLowerCase();
+        const tokenCheck = await tokenizationService.verifyToken(provider, cardToken);
+
+        if (!tokenCheck.valid) {
+          return res.status(401).json({
+            success: false,
+            error: tokenCheck.reason || "Invalid card token",
+          });
+        }
+
+        const savedCard = await CardToken.findOne({
+          provider,
+          tokenId: tokenCheck.normalizedTokenId || cardToken,
+          status: "active",
+        });
+
+        if (!savedCard) {
+          return res.status(404).json({
+            success: false,
+            error: "Card token not found. Please add card first.",
+            registrationUrl: "/add-card",
+            needsRegistration: true,
+          });
+        }
+
+        return res.json({
+          success: true,
+          message: "Card token verified. No OTP required for card token payments.",
+          isCardPayment: true,
+          userData: {
+            zenoPayId: savedCard.ZenoPayId,
+            cardToken: savedCard.tokenId,
+            cardProvider: savedCard.provider,
+            cardLast4: savedCard.last4,
+          },
+        });
+      }
+
+      if (tokenizationRequired) {
+        return res.status(400).json({
+          success: false,
+          error: "Card token is required in production.",
+        });
+      }
+
       const normalizedCardNumber = normalizeCardNumber(cardNumber);
       const cardFingerprint = createCardFingerprint(normalizedCardNumber);
 

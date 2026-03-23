@@ -707,10 +707,6 @@
               <i class="fas fa-calendar-alt"></i>
               <input class="input mono" id="cardExpiry" maxlength="5" placeholder="MM/YY" />
             </div>
-            <div class="field">
-              <i class="fas fa-lock"></i>
-              <input class="input mono" id="cardCvv" maxlength="3" placeholder="CVV" />
-            </div>
           </div>
           <label class="save-card"><input type="checkbox" /> Save for future use</label>
         </div>
@@ -759,7 +755,6 @@
       const upiVerified = document.getElementById('upiVerified');
       const cardNumber = document.getElementById('cardNumber');
       const cardExpiry = document.getElementById('cardExpiry');
-      const cardCvv = document.getElementById('cardCvv');
 
       const proceedBtn = document.getElementById('proceedBtn');
       const sumAmount = document.getElementById('sumAmount');
@@ -791,8 +786,7 @@
         if (selectedMethod !== 'card') return true;
         const numberOk = cardNumber.value.replace(/\s/g, '').length >= 16;
         const expiryOk = /^\d{2}\/\d{2}$/.test(cardExpiry.value);
-        const cvvOk = /^\d{3}$/.test(cardCvv.value);
-        return numberOk && expiryOk && cvvOk;
+        return numberOk && expiryOk;
       };
 
       const update = () => {
@@ -881,11 +875,6 @@
       cardExpiry.addEventListener('input', () => {
         const raw = cardExpiry.value.replace(/\D/g, '').slice(0, 4);
         cardExpiry.value = raw.length > 2 ? `${raw.slice(0, 2)}/${raw.slice(2)}` : raw;
-        update();
-      });
-
-      cardCvv.addEventListener('input', () => {
-        cardCvv.value = cardCvv.value.replace(/\D/g, '').slice(0, 3);
         update();
       });
 

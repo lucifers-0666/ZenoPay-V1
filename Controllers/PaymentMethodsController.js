@@ -1,4 +1,5 @@
 const ZenoPayUser = require("../Models/ZenoPayUser");
+const CardToken = require("../Models/CardToken");
 
 // GET: Payment Methods Page
 const getPaymentMethodsPage = async (req, res) => {
@@ -10,27 +11,20 @@ const getPaymentMethodsPage = async (req, res) => {
       return res.redirect("/login");
     }
 
-    // Mock payment methods data (replace with database queries)
-    const savedCards = [
-      {
-        id: "card_1",
-        brand: "visa",
-        last4: "4242",
-        cardholderName: user.FullName,
-        expiryMonth: "12",
-        expiryYear: "2026",
-        isDefault: true,
-      },
-      {
-        id: "card_2",
-        brand: "mastercard",
-        last4: "5555",
-        cardholderName: user.FullName,
-        expiryMonth: "08",
-        expiryYear: "2025",
-        isDefault: false,
-      },
-    ];
+    const savedCardsDocs = await CardToken.find({ ZenoPayId: zenoPayId, status: "active" })
+      .sort({ isDefault: -1, createdAt: -1 })
+      .lean();
+
+    const savedCards = savedCardsDocs.map((card) => ({
+      id: String(card._id),
+      brand: card.brand || "unknown",
+      last4: card.last4 || "0000",
+      cardholderName: card.cardholderName || user.FullName,
+      expiryMonth: card.expiryMonth || "",
+      expiryYear: card.expiryYear || "",
+      isDefault: !!card.isDefault,
+      provider: card.provider,
+    }));
 
     const savedBankAccounts = [
       {
