@@ -98,7 +98,31 @@ const upload = multer({
   },
 });
 
-router.use(isAuthenticated);
+const publicGetPaths = new Set([
+  "/shop",
+  "/support",
+  "/support/search",
+  "/terms",
+  "/privacy",
+  "/about",
+  "/help",
+  "/faq",
+  "/api-integration",
+  "/api-docs",
+  "/pricing",
+  "/contact",
+]);
+
+router.use((req, res, next) => {
+  const isPublicSupportCategory = req.method === "GET" && req.path.startsWith("/support/category/");
+  const isPublicGet = req.method === "GET" && publicGetPaths.has(req.path);
+
+  if (isPublicGet || isPublicSupportCategory) {
+    return next();
+  }
+
+  return isAuthenticated(req, res, next);
+});
 
 router.get("/profile", ProfileController.getProfile);
 router.post("/profile", ProfileController.updateProfile);
