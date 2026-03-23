@@ -1,4 +1,5 @@
 const ZenoPayDetails = require("../Models/ZenoPayUser");
+const LoginHistory = require("../Models/LoginHistory");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const emailService = require("../Services/EmailService");
@@ -6,6 +7,36 @@ const emailService = require("../Services/EmailService");
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
 
 const isBcryptHash = (value = "") => /^\$2[aby]\$\d{2}\$/.test(value);
+
+const getClientIp = (req) => {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (Array.isArray(forwarded) && forwarded.length > 0) {
+    return forwarded[0];
+  }
+  if (typeof forwarded === "string" && forwarded.trim()) {
+    return forwarded.split(",")[0].trim();
+  }
+  return req.ip || req.socket?.remoteAddress || "Unknown IP";
+};
+
+const getDeviceLabel = (userAgent = "") => {
+  const ua = String(userAgent).toLowerCase();
+  if (!ua) return "Unknown Device";
+  if (/(iphone|ipad|ipod)/i.test(ua)) return "iOS Device";
+  if (/android/i.test(ua)) return "Android Device";
+  if (/(windows|macintosh|linux)/i.test(ua)) return "Desktop";
+  return "Unknown Device";
+};
+
+const getBrowserLabel = (userAgent = "") => {
+  const ua = String(userAgent);
+  if (/edg\//i.test(ua)) return "Microsoft Edge";
+  if (/chrome\//i.test(ua) && !/edg\//i.test(ua)) return "Google Chrome";
+  if (/firefox\//i.test(ua)) return "Mozilla Firefox";
+  if (/safari\//i.test(ua) && !/chrome\//i.test(ua)) return "Safari";
+  if (/opr\//i.test(ua) || /opera/i.test(ua)) return "Opera";
+  return "Unknown Browser";
+};
 
 const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
   if (!user || !user.Password || !plainPassword) return false;
@@ -255,6 +286,19 @@ const postLogin = async (req, res) => {
             message: "Session save error. Please try again.",
           });
         }
+
+        LoginHistory.create({
+          ZenoPayId: user.ZenoPayID,
+          status: "success",
+          device: getDeviceLabel(req.headers["user-agent"]),
+          browser: getBrowserLabel(req.headers["user-agent"]),
+          ip: getClientIp(req),
+          location: "Unknown Location",
+          userAgent: req.headers["user-agent"] || "",
+          loginAt: new Date(),
+        }).catch((historyErr) => {
+          console.error("[Auth] Login history save failed:", historyErr.message);
+        });
 
        
         return res.status(200).json({

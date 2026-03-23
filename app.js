@@ -15,6 +15,10 @@ const merchantFeatureRoutes = require("./Routes/merchantRoutes");
 const adminApiRoutes = require("./Routes/adminRoutes");
 const apiRoutes = require("./Routes/apiRoutes");
 const expressLayouts = require("express-ejs-layouts");
+const {
+  startScheduledPaymentsRunner,
+  stopScheduledPaymentsRunner,
+} = require("./Services/scheduledPaymentsRunner");
 
 const PORT = process.env.PORT || 3000;
 const DB_PATH = process.env.MONGO_URI;
@@ -257,18 +261,24 @@ mongoose.connection.on('reconnected', () => {
       console.log("⚠️  IMPORTANT: Running without database connection!");
       console.log("⚠️  To fix: Check MongoDB URI in .env file\n");
     }
+
+    if (dbConnected) {
+      startScheduledPaymentsRunner();
+    }
   });
 })();
 
 // ============ GRACEFUL SHUTDOWN ============
 process.on('SIGTERM', async () => {
   console.log('\n⏹️  SIGTERM received, shutting down gracefully...');
+  stopScheduledPaymentsRunner();
   await mongoose.connection.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('\n⏹️  SIGINT received, shutting down gracefully...');
+  stopScheduledPaymentsRunner();
   await mongoose.connection.close();
   process.exit(0);
 });

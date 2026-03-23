@@ -1,4 +1,4 @@
-const User = require("../../Models/User");
+const User = require("../../Models/ZenoPayUser");
 const BankAccount = require("../../Models/BankAccount");
 const TransactionHistory = require("../../Models/TransactionHistory");
 const bcrypt = require("bcryptjs");

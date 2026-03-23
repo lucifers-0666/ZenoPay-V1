@@ -2,6 +2,7 @@ const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 const Notification = require("../Models/Notification");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
+const emailService = require("../Services/EmailService");
 
 const generateTransactionId = async () => {
   for (let i = 0; i < 5; i += 1) {
@@ -294,6 +295,55 @@ const postTransferMoney = async (req, res) => {
       });
     } catch (notifErr) {
       console.error('Error creating notifications:', notifErr);
+    }
+
+    try {
+      const senderEmail = req.session?.user?.email || null;
+      const receiverEmail = receiverUser?.Email || null;
+
+      const emailTasks = [];
+      if (senderEmail) {
+        emailTasks.push(
+          emailService.sendEmail({
+            to: senderEmail,
+            subject: `Transfer successful • ${transactionID}`,
+            html: `
+              <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937;max-width:640px;margin:0 auto;">
+                <h2 style="margin-bottom:12px;">Your transfer was successful</h2>
+                <p>Hi ${senderHolderName || "there"},</p>
+                <p>You sent <strong>₹${transferAmount.toFixed(2)}</strong> to <strong>${receiverHolderName}</strong>.</p>
+                <p><strong>Transaction ID:</strong> ${transactionID}</p>
+                <p><strong>Total debited:</strong> ₹${totalAmount.toFixed(2)} (including charges of ₹${transactionCharges.toFixed(2)})</p>
+              </div>
+            `,
+            text: `Transfer successful. Txn ID ${transactionID}. You sent ₹${transferAmount.toFixed(2)} to ${receiverHolderName}. Total debited ₹${totalAmount.toFixed(2)}.`,
+          })
+        );
+      }
+
+      if (receiverEmail) {
+        emailTasks.push(
+          emailService.sendEmail({
+            to: receiverEmail,
+            subject: `Money received • ${transactionID}`,
+            html: `
+              <div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937;max-width:640px;margin:0 auto;">
+                <h2 style="margin-bottom:12px;">You received money</h2>
+                <p>Hi ${receiverHolderName || "there"},</p>
+                <p>You received <strong>₹${transferAmount.toFixed(2)}</strong> from <strong>${senderHolderName}</strong>.</p>
+                <p><strong>Transaction ID:</strong> ${transactionID}</p>
+              </div>
+            `,
+            text: `Money received. Txn ID ${transactionID}. You received ₹${transferAmount.toFixed(2)} from ${senderHolderName}.`,
+          })
+        );
+      }
+
+      if (emailTasks.length) {
+        await Promise.allSettled(emailTasks);
+      }
+    } catch (emailErr) {
+      console.error('Error sending transfer emails:', emailErr);
     }
 
     res.status(200).json({
