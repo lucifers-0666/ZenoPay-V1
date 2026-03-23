@@ -893,9 +893,41 @@
         if (proceedBtn.disabled) return;
         proceedBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Processing...';
         proceedBtn.disabled = true;
-        window.setTimeout(() => {
-          window.location.href = '/payment/success?type=Wallet%20Top-up&method=' + encodeURIComponent(methodMeta[selectedMethod].label) + '&amount=' + encodeURIComponent(getAmount()) + '&to=ZenoPay%20Wallet';
-        }, 900);
+
+        const payload = {
+          amount: getAmount(),
+          paymentMethod: selectedMethod,
+          upiId: upiInput.value.trim(),
+          cardLast4: cardNumber.value.replace(/\s/g, '').slice(-4),
+          note: 'Wallet top-up',
+        };
+
+        fetch('/api/wallet/add-money', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+          .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+              throw new Error(data.message || 'Failed to add money');
+            }
+
+            const amount = data?.data?.amount || getAmount();
+            const txId = data?.data?.transactionId || '';
+            window.location.href =
+              '/payment/success?type=Wallet%20Top-up&method=' +
+              encodeURIComponent(methodMeta[selectedMethod].label) +
+              '&amount=' +
+              encodeURIComponent(amount) +
+              '&to=ZenoPay%20Wallet&txId=' +
+              encodeURIComponent(txId);
+          })
+          .catch((error) => {
+            proceedBtn.disabled = false;
+            proceedBtn.innerHTML = `Proceed to Add ${formatINR(getAmount())} <i class="fas fa-arrow-right"></i>`;
+            alert(error.message || 'Unable to process add money request');
+          });
       });
 
       update();

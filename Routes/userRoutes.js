@@ -29,6 +29,7 @@ const PricingController = require("../Controllers/PricingController");
 const BeneficiaryController = require("../Controllers/BeneficiaryController");
 const SystemStatusController = require("../Controllers/SystemStatusController");
 const TransactionInfoController = require("../Controllers/TransactionHistory");
+const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
 
 // Multer Setup for Azure Blob Storage
@@ -294,52 +295,8 @@ router.get("/onboarding", (req, res) => {
   });
 });
 
-router.get("/add-money", async (req, res) => {
-  try {
-    const user = req.session.user || null;
-    const balance = Number(req.query.balance || 2450);
-
-    return res.render("add-money", {
-      pageTitle: "Add Money - ZenoPay",
-      isLoggedIn: true,
-      user,
-      balance,
-      accounts: [],
-    });
-  } catch (error) {
-    console.error("[Add Money] Error rendering page:", error);
-    return res.status(500).render("error-500", {
-      pageTitle: "Server Error - ZenoPay",
-      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
-    });
-  }
-});
-
-router.get("/withdraw", async (req, res) => {
-  try {
-    const user = req.session.user || null;
-    const balance = Number(req.query.balance || 2450);
-
-    const accounts = [
-      { id: "acc1", bankName: "HDFC Bank", holder: user?.FullName || "Rahul Sharma", accountMasked: "XXXX XXXX 8834", ifsc: "HDFC0001234" },
-      { id: "acc2", bankName: "ICICI Bank", holder: user?.FullName || "Rahul Sharma", accountMasked: "XXXX XXXX 1209", ifsc: "ICIC0000789" },
-    ] || [];
-
-    return res.render("withdraw", {
-      pageTitle: "Withdraw Funds - ZenoPay",
-      isLoggedIn: true,
-      user,
-      balance,
-      accounts,
-    });
-  } catch (error) {
-    console.error("[Withdraw] Error rendering page:", error);
-    return res.status(500).render("error-500", {
-      pageTitle: "Server Error - ZenoPay",
-      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
-    });
-  }
-});
+router.get("/add-money", WalletController.getAddMoneyPage);
+router.get("/withdraw", WalletController.getWithdrawPage);
 
 router.get("/scheduled-payments", (req, res) => {
   const payments = [];

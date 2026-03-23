@@ -54,7 +54,7 @@
                     <i class="fas fa-wallet"></i>
                   </div>
                   <div class="quick-stat-content">
-                    <h3 class="quick-stat-value">₹0</h3>
+                    <h3 class="quick-stat-value">₹<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
                     <p class="quick-stat-label">Total Balance</p>
                     <span class="quick-stat-trend positive">
                       <i class="fas fa-arrow-up"></i> 0%
@@ -66,7 +66,7 @@
                     <i class="fas fa-exchange-alt"></i>
                   </div>
                   <div class="quick-stat-content">
-                    <h3 class="quick-stat-value">0</h3>
+                    <h3 class="quick-stat-value"><%= typeof monthTransactionCount !== 'undefined' ? monthTransactionCount : 0 %></h3>
                     <p class="quick-stat-label">Transactions</p>
                     <span class="quick-stat-trend">This month</span>
                   </div>
@@ -76,7 +76,7 @@
                     <i class="fas fa-chart-line"></i>
                   </div>
                   <div class="quick-stat-content">
-                    <h3 class="quick-stat-value">98.4%</h3>
+                    <h3 class="quick-stat-value"><%= Number(typeof monthSuccessRate !== 'undefined' ? monthSuccessRate : 98.4).toFixed(1) %>%</h3>
                     <p class="quick-stat-label">Success Rate</p>
                     <span class="quick-stat-trend positive">
                       <i class="fas fa-arrow-up"></i> 2.1%

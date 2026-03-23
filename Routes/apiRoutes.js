@@ -10,6 +10,7 @@ const ReceiptsController = require("../Controllers/ReceiptsController");
 const ReferralController = require("../Controllers/ReferralController");
 const PricingController = require("../Controllers/PricingController");
 const ContactController = require("../Controllers/ContactController");
+const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
 
 // Shop API
@@ -158,6 +159,10 @@ router.get("/api/banks", async (req, res) => {
 router.post("/api/send-money", TransferController.postTransferMoney);
 router.post("/api/verify-receiver", TransferController.verifyReceiver);
 router.get("/api/today-stats", TransferController.getDailyTransactionSummary);
+
+// Wallet API
+router.post("/api/wallet/add-money", WalletController.addMoney);
+router.post("/api/wallet/withdraw", WalletController.withdrawMoney);
 
 // Notifications API
 router.get("/api/notifications/count", NotificationController.getNotificationCount);

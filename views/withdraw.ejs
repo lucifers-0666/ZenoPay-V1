@@ -874,9 +874,57 @@
         if (withdrawBtn.disabled) return;
         withdrawBtn.disabled = true;
         withdrawBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Processing withdrawal...';
-        window.setTimeout(() => {
-          window.location.href = '/payment/pending?type=Withdrawal&method=' + encodeURIComponent(selectedMode.toUpperCase()) + '&amount=' + encodeURIComponent(amount());
-        }, 900);
+
+        const payload = {
+          amount: amount(),
+          mode: selectedMode,
+          pin: pinInput.value.trim(),
+          note: noteInput.value.trim(),
+          destination: selectedAccount,
+        };
+
+        fetch('/api/wallet/withdraw', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+          .then(({ ok, data }) => {
+            if (!ok || !data.success) {
+              throw new Error(data.message || 'Withdrawal failed');
+            }
+
+            const tx = data.data || {};
+            const txId = tx.transactionId || '';
+
+            if ((tx.status || '').toLowerCase() === 'pending') {
+              window.location.href =
+                '/payment/pending?type=Withdrawal&method=' +
+                encodeURIComponent(selectedMode.toUpperCase()) +
+                '&amount=' +
+                encodeURIComponent(tx.amount || amount()) +
+                '&txId=' +
+                encodeURIComponent(txId) +
+                '&eta=' +
+                encodeURIComponent(tx.estimatedArrival || '2–4 hours');
+              return;
+            }
+
+            window.location.href =
+              '/payment/success?type=Withdrawal&method=' +
+              encodeURIComponent(selectedMode.toUpperCase()) +
+              '&amount=' +
+              encodeURIComponent(tx.amount || amount()) +
+              '&to=' +
+              encodeURIComponent(selectedAccount?.bank || 'Bank Account') +
+              '&txId=' +
+              encodeURIComponent(txId);
+          })
+          .catch((error) => {
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerHTML = `<i class="fas fa-arrow-up"></i> Withdraw ${formatINR(amount())}`;
+            alert(error.message || 'Unable to process withdrawal');
+          });
       });
 
       update();
