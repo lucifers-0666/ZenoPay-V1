@@ -949,9 +949,34 @@
 
         continueBtn.disabled = true;
         continueBtn.innerHTML = '<i class="fas fa-spinner spin"></i> Finishing...';
-        window.setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 800);
+
+        const payload = {
+          fullName: fullName.value.trim(),
+          displayName: document.getElementById('displayName')?.value?.trim() || '',
+          dob: document.getElementById('dob')?.value || '',
+          accountHolder: accHolder.value.trim(),
+          bankName: bankName.value.trim(),
+          ifsc: ifsc.value.trim(),
+          accountType: selectedAccountType,
+          preferences: {
+            emailNotifications: document.querySelectorAll('.switch')[0]?.classList.contains('on') || false,
+            transactionAlerts: document.querySelectorAll('.switch')[1]?.classList.contains('on') || false,
+            smsNotifications: document.querySelectorAll('.switch')[2]?.classList.contains('on') || false,
+          },
+          kycSkipped: !document.querySelector('[data-doc="aadhaar"].uploaded') || !document.querySelector('[data-doc="pan"].uploaded'),
+        };
+
+        fetch('/onboarding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .catch(() => null)
+          .finally(() => {
+            window.setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 600);
+          });
       };
 
       const prevStep = () => {

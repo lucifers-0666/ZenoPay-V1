@@ -816,6 +816,7 @@
       const newStart = document.getElementById('newStart');
       const newFreq = document.getElementById('newFreq');
       const newMethod = document.getElementById('newMethod');
+      let editingPaymentId = null;
 
       const fmtINR = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
 
@@ -920,11 +921,11 @@
         return 'fa-times-circle';
       };
 
-      const cardHtml = (p, idx) => {
+      const cardHtml = (p) => {
         const days = daysUntil(p.nextDue);
         const due = daysMeta(days);
         return `
-          <article class="pay-card" data-index="${idx}">
+          <article class="pay-card" data-id="${String(p.id)}">
             <div class="avatar">${initials(p.recipient)}</div>
 
             <div>
@@ -949,7 +950,7 @@
               <button class="menu-btn" type="button" data-menu-btn><i class="fas fa-ellipsis-v"></i></button>
               <div class="dropdown" data-menu>
                 <button class="drop-item" type="button" data-action="edit">Edit</button>
-                <button class="drop-item" type="button" data-action="pause">Pause</button>
+                <button class="drop-item" type="button" data-action="pause">${p.status === 'paused' ? 'Resume' : 'Pause'}</button>
                 <button class="drop-item" type="button" data-action="delete">Delete</button>
                 <button class="drop-item" type="button" data-action="pay">Pay Now</button>
               </div>
@@ -967,7 +968,7 @@
         }
 
         emptyState.classList.remove('show');
-        listEl.innerHTML = rows.map((p) => cardHtml(p, p.id)).join('');
+        listEl.innerHTML = rows.map((p) => cardHtml(p)).join('');
       };
 
       const closeMenus = () => {
@@ -989,20 +990,80 @@
         if (actionBtn) {
           const action = actionBtn.dataset.action;
           const card = actionBtn.closest('.pay-card');
-          const index = Number(card.dataset.index);
-          const p = state.payments.find((x) => x.id === index);
+          const paymentId = card.dataset.id;
+          const p = state.payments.find((x) => String(x.id) === String(paymentId));
           if (!p) return;
 
-          console.log(`Action: ${action}, Payment ID: ${index}, Before count: ${state.payments.length}`);
+          console.log(`Action: ${action}, Payment ID: ${paymentId}, Before count: ${state.payments.length}`);
 
           if (action === 'pause') {
-            p.status = p.status === 'paused' ? 'active' : 'paused';
-            console.log(`Toggled status to: ${p.status}`);
+            const nextStatus = p.status === 'paused' ? 'active' : 'paused';
+            fetch(`/scheduled-payments/${encodeURIComponent(paymentId)}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: nextStatus }),
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                if (!result?.success || !result?.payment) {
+                  throw new Error(result?.message || 'Failed to update status');
+                }
+
+                const idx = state.payments.findIndex((x) => String(x.id) === String(paymentId));
+                if (idx >= 0) state.payments[idx] = result.payment;
+                closeMenus();
+                renderStats();
+                renderList();
+              })
+              .catch((error) => {
+                console.error('Pause/resume failed:', error);
+                alert(error.message || 'Could not update payment status right now.');
+              });
+            return;
           } else if (action === 'delete') {
-            state.payments = state.payments.filter((x) => x.id !== p.id);
-            console.log(`Deleted payment. After count: ${state.payments.length}`);
+            fetch(`/scheduled-payments/${encodeURIComponent(paymentId)}`, {
+              method: 'DELETE',
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                if (!result?.success) {
+                  throw new Error(result?.message || 'Failed to delete payment');
+                }
+
+                state.payments = state.payments.filter((x) => String(x.id) !== String(paymentId));
+                closeMenus();
+                renderStats();
+                renderList();
+              })
+              .catch((error) => {
+                console.error('Delete failed:', error);
+                alert(error.message || 'Could not delete payment right now.');
+              });
+            return;
           } else if (action === 'pay') {
-            window.location.href = `/payment/success?amount=${encodeURIComponent(p.amount)}&to=${encodeURIComponent(p.recipient)}&method=${encodeURIComponent(p.method)}&type=Scheduled%20Payment`;
+            fetch(`/scheduled-payments/${encodeURIComponent(paymentId)}/pay-now`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                if (!result?.success) {
+                  throw new Error(result?.message || 'Failed to execute scheduled payment');
+                }
+
+                if (result.payment) {
+                  const idx = state.payments.findIndex((x) => String(x.id) === String(paymentId));
+                  if (idx >= 0) state.payments[idx] = result.payment;
+                  renderStats();
+                  renderList();
+                }
+
+                window.location.href = result.redirectUrl || `/payment/success?amount=${encodeURIComponent(p.amount)}&to=${encodeURIComponent(p.recipient)}&method=${encodeURIComponent(p.method)}&type=Scheduled%20Payment`;
+              })
+              .catch((error) => {
+                console.error('Pay now failed:', error);
+                alert(error.message || 'Could not execute payment right now. Please try again.');
+              });
             return;
           } else if (action === 'edit') {
             openModal(p);
@@ -1040,6 +1101,7 @@
       });
 
       const openModal = (existing) => {
+        editingPaymentId = existing?.id || null;
         if (existing) {
           newRecipient.value = existing.recipient;
           newAmount.value = existing.amount;
@@ -1047,12 +1109,16 @@
           newStart.value = existing.nextDue;
           newFreq.value = existing.frequency;
           newMethod.value = existing.method;
+          scheduleBtn.textContent = 'Save Changes';
+        } else {
+          scheduleBtn.textContent = 'Schedule Payment';
         }
         scheduleModal.classList.add('open');
       };
 
       const closeModal = () => {
         scheduleModal.classList.remove('open');
+        editingPaymentId = null;
       };
 
       openModalBtn.addEventListener('click', () => openModal());
@@ -1073,23 +1139,58 @@
         const start = newStart.value;
         if (!recipient || !amount || !start) return;
 
-        const newItem = {
-          id: Date.now(),
+        const payload = {
           recipient,
+          amount,
           description: newDesc.value.trim() || 'Scheduled payment',
+          startDate: start,
           frequency: newFreq.value,
           method: newMethod.value,
-          amount,
-          nextDue: start,
-          status: 'active',
+          repeatUntil: newUntil.value || null,
+          untilCancelled: !!untilCancelled.checked,
         };
 
-        state.payments.unshift(newItem);
-        renderStats();
-        renderList();
-        closeModal();
-        newAmount.value = '';
-        newDesc.value = '';
+        const isEdit = !!editingPaymentId;
+        const endpoint = isEdit
+          ? `/scheduled-payments/${encodeURIComponent(editingPaymentId)}`
+          : '/scheduled-payments';
+
+        fetch(endpoint, {
+          method: isEdit ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => res.json())
+          .then((result) => {
+            if (!result?.success || !result?.payment) {
+              throw new Error(result?.message || 'Failed to save scheduled payment');
+            }
+
+            if (isEdit) {
+              const idx = state.payments.findIndex((x) => String(x.id) === String(editingPaymentId));
+              if (idx >= 0) {
+                state.payments[idx] = result.payment;
+              } else {
+                state.payments.unshift(result.payment);
+              }
+            } else {
+              state.payments.unshift(result.payment);
+            }
+
+            renderStats();
+            renderList();
+            closeModal();
+            newAmount.value = '';
+            newDesc.value = '';
+            newUntil.value = '';
+            untilCancelled.checked = false;
+            newUntil.disabled = false;
+            scheduleBtn.textContent = 'Schedule Payment';
+          })
+          .catch((error) => {
+            console.error('Schedule payment failed:', error);
+            alert(error.message || 'Could not save payment right now. Please try again.');
+          });
       });
 
       beneficiaries.forEach((name) => {

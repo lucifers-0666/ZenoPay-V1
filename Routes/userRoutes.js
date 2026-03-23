@@ -31,6 +31,49 @@ const SystemStatusController = require("../Controllers/SystemStatusController");
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
+const TransactionHistoryModel = require("../Models/TransactionHistory");
+const ZenoPayUser = require("../Models/ZenoPayUser");
+const LoginHistory = require("../Models/LoginHistory");
+const ScheduledPayment = require("../Models/ScheduledPayment");
+const AuditLog = require("../Models/AuditLog");
+
+const serializeScheduledPayment = (row) => ({
+  id: String(row._id),
+  recipient: row.recipient,
+  description: row.description,
+  frequency: row.frequency,
+  method: row.method,
+  amount: Number(row.amount || 0),
+  nextDue: row.nextDue ? new Date(row.nextDue).toISOString().slice(0, 10) : null,
+  status: row.status,
+  runCount: Number(row.runCount || 0),
+  lastRunAt: row.lastRunAt ? new Date(row.lastRunAt).toISOString() : null,
+  totalExecutedAmount: Number(row.totalExecutedAmount || 0),
+  lastExecutionRef: row.lastExecutionRef || "",
+});
+
+const calculateNextDueDate = (fromDate, frequency) => {
+  const base = new Date(fromDate || Date.now());
+  const next = new Date(base);
+
+  switch (String(frequency || "Monthly").toLowerCase()) {
+    case "one-time":
+      return null;
+    case "daily":
+      next.setDate(next.getDate() + 1);
+      return next;
+    case "weekly":
+      next.setDate(next.getDate() + 7);
+      return next;
+    case "custom":
+      next.setDate(next.getDate() + 30);
+      return next;
+    case "monthly":
+    default:
+      next.setMonth(next.getMonth() + 1);
+      return next;
+  }
+};
 
 // Multer Setup for Azure Blob Storage
 // Use memory storage to upload directly to Azure instead of saving to disk
@@ -55,6 +98,7 @@ const upload = multer({
 });
 
 router.get("/profile", ProfileController.getProfile);
+router.post("/profile", ProfileController.updateProfile);
 
 // Shop page
 router.get("/shop", ShopController.getShop);
@@ -75,23 +119,29 @@ router.post("/payment-methods/disconnect-wallet", PaymentMethodsController.disco
 router.get("/add-card", AddCardController.getAddCardPage);
 router.post("/add-card", AddCardController.addCard);
 
-router.get("/payment/success", (req, res) => {
-  const amount = Number(req.query.amount || 5000);
-  const fee = Number(req.query.fee || 14.75);
-  const paidTo = req.query.to || "Priya Mehta";
-  const now = new Date();
-
+router.get("/payment/success", async (req, res) => {
   const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
+  const now = new Date();
+  const txId = Number(req.query.txId || req.query.transactionId || 0);
+  let txRecord = null;
+
+  if (txId) {
+    txRecord = await TransactionHistoryModel.findOne({ TransactionID: txId }).lean();
+  }
+
+  const amount = txRecord ? Number(txRecord.Amount) : Number(req.query.amount || 5000);
+  const fee = Number(req.query.fee || 14.75);
+
   const tx = {
-    id: req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-    paidTo,
-    toAccountMasked: req.query.toAccount || "XXXX XXXX 8934",
+    id: txRecord?.TransactionID || req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+    paidTo: txRecord?.ReceiverHolderName || req.query.to || "Priya Mehta",
+    toAccountMasked: txRecord?.ReceiverAccountNumber ? `XXXX XXXX ${String(txRecord.ReceiverAccountNumber).slice(-4)}` : (req.query.toAccount || "XXXX XXXX 8934"),
     paymentMethod: req.query.method || "UPI Transfer",
-    dateTimeFormatted: now.toLocaleString("en-IN", {
+    dateTimeFormatted: new Date(txRecord?.TransactionTime || now).toLocaleString("en-IN", {
       month: "short",
       day: "2-digit",
       year: "numeric",
@@ -115,21 +165,31 @@ router.get("/payment/success", (req, res) => {
     redirectSeconds: Number(req.query.redirect || 10),
   });
 });
+router.get("/payment/success/:transactionId", (req, res) => {
+  return res.redirect(`/payment/success?transactionId=${encodeURIComponent(req.params.transactionId)}`);
+});
 
-router.get("/payment/failed", (req, res) => {
-  const amount = Number(req.query.amount || 5000);
-  const now = new Date();
-
+router.get("/payment/failed", async (req, res) => {
   const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
+  const now = new Date();
+  const txId = Number(req.query.txId || req.query.transactionId || 0);
+  let txRecord = null;
+
+  if (txId) {
+    txRecord = await TransactionHistoryModel.findOne({ TransactionID: txId }).lean();
+  }
+
+  const amount = txRecord ? Number(txRecord.Amount) : Number(req.query.amount || 5000);
+
   const tx = {
-    id: req.query.attemptId || `ZP-FAIL-${now.getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`,
-    intendedFor: req.query.to || "Priya Mehta",
+    id: txRecord?.TransactionID || req.query.attemptId || `ZP-FAIL-${now.getFullYear()}-${Math.floor(Math.random() * 9000 + 1000)}`,
+    intendedFor: txRecord?.ReceiverHolderName || req.query.to || "Priya Mehta",
     method: req.query.method || "UPI Transfer",
-    attemptedAt: now.toLocaleString("en-IN", {
+    attemptedAt: new Date(txRecord?.TransactionTime || now).toLocaleString("en-IN", {
       month: "short",
       day: "2-digit",
       year: "numeric",
@@ -138,8 +198,8 @@ router.get("/payment/failed", (req, res) => {
       hour12: true,
     }).replace(",", " -"),
     amount: formatINR(amount),
-    errorCode: req.query.errorCode || "INSUFFICIENT_FUNDS",
-    failureReason: req.query.reason || "Your bank declined this transaction. This usually happens due to insufficient balance, incorrect PIN, or bank security restrictions.",
+    errorCode: req.query.errorCode || "TRANSACTION_FAILED",
+    failureReason: req.query.reason || "Your bank declined this transaction. Please verify balance and try again.",
   };
 
   return res.render("payment-failed", {
@@ -149,21 +209,31 @@ router.get("/payment/failed", (req, res) => {
     tx,
   });
 });
+router.get("/payment/failed/:transactionId", (req, res) => {
+  return res.redirect(`/payment/failed?transactionId=${encodeURIComponent(req.params.transactionId)}`);
+});
 
-router.get("/payment/pending", (req, res) => {
-  const amount = Number(req.query.amount || 5000);
-  const now = new Date();
-
+router.get("/payment/pending", async (req, res) => {
   const formatINR = (value) => `₹${Number(value || 0).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
+  const now = new Date();
+  const txId = Number(req.query.txId || req.query.transactionId || 0);
+  let txRecord = null;
+
+  if (txId) {
+    txRecord = await TransactionHistoryModel.findOne({ TransactionID: txId }).lean();
+  }
+
+  const amount = txRecord ? Number(txRecord.Amount) : Number(req.query.amount || 5000);
+
   const tx = {
-    id: req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-    sendingTo: req.query.to || "Priya Mehta",
+    id: txRecord?.TransactionID || req.query.txId || `ZP-${now.getFullYear()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+    sendingTo: txRecord?.ReceiverHolderName || req.query.to || "Priya Mehta",
     method: req.query.method || "NEFT Transfer",
-    submittedAt: now.toLocaleString("en-IN", {
+    submittedAt: new Date(txRecord?.TransactionTime || now).toLocaleString("en-IN", {
       month: "short",
       day: "2-digit",
       year: "numeric",
@@ -185,90 +255,74 @@ router.get("/payment/pending", (req, res) => {
     tx,
   });
 });
+router.get("/payment/pending/:transactionId", (req, res) => {
+  return res.redirect(`/payment/pending?transactionId=${encodeURIComponent(req.params.transactionId)}`);
+});
 
-router.get("/security-settings", (req, res) => {
-  const score = Math.max(0, Math.min(100, Number(req.query.score || 85)));
-  const twoFAEnabled = String(req.query.twoFA || "true") === "true";
+router.get("/security-settings", async (req, res) => {
+  const zenoPayId = req.session.user?.ZenoPayID || null;
+  const user = zenoPayId ? await ZenoPayUser.findOne({ ZenoPayID: zenoPayId }).lean() : null;
+
+  const twoFAEnabled = !!(user?.NotificationPreferences?.transactionAlerts);
+  const scoreFromFlags = [
+    user?.EmailVerified ? 20 : 0,
+    user?.KYCStatus === "verified" || user?.KYCStatus === "approved" ? 30 : 0,
+    twoFAEnabled ? 30 : 0,
+    user?.PasswordChangeDate ? 20 : 0,
+  ].reduce((sum, v) => sum + v, 0);
+  const score = Math.max(0, Math.min(100, Number(req.query.score || scoreFromFlags || 60)));
+
+  const recentHistory = zenoPayId
+    ? await LoginHistory.find({ ZenoPayId: zenoPayId }).sort({ loginAt: -1 }).limit(10).lean()
+    : [];
+
+  const sessions = [
+    {
+      deviceType: /mobile|android|iphone/i.test(req.headers["user-agent"] || "") ? "mobile" : "desktop",
+      icon: /mobile|android|iphone/i.test(req.headers["user-agent"] || "") ? "fa-mobile-alt" : "fa-desktop",
+      deviceName: (req.headers["user-agent"] || "Current Device").slice(0, 60),
+      location: "Current Location",
+      ip: req.ip || "Unknown IP",
+      browser: "Active Session",
+      lastActive: "Just now",
+      current: true,
+    },
+  ];
+
+  const loginHistory = (recentHistory || []).map((entry) => ({
+    status: entry.status,
+    statusLabel: String(entry.status || "success").charAt(0).toUpperCase() + String(entry.status || "success").slice(1),
+    dateTime: new Date(entry.loginAt).toLocaleString("en-IN", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).replace(",", " •"),
+    device: entry.device || "Unknown Device",
+    location: entry.location || "Unknown Location",
+    ip: entry.ip || "Unknown IP",
+  }));
 
   const security = {
     score,
     twoFAEnabled,
     levelTitle: score >= 80 ? "Good Security Level" : score >= 60 ? "Moderate Security Level" : "Security Needs Attention",
-    subtitle: score >= 100 ? "Excellent! Your account is fully secured." : "Enable 2FA to reach 100% protection",
+    subtitle: score >= 100 ? "Excellent! Your account is fully secured." : "Enable more security controls to improve protection.",
     methods: [
-      {
-        id: "authenticator",
-        iconClass: "auth",
-        icon: "fa-clock",
-        title: "Authenticator App",
-        description: "Google Authenticator / Authy",
-        active: true,
-      },
-      {
-        id: "sms",
-        iconClass: "sms",
-        icon: "fa-sms",
-        title: "SMS OTP",
-        description: "Sent to +91 98765 XXXXX",
-        active: false,
-      },
-      {
-        id: "email",
-        iconClass: "email",
-        icon: "fa-envelope",
-        title: "Email OTP",
-        description: "Sent to user@example.com",
-        active: false,
-      },
+      { id: "authenticator", iconClass: "auth", icon: "fa-clock", title: "Authenticator App", description: "Google Authenticator / Authy", active: twoFAEnabled },
+      { id: "sms", iconClass: "sms", icon: "fa-sms", title: "SMS OTP", description: user?.Mobile ? `Sent to +91 ${String(user.Mobile).slice(-5).padStart(10, "X")}` : "No phone configured", active: false },
+      { id: "email", iconClass: "email", icon: "fa-envelope", title: "Email OTP", description: user?.Email || "Email not configured", active: false },
     ],
   };
-
-  const sessions = [
-    {
-      deviceType: "desktop",
-      icon: "fa-desktop",
-      deviceName: "Windows PC • Chrome 132",
-      location: "Mumbai, IN",
-      ip: "122.161.45.90",
-      browser: "Chrome",
-      lastActive: "Just now",
-      current: true,
-    },
-    {
-      deviceType: "mobile",
-      icon: "fa-mobile-alt",
-      deviceName: "iPhone 15 Pro • Safari",
-      location: "Pune, IN",
-      ip: "117.221.88.41",
-      browser: "Safari",
-      lastActive: "13 minutes ago",
-      current: false,
-    },
-    {
-      deviceType: "tablet",
-      icon: "fa-tablet-alt",
-      deviceName: "iPad Air • ZenoPay App",
-      location: "Bengaluru, IN",
-      ip: "106.76.22.17",
-      browser: "In-app browser",
-      lastActive: "2 hours ago",
-      current: false,
-    },
-  ];
-
-  const loginHistory = [
-    { status: "success", statusLabel: "Success", dateTime: "Feb 25, 2026 • 09:12 AM", device: "Chrome on Windows", location: "Mumbai, IN", ip: "122.161.45.90" },
-    { status: "failed", statusLabel: "Failed", dateTime: "Feb 24, 2026 • 11:44 PM", device: "Unknown Android", location: "Delhi, IN", ip: "49.36.91.22" },
-    { status: "blocked", statusLabel: "Blocked", dateTime: "Feb 24, 2026 • 11:45 PM", device: "Unknown Android", location: "Delhi, IN", ip: "49.36.91.22" },
-    { status: "success", statusLabel: "Success", dateTime: "Feb 24, 2026 • 06:31 PM", device: "Safari on iPhone", location: "Pune, IN", ip: "117.221.88.41" },
-  ];
 
   const preferences = [
     { icon: "fa-bell", title: "Login Notifications", description: "Get notified whenever a new login is detected.", enabled: true },
     { icon: "fa-lock", title: "Auto-Lock after 15 minutes", description: "Automatically lock the app after inactivity.", enabled: true },
     { icon: "fa-eye-slash", title: "Hide Balance by default", description: "Mask account balances until manually revealed.", enabled: false },
-    { icon: "fa-envelope", title: "Email on every withdrawal", description: "Receive an email for each withdrawal transaction.", enabled: true },
-    { icon: "fa-exclamation-triangle", title: "Suspicious Activity Alerts", description: "Get instant alerts for unusual account activity.", enabled: true },
+    { icon: "fa-envelope", title: "Email on every withdrawal", description: "Receive an email for each withdrawal transaction.", enabled: !!user?.NotificationPreferences?.emailNotifications },
+    { icon: "fa-exclamation-triangle", title: "Suspicious Activity Alerts", description: "Get instant alerts for unusual account activity.", enabled: !!user?.NotificationPreferences?.transactionAlerts },
     { icon: "fa-fingerprint", title: "Biometric unlock", description: "Use fingerprint/face unlock where supported.", enabled: false },
   ];
 
@@ -294,13 +348,21 @@ router.get("/onboarding", (req, res) => {
     prefilledPhone,
   });
 });
+router.post("/onboarding", ProfileController.postOnboarding);
 
 router.get("/add-money", WalletController.getAddMoneyPage);
 router.get("/withdraw", WalletController.getWithdrawPage);
 
-router.get("/scheduled-payments", (req, res) => {
-  const payments = [];
-  const beneficiaries = [];
+router.get("/scheduled-payments", async (req, res) => {
+  const zenoPayId = req.session.user?.ZenoPayID || null;
+  let payments = [];
+  let beneficiaries = [];
+
+  if (zenoPayId) {
+    const rows = await ScheduledPayment.find({ ZenoPayId: zenoPayId }).sort({ nextDue: 1 }).lean();
+    payments = rows.map((row) => serializeScheduledPayment(row));
+    beneficiaries = [...new Set(rows.map((row) => row.recipient).filter(Boolean))];
+  }
 
   return res.render("scheduled-payments", {
     pageTitle: "Scheduled Payments - ZenoPay",
@@ -309,6 +371,221 @@ router.get("/scheduled-payments", (req, res) => {
     payments,
     beneficiaries,
   });
+});
+
+router.post("/scheduled-payments", async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const {
+      recipient,
+      amount,
+      description,
+      startDate,
+      frequency,
+      method,
+      repeatUntil,
+      untilCancelled,
+    } = req.body || {};
+
+    if (!recipient || !amount || !startDate) {
+      return res.status(400).json({ success: false, message: "recipient, amount and startDate are required" });
+    }
+
+    const saved = await ScheduledPayment.create({
+      ZenoPayId: zenoPayId,
+      recipient: String(recipient).trim(),
+      amount: Number(amount),
+      description: description ? String(description).trim() : "Scheduled payment",
+      nextDue: new Date(startDate),
+      frequency: frequency || "Monthly",
+      method: method || "UPI",
+      endDate: repeatUntil ? new Date(repeatUntil) : null,
+      untilCancelled: !!untilCancelled,
+      status: "active",
+    });
+
+    return res.status(201).json({
+      success: true,
+      payment: serializeScheduledPayment(saved),
+    });
+  } catch (error) {
+    console.error("[Scheduled Payments] Create failed:", error);
+    return res.status(500).json({ success: false, message: "Failed to create scheduled payment" });
+  }
+});
+
+router.patch("/scheduled-payments/:id", async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const { id } = req.params;
+    const {
+      recipient,
+      amount,
+      description,
+      startDate,
+      frequency,
+      method,
+      repeatUntil,
+      untilCancelled,
+      status,
+    } = req.body || {};
+
+    const updates = {};
+    if (typeof recipient === "string" && recipient.trim()) updates.recipient = recipient.trim();
+    if (amount !== undefined) updates.amount = Number(amount);
+    if (description !== undefined) updates.description = String(description || "Scheduled payment").trim();
+    if (startDate) updates.nextDue = new Date(startDate);
+    if (frequency) updates.frequency = frequency;
+    if (method) updates.method = method;
+    if (repeatUntil !== undefined) updates.endDate = repeatUntil ? new Date(repeatUntil) : null;
+    if (untilCancelled !== undefined) updates.untilCancelled = !!untilCancelled;
+    if (["active", "paused", "completed", "failed"].includes(status)) updates.status = status;
+
+    const updated = await ScheduledPayment.findOneAndUpdate(
+      { _id: id, ZenoPayId: zenoPayId },
+      { $set: updates },
+      { new: true }
+    ).lean();
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Scheduled payment not found" });
+    }
+
+    return res.json({
+      success: true,
+      payment: serializeScheduledPayment(updated),
+    });
+  } catch (error) {
+    console.error("[Scheduled Payments] Update failed:", error);
+    return res.status(500).json({ success: false, message: "Failed to update scheduled payment" });
+  }
+});
+
+router.delete("/scheduled-payments/:id", async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const deleted = await ScheduledPayment.findOneAndDelete({
+      _id: req.params.id,
+      ZenoPayId: zenoPayId,
+    }).lean();
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Scheduled payment not found" });
+    }
+
+    return res.json({ success: true, id: String(deleted._id) });
+  } catch (error) {
+    console.error("[Scheduled Payments] Delete failed:", error);
+    return res.status(500).json({ success: false, message: "Failed to delete scheduled payment" });
+  }
+});
+
+router.post("/scheduled-payments/:id/pay-now", async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const scheduledPayment = await ScheduledPayment.findOne({
+      _id: req.params.id,
+      ZenoPayId: zenoPayId,
+    });
+
+    if (!scheduledPayment) {
+      return res.status(404).json({ success: false, message: "Scheduled payment not found" });
+    }
+
+    if (scheduledPayment.status === "paused") {
+      return res.status(400).json({ success: false, message: "Cannot execute a paused scheduled payment" });
+    }
+
+    if (scheduledPayment.status === "completed") {
+      return res.status(400).json({ success: false, message: "This scheduled payment is already completed" });
+    }
+
+    const now = new Date();
+    const executionRef = `SP-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+
+    const nextDueCandidate = calculateNextDueDate(now, scheduledPayment.frequency);
+
+    scheduledPayment.runCount = Number(scheduledPayment.runCount || 0) + 1;
+    scheduledPayment.lastRunAt = now;
+    scheduledPayment.totalExecutedAmount = Number(scheduledPayment.totalExecutedAmount || 0) + Number(scheduledPayment.amount || 0);
+    scheduledPayment.lastExecutionRef = executionRef;
+
+    scheduledPayment.executionHistory = Array.isArray(scheduledPayment.executionHistory)
+      ? scheduledPayment.executionHistory
+      : [];
+
+    scheduledPayment.executionHistory.push({
+      executedAt: now,
+      amount: Number(scheduledPayment.amount || 0),
+      status: "success",
+      reference: executionRef,
+      note: "Manual Pay Now execution",
+    });
+
+    if (scheduledPayment.executionHistory.length > 25) {
+      scheduledPayment.executionHistory = scheduledPayment.executionHistory.slice(-25);
+    }
+
+    if (!nextDueCandidate || String(scheduledPayment.frequency).toLowerCase() === "one-time") {
+      scheduledPayment.status = "completed";
+      scheduledPayment.nextDue = null;
+    } else {
+      if (!scheduledPayment.untilCancelled && scheduledPayment.endDate && nextDueCandidate > new Date(scheduledPayment.endDate)) {
+        scheduledPayment.status = "completed";
+        scheduledPayment.nextDue = null;
+      } else {
+        scheduledPayment.status = "active";
+        scheduledPayment.nextDue = nextDueCandidate;
+      }
+    }
+
+    await scheduledPayment.save();
+
+    await AuditLog.create({
+      action: "scheduled_payment_executed",
+      category: "transaction",
+      description: `Scheduled payment executed for ${scheduledPayment.recipient}`,
+      targetId: String(scheduledPayment._id),
+      targetType: "ScheduledPayment",
+      ipAddress: req.ip || "",
+      userAgent: req.headers["user-agent"] || "",
+      status: "success",
+      metadata: {
+        zenoPayId,
+        executionRef,
+        amount: Number(scheduledPayment.amount || 0),
+        method: scheduledPayment.method,
+        runCount: scheduledPayment.runCount,
+        nextDue: scheduledPayment.nextDue,
+      },
+    });
+
+    return res.json({
+      success: true,
+      executionRef,
+      payment: serializeScheduledPayment(scheduledPayment.toObject()),
+      redirectUrl: `/payment/success?txId=${encodeURIComponent(executionRef)}&amount=${encodeURIComponent(scheduledPayment.amount)}&to=${encodeURIComponent(scheduledPayment.recipient)}&method=${encodeURIComponent(scheduledPayment.method)}&type=Scheduled%20Payment`,
+    });
+  } catch (error) {
+    console.error("[Scheduled Payments] Pay now failed:", error);
+    return res.status(500).json({ success: false, message: "Failed to execute scheduled payment" });
+  }
 });
 
 router.get("/invoices", async (req, res) => {
@@ -443,6 +720,9 @@ router.get("/banks-list", BranchController.getAllBanks);
 // Transfer
 router.get("/send-to", TransferController.getTransferMoney);
 router.get("/send-money", TransferController.getTransferMoney);
+router.post("/send-to", TransferController.postTransferMoney);
+router.post("/send-money", TransferController.postTransferMoney);
+router.post("/send-to/verify-receiver", TransferController.verifyReceiver);
 router.get("/daily-transaction-summary", TransferController.getDailyTransactionSummary);
 
 // Notifications
