@@ -3427,10 +3427,10 @@ section.stats,
 .pm-visual-card {
   background: #fff;
   border: 1px solid #E2E8F0;
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 24px;
   width: 280px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
 }
 
 .pm-visual-header {
@@ -3457,7 +3457,7 @@ section.stats,
 .pm-visual-upi-input {
   background: #F8FAFC;
   border: 1.5px solid #E2E8F0;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
@@ -3466,9 +3466,29 @@ section.stats,
   margin-bottom: 16px;
 }
 
+.pm-visual-upi-input:focus-within {
+  border-color: #6B3FA0;
+  box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.16);
+  background: #fff;
+}
+
+.pm-visual-upi-field {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  color: #0F172A;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.pm-visual-upi-field::placeholder {
+  color: #94A3B8;
+}
+
 .pm-visual-apps-row {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   justify-content: center;
   margin-bottom: 16px;
 }
@@ -3486,35 +3506,70 @@ section.stats,
 }
 
 .pm-visual-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  padding: 4px;
+  width: auto;
+  height: auto;
+  max-width: 28px;
+  max-height: 28px;
+  display: block;
+}
+
+.pm-visual-logo-wide {
+  max-width: 34px;
+  max-height: 18px;
+}
+
+.pm-upi-app-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pm-upi-app {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #F5F7FF;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  color: #fff;
-  text-decoration: none;
-  cursor: default;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
 }
 
-.pm-logo-gp {
-  background: linear-gradient(135deg, #4285F4, #1E3A8A);
+.pm-upi-app:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.18);
+  border-color: #C7D2FE;
+  background: #FFFFFF;
 }
 
-.pm-logo-pp {
-  background: linear-gradient(135deg, #5B21B6, #3F0F5C);
+.pm-upi-app-radio:focus-visible + .pm-upi-app {
+  outline: 3px solid rgba(79, 70, 229, 0.35);
+  outline-offset: 2px;
 }
 
-.pm-logo-bhim {
-  background: linear-gradient(135deg, #EC4899, #BE185D);
+.pm-upi-app-radio:checked + .pm-upi-app {
+  border-color: #6B3FA0;
+  background: #EEF2FF;
+  box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.16);
 }
 
-.pm-logo-pt {
-  background: linear-gradient(135deg, #0066FF, #0052CC);
+.pm-visual-btn {
+  border: none;
+  cursor: pointer;
+}
+
+.pm-visual-btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+@media (max-width: 480px) {
+  .pm-upi-app {
+    width: 42px;
+    height: 42px;
+  }
 }
 
 .pm-visual-btn {
