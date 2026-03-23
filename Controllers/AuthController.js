@@ -1,5 +1,7 @@
 const ZenoPayDetails = require("../Models/ZenoPayUser");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const emailService = require("../Services/EmailService");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
 
@@ -299,6 +301,26 @@ const getForgotPassword = (req, res) => {
   });
 };
 
+const buildResetPasswordEmail = ({ fullName, resetLink }) => {
+  return {
+    subject: "Reset your ZenoPay password",
+    html: `
+      <div style="font-family:Inter,Arial,sans-serif;color:#1f2937;line-height:1.6;max-width:640px;margin:0 auto;padding:20px;">
+        <h2 style="margin:0 0 12px;">Reset your password</h2>
+        <p>Hi ${fullName || "there"},</p>
+        <p>We received a request to reset your ZenoPay password. Click the button below to continue:</p>
+        <p style="margin:20px 0;">
+          <a href="${resetLink}" style="background:#2563eb;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;display:inline-block;font-weight:600;">Reset Password</a>
+        </p>
+        <p>If the button doesn't work, copy this link into your browser:</p>
+        <p style="word-break:break-all;color:#2563eb;">${resetLink}</p>
+        <p style="margin-top:16px;">This link expires in 30 minutes. If you didn't request this, you can ignore this email.</p>
+      </div>
+    `,
+    text: `Reset your ZenoPay password: ${resetLink} (expires in 30 minutes)`,
+  };
+};
+
 // Handle forgot password form submission
 const postForgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -331,21 +353,35 @@ const postForgotPassword = async (req, res) => {
       });
     }
 
-    // Generate reset token (32 chars)
-    const resetToken = Math.random().toString(36).substring(2, 15) + 
-                       Math.random().toString(36).substring(2, 15);
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
     
     // Set reset token and expiry (30 minutes)
     user.PasswordResetToken = resetToken;
     user.PasswordResetExpiry = new Date(Date.now() + 30 * 60 * 1000);
     await user.save();
 
-    // TODO: Send email with reset link
-    // const resetLink = `${req.protocol}://${req.get('host')}/reset-password/${resetToken}`;
-    // await sendPasswordResetEmail(user.Email, user.FullName, resetLink);
+    const appUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
+    const resetLink = `${appUrl}/reset-password/${resetToken}`;
+    const emailContent = buildResetPasswordEmail({ fullName: user.FullName, resetLink });
 
-    console.log(`Password reset token for ${email}: ${resetToken}`);
-    console.log(`Reset link: /reset-password/${resetToken}`);
+    const sendResult = await emailService.sendEmail({
+      to: user.Email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text,
+    });
+
+    if (!sendResult?.sent) {
+      return res.status(500).json({
+        success: false,
+        message: "Unable to send reset email right now. Please try again later.",
+      });
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`Reset link (dev): ${resetLink}`);
+    }
 
     return res.status(200).json({
       success: true,
@@ -381,15 +417,29 @@ const postResendResetLink = async (req, res) => {
     }
 
     // Generate new reset token
-    const resetToken = Math.random().toString(36).substring(2, 15) + 
-                       Math.random().toString(36).substring(2, 15);
+    const resetToken = crypto.randomBytes(32).toString("hex");
     
     user.PasswordResetToken = resetToken;
     user.PasswordResetExpiry = new Date(Date.now() + 30 * 60 * 1000);
     await user.save();
 
-    // TODO: Send email with reset link
-    console.log(`Password reset token resent for ${email}: ${resetToken}`);
+    const appUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
+    const resetLink = `${appUrl}/reset-password/${resetToken}`;
+    const emailContent = buildResetPasswordEmail({ fullName: user.FullName, resetLink });
+
+    const sendResult = await emailService.sendEmail({
+      to: user.Email,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: emailContent.text,
+    });
+
+    if (!sendResult?.sent) {
+      return res.status(500).json({
+        success: false,
+        message: "Unable to resend reset email right now. Please try again later.",
+      });
+    }
 
     return res.status(200).json({
       success: true,

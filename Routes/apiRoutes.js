@@ -12,6 +12,7 @@ const PricingController = require("../Controllers/PricingController");
 const ContactController = require("../Controllers/ContactController");
 const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
+const { isAuthenticatedApi } = require("../Middleware/authGuards");
 
 // Shop API
 router.get("/api/shop/products", ShopController.getProducts);
@@ -19,19 +20,19 @@ router.get("/api/shop/products/:id", ShopController.getProductById);
 router.get("/api/shop/categories", ShopController.getCategories);
 
 // Cart API
-router.get("/api/cart", ShopController.getCart);
-router.post("/api/cart/add", ShopController.addToCart);
-router.put("/api/cart/update/:id", ShopController.updateCartItem);
-router.delete("/api/cart/remove/:id", ShopController.removeFromCart);
+router.get("/api/cart", isAuthenticatedApi, ShopController.getCart);
+router.post("/api/cart/add", isAuthenticatedApi, ShopController.addToCart);
+router.put("/api/cart/update/:id", isAuthenticatedApi, ShopController.updateCartItem);
+router.delete("/api/cart/remove/:id", isAuthenticatedApi, ShopController.removeFromCart);
 
 // Checkout & orders API
-router.post("/api/checkout", ShopController.processCheckout);
-router.get("/api/orders", ShopController.getUserOrders);
-router.get("/api/orders/:id", ShopController.getOrderById);
-router.post("/api/orders/:id/cancel", ShopController.cancelOrder);
+router.post("/api/checkout", isAuthenticatedApi, ShopController.processCheckout);
+router.get("/api/orders", isAuthenticatedApi, ShopController.getUserOrders);
+router.get("/api/orders/:id", isAuthenticatedApi, ShopController.getOrderById);
+router.post("/api/orders/:id/cancel", isAuthenticatedApi, ShopController.cancelOrder);
 
 // Invoice API
-router.post("/api/invoices", async (req, res) => {
+router.post("/api/invoices", isAuthenticatedApi, async (req, res) => {
   try {
     const userId = req.session?.user?.ZenoPayID;
     if (!userId) {
@@ -89,7 +90,7 @@ router.post("/api/invoices", async (req, res) => {
   }
 });
 
-router.post("/api/invoices/:id/mark-paid", async (req, res) => {
+router.post("/api/invoices/:id/mark-paid", isAuthenticatedApi, async (req, res) => {
   try {
     const userId = req.session?.user?.ZenoPayID;
     if (!userId) {
@@ -156,18 +157,18 @@ router.get("/api/banks", async (req, res) => {
 });
 
 // Transfer API
-router.post("/api/send-money", TransferController.postTransferMoney);
-router.post("/api/verify-receiver", TransferController.verifyReceiver);
-router.get("/api/today-stats", TransferController.getDailyTransactionSummary);
+router.post("/api/send-money", isAuthenticatedApi, TransferController.postTransferMoney);
+router.post("/api/verify-receiver", isAuthenticatedApi, TransferController.verifyReceiver);
+router.get("/api/today-stats", isAuthenticatedApi, TransferController.getDailyTransactionSummary);
 
 // Wallet API
-router.post("/api/wallet/add-money", WalletController.addMoney);
-router.post("/api/wallet/withdraw", WalletController.withdrawMoney);
+router.post("/api/wallet/add-money", isAuthenticatedApi, WalletController.addMoney);
+router.post("/api/wallet/withdraw", isAuthenticatedApi, WalletController.withdrawMoney);
 
 // Notifications API
-router.get("/api/notifications/count", NotificationController.getNotificationCount);
-router.get("/api/notifications/recent", NotificationController.getRecentNotifications);
-router.post("/api/notifications/mark-all-read", NotificationController.markAsRead);
+router.get("/api/notifications/count", isAuthenticatedApi, NotificationController.getNotificationCount);
+router.get("/api/notifications/recent", isAuthenticatedApi, NotificationController.getRecentNotifications);
+router.post("/api/notifications/mark-all-read", isAuthenticatedApi, NotificationController.markAsRead);
 
 // Payment Gateway API (for merchant integrations)
 router.post("/api/orders", GatewayController.verifyMerchant, GatewayController.createOrder);

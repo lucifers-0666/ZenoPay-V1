@@ -31,6 +31,7 @@ const SystemStatusController = require("../Controllers/SystemStatusController");
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
+const { isAuthenticated } = require("../Middleware/authGuards");
 const TransactionHistoryModel = require("../Models/TransactionHistory");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const LoginHistory = require("../Models/LoginHistory");
@@ -96,6 +97,8 @@ const upload = multer({
     return cb(new Error("Only image files are allowed!"));
   },
 });
+
+router.use(isAuthenticated);
 
 router.get("/profile", ProfileController.getProfile);
 router.post("/profile", ProfileController.updateProfile);
@@ -351,7 +354,9 @@ router.get("/onboarding", (req, res) => {
 router.post("/onboarding", ProfileController.postOnboarding);
 
 router.get("/add-money", WalletController.getAddMoneyPage);
+router.post("/add-money", WalletController.addMoney);
 router.get("/withdraw", WalletController.getWithdrawPage);
+router.post("/withdraw", WalletController.withdrawMoney);
 
 router.get("/scheduled-payments", async (req, res) => {
   const zenoPayId = req.session.user?.ZenoPayID || null;
@@ -625,6 +630,66 @@ router.get("/invoices", async (req, res) => {
       pageTitle: "Server Error - ZenoPay",
       errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
     });
+  }
+});
+
+router.post("/invoices", async (req, res) => {
+  try {
+    const userId = req.session?.user?.ZenoPayID;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please login to create invoices." });
+    }
+
+    const { client, amount, dueDate, status, notes, clientEmail, clientAddress } = req.body || {};
+    const normalizedClient = String(client || "").trim();
+    const parsedAmount = Number(amount);
+    const parsedDueDate = new Date(dueDate);
+    const normalizedStatus = ["paid", "pending", "overdue", "draft"].includes(String(status || "").toLowerCase())
+      ? String(status).toLowerCase()
+      : "pending";
+
+    if (!normalizedClient) {
+      return res.status(400).json({ success: false, message: "Client name is required." });
+    }
+
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: "Amount must be greater than 0." });
+    }
+
+    if (Number.isNaN(parsedDueDate.getTime())) {
+      return res.status(400).json({ success: false, message: "Valid due date is required." });
+    }
+
+    const invoiceNumber = await Invoice.generateInvoiceNumber();
+
+    const created = await Invoice.create({
+      invoice_number: invoiceNumber,
+      user_id: userId,
+      client_name: normalizedClient,
+      client_email: String(clientEmail || "").trim(),
+      client_address: String(clientAddress || "").trim(),
+      issue_date: new Date(),
+      due_date: parsedDueDate,
+      amount: parsedAmount,
+      status: normalizedStatus,
+      notes: String(notes || "").trim(),
+    });
+
+    return res.status(201).json({
+      success: true,
+      invoice: {
+        id: String(created._id),
+        invoiceNo: `#${created.invoice_number}`,
+        client: created.client_name,
+        issueDate: new Date(created.issue_date).toISOString().split("T")[0],
+        dueDate: new Date(created.due_date).toISOString().split("T")[0],
+        amount: Number(created.amount || 0),
+        status: String(created.status || "pending").toLowerCase(),
+      },
+    });
+  } catch (error) {
+    console.error("[Invoices] Error creating invoice:", error);
+    return res.status(500).json({ success: false, message: "Unable to create invoice right now." });
   }
 });
 

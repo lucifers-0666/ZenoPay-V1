@@ -16,7 +16,10 @@ const generateTransactionId = async () => {
 const getTransferMoney = async (req, res) => {
   try {
     console.log('[getTransferMoney] Request received for /send-to');
-    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const zenoPayId = req.session?.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.redirect("/login");
+    }
     console.log(`[getTransferMoney] zenoPayId: ${zenoPayId}`);
 
     // Fetch all accounts for this user
@@ -56,7 +59,7 @@ const getTransferMoney = async (req, res) => {
       currentPage: "send-money",
       accounts: accounts || [],
       qrCode: req.session.qrCode || null,
-      user: user || { ZenoPayID: "ZP-DEMO2024" },
+      user: user,
       isLoggedIn: true,
     });
     console.log('[getTransferMoney] Template rendered successfully');
@@ -136,12 +139,27 @@ const postTransferMoney = async (req, res) => {
   const DAILY_LIMIT = 50000;
 
   try {
+    const sessionZenoPayId = req.session?.user?.ZenoPayID || null;
+    if (!sessionZenoPayId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required.",
+      });
+    }
+
     // Get sender account by ID
     const sender = await BankAccount.findById(sourceAccountId);
     if (!sender) {
       return res.status(404).json({ 
         success: false, 
         message: "Sender account not found." 
+      });
+    }
+
+    if (String(sender.ZenoPayId || "") !== String(sessionZenoPayId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to transfer from this account.",
       });
     }
 
@@ -301,7 +319,10 @@ const postTransferMoney = async (req, res) => {
 
 const getDailyTransactionSummary = async (req, res) => {
   try {
-    const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const zenoPayId = req.session?.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
+    }
     const DAILY_LIMIT = 50000;
 
     const accounts = await BankAccount.find({ ZenoPayId: zenoPayId });

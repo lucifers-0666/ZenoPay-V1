@@ -55,7 +55,10 @@ const mapAccountForView = (account) => ({
 
 const getAddMoneyPage = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req) || "ZP-DEMO2024";
+    const zenoPayId = getSessionZenoPayId(req);
+    if (!zenoPayId) {
+      return res.redirect("/login");
+    }
     const accounts = await getUserAccounts(zenoPayId);
 
     const totalBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
@@ -78,7 +81,10 @@ const getAddMoneyPage = async (req, res) => {
 
 const getWithdrawPage = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req) || "ZP-DEMO2024";
+    const zenoPayId = getSessionZenoPayId(req);
+    if (!zenoPayId) {
+      return res.redirect("/login");
+    }
     const accounts = await getUserAccounts(zenoPayId);
     const totalBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
 
