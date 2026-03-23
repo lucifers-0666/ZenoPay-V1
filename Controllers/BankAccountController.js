@@ -2,6 +2,12 @@
 const BankAccount = require("../Models/BankAccount");
 const BankBranch = require("../Models/Banks");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
+const {
+  maskCardNumber,
+  createCardFingerprint,
+  encryptCardNumber,
+  hashPin,
+} = require("../utils/cardSecurity");
 
 const getOpenAccount = async (req, res) => {
   res.render("open-account", {
@@ -44,11 +50,14 @@ const postOpenAccount = async (req, res) => {
       "0"
     )}/${expiryDate.getFullYear().toString().substr(-2)}`;
 
-    // Generate CVV (3 digits)
-    const cardCVV = Math.floor(100 + Math.random() * 900).toString();
-
     // Generate PIN (4 digits)
     const cardPIN = Math.floor(1000 + Math.random() * 9000).toString();
+
+    const cardMasked = maskCardNumber(cardNumber);
+    const cardLast4 = cardNumber.slice(-4);
+    const cardFingerprint = createCardFingerprint(cardNumber);
+    const cardNumberEncrypted = encryptCardNumber(cardNumber);
+    const cardPINHash = await hashPin(cardPIN);
 
     // Get Bank Name from BankId
     const bank = await BankBranch.findOne({ BankId: data.BankId });
@@ -81,11 +90,13 @@ const postOpenAccount = async (req, res) => {
       City: data.City,
       State: data.State,
       Pincode: data.Pincode,
-      DebitCardNumber: cardNumber,
+      DebitCardNumber: cardMasked,
+      CardLast4: cardLast4,
+      CardFingerprint: cardFingerprint,
+      CardNumberEncrypted: cardNumberEncrypted,
       NameOnCard: data.FullName.toUpperCase(),
       CardExpiry: cardExpiry,
-      CardCVV: cardCVV,
-      CardPIN: cardPIN,
+      CardPINHash: cardPINHash,
       CardType: data.CardType,
       DebitCardStatus: "Active",
       AccountStatus: "Active",
@@ -99,7 +110,6 @@ const postOpenAccount = async (req, res) => {
       accountNumber: accountNumber,
       cardNumber: cardNumber,
       cardExpiry: cardExpiry,
-      cardCVV: cardCVV,
       cardPIN: cardPIN,
     });
   } catch (err) {

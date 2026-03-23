@@ -37,8 +37,7 @@ const BankAccountSchema = new mongoose.Schema({
 
   ZenoPayId: {
      type: String,
-      required: true ,
-      unique: true,
+      required: true,
       ref: "ZenoPayUser"},
 
   FullName: { type: String, required: true },
@@ -58,18 +57,36 @@ const BankAccountSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  CardLast4: {
+    type: String,
+    required: false,
+  },
+  CardFingerprint: {
+    type: String,
+    required: false,
+    unique: true,
+    sparse: true,
+  },
+  CardNumberEncrypted: {
+    type: String,
+    required: false,
+  },
 
   NameOnCard: { type: String, required: true },
   CardExpiry: { type: String, required: true },
 
   CardCVV: {
     type: String,
-    required: true,
+    required: false,
   },
 
   CardPIN: {
     type: String,
-    required: true,
+    required: false,
+  },
+  CardPINHash: {
+    type: String,
+    required: false,
   },
 
   DebitCardStatus: { type: String, default: "Active" },
@@ -79,6 +96,8 @@ const BankAccountSchema = new mongoose.Schema({
   AccountStatus: { type: String, default: "Active" },
   OpenedDate: { type: Date, default: Date.now },
 });
+
+BankAccountSchema.index({ ZenoPayId: 1 });
 
 // Export model
 module.exports = mongoose.model("BankAccount", BankAccountSchema);

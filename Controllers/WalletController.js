@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
+const { comparePin } = require("../utils/cardSecurity");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -188,8 +189,18 @@ const withdrawMoney = async (req, res) => {
     }
 
     // Optional but useful PIN check against existing account PIN
-    if (String(account.CardPIN || "").trim() && String(pin || "").trim() && String(account.CardPIN).trim() !== String(pin).trim()) {
-      return res.status(400).json({ success: false, message: "Invalid transaction PIN" });
+    if (String(pin || "").trim()) {
+      let pinValid = true;
+
+      if (account.CardPINHash) {
+        pinValid = await comparePin(pin, account.CardPINHash);
+      } else if (String(account.CardPIN || "").trim()) {
+        pinValid = String(account.CardPIN).trim() === String(pin).trim();
+      }
+
+      if (!pinValid) {
+        return res.status(400).json({ success: false, message: "Invalid transaction PIN" });
+      }
     }
 
     const beforeBalance = toNumber(account.Balance);

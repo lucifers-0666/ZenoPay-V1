@@ -5,9 +5,20 @@ const TransactionHistory = require("../Models/TransactionHistory");
 const Notification = require("../Models/Notification");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const emailService = require("../Services/EmailService");
+const { createCardFingerprint, comparePin, normalizeCardNumber } = require("../utils/cardSecurity");
 
 // In-memory OTP storage (in production, use Redis or database)
 const otpStore = new Map();
+
+const generateTransactionId = async () => {
+  for (let i = 0; i < 5; i += 1) {
+    const candidate = Number(`${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`);
+    const exists = await TransactionHistory.exists({ TransactionID: candidate });
+    if (!exists) return candidate;
+  }
+
+  return Date.now();
+};
 
 // Middleware to verify API Key and Secret
 const verifyMerchant = async (req, res, next) => {
@@ -652,24 +663,62 @@ const verifyCustomer = async (req, res) => {
     }
 
     if (cardNumber) {
-      if (!cvv || !cardPin || !nameOnCard || !cardExpiry) {
+      if (!cardPin || !nameOnCard || !cardExpiry) {
         return res.status(400).json({
           success: false,
-          error: "Card verification requires CVV, PIN, Name on Card, and Expiry Date",
+          error: "Card verification requires PIN, Name on Card, and Expiry Date",
         });
       }
 
-      const bankAccount = await BankAccount.findOne({ 
-        DebitCardNumber: cardNumber,
-        CardCVV: cvv,
-        CardPIN: cardPin,
-        NameOnCard: nameOnCard,
-        CardExpiry: cardExpiry,
+      const normalizedCardNumber = normalizeCardNumber(cardNumber);
+      const cardFingerprint = createCardFingerprint(normalizedCardNumber);
+
+      let bankAccount = await BankAccount.findOne({
+        CardFingerprint: cardFingerprint,
         AccountStatus: "Active",
         DebitCardStatus: "Active"
       });
 
+      // Backward compatibility for legacy plaintext PAN rows
       if (!bankAccount) {
+        bankAccount = await BankAccount.findOne({
+          DebitCardNumber: normalizedCardNumber,
+          AccountStatus: "Active",
+          DebitCardStatus: "Active"
+        });
+      }
+
+      if (!bankAccount) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid card details or card is inactive",
+        });
+      }
+
+      const normalizedInputName = String(nameOnCard || "").trim().toUpperCase();
+      const normalizedStoredName = String(bankAccount.NameOnCard || "").trim().toUpperCase();
+      if (normalizedInputName !== normalizedStoredName) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid card details or card is inactive",
+        });
+      }
+
+      if (String(cardExpiry || "").trim() !== String(bankAccount.CardExpiry || "").trim()) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid card details or card is inactive",
+        });
+      }
+
+      let pinValid = false;
+      if (bankAccount.CardPINHash) {
+        pinValid = await comparePin(cardPin, bankAccount.CardPINHash);
+      } else if (bankAccount.CardPIN) {
+        pinValid = String(bankAccount.CardPIN).trim() === String(cardPin || "").trim();
+      }
+
+      if (!pinValid) {
         return res.status(401).json({
           success: false,
           error: "Invalid card details or card is inactive",
@@ -791,7 +840,14 @@ const sendPaymentOTP = async (req, res) => {
     }
 
     if (cardNumber) {
-      const bankAccount = await BankAccount.findOne({ DebitCardNumber: cardNumber });
+      const normalizedCardNumber = normalizeCardNumber(cardNumber);
+      const cardFingerprint = createCardFingerprint(normalizedCardNumber);
+
+      let bankAccount = await BankAccount.findOne({ CardFingerprint: cardFingerprint });
+      if (!bankAccount) {
+        // Backward compatibility for legacy plaintext PAN rows
+        bankAccount = await BankAccount.findOne({ DebitCardNumber: normalizedCardNumber });
+      }
       
       if (!bankAccount) {
         return res.status(404).json({
@@ -1118,7 +1174,7 @@ const processRefund = async (req, res) => {
       });
     }
 
-    if (transaction.Status !== "Success") {
+    if (transaction.Status !== "success") {
       return res.status(400).json({
         success: false,
         error: "Only successful transactions can be refunded"
@@ -1132,53 +1188,75 @@ const processRefund = async (req, res) => {
       });
     }
 
-    if (amount > transaction.Amount) {
+    const refundAmount = Number(amount);
+    const originalAmount = Number(transaction.Amount?.toString?.() || transaction.Amount || 0);
+    if (refundAmount > originalAmount) {
       return res.status(400).json({
         success: false,
         error: "Refund amount cannot exceed transaction amount"
       });
     }
 
-    const senderAccount = await BankAccount.findOne({ AccountNumber: transaction.FromAccount });
-    const receiverAccount = await BankAccount.findOne({ AccountNumber: transaction.ToAccount });
+    const customerAccount = await BankAccount.findOne({ AccountNumber: transaction.SenderAccountNumber });
+    const merchantAccount = await BankAccount.findOne({ AccountNumber: transaction.ReceiverAccountNumber });
 
-    if (!senderAccount || !receiverAccount) {
+    if (!customerAccount || !merchantAccount) {
       return res.status(404).json({
         success: false,
         error: "Account not found"
       });
     }
 
-    senderAccount.Balance += amount;
-    receiverAccount.Balance -= amount;
+    const customerBalanceBefore = Number(customerAccount.Balance.toString());
+    const merchantBalanceBefore = Number(merchantAccount.Balance.toString());
 
-    await senderAccount.save();
-    await receiverAccount.save();
+    if (merchantBalanceBefore < refundAmount) {
+      return res.status(400).json({
+        success: false,
+        error: "Merchant has insufficient balance for this refund"
+      });
+    }
 
-    transaction.RefundStatus = amount === transaction.Amount ? "Refunded" : "PartialRefund";
-    transaction.RefundAmount = amount;
+    customerAccount.Balance = customerBalanceBefore + refundAmount;
+    merchantAccount.Balance = merchantBalanceBefore - refundAmount;
+
+    await customerAccount.save();
+    await merchantAccount.save();
+
+    transaction.RefundStatus = refundAmount === originalAmount ? "Refunded" : "PartialRefund";
+    transaction.RefundAmount = refundAmount;
     transaction.RefundReason = reason || "Merchant initiated refund";
     transaction.RefundDate = new Date();
     await transaction.save();
 
+    const refundTransactionId = await generateTransactionId();
+
     const refundTransaction = new TransactionHistory({
-      TransactionID: `REFUND_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      FromAccount: transaction.ToAccount,
-      ToAccount: transaction.FromAccount,
-      Amount: amount,
-      TransactionType: "Refund",
-      Status: "Success",
+      TransactionID: refundTransactionId,
+      TransactionTime: new Date(),
+      SenderBank: merchantAccount.BankName,
+      SenderAccountNumber: merchantAccount.AccountNumber,
+      SenderHolderName: merchantAccount.FullName || merchantAccount.NameOnCard || "Merchant",
+      SenderBalanceBefore: merchantBalanceBefore,
+      SenderBalanceAfter: merchantBalanceBefore - refundAmount,
+      ReceiverBank: customerAccount.BankName,
+      ReceiverAccountNumber: customerAccount.AccountNumber,
+      ReceiverHolderName: customerAccount.FullName || customerAccount.NameOnCard || "Customer",
+      ReceiverBalanceBefore: customerBalanceBefore,
+      ReceiverBalanceAfter: customerBalanceBefore + refundAmount,
+      Amount: refundAmount,
+      Status: "success",
       Description: `Refund for ${transactionId} - ${reason || "Merchant initiated refund"}`,
-      Date: new Date()
     });
     await refundTransaction.save();
 
     await Notification.create({
-      UserId: transaction.FromUserId,
+      ZenoPayId: customerAccount.ZenoPayId,
       Title: "Refund Processed",
-      Message: `₹${amount.toFixed(2)} has been refunded to your account`,
-      Type: "Transaction",
-      Date: new Date()
+      Message: `₹${refundAmount.toFixed(2)} has been refunded to your account`,
+      Type: "success",
+      Amount: refundAmount,
+      TransactionID: String(refundTransactionId),
     });
 
     res.json({

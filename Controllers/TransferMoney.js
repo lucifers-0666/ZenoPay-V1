@@ -3,6 +3,16 @@ const TransactionHistory = require("../Models/TransactionHistory");
 const Notification = require("../Models/Notification");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
 
+const generateTransactionId = async () => {
+  for (let i = 0; i < 5; i += 1) {
+    const candidate = Number(`${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`);
+    const exists = await TransactionHistory.exists({ TransactionID: candidate });
+    if (!exists) return candidate;
+  }
+
+  return Date.now();
+};
+
 const getTransferMoney = async (req, res) => {
   try {
     console.log('[getTransferMoney] Request received for /send-to');
@@ -216,25 +226,29 @@ const postTransferMoney = async (req, res) => {
     await sender.save();
     await receiver.save();
 
-    // Create transaction ID
-    const transactionID = 'TXN' + Date.now() + Math.floor(Math.random() * 1000);
+    // Create numeric transaction ID (matches TransactionHistory schema)
+    const transactionID = await generateTransactionId();
+
+    const senderHolderName = sender.FullName || sender.NameOnCard || sender.AccountHolderName || sender.ZenoPayId;
+    const receiverHolderName = receiver.FullName || receiver.NameOnCard || receiver.AccountHolderName || receiver.ZenoPayId;
 
     // Save transaction history
     const history = new TransactionHistory({
       TransactionID: transactionID,
       SenderBank: sender.BankName,
       SenderAccountNumber: sender.AccountNumber,
-      SenderHolderName: sender.AccountHolderName,
+      SenderHolderName: senderHolderName,
       SenderBalanceBefore: currentBalance,
       SenderBalanceAfter: senderNewBal,
       ReceiverBank: receiver.BankName,
       ReceiverAccountNumber: receiver.AccountNumber,
-      ReceiverHolderName: receiver.AccountHolderName,
+      ReceiverHolderName: receiverHolderName,
       ReceiverBalanceBefore: receiverCurrentBal,
       ReceiverBalanceAfter: receiverNewBal,
       Amount: transferAmount,
-      TransactionCharges: transactionCharges,
-      Description: description || "Fund Transfer",
+      Description: description
+        ? `${description} (Charges: ₹${transactionCharges.toFixed(2)})`
+        : `Fund Transfer (Charges: ₹${transactionCharges.toFixed(2)})`,
     });
 
     await history.save();
@@ -245,9 +259,9 @@ const postTransferMoney = async (req, res) => {
         ZenoPayId: sender.ZenoPayId,
         Type: "debit",
         Title: "Money Sent",
-        Message: `₹${transferAmount.toFixed(2)} sent to ${receiver.AccountHolderName} (${receiverId})`,
+        Message: `₹${transferAmount.toFixed(2)} sent to ${receiverHolderName} (${receiverId})`,
         Amount: totalAmount,
-        TransactionID: transactionID,
+        TransactionID: String(transactionID),
         IsRead: false,
       });
 
@@ -255,9 +269,9 @@ const postTransferMoney = async (req, res) => {
         ZenoPayId: receiver.ZenoPayId,
         Type: "credit",
         Title: "Money Received",
-        Message: `₹${transferAmount.toFixed(2)} received from ${sender.AccountHolderName}`,
+        Message: `₹${transferAmount.toFixed(2)} received from ${senderHolderName}`,
         Amount: transferAmount,
-        TransactionID: transactionID,
+        TransactionID: String(transactionID),
         IsRead: false,
       });
     } catch (notifErr) {
@@ -272,7 +286,7 @@ const postTransferMoney = async (req, res) => {
         amount: transferAmount,
         charges: transactionCharges,
         total: totalAmount,
-        receiverName: receiver.AccountHolderName,
+        receiverName: receiverHolderName,
         newBalance: senderNewBal,
       },
     });

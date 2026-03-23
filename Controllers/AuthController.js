@@ -1,4 +1,26 @@
 const ZenoPayDetails = require("../Models/ZenoPayUser");
+const bcrypt = require("bcryptjs");
+
+const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
+
+const isBcryptHash = (value = "") => /^\$2[aby]\$\d{2}\$/.test(value);
+
+const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
+  if (!user || !user.Password || !plainPassword) return false;
+
+  if (isBcryptHash(user.Password)) {
+    return bcrypt.compare(plainPassword, user.Password);
+  }
+
+  if (user.Password !== plainPassword) {
+    return false;
+  }
+
+  // Legacy plaintext password found: transparently upgrade to bcrypt hash.
+  user.Password = await bcrypt.hash(plainPassword, BCRYPT_ROUNDS);
+  await user.save();
+  return true;
+};
 
 // Show registration page
 const getRegister = (req, res) => {
@@ -99,13 +121,15 @@ const postRegister = async (req, res) => {
       idExists = await ZenoPayDetails.findOne({ ZenoPayID: zenoPayId });
     }
 
-    // Create new user (Note: In production, use bcrypt for password hashing)
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+    // Create new user
     const newUser = new ZenoPayDetails({
       ZenoPayID: zenoPayId,
       FullName: fullName.trim(),
       Email: email.toLowerCase().trim(),
       Mobile: phoneNumber.replace(/\D/g, "").slice(-10),
-      Password: password, // TODO: Hash password in production
+      Password: passwordHash,
       DOB: new Date("2000-01-01"), // Placeholder - collect in profile completion
       Gender: "Not Specified", // Placeholder
       FatherName: "Not Provided", // Placeholder
@@ -194,7 +218,8 @@ const postLogin = async (req, res) => {
         message: "User not found. Please check your credentials.",
       });
     }
-    if (user.Password !== password) {
+    const isPasswordValid = await verifyPasswordAndUpgradeIfNeeded(user, password);
+    if (!isPasswordValid) {
      
       return res.status(401).json({
         success: false,
@@ -457,7 +482,7 @@ const postResetPassword = async (req, res) => {
     }
 
     // Update password
-    user.Password = password;
+    user.Password = await bcrypt.hash(password, BCRYPT_ROUNDS);
     user.PasswordResetToken = undefined;
     user.PasswordResetExpiry = undefined;
     await user.save();
