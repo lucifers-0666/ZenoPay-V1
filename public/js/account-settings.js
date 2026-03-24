@@ -247,10 +247,22 @@
     }
   }
 
+  // FIX: initializeModalHandlers now uses event delegation on the document
+  // so it works even if the modal HTML is rendered after DOMContentLoaded
   function initializeModalHandlers() {
-    document.querySelectorAll(".modal").forEach((modal) => {
-      modal.querySelector(".modal-close")?.addEventListener("click", () => closeModal(modal.id));
-      modal.querySelector(".modal-overlay")?.addEventListener("click", () => closeModal(modal.id));
+    // Close button inside modal header
+    document.addEventListener("click", function (e) {
+      const closeBtn = e.target.closest(".modal-close");
+      if (closeBtn) {
+        const modal = closeBtn.closest(".modal");
+        if (modal) closeModal(modal.id);
+      }
+
+      // Clicking the dark overlay background closes the modal
+      if (e.target.classList.contains("modal-overlay")) {
+        const modal = e.target.closest(".modal");
+        if (modal) closeModal(modal.id);
+      }
     });
   }
 
@@ -266,6 +278,7 @@
     }
   }
 
+  // FIX: Escape key closes any open modal
   function initializeKeyboardNavigation() {
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
@@ -281,11 +294,18 @@
     document.body.style.overflow = "hidden";
   }
 
+  // FIX: closeModal now also resets the confirm input + re-enables delete button
   function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
     modal.classList.remove("active");
     document.body.style.overflow = "";
+
+    // Reset delete account confirm field if it's in this modal
+    const confirmInput = modal.querySelector("#confirm-zenopay-id");
+    if (confirmInput) confirmInput.value = "";
+    const confirmBtn = modal.querySelector("#delete-confirm-btn");
+    if (confirmBtn) confirmBtn.disabled = true;
   }
 
   window.openDeleteAccountModal = function () {
