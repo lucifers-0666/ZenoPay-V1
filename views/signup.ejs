@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up - ZenoPay</title>
-    <link rel="stylesheet" href="/css/header.css" />
     <link rel="stylesheet" href="/css/auth-common.css" />
     <link rel="stylesheet" href="/css/signup.css" />
     <link
@@ -19,7 +18,6 @@
     />
   </head>
   <body>
-    <%- include('partials/header') %>
     <div class="signup-container">
       <!-- Left Side: Brand Visual -->
       <div class="brand-section">
@@ -127,7 +125,7 @@
           </div>
 
           <!-- Registration Form -->
-          <form id="signup-form" class="signup-form" novalidate>
+          <form id="signup-form" class="signup-form" action="/register" method="POST" novalidate>
             <!-- Full Name -->
             <div class="form-group">
               <label for="fullName" class="form-label">
@@ -333,24 +331,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div class="success-modal" id="success-modal">
-      <div class="success-modal-content">
-        <div class="success-icon">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <h2>Welcome to ZenoPay!</h2>
-        <p>Your account has been created successfully.</p>
-        <p class="zenopay-id">
-          Your ZenoPay ID: <strong id="display-zenopay-id"></strong>
-        </p>
-        <button class="success-btn" id="proceed-btn">
-          Get Started
-          <i class="fas fa-arrow-right"></i>
-        </button>
       </div>
     </div>
 

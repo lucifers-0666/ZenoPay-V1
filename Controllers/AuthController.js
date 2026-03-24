@@ -2,6 +2,7 @@ const ZenoPayDetails = require("../Models/ZenoPayUser");
 const LoginHistory = require("../Models/LoginHistory");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const emailService = require("../Services/EmailService");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
@@ -72,6 +73,13 @@ const postRegister = async (req, res) => {
   const { fullName, email, phoneNumber, password, confirmPassword, agreeToTerms } = req.body;
 
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database unavailable. Please check MongoDB connection and try again.",
+      });
+    }
+
     // Validation
     if (!fullName || !email || !phoneNumber || !password || !confirmPassword) {
       return res.status(400).json({
@@ -119,18 +127,34 @@ const postRegister = async (req, res) => {
       });
     }
 
-    // Check if email already exists
-    const existingEmail = await ZenoPayDetails.findOne({ Email: email.toLowerCase() });
-    if (existingEmail) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered. Please login instead.",
-      });
-    }
+    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedPhone = phoneNumber.replace(/\D/g, "").slice(-10);
 
-    // Check if phone already exists
-    const existingPhone = await ZenoPayDetails.findOne({ Mobile: phoneNumber.replace(/\D/g, "").slice(-10) });
-    if (existingPhone) {
+    // Check if account already exists by email or phone (single query for speed)
+    const existingUser = await ZenoPayDetails.findOne({
+      $or: [
+        { Email: normalizedEmail },
+        { email: normalizedEmail },
+        { Mobile: normalizedPhone },
+        { phone: normalizedPhone },
+        { PhoneNumber: normalizedPhone },
+      ],
+    })
+      .select("Email email Mobile phone PhoneNumber")
+      .lean();
+
+    if (existingUser) {
+      const matchedEmail =
+        String(existingUser.Email || "").toLowerCase() === normalizedEmail ||
+        String(existingUser.email || "").toLowerCase() === normalizedEmail;
+
+      if (matchedEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered. Please login instead.",
+        });
+      }
+
       return res.status(400).json({
         success: false,
         message: "Phone number already registered",
@@ -146,22 +170,32 @@ const postRegister = async (req, res) => {
     };
 
     let zenoPayId = generateZenoPayId();
-    let idExists = await ZenoPayDetails.findOne({ ZenoPayID: zenoPayId });
+    let idExists = await ZenoPayDetails.findOne({
+      $or: [{ ZenoPayID: zenoPayId }, { userId: zenoPayId }],
+    });
     
     // Ensure unique ID
     while (idExists) {
       zenoPayId = generateZenoPayId();
-      idExists = await ZenoPayDetails.findOne({ ZenoPayID: zenoPayId });
+      idExists = await ZenoPayDetails.findOne({
+        $or: [{ ZenoPayID: zenoPayId }, { userId: zenoPayId }],
+      });
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
     // Create new user
     const newUser = new ZenoPayDetails({
+      userId: zenoPayId,
+      name: fullName.trim(),
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      status: "Active",
+      role: "User",
       ZenoPayID: zenoPayId,
       FullName: fullName.trim(),
-      Email: email.toLowerCase().trim(),
-      Mobile: phoneNumber.replace(/\D/g, "").slice(-10),
+      Email: normalizedEmail,
+      Mobile: normalizedPhone,
       Password: passwordHash,
       DOB: new Date("2000-01-01"), // Placeholder - collect in profile completion
       Gender: "Not Specified", // Placeholder
@@ -177,47 +211,40 @@ const postRegister = async (req, res) => {
 
     await newUser.save();
 
-    // Auto-login after registration
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error("Session regeneration failed:", err);
-        return res.status(200).json({
-          success: true,
-          message: "Registration successful! Please login to continue.",
-          zenoPayId: zenoPayId,
-          redirect: "/login",
-        });
-      }
-
-      req.session.user = {
-        _id: newUser._id.toString(),
-        name: newUser.FullName,
-        ZenoPayID: newUser.ZenoPayID,
-        email: newUser.Email,
-        role: newUser.Role,
-      };
-
-      req.session.isLoggedIn = true;
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          return res.status(200).json({
-            success: true,
-            message: "Registration successful! Please login to continue.",
-            zenoPayId: zenoPayId,
-            redirect: "/login",
-          });
-        }
-
-        return res.status(201).json({
-          success: true,
-          message: "Registration successful! Welcome to ZenoPay!",
-          zenoPayId: zenoPayId,
-          redirect: "/",
-        });
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Registration successful! Please login to continue.",
+      zenoPayId: zenoPayId,
+      redirect: "/login",
     });
   } catch (error) {
     console.error("Registration error:", error);
+
+    if (error?.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || error.keyValue || {})[0] || "field";
+      const duplicateMessages = {
+        Email: "Email already registered. Please login instead.",
+        email: "Email already registered. Please login instead.",
+        Mobile: "Phone number already registered.",
+        phone: "Phone number already registered.",
+        ZenoPayID: "Could not generate unique ZenoPay ID. Please try again.",
+        userId: "Could not generate unique ZenoPay ID. Please try again.",
+      };
+
+      return res.status(400).json({
+        success: false,
+        message: duplicateMessages[duplicateField] || "Account already exists with provided details.",
+      });
+    }
+
+    if (error?.name === "ValidationError") {
+      const firstValidationError = Object.values(error.errors || {})[0];
+      return res.status(400).json({
+        success: false,
+        message: firstValidationError?.message || "Invalid registration data. Please check your input.",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Registration failed. Please try again later.",
@@ -240,6 +267,13 @@ const getLogin = (req, res) => {
 const postLogin = async (req, res) => {
   const { userId, password } = req.body;
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: "Database unavailable. Please check MongoDB connection and try again.",
+      });
+    }
+
     const cleanUserId = userId.trim();
     const user = await ZenoPayDetails.findOne({
       $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
@@ -308,7 +342,7 @@ const postLogin = async (req, res) => {
       });
     });
   } catch (err) {
-  
+    console.error("Login error:", err);
 
     return res.status(500).json({
       success: false,

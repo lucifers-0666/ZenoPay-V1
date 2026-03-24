@@ -2,7 +2,7 @@
 <%
   const currentUser = typeof user !== 'undefined' ? user : null;
   const loggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : !!currentUser;
-  const currentUserName = (currentUser && (currentUser.Name || currentUser.FullName)) ? (currentUser.Name || currentUser.FullName) : 'User';
+  const currentUserName = currentUser ? (currentUser.name || currentUser.Name || currentUser.FullName || currentUser.Email || 'User') : 'User';
   const currentUserInitial = currentUserName.charAt(0).toUpperCase();
 %>
 <script>

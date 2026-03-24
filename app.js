@@ -1,10 +1,10 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
@@ -20,7 +20,7 @@ const {
   stopScheduledPaymentsRunner,
 } = require("./Services/scheduledPaymentsRunner");
 
-const PORT = process.env.PORT || 3000;
+
 const DB_PATH = process.env.MONGO_URI;
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -93,6 +93,13 @@ if (store) {
 }
 
 app.use(session(sessionConfig));
+
+// Make auth/session state available to every EJS view by default
+app.use((req, res, next) => {
+  res.locals.isLoggedIn = !!req.session?.isLoggedIn;
+  res.locals.user = req.session?.user || null;
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -171,114 +178,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ============ MONGODB CONNECTION WITH RETRY LOGIC ============
-const connectDB = async () => {
-  if (!DB_PATH || DB_PATH === 'your_mongodb_connection_string') {
-    console.error("⚠️  MongoDB URI not configured in .env file");
-    console.error("⚠️  Server starting without database (limited functionality)");
-    return false;
-  }
 
-  const maxRetries = 3;
-  let retries = 0;
 
-  while (retries < maxRetries) {
-    try {
-      await mongoose.connect(DB_PATH, {
-        serverSelectionTimeoutMS: 30000, // Increased from 5000ms to 30000ms
-        socketTimeoutMS: 45000,
-        connectTimeoutMS: 30000,
-        maxPoolSize: 10,
-        minPoolSize: 5,
-      });
-      console.log("✓ MongoDB Connected Successfully");
-      return true;
-    } catch (err) {
-      retries++;
-      console.error(`❌ MongoDB connection attempt ${retries}/${maxRetries} failed:`);
-      console.error(`   ${err.message}`);
-      
-      if (retries < maxRetries) {
-        const delay = 2000 * retries; // 2s, 4s, 6s
-        console.log(`⏳ Retrying in ${delay/1000}s...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      } else {
-        console.error("\n⚠️  MongoDB connection failed after", maxRetries, "attempts");
-        console.error("⚠️  Possible reasons:");
-        console.error("   • MongoDB Atlas IP whitelist not configured (add 0.0.0.0/0 for testing)");
-        console.error("   • Invalid credentials in MONGO_URI");
-        console.error("   • Network/firewall blocking connection");
-        console.error("   • MongoDB Atlas cluster paused/deleted");
-        console.error("\n⚠️  Server starting in DEGRADED MODE (database features disabled)\n");
-      }
-    }
-  }
-  
-  return false;
-};
+const DB = process.env.MONGO_URI;
+const PORT = process.env.PORT || 3000;
 
-// Handle MongoDB connection events
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-});
-
-mongoose.connection.on('reconnected', () => {
-  console.log('✓ MongoDB reconnected');
-});
-
-// ============ START SERVER ============
-(async () => {
-  console.log("\n" + "=".repeat(60));
-  console.log("🚀 ZenoPay Application Starting...");
-  console.log("=".repeat(60) + "\n");
-
-  const dbConnected = await connectDB();
-
-  if (isProduction && !dbConnected) {
-    console.error("❌ Startup aborted: MongoDB is required in production.");
-    process.exit(1);
-  }
-
-  if (isProduction && (!store || usingMemoryStore)) {
-    console.error("❌ Startup aborted: Persistent MongoDB session store is required in production.");
-    process.exit(1);
-  }
-  
+mongoose.connect(DB).then(()=>{
+  console.log("✓ MongoDB Connected Successfully");
   app.listen(PORT, () => {
-    console.log("\n" + "=".repeat(60));
-    console.log(`✅ Server Status: RUNNING`);
-    console.log(`🌐 URL: http://localhost:${PORT}`);
-    console.log(`📊 Database: ${dbConnected ? '✅ Connected to MongoDB' : '⚠️  Disconnected (degraded mode)'}`);
-    console.log(`🔒 Sessions: ${!usingMemoryStore && store ? '✅ MongoDB (persistent)' : '⚠️  Memory (clears on restart)'}`);
-    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log("=".repeat(60) + "\n");
-    
-    if (!dbConnected) {
-      console.log("⚠️  IMPORTANT: Running without database connection!");
-      console.log("⚠️  To fix: Check MongoDB URI in .env file\n");
-    }
-
-    if (dbConnected) {
-      startScheduledPaymentsRunner();
-    }
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
-})();
 
-// ============ GRACEFUL SHUTDOWN ============
-process.on('SIGTERM', async () => {
-  console.log('\n⏹️  SIGTERM received, shutting down gracefully...');
-  stopScheduledPaymentsRunner();
-  await mongoose.connection.close();
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  console.log('\n⏹️  SIGINT received, shutting down gracefully...');
-  stopScheduledPaymentsRunner();
-  await mongoose.connection.close();
-  process.exit(0);
+}).catch((err)=>{
+  console.error("❌ MongoDB connection failed:", err.message);
+  console.error("⚠️  Server starting without database (limited functionality)");
 });

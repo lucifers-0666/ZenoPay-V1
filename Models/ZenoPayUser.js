@@ -358,7 +358,7 @@ function deriveAvatarColor(seed = "") {
   return palette[Math.abs(hash) % palette.length];
 }
 
-ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy(next) {
+ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
   if (!this.name && this.FullName) this.name = this.FullName;
   if (!this.email && this.Email) this.email = this.Email;
   if (!this.phone && this.Mobile) this.phone = this.Mobile;
@@ -388,10 +388,9 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy(next) {
     this.name = String(this.email).split("@")[0];
   }
 
-  next();
 });
 
-ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified(next) {
+ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified() {
   if (this.name) this.FullName = this.name;
   if (this.email) this.Email = this.email;
   if (this.phone) this.Mobile = this.phone;
@@ -400,7 +399,6 @@ ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified(next) {
   if (this.kycStatus) this.KYCStatus = kycUiToLegacy[this.kycStatus] || "not_started";
   if (this.status) this.AccountStatus = this.status;
   if (this.createdAt) this.RegistrationDate = this.createdAt;
-  next();
 });
 
 module.exports = mongoose.model("ZenoPayDetails", ZenoPayDetailsSchema);
