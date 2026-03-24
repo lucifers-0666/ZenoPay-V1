@@ -8,7 +8,6 @@
   <meta name="description"
     content="Enterprise-grade payment infrastructure for businesses. Zero setup fees, instant settlements, 99.9% uptime. Trusted by 10,000+ businesses." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap"
@@ -17,114 +16,711 @@
   <link rel="stylesheet" href="/css/dashboard.css" />
   <link rel="stylesheet" href="/css/premium-animations.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* ══════════════════════════════════════════════
+       LOGGED-IN DASHBOARD — UPGRADED UI
+       Palette: --zp-teal #0EA5E9 / --zp-cyan #06B6D4
+                --zp-dark #0F172A / --zp-card #1E293B
+                --zp-border #334155 / --zp-muted #94A3B8
+    ══════════════════════════════════════════════ */
+
+    /* ── Page wrapper ── */
+    .zd-page {
+      background: #0F172A;
+      min-height: 100vh;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Container ── */
+    .zd-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ══════════════════════════════════════════════
+       HERO BANNER
+    ══════════════════════════════════════════════ */
+    .zd-hero {
+      position: relative;
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F2041 100%);
+      border-bottom: 1px solid #1E3A5F;
+      overflow: hidden;
+      padding: 48px 0 56px;
+    }
+    .zd-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 600px 300px at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 400px at 10% 80%, rgba(14,165,233,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .zd-hero-inner {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    /* welcome col */
+    .zd-welcome {
+      flex: 1;
+      min-width: 260px;
+    }
+    .zd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6,182,212,0.12);
+      border: 1px solid rgba(6,182,212,0.25);
+      color: #06B6D4;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .zd-hero-title {
+      font-size: clamp(1.75rem, 4vw, 2.4rem);
+      font-weight: 800;
+      color: #F1F5F9;
+      margin: 0 0 10px;
+      line-height: 1.2;
+    }
+    .zd-hero-title span { color: #06B6D4; }
+    .zd-hero-sub {
+      color: #94A3B8;
+      font-size: 15px;
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    /* hero cta pills */
+    .zd-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+    .zd-cta-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 14px;
+      font-weight: 600; text-decoration: none; transition: all .2s;
+    }
+    .zd-cta-primary {
+      background: linear-gradient(135deg, #0EA5E9, #06B6D4);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(6,182,212,0.35);
+    }
+    .zd-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(6,182,212,0.5); }
+    .zd-cta-outline {
+      background: rgba(255,255,255,0.05);
+      color: #CBD5E1;
+      border: 1px solid #334155;
+    }
+    .zd-cta-outline:hover { background: rgba(255,255,255,0.1); color: #F1F5F9; }
+
+    /* user id card */
+    .zd-id-card {
+      background: rgba(30,41,59,0.8);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 20px 24px;
+      min-width: 240px;
+      backdrop-filter: blur(8px);
+    }
+    .zd-id-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .zd-avatar-ring {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, #0EA5E9, #7C3AED);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .zd-id-name { font-size: 16px; font-weight: 700; color: #F1F5F9; }
+    .zd-id-sub  { font-size: 12px; color: #64748B; margin-top: 2px; }
+    .zd-id-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .zd-chip {
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 99px; border: 1px solid;
+    }
+    .zd-chip-green { color: #10B981; border-color: rgba(16,185,129,.3); background: rgba(16,185,129,.08); }
+    .zd-chip-blue  { color: #60A5FA; border-color: rgba(96,165,250,.3); background: rgba(96,165,250,.08); }
+
+    /* ══════════════════════════════════════════════
+       STAT CARDS ROW
+    ══════════════════════════════════════════════ */
+    .zd-stats {
+      padding: 40px 0 0;
+    }
+    .zd-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .zd-stat-card {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 22px 20px;
+      transition: transform .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .zd-stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 16px 16px 0 0;
+    }
+    .zd-stat-card.cyan::before  { background: linear-gradient(90deg, #06B6D4, #0EA5E9); }
+    .zd-stat-card.green::before { background: linear-gradient(90deg, #10B981, #059669); }
+    .zd-stat-card.purple::before{ background: linear-gradient(90deg, #8B5CF6, #7C3AED); }
+    .zd-stat-card.amber::before { background: linear-gradient(90deg, #F59E0B, #D97706); }
+    .zd-stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+
+    .zd-stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .zd-stat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .zd-stat-icon.cyan   { background: rgba(6,182,212,.12);  color: #06B6D4; }
+    .zd-stat-icon.green  { background: rgba(16,185,129,.12); color: #10B981; }
+    .zd-stat-icon.purple { background: rgba(139,92,246,.12); color: #8B5CF6; }
+    .zd-stat-icon.amber  { background: rgba(245,158,11,.12); color: #F59E0B; }
+
+    .zd-stat-trend {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 99px; display: flex; align-items: center; gap: 4px;
+    }
+    .zd-stat-trend.up   { color: #10B981; background: rgba(16,185,129,.1); }
+    .zd-stat-trend.down { color: #F87171; background: rgba(248,113,113,.1); }
+    .zd-stat-trend.neu  { color: #94A3B8; background: rgba(148,163,184,.1); }
+
+    .zd-stat-val   { font-size: 26px; font-weight: 800; color: #F1F5F9; line-height: 1; margin-bottom: 4px; }
+    .zd-stat-label { font-size: 13px; color: #64748B; }
+
+    /* ══════════════════════════════════════════════
+       SECTION TITLES
+    ══════════════════════════════════════════════ */
+    .zd-section { padding: 40px 0; }
+    .zd-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .zd-section-title { font-size: 18px; font-weight: 700; color: #F1F5F9; display: flex; align-items: center; gap: 10px; }
+    .zd-section-title i { color: #06B6D4; font-size: 16px; }
+    .zd-section-link { font-size: 13px; color: #06B6D4; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+    .zd-section-link:hover { color: #0EA5E9; }
+
+    /* ══════════════════════════════════════════════
+       QUICK ACTIONS
+    ══════════════════════════════════════════════ */
+    .zd-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .zd-action-card {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-decoration: none;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      transition: all .2s;
+      text-align: center;
+    }
+    .zd-action-card:hover {
+      transform: translateY(-3px);
+      border-color: #06B6D4;
+      box-shadow: 0 8px 24px rgba(6,182,212,.15);
+    }
+    .zd-action-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .zd-action-icon.c1 { background: rgba(6,182,212,.12);  color: #06B6D4; }
+    .zd-action-icon.c2 { background: rgba(16,185,129,.12); color: #10B981; }
+    .zd-action-icon.c3 { background: rgba(139,92,246,.12); color: #8B5CF6; }
+    .zd-action-icon.c4 { background: rgba(245,158,11,.12); color: #F59E0B; }
+    .zd-action-icon.c5 { background: rgba(248,113,113,.12);color: #F87171; }
+    .zd-action-icon.c6 { background: rgba(96,165,250,.12); color: #60A5FA; }
+    .zd-action-icon.c7 { background: rgba(52,211,153,.12); color: #34D399; }
+    .zd-action-icon.c8 { background: rgba(251,191,36,.12); color: #FBBF24; }
+
+    .zd-action-label { font-size: 13px; font-weight: 600; color: #CBD5E1; line-height: 1.3; }
+    .zd-action-sub   { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+    /* ══════════════════════════════════════════════
+       RECENT TRANSACTIONS TABLE
+    ══════════════════════════════════════════════ */
+    .zd-txn-table {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .zd-txn-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px;
+      border-bottom: 1px solid #1E293B;
+      background: #1A2744;
+      transition: background .15s;
+    }
+    .zd-txn-row:last-child { border-bottom: none; }
+    .zd-txn-row:hover { background: #1F304F; }
+    .zd-txn-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px;
+    }
+    .zd-txn-icon.credit { background: rgba(16,185,129,.12); color: #10B981; }
+    .zd-txn-icon.debit  { background: rgba(248,113,113,.12); color: #F87171; }
+    .zd-txn-icon.pending{ background: rgba(245,158,11,.12);  color: #F59E0B; }
+    .zd-txn-info { flex: 1; min-width: 0; }
+    .zd-txn-name { font-size: 14px; font-weight: 600; color: #E2E8F0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .zd-txn-time { font-size: 11px; color: #64748B; margin-top: 2px; }
+    .zd-txn-amount { font-size: 15px; font-weight: 700; white-space: nowrap; }
+    .zd-txn-amount.credit  { color: #10B981; }
+    .zd-txn-amount.debit   { color: #F87171; }
+    .zd-txn-amount.pending { color: #F59E0B; }
+    .zd-txn-status {
+      font-size: 11px; font-weight: 600; padding: 3px 10px;
+      border-radius: 99px; white-space: nowrap;
+    }
+    .zd-txn-status.s-ok  { color: #10B981; background: rgba(16,185,129,.1); }
+    .zd-txn-status.s-fail{ color: #F87171; background: rgba(248,113,113,.1); }
+    .zd-txn-status.s-pend{ color: #F59E0B; background: rgba(245,158,11,.1); }
+
+    /* empty state */
+    .zd-txn-empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: #64748B;
+    }
+    .zd-txn-empty i { font-size: 36px; margin-bottom: 12px; display: block; color: #334155; }
+    .zd-txn-empty p { font-size: 14px; }
+
+    /* ══════════════════════════════════════════════
+       TWO-COL ROW (Wallet Card + Account Info)
+    ══════════════════════════════════════════════ */
+    .zd-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 680px) { .zd-two-col { grid-template-columns: 1fr; } }
+
+    /* Wallet card */
+    .zd-wallet-card {
+      background: linear-gradient(135deg, #0C4A6E 0%, #0F172A 100%);
+      border: 1px solid #164E63;
+      border-radius: 20px;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .zd-wallet-card::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(6,182,212,.18), transparent 70%);
+      border-radius: 50%;
+    }
+    .zd-wallet-label { font-size: 12px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+    .zd-wallet-amount { font-size: 36px; font-weight: 800; color: #F1F5F9; margin-bottom: 4px; }
+    .zd-wallet-sub { font-size: 12px; color: #94A3B8; margin-bottom: 24px; }
+    .zd-wallet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .zd-wal-btn {
+      flex: 1; min-width: 90px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all .2s; border: none; cursor: pointer;
+    }
+    .zd-wal-btn.add   { background: linear-gradient(135deg,#0EA5E9,#06B6D4); color:#fff; box-shadow: 0 4px 12px rgba(6,182,212,.3); }
+    .zd-wal-btn.send  { background: rgba(255,255,255,.07); color: #CBD5E1; border: 1px solid #334155; }
+    .zd-wal-btn.with  { background: rgba(255,255,255,.07); color: #CBD5E1; border: 1px solid #334155; }
+    .zd-wal-btn:hover { transform: translateY(-2px); }
+
+    /* account info card */
+    .zd-acct-card {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 28px 24px;
+    }
+    .zd-acct-title { font-size: 15px; font-weight: 700; color: #F1F5F9; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .zd-acct-title i { color: #06B6D4; }
+    .zd-acct-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid #1E3A5F;
+    }
+    .zd-acct-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .zd-acct-key   { font-size: 12px; color: #64748B; font-weight: 500; }
+    .zd-acct-val   { font-size: 13px; color: #E2E8F0; font-weight: 600; font-family: 'DM Mono', monospace; }
+    .zd-acct-copy  { font-size: 12px; color: #06B6D4; cursor: pointer; padding: 3px 6px; border-radius: 5px; background: rgba(6,182,212,.1); transition: background .15s; }
+    .zd-acct-copy:hover { background: rgba(6,182,212,.2); }
+    .zd-acct-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #10B981; }
+    .zd-acct-dot   { width: 7px; height: 7px; border-radius: 50%; background: #10B981; animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 50%{box-shadow:0 0 0 5px rgba(16,185,129,0)} }
+
+    /* ══════════════════════════════════════════════
+       SECURITY & KYC BANNER
+    ══════════════════════════════════════════════ */
+    .zd-kyc-banner {
+      background: linear-gradient(135deg, rgba(245,158,11,.08), rgba(251,191,36,.05));
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: 14px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .zd-kyc-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(245,158,11,.15); color: #F59E0B; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .zd-kyc-text  { flex: 1; }
+    .zd-kyc-title { font-size: 14px; font-weight: 700; color: #FDE68A; margin-bottom: 2px; }
+    .zd-kyc-sub   { font-size: 12px; color: #92400E; }
+    .zd-kyc-btn {
+      padding: 9px 18px; background: rgba(245,158,11,.2); border: 1px solid rgba(245,158,11,.4);
+      color: #F59E0B; font-size: 13px; font-weight: 600; border-radius: 8px;
+      text-decoration: none; white-space: nowrap; transition: all .2s;
+    }
+    .zd-kyc-btn:hover { background: rgba(245,158,11,.3); }
+
+    /* ══════════════════════════════════════════════
+       SECURITY INDICATORS
+    ══════════════════════════════════════════════ */
+    .zd-security-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .zd-sec-item {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .zd-sec-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .zd-sec-label { font-size: 13px; font-weight: 600; color: #CBD5E1; }
+    .zd-sec-sub   { font-size: 11px; color: #64748B; margin-top: 2px; }
+    .zd-sec-check { margin-left: auto; color: #10B981; font-size: 16px; }
+
+    /* ══════════════════════════════════════════════
+       REFERRAL BANNER
+    ══════════════════════════════════════════════ */
+    .zd-referral-banner {
+      background: linear-gradient(135deg, #1E1B4B, #312E81);
+      border: 1px solid rgba(139,92,246,.3);
+      border-radius: 16px;
+      padding: 28px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .zd-referral-banner::after {
+      content: '';
+      position: absolute; right: -60px; top: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(139,92,246,.2), transparent 65%);
+      border-radius: 50%;
+    }
+    .zd-ref-left  { flex: 1; }
+    .zd-ref-tag   { font-size: 11px; font-weight: 700; color: #A78BFA; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .zd-ref-title { font-size: 20px; font-weight: 800; color: #F1F5F9; margin-bottom: 6px; }
+    .zd-ref-sub   { font-size: 13px; color: #94A3B8; }
+    .zd-ref-btn {
+      padding: 11px 24px; background: linear-gradient(135deg,#8B5CF6,#7C3AED); color: #fff;
+      font-size: 14px; font-weight: 700; border-radius: 9px; text-decoration: none;
+      white-space: nowrap; transition: all .2s; box-shadow: 0 4px 14px rgba(124,58,237,.4);
+    }
+    .zd-ref-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,.6); }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media (max-width: 680px) {
+      .zd-hero-inner { flex-direction: column; }
+      .zd-id-card { width: 100%; }
+      .zd-actions-grid { grid-template-columns: repeat(3,1fr); }
+      .zd-stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 420px) {
+      .zd-actions-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
 </head>
 
 <body class="modern-body">
 
-  <!-- Modern Header (No Sidebar) -->
+  <!-- Header -->
   <%- include('partials/header') %>
 
-    <!-- Main Content -->
-    <main class="modern-main">
+  <!-- Main Content -->
+  <main class="modern-main">
 
-      <% if (isLoggedIn && user) { %>
-        <!-- LOGGED IN USER VIEW -->
+    <% if (isLoggedIn && user) { %>
+    <!-- ═══════════════════════════════════════════════════
+         LOGGED-IN DASHBOARD
+    ═══════════════════════════════════════════════════ -->
+    <div class="zd-page">
 
-        <!-- Hero Section - Logged In -->
-        <section class="hero-logged-in">
-          <div class="hero-background"></div>
-          <div class="container">
-            <div class="hero-logged-content">
-              <!-- Welcome Text -->
-              <div class="welcome-section">
-                <div class="eyebrow-badge">
-                  <i class="fas fa-check-circle"></i>
-                  <span>Welcome back</span>
-                </div>
-                <h1 class="hero-logged-title">Hello, <%= user.Name %>!</h1>
-                <p class="hero-logged-subtitle">
-                  Manage your payments seamlessly with enterprise-grade infrastructure
-                </p>
-              </div>
+      <!-- ── HERO ── -->
+      <section class="zd-hero">
+        <div class="zd-container">
+          <div class="zd-hero-inner">
 
-              <!-- Quick Stats Cards -->
-              <div class="quick-stats-grid">
-                <div class="quick-stat-card">
-                  <div class="quick-stat-icon wallet">
-                    <i class="fas fa-wallet"></i>
-                  </div>
-                  <div class="quick-stat-content">
-                    <h3 class="quick-stat-value">₹<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></h3>
-                    <p class="quick-stat-label">Total Balance</p>
-                    <span class="quick-stat-trend positive">
-                      <i class="fas fa-arrow-up"></i> 0%
-                    </span>
-                  </div>
-                </div>
-                <div class="quick-stat-card">
-                  <div class="quick-stat-icon transactions">
-                    <i class="fas fa-exchange-alt"></i>
-                  </div>
-                  <div class="quick-stat-content">
-                    <h3 class="quick-stat-value"><%= typeof monthTransactionCount !== 'undefined' ? monthTransactionCount : 0 %></h3>
-                    <p class="quick-stat-label">Transactions</p>
-                    <span class="quick-stat-trend">This month</span>
-                  </div>
-                </div>
-                <div class="quick-stat-card">
-                  <div class="quick-stat-icon growth">
-                    <i class="fas fa-chart-line"></i>
-                  </div>
-                  <div class="quick-stat-content">
-                    <h3 class="quick-stat-value"><%= Number(typeof monthSuccessRate !== 'undefined' ? monthSuccessRate : 98.4).toFixed(1) %>%</h3>
-                    <p class="quick-stat-label">Success Rate</p>
-                    <span class="quick-stat-trend positive">
-                      <i class="fas fa-arrow-up"></i> 2.1%
-                    </span>
-                  </div>
-                </div>
+            <!-- Welcome text -->
+            <div class="zd-welcome">
+              <div class="zd-badge"><i class="fas fa-check-circle"></i> Welcome back</div>
+              <h1 class="zd-hero-title">Hello, <span><%= user.Name %>!</span></h1>
+              <p class="zd-hero-sub">Manage your payments, track transactions, and grow your business — all in one place.</p>
+              <div class="zd-hero-ctas">
+                <a href="/send-money" class="zd-cta-btn zd-cta-primary"><i class="fas fa-paper-plane"></i> Send Money</a>
+                <a href="/transaction-history" class="zd-cta-btn zd-cta-outline"><i class="fas fa-history"></i> View History</a>
               </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="quick-actions-section">
-              <h2 class="section-title-small">Quick Actions</h2>
-              <div class="quick-actions-grid">
-                <a href="/send-to" class="quick-action-card">
-                  <div class="quick-action-icon">
-                    <i class="fas fa-paper-plane"></i>
-                  </div>
-                  <h3>Send Money</h3>
-                  <p>Transfer funds instantly</p>
-                </a>
-                <a href="/Transaction-History" class="quick-action-card">
-                  <div class="quick-action-icon">
-                    <i class="fas fa-history"></i>
-                  </div>
-                  <h3>Transactions</h3>
-                  <p>View your history</p>
-                </a>
-                <a href="/api-integration" class="quick-action-card">
-                  <div class="quick-action-icon">
-                    <i class="fas fa-code"></i>
-                  </div>
-                  <h3>API Keys</h3>
-                  <p>Manage integration</p>
-                </a>
-                <a href="/Profile" class="quick-action-card">
-                  <div class="quick-action-icon">
-                    <i class="fas fa-user-circle"></i>
-                  </div>
-                  <h3>Profile</h3>
-                  <p>Account settings</p>
-                </a>
+            <!-- ID Card -->
+            <div class="zd-id-card">
+              <div class="zd-id-row">
+                <div class="zd-avatar-ring"><%= (user.Name || 'U').charAt(0).toUpperCase() %></div>
+                <div>
+                  <div class="zd-id-name"><%= user.Name || 'User' %></div>
+                  <div class="zd-id-sub"><%= user.Email || 'user@zenopay.me' %></div>
+                </div>
               </div>
+              <div class="zd-id-chips">
+                <span class="zd-chip zd-chip-green"><i class="fas fa-circle" style="font-size:7px"></i> Active</span>
+                <span class="zd-chip zd-chip-blue"><i class="fas fa-id-card" style="font-size:9px"></i> <%= user.ZenoPayID || 'ZP-XXXXX' %></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STATS ── -->
+      <div class="zd-container">
+        <div class="zd-stats">
+          <div class="zd-stats-grid">
+
+            <div class="zd-stat-card cyan">
+              <div class="zd-stat-top">
+                <div class="zd-stat-icon cyan"><i class="fas fa-wallet"></i></div>
+                <span class="zd-stat-trend up"><i class="fas fa-arrow-up"></i> 0%</span>
+              </div>
+              <div class="zd-stat-val">₹<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+              <div class="zd-stat-label">Wallet Balance</div>
+            </div>
+
+            <div class="zd-stat-card green">
+              <div class="zd-stat-top">
+                <div class="zd-stat-icon green"><i class="fas fa-exchange-alt"></i></div>
+                <span class="zd-stat-trend neu">This month</span>
+              </div>
+              <div class="zd-stat-val"><%= typeof monthTransactionCount !== 'undefined' ? monthTransactionCount : 0 %></div>
+              <div class="zd-stat-label">Transactions</div>
+            </div>
+
+            <div class="zd-stat-card purple">
+              <div class="zd-stat-top">
+                <div class="zd-stat-icon purple"><i class="fas fa-chart-line"></i></div>
+                <span class="zd-stat-trend up"><i class="fas fa-arrow-up"></i> 2.1%</span>
+              </div>
+              <div class="zd-stat-val"><%= Number(typeof monthSuccessRate !== 'undefined' ? monthSuccessRate : 98.4).toFixed(1) %>%</div>
+              <div class="zd-stat-label">Success Rate</div>
+            </div>
+
+            <div class="zd-stat-card amber">
+              <div class="zd-stat-top">
+                <div class="zd-stat-icon amber"><i class="fas fa-bolt"></i></div>
+                <span class="zd-stat-trend neu">Avg</span>
+              </div>
+              <div class="zd-stat-val">~2s</div>
+              <div class="zd-stat-label">Settlement Time</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── WALLET + ACCOUNT INFO ── -->
+        <div class="zd-section">
+          <div class="zd-two-col">
+
+            <!-- Wallet Card -->
+            <div class="zd-wallet-card">
+              <div class="zd-wallet-label">Available Balance</div>
+              <div class="zd-wallet-amount">₹<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+              <div class="zd-wallet-sub">Last updated just now</div>
+              <div class="zd-wallet-actions">
+                <a href="/add-money" class="zd-wal-btn add"><i class="fas fa-plus"></i> Add</a>
+                <a href="/send-money" class="zd-wal-btn send"><i class="fas fa-paper-plane"></i> Send</a>
+                <a href="/withdraw" class="zd-wal-btn with"><i class="fas fa-arrow-down-to-line"></i> Withdraw</a>
+              </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="zd-acct-card">
+              <div class="zd-acct-title"><i class="fas fa-id-card"></i> Account Details</div>
+              <div class="zd-acct-row">
+                <span class="zd-acct-key">ZenoPay ID</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="zd-acct-val"><%= user.ZenoPayID || '—' %></span>
+                  <span class="zd-acct-copy" title="Copy"><i class="fas fa-copy"></i></span>
+                </div>
+              </div>
+              <div class="zd-acct-row">
+                <span class="zd-acct-key">Email</span>
+                <span class="zd-acct-val" style="font-family:inherit"><%= user.Email || '—' %></span>
+              </div>
+              <div class="zd-acct-row">
+                <span class="zd-acct-key">Account Status</span>
+                <span class="zd-acct-status"><span class="zd-acct-dot"></span> Active</span>
+              </div>
+              <div class="zd-acct-row">
+                <span class="zd-acct-key">KYC Status</span>
+                <span class="zd-chip zd-chip-green" style="font-size:11px;">Verified</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── QUICK ACTIONS ── -->
+        <div class="zd-section" style="padding-top:0">
+          <div class="zd-section-head">
+            <h2 class="zd-section-title"><i class="fas fa-grid-2"></i> Quick Actions</h2>
+          </div>
+          <div class="zd-actions-grid">
+            <a href="/send-money" class="zd-action-card">
+              <div class="zd-action-icon c1"><i class="fas fa-paper-plane"></i></div>
+              <div><div class="zd-action-label">Send Money</div><div class="zd-action-sub">Transfer instantly</div></div>
+            </a>
+            <a href="/request-money" class="zd-action-card">
+              <div class="zd-action-icon c2"><i class="fas fa-hand-holding-dollar"></i></div>
+              <div><div class="zd-action-label">Request Money</div><div class="zd-action-sub">Ask for payment</div></div>
+            </a>
+            <a href="/add-money" class="zd-action-card">
+              <div class="zd-action-icon c3"><i class="fas fa-plus-circle"></i></div>
+              <div><div class="zd-action-label">Add Money</div><div class="zd-action-sub">Top up wallet</div></div>
+            </a>
+            <a href="/withdraw" class="zd-action-card">
+              <div class="zd-action-icon c4"><i class="fas fa-money-bill-transfer"></i></div>
+              <div><div class="zd-action-label">Withdraw</div><div class="zd-action-sub">To bank account</div></div>
+            </a>
+            <a href="/qr-payment" class="zd-action-card">
+              <div class="zd-action-icon c5"><i class="fas fa-qrcode"></i></div>
+              <div><div class="zd-action-label">QR Payment</div><div class="zd-action-sub">Scan & pay</div></div>
+            </a>
+            <a href="/transaction-history" class="zd-action-card">
+              <div class="zd-action-icon c6"><i class="fas fa-history"></i></div>
+              <div><div class="zd-action-label">Transactions</div><div class="zd-action-sub">View history</div></div>
+            </a>
+            <a href="/invoices" class="zd-action-card">
+              <div class="zd-action-icon c7"><i class="fas fa-file-invoice-dollar"></i></div>
+              <div><div class="zd-action-label">Invoices</div><div class="zd-action-sub">Create & manage</div></div>
+            </a>
+            <a href="/profile" class="zd-action-card">
+              <div class="zd-action-icon c8"><i class="fas fa-user-circle"></i></div>
+              <div><div class="zd-action-label">My Profile</div><div class="zd-action-sub">Account settings</div></div>
+            </a>
+          </div>
+        </div>
+
+        <!-- ── RECENT TRANSACTIONS ── -->
+        <div class="zd-section" style="padding-top:0">
+          <div class="zd-section-head">
+            <h2 class="zd-section-title"><i class="fas fa-clock-rotate-left"></i> Recent Transactions</h2>
+            <a href="/transaction-history" class="zd-section-link">View all <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="zd-txn-table">
+            <% if (typeof recentTransactions !== 'undefined' && recentTransactions && recentTransactions.length > 0) { %>
+              <% recentTransactions.slice(0,6).forEach(function(txn) { %>
+                <div class="zd-txn-row">
+                  <div class="zd-txn-icon <%= txn.type === 'credit' ? 'credit' : txn.status === 'pending' ? 'pending' : 'debit' %>">
+                    <i class="fas fa-<%= txn.type === 'credit' ? 'arrow-down' : txn.status === 'pending' ? 'clock' : 'arrow-up' %>"></i>
+                  </div>
+                  <div class="zd-txn-info">
+                    <div class="zd-txn-name"><%= txn.description || txn.to || 'Transaction' %></div>
+                    <div class="zd-txn-time"><%= txn.date || txn.createdAt || '' %></div>
+                  </div>
+                  <div class="zd-txn-amount <%= txn.type === 'credit' ? 'credit' : txn.status === 'pending' ? 'pending' : 'debit' %>">
+                    <%= txn.type === 'credit' ? '+' : '-' %>₹<%= Number(txn.amount || 0).toLocaleString('en-IN') %>
+                  </div>
+                  <span class="zd-txn-status <%= txn.status === 'success' ? 's-ok' : txn.status === 'pending' ? 's-pend' : 's-fail' %>">
+                    <%= txn.status || 'success' %>
+                  </span>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="zd-txn-empty">
+                <i class="fas fa-receipt"></i>
+                <p>No transactions yet. Start by sending or adding money.</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ── KYC / VERIFICATION NUDGE ── -->
+        <div class="zd-section" style="padding-top:0">
+          <div class="zd-kyc-banner">
+            <div class="zd-kyc-icon"><i class="fas fa-id-card"></i></div>
+            <div class="zd-kyc-text">
+              <div class="zd-kyc-title">Complete KYC Verification</div>
+              <div class="zd-kyc-sub">Verify your identity to unlock higher transaction limits and all features.</div>
+            </div>
+            <a href="/kyc-verification" class="zd-kyc-btn"><i class="fas fa-arrow-right"></i> Verify Now</a>
+          </div>
+        </div>
+
+        <!-- ── SECURITY INDICATORS ── -->
+        <div class="zd-section" style="padding-top:0">
+          <div class="zd-section-head">
+            <h2 class="zd-section-title"><i class="fas fa-shield-halved"></i> Account Security</h2>
+            <a href="/security-settings" class="zd-section-link">Manage <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="zd-security-row">
+            <div class="zd-sec-item">
+              <div class="zd-sec-icon" style="background:rgba(16,185,129,.12);color:#10B981;"><i class="fas fa-lock"></i></div>
+              <div><div class="zd-sec-label">Password</div><div class="zd-sec-sub">Last changed recently</div></div>
+              <i class="fas fa-check-circle zd-sec-check"></i>
+            </div>
+            <div class="zd-sec-item">
+              <div class="zd-sec-icon" style="background:rgba(96,165,250,.12);color:#60A5FA;"><i class="fas fa-mobile-screen-button"></i></div>
+              <div><div class="zd-sec-label">2FA Authentication</div><div class="zd-sec-sub">Extra layer of security</div></div>
+              <a href="/security-settings" style="margin-left:auto;font-size:11px;color:#F59E0B;text-decoration:none;font-weight:600;">Enable</a>
+            </div>
+            <div class="zd-sec-item">
+              <div class="zd-sec-icon" style="background:rgba(139,92,246,.12);color:#8B5CF6;"><i class="fas fa-envelope-circle-check"></i></div>
+              <div><div class="zd-sec-label">Email Verified</div><div class="zd-sec-sub"><%= user.Email || '—' %></div></div>
+              <i class="fas fa-check-circle zd-sec-check"></i>
+            </div>
+            <div class="zd-sec-item">
+              <div class="zd-sec-icon" style="background:rgba(245,158,11,.12);color:#F59E0B;"><i class="fas fa-shield-alt"></i></div>
+              <div><div class="zd-sec-label">Fraud Protection</div><div class="zd-sec-sub">Always active</div></div>
+              <i class="fas fa-check-circle zd-sec-check"></i>
             </div>
           </div>
-        </section>
+        </div>
 
-        <% } else { %>
-          <!-- GUEST/NOT LOGGED IN VIEW -->
+        <!-- ── REFERRAL BANNER ── -->
+        <div class="zd-section" style="padding-top:0;padding-bottom:56px;">
+          <div class="zd-referral-banner">
+            <div class="zd-ref-left">
+              <div class="zd-ref-tag"><i class="fas fa-gift"></i> Referral Program</div>
+              <div class="zd-ref-title">Earn ₹200 for every friend you invite!</div>
+              <div class="zd-ref-sub">Share your referral link and earn cashback when they complete their first transaction.</div>
+            </div>
+            <a href="/referral-program" class="zd-ref-btn"><i class="fas fa-share-nodes"></i> Invite Friends</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- END LOGGED-IN DASHBOARD -->
+
+    <% } else { %>
+    <!-- ═══════════════════════════════════════════════════
+         GUEST / NOT LOGGED IN VIEW (unchanged)
+    ═══════════════════════════════════════════════════ -->
 
           <!-- Hero Section - Guest -->
           <section class="hero-guest">
@@ -381,121 +977,58 @@
           <!-- Features Section -->
           <section class="features-section" id="features">
             <div class="container">
-
-              <!-- Section Header -->
               <div class="section-header">
                 <h2 class="section-title">Why Choose ZenoPay?</h2>
                 <p class="section-subtitle">Join thousands who trust us for their financial needs</p>
               </div>
-
-              <!-- Features Grid -->
               <div class="features-grid">
-
-                <!-- Feature 1 -->
                 <div class="feature-card">
-                  <div class="feature-icon cyan">
-                    <i class="fas fa-bolt"></i>
-                  </div>
+                  <div class="feature-icon cyan"><i class="fas fa-bolt"></i></div>
                   <h3 class="feature-title">Instant Transfers</h3>
-                  <p class="feature-description">
-                    Receive payments in under 2 seconds. Real-time settlement with zero delays.
-                    Money hits your account instantly.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Receive payments in under 2 seconds. Real-time settlement with zero delays. Money hits your account instantly.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
-                <!-- Feature 2 -->
                 <div class="feature-card">
-                  <div class="feature-icon emerald">
-                    <i class="fas fa-shield-alt"></i>
-                  </div>
+                  <div class="feature-icon emerald"><i class="fas fa-shield-alt"></i></div>
                   <h3 class="feature-title">Bank-Level Security</h3>
-                  <p class="feature-description">
-                    Military-grade 256-bit encryption, PCI-DSS Level 1 certified, and
-                    multi-layer fraud protection keeps your money safe.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Military-grade 256-bit encryption, PCI-DSS Level 1 certified, and multi-layer fraud protection keeps your money safe.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
-                <!-- Feature 3 -->
                 <div class="feature-card">
-                  <div class="feature-icon blue">
-                    <i class="fas fa-mobile-alt"></i>
-                  </div>
+                  <div class="feature-icon blue"><i class="fas fa-mobile-alt"></i></div>
                   <h3 class="feature-title">Mobile First</h3>
-                  <p class="feature-description">
-                    Beautiful mobile apps for iOS and Android. Accept payments anywhere,
-                    anytime with our optimized mobile experience.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Beautiful mobile apps for iOS and Android. Accept payments anywhere, anytime with our optimized mobile experience.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
-                <!-- Feature 4 -->
                 <div class="feature-card">
-                  <div class="feature-icon purple">
-                    <i class="fas fa-percent"></i>
-                  </div>
+                  <div class="feature-icon purple"><i class="fas fa-percent"></i></div>
                   <h3 class="feature-title">Zero Hidden Fees</h3>
-                  <p class="feature-description">
-                    Transparent pricing with no setup costs, no monthly fees, no hidden charges.
-                    Only pay for successful transactions.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Transparent pricing with no setup costs, no monthly fees, no hidden charges. Only pay for successful transactions.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
-                <!-- Feature 5 -->
                 <div class="feature-card">
-                  <div class="feature-icon orange">
-                    <i class="fas fa-qrcode"></i>
-                  </div>
+                  <div class="feature-icon orange"><i class="fas fa-qrcode"></i></div>
                   <h3 class="feature-title">QR Payments</h3>
-                  <p class="feature-description">
-                    Generate instant QR codes for UPI payments. Accept payments through
-                    any UPI app with zero hassle.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Generate instant QR codes for UPI payments. Accept payments through any UPI app with zero hassle.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
-                <!-- Feature 6 -->
                 <div class="feature-card">
-                  <div class="feature-icon pink">
-                    <i class="fas fa-headset"></i>
-                  </div>
+                  <div class="feature-icon pink"><i class="fas fa-headset"></i></div>
                   <h3 class="feature-title">24/7 Support</h3>
-                  <p class="feature-description">
-                    Round-the-clock customer support via chat, email, and phone.
-                    Our team is always ready to help you succeed.
-                  </p>
-                  <a href="#" class="feature-link">
-                    Learn More <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <p class="feature-description">Round-the-clock customer support via chat, email, and phone. Our team is always ready to help you succeed.</p>
+                  <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
                 </div>
-
               </div>
             </div>
           </section>
 
           <section class="payment-methods-section" id="payment-methods">
             <div class="container">
-
               <div class="section-header">
                 <span class="section-tag">Payment Methods</span>
                 <h2 class="section-title">Accept Payments Any Way Your Customers Prefer</h2>
-                <p class="section-subtitle">
-                  From UPI to international cards — ZenoPay supports every major payment method in India and beyond.
-                </p>
+                <p class="section-subtitle">From UPI to international cards — ZenoPay supports every major payment method in India and beyond.</p>
               </div>
-
               <div class="pm-shell">
                 <div class="pm-tabs" role="tablist" aria-label="Payment methods">
                   <button class="pm-tab pm-tab-active" data-tab="upi" onclick="switchPMTab('upi', this)">UPI</button>
@@ -504,14 +1037,11 @@
                   <button class="pm-tab" data-tab="wallets" onclick="switchPMTab('wallets', this)">Wallets</button>
                   <button class="pm-tab" data-tab="bnpl" onclick="switchPMTab('bnpl', this)">BNPL</button>
                 </div>
-
                 <div class="pm-content pm-content-active" id="tab-upi">
                   <div class="pm-layout">
                     <div class="pm-left">
                       <h3 class="pm-title">India's #1 Payment Method</h3>
-                      <p class="pm-desc">
-                        Accept UPI payments from any app — GPay, PhonePe, Paytm, BHIM and 200+ more. Sub-second settlement directly to your account.
-                      </p>
+                      <p class="pm-desc">Accept UPI payments from any app — GPay, PhonePe, Paytm, BHIM and 200+ more. Sub-second settlement directly to your account.</p>
                       <ul class="pm-features">
                         <li><i class="fas fa-circle-check"></i>Instant settlement in &lt; 2 seconds</li>
                         <li><i class="fas fa-circle-check"></i>UPI AutoPay for subscriptions</li>
@@ -536,56 +1066,27 @@
                           <div class="pm-visual-amount">₹2,499.00</div>
                           <label class="pm-visual-upi-input" for="upiIdInput">
                             <i class="fas fa-mobile-screen" style="color:#6B3FA0;"></i>
-                            <input
-                              id="upiIdInput"
-                              class="pm-visual-upi-field"
-                              type="text"
-                              inputmode="text"
-                              autocomplete="off"
-                              placeholder="yourname@upi"
-                              aria-label="Enter your UPI ID"
-                            />
+                            <input id="upiIdInput" class="pm-visual-upi-field" type="text" inputmode="text" autocomplete="off" placeholder="yourname@upi" aria-label="Enter your UPI ID" />
                           </label>
-
                           <div class="pm-upi-apps-title">Choose app</div>
                           <div class="pm-visual-apps-row pm-visual-apps-row-upi" role="radiogroup" aria-label="Select UPI app">
                             <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-gpay" checked />
                             <label class="pm-upi-app" for="upi-app-gpay" title="Google Pay">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/120px-Google_Pay_Logo.svg.png"
-                                alt="Google Pay" class="pm-visual-logo" width="40" height="40"
-                                loading="lazy" decoding="async"
-                              />
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/120px-Google_Pay_Logo.svg.png" alt="Google Pay" class="pm-visual-logo" width="40" height="40" loading="lazy" decoding="async" />
                             </label>
-
                             <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-phonepe" />
                             <label class="pm-upi-app" for="upi-app-phonepe" title="PhonePe">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/PhonePe_Logo.svg/120px-PhonePe_Logo.svg.png"
-                                alt="PhonePe" class="pm-visual-logo" width="40" height="40"
-                                loading="lazy" decoding="async"
-                              />
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/PhonePe_Logo.svg/120px-PhonePe_Logo.svg.png" alt="PhonePe" class="pm-visual-logo" width="40" height="40" loading="lazy" decoding="async" />
                             </label>
-
                             <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-paytm" />
                             <label class="pm-upi-app" for="upi-app-paytm" title="Paytm">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/120px-Paytm_Logo_%28standalone%29.svg.png"
-                                alt="Paytm" class="pm-visual-logo" width="40" height="40"
-                                loading="lazy" decoding="async"
-                              />
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/120px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" class="pm-visual-logo" width="40" height="40" loading="lazy" decoding="async" />
                             </label>
-
                             <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-bhim" />
                             <label class="pm-upi-app" for="upi-app-bhim" title="BHIM UPI">
-                              <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/BHIM_logo.svg/120px-BHIM_logo.svg.png"
-                                alt="BHIM UPI" class="pm-visual-logo" width="40" height="40"
-                                loading="lazy" decoding="async"
-                              />
+                              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/BHIM_logo.svg/120px-BHIM_logo.svg.png" alt="BHIM UPI" class="pm-visual-logo" width="40" height="40" loading="lazy" decoding="async" />
                             </label>
                           </div>
-
                           <button type="button" class="pm-visual-btn">Pay with UPI</button>
                         </div>
                       </div>
@@ -593,302 +1094,196 @@
                   </div>
                 </div>
 
-              <div class="pm-content" id="tab-cards">
-                <div class="pm-layout">
-                  <div class="pm-left">
-                    <h3 class="pm-title">All Major Cards Accepted</h3>
-                    <p class="pm-desc">
-                      Visa, Mastercard, RuPay, Amex — debit and credit cards from 150+ banks. EMI options available.
-                    </p>
-                    <ul class="pm-features">
-                      <li><i class="fas fa-circle-check"></i>3D Secure 2.0 authentication</li>
-                      <li><i class="fas fa-circle-check"></i>EMI up to 24 months on select banks</li>
-                      <li><i class="fas fa-circle-check"></i>International cards supported</li>
-                      <li><i class="fas fa-circle-check"></i>Saved cards with tokenization</li>
-                    </ul>
-                    <div class="pm-apps">
-                      <span class="pm-app-chip">Visa</span>
-                      <span class="pm-app-chip">Mastercard</span>
-                      <span class="pm-app-chip">RuPay</span>
-                      <span class="pm-app-chip">Amex</span>
+                <div class="pm-content" id="tab-cards">
+                  <div class="pm-layout">
+                    <div class="pm-left">
+                      <h3 class="pm-title">All Major Cards Accepted</h3>
+                      <p class="pm-desc">Visa, Mastercard, RuPay, Amex — debit and credit cards from 150+ banks. EMI options available.</p>
+                      <ul class="pm-features">
+                        <li><i class="fas fa-circle-check"></i>3D Secure 2.0 authentication</li>
+                        <li><i class="fas fa-circle-check"></i>EMI up to 24 months on select banks</li>
+                        <li><i class="fas fa-circle-check"></i>International cards supported</li>
+                        <li><i class="fas fa-circle-check"></i>Saved cards with tokenization</li>
+                      </ul>
+                      <div class="pm-apps">
+                        <span class="pm-app-chip">Visa</span>
+                        <span class="pm-app-chip">Mastercard</span>
+                        <span class="pm-app-chip">RuPay</span>
+                        <span class="pm-app-chip">Amex</span>
+                      </div>
+                    </div>
+                    <div class="pm-right">
+                      <div class="pm-visual">
+                        <div class="pm-visual-card card-style">
+                          <div class="pm-card-chip"></div>
+                          <div class="pm-card-number">•••• •••• •••• 4242</div>
+                          <div class="pm-card-meta"><span>VALID THRU 12/28</span><span>ROHIT SHARMA</span></div>
+                          <div class="pm-card-networks">
+                            <div class="pm-network-circle" style="background:#EB001B;"></div>
+                            <div class="pm-network-circle" style="background:#F79E1B; margin-left:-10px; opacity:0.9;"></div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="pm-right">
-                    <div class="pm-visual">
-                      <div class="pm-visual-card card-style">
-                        <div class="pm-card-chip"></div>
-                        <div class="pm-card-number">•••• •••• •••• 4242</div>
-                        <div class="pm-card-meta">
-                          <span>VALID THRU 12/28</span>
-                          <span>ROHIT SHARMA</span>
+                </div>
+
+                <div class="pm-content" id="tab-netbanking">
+                  <div class="pm-layout">
+                    <div class="pm-left">
+                      <h3 class="pm-title">150+ Banks Supported</h3>
+                      <p class="pm-desc">NEFT, RTGS, IMPS — all modes. Direct debit from SBI, HDFC, ICICI, Axis and 150+ more banks.</p>
+                      <ul class="pm-features">
+                        <li><i class="fas fa-circle-check"></i>Real-time payment confirmation</li>
+                        <li><i class="fas fa-circle-check"></i>IMPS for 24x7 instant transfers</li>
+                        <li><i class="fas fa-circle-check"></i>Corporate net banking support</li>
+                        <li><i class="fas fa-circle-check"></i>Bank-grade 256-bit SSL encryption</li>
+                      </ul>
+                    </div>
+                    <div class="pm-right">
+                      <div class="pm-banks-grid">
+                        <% ['SBI','HDFC','ICICI','Axis','Kotak','PNB','BOB','IDBI','Yes Bank','IndusInd'].forEach((b) => { %>
+                          <div class="pm-bank-chip"><%= b %></div>
+                        <% }) %>
+                        <div class="pm-bank-chip pm-bank-more">+140 more</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pm-content" id="tab-wallets">
+                  <div class="pm-layout">
+                    <div class="pm-left">
+                      <h3 class="pm-title">Top Wallets, One Integration</h3>
+                      <p class="pm-desc">Accept wallet payments from Paytm, Amazon Pay, Mobikwik and more with high conversion checkout flows.</p>
+                      <ul class="pm-features">
+                        <li><i class="fas fa-circle-check"></i>One-click wallet checkout</li>
+                        <li><i class="fas fa-circle-check"></i>Wallet cashback compatibility</li>
+                        <li><i class="fas fa-circle-check"></i>Fast OTP-less repeat flow</li>
+                        <li><i class="fas fa-circle-check"></i>Real-time success webhooks</li>
+                      </ul>
+                      <div class="pm-apps">
+                        <span class="pm-app-chip">Paytm</span>
+                        <span class="pm-app-chip">Amazon Pay</span>
+                        <span class="pm-app-chip">Mobikwik</span>
+                        <span class="pm-app-chip">Freecharge</span>
+                      </div>
+                    </div>
+                    <div class="pm-right">
+                      <div class="pm-visual">
+                        <div class="pm-visual-card">
+                          <div class="pm-visual-header"><span>Wallet Checkout</span><span class="pm-visual-secure">Fast</span></div>
+                          <div class="pm-visual-amount">₹899.00</div>
+                          <div class="pm-visual-apps-row">
+                            <div class="pm-visual-app" style="background:#00BAF2;">PT</div>
+                            <div class="pm-visual-app" style="background:#FF9900;">AZ</div>
+                            <div class="pm-visual-app" style="background:#0EA5E9;">MW</div>
+                          </div>
+                          <div class="pm-visual-btn">Pay with Wallet</div>
                         </div>
-                        <div class="pm-card-networks">
-                          <div class="pm-network-circle" style="background:#EB001B;"></div>
-                          <div class="pm-network-circle" style="background:#F79E1B; margin-left:-10px; opacity:0.9;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pm-content" id="tab-bnpl">
+                  <div class="pm-layout">
+                    <div class="pm-left">
+                      <h3 class="pm-title">Buy Now, Pay Later</h3>
+                      <p class="pm-desc">Boost cart conversion with popular BNPL providers and flexible EMI payment options at checkout.</p>
+                      <ul class="pm-features">
+                        <li><i class="fas fa-circle-check"></i>Zero-cost EMI options</li>
+                        <li><i class="fas fa-circle-check"></i>Eligibility check in milliseconds</li>
+                        <li><i class="fas fa-circle-check"></i>Higher AOV for merchants</li>
+                        <li><i class="fas fa-circle-check"></i>Automated repayment lifecycle</li>
+                      </ul>
+                      <div class="pm-apps">
+                        <span class="pm-app-chip">Simpl</span>
+                        <span class="pm-app-chip">LazyPay</span>
+                        <span class="pm-app-chip">ZestMoney</span>
+                        <span class="pm-app-chip">Axio</span>
+                      </div>
+                    </div>
+                    <div class="pm-right">
+                      <div class="pm-visual">
+                        <div class="pm-visual-card">
+                          <div class="pm-visual-header"><span>BNPL Offer</span><span class="pm-visual-secure" style="color:#10B981;">Eligible</span></div>
+                          <div class="pm-visual-amount">₹4,800.00</div>
+                          <div class="pm-visual-upi-input">
+                            <i class="fas fa-calendar-days" style="color:#6B3FA0;"></i>
+                            <span style="color:#64748B;">Pay in 3 monthly installments</span>
+                          </div>
+                          <div class="pm-visual-btn">Continue with BNPL</div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="pm-content" id="tab-netbanking">
-                <div class="pm-layout">
-                  <div class="pm-left">
-                    <h3 class="pm-title">150+ Banks Supported</h3>
-                    <p class="pm-desc">
-                      NEFT, RTGS, IMPS — all modes. Direct debit from SBI, HDFC, ICICI, Axis and 150+ more banks.
-                    </p>
-                    <ul class="pm-features">
-                      <li><i class="fas fa-circle-check"></i>Real-time payment confirmation</li>
-                      <li><i class="fas fa-circle-check"></i>IMPS for 24x7 instant transfers</li>
-                      <li><i class="fas fa-circle-check"></i>Corporate net banking support</li>
-                      <li><i class="fas fa-circle-check"></i>Bank-grade 256-bit SSL encryption</li>
-                    </ul>
-                  </div>
-                  <div class="pm-right">
-                    <div class="pm-banks-grid">
-                      <% ['SBI','HDFC','ICICI','Axis','Kotak','PNB','BOB','IDBI','Yes Bank','IndusInd'].forEach((b) => { %>
-                        <div class="pm-bank-chip"><%= b %></div>
-                      <% }) %>
-                      <div class="pm-bank-chip pm-bank-more">+140 more</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pm-content" id="tab-wallets">
-                <div class="pm-layout">
-                  <div class="pm-left">
-                    <h3 class="pm-title">Top Wallets, One Integration</h3>
-                    <p class="pm-desc">
-                      Accept wallet payments from Paytm, Amazon Pay, Mobikwik and more with high conversion checkout flows.
-                    </p>
-                    <ul class="pm-features">
-                      <li><i class="fas fa-circle-check"></i>One-click wallet checkout</li>
-                      <li><i class="fas fa-circle-check"></i>Wallet cashback compatibility</li>
-                      <li><i class="fas fa-circle-check"></i>Fast OTP-less repeat flow</li>
-                      <li><i class="fas fa-circle-check"></i>Real-time success webhooks</li>
-                    </ul>
-                    <div class="pm-apps">
-                      <span class="pm-app-chip">Paytm</span>
-                      <span class="pm-app-chip">Amazon Pay</span>
-                      <span class="pm-app-chip">Mobikwik</span>
-                      <span class="pm-app-chip">Freecharge</span>
-                    </div>
-                  </div>
-                  <div class="pm-right">
-                    <div class="pm-visual">
-                      <div class="pm-visual-card">
-                        <div class="pm-visual-header">
-                          <span>Wallet Checkout</span>
-                          <span class="pm-visual-secure"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;vertical-align:middle;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Fast</span>
-                        </div>
-                        <div class="pm-visual-amount">₹899.00</div>
-                        <div class="pm-visual-apps-row">
-                          <div class="pm-visual-app" style="background:#00BAF2;">PT</div>
-                          <div class="pm-visual-app" style="background:#FF9900;">AZ</div>
-                          <div class="pm-visual-app" style="background:#0EA5E9;">MW</div>
-                        </div>
-                        <div class="pm-visual-btn">Pay with Wallet</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pm-content" id="tab-bnpl">
-                <div class="pm-layout">
-                  <div class="pm-left">
-                    <h3 class="pm-title">Buy Now, Pay Later</h3>
-                    <p class="pm-desc">
-                      Boost cart conversion with popular BNPL providers and flexible EMI payment options at checkout.
-                    </p>
-                    <ul class="pm-features">
-                      <li><i class="fas fa-circle-check"></i>Zero-cost EMI options</li>
-                      <li><i class="fas fa-circle-check"></i>Eligibility check in milliseconds</li>
-                      <li><i class="fas fa-circle-check"></i>Higher AOV for merchants</li>
-                      <li><i class="fas fa-circle-check"></i>Automated repayment lifecycle</li>
-                    </ul>
-                    <div class="pm-apps">
-                      <span class="pm-app-chip">Simpl</span>
-                      <span class="pm-app-chip">LazyPay</span>
-                      <span class="pm-app-chip">ZestMoney</span>
-                      <span class="pm-app-chip">Axio</span>
-                    </div>
-                  </div>
-                  <div class="pm-right">
-                    <div class="pm-visual">
-                      <div class="pm-visual-card">
-                        <div class="pm-visual-header">
-                          <span>BNPL Offer</span>
-                          <span class="pm-visual-secure"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;color:#10B981;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Eligible</span>
-                        </div>
-                        <div class="pm-visual-amount">₹4,800.00</div>
-                        <div class="pm-visual-upi-input">
-                          <i class="fas fa-calendar-days" style="color:#6B3FA0;"></i>
-                          <span style="color:#64748B;">Pay in 3 monthly installments</span>
-                        </div>
-                        <div class="pm-visual-btn">Continue with BNPL</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             </div>
           </section>
 
           <section class="virtual-account-section" id="virtual-account">
             <div class="container">
-              <div class="va-badge-row">
-                <span class="va-badge">
-                  <i class="fas fa-building-columns"></i>
-                  Virtual Payment Bank
-                </span>
-              </div>
-
+              <div class="va-badge-row"><span class="va-badge"><i class="fas fa-building-columns"></i> Virtual Payment Bank</span></div>
               <div class="va-layout">
                 <div class="va-content">
-                  <h2 class="va-title">
-                    Your Business Gets a
-                    <span class="va-title-highlight">Dedicated Virtual Bank Account</span>
-                  </h2>
-                  <p class="va-desc">
-                    Every business on ZenoPay gets a unique virtual account number with real IFSC code.
-                    Receive payments, issue payouts, and track every rupee — all from one place.
-                  </p>
-
+                  <h2 class="va-title">Your Business Gets a <span class="va-title-highlight">Dedicated Virtual Bank Account</span></h2>
+                  <p class="va-desc">Every business on ZenoPay gets a unique virtual account number with real IFSC code. Receive payments, issue payouts, and track every rupee — all from one place.</p>
                   <div class="va-features-list">
                     <div class="va-feature">
-                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); color:#2563EB;">
-                        <i class="fas fa-fingerprint"></i>
-                      </div>
-                      <div>
-                        <h4 class="va-feature-title">Unique Account per Customer</h4>
-                        <p class="va-feature-desc">
-                          Assign a separate virtual account to each customer/order for automatic payment matching.
-                        </p>
-                      </div>
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); color:#2563EB;"><i class="fas fa-fingerprint"></i></div>
+                      <div><h4 class="va-feature-title">Unique Account per Customer</h4><p class="va-feature-desc">Assign a separate virtual account to each customer/order for automatic payment matching.</p></div>
                     </div>
-
                     <div class="va-feature">
-                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5); color:#059669;">
-                        <i class="fas fa-bolt"></i>
-                      </div>
-                      <div>
-                        <h4 class="va-feature-title">Instant Auto-Reconciliation</h4>
-                        <p class="va-feature-desc">
-                          Payments auto-matched to orders the moment they hit your account. No manual matching ever.
-                        </p>
-                      </div>
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5); color:#059669;"><i class="fas fa-bolt"></i></div>
+                      <div><h4 class="va-feature-title">Instant Auto-Reconciliation</h4><p class="va-feature-desc">Payments auto-matched to orders the moment they hit your account. No manual matching ever.</p></div>
                     </div>
-
                     <div class="va-feature">
-                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE); color:#7C3AED;">
-                        <i class="fas fa-arrow-right-arrow-left"></i>
-                      </div>
-                      <div>
-                        <h4 class="va-feature-title">Bulk Payouts in One Click</h4>
-                        <p class="va-feature-desc">
-                          Pay vendors, salaries, refunds in bulk via NEFT/IMPS/UPI from your virtual account balance.
-                        </p>
-                      </div>
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE); color:#7C3AED;"><i class="fas fa-arrow-right-arrow-left"></i></div>
+                      <div><h4 class="va-feature-title">Bulk Payouts in One Click</h4><p class="va-feature-desc">Pay vendors, salaries, refunds in bulk via NEFT/IMPS/UPI from your virtual account balance.</p></div>
                     </div>
-
                     <div class="va-feature">
-                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7); color:#D97706;">
-                        <i class="fas fa-shield-halved"></i>
-                      </div>
-                      <div>
-                        <h4 class="va-feature-title">RBI Compliant &amp; Insured</h4>
-                        <p class="va-feature-desc">
-                          All virtual accounts operate under RBI Payment Aggregator guidelines. Funds insured up to ₹5 lakh.
-                        </p>
-                      </div>
+                      <div class="va-feature-icon" style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7); color:#D97706;"><i class="fas fa-shield-halved"></i></div>
+                      <div><h4 class="va-feature-title">RBI Compliant &amp; Insured</h4><p class="va-feature-desc">All virtual accounts operate under RBI Payment Aggregator guidelines. Funds insured up to ₹5 lakh.</p></div>
                     </div>
                   </div>
-
                   <div class="va-cta-row">
                     <a href="/register" class="btn-primary">Open Virtual Account Free</a>
-                    <a href="/docs/virtual-accounts" class="va-link">
-                      Learn how it works
-                      <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <a href="/docs/virtual-accounts" class="va-link">Learn how it works <i class="fas fa-arrow-right"></i></a>
                   </div>
                 </div>
-
                 <div class="va-visual-wrap">
                   <div class="va-dashboard">
-                    <div class="va-dash-header">
-                      <span class="va-dash-title">Virtual Account</span>
-                      <span class="va-dash-status"><span class="va-dot"></span> Active</span>
-                    </div>
-
+                    <div class="va-dash-header"><span class="va-dash-title">Virtual Account</span><span class="va-dash-status"><span class="va-dot"></span> Active</span></div>
                     <div class="va-account-info">
-                      <div class="va-info-row">
-                        <span class="va-info-label">Account Number</span>
-                        <span class="va-info-value va-mono">9820 4821 0012 3456</span>
-                      </div>
-                      <div class="va-info-row">
-                        <span class="va-info-label">IFSC Code</span>
-                        <span class="va-info-value va-mono">ZENO0000123</span>
-                      </div>
-                      <div class="va-info-row">
-                        <span class="va-info-label">Account Type</span>
-                        <span class="va-info-value">Current (Virtual)</span>
-                      </div>
+                      <div class="va-info-row"><span class="va-info-label">Account Number</span><span class="va-info-value va-mono">9820 4821 0012 3456</span></div>
+                      <div class="va-info-row"><span class="va-info-label">IFSC Code</span><span class="va-info-value va-mono">ZENO0000123</span></div>
+                      <div class="va-info-row"><span class="va-info-label">Account Type</span><span class="va-info-value">Current (Virtual)</span></div>
                     </div>
-
                     <div class="va-balance-card">
                       <span class="va-balance-label">Available Balance</span>
                       <span class="va-balance-amount">₹3,24,850.00</span>
                       <div class="va-balance-actions">
-                        <button class="va-act-btn" style="background:#EFF6FF; color:#2563EB;">
-                          <i class="fas fa-download"></i>
-                          Receive
-                        </button>
-                        <button class="va-act-btn" style="background:#ECFDF5; color:#059669;">
-                          <i class="fas fa-upload"></i>
-                          Send
-                        </button>
-                        <button class="va-act-btn" style="background:#F5F3FF; color:#7C3AED;">
-                          <i class="fas fa-list"></i>
-                          History
-                        </button>
+                        <button class="va-act-btn" style="background:#EFF6FF; color:#2563EB;"><i class="fas fa-download"></i> Receive</button>
+                        <button class="va-act-btn" style="background:#ECFDF5; color:#059669;"><i class="fas fa-upload"></i> Send</button>
+                        <button class="va-act-btn" style="background:#F5F3FF; color:#7C3AED;"><i class="fas fa-list"></i> History</button>
                       </div>
                     </div>
-
                     <div class="va-txn-list">
                       <div class="va-txn-item">
-                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;">
-                          <i class="fas fa-arrow-down"></i>
-                        </div>
-                        <div class="va-txn-info">
-                          <span class="va-txn-name">Received from HDFC UPI</span>
-                          <span class="va-txn-time">2 min ago</span>
-                        </div>
+                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;"><i class="fas fa-arrow-down"></i></div>
+                        <div class="va-txn-info"><span class="va-txn-name">Received from HDFC UPI</span><span class="va-txn-time">2 min ago</span></div>
                         <span class="va-txn-amount va-credit">+₹12,500</span>
                       </div>
                       <div class="va-txn-item">
-                        <div class="va-txn-icon" style="background:#FEF2F2; color:#DC2626;">
-                          <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="va-txn-info">
-                          <span class="va-txn-name">Payout to Vendor #482</span>
-                          <span class="va-txn-time">15 min ago</span>
-                        </div>
+                        <div class="va-txn-icon" style="background:#FEF2F2; color:#DC2626;"><i class="fas fa-arrow-up"></i></div>
+                        <div class="va-txn-info"><span class="va-txn-name">Payout to Vendor #482</span><span class="va-txn-time">15 min ago</span></div>
                         <span class="va-txn-amount va-debit">-₹8,200</span>
                       </div>
                       <div class="va-txn-item">
-                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;">
-                          <i class="fas fa-arrow-down"></i>
-                        </div>
-                        <div class="va-txn-info">
-                          <span class="va-txn-name">Auto-settled: Order #9821</span>
-                          <span class="va-txn-time">1 hr ago</span>
-                        </div>
+                        <div class="va-txn-icon" style="background:#ECFDF5; color:#059669;"><i class="fas fa-arrow-down"></i></div>
+                        <div class="va-txn-info"><span class="va-txn-name">Auto-settled: Order #9821</span><span class="va-txn-time">1 hr ago</span></div>
                         <span class="va-txn-amount va-credit">+₹4,999</span>
                       </div>
                     </div>
@@ -901,19 +1296,13 @@
           <!-- Integration Section -->
           <section class="integration-section" id="integration">
             <div class="container">
-
               <div class="section-header">
                 <h2 class="section-title">Integrate in Minutes, Not Days</h2>
-                <p class="section-subtitle">Get started with our simple API. Copy, paste, and you're ready to accept
-                  payments.</p>
+                <p class="section-subtitle">Get started with our simple API. Copy, paste, and you're ready to accept payments.</p>
               </div>
-
               <div class="integration-grid">
-
-                <!-- Left - Code Example -->
                 <div class="code-example-container">
                   <div class="code-window">
-                    <!-- Window Chrome -->
                     <div class="code-window-header">
                       <div class="window-controls">
                         <span class="control-dot red"></span>
@@ -921,15 +1310,10 @@
                         <span class="control-dot green"></span>
                       </div>
                       <span class="window-title">payment.js</span>
-                      <button class="copy-code-btn" data-copy-target="code-sample">
-                        <i class="fas fa-copy"></i>
-                      </button>
+                      <button class="copy-code-btn" data-copy-target="code-sample"><i class="fas fa-copy"></i></button>
                     </div>
-
-                    <!-- Code Content -->
                     <div class="code-content">
-                      <pre
-                        id="code-sample"><code><span class="code-keyword">import</span> ZenoPay <span class="code-keyword">from</span> <span class="code-string">'zenopay-sdk'</span>;
+                      <pre id="code-sample"><code><span class="code-keyword">import</span> ZenoPay <span class="code-keyword">from</span> <span class="code-string">'zenopay-sdk'</span>;
 
 <span class="code-keyword">const</span> payment = <span class="code-keyword">new</span> <span class="code-function">ZenoPay</span>({
   apiKey: <span class="code-string">'zpay_live_***********'</span>,
@@ -948,71 +1332,33 @@
 <span class="code-function">console</span>.<span class="code-function">log</span>(order.<span class="code-property">id</span>);</code></pre>
                     </div>
                   </div>
-
-                  <!-- Floating Badge -->
                   <div class="integration-badge">
-                    <div class="integration-badge-icon">
-                      <i class="fas fa-check-circle"></i>
-                    </div>
+                    <div class="integration-badge-icon"><i class="fas fa-check-circle"></i></div>
                     <div class="integration-badge-content">
                       <div class="integration-badge-label">Integration Time</div>
                       <div class="integration-badge-value">~15 minutes</div>
                     </div>
                   </div>
                 </div>
-
-                <!-- Right - Features List -->
                 <div class="integration-features">
                   <div class="integration-feature-item">
-                    <div class="integration-feature-icon cyan">
-                      <i class="fas fa-code"></i>
-                    </div>
-                    <div class="integration-feature-content">
-                      <h3 class="integration-feature-title">RESTful API & Webhooks</h3>
-                      <p class="integration-feature-desc">Modern REST API with real-time webhook notifications for every
-                        transaction.</p>
-                    </div>
+                    <div class="integration-feature-icon cyan"><i class="fas fa-code"></i></div>
+                    <div class="integration-feature-content"><h3 class="integration-feature-title">RESTful API & Webhooks</h3><p class="integration-feature-desc">Modern REST API with real-time webhook notifications for every transaction.</p></div>
                   </div>
-
                   <div class="integration-feature-item">
-                    <div class="integration-feature-icon emerald">
-                      <i class="fas fa-box"></i>
-                    </div>
-                    <div class="integration-feature-content">
-                      <h3 class="integration-feature-title">SDKs for All Platforms</h3>
-                      <p class="integration-feature-desc">Official SDKs for Node.js, Python, PHP, Ruby, Java, and more.
-                      </p>
-                    </div>
+                    <div class="integration-feature-icon emerald"><i class="fas fa-box"></i></div>
+                    <div class="integration-feature-content"><h3 class="integration-feature-title">SDKs for All Platforms</h3><p class="integration-feature-desc">Official SDKs for Node.js, Python, PHP, Ruby, Java, and more.</p></div>
                   </div>
-
                   <div class="integration-feature-item">
-                    <div class="integration-feature-icon blue">
-                      <i class="fas fa-book"></i>
-                    </div>
-                    <div class="integration-feature-content">
-                      <h3 class="integration-feature-title">Comprehensive Documentation</h3>
-                      <p class="integration-feature-desc">Step-by-step guides, code examples, and API reference
-                        documentation.</p>
-                    </div>
+                    <div class="integration-feature-icon blue"><i class="fas fa-book"></i></div>
+                    <div class="integration-feature-content"><h3 class="integration-feature-title">Comprehensive Documentation</h3><p class="integration-feature-desc">Step-by-step guides, code examples, and API reference documentation.</p></div>
                   </div>
-
                   <div class="integration-feature-item">
-                    <div class="integration-feature-icon purple">
-                      <i class="fas fa-flask"></i>
-                    </div>
-                    <div class="integration-feature-content">
-                      <h3 class="integration-feature-title">Sandbox Environment</h3>
-                      <p class="integration-feature-desc">Test your integration with our full-featured sandbox before
-                        going live.</p>
-                    </div>
+                    <div class="integration-feature-icon purple"><i class="fas fa-flask"></i></div>
+                    <div class="integration-feature-content"><h3 class="integration-feature-title">Sandbox Environment</h3><p class="integration-feature-desc">Test your integration with our full-featured sandbox before going live.</p></div>
                   </div>
-
-                  <a href="/api-integration" class="btn-integration">
-                    View API Documentation
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
+                  <a href="/api-integration" class="btn-integration">View API Documentation <i class="fas fa-arrow-right"></i></a>
                 </div>
-
               </div>
             </div>
           </section>
@@ -1022,128 +1368,20 @@
               <div class="section-header">
                 <span class="section-tag">Security &amp; Compliance</span>
                 <h2 class="section-title">Bank-Grade Security You Can Trust</h2>
-                <p class="section-subtitle">
-                  ZenoPay is built on the same security infrastructure as top Indian banks.
-                  Every transaction is encrypted, monitored, and compliant.
-                </p>
+                <p class="section-subtitle">ZenoPay is built on the same security infrastructure as top Indian banks. Every transaction is encrypted, monitored, and compliant.</p>
               </div>
-
               <div class="sec-cert-row">
-                <div class="sec-cert">
-                  <div class="sec-cert-icon"><i class="fas fa-shield-halved" style="color:#2563EB;"></i></div>
-                  <div class="sec-cert-name">PCI DSS</div>
-                  <div class="sec-cert-sub">Level 1 Certified</div>
-                </div>
-                <div class="sec-cert">
-                  <div class="sec-cert-icon"><i class="fas fa-building-columns" style="color:#7C3AED;"></i></div>
-                  <div class="sec-cert-name">RBI Licensed</div>
-                  <div class="sec-cert-sub">Payment Aggregator</div>
-                </div>
-                <div class="sec-cert">
-                  <div class="sec-cert-icon"><i class="fas fa-lock" style="color:#059669;"></i></div>
-                  <div class="sec-cert-name">ISO 27001</div>
-                  <div class="sec-cert-sub">Info Security Certified</div>
-                </div>
-                <div class="sec-cert">
-                  <div class="sec-cert-icon"><i class="fas fa-user-shield" style="color:#D97706;"></i></div>
-                  <div class="sec-cert-name">GDPR Ready</div>
-                  <div class="sec-cert-sub">Data Privacy Compliant</div>
-                </div>
-                <div class="sec-cert">
-                  <div class="sec-cert-icon"><i class="fas fa-file-contract" style="color:#DC2626;"></i></div>
-                  <div class="sec-cert-name">NPCI Member</div>
-                  <div class="sec-cert-sub">UPI Certified Partner</div>
-                </div>
+                <div class="sec-cert"><div class="sec-cert-icon"><i class="fas fa-shield-halved" style="color:#2563EB;"></i></div><div class="sec-cert-name">PCI DSS</div><div class="sec-cert-sub">Level 1 Certified</div></div>
+                <div class="sec-cert"><div class="sec-cert-icon"><i class="fas fa-building-columns" style="color:#7C3AED;"></i></div><div class="sec-cert-name">RBI Licensed</div><div class="sec-cert-sub">Payment Aggregator</div></div>
+                <div class="sec-cert"><div class="sec-cert-icon"><i class="fas fa-lock" style="color:#059669;"></i></div><div class="sec-cert-name">ISO 27001</div><div class="sec-cert-sub">Info Security Certified</div></div>
+                <div class="sec-cert"><div class="sec-cert-icon"><i class="fas fa-user-shield" style="color:#D97706;"></i></div><div class="sec-cert-name">GDPR Ready</div><div class="sec-cert-sub">Data Privacy Compliant</div></div>
+                <div class="sec-cert"><div class="sec-cert-icon"><i class="fas fa-file-contract" style="color:#DC2626;"></i></div><div class="sec-cert-name">NPCI Member</div><div class="sec-cert-sub">UPI Certified Partner</div></div>
               </div>
-
               <div class="sec-features-grid">
-                <div class="sec-feature-card">
-                  <div class="sec-feat-icon" style="background:#EFF6FF;color:#2563EB;"><i class="fas fa-lock"></i></div>
-                  <h4>256-bit SSL Encryption</h4>
-                  <p>Every byte of data transmitted through ZenoPay is encrypted with military-grade TLS 1.3 protocol.</p>
-                </div>
-                <div class="sec-feature-card">
-                  <div class="sec-feat-icon" style="background:#ECFDF5;color:#059669;"><i class="fas fa-eye"></i></div>
-                  <h4>24/7 Fraud Monitoring</h4>
-                  <p>AI-powered fraud detection flags suspicious activity in real-time. Zero liability for unauthorized transactions.</p>
-                </div>
-                <div class="sec-feature-card">
-                  <div class="sec-feat-icon" style="background:#F5F3FF;color:#7C3AED;"><i class="fas fa-key"></i></div>
-                  <h4>3D Secure Authentication</h4>
-                  <p>Every card transaction verified with OTP-based 3D Secure 2.0 to prevent unauthorized charges.</p>
-                </div>
-                <div class="sec-feature-card">
-                  <div class="sec-feat-icon" style="background:#FFF7ED;color:#D97706;"><i class="fas fa-database"></i></div>
-                  <h4>No Card Data Stored</h4>
-                  <p>We use RBI-compliant tokenization. Your card details are never stored on our servers.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="comparison-section" id="comparison">
-            <div class="container">
-              <div class="section-header">
-                <span class="section-tag">Why ZenoPay</span>
-                <h2 class="section-title">How We Compare</h2>
-              </div>
-
-              <div class="comp-table-wrap">
-                <table class="comp-table">
-                  <thead>
-                    <tr>
-                      <th class="comp-feature-col">Feature</th>
-                      <th class="comp-us-col">
-                        <div class="comp-us-header">
-                          <span class="comp-us-logo">ZenoPay</span>
-                          <span class="comp-us-badge">Recommended</span>
-                        </div>
-                      </th>
-                      <th>Competitor A</th>
-                      <th>Competitor B</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% const compData = [
-                      ['Virtual Bank Account', true, false, false],
-                      ['Zero Setup Fee', true, true, false],
-                      ['Settlement in 2 Sec', true, false, false],
-                      ['UPI AutoPay', true, true, true],
-                      ['Bulk Payouts', true, true, false],
-                      ['RBI Licensed', true, true, true],
-                      ['Free API Sandbox', true, true, false],
-                      ['24/7 Phone Support', true, false, false],
-                      ['White-label Gateway', true, false, false],
-                      ['Zero MDR on UPI', true, false, true],
-                    ]; %>
-                    <% compData.forEach(([feature, us, a, b]) => { %>
-                      <tr class="comp-row">
-                        <td class="comp-feature"><%= feature %></td>
-                        <td class="comp-us-cell">
-                          <% if (us) { %>
-                            <i class="fas fa-circle-check" style="color:#10B981; font-size:1.1rem;"></i>
-                          <% } else { %>
-                            <i class="fas fa-circle-xmark" style="color:#CBD5E1; font-size:1.1rem;"></i>
-                          <% } %>
-                        </td>
-                        <td class="comp-cell">
-                          <% if (a) { %>
-                            <i class="fas fa-circle-check" style="color:#10B981;"></i>
-                          <% } else { %>
-                            <i class="fas fa-circle-xmark" style="color:#CBD5E1;"></i>
-                          <% } %>
-                        </td>
-                        <td class="comp-cell">
-                          <% if (b) { %>
-                            <i class="fas fa-circle-check" style="color:#10B981;"></i>
-                          <% } else { %>
-                            <i class="fas fa-circle-xmark" style="color:#CBD5E1;"></i>
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
+                <div class="sec-feature-card"><div class="sec-feat-icon" style="background:#EFF6FF;color:#2563EB;"><i class="fas fa-lock"></i></div><h4>256-bit SSL Encryption</h4><p>Every byte of data transmitted through ZenoPay is encrypted with military-grade TLS 1.3 protocol.</p></div>
+                <div class="sec-feature-card"><div class="sec-feat-icon" style="background:#ECFDF5;color:#059669;"><i class="fas fa-eye"></i></div><h4>24/7 Fraud Monitoring</h4><p>AI-powered fraud detection flags suspicious activity in real-time. Zero liability for unauthorized transactions.</p></div>
+                <div class="sec-feature-card"><div class="sec-feat-icon" style="background:#F5F3FF;color:#7C3AED;"><i class="fas fa-key"></i></div><h4>3D Secure Authentication</h4><p>Every card transaction verified with OTP-based 3D Secure 2.0 to prevent unauthorized charges.</p></div>
+                <div class="sec-feature-card"><div class="sec-feat-icon" style="background:#FFF7ED;color:#D97706;"><i class="fas fa-database"></i></div><h4>No Card Data Stored</h4><p>We use RBI-compliant tokenization. Your card details are never stored on our servers.</p></div>
               </div>
             </div>
           </section>
@@ -1151,12 +1389,10 @@
           <!-- Pricing Section -->
           <section class="pricing-section" id="pricing">
             <div class="container">
-
               <div class="section-header">
                 <h2 class="section-title">Simple, Transparent Pricing</h2>
                 <p class="section-subtitle">No hidden fees. No surprises. Pay only for what you use.</p>
               </div>
-
               <div class="pricing-toggle-wrap">
                 <span class="toggle-label" id="monthlyLabel" style="font-weight:700;color:#0F172A;">Monthly</span>
                 <label class="pricing-toggle-switch">
@@ -1166,471 +1402,25 @@
                 <span class="toggle-label" id="annualLabel" style="color:#94A3B8;">Annual</span>
                 <span class="toggle-save-badge">Save 20%</span>
               </div>
-
               <div class="pricing-grid">
-
-                <!-- Starter Plan -->
                 <div class="pricing-card">
-                  <div class="pricing-header">
-                    <h3 class="pricing-plan-name">Starter</h3>
-                    <div class="pricing-amount">
-                      <span class="pricing-currency">₹</span>
-                      <span class="pricing-price" data-monthly="0" data-annual="0">0</span>
-                      <span class="pricing-period">/month</span>
-                    </div>
-                    <p class="pricing-description">Perfect for getting started</p>
-                  </div>
-
-                  <ul class="pricing-features">
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>2% + ₹2 per transaction</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Up to ₹1L monthly volume</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Basic integrations</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Email support</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Dashboard access</span>
-                    </li>
-                  </ul>
-
-                  <a href="/register" class="btn-pricing btn-pricing-outline">
-                    Get Started Free
-                  </a>
+                  <div class="pricing-header"><h3 class="pricing-plan-name">Starter</h3><div class="pricing-amount"><span class="pricing-currency">₹</span><span class="pricing-price" data-monthly="0" data-annual="0">0</span><span class="pricing-period">/month</span></div><p class="pricing-description">Perfect for getting started</p></div>
+                  <ul class="pricing-features"><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>2% + ₹2 per transaction</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Up to ₹1L monthly volume</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Basic integrations</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Email support</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Dashboard access</span></li></ul>
+                  <a href="/register" class="btn-pricing btn-pricing-outline">Get Started Free</a>
                 </div>
-
-                <!-- Growth Plan - Most Popular -->
                 <div class="pricing-card featured">
                   <div class="pricing-badge">Most Popular</div>
-
-                  <div class="pricing-header">
-                    <h3 class="pricing-plan-name">Growth</h3>
-                    <div class="pricing-amount">
-                      <span class="pricing-currency">₹</span>
-                      <span class="pricing-price" data-monthly="999" data-annual="799">999</span>
-                      <span class="pricing-period">/month</span>
-                    </div>
-                    <p class="pricing-description">For growing businesses</p>
-                  </div>
-
-                  <ul class="pricing-features">
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>1.5% + ₹1 per transaction</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Up to ₹50L monthly volume</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>All integrations</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Priority support</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Advanced analytics</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Custom branding</span>
-                    </li>
-                  </ul>
-
-                  <a href="/register" class="btn-pricing btn-pricing-primary">
-                    Start Free Trial
-                  </a>
+                  <div class="pricing-header"><h3 class="pricing-plan-name">Growth</h3><div class="pricing-amount"><span class="pricing-currency">₹</span><span class="pricing-price" data-monthly="999" data-annual="799">999</span><span class="pricing-period">/month</span></div><p class="pricing-description">For growing businesses</p></div>
+                  <ul class="pricing-features"><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>1.5% + ₹1 per transaction</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Up to ₹50L monthly volume</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>All integrations</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Priority support</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Advanced analytics</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Custom branding</span></li></ul>
+                  <a href="/register" class="btn-pricing btn-pricing-primary">Start Free Trial</a>
                 </div>
-
-                <!-- Enterprise Plan -->
                 <div class="pricing-card">
-                  <div class="pricing-header">
-                    <h3 class="pricing-plan-name">Enterprise</h3>
-                    <div class="pricing-amount">
-                      <span class="pricing-price-text">Custom</span>
-                    </div>
-                    <p class="pricing-description">For large organizations</p>
-                  </div>
-
-                  <ul class="pricing-features">
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Negotiable rates</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Unlimited volume</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Dedicated account manager</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>Custom integrations</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>SLA guarantee</span>
-                    </li>
-                    <li class="pricing-feature">
-                      <i class="fas fa-check-circle"></i>
-                      <span>White-label options</span>
-                    </li>
-                  </ul>
-
-                  <a href="#" class="btn-pricing btn-pricing-outline">
-                    Contact Sales
-                  </a>
-                </div>
-
-              </div>
-
-              <!-- Additional Info -->
-              <p class="pricing-footer-note">
-                All plans include: Instant settlements • Bank-level security • 24/7 monitoring • Free API access
-              </p>
-            </div>
-          </section>
-
-          <section class="use-cases-section" id="use-cases">
-            <div class="container">
-              <div class="section-header">
-                <span class="section-tag">Use Cases</span>
-                <h2 class="section-title">Built for Every Business</h2>
-                <p class="section-subtitle">
-                  From solo freelancers to enterprise companies — ZenoPay adapts to your needs.
-                </p>
-              </div>
-
-              <div class="uc-grid">
-                <div class="uc-card" style="--uc-color:#3B82F6;">
-                  <div class="uc-icon"><i class="fas fa-store"></i></div>
-                  <h3 class="uc-title">E-Commerce Stores</h3>
-                  <p class="uc-desc">
-                    Accept payments on your website or app. Auto-reconcile orders, manage refunds, and track revenue in real-time.
-                  </p>
-                  <ul class="uc-list">
-                    <li>Razorpay/Stripe-like checkout widget</li>
-                    <li>Abandoned cart payment links</li>
-                    <li>COD + prepaid order management</li>
-                  </ul>
-                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="uc-card" style="--uc-color:#10B981;">
-                  <div class="uc-icon"><i class="fas fa-code"></i></div>
-                  <h3 class="uc-title">SaaS &amp; Subscriptions</h3>
-                  <p class="uc-desc">
-                    Recurring billing, plan upgrades, failed payment retries — all automated. Zero engineering overhead.
-                  </p>
-                  <ul class="uc-list">
-                    <li>UPI AutoPay & mandate management</li>
-                    <li>Dunning — auto-retry on failure</li>
-                    <li>Prorated billing on plan changes</li>
-                  </ul>
-                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="uc-card" style="--uc-color:#7C3AED;">
-                  <div class="uc-icon"><i class="fas fa-laptop-code"></i></div>
-                  <h3 class="uc-title">Freelancers &amp; Agencies</h3>
-                  <p class="uc-desc">
-                    Send professional payment links to clients. Accept partial payments, deposits, and milestone-based billing.
-                  </p>
-                  <ul class="uc-list">
-                    <li>Payment links via WhatsApp/email</li>
-                    <li>Invoice with tax calculation</li>
-                    <li>Multi-currency for global clients</li>
-                  </ul>
-                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
-                </div>
-
-                <div class="uc-card" style="--uc-color:#D97706;">
-                  <div class="uc-icon"><i class="fas fa-building"></i></div>
-                  <h3 class="uc-title">Enterprise &amp; Large Business</h3>
-                  <p class="uc-desc">
-                    Bulk payouts, vendor management, custom API integrations, dedicated account manager, and SLA-backed support.
-                  </p>
-                  <ul class="uc-list">
-                    <li>Bulk payout to 10,000+ vendors</li>
-                    <li>White-label payment gateway</li>
-                    <li>Custom MIS reports & analytics</li>
-                  </ul>
-                  <a href="#" class="uc-link">Learn more <i class="fas fa-arrow-right"></i></a>
+                  <div class="pricing-header"><h3 class="pricing-plan-name">Enterprise</h3><div class="pricing-amount"><span class="pricing-price-text">Custom</span></div><p class="pricing-description">For large organizations</p></div>
+                  <ul class="pricing-features"><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Negotiable rates</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Unlimited volume</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Dedicated account manager</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>Custom integrations</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>SLA guarantee</span></li><li class="pricing-feature"><i class="fas fa-check-circle"></i><span>White-label options</span></li></ul>
+                  <a href="#" class="btn-pricing btn-pricing-outline">Contact Sales</a>
                 </div>
               </div>
-            </div>
-          </section>
-
-          <!-- How It Works Section -->
-          <section class="how-it-works-section" id="how-it-works">
-            <div class="container">
-
-              <div class="section-header">
-                <h2 class="section-title">Get Started in 3 Simple Steps</h2>
-                <p class="section-subtitle">From signup to first payment in under 10 minutes</p>
-              </div>
-
-              <!-- Connection Line -->
-              <div class="steps-connector"></div>
-
-              <div class="steps-grid">
-
-                <!-- Step 1 -->
-                <div class="step-item">
-                  <div class="step-number-wrapper">
-                    <div class="step-number">1</div>
-                    <div class="step-icon">
-                      <i class="fas fa-user-plus"></i>
-                    </div>
-                  </div>
-                  <h3 class="step-title">Create Account</h3>
-                  <p class="step-description">
-                    Sign up in 60 seconds with just your email. No paperwork, no complexity.
-                  </p>
-                  <div class="step-meta">
-                    <i class="fas fa-clock"></i>
-                    <span>Takes 1 minute</span>
-                  </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="step-item">
-                  <div class="step-number-wrapper">
-                    <div class="step-number">2</div>
-                    <div class="step-icon">
-                      <i class="fas fa-building"></i>
-                    </div>
-                  </div>
-                  <h3 class="step-title">Link Your Bank</h3>
-                  <p class="step-description">
-                    Securely connect your bank account. We verify instantly using bank-grade security.
-                  </p>
-                  <div class="step-meta">
-                    <i class="fas fa-clock"></i>
-                    <span>Takes 2 minutes</span>
-                  </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="step-item">
-                  <div class="step-number-wrapper">
-                    <div class="step-number">3</div>
-                    <div class="step-icon">
-                      <i class="fas fa-rocket"></i>
-                    </div>
-                  </div>
-                  <h3 class="step-title">Start Accepting Payments</h3>
-                  <p class="step-description">
-                    Integrate our API or use no-code solutions. Go live and start receiving payments.
-                  </p>
-                  <div class="step-meta">
-                    <i class="fas fa-clock"></i>
-                    <span>Takes 5 minutes</span>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- CTA Below Steps -->
-              <div class="steps-cta">
-                <a href="/register" class="btn-steps">
-                  Start Your Journey Now
-                  <i class="fas fa-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <!-- Testimonials Section -->
-          <section class="testimonials-section">
-            <div class="container">
-
-              <div class="section-header">
-                <h2 class="section-title">Trusted by Leading Businesses</h2>
-                <p class="section-subtitle">See what our customers have to say about ZenoPay</p>
-              </div>
-
-              <div class="testimonials-grid">
-
-                <!-- Testimonial 1 -->
-                <div class="testimonial-card">
-                  <div class="testimonial-stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                  </div>
-                  <p class="testimonial-quote">
-                    "ZenoPay transformed our payment infrastructure. Real-time settlements and
-                    zero downtime have been game-changers for our business."
-                  </p>
-                  <div class="testimonial-author">
-                    <div class="author-avatar cyan">PS</div>
-                    <div class="author-info">
-                      <div class="author-name">Priya Sharma</div>
-                      <div class="author-title">Founder, TechStart India</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Testimonial 2 -->
-                <div class="testimonial-card">
-                  <div class="testimonial-stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                  </div>
-                  <p class="testimonial-quote">
-                    "Security and speed at an unbeatable price. ZenoPay handles our 50,000+
-                    monthly transactions flawlessly."
-                  </p>
-                  <div class="testimonial-author">
-                    <div class="author-avatar emerald">RM</div>
-                    <div class="author-info">
-                      <div class="author-name">Rahul Mehta</div>
-                      <div class="author-title">CFO, E-commerce Solutions</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Testimonial 3 -->
-                <div class="testimonial-card">
-                  <div class="testimonial-stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                  </div>
-                  <p class="testimonial-quote">
-                    "Integration took 15 minutes. The developer experience is exceptional.
-                    Best payment gateway we've used."
-                  </p>
-                  <div class="testimonial-author">
-                    <div class="author-avatar purple">AV</div>
-                    <div class="author-info">
-                      <div class="author-name">Anjali Verma</div>
-                      <div class="author-title">Product Manager, EdTech Pro</div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </section>
-
-          <!-- FAQ Section -->
-          <section class="faq-section" id="support">
-            <div class="container-small">
-
-              <div class="section-header">
-                <h2 class="section-title">Frequently Asked Questions</h2>
-                <p class="section-subtitle">Everything you need to know about ZenoPay</p>
-              </div>
-
-              <div class="faq-list">
-
-                <!-- FAQ Item 1 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>How do I get started with ZenoPay?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    Simply sign up for a free account, complete the KYC verification, link your bank account,
-                    and you're ready to start accepting payments. The entire process takes less than 10 minutes.
-                  </div>
-                </div>
-
-                <!-- FAQ Item 2 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>Is my data secure with ZenoPay?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    Absolutely. We use bank-grade 256-bit encryption, are PCI-DSS Level 1 certified,
-                    and undergo regular security audits. Your data is protected with the highest industry standards.
-                  </div>
-                </div>
-
-                <!-- FAQ Item 3 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>Can I integrate ZenoPay with my existing platform?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    Yes! We provide easy integration options for all major e-commerce platforms including
-                    Shopify, WooCommerce, Magento, and custom solutions via our REST API.
-                  </div>
-                </div>
-
-                <!-- FAQ Item 4 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>What payment methods do you support?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    We support all major payment methods including UPI, credit/debit cards (Visa, Mastercard, RuPay),
-                    net banking, and popular digital wallets.
-                  </div>
-                </div>
-
-                <!-- FAQ Item 5 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>Are there any setup or monthly fees?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    No! Our Starter plan is completely free with no setup fees or monthly charges.
-                    You only pay a small percentage on successful transactions.
-                  </div>
-                </div>
-
-                <!-- FAQ Item 6 -->
-                <div class="faq-item">
-                  <button class="faq-question">
-                    <span>How quickly do I receive my money?</span>
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                  <div class="faq-answer">
-                    Payments are settled instantly - typically within 2 seconds. Your money is available
-                    in your bank account immediately after a successful transaction.
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Still have questions CTA -->
-              <div class="faq-cta-box">
-                <h3 class="faq-cta-title">Still have questions?</h3>
-                <p class="faq-cta-text">Our team is here to help you 24/7</p>
-                <a href="#" class="btn-faq-cta">
-                  <i class="fas fa-comments"></i>
-                  <span>Contact Support</span>
-                </a>
-              </div>
+              <p class="pricing-footer-note">All plans include: Instant settlements • Bank-level security • 24/7 monitoring • Free API access</p>
             </div>
           </section>
 
@@ -1641,117 +1431,83 @@
               <div class="final-decoration-circle circle-1"></div>
               <div class="final-decoration-circle circle-2"></div>
             </div>
-
             <div class="container">
               <div class="final-cta-content">
-
-                <!-- Pre-heading -->
-                <div class="final-cta-badge">
-                  <i class="fas fa-sparkles"></i>
-                  <span>Ready to Transform Your Payment Experience?</span>
-                </div>
-
-                <!-- Main Heading -->
-                <h2 class="final-cta-title">
-                  Join 10,000+ Businesses Growing with ZenoPay
-                </h2>
-
-                <!-- Subheading -->
-                <p class="final-cta-subtitle">
-                  Start accepting payments in minutes. No credit card required. Cancel anytime.
-                </p>
-
-                <!-- CTA Buttons -->
+                <div class="final-cta-badge"><i class="fas fa-sparkles"></i><span>Ready to Transform Your Payment Experience?</span></div>
+                <h2 class="final-cta-title">Join 10,000+ Businesses Growing with ZenoPay</h2>
+                <p class="final-cta-subtitle">Start accepting payments in minutes. No credit card required. Cancel anytime.</p>
                 <div class="final-cta-buttons">
-                  <a href="/register" class="btn-final-cta btn-final-primary">
-                    <i class="fas fa-rocket"></i>
-                    <span>Start Free Trial</span>
-                  </a>
-                  <a href="#" class="btn-final-cta btn-final-secondary">
-                    <i class="fas fa-calendar"></i>
-                    <span>Schedule Demo</span>
-                  </a>
+                  <a href="/register" class="btn-final-cta btn-final-primary"><i class="fas fa-rocket"></i><span>Start Free Trial</span></a>
+                  <a href="#" class="btn-final-cta btn-final-secondary"><i class="fas fa-calendar"></i><span>Schedule Demo</span></a>
                 </div>
-
-                <!-- Trust Badges -->
                 <div class="final-trust-badges">
-                  <div class="final-trust-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Free forever plan</span>
-                  </div>
-                  <div class="final-trust-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>No credit card required</span>
-                  </div>
-                  <div class="final-trust-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Cancel anytime</span>
-                  </div>
+                  <div class="final-trust-item"><i class="fas fa-check-circle"></i><span>Free forever plan</span></div>
+                  <div class="final-trust-item"><i class="fas fa-check-circle"></i><span>No credit card required</span></div>
+                  <div class="final-trust-item"><i class="fas fa-check-circle"></i><span>Cancel anytime</span></div>
                 </div>
               </div>
             </div>
           </section>
 
-          <% } %>
+    <% } %>
 
-    </main>
+  </main>
 
-    <!-- Modern Footer -->
-    <%- include('partials/footer') %>
+  <!-- Footer -->
+  <%- include('partials/footer') %>
 
-      <!-- JavaScript -->
-      <script src="/js/header.js"></script>
-      <script src="/js/dashboard.js"></script>
-      <script src="/js/premium-interactions.js"></script>
-      <script>
-        (function initTicker() {
-          const items = document.querySelectorAll('.ticker-item');
-          if (!items.length) return;
-          let current = 0;
+  <!-- JavaScript -->
+  <script src="/js/header.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/premium-interactions.js"></script>
+  <script>
+    // ── Ticker ──
+    (function initTicker() {
+      const items = document.querySelectorAll('.ticker-item');
+      if (!items.length) return;
+      let current = 0;
+      items[0].classList.add('active');
+      setInterval(() => {
+        items[current].classList.remove('active');
+        current = (current + 1) % items.length;
+        items[current].classList.add('active');
+      }, 2800);
+    })();
 
-          
-          items[0].classList.add('active');
-          setInterval(() => {
-            items[current].classList.remove('active');
-            current = (current + 1) % items.length;
-            items[current].classList.add('active');
-          }, 2800);
-        })();
+    // ── Billing toggle ──
+    function toggleBilling(cb) {
+      const isAnnual = cb.checked;
+      const ml = document.getElementById('monthlyLabel');
+      const al = document.getElementById('annualLabel');
+      if (ml) ml.style.cssText = isAnnual ? 'color:#94A3B8;font-weight:500' : 'color:#0F172A;font-weight:700';
+      if (al) al.style.cssText = isAnnual ? 'color:#0F172A;font-weight:700' : 'color:#94A3B8;font-weight:500';
+      document.querySelectorAll('[data-monthly][data-annual]').forEach(el => {
+        el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+      });
+    }
 
-        function toggleBilling(cb) {
-          const isAnnual = cb.checked;
-          const monthlyLabel = document.getElementById('monthlyLabel');
-          const annualLabel = document.getElementById('annualLabel');
+    // ── PM tabs ──
+    function switchPMTab(tab, btn) {
+      document.querySelectorAll('.pm-content').forEach(c => c.classList.remove('pm-content-active'));
+      document.querySelectorAll('.pm-tab').forEach(b => b.classList.remove('pm-tab-active'));
+      const target = document.getElementById('tab-' + tab);
+      if (target) target.classList.add('pm-content-active');
+      if (btn) btn.classList.add('pm-tab-active');
+    }
 
-          if (monthlyLabel) {
-            monthlyLabel.style.cssText = isAnnual
-              ? 'color:#94A3B8;font-weight:500'
-              : 'color:#0F172A;font-weight:700';
-          }
-
-          if (annualLabel) {
-            annualLabel.style.cssText = isAnnual
-              ? 'color:#0F172A;font-weight:700'
-              : 'color:#94A3B8;font-weight:500';
-          }
-
-          document.querySelectorAll('[data-monthly][data-annual]').forEach((el) => {
-            el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+    // ── Copy ZenoPay ID ──
+    document.querySelectorAll('.zd-acct-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.previousElementSibling?.textContent?.trim();
+        if (val) {
+          navigator.clipboard.writeText(val).then(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
           });
         }
-
-        function switchPMTab(tab, btn) {
-          document.querySelectorAll('.pm-content').forEach((c) => c.classList.remove('pm-content-active'));
-          document.querySelectorAll('.pm-tab').forEach((b) => b.classList.remove('pm-tab-active'));
-          const target = document.getElementById('tab-' + tab);
-          if (target) {
-            target.classList.add('pm-content-active');
-          }
-          if (btn) {
-            btn.classList.add('pm-tab-active');
-          }
-        }
-      </script>
+      });
+    });
+  </script>
 </body>
 
 </html>
