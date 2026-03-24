@@ -26,6 +26,11 @@ const getDashboard = async (req, res) => {
   try {
     const zenoPayId = getSessionZenoPayId(req);
 
+    // FIX: Read user & isLoggedIn from session directly (res.locals already set
+    // by app.js middleware, but we pass explicitly to avoid any layout override).
+    const sessionUser = req.session?.user || null;
+    const isLoggedIn = !!(sessionUser && req.session?.isLoggedIn);
+
     let accounts = [];
     let transactions = [];
     let walletBalance = 0;
@@ -64,7 +69,9 @@ const getDashboard = async (req, res) => {
 
         monthTransactionCount = monthTransactions.length;
         if (monthTransactionCount > 0) {
-          const successCount = monthTransactions.filter((tx) => String(tx.Status || "").toLowerCase() === "success").length;
+          const successCount = monthTransactions.filter(
+            (tx) => String(tx.Status || "").toLowerCase() === "success"
+          ).length;
           monthSuccessRate = Number(((successCount / monthTransactionCount) * 100).toFixed(1));
         }
       }
@@ -93,14 +100,15 @@ const getDashboard = async (req, res) => {
     return res.render("dashboard", {
       pageTitle: "Dashboard",
       currentPage: "dashboard",
-      user: req.session.user || null,
+      // FIX: use sessionUser so header.ejs always gets the correct user object
+      user: sessionUser,
+      isLoggedIn: isLoggedIn,
       accounts,
       transactions,
       walletBalance,
       monthTransactionCount,
       monthSuccessRate,
       qrCode: req.session.qrCode || null,
-      isLoggedIn: req.session.isLoggedIn || false,
       stats,
     });
   } catch (err) {

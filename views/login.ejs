@@ -285,9 +285,8 @@
         try {
           const response = await fetch("/login", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
             body: JSON.stringify(payload),
           });
 
@@ -297,7 +296,9 @@
             if (typeof ZenoPayLoader !== "undefined") {
               ZenoPayLoader.show("Login successful! Redirecting...");
             }
-            window.location.href = "/";
+            // FIX: use replace() so the session cookie is fully committed
+            // before the browser navigates, and back-button won't return to login
+            window.location.replace(data.redirect || "/");
             return;
           }
 

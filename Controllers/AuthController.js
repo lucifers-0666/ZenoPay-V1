@@ -173,7 +173,7 @@ const postRegister = async (req, res) => {
     let idExists = await ZenoPayDetails.findOne({
       $or: [{ ZenoPayID: zenoPayId }, { userId: zenoPayId }],
     });
-    
+
     // Ensure unique ID
     while (idExists) {
       zenoPayId = generateZenoPayId();
@@ -197,13 +197,13 @@ const postRegister = async (req, res) => {
       Email: normalizedEmail,
       Mobile: normalizedPhone,
       Password: passwordHash,
-      DOB: new Date("2000-01-01"), // Placeholder - collect in profile completion
-      Gender: "Not Specified", // Placeholder
-      FatherName: "Not Provided", // Placeholder
-      Address: "Not Provided", // Placeholder
-      City: "Not Provided", // Placeholder
-      State: "Not Provided", // Placeholder
-      Pincode: "000000", // Placeholder
+      DOB: new Date("2000-01-01"),
+      Gender: "Not Specified",
+      FatherName: "Not Provided",
+      Address: "Not Provided",
+      City: "Not Provided",
+      State: "Not Provided",
+      Pincode: "000000",
       Role: "user",
       AccountStatus: "Active",
       RegistrationDate: new Date(),
@@ -301,13 +301,14 @@ const postLogin = async (req, res) => {
         });
       }
 
-      // FIX: Store ALL name/email variants so header.ejs can always find them
+      // Store ALL name/email variants so header.ejs can always find them
       req.session.user = {
         _id: user._id.toString(),
         name: user.FullName || user.name || "",
         Name: user.FullName || user.name || "",
         FullName: user.FullName || user.name || "",
         ZenoPayID: user.ZenoPayID || user.userId || "",
+        ZenoPayId: user.ZenoPayID || user.userId || "",
         Email: user.Email || user.email || "",
         email: user.Email || user.email || "",
         ProfilePicture: user.ProfilePicture || null,
@@ -316,8 +317,10 @@ const postLogin = async (req, res) => {
       };
 
       req.session.isLoggedIn = true;
+
       req.session.save((saveErr) => {
         if (saveErr) {
+          console.error("Session save error:", saveErr);
           return res.status(500).json({
             success: false,
             message: "Session save error. Please try again.",
@@ -337,15 +340,16 @@ const postLogin = async (req, res) => {
           console.error("[Auth] Login history save failed:", historyErr.message);
         });
 
+        // FIX: include redirect URL so frontend can navigate after cookie is set
         return res.status(200).json({
           success: true,
           message: "Login successful!",
+          redirect: "/",
         });
       });
     });
   } catch (err) {
     console.error("Login error:", err);
-
     return res.status(500).json({
       success: false,
       message: "Internal Server Error. Please try again.",
@@ -363,9 +367,8 @@ const logout = (req, res) => {
       });
     }
 
-    // FIX: Clear the correct session cookie name (zenopay.sid, not connect.sid)
     res.clearCookie("zenopay.sid");
-    res.clearCookie("connect.sid"); // clear old name too just in case
+    res.clearCookie("connect.sid");
     return res.redirect("/login");
   });
 };
@@ -407,7 +410,6 @@ const postForgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    // Validation
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -415,7 +417,6 @@ const postForgotPassword = async (req, res) => {
       });
     }
 
-    // Email validation
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -424,20 +425,15 @@ const postForgotPassword = async (req, res) => {
       });
     }
 
-    // Check if user exists
     const user = await ZenoPayDetails.findOne({ Email: email });
     if (!user) {
-      // Don't reveal if email exists in system for security
       return res.status(200).json({
         success: true,
         message: "If an account exists with this email, you will receive password reset instructions",
       });
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    
-    // Set reset token and expiry (30 minutes)
     user.PasswordResetToken = resetToken;
     user.PasswordResetExpiry = new Date(Date.now() + 30 * 60 * 1000);
     await user.save();
@@ -497,9 +493,7 @@ const postResendResetLink = async (req, res) => {
       });
     }
 
-    // Generate new reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    
     user.PasswordResetToken = resetToken;
     user.PasswordResetExpiry = new Date(Date.now() + 30 * 60 * 1000);
     await user.save();
@@ -612,7 +606,6 @@ const postResetPassword = async (req, res) => {
       });
     }
 
-    // Update password
     user.Password = await bcrypt.hash(password, BCRYPT_ROUNDS);
     user.PasswordResetToken = undefined;
     user.PasswordResetExpiry = undefined;
