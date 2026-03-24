@@ -116,8 +116,10 @@ const publicGetPaths = new Set([
 router.use((req, res, next) => {
   const isPublicSupportCategory = req.method === "GET" && req.path.startsWith("/support/category/");
   const isPublicGet = req.method === "GET" && publicGetPaths.has(req.path);
+  const isPublicRegistration = req.path === "/register-zenopay" && (req.method === "GET" || req.method === "POST");
+  const isPublicVerification = req.path === "/verify-zenopayId" && req.method === "POST";
 
-  if (isPublicGet || isPublicSupportCategory) {
+  if (isPublicGet || isPublicSupportCategory || isPublicRegistration || isPublicVerification) {
     return next();
   }
 
@@ -795,7 +797,43 @@ router.post("/settings/deactivate", SettingsController.deactivateAccount);
 
 // Services
 router.get("/register-zenopay", ZenoPayController.getRegisterZenoPay);
-router.post("/register-zenopay", upload.single("ImagePath"), ZenoPayController.postRegisterZenoPay);
+router.post(
+  "/register-zenopay",
+  (req, res, next) => {
+    upload.single("ImagePath")(req, res, (err) => {
+      if (!err) return next();
+
+      if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({
+            success: false,
+            message: "Profile photo exceeds maximum size of 5 MB.",
+            fieldErrors: {
+              ImagePath: "File must be under 5 MB.",
+            },
+          });
+        }
+
+        return res.status(400).json({
+          success: false,
+          message: "Unable to process uploaded profile photo.",
+          fieldErrors: {
+            ImagePath: err.message || "Invalid profile photo upload.",
+          },
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: err.message || "Invalid profile photo upload.",
+        fieldErrors: {
+          ImagePath: err.message || "Only JPG, PNG, or WebP files are allowed.",
+        },
+      });
+    });
+  },
+  ZenoPayController.postRegisterZenoPay
+);
 router.post("/verify-zenopayId", ZenoPayController.VerifyZenoPayId);
 
 // Banking

@@ -9,1068 +9,1706 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary:        #3B82F6;
-      --primary-dark:   #2563EB;
-      --grad-start:     #1E3A8A;
-      --grad-end:       #5B21B6;
-      --success:        #10B981;
-      --error:          #EF4444;
-      --warning:        #F59E0B;
-      --text-dark:      #1F2937;
-      --text-mid:       #374151;
-      --text-light:     #6B7280;
-      --text-muted:     #9CA3AF;
-      --border:         #E5E7EB;
-      --border-focus:   #3B82F6;
-      --bg-page:        #F3F4F6;
-      --bg-card:        #FFFFFF;
-      --bg-input:       #F9FAFB;
-      --shadow-sm:      0 1px 3px rgba(0,0,0,.08);
-      --shadow-md:      0 4px 12px rgba(0,0,0,.10);
-      --shadow-lg:      0 10px 32px rgba(0,0,0,.12);
-      --radius:         14px;
-      --ease:           0.2s ease;
+      --primary-blue: #3B82F6;
+      --primary-dark: #2563EB;
+      --gradient-start: #1E3A8A;
+      --gradient-end: #5B21B6;
+      --success: #10B981;
+      --error: #EF4444;
+      --warning: #F59E0B;
+      --text-dark: #1F2937;
+      --text-light: #6B7280;
+      --text-muted: #9CA3AF;
+      --border: #E5E7EB;
+      --bg: #F3F4F6;
+      --card: #FFFFFF;
+      --input-bg: #F9FAFB;
+      --radius-card: 14px;
+      --radius-ui: 9px;
+      --shadow: 0 4px 12px rgba(0,0,0,.10);
+      --ease: all 0.2s ease;
     }
 
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-page);
+      min-height: 100vh;
+      background: var(--bg);
       color: var(--text-dark);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.45;
+    }
+
+    .layout {
       min-height: 100vh;
       display: flex;
       align-items: stretch;
     }
 
-    /* ── SPLIT LAYOUT ── */
-    .reg-wrap {
-      display: flex;
-      width: 100%;
-      min-height: 100vh;
-    }
-
-    /* LEFT PANEL */
-    .reg-left {
-      width: 420px;
-      flex-shrink: 0;
-      background: linear-gradient(145deg, var(--grad-start) 0%, #2563EB 50%, var(--grad-end) 100%);
-      padding: 48px 40px;
+    /* Left panel */
+    .left-panel {
+      flex: 0 0 40%;
+      min-width: 380px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow: hidden;
+      background: linear-gradient(145deg, var(--gradient-start), #2563EB 52%, var(--gradient-end));
+      color: #fff;
+      padding: 36px 30px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: hidden;
     }
 
-    .reg-left::before,
-    .reg-left::after {
+    .left-panel::before,
+    .left-panel::after {
       content: '';
       position: absolute;
       border-radius: 50%;
-      opacity: .15;
+      background: rgba(255,255,255,.15);
+      pointer-events: none;
+      z-index: 0;
     }
-    .reg-left::before { width: 320px; height: 320px; background: #fff; top: -80px; right: -80px; }
-    .reg-left::after  { width: 200px; height: 200px; background: #fff; bottom: 60px; left: -60px; }
 
-    .brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; }
-    .brand-logo {
-      width: 46px; height: 46px;
-      background: rgba(255,255,255,.2);
+    .left-panel::before { width: 280px; height: 280px; top: -80px; right: -70px; }
+    .left-panel::after { width: 220px; height: 220px; bottom: 42px; left: -80px; }
+
+    .left-content, .left-top, .left-bottom { position: relative; z-index: 1; }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; color: #fff; font-weight: 900;
-    }
-    .brand-name { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -.3px; }
-    .brand-badge {
-      font-size: 9px; font-weight: 700; background: rgba(255,255,255,.25);
-      color: #fff; padding: 2px 7px; border-radius: 20px; text-transform: uppercase;
-      letter-spacing: .6px; margin-left: 6px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.25);
+      display: grid;
+      place-items: center;
+      font-size: 21px;
+      font-weight: 800;
     }
 
-    .left-content { position: relative; z-index: 2; }
-    .left-title { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 12px; }
-    .left-subtitle { font-size: 14.5px; color: rgba(255,255,255,.78); line-height: 1.6; margin-bottom: 32px; }
-
-    .feature-list { display: flex; flex-direction: column; gap: 14px; }
-    .feature-item {
-      display: flex; align-items: flex-start; gap: 14px;
-      background: rgba(255,255,255,.1);
-      border-radius: 12px; padding: 14px 16px;
+    .brand-name { font-size: 22px; font-weight: 800; letter-spacing: -.2px; }
+    .beta-badge {
+      margin-left: 4px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.12);
     }
+
+    .hero-title {
+      margin-top: 42px;
+      font-size: 28px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .hero-sub {
+      margin-top: 10px;
+      font-size: 14.5px;
+      color: rgba(255,255,255,.78);
+      max-width: 95%;
+    }
+
+    .feature-list {
+      margin-top: 30px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .feature-card {
+      border-radius: 12px;
+      padding: 13px 14px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.10);
+      backdrop-filter: blur(2px);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      transition: var(--ease);
+    }
+
+    .feature-card:hover { transform: translateY(-2px); }
+
     .feature-icon {
-      width: 38px; height: 38px; flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
       background: rgba(255,255,255,.18);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
     }
-    .feature-text { flex: 1; }
-    .feature-title  { font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-    .feature-desc   { font-size: 12px; color: rgba(255,255,255,.65); }
 
-    .stats-row { display: flex; gap: 0; position: relative; z-index: 2; }
-    .stat-item { flex: 1; text-align: center; }
-    .stat-item + .stat-item { border-left: 1px solid rgba(255,255,255,.2); }
-    .stat-num { font-size: 20px; font-weight: 800; color: #fff; }
-    .stat-label { font-size: 10.5px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .6px; margin-top: 2px; }
+    .feature-title { font-size: 13px; font-weight: 700; }
+    .feature-desc { font-size: 11.8px; color: rgba(255,255,255,.75); margin-top: 2px; }
 
-    /* RIGHT PANEL */
-    .reg-right {
-      flex: 1;
+    .stats-line {
+      margin-top: 20px;
+      font-size: 12.2px;
+      color: rgba(255,255,255,.86);
+      border-top: 1px solid rgba(255,255,255,.20);
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Right panel */
+    .right-panel {
+      flex: 0 0 60%;
+      min-width: 0;
+      padding: 36px 44px;
       overflow-y: auto;
-      padding: 48px 56px;
       display: flex;
       flex-direction: column;
     }
 
     .back-link {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 13.5px; font-weight: 500; color: var(--text-light);
-      text-decoration: none; margin-bottom: 36px;
-      transition: color var(--ease);
+      width: fit-content;
+      text-decoration: none;
+      color: var(--text-light);
+      font-size: 13.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: var(--ease);
+      margin-bottom: 18px;
     }
-    .back-link:hover { color: var(--primary); }
 
-    .page-title    { font-size: 26px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px; }
-    .page-subtitle { font-size: 14px; color: var(--text-light); margin-bottom: 28px; }
+    .back-link:hover { color: var(--primary-blue); }
 
-    /* STEP INDICATOR */
-    .steps-bar {
-      display: flex; align-items: center; gap: 0;
-      margin-bottom: 32px;
+    .page-title { font-size: 26px; font-weight: 800; color: var(--text-dark); }
+
+    .page-sub {
+      margin-top: 5px;
+      margin-bottom: 24px;
+      color: var(--text-light);
+      font-size: 14px;
     }
-    .step-node {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      flex: 1; position: relative;
+
+    .stepper {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      user-select: none;
     }
-    .step-node:not(:last-child)::after {
-      content: '';
+
+    .step-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin: 0 auto;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      transition: var(--ease);
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-label {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: var(--ease);
+    }
+
+    .step-item .connector {
       position: absolute;
-      top: 18px; left: calc(50% + 18px);
+      top: 17px;
+      left: calc(50% + 18px);
       width: calc(100% - 36px);
       height: 2px;
       background: var(--border);
-      transition: background var(--ease);
+      z-index: 1;
+      transition: var(--ease);
     }
-    .step-node.done:not(:last-child)::after { background: var(--success); }
-    .step-node.active:not(:last-child)::after { background: var(--border); }
 
-    .step-circle {
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 2px solid var(--border);
-      background: var(--bg-card);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: var(--text-muted);
-      transition: all var(--ease);
-      position: relative; z-index: 1;
-    }
-    .step-node.active .step-circle {
-      border-color: var(--primary); background: var(--primary); color: #fff;
+    .step-item:last-child .connector { display: none; }
+
+    .step-item.active .step-circle {
+      background: var(--primary-blue);
+      color: #fff;
+      border-color: var(--primary-blue);
       box-shadow: 0 0 0 4px rgba(59,130,246,.18);
     }
-    .step-node.done .step-circle {
-      border-color: var(--success); background: var(--success); color: #fff;
-    }
-    .step-label {
-      font-size: 11px; font-weight: 600; color: var(--text-muted);
-      white-space: nowrap; transition: color var(--ease);
-    }
-    .step-node.active .step-label { color: var(--primary); }
-    .step-node.done .step-label   { color: var(--success); }
 
-    /* FORM CARD */
+    .step-item.active .step-label { color: var(--primary-blue); }
+
+    .step-item.done .step-circle {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .step-item.done .step-label { color: var(--success); }
+    .step-item.done .connector { background: var(--success); }
+
     .form-card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
+      background: var(--card);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-md);
-      padding: 32px;
-      flex: 1;
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 26px;
+      position: relative;
     }
 
-    .form-step { display: none; }
-    .form-step.active { display: block; animation: slideUp .3s ease; }
+    .server-error {
+      display: none;
+      margin-bottom: 14px;
+      border-radius: 9px;
+      border: 1.5px solid #FECACA;
+      background: #FEF2F2;
+      color: var(--error);
+      padding: 10px 12px;
+      font-size: 13px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .server-error.show { display: flex; }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; animation: slideUp .3s ease; }
 
     @keyframes slideUp {
       from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .step-heading { font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-    .step-heading i { color: var(--primary); font-size: 17px; }
-    .step-sub { font-size: 13px; color: var(--text-light); margin-bottom: 24px; }
-
-    /* FORM GRID */
-    .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
-    .fg-full { grid-column: 1 / -1; }
-
-    /* FORM GROUP */
-    .fgroup { display: flex; flex-direction: column; gap: 5px; }
-    .flabel {
-      font-size: 12.5px; font-weight: 600; color: var(--text-mid);
-      display: flex; align-items: center; gap: 5px;
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); max-height: 0; }
+      to { opacity: 1; transform: translateY(0); max-height: 160px; }
     }
-    .flabel i { color: var(--primary); font-size: 11px; }
-    .req { color: var(--error); }
 
-    .finput, .fselect, .ftextarea {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      font-size: 13.5px;
-      background: var(--bg-input);
+    .step-heading {
+      font-size: 18px;
+      font-weight: 700;
       color: var(--text-dark);
-      font-family: inherit;
-      transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
-      width: 100%;
+      margin-bottom: 3px;
     }
-    .finput:focus, .fselect:focus, .ftextarea:focus {
+
+    .step-subtitle {
+      font-size: 12.8px;
+      color: var(--text-light);
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label i { color: var(--primary-blue); font-size: 11px; }
+
+    .optional {
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border-radius: var(--radius-ui);
+      border: 1.5px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text-dark);
+      font: 400 13.5px 'Inter', 'Segoe UI', system-ui, sans-serif;
+      padding: 11px 12px;
+      transition: var(--ease);
+    }
+
+    .textarea { min-height: 80px; resize: vertical; }
+
+    .input::placeholder,
+    .textarea::placeholder {
+      color: var(--text-muted);
+      font-size: 12.5px;
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus,
+    .country-code:focus {
       outline: none;
-      border-color: var(--border-focus);
+      border-color: var(--primary-blue);
       background: #fff;
       box-shadow: 0 0 0 3px rgba(59,130,246,.12);
     }
-    .finput.is-error, .fselect.is-error, .ftextarea.is-error {
-      border-color: var(--error);
-      background: #FFF5F5;
+
+    .is-valid {
+      border-color: var(--success) !important;
+      background: #F0FDF4 !important;
+    }
+
+    .is-invalid {
+      border-color: var(--error) !important;
+      background: #FFF5F5 !important;
       box-shadow: 0 0 0 3px rgba(239,68,68,.10);
     }
-    .finput.is-ok, .fselect.is-ok {
+
+    .error-msg {
+      font-size: 11.5px;
+      color: var(--error);
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .error-msg.show { display: flex; }
+
+    .phone-wrap {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 8px;
+    }
+
+    .country-code {
+      border-radius: var(--radius-ui);
+      border: 1.5px solid var(--border);
+      background: var(--input-bg);
+      font-size: 13px;
+      padding: 0 8px;
+      transition: var(--ease);
+    }
+
+    .input-wrap { position: relative; }
+    .input-wrap .input { padding-right: 42px; }
+
+    .toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: var(--ease);
+    }
+
+    .toggle-btn:hover { color: var(--primary-blue); background: #EFF6FF; }
+
+    .strength-box { margin-top: 8px; display: none; }
+
+    .strength-track {
+      height: 4px;
+      border-radius: 999px;
+      background: var(--border);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .strength-fill {
+      width: 0;
+      height: 100%;
+      transition: width .3s ease, background-color .3s ease;
+    }
+
+    .strength-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-light);
+    }
+
+    .rules {
+      display: grid;
+      gap: 4px;
+    }
+
+    .rule {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rule i { font-size: 10px; }
+
+    .rule.met {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    .rule.met i::before { content: '\f00c'; }
+
+    .confirm-ok {
+      font-size: 11.5px;
+      color: var(--success);
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .confirm-ok.show { display: inline-flex; }
+
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 11px;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--ease);
+      background: #fff;
+    }
+
+    .upload-box:hover {
+      border-color: var(--primary-blue);
+      background: #EFF6FF;
+    }
+
+    .upload-box.has-file {
       border-color: var(--success);
       background: #F0FDF4;
     }
-    .finput::placeholder, .ftextarea::placeholder { color: var(--text-muted); font-size: 13px; }
-    .ftextarea { resize: vertical; min-height: 80px; }
 
-    .ferr {
-      font-size: 11.5px; color: var(--error);
-      display: none; align-items: center; gap: 4px;
+    .upload-icon {
+      font-size: 28px;
+      color: var(--primary-blue);
+      margin-bottom: 4px;
     }
-    .ferr.show { display: flex; }
-    .ferr i { font-size: 11px; }
 
-    .fhint { font-size: 11.5px; color: var(--text-muted); }
+    .upload-title { font-size: 13px; color: var(--text-light); }
+    .upload-help { font-size: 11.5px; color: var(--text-muted); }
 
-    /* PASSWORD INPUT WRAPPER */
-    .pw-wrap { position: relative; }
-    .pw-wrap .finput { padding-right: 42px; }
-    .pw-toggle {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      color: var(--text-muted); font-size: 15px;
-      transition: color var(--ease);
+    .photo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 10px auto 0;
+      border: 3px solid var(--success);
+      display: none;
     }
-    .pw-toggle:hover { color: var(--primary); }
 
-    /* PASSWORD STRENGTH */
-    .pw-strength { margin-top: 8px; }
-    .pw-bar-track {
-      height: 4px; border-radius: 4px; background: var(--border); overflow: hidden; margin-bottom: 6px;
+    .account-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
-    .pw-bar-fill {
-      height: 100%; border-radius: 4px; width: 0%;
-      transition: width .3s ease, background .3s ease;
-    }
-    .pw-rules { display: flex; flex-direction: column; gap: 3px; }
-    .pw-rule {
-      font-size: 11.5px; color: var(--text-muted);
-      display: flex; align-items: center; gap: 6px;
-    }
-    .pw-rule i { font-size: 10px; }
-    .pw-rule.met { color: var(--success); }
-    .pw-rule.met i::before { content: '\f00c'; }
 
-    /* PHONE COMBO */
-    .phone-combo { display: flex; gap: 8px; }
-    .phone-code {
-      width: 100px; flex-shrink: 0;
-      padding: 10px 10px;
+    .account-card {
       border: 1.5px solid var(--border);
-      border-radius: 9px;
-      font-size: 13px;
-      background: var(--bg-input);
-      color: var(--text-dark);
-      font-family: inherit;
-      transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .phone-code:focus {
-      outline: none; border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(59,130,246,.12); background: #fff;
-    }
-
-    /* PHOTO UPLOAD */
-    .photo-drop {
-      border: 2px dashed var(--border);
-      border-radius: 10px; padding: 24px;
-      text-align: center; cursor: pointer;
-      transition: border-color var(--ease), background var(--ease);
+      border-radius: 12px;
+      background: #fff;
+      padding: 14px;
+      cursor: pointer;
+      transition: var(--ease);
       position: relative;
     }
-    .photo-drop:hover { border-color: var(--primary); background: #EFF6FF; }
-    .photo-drop.has-file { border-color: var(--success); background: #F0FDF4; }
-    .photo-drop i { font-size: 28px; color: var(--primary); margin-bottom: 8px; }
-    .photo-drop p { font-size: 13px; color: var(--text-light); }
-    .photo-drop small { font-size: 11.5px; color: var(--text-muted); }
-    .photo-preview {
-      width: 80px; height: 80px; border-radius: 50%;
-      object-fit: cover; margin: 12px auto 0;
-      display: none; border: 3px solid var(--success);
+
+    .account-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+    .account-card .check-badge {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--primary-blue);
+      color: #fff;
+      font-size: 11px;
+      display: none;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* T&C */
-    .tnc-row {
-      display: flex; align-items: flex-start; gap: 10px;
-      font-size: 13px; color: var(--text-light);
-      padding: 14px; border-radius: 9px;
-      background: var(--bg-input); border: 1.5px solid var(--border);
-      margin-top: 4px;
+    .account-card i {
+      color: var(--primary-blue);
+      font-size: 22px;
+      margin-bottom: 8px;
     }
-    .tnc-row input[type="checkbox"] { margin-top: 2px; accent-color: var(--primary); width: 15px; height: 15px; flex-shrink: 0; }
-    .tnc-row a { color: var(--primary); font-weight: 600; text-decoration: none; }
-    .tnc-row a:hover { text-decoration: underline; }
 
-    /* BUTTONS */
-    .fbtn-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 28px; }
-    .fbtn {
-      padding: 11px 24px; border-radius: 9px;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 8px;
-      border: none; transition: all var(--ease); font-family: inherit;
+    .account-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+    .account-desc { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    .account-card.selected {
+      border: 2px solid var(--primary-blue);
+      background: #EFF6FF;
     }
-    .fbtn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: #fff; box-shadow: 0 3px 10px rgba(59,130,246,.32);
+
+    .account-card.selected .check-badge { display: inline-flex; }
+
+    .business-wrap {
+      display: none;
+      margin-top: 2px;
     }
-    .fbtn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(59,130,246,.38); }
-    .fbtn-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-    .fbtn-ghost {
-      background: #fff; color: var(--text-mid);
+
+    .business-wrap.show {
+      display: block;
+      animation: slideDown .25s ease;
+    }
+
+    .tnc-box {
+      border: 1.5px solid var(--border);
+      background: var(--input-bg);
+      border-radius: 9px;
+      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .tnc-box input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--primary-blue);
+      flex-shrink: 0;
+    }
+
+    .tnc-box a {
+      color: var(--primary-blue);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 24px;
+      cursor: pointer;
+      transition: var(--ease);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+      box-shadow: 0 3px 10px rgba(59,130,246,.32);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 18px rgba(59,130,246,.34);
+    }
+
+    .btn-primary:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 3px 10px rgba(59,130,246,.24);
+    }
+
+    .btn-ghost {
+      color: #374151;
+      background: #fff;
       border: 1.5px solid var(--border);
     }
-    .fbtn-ghost:hover { border-color: var(--primary); color: var(--primary); background: #EFF6FF; }
-    .fbtn-ghost:disabled { opacity: .4; cursor: not-allowed; }
-    .fbtn-full { width: 100%; justify-content: center; }
 
-    /* TRUST ROW */
-    .trust-row {
-      display: flex; align-items: center; justify-content: center;
-      gap: 20px; margin-top: 20px;
+    .btn-ghost:hover {
+      border-color: var(--primary-blue);
+      color: var(--primary-blue);
+      background: #EFF6FF;
     }
-    .trust-item { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-muted); }
-    .trust-item i { color: var(--success); font-size: 12px; }
 
-    /* ALREADY HAVE ACCOUNT */
-    .login-link-row { text-align: center; font-size: 13.5px; color: var(--text-light); margin-top: 16px; }
-    .login-link-row a { color: var(--primary); font-weight: 600; text-decoration: none; }
-    .login-link-row a:hover { text-decoration: underline; }
+    .btn-right { margin-left: auto; }
+    .btn-full { width: 100%; }
 
-    /* GLOBAL SERVER ERROR */
-    .server-err {
-      background: #FEF2F2; border: 1.5px solid #FECACA;
-      border-radius: 9px; padding: 12px 16px;
-      color: var(--error); font-size: 13.5px;
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 18px; display: none;
+    .success {
+      display: none;
+      text-align: center;
+      padding: 38px 10px;
     }
-    .server-err.show { display: flex; }
 
-    /* SUCCESS */
-    .success-screen {
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 60px 24px;
+    .success.show {
+      display: block;
+      animation: slideUp .4s ease;
     }
-    .success-screen.show { display: flex; animation: slideUp .4s ease; }
+
     .success-icon {
-      width: 80px; height: 80px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--success), #059669);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 36px; color: #fff; margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(16,185,129,.3);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 31px;
+      box-shadow: 0 10px 22px rgba(16,185,129,.30);
     }
-    .success-screen h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-    .success-screen p  { font-size: 14px; color: var(--text-light); }
-    .success-redirect  { font-size: 13px; color: var(--text-muted); margin-top: 12px; }
 
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .reg-left { display: none; }
-      .reg-right { padding: 32px 24px; }
-      .fg { grid-template-columns: 1fr; }
+    .success-title { font-size: 22px; font-weight: 800; color: var(--text-dark); }
+    .success-sub { margin-top: 5px; font-size: 14px; color: var(--text-light); }
+    .success-count { margin-top: 9px; font-size: 13px; color: var(--text-muted); }
+
+    .trust-row {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
     }
+
+    .trust-item {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .trust-item i { color: var(--success); }
+
+    .login-row {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 13.5px;
+      color: var(--text-light);
+    }
+
+    .login-row a {
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-row a:hover { text-decoration: underline; }
+
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { flex: 1; padding: 28px 24px; }
+      .form-card { padding: 22px; }
+    }
+
     @media (max-width: 500px) {
-      .reg-right { padding: 24px 16px; }
-      .form-card { padding: 20px; }
+      .right-panel { padding: 20px 16px; }
+      .grid,
+      .account-cards,
+      .phone-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-row {
+        flex-direction: column;
+      }
+
+      .btn-right { margin-left: 0; }
     }
   </style>
 </head>
 <body>
-
-<div class="reg-wrap">
-
-  <!-- ══ LEFT PANEL ══ -->
-  <div class="reg-left">
-    <div class="brand">
-      <div class="brand-logo">Z</div>
-      <div>
-        <span class="brand-name">ZenoPay</span>
-        <span class="brand-badge">Beta</span>
-      </div>
-    </div>
-
-    <div class="left-content">
-      <h2 class="left-title">Your Gateway to Seamless Payments</h2>
-      <p class="left-subtitle">Join thousands of users who trust ZenoPay for secure, fast, and reliable digital transactions.</p>
-      <div class="feature-list">
-        <div class="feature-item">
-          <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
-          <div class="feature-text">
-            <div class="feature-title">Bank-Level Security</div>
-            <div class="feature-desc">256-bit encryption on all data</div>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-          <div class="feature-text">
-            <div class="feature-title">Instant Transfers</div>
-            <div class="feature-desc">Send money in seconds, not hours</div>
-          </div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><i class="fas fa-tags"></i></div>
-          <div class="feature-text">
-            <div class="feature-title">Zero Hidden Fees</div>
-            <div class="feature-desc">Transparent pricing, no surprises</div>
+  <div class="layout">
+    <aside class="left-panel" aria-hidden="true">
+      <div class="left-top">
+        <div class="brand">
+          <div class="brand-icon">Z</div>
+          <div>
+            <span class="brand-name">ZenoPay</span>
+            <span class="beta-badge">Beta</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="stats-row">
-      <div class="stat-item">
-        <div class="stat-num">1M+</div>
-        <div class="stat-label">Active Users</div>
+      <div class="left-content">
+        <h2 class="hero-title">Your Gateway to Seamless Payments</h2>
+        <p class="hero-sub">Join thousands of users who trust ZenoPay to move money securely, instantly, and transparently.</p>
+
+        <div class="feature-list">
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+            <div>
+              <div class="feature-title">Bank-Level Security</div>
+              <div class="feature-desc">256-bit encryption on all data</div>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-bolt" aria-hidden="true"></i></div>
+            <div>
+              <div class="feature-title">Instant Transfers</div>
+              <div class="feature-desc">Send money in seconds, not hours</div>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-tags" aria-hidden="true"></i></div>
+            <div>
+              <div class="feature-title">Zero Hidden Fees</div>
+              <div class="feature-desc">Transparent pricing, no surprises</div>
+            </div>
+          </article>
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">₹10B+</div>
-        <div class="stat-label">Processed</div>
+
+      <div class="left-bottom">
+        <div class="stats-line">
+          <span>1M+ Active Users</span>
+          <span>|</span>
+          <span>₹10B+ Processed</span>
+          <span>|</span>
+          <span>99.9% Uptime</span>
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">99.9%</div>
-        <div class="stat-label">Uptime</div>
+    </aside>
+
+    <main class="right-panel">
+      <a href="/" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+
+      <h1 class="page-title">Create Your Account</h1>
+      <p class="page-sub">Start your journey with ZenoPay today — takes less than 3 minutes</p>
+
+      <div class="stepper" id="stepper" aria-label="Signup steps">
+        <div class="step-item active" data-step="1">
+          <div class="step-circle"><i class="fa-solid fa-user"></i></div>
+          <div class="step-label">Quick Signup</div>
+          <span class="connector"></span>
+        </div>
+        <div class="step-item" data-step="2">
+          <div class="step-circle"><i class="fa-solid fa-id-card"></i></div>
+          <div class="step-label">Your Profile</div>
+          <span class="connector"></span>
+        </div>
+        <div class="step-item" data-step="3">
+          <div class="step-circle"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="step-label">Account Type</div>
+        </div>
       </div>
-    </div>
+
+      <section class="form-card" aria-live="polite">
+        <div class="server-error" id="serverError">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="serverErrorText">Something went wrong.</span>
+        </div>
+
+        <form id="registerForm" action="/register-zenopay" method="POST" enctype="multipart/form-data" novalidate>
+          <!-- Step 1 -->
+          <section class="step-panel active" data-step="1">
+            <h2 class="step-heading">Let's Get Started</h2>
+            <p class="step-subtitle">Your basic account credentials</p>
+
+            <div class="grid">
+              <div class="field full-width">
+                <label class="label" for="FullName"><i class="fa-solid fa-id-card"></i> Full Name</label>
+                <input class="input" id="FullName" name="FullName" type="text" placeholder="As on your official ID (e.g. Rahul Kumar Sharma)" autocomplete="name" />
+                <p class="error-msg" id="error-FullName"><i class="fa-solid fa-circle-exclamation"></i> Enter your full name (letters only, 3–60 chars)</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="Email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                <input class="input" id="Email" name="Email" type="email" placeholder="you@example.com" autocomplete="email" />
+                <p class="error-msg" id="error-Email"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid email address</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="Mobile"><i class="fa-solid fa-mobile-screen"></i> Mobile Number</label>
+                <div class="phone-wrap">
+                  <select class="country-code" id="MobileCode" aria-label="Country code">
+                    <option value="+91" selected>+91</option>
+                    <option value="+1">+1</option>
+                    <option value="+44">+44</option>
+                    <option value="+971">+971</option>
+                    <option value="+61">+61</option>
+                  </select>
+                  <input class="input" id="Mobile" name="Mobile" type="text" inputmode="numeric" maxlength="10" placeholder="10-digit number" autocomplete="tel-national" />
+                </div>
+                <p class="error-msg" id="error-Mobile"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid 10-digit mobile number</p>
+              </div>
+
+              <div class="field full-width">
+                <label class="label" for="Password"><i class="fa-solid fa-key"></i> Password</label>
+                <div class="input-wrap">
+                  <input class="input" id="Password" name="Password" type="password" placeholder="Create a strong password" autocomplete="new-password" />
+                  <button class="toggle-btn" type="button" data-target="Password" aria-label="Toggle password visibility">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+
+                <div class="strength-box" id="strengthBox">
+                  <div class="strength-track">
+                    <div class="strength-fill" id="strengthFill"></div>
+                  </div>
+                  <div class="strength-label" id="strengthLabel">Strength: Weak</div>
+
+                  <div class="rules">
+                    <div class="rule" id="rule-length"><i class="fa-solid fa-circle"></i> At least 8 characters</div>
+                    <div class="rule" id="rule-upper"><i class="fa-solid fa-circle"></i> One uppercase letter (A–Z)</div>
+                    <div class="rule" id="rule-lower"><i class="fa-solid fa-circle"></i> One lowercase letter (a–z)</div>
+                    <div class="rule" id="rule-number"><i class="fa-solid fa-circle"></i> One number (0–9)</div>
+                    <div class="rule" id="rule-special"><i class="fa-solid fa-circle"></i> One special character (!@#$%^&*)</div>
+                  </div>
+                </div>
+
+                <p class="error-msg" id="error-Password"><i class="fa-solid fa-circle-exclamation"></i> Password must meet all requirements above</p>
+              </div>
+
+              <div class="field full-width">
+                <label class="label" for="ConfirmPassword"><i class="fa-solid fa-lock"></i> Confirm Password</label>
+                <div class="input-wrap">
+                  <input class="input" id="ConfirmPassword" name="ConfirmPassword" type="password" placeholder="Re-enter your password" autocomplete="new-password" />
+                  <button class="toggle-btn" type="button" data-target="ConfirmPassword" aria-label="Toggle confirm password visibility">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+                <p class="confirm-ok" id="confirmOk"><i class="fa-solid fa-check"></i> Passwords match</p>
+                <p class="error-msg" id="error-ConfirmPassword"><i class="fa-solid fa-circle-exclamation"></i> Passwords do not match</p>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary btn-right" type="button" id="next1">Next <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </section>
+
+          <!-- Step 2 -->
+          <section class="step-panel" data-step="2">
+            <h2 class="step-heading">Complete Your Profile</h2>
+            <p class="step-subtitle">Personal details for your account records</p>
+
+            <div class="grid">
+              <div class="field">
+                <label class="label" for="DOB"><i class="fa-solid fa-calendar-days"></i> Date of Birth</label>
+                <input class="input" id="DOB" name="DOB" type="date" />
+                <p class="error-msg" id="error-DOB"><i class="fa-solid fa-circle-exclamation"></i> You must be at least 18 years old</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="Gender"><i class="fa-solid fa-venus-mars"></i> Gender</label>
+                <select class="select" id="Gender" name="Gender">
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other / Prefer not to say</option>
+                </select>
+                <p class="error-msg" id="error-Gender"><i class="fa-solid fa-circle-exclamation"></i> Please select your gender</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="FatherName"><i class="fa-solid fa-user-tie"></i> Father's Name</label>
+                <input class="input" id="FatherName" name="FatherName" type="text" placeholder="Father's full name" />
+                <p class="error-msg" id="error-FatherName"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid father's name</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="MotherName"><i class="fa-solid fa-user-nurse"></i> Mother's Name <span class="optional">(optional)</span></label>
+                <input class="input" id="MotherName" name="MotherName" type="text" placeholder="Mother's full name (optional)" />
+                <p class="error-msg" id="error-MotherName"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid mother's name</p>
+              </div>
+
+              <div class="field full-width">
+                <label class="label" for="Address"><i class="fa-solid fa-house"></i> Full Address</label>
+                <textarea class="textarea" id="Address" name="Address" placeholder="House/Flat No., Street, Area, Landmark"></textarea>
+                <p class="error-msg" id="error-Address"><i class="fa-solid fa-circle-exclamation"></i> Enter your complete address (min 10 chars)</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="City"><i class="fa-solid fa-city"></i> City</label>
+                <input class="input" id="City" name="City" type="text" placeholder="e.g. Ahmedabad" />
+                <p class="error-msg" id="error-City"><i class="fa-solid fa-circle-exclamation"></i> Enter your city name</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="State"><i class="fa-solid fa-map"></i> State</label>
+                <select class="select" id="State" name="State">
+                  <option value="">Select state</option>
+                  <option>Andhra Pradesh</option>
+                  <option>Arunachal Pradesh</option>
+                  <option>Assam</option>
+                  <option>Bihar</option>
+                  <option>Chhattisgarh</option>
+                  <option>Goa</option>
+                  <option selected>Gujarat</option>
+                  <option>Haryana</option>
+                  <option>Himachal Pradesh</option>
+                  <option>Jharkhand</option>
+                  <option>Karnataka</option>
+                  <option>Kerala</option>
+                  <option>Madhya Pradesh</option>
+                  <option>Maharashtra</option>
+                  <option>Manipur</option>
+                  <option>Meghalaya</option>
+                  <option>Mizoram</option>
+                  <option>Nagaland</option>
+                  <option>Odisha</option>
+                  <option>Punjab</option>
+                  <option>Rajasthan</option>
+                  <option>Sikkim</option>
+                  <option>Tamil Nadu</option>
+                  <option>Telangana</option>
+                  <option>Tripura</option>
+                  <option>Uttar Pradesh</option>
+                  <option>Uttarakhand</option>
+                  <option>West Bengal</option>
+                  <option>Andaman and Nicobar Islands</option>
+                  <option>Chandigarh</option>
+                  <option>Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option>Delhi</option>
+                  <option>Jammu and Kashmir</option>
+                  <option>Ladakh</option>
+                  <option>Lakshadweep</option>
+                  <option>Puducherry</option>
+                </select>
+                <p class="error-msg" id="error-State"><i class="fa-solid fa-circle-exclamation"></i> Please select your state</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="Pincode"><i class="fa-solid fa-map-pin"></i> Pincode</label>
+                <input class="input" id="Pincode" name="Pincode" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit pincode" />
+                <p class="error-msg" id="error-Pincode"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid 6-digit pincode</p>
+              </div>
+
+              <div class="field">
+                <label class="label" for="Country"><i class="fa-solid fa-globe"></i> Country</label>
+                <select class="select" id="Country" name="Country">
+                  <option value="India" selected>India</option>
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
+                  <option value="UAE">UAE</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="field full-width">
+                <label class="label" for="ImagePath"><i class="fa-solid fa-camera"></i> Profile Photo <span class="optional">(optional)</span></label>
+                <div class="upload-box" id="uploadBox" role="button" tabindex="0" aria-label="Upload profile photo">
+                  <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                  <div class="upload-title">Click to upload your photo</div>
+                  <div class="upload-help">JPG, PNG up to 5 MB</div>
+                  <img src="" alt="Uploaded profile preview" id="photoPreview" class="photo-preview" />
+                </div>
+                <input id="ImagePath" name="ImagePath" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                <p class="error-msg" id="error-ImagePath"><i class="fa-solid fa-circle-exclamation"></i> File must be JPG/PNG under 5 MB</p>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-ghost" type="button" id="prev2"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+              <button class="btn btn-primary" type="button" id="next2">Next <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </section>
+
+          <!-- Step 3 -->
+          <section class="step-panel" data-step="3">
+            <h2 class="step-heading">Almost Done!</h2>
+            <p class="step-subtitle">Choose your account type to complete setup</p>
+
+            <div class="grid">
+              <div class="field full-width">
+                <label class="label"><i class="fa-solid fa-shield"></i> Account Type</label>
+                <div class="account-cards" role="radiogroup" aria-label="Select account type">
+                  <article class="account-card selected" data-role="user" role="radio" aria-checked="true" tabindex="0">
+                    <span class="check-badge"><i class="fa-solid fa-check"></i></span>
+                    <i class="fa-solid fa-user-circle"></i>
+                    <div class="account-title">Personal User</div>
+                    <div class="account-desc">For individuals sending & receiving money</div>
+                  </article>
+
+                  <article class="account-card" data-role="merchant" role="radio" aria-checked="false" tabindex="0">
+                    <span class="check-badge"><i class="fa-solid fa-check"></i></span>
+                    <i class="fa-solid fa-store"></i>
+                    <div class="account-title">Merchant / Business</div>
+                    <div class="account-desc">For businesses accepting payments</div>
+                  </article>
+                </div>
+                <input type="hidden" name="Role" id="Role" value="user" />
+                <p class="error-msg" id="error-Role"><i class="fa-solid fa-circle-exclamation"></i> Please select an account type</p>
+              </div>
+
+              <div class="field full-width business-wrap" id="businessWrap">
+                <label class="label" for="BusinessName"><i class="fa-solid fa-building"></i> Business Name</label>
+                <input class="input" id="BusinessName" name="BusinessName" type="text" placeholder="Registered business name" />
+                <p class="error-msg" id="error-BusinessName"><i class="fa-solid fa-circle-exclamation"></i> Enter your business name (3–80 chars)</p>
+              </div>
+
+              <div class="field full-width">
+                <label class="tnc-box" for="tnc">
+                  <input type="checkbox" id="tnc" name="tnc" />
+                  <span>
+                    I agree to ZenoPay's <a href="/terms" target="_blank" rel="noopener noreferrer">Terms & Conditions</a> and
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>. I confirm all details provided are accurate and genuine.
+                  </span>
+                </label>
+                <p class="error-msg" id="error-tnc"><i class="fa-solid fa-circle-exclamation"></i> You must accept the terms to continue</p>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-ghost" type="button" id="prev3"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+              <button class="btn btn-primary btn-full" id="submitBtn" type="submit"><i class="fa-solid fa-user-tie"></i> Create Account</button>
+            </div>
+          </section>
+        </form>
+
+        <section class="success" id="successScreen">
+          <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+          <h3 class="success-title">Account Created!</h3>
+          <p class="success-sub">Welcome to ZenoPay. Your account is ready.</p>
+          <p class="success-count">Redirecting to login in <span id="countdown">3</span>s…</p>
+        </section>
+      </section>
+
+      <div class="trust-row">
+        <div class="trust-item"><i class="fa-solid fa-lock"></i> SSL Secured</div>
+        <div class="trust-item"><i class="fa-solid fa-shield-halved"></i> GDPR Compliant</div>
+        <div class="trust-item"><i class="fa-solid fa-circle-check"></i> ISO Certified</div>
+      </div>
+
+      <div class="login-row">Already have an account? <a href="/login">Login here</a></div>
+    </main>
   </div>
 
-  <!-- ══ RIGHT PANEL ══ -->
-  <div class="reg-right">
-    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  <script>
+    let currentStep = 1;
 
-    <h1 class="page-title">Create Your Account</h1>
-    <p class="page-subtitle">Start your journey with ZenoPay today — takes less than 3 minutes</p>
+    const nameRegex = /^[A-Za-z\s.'·-]{3,60}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const mobileRegex = /^[6-9]\d{9}$/;
+    const pincodeRegex = /^\d{6}$/;
 
-    <!-- Step indicator -->
-    <div class="steps-bar" id="stepsBar">
-      <div class="step-node active" data-step="1">
-        <div class="step-circle"><i class="fas fa-user" style="font-size:13px"></i></div>
-        <div class="step-label">Personal Info</div>
-      </div>
-      <div class="step-node" data-step="2">
-        <div class="step-circle"><i class="fas fa-lock" style="font-size:12px"></i></div>
-        <div class="step-label">Account Setup</div>
-      </div>
-      <div class="step-node" data-step="3">
-        <div class="step-circle"><i class="fas fa-map-marker-alt" style="font-size:12px"></i></div>
-        <div class="step-label">Address & Photo</div>
-      </div>
-    </div>
+    const byId = (id) => document.getElementById(id);
+    const stepper = byId('stepper');
+    const form = byId('registerForm');
+    const defaultErrorMessages = {};
+    document.querySelectorAll('.error-msg').forEach((el) => {
+      defaultErrorMessages[el.id] = el.textContent.trim();
+    });
 
-    <!-- ── FORM CARD ── -->
-    <div class="form-card">
+    const fieldStepMap = {
+      FullName: 1,
+      Email: 1,
+      Mobile: 1,
+      Password: 1,
+      ConfirmPassword: 1,
+      DOB: 2,
+      Gender: 2,
+      FatherName: 2,
+      MotherName: 2,
+      Address: 2,
+      City: 2,
+      State: 2,
+      Pincode: 2,
+      Country: 2,
+      ImagePath: 2,
+      Role: 3,
+      BusinessName: 3,
+      tnc: 3,
+    };
 
-      <div class="server-err" id="serverErr"><i class="fas fa-circle-exclamation"></i> <span id="serverErrMsg"></span></div>
-
-      <form id="regForm" action="/register-zenopay" method="POST" enctype="multipart/form-data" novalidate>
-
-        <!-- ═══════════════════════════ STEP 1: PERSONAL INFO ═══════════════════════════ -->
-        <div class="form-step active" data-step="1">
-          <h2 class="step-heading"><i class="fas fa-user-circle"></i> Personal Information</h2>
-          <p class="step-sub">Your identity details — must match your official documents</p>
-
-          <div class="fg">
-
-            <!-- Full Name -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-id-card"></i> Full Name <span class="req">*</span></label>
-              <input type="text" name="FullName" id="FullName" class="finput"
-                placeholder="As on your official ID (e.g. Ashok Kumar Sharma)"
-                autocomplete="name" />
-              <span class="ferr" id="err-FullName"><i class="fas fa-circle-exclamation"></i> Enter your full name (letters only, 3–60 chars)</span>
-            </div>
-
-            <!-- Date of Birth -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-calendar-days"></i> Date of Birth <span class="req">*</span></label>
-              <input type="date" name="DOB" id="DOB" class="finput" />
-              <span class="ferr" id="err-DOB"><i class="fas fa-circle-exclamation"></i> You must be at least 18 years old</span>
-            </div>
-
-            <!-- Gender -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-venus-mars"></i> Gender <span class="req">*</span></label>
-              <select name="Gender" id="Gender" class="fselect">
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other / Prefer not to say</option>
-              </select>
-              <span class="ferr" id="err-Gender"><i class="fas fa-circle-exclamation"></i> Please select your gender</span>
-            </div>
-
-            <!-- Father's Name -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-user-tie"></i> Father's Name <span class="req">*</span></label>
-              <input type="text" name="FatherName" id="FatherName" class="finput"
-                placeholder="Father's full name" autocomplete="off" />
-              <span class="ferr" id="err-FatherName"><i class="fas fa-circle-exclamation"></i> Enter a valid father's name</span>
-            </div>
-
-            <!-- Mother's Name -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-user-nurse"></i> Mother's Name</label>
-              <input type="text" name="MotherName" id="MotherName" class="finput"
-                placeholder="Mother's full name (optional)" autocomplete="off" />
-              <span class="ferr" id="err-MotherName"><i class="fas fa-circle-exclamation"></i> Only letters and spaces allowed</span>
-            </div>
-
-            <!-- Account Role -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-user-tag"></i> Account Type <span class="req">*</span></label>
-              <select name="Role" id="Role" class="fselect">
-                <option value="">Select type</option>
-                <option value="user" selected>Personal User</option>
-                <option value="merchant">Merchant / Business</option>
-              </select>
-              <span class="ferr" id="err-Role"><i class="fas fa-circle-exclamation"></i> Please select account type</span>
-            </div>
-
-            <!-- Business Name (conditional) -->
-            <div class="fgroup fg-full" id="bizGroup" style="display:none">
-              <label class="flabel"><i class="fas fa-building"></i> Business Name <span class="req">*</span></label>
-              <input type="text" name="BusinessName" id="BusinessName" class="finput"
-                placeholder="Registered business name" autocomplete="organization" />
-              <span class="ferr" id="err-BusinessName"><i class="fas fa-circle-exclamation"></i> Enter your business name (3–80 chars)</span>
-            </div>
-
-          </div>
-
-          <div class="fbtn-row">
-            <span></span>
-            <button type="button" class="fbtn fbtn-primary" onclick="goNext(1)">
-              Next <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- ═══════════════════════════ STEP 2: ACCOUNT SETUP ═══════════════════════════ -->
-        <div class="form-step" data-step="2">
-          <h2 class="step-heading"><i class="fas fa-lock"></i> Account Setup</h2>
-          <p class="step-sub">Your login credentials and contact details — kept strictly private</p>
-
-          <div class="fg">
-
-            <!-- Email -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-envelope"></i> Email Address <span class="req">*</span></label>
-              <input type="email" name="Email" id="Email" class="finput"
-                placeholder="you@example.com" autocomplete="email" />
-              <span class="ferr" id="err-Email"><i class="fas fa-circle-exclamation"></i> Enter a valid email address</span>
-            </div>
-
-            <!-- Phone -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-mobile-screen"></i> Mobile Number <span class="req">*</span></label>
-              <div class="phone-combo">
-                <select name="PhoneCode" id="PhoneCode" class="phone-code">
-                  <option value="+91">🇮🇳 +91</option>
-                  <option value="+1">🇺🇸 +1</option>
-                  <option value="+44">🇬🇧 +44</option>
-                  <option value="+971">🇦🇪 +971</option>
-                  <option value="+61">🇦🇺 +61</option>
-                </select>
-                <input type="tel" name="Mobile" id="Mobile" class="finput"
-                  placeholder="10-digit number (e.g. 9876543210)"
-                  maxlength="10" style="flex:1" />
-              </div>
-              <span class="ferr" id="err-Mobile"><i class="fas fa-circle-exclamation"></i> Enter a valid 10-digit mobile number</span>
-            </div>
-
-            <!-- Password -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-key"></i> Password <span class="req">*</span></label>
-              <div class="pw-wrap">
-                <input type="password" name="Password" id="Password" class="finput"
-                  placeholder="Create a strong password" autocomplete="new-password" />
-                <button type="button" class="pw-toggle" onclick="togglePw('Password',this)"><i class="fas fa-eye"></i></button>
-              </div>
-              <div class="pw-strength" id="pwStrength" style="display:none">
-                <div class="pw-bar-track"><div class="pw-bar-fill" id="pwBar"></div></div>
-                <div class="pw-rules">
-                  <div class="pw-rule" id="rule-len"><i class="fas fa-circle"></i> At least 8 characters</div>
-                  <div class="pw-rule" id="rule-upper"><i class="fas fa-circle"></i> One uppercase letter</div>
-                  <div class="pw-rule" id="rule-lower"><i class="fas fa-circle"></i> One lowercase letter</div>
-                  <div class="pw-rule" id="rule-num"><i class="fas fa-circle"></i> One number</div>
-                  <div class="pw-rule" id="rule-special"><i class="fas fa-circle"></i> One special character (!@#$...)</div>
-                </div>
-              </div>
-              <span class="ferr" id="err-Password"><i class="fas fa-circle-exclamation"></i> Password must meet all requirements above</span>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-lock"></i> Confirm Password <span class="req">*</span></label>
-              <div class="pw-wrap">
-                <input type="password" name="ConfirmPassword" id="ConfirmPassword" class="finput"
-                  placeholder="Re-enter your password" autocomplete="new-password" />
-                <button type="button" class="pw-toggle" onclick="togglePw('ConfirmPassword',this)"><i class="fas fa-eye"></i></button>
-              </div>
-              <span class="ferr" id="err-ConfirmPassword"><i class="fas fa-circle-exclamation"></i> <span id="cpMsg">Passwords do not match</span></span>
-            </div>
-
-          </div>
-
-          <div class="fbtn-row">
-            <button type="button" class="fbtn fbtn-ghost" onclick="goPrev(2)">
-              <i class="fas fa-arrow-left"></i> Previous
-            </button>
-            <button type="button" class="fbtn fbtn-primary" onclick="goNext(2)">
-              Next <i class="fas fa-arrow-right"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- ═══════════════════════════ STEP 3: ADDRESS & PHOTO ═══════════════════════════ -->
-        <div class="form-step" data-step="3">
-          <h2 class="step-heading"><i class="fas fa-map-location-dot"></i> Address & Profile Photo</h2>
-          <p class="step-sub">For identity verification and account records</p>
-
-          <div class="fg">
-
-            <!-- Address -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-house"></i> Full Address <span class="req">*</span></label>
-              <textarea name="Address" id="Address" class="ftextarea"
-                placeholder="House/Flat No., Street, Area, Landmark"></textarea>
-              <span class="ferr" id="err-Address"><i class="fas fa-circle-exclamation"></i> Enter your complete address (min 10 chars)</span>
-            </div>
-
-            <!-- City -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-city"></i> City <span class="req">*</span></label>
-              <input type="text" name="City" id="City" class="finput" placeholder="e.g. Ahmedabad" />
-              <span class="ferr" id="err-City"><i class="fas fa-circle-exclamation"></i> Enter your city name</span>
-            </div>
-
-            <!-- State -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-map"></i> State <span class="req">*</span></label>
-              <select name="State" id="State" class="fselect">
-                <option value="">Select state</option>
-                <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
-                <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
-                <option>Goa</option><option selected>Gujarat</option>
-                <option>Haryana</option><option>Himachal Pradesh</option>
-                <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
-                <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
-                <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
-                <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
-                <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
-                <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
-                <option>West Bengal</option>
-                <option>Delhi</option><option>Jammu & Kashmir</option><option>Ladakh</option>
-                <option>Chandigarh</option><option>Puducherry</option><option>Other</option>
-              </select>
-              <span class="ferr" id="err-State"><i class="fas fa-circle-exclamation"></i> Please select your state</span>
-            </div>
-
-            <!-- Pincode -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-map-pin"></i> Pincode <span class="req">*</span></label>
-              <input type="text" name="Pincode" id="Pincode" class="finput"
-                placeholder="6-digit pincode" maxlength="6" inputmode="numeric" />
-              <span class="ferr" id="err-Pincode"><i class="fas fa-circle-exclamation"></i> Enter a valid 6-digit pincode</span>
-            </div>
-
-            <!-- Country -->
-            <div class="fgroup">
-              <label class="flabel"><i class="fas fa-globe"></i> Country <span class="req">*</span></label>
-              <select name="Country" id="Country" class="fselect">
-                <option value="India" selected>🇮🇳 India</option>
-                <option value="United States">🇺🇸 United States</option>
-                <option value="United Kingdom">🇬🇧 United Kingdom</option>
-                <option value="UAE">🇦🇪 UAE</option>
-                <option value="Australia">🇦🇺 Australia</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <!-- Profile Photo -->
-            <div class="fgroup fg-full">
-              <label class="flabel"><i class="fas fa-camera"></i> Profile Photo <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
-              <div class="photo-drop" id="photoDrop" onclick="document.getElementById('photoInput').click()">
-                <i class="fas fa-cloud-arrow-up"></i>
-                <p>Click to upload your photo</p>
-                <small>JPG, PNG up to 5 MB</small>
-                <img id="photoPreview" class="photo-preview" alt="Preview" />
-              </div>
-              <input type="file" id="photoInput" name="ImagePath" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="previewPhoto(this)" />
-              <span class="ferr" id="err-photo"><i class="fas fa-circle-exclamation"></i> File must be JPG/PNG under 5 MB</span>
-            </div>
-
-            <!-- T&C -->
-            <div class="fgroup fg-full">
-              <label class="tnc-row" for="tnc">
-                <input type="checkbox" id="tnc" name="tnc" />
-                <span>I agree to ZenoPay's <a href="/terms" target="_blank">Terms &amp; Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a>. I confirm all details are accurate.</span>
-              </label>
-              <span class="ferr" id="err-tnc"><i class="fas fa-circle-exclamation"></i> You must accept the terms to continue</span>
-            </div>
-
-          </div>
-
-          <div class="fbtn-row">
-            <button type="button" class="fbtn fbtn-ghost" onclick="goPrev(3)">
-              <i class="fas fa-arrow-left"></i> Previous
-            </button>
-            <button type="submit" class="fbtn fbtn-primary" id="submitBtn">
-              <i class="fas fa-user-plus"></i> Create Account
-            </button>
-          </div>
-        </div>
-
-      </form>
-
-      <!-- SUCCESS SCREEN -->
-      <div class="success-screen" id="successScreen">
-        <div class="success-icon"><i class="fas fa-check"></i></div>
-        <h3>Account Created!</h3>
-        <p>Welcome to ZenoPay. Your account is ready.</p>
-        <p class="success-redirect">Redirecting to login in <span id="countdown">3</span>s…</p>
-      </div>
-
-    </div><!-- /form-card -->
-
-    <div class="trust-row">
-      <div class="trust-item"><i class="fas fa-lock"></i> SSL Secured</div>
-      <div class="trust-item"><i class="fas fa-shield-halved"></i> GDPR Compliant</div>
-      <div class="trust-item"><i class="fas fa-certificate"></i> ISO Certified</div>
-    </div>
-
-    <div class="login-link-row">Already have an account? <a href="/login">Login here</a></div>
-
-  </div><!-- /reg-right -->
-</div>
-
-<script>
-/* ───────────────────────────────────────
-   HELPERS
-─────────────────────────────────────── */
-let currentStep = 1;
-const totalSteps = 3;
-
-function $(id){ return document.getElementById(id); }
-
-function showErr(id, msg){
-  const el = $('err-' + id);
-  if(!el) return;
-  if(msg) el.querySelector('span') && (el.querySelector('span').textContent = msg);
-  el.classList.add('show');
-  const inp = $(id);
-  if(inp){ inp.classList.remove('is-ok'); inp.classList.add('is-error'); }
-}
-function clearErr(id){
-  const el = $('err-' + id);
-  if(el) el.classList.remove('show');
-  const inp = $(id);
-  if(inp){ inp.classList.remove('is-error'); }
-}
-function setOk(id){
-  clearErr(id);
-  const inp = $(id);
-  if(inp) inp.classList.add('is-ok');
-}
-
-/* ───────────────────────────────────────
-   VALIDATION RULES
-─────────────────────────────────────── */
-const nameRe = /^[A-Za-z\s.'-]{3,60}$/;
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const mobileRe = /^[6-9]\d{9}$/;
-const pincodeRe = /^\d{6}$/;
-const addrMin = 10;
-
-function ageOk(dob){
-  const d = new Date(dob), now = new Date();
-  let age = now.getFullYear() - d.getFullYear();
-  const m = now.getMonth() - d.getMonth();
-  if(m < 0 || (m===0 && now.getDate() < d.getDate())) age--;
-  return age >= 18;
-}
-
-function pwScore(pw){
-  let s = 0;
-  if(pw.length >= 8) s++;
-  if(/[A-Z]/.test(pw)) s++;
-  if(/[a-z]/.test(pw)) s++;
-  if(/\d/.test(pw)) s++;
-  if(/[^A-Za-z0-9]/.test(pw)) s++;
-  return s;
-}
-
-/* ───────────────────────────────────────
-   STEP VALIDATION
-─────────────────────────────────────── */
-function validateStep(step){
-  let ok = true;
-
-  if(step === 1){
-    const fn = $('FullName').value.trim();
-    if(!nameRe.test(fn)){ showErr('FullName'); ok=false; } else setOk('FullName');
-
-    const dob = $('DOB').value;
-    if(!dob || !ageOk(dob)){ showErr('DOB'); ok=false; } else setOk('DOB');
-
-    if(!$('Gender').value){ showErr('Gender'); ok=false; } else setOk('Gender');
-
-    const fat = $('FatherName').value.trim();
-    if(!nameRe.test(fat)){ showErr('FatherName'); ok=false; } else setOk('FatherName');
-
-    const mot = $('MotherName').value.trim();
-    if(mot && !nameRe.test(mot)){ showErr('MotherName'); ok=false; } else clearErr('MotherName');
-
-    if(!$('Role').value){ showErr('Role'); ok=false; } else setOk('Role');
-
-    if($('Role').value === 'merchant'){
-      const biz = $('BusinessName').value.trim();
-      if(biz.length < 3 || biz.length > 80){ showErr('BusinessName'); ok=false; } else setOk('BusinessName');
+    function clearServerError() {
+      byId('serverError').classList.remove('show');
+      byId('serverErrorText').textContent = '';
     }
-  }
 
-  if(step === 2){
-    const email = $('Email').value.trim();
-    if(!emailRe.test(email)){ showErr('Email'); ok=false; } else setOk('Email');
-
-    const mob = $('Mobile').value.trim();
-    if(!mobileRe.test(mob)){ showErr('Mobile'); ok=false; } else setOk('Mobile');
-
-    const pw = $('Password').value;
-    if(pwScore(pw) < 4){ showErr('Password'); ok=false; } else setOk('Password');
-
-    const cpw = $('ConfirmPassword').value;
-    if(!cpw){ showErr('ConfirmPassword','Please confirm your password'); ok=false; }
-    else if(pw !== cpw){ showErr('ConfirmPassword','Passwords do not match'); ok=false; }
-    else setOk('ConfirmPassword');
-  }
-
-  if(step === 3){
-    const addr = $('Address').value.trim();
-    if(addr.length < addrMin){ showErr('Address'); ok=false; } else setOk('Address');
-
-    const city = $('City').value.trim();
-    if(city.length < 2){ showErr('City'); ok=false; } else setOk('City');
-
-    if(!$('State').value){ showErr('State'); ok=false; } else setOk('State');
-
-    const pin = $('Pincode').value.trim();
-    if(!pincodeRe.test(pin)){ showErr('Pincode'); ok=false; } else setOk('Pincode');
-
-    if(!$('tnc').checked){ showErr('tnc'); ok=false; } else clearErr('tnc');
-  }
-
-  return ok;
-}
-
-/* ───────────────────────────────────────
-   NAVIGATION
-─────────────────────────────────────── */
-function updateUI(){
-  document.querySelectorAll('.step-node').forEach(n => {
-    const s = parseInt(n.dataset.step);
-    n.classList.toggle('active', s === currentStep);
-    n.classList.toggle('done', s < currentStep);
-  });
-  document.querySelectorAll('.form-step').forEach(s => {
-    s.classList.toggle('active', parseInt(s.dataset.step) === currentStep);
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function goNext(step){
-  if(!validateStep(step)) return;
-  currentStep = step + 1;
-  updateUI();
-}
-
-function goPrev(step){
-  currentStep = step - 1;
-  updateUI();
-}
-
-/* ───────────────────────────────────────
-   PASSWORD STRENGTH UI
-─────────────────────────────────────── */
-$('Password').addEventListener('input', function(){
-  const pw = this.value;
-  $('pwStrength').style.display = pw ? 'block' : 'none';
-
-  const rules = [
-    ['rule-len',     pw.length >= 8],
-    ['rule-upper',   /[A-Z]/.test(pw)],
-    ['rule-lower',   /[a-z]/.test(pw)],
-    ['rule-num',     /\d/.test(pw)],
-    ['rule-special', /[^A-Za-z0-9]/.test(pw)],
-  ];
-  rules.forEach(([id, met]) => {
-    $(id).classList.toggle('met', met);
-  });
-
-  const score = pwScore(pw);
-  const colors = ['#EF4444','#F59E0B','#F59E0B','#10B981','#10B981'];
-  const bar = $('pwBar');
-  bar.style.width = (score/5*100) + '%';
-  bar.style.background = colors[score-1] || '#E5E7EB';
-
-  // live clear error if strong enough
-  if(score >= 4) clearErr('Password');
-});
-
-/* confirm password live check */
-$('ConfirmPassword').addEventListener('input', function(){
-  const pw  = $('Password').value;
-  const cpw = this.value;
-  if(!cpw) return;
-  if(pw === cpw){ setOk('ConfirmPassword'); clearErr('ConfirmPassword'); }
-  else { showErr('ConfirmPassword','Passwords do not match'); }
-});
-
-/* ───────────────────────────────────────
-   PASSWORD TOGGLE
-─────────────────────────────────────── */
-function togglePw(id, btn){
-  const inp = $(id);
-  const isHidden = inp.type === 'password';
-  inp.type = isHidden ? 'text' : 'password';
-  btn.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
-}
-
-/* ───────────────────────────────────────
-   BUSINESS NAME TOGGLE
-─────────────────────────────────────── */
-$('Role').addEventListener('change', function(){
-  const show = this.value === 'merchant';
-  $('bizGroup').style.display = show ? 'block' : 'none';
-  $('BusinessName').required = show;
-});
-
-/* ───────────────────────────────────────
-   PROFILE PHOTO
-─────────────────────────────────────── */
-function previewPhoto(input){
-  clearErr('photo');
-  if(!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  if(file.size > 5 * 1024 * 1024){ showErr('photo','File must be JPG/PNG under 5 MB'); input.value=''; return; }
-  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){ showErr('photo','Only JPG/PNG/WebP files allowed'); input.value=''; return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const prev = $('photoPreview');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-    $('photoDrop').classList.add('has-file');
-  };
-  reader.readAsDataURL(file);
-}
-
-/* ───────────────────────────────────────
-   LIVE VALIDATE ON BLUR
-─────────────────────────────────────── */
-['FullName','FatherName','MotherName'].forEach(id => {
-  $(id) && $(id).addEventListener('blur', function(){
-    const v = this.value.trim();
-    if(!v) return;
-    if(id === 'MotherName'){ if(v && !nameRe.test(v)) showErr(id); else clearErr(id); return; }
-    if(!nameRe.test(v)) showErr(id); else setOk(id);
-  });
-});
-
-$('Email').addEventListener('blur', function(){
-  if(!this.value) return;
-  if(!emailRe.test(this.value.trim())) showErr('Email'); else setOk('Email');
-});
-
-$('Mobile').addEventListener('input', function(){
-  this.value = this.value.replace(/\D/g,'').slice(0,10);
-});
-$('Mobile').addEventListener('blur', function(){
-  if(!this.value) return;
-  if(!mobileRe.test(this.value.trim())) showErr('Mobile'); else setOk('Mobile');
-});
-
-$('Pincode').addEventListener('input', function(){
-  this.value = this.value.replace(/\D/g,'').slice(0,6);
-});
-$('Pincode').addEventListener('blur', function(){
-  if(!this.value) return;
-  if(!pincodeRe.test(this.value.trim())) showErr('Pincode'); else setOk('Pincode');
-});
-
-/* clear errors on input */
-document.querySelectorAll('.finput,.fselect,.ftextarea').forEach(el => {
-  el.addEventListener('input', function(){
-    if(this.classList.contains('is-error')) clearErr(this.id || this.name);
-  });
-});
-
-/* ───────────────────────────────────────
-   FORM SUBMIT
-─────────────────────────────────────── */
-$('regForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  if(!validateStep(3)) return;
-
-  const btn = $('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
-
-  $('serverErr').classList.remove('show');
-
-  try {
-    const resp = await fetch('/register-zenopay', { method:'POST', body: new FormData(this) });
-    const data = await resp.json();
-
-    if(data.success){
-      this.style.display = 'none';
-      $('stepsBar').style.display = 'none';
-      $('successScreen').classList.add('show');
-      let c = 3;
-      const cd = $('countdown');
-      const t = setInterval(() => {
-        c--; cd.textContent = c;
-        if(c <= 0){ clearInterval(t); window.location.href = '/login'; }
-      }, 1000);
-    } else {
-      $('serverErrMsg').textContent = data.message || 'Registration failed. Please try again.';
-      $('serverErr').classList.add('show');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+    function showServerError(message) {
+      byId('serverErrorText').textContent = message || 'Registration failed. Please try again.';
+      byId('serverError').classList.add('show');
+      byId('serverError').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-  } catch(err){
-    $('serverErrMsg').textContent = 'Network error. Please check your connection and try again.';
-    $('serverErr').classList.add('show');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-  }
-});
-</script>
+
+    function getFieldElement(name) {
+      return byId(name) || document.querySelector(`[name="${name}"]`);
+    }
+
+    function showError(name, customText) {
+      const field = getFieldElement(name);
+      const error = byId(`error-${name}`);
+      if (field) {
+        field.classList.remove('is-valid');
+        field.classList.add('is-invalid');
+      }
+      if (error) {
+        error.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+        error.append(document.createTextNode(` ${customText || defaultErrorMessages[error.id] || 'Invalid input.'}`));
+        error.classList.add('show');
+      }
+    }
+
+    function clearError(name) {
+      const field = getFieldElement(name);
+      const error = byId(`error-${name}`);
+      if (field) field.classList.remove('is-invalid');
+      if (error) {
+        error.classList.remove('show');
+        error.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+        error.append(document.createTextNode(` ${defaultErrorMessages[error.id] || 'Invalid input.'}`));
+      }
+    }
+
+    function setValid(name) {
+      clearError(name);
+      const field = getFieldElement(name);
+      if (field) field.classList.add('is-valid');
+    }
+
+    function clearValid(name) {
+      const field = getFieldElement(name);
+      if (field) field.classList.remove('is-valid');
+    }
+
+    function validateAge18(dob) {
+      if (!dob) return false;
+      const birthDate = new Date(dob);
+      if (Number.isNaN(birthDate.getTime())) return false;
+
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age -= 1;
+      return age >= 18;
+    }
+
+    function passwordScore(password) {
+      let score = 0;
+      const checks = {
+        length: password.length >= 8,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[^A-Za-z0-9]/.test(password),
+      };
+
+      Object.values(checks).forEach((pass) => { if (pass) score += 1; });
+      return { score, checks };
+    }
+
+    function updatePasswordStrength() {
+      const password = byId('Password').value;
+      const box = byId('strengthBox');
+      const fill = byId('strengthFill');
+      const label = byId('strengthLabel');
+
+      if (!password) {
+        box.style.display = 'none';
+        fill.style.width = '0%';
+        fill.style.backgroundColor = '#E5E7EB';
+        return 0;
+      }
+
+      box.style.display = 'block';
+      const { score, checks } = passwordScore(password);
+
+      const map = [
+        { color: '#EF4444', text: 'Weak' },
+        { color: '#F59E0B', text: 'Fair' },
+        { color: '#F59E0B', text: 'Fair' },
+        { color: '#10B981', text: 'Strong' },
+        { color: '#10B981', text: 'Strong' },
+      ];
+
+      const stepInfo = map[Math.max(score - 1, 0)] || { color: '#E5E7EB', text: 'Weak' };
+      fill.style.width = `${(score / 5) * 100}%`;
+      fill.style.backgroundColor = stepInfo.color;
+      label.textContent = `Strength: ${stepInfo.text}`;
+      label.style.color = stepInfo.color;
+
+      const ruleMap = [
+        ['rule-length', checks.length],
+        ['rule-upper', checks.upper],
+        ['rule-lower', checks.lower],
+        ['rule-number', checks.number],
+        ['rule-special', checks.special],
+      ];
+
+      ruleMap.forEach(([id, met]) => {
+        byId(id).classList.toggle('met', met);
+      });
+
+      if (score >= 4) clearError('Password');
+      return score;
+    }
+
+    function updateConfirmPasswordState() {
+      const password = byId('Password').value;
+      const confirm = byId('ConfirmPassword').value;
+      const okState = byId('confirmOk');
+
+      clearValid('ConfirmPassword');
+      okState.classList.remove('show');
+
+      if (!confirm) {
+        clearError('ConfirmPassword');
+        return false;
+      }
+
+      if (password === confirm) {
+        setValid('ConfirmPassword');
+        clearError('ConfirmPassword');
+        okState.classList.add('show');
+        return true;
+      }
+
+      showError('ConfirmPassword', 'Passwords do not match');
+      return false;
+    }
+
+    function applyServerFieldErrors(fieldErrors) {
+      if (!fieldErrors || typeof fieldErrors !== 'object') return;
+
+      const entries = Object.entries(fieldErrors);
+      if (!entries.length) return;
+
+      const [firstField] = entries[0];
+      const stepForFirstField = fieldStepMap[firstField];
+      if (stepForFirstField && stepForFirstField !== currentStep) {
+        currentStep = stepForFirstField;
+        updateStepUI();
+      }
+
+      entries.forEach(([field, message]) => {
+        showError(field, message);
+      });
+    }
+
+    function updateStepUI() {
+      document.querySelectorAll('.step-item').forEach((item) => {
+        const step = Number(item.dataset.step);
+        item.classList.toggle('active', step === currentStep);
+        item.classList.toggle('done', step < currentStep);
+
+        const circle = item.querySelector('.step-circle');
+        if (step < currentStep) {
+          circle.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else if (step === 1) {
+          circle.innerHTML = '<i class="fa-solid fa-user"></i>';
+        } else if (step === 2) {
+          circle.innerHTML = '<i class="fa-solid fa-id-card"></i>';
+        } else {
+          circle.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+        }
+      });
+
+      document.querySelectorAll('.step-panel').forEach((panel) => {
+        panel.classList.toggle('active', Number(panel.dataset.step) === currentStep);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateStep1() {
+      let valid = true;
+
+      const fullName = byId('FullName').value.trim();
+      if (!nameRegex.test(fullName)) { showError('FullName'); valid = false; }
+      else { setValid('FullName'); }
+
+      const email = byId('Email').value.trim();
+      if (!emailRegex.test(email)) { showError('Email'); valid = false; }
+      else { setValid('Email'); }
+
+      const mobile = byId('Mobile').value.trim();
+      if (!mobileRegex.test(mobile)) { showError('Mobile'); valid = false; }
+      else { setValid('Mobile'); }
+
+      const strengthScore = updatePasswordStrength();
+      if (strengthScore < 4) { showError('Password'); valid = false; }
+      else { setValid('Password'); }
+
+      const confirmOk = updateConfirmPasswordState();
+      if (!confirmOk) {
+        if (!byId('ConfirmPassword').value.trim()) {
+          showError('ConfirmPassword', 'Passwords do not match');
+        }
+        valid = false;
+      }
+
+      return valid;
+    }
+
+    function validateStep2() {
+      let valid = true;
+
+      const dob = byId('DOB').value;
+      if (!validateAge18(dob)) { showError('DOB'); valid = false; }
+      else { setValid('DOB'); }
+
+      const gender = byId('Gender').value;
+      if (!gender) { showError('Gender'); valid = false; }
+      else { setValid('Gender'); }
+
+      const fatherName = byId('FatherName').value.trim();
+      if (!nameRegex.test(fatherName)) { showError('FatherName'); valid = false; }
+      else { setValid('FatherName'); }
+
+      const motherName = byId('MotherName').value.trim();
+      if (motherName && !nameRegex.test(motherName)) { showError('MotherName'); valid = false; }
+      else {
+        clearError('MotherName');
+        if (motherName) setValid('MotherName');
+      }
+
+      const address = byId('Address').value.trim();
+      if (address.length < 10) { showError('Address'); valid = false; }
+      else { setValid('Address'); }
+
+      const city = byId('City').value.trim();
+      if (city.length < 2) { showError('City'); valid = false; }
+      else { setValid('City'); }
+
+      const state = byId('State').value;
+      if (!state) { showError('State'); valid = false; }
+      else { setValid('State'); }
+
+      const pincode = byId('Pincode').value.trim();
+      if (!pincodeRegex.test(pincode)) { showError('Pincode'); valid = false; }
+      else { setValid('Pincode'); }
+
+      return valid;
+    }
+
+    function validateStep3() {
+      let valid = true;
+
+      const role = byId('Role').value;
+      if (!role) { showError('Role'); valid = false; }
+      else { clearError('Role'); }
+
+      if (role === 'merchant') {
+        const businessName = byId('BusinessName').value.trim();
+        if (businessName.length < 3 || businessName.length > 80) {
+          showError('BusinessName');
+          valid = false;
+        } else {
+          setValid('BusinessName');
+        }
+      } else {
+        clearError('BusinessName');
+        clearValid('BusinessName');
+      }
+
+      if (!byId('tnc').checked) {
+        showError('tnc');
+        valid = false;
+      } else {
+        clearError('tnc');
+      }
+
+      const photoField = byId('ImagePath');
+      if (photoField.files && photoField.files[0]) {
+        const file = photoField.files[0];
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) {
+          showError('ImagePath');
+          valid = false;
+        } else {
+          clearError('ImagePath');
+        }
+      }
+
+      return valid;
+    }
+
+    function goNext(step) {
+      const validationMap = {
+        1: validateStep1,
+        2: validateStep2,
+      };
+
+      const validate = validationMap[step];
+      if (!validate || !validate()) return;
+
+      currentStep = Math.min(3, step + 1);
+      updateStepUI();
+    }
+
+    function goPrev(step) {
+      currentStep = Math.max(1, step - 1);
+      updateStepUI();
+    }
+
+    function setupAccountTypeCards() {
+      const cards = document.querySelectorAll('.account-card');
+      const roleInput = byId('Role');
+      const businessWrap = byId('businessWrap');
+      const businessInput = byId('BusinessName');
+
+      const activate = (value) => {
+        cards.forEach((card) => {
+          const selected = card.dataset.role === value;
+          card.classList.toggle('selected', selected);
+          card.setAttribute('aria-checked', String(selected));
+        });
+
+        roleInput.value = value;
+        clearError('Role');
+
+        if (value === 'merchant') {
+          businessWrap.classList.add('show');
+        } else {
+          businessWrap.classList.remove('show');
+          businessInput.value = '';
+          clearError('BusinessName');
+        }
+      };
+
+      cards.forEach((card) => {
+        card.addEventListener('click', () => activate(card.dataset.role));
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activate(card.dataset.role);
+          }
+        });
+      });
+
+      activate('user');
+    }
+
+    function setupPhotoUpload() {
+      const box = byId('uploadBox');
+      const input = byId('ImagePath');
+      const preview = byId('photoPreview');
+
+      const openPicker = () => input.click();
+      box.addEventListener('click', openPicker);
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPicker();
+        }
+      });
+
+      input.addEventListener('change', () => {
+        clearError('ImagePath');
+        const file = input.files && input.files[0];
+        if (!file) {
+          box.classList.remove('has-file');
+          preview.style.display = 'none';
+          preview.src = '';
+          return;
+        }
+
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) {
+          input.value = '';
+          box.classList.remove('has-file');
+          preview.style.display = 'none';
+          preview.src = '';
+          showError('ImagePath', 'File must be JPG/PNG under 5 MB');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+          box.classList.add('has-file');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function setupInputSanitizers() {
+      byId('Mobile').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        clearError('Mobile');
+      });
+
+      byId('Pincode').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+        clearError('Pincode');
+      });
+    }
+
+    function setupBlurValidation() {
+      const nameFields = ['FullName', 'FatherName', 'MotherName'];
+      nameFields.forEach((fieldId) => {
+        byId(fieldId).addEventListener('blur', (e) => {
+          const value = e.target.value.trim();
+          if (fieldId === 'MotherName' && !value) {
+            clearError(fieldId);
+            clearValid(fieldId);
+            return;
+          }
+          if (!value || !nameRegex.test(value)) showError(fieldId);
+          else setValid(fieldId);
+        });
+      });
+
+      byId('Email').addEventListener('blur', (e) => {
+        const value = e.target.value.trim();
+        if (!value || !emailRegex.test(value)) showError('Email');
+        else setValid('Email');
+      });
+
+      byId('Mobile').addEventListener('blur', (e) => {
+        const value = e.target.value.trim();
+        if (!value || !mobileRegex.test(value)) showError('Mobile');
+        else setValid('Mobile');
+      });
+
+      byId('Pincode').addEventListener('blur', (e) => {
+        const value = e.target.value.trim();
+        if (!value || !pincodeRegex.test(value)) showError('Pincode');
+        else setValid('Pincode');
+      });
+
+      byId('ConfirmPassword').addEventListener('blur', updateConfirmPasswordState);
+    }
+
+    function setupLiveFieldCorrections() {
+      document.querySelectorAll('.input, .select, .textarea').forEach((el) => {
+        el.addEventListener('input', () => {
+          if (el.id) clearError(el.id);
+        });
+      });
+
+      byId('Password').addEventListener('input', () => {
+        updatePasswordStrength();
+        if (byId('ConfirmPassword').value) updateConfirmPasswordState();
+      });
+
+      byId('ConfirmPassword').addEventListener('input', updateConfirmPasswordState);
+    }
+
+    function setupPasswordToggles() {
+      document.querySelectorAll('.toggle-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          const input = byId(targetId);
+          const icon = btn.querySelector('i');
+          const hidden = input.type === 'password';
+          input.type = hidden ? 'text' : 'password';
+          icon.className = hidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+      });
+    }
+
+    function setupStepNavigation() {
+      byId('next1').addEventListener('click', () => goNext(1));
+      byId('next2').addEventListener('click', () => goNext(2));
+      byId('prev2').addEventListener('click', () => goPrev(2));
+      byId('prev3').addEventListener('click', () => goPrev(3));
+    }
+
+    async function submitForm(event) {
+      event.preventDefault();
+      clearServerError();
+
+      if (!validateStep3()) return;
+
+      const submitBtn = byId('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account…';
+
+      try {
+        const response = await fetch('/register-zenopay', {
+          method: 'POST',
+          body: new FormData(form),
+        });
+
+        const rawBody = await response.text();
+        let result = null;
+        try {
+          result = rawBody ? JSON.parse(rawBody) : null;
+        } catch (_) {
+          result = null;
+        }
+
+        if (!response.ok) {
+          applyServerFieldErrors(result?.fieldErrors);
+          showServerError(result?.message || `Request failed (${response.status}). Please try again.`);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-user-tie"></i> Create Account';
+          return;
+        }
+
+        if (!result?.success) {
+          applyServerFieldErrors(result?.fieldErrors);
+          showServerError(result?.message || 'Registration failed. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-user-tie"></i> Create Account';
+          return;
+        }
+
+        form.style.display = 'none';
+        stepper.style.display = 'none';
+        byId('successScreen').classList.add('show');
+
+        let countdown = 3;
+        const countdownNode = byId('countdown');
+        const timer = setInterval(() => {
+          countdown -= 1;
+          countdownNode.textContent = countdown;
+          if (countdown <= 0) {
+            clearInterval(timer);
+            window.location.href = '/login';
+          }
+        }, 1000);
+      } catch (error) {
+        showServerError(error?.message || 'Network issue. Please check your connection and try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-user-tie"></i> Create Account';
+      }
+    }
+
+    function init() {
+      setupStepNavigation();
+      setupPasswordToggles();
+      setupLiveFieldCorrections();
+      setupInputSanitizers();
+      setupBlurValidation();
+      setupAccountTypeCards();
+      setupPhotoUpload();
+
+      byId('tnc').addEventListener('change', () => clearError('tnc'));
+      form.addEventListener('submit', submitForm);
+
+      updateStepUI();
+    }
+
+    init();
+  </script>
 </body>
 </html>

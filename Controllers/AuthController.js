@@ -61,8 +61,8 @@ const getRegister = (req, res) => {
   if (req.session.isLoggedIn) {
     return res.redirect("/");
   }
-  res.render("signup", {
-    pageTitle: "Sign Up - ZenoPay",
+  res.render("register", {
+    pageTitle: "Create Account - ZenoPay",
     isLoggedIn: false,
     user: null,
   });
