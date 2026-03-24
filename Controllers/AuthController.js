@@ -279,7 +279,6 @@ const postLogin = async (req, res) => {
       $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
     });
     if (!user) {
-     
       return res.status(401).json({
         success: false,
         message: "User not found. Please check your credentials.",
@@ -287,7 +286,6 @@ const postLogin = async (req, res) => {
     }
     const isPasswordValid = await verifyPasswordAndUpgradeIfNeeded(user, password);
     if (!isPasswordValid) {
-     
       return res.status(401).json({
         success: false,
         message: "Invalid password. Please try again.",
@@ -303,18 +301,23 @@ const postLogin = async (req, res) => {
         });
       }
 
+      // FIX: Store ALL name/email variants so header.ejs can always find them
       req.session.user = {
         _id: user._id.toString(),
-        name: user.FullName,
-        ZenoPayID: user.ZenoPayID,
-        email: user.Email,
-        role: user.Role,
+        name: user.FullName || user.name || "",
+        Name: user.FullName || user.name || "",
+        FullName: user.FullName || user.name || "",
+        ZenoPayID: user.ZenoPayID || user.userId || "",
+        Email: user.Email || user.email || "",
+        email: user.Email || user.email || "",
+        ProfilePicture: user.ProfilePicture || null,
+        role: user.Role || user.role || "user",
+        Role: user.Role || user.role || "user",
       };
 
       req.session.isLoggedIn = true;
       req.session.save((saveErr) => {
         if (saveErr) {
-       
           return res.status(500).json({
             success: false,
             message: "Session save error. Please try again.",
@@ -334,7 +337,6 @@ const postLogin = async (req, res) => {
           console.error("[Auth] Login history save failed:", historyErr.message);
         });
 
-       
         return res.status(200).json({
           success: true,
           message: "Login successful!",
@@ -352,7 +354,6 @@ const postLogin = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  
   req.session.destroy((err) => {
     if (err) {
       console.log("Logout error:", err);
@@ -362,7 +363,9 @@ const logout = (req, res) => {
       });
     }
 
-    res.clearCookie("connect.sid");
+    // FIX: Clear the correct session cookie name (zenopay.sid, not connect.sid)
+    res.clearCookie("zenopay.sid");
+    res.clearCookie("connect.sid"); // clear old name too just in case
     return res.redirect("/login");
   });
 };
