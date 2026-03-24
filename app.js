@@ -128,10 +128,16 @@ app.use(attachPermissions);
 
 // QR Code generation middleware
 app.use(async (req, res, next) => {
-  if (req.session.user && !req.session.qrCode) {
+  if (req.session?.user && !req.session.qrCode) {
     const user = req.session.user;
-    const fixedUrl = `https://zenopay.me/pay/${user.ZenoPayId}`;
-    req.session.qrCode = await generateQRWithLogo(fixedUrl);
+    const zenopayId = user.ZenoPayID || user.ZenoPayId || user.userId || '';
+    const fixedUrl = `https://zenopay.me/pay/${zenopayId}`;
+    try {
+      req.session.qrCode = await generateQRWithLogo(fixedUrl);
+    } catch (err) {
+      console.error("QR Code generation failed:", err);
+      req.session.qrCode = null;
+    }
   }
   next();
 });

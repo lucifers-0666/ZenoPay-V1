@@ -1,7 +1,10 @@
 <!-- ZenoPay Header v2 — Auth-aware, fully linked, fixed position -->
 <%
-  const currentUser = typeof user !== 'undefined' ? user : null;
-  const loggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : !!currentUser;
+  // Safely extract user and login state, handling express-ejs-layouts scoping and explicit render passes
+  const _user = typeof user !== 'undefined' ? user : (typeof locals !== 'undefined' && locals.user ? locals.user : null);
+  const _isLoggedIn = typeof isLoggedIn !== 'undefined' ? isLoggedIn : (typeof locals !== 'undefined' && locals.isLoggedIn ? locals.isLoggedIn : false);
+  const currentUser = _user || null;
+  const loggedIn = _isLoggedIn || !!currentUser;
   const currentUserName = currentUser ? (currentUser.name || currentUser.Name || currentUser.FullName || currentUser.Email || 'User') : 'User';
   const currentUserInitial = currentUserName.charAt(0).toUpperCase();
 %>
