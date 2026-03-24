@@ -96,8 +96,9 @@ app.use(session(sessionConfig));
 
 // Make auth/session state available to every EJS view by default
 app.use((req, res, next) => {
-  res.locals.isLoggedIn = !!req.session?.isLoggedIn;
-  res.locals.user = req.session?.user || null;
+  const sessionUser = req.session?.user || null;
+  res.locals.user = sessionUser;
+  res.locals.isLoggedIn = !!sessionUser || !!req.session?.isLoggedIn;
   next();
 });
 
