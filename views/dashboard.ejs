@@ -496,82 +496,102 @@
                 </p>
               </div>
 
-              <div class="pm-tabs">
-                <button class="pm-tab pm-tab-active" data-tab="upi" onclick="switchPMTab('upi', this)">UPI</button>
-                <button class="pm-tab" data-tab="cards" onclick="switchPMTab('cards', this)">Cards</button>
-                <button class="pm-tab" data-tab="netbanking" onclick="switchPMTab('netbanking', this)">Net Banking</button>
-                <button class="pm-tab" data-tab="wallets" onclick="switchPMTab('wallets', this)">Wallets</button>
-                <button class="pm-tab" data-tab="bnpl" onclick="switchPMTab('bnpl', this)">BNPL</button>
-              </div>
+              <div class="pm-shell">
+                <div class="pm-tabs" role="tablist" aria-label="Payment methods">
+                  <button class="pm-tab pm-tab-active" data-tab="upi" onclick="switchPMTab('upi', this)">UPI</button>
+                  <button class="pm-tab" data-tab="cards" onclick="switchPMTab('cards', this)">Cards</button>
+                  <button class="pm-tab" data-tab="netbanking" onclick="switchPMTab('netbanking', this)">Net Banking</button>
+                  <button class="pm-tab" data-tab="wallets" onclick="switchPMTab('wallets', this)">Wallets</button>
+                  <button class="pm-tab" data-tab="bnpl" onclick="switchPMTab('bnpl', this)">BNPL</button>
+                </div>
 
-              <div class="pm-content pm-content-active" id="tab-upi">
-                <div class="pm-layout">
-                  <div class="pm-left">
-                    <h3 class="pm-title">India's #1 Payment Method</h3>
-                    <p class="pm-desc">
-                      Accept UPI payments from any app — GPay, PhonePe, Paytm, BHIM and 200+ more. Sub-second settlement directly to your account.
-                    </p>
-                    <ul class="pm-features">
-                      <li><i class="fas fa-circle-check"></i>Instant settlement in &lt; 2 seconds</li>
-                      <li><i class="fas fa-circle-check"></i>UPI AutoPay for subscriptions</li>
-                      <li><i class="fas fa-circle-check"></i>Collect via QR code or payment link</li>
-                      <li><i class="fas fa-circle-check"></i>Zero MDR on UPI transactions</li>
-                    </ul>
-                    <div class="pm-apps">
-                      <span class="pm-app-chip">GPay</span>
-                      <span class="pm-app-chip">PhonePe</span>
-                      <span class="pm-app-chip">Paytm</span>
-                      <span class="pm-app-chip">BHIM</span>
-                      <span class="pm-app-chip">+200</span>
+                <div class="pm-content pm-content-active" id="tab-upi">
+                  <div class="pm-layout">
+                    <div class="pm-left">
+                      <h3 class="pm-title">India's #1 Payment Method</h3>
+                      <p class="pm-desc">
+                        Accept UPI payments from any app — GPay, PhonePe, Paytm, BHIM and 200+ more. Sub-second settlement directly to your account.
+                      </p>
+                      <ul class="pm-features">
+                        <li><i class="fas fa-circle-check"></i>Instant settlement in &lt; 2 seconds</li>
+                        <li><i class="fas fa-circle-check"></i>UPI AutoPay for subscriptions</li>
+                        <li><i class="fas fa-circle-check"></i>Collect via QR code or payment link</li>
+                        <li><i class="fas fa-circle-check"></i>Zero MDR on UPI transactions</li>
+                      </ul>
+                      <div class="pm-apps">
+                        <span class="pm-app-chip">GPay</span>
+                        <span class="pm-app-chip">PhonePe</span>
+                        <span class="pm-app-chip">Paytm</span>
+                        <span class="pm-app-chip">BHIM</span>
+                        <span class="pm-app-chip">+200</span>
+                      </div>
                     </div>
-                  </div>
-                  <div class="pm-right">
-                    <div class="pm-visual pm-visual-upi">
-                      <div class="pm-visual-card">
-                        <div class="pm-visual-header">
-                          <span>ZenoPay Checkout</span>
-                          <span class="pm-visual-secure"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Secure</span>
+                    <div class="pm-right">
+                      <div class="pm-visual pm-visual-upi">
+                        <div class="pm-visual-card">
+                          <div class="pm-visual-header">
+                            <span>ZenoPay Checkout</span>
+                            <span class="pm-visual-secure"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Secure</span>
+                          </div>
+                          <div class="pm-visual-amount">₹2,499.00</div>
+                          <label class="pm-visual-upi-input" for="upiIdInput">
+                            <i class="fas fa-mobile-screen" style="color:#6B3FA0;"></i>
+                            <input
+                              id="upiIdInput"
+                              class="pm-visual-upi-field"
+                              type="text"
+                              inputmode="text"
+                              autocomplete="off"
+                              placeholder="yourname@upi"
+                              aria-label="Enter your UPI ID"
+                            />
+                          </label>
+
+                          <div class="pm-upi-apps-title">Choose app</div>
+                          <div class="pm-visual-apps-row pm-visual-apps-row-upi" role="radiogroup" aria-label="Select UPI app">
+                            <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-gpay" checked />
+                            <label class="pm-upi-app" for="upi-app-gpay" title="Google Pay">
+                              <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/120px-Google_Pay_Logo.svg.png"
+                                alt="Google Pay" class="pm-visual-logo" width="40" height="40"
+                                loading="lazy" decoding="async"
+                              />
+                            </label>
+
+                            <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-phonepe" />
+                            <label class="pm-upi-app" for="upi-app-phonepe" title="PhonePe">
+                              <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/PhonePe_Logo.svg/120px-PhonePe_Logo.svg.png"
+                                alt="PhonePe" class="pm-visual-logo" width="40" height="40"
+                                loading="lazy" decoding="async"
+                              />
+                            </label>
+
+                            <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-paytm" />
+                            <label class="pm-upi-app" for="upi-app-paytm" title="Paytm">
+                              <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/120px-Paytm_Logo_%28standalone%29.svg.png"
+                                alt="Paytm" class="pm-visual-logo" width="40" height="40"
+                                loading="lazy" decoding="async"
+                              />
+                            </label>
+
+                            <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-bhim" />
+                            <label class="pm-upi-app" for="upi-app-bhim" title="BHIM UPI">
+                              <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/BHIM_logo.svg/120px-BHIM_logo.svg.png"
+                                alt="BHIM UPI" class="pm-visual-logo" width="40" height="40"
+                                loading="lazy" decoding="async"
+                              />
+                            </label>
+                          </div>
+
+                          <button type="button" class="pm-visual-btn">Pay with UPI</button>
                         </div>
-                        <div class="pm-visual-amount">₹2,499.00</div>
-                        <label class="pm-visual-upi-input" for="upiIdInput">
-                          <i class="fas fa-mobile-screen" style="color:#6B3FA0;"></i>
-                          <input
-                            id="upiIdInput"
-                            class="pm-visual-upi-field"
-                            type="text"
-                            inputmode="text"
-                            autocomplete="off"
-                            placeholder="yourname@upi"
-                            aria-label="Enter your UPI ID"
-                          />
-                        </label>
-                        <div class="pm-visual-apps-row" role="radiogroup" aria-label="Select UPI app">
-                          <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-gpay" checked />
-                          <label class="pm-upi-app" for="upi-app-gpay" title="Google Pay">
-                            <img src="https://cdn.simpleicons.org/googlepay" alt="Google Pay logo" class="pm-visual-logo pm-visual-logo-wide" loading="lazy" decoding="async" />
-                          </label>
-
-                          <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-phonepe" />
-                          <label class="pm-upi-app" for="upi-app-phonepe" title="PhonePe">
-                            <img src="https://cdn.simpleicons.org/phonepe" alt="PhonePe logo" class="pm-visual-logo pm-visual-logo-wide" loading="lazy" decoding="async" />
-                          </label>
-
-                          <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-paytm" />
-                          <label class="pm-upi-app" for="upi-app-paytm" title="Paytm">
-                            <img src="https://cdn.simpleicons.org/paytm" alt="Paytm logo" class="pm-visual-logo pm-visual-logo-wide" loading="lazy" decoding="async" />
-                          </label>
-
-                          <input class="pm-upi-app-radio" type="radio" name="upiApp" id="upi-app-bhim" />
-                          <label class="pm-upi-app" for="upi-app-bhim" title="BHIM UPI">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="BHIM UPI logo" class="pm-visual-logo" loading="lazy" decoding="async" />
-                          </label>
-                        </div>
-                        <button type="button" class="pm-visual-btn">Pay with UPI</button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
               <div class="pm-content" id="tab-cards">
                 <div class="pm-layout">
@@ -715,6 +735,7 @@
                   </div>
                 </div>
               </div>
+            </div>
 
             </div>
           </section>
