@@ -39,12 +39,10 @@
 }
 
 /* ═══════════════════════════════════════════════
-   HEADER BASE — FIXED (always visible on scroll)
+   HEADER BASE
    ═══════════════════════════════════════════════ */
 
 .zenopay-header {
-  /* FIXED: changed from sticky to fixed so header stays visible
-     on ALL pages regardless of parent overflow/transform/layout */
   position: fixed;
   top: 0;
   left: 0;
@@ -65,8 +63,6 @@
   box-shadow: 0 1px 0 #E5E7EB, 0 4px 24px rgba(0,0,0,0.1);
 }
 
-/* FIXED: spacer is now ENABLED — pushes page content below fixed header.
-   Without this, page content slides under the header. */
 .header-spacer {
   height: var(--header-height);
   display: block;
@@ -74,9 +70,7 @@
 }
 
 @media (max-width: 768px) {
-  .header-spacer {
-    height: var(--header-height); /* 58px on mobile, set below */
-  }
+  .header-spacer { height: var(--header-height); }
 }
 
 .header-inner {
@@ -640,14 +634,18 @@
 .notif-view-all:hover { color: var(--brand-purple); }
 
 /* ═══════════════════════════════════════════════
-   PROFILE DROPDOWN
+   PROFILE DROPDOWN  ← KEY CHANGES HERE
    ═══════════════════════════════════════════════ */
 
 .profile-drop {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 270px;
+  width: 280px;
+  /* Cap height so it never overflows the viewport */
+  max-height: calc(100vh - var(--header-height) - 24px);
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border-radius: 14px;
   border: 1px solid var(--header-border);
@@ -659,6 +657,7 @@
   transform: translateY(-8px);
   transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
   pointer-events: none;
+  overflow: hidden; /* clip rounded corners */
 }
 
 .action-wrapper.open .profile-drop {
@@ -668,6 +667,7 @@
   pointer-events: all;
 }
 
+/* User info — sticky at top, never scrolls away */
 .profile-info {
   display: flex;
   align-items: center;
@@ -676,6 +676,7 @@
   background: var(--bg-light);
   border-radius: 10px;
   margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 .profile-avatar-lg {
@@ -700,25 +701,52 @@
 .profile-name  { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .profile-email { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.profile-menu { display: flex; flex-direction: column; gap: 1px; }
+/* Scrollable menu body */
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow-y: auto;
+  /* thin custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--header-border) transparent;
+  /* Subtle fade-out hint at bottom when scrollable */
+  -webkit-overflow-scrolling: touch;
+}
+
+.profile-menu::-webkit-scrollbar { width: 4px; }
+.profile-menu::-webkit-scrollbar-track { background: transparent; }
+.profile-menu::-webkit-scrollbar-thumb { background: var(--header-border); border-radius: 4px; }
+
+/* Section labels inside the menu */
+.pmenu-section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 8px 10px 4px;
+  margin-top: 2px;
+}
 
 .pmenu-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 10px;
+  padding: 8px 10px;
   border-radius: 8px;
   font-size: 13.5px;
   color: var(--text-secondary);
   text-decoration: none;
   transition: background var(--ease);
+  white-space: nowrap;
 }
 
 .pmenu-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-.pmenu-item i { font-size: 16px; color: var(--text-tertiary); width: 18px; text-align: center; }
+.pmenu-item i { font-size: 15px; color: var(--text-tertiary); width: 18px; text-align: center; flex-shrink: 0; }
 
-.pmenu-sep { margin: 6px 0; height: 1px; background: var(--header-border); }
+.pmenu-sep { margin: 4px 0; height: 1px; background: var(--header-border); flex-shrink: 0; }
 
 .pmenu-item.logout { color: #EF4444; }
 .pmenu-item.logout:hover { background: #FEE2E2; }
@@ -897,7 +925,7 @@
 .mob-btn i { font-size: 17px; }
 
 /* ═══════════════════════════════════════════════════════════
-   MOBILE BOTTOM NAVIGATION BAR — FIXED, CONSISTENT ALL PAGES
+   MOBILE BOTTOM NAVIGATION BAR
    ═══════════════════════════════════════════════════════════ */
 
 .mobile-bottom-nav   { display: none; }
