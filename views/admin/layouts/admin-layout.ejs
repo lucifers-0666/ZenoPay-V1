@@ -21,6 +21,19 @@
   <link rel="stylesheet" href="/css/admin/admin-components.css">
   <link rel="stylesheet" href="/css/admin/admin-pages.css">
 
+  <style>
+    /* Admin hard-guard: never show public-site header/nav inside admin pages */
+    #zenoHeader,
+    .zenopay-header,
+    .mobile-bottom-nav,
+    .mobile-bottom-spacer,
+    .header-spacer,
+    #mobileOverlay {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  </style>
+
   <%- typeof extraCSS !== 'undefined' ? extraCSS : '' %>
 </head>
 
@@ -56,5 +69,19 @@
 <!-- Global admin JS — must be last -->
 <script src="/js/admin-base.js"></script>
 <script src="/js/admin-dashboard.js"></script>
+<script>
+  (function removePublicHeaderArtifacts() {
+    [
+      '#zenoHeader',
+      '.zenopay-header',
+      '.mobile-bottom-nav',
+      '.mobile-bottom-spacer',
+      '.header-spacer',
+      '#mobileOverlay'
+    ].forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => el.remove());
+    });
+  })();
+</script>
 </body>
 </html>

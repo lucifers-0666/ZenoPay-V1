@@ -129,6 +129,7 @@ const createAdmin = async (req, res) => {
       City: "N/A",
       State: "N/A",
       Pincode: "000000",
+      role: "Admin",
       Role: "admin",
       AccountStatus: "Active",
       EmailVerified: true,
@@ -221,6 +222,7 @@ const updateAdminRole = async (req, res) => {
       );
     }
 
+    admin.role = "Admin";
     admin.Role = "admin";
     await admin.save();
 

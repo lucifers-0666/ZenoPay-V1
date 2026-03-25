@@ -4,24 +4,6 @@ const ZenoPayUser = require("../../Models/ZenoPayUser");
 // Check if user is logged in and is an admin
 const isAdmin = async (req, res, next) => {
   try {
-    // ===== AUTHENTICATION TEMPORARILY DISABLED FOR DESIGN REVIEW =====
-    // Create fake admin session for testing
-    if (!req.session.user) {
-      req.session.isLoggedIn = true;
-      req.session.user = {
-        ZenoPayID: "ZP-ADMIN001",
-        FullName: "System Administrator",
-        Email: "admin@zenopay.com",
-        Role: "admin",
-        ImagePath: ""
-      };
-    }
-    
-    // Skip all authentication checks
-    next();
-    return;
-    // ===== END TEMPORARY BYPASS =====
-    
     // Check if user is logged in
     if (!req.session.isLoggedIn || !req.session.user) {
       return res.redirect("/admin/login");
@@ -56,12 +38,6 @@ const isAdmin = async (req, res, next) => {
 
 // Check if admin is already logged in (for login page)
 const isAdminLoggedIn = (req, res, next) => {
-  // ===== AUTHENTICATION TEMPORARILY DISABLED =====
-  // Allow access to login page for design review
-  next();
-  return;
-  // ===== END TEMPORARY BYPASS =====
-  
   if (req.session.isLoggedIn && req.session.user?.Role === "admin") {
     return res.redirect("/admin/dashboard");
   }

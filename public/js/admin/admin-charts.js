@@ -10,17 +10,37 @@
       return;
     }
 
+    let serverCharts = window.__ADMIN_DASHBOARD_CHARTS || {};
+    if (!serverCharts || !Object.keys(serverCharts).length) {
+      const dataNode = document.getElementById('adminDashboardData');
+      const raw = dataNode ? dataNode.getAttribute('data-charts') : '';
+      if (raw) {
+        try {
+          serverCharts = JSON.parse(raw);
+        } catch (_) {
+          serverCharts = {};
+        }
+      }
+    }
+    const txSeries = serverCharts.tx || {};
+    const userSeries = serverCharts.users || {};
+
+    const fallbackLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
     const labelsMap = {
-      '7d': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      '30d': ['W1', 'W2', 'W3', 'W4'],
-      '90d': ['M1', 'M2', 'M3']
+      '7d': txSeries['7d']?.labels || fallbackLabels,
+      '30d': txSeries['30d']?.labels || fallbackLabels,
+      '90d': txSeries['90d']?.labels || fallbackLabels,
     };
 
     const txMap = {
-      '7d': [120, 190, 150, 220, 180, 240, 200],
-      '30d': [160, 185, 210, 235],
-      '90d': [170, 205, 230]
+      '7d': txSeries['7d']?.data || Array(fallbackLabels.length).fill(0),
+      '30d': txSeries['30d']?.data || Array((txSeries['30d']?.labels || fallbackLabels).length).fill(0),
+      '90d': txSeries['90d']?.data || Array((txSeries['90d']?.labels || fallbackLabels).length).fill(0),
     };
+
+    const userDefaultLabels = userSeries['7d']?.labels || labelsMap['7d'];
+    const userDefaultData = userSeries['7d']?.data || Array(userDefaultLabels.length).fill(0);
 
     const txCtx = txCanvas ? txCanvas.getContext('2d') : null;
     const userCtx = userCanvas ? userCanvas.getContext('2d') : null;
@@ -80,10 +100,10 @@
       userChart = new Chart(userCtx, {
         type: 'bar',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: userDefaultLabels,
           datasets: [{
             label: 'New Users',
-            data: [45, 72, 38, 91, 65, 110, 83],
+            data: userDefaultData,
             backgroundColor: 'rgba(139,92,246,0.85)',
             borderRadius: 6,
             borderSkipped: false

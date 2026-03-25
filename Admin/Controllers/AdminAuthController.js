@@ -73,7 +73,7 @@ const postLogin = async (req, res) => {
     };
 
     // Redirect to admin dashboard
-    res.redirect("/admin/dashboard");
+    return res.redirect("/admin/dashboard");
   } catch (error) {
     console.error("Admin login error:", error);
     res.render("admin/auth/admin-login", {

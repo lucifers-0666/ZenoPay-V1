@@ -24,6 +24,10 @@ const getSessionZenoPayId = (req) =>
 
 const getDashboard = async (req, res) => {
   try {
+    if (req.session?.isLoggedIn && req.session?.user?.Role === "admin") {
+      return res.redirect("/admin/dashboard");
+    }
+
     const zenoPayId = getSessionZenoPayId(req);
 
     // FIX: Read user & isLoggedIn from session directly (res.locals already set

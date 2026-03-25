@@ -364,7 +364,8 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
   if (!this.phone && this.Mobile) this.phone = this.Mobile;
   if (!this.userId && this.ZenoPayID) this.userId = this.ZenoPayID;
 
-  if (!this.role && this.Role) {
+  const roleWasExplicitlySet = this.isModified("Role") || (this.isNew && this.Role && this.Role !== "user");
+  if ((roleWasExplicitlySet || !this.role) && this.Role) {
     this.role = roleLegacyToUi[String(this.Role).toLowerCase()] || "User";
   }
 

@@ -3,6 +3,9 @@ const router = express.Router();
 
 const KYCController = require("../Controllers/KYCController");
 const ContactController = require("../Controllers/ContactController");
+const { isAdmin } = require("../Admin/Middleware/adminAuth");
+
+router.use(isAdmin);
 
 // Admin KYC Management
 router.post("/admin/kyc/approve", KYCController.approveKYC);

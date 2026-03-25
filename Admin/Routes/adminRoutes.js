@@ -42,8 +42,8 @@ const useAuthLayout = (req, res, next) => {
 };
 
 // ============ AUTHENTICATION ROUTES (Public) ============
-router.get("/login", useAuthLayout, AdminAuthController.getLogin);
-router.post("/login", useAuthLayout, AdminAuthController.postLogin);
+router.get("/login", useAuthLayout, isAdminLoggedIn, AdminAuthController.getLogin);
+router.post("/login", useAuthLayout, isAdminLoggedIn, AdminAuthController.postLogin);
 router.get("/logout", AdminAuthController.logout);
 
 // Password Reset Routes
@@ -67,11 +67,17 @@ router.post("/2fa/generate", useAuthLayout, AdminAuthController.generate2FA);
 router.post("/2fa/verify", useAuthLayout, AdminAuthController.verify2FA);
 
 // ============ PROTECTED ROUTES (Require Admin Role) ============
-// First, apply admin authentication (creates fake session for testing)
+// First, apply admin authentication
 router.use(isAdmin);
 
 // Then apply RBAC role requirement
 router.use(requireRole("admin"));
+
+router.use((req, res, next) => {
+	res.locals.isAdminPanel = true;
+	res.locals.admin = req.session?.user || null;
+	next();
+});
 
 // Fallback admin page resolver (controllers can still override with explicit values)
 const resolveAdminPageFromPath = (path = "") => {
@@ -193,37 +199,6 @@ router.put("/banks/:id", requirePermission("banks", "update"), AdminBankControll
 // ============ TRANSACTION MANAGEMENT ROUTES ============
 router.get("/transactions", requirePermission("transactions", "view"), AdminTransactionController.getAllTransactions);
 router.get("/transactions/flagged", requirePermission("transactions", "flag"), AdminTransactionController.getFlaggedTransactions);
-// TEMP DEBUG ROUTE: remove after /admin/transactions/failed is confirmed stable
-router.get("/transactions/failed/debug", requirePermission("transactions", "view"), async (req, res) => {
-	try {
-		const TransactionHistory = require("../../Models/TransactionHistory");
-
-		const failedStatuses = ["failed", "Failed", "FAILED", "declined", "Declined"];
-		const count = await TransactionHistory.countDocuments({
-			Status: { $in: failedStatuses },
-		});
-
-		const one = await TransactionHistory.findOne({
-			Status: { $in: failedStatuses },
-		}).lean();
-
-		console.log("Failed count:", count);
-		console.log("Sample doc:", one);
-
-		return res.json({
-			success: true,
-			count,
-			sampleDoc: one,
-			message: "Controller query works fine",
-		});
-	} catch (err) {
-		return res.json({
-			success: false,
-			error: err?.message || "Unknown error",
-			stack: err?.stack || null,
-		});
-	}
-});
 router.get("/transactions/failed", requirePermission("transactions", "view"), AdminTransactionController.failedTransactions);
 router.post("/transactions/bulk-retry", requirePermission("transactions", "view"), AdminTransactionController.bulkRetryTransactions);
 router.post("/transactions/bulk-flag", requirePermission("transactions", "view"), AdminTransactionController.bulkFlagTransactions);
@@ -251,29 +226,6 @@ router.get("/refunds/:id", requirePermission("transactions", "view"), adminRefun
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
-// TEMP DEBUG ROUTE: remove after /admin/analytics is confirmed stable
-router.get("/analytics/debug", requirePermission("reports", "view"), async (req, res) => {
-	try {
-		const TransactionHistory = require("../../Models/TransactionHistory");
-		const ZenoPayUser = require("../../Models/ZenoPayUser");
-
-		const txnCount = await TransactionHistory.countDocuments();
-		const userCount = await ZenoPayUser.countDocuments({ Role: "user" });
-
-		return res.json({
-			success: true,
-			txnCount,
-			userCount,
-			message: "Analytics queries work fine",
-		});
-	} catch (err) {
-		return res.json({
-			success: false,
-			error: err?.message || "Unknown error",
-			stack: err?.stack || null,
-		});
-	}
-});
 router.get("/reports", requirePermission("reports", "view"), AdminDashboardController.getReports);
 router.get("/reports/export", requirePermission("reports", "export"), AdminDashboardController.exportReports);
 router.get("/audit-logs/export", requirePermission("reports", "view"), adminAuditController.exportAuditLogs);

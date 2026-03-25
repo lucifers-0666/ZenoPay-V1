@@ -3,24 +3,285 @@ const Merchant = require("../../Models/Merchant");
 const TransactionHistory = require("../../Models/TransactionHistory");
 const BankAccount = require("../../Models/BankAccount");
 const Banks = require("../../Models/Banks");
+const AdminSettings = require("../../Models/AdminSettings");
+const PaymentGatewaySettings = require("../../Models/PaymentGatewaySettings");
+
+const toNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  const parsed = Number(String(value).replace(/[₹,\s]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const formatCompactINR = (amount) => {
+  const num = toNumber(amount);
+  if (num >= 1_00_00_000) return `₹${(num / 1_00_00_000).toFixed(1)}Cr`;
+  if (num >= 1_00_000) return `₹${(num / 1_00_000).toFixed(1)}L`;
+  if (num >= 1_000) return `₹${(num / 1_000).toFixed(1)}K`;
+  return `₹${num.toLocaleString("en-IN")}`;
+};
+
+const formatPercentage = (current, previous) => {
+  const safeCurrent = toNumber(current);
+  const safePrevious = toNumber(previous);
+  if (!safePrevious && !safeCurrent) return 0;
+  if (!safePrevious) return 100;
+  return Number((((safeCurrent - safePrevious) / safePrevious) * 100).toFixed(1));
+};
+
+const timeAgoShort = (value) => {
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return "just now";
+  const sec = Math.max(1, Math.floor((Date.now() - dt.getTime()) / 1000));
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return `${day}d ago`;
+};
+
+const initialsFrom = (name = "U") =>
+  String(name)
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() || "")
+    .join("") || "U";
+
+const buildDateKeys = (days) => {
+  const keys = [];
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    keys.push(new Date(d));
+  }
+  return keys;
+};
+
+const buildSeries = async (Model, dateField, days, extraMatch = {}) => {
+  const points = buildDateKeys(days);
+  const start = points[0];
+
+  const data = await Model.aggregate([
+    {
+      $match: {
+        [dateField]: { $gte: start },
+        ...extraMatch,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: "%Y-%m-%d",
+            date: `$${dateField}`,
+          },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]).catch(() => []);
+
+  const map = new Map((data || []).map((row) => [row._id, Number(row.count || 0)]));
+  const labels = points.map((d) =>
+    d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: days <= 7 ? "short" : "numeric",
+    })
+  );
+  const values = points.map((d) => map.get(d.toISOString().slice(0, 10)) || 0);
+  return { labels, values };
+};
 
 // GET Admin Dashboard
 const getDashboard = async (req, res) => {
   try {
-    // Render the new modern dashboard
+    const now = new Date();
+    const last30Start = new Date(now);
+    last30Start.setDate(now.getDate() - 29);
+    last30Start.setHours(0, 0, 0, 0);
+
+    const prev30Start = new Date(last30Start);
+    prev30Start.setDate(prev30Start.getDate() - 30);
+
+    const prev30End = new Date(last30Start);
+    prev30End.setMilliseconds(-1);
+
+    const [
+      totalUsers,
+      totalTransactions,
+      activeMerchants,
+      pendingKycUsers,
+      pendingMerchants,
+      pendingBanks,
+      flaggedTransactions,
+      volumeAgg,
+      txLast30,
+      txPrev30,
+      usersLast30,
+      usersPrev30,
+      merchantsLast30,
+      merchantsPrev30,
+      recentTransactions,
+      recentUsers,
+      recentMerchantDocs,
+      recentFailedTx,
+      tx7,
+      tx30,
+      tx90,
+      users7,
+      users30,
+      users90,
+    ] = await Promise.all([
+      ZenoPayUser.countDocuments({ Role: "user" }),
+      TransactionHistory.countDocuments({}),
+      Merchant.countDocuments({ IsActive: true }),
+      ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "pending" }),
+      Merchant.countDocuments({
+        $or: [{ Status: /pending/i }, { IsActive: false }],
+      }),
+      Banks.countDocuments({
+        $or: [{ Status: /pending/i }, { IsActive: false }, { Approved: false }],
+      }),
+      TransactionHistory.countDocuments({
+        Status: { $in: ["flagged", "failed", "Failed", "declined", "Declined"] },
+      }),
+      TransactionHistory.aggregate([
+        { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } },
+      ]),
+      TransactionHistory.countDocuments({ TransactionTime: { $gte: last30Start } }),
+      TransactionHistory.countDocuments({
+        TransactionTime: { $gte: prev30Start, $lte: prev30End },
+      }),
+      ZenoPayUser.countDocuments({ Role: "user", RegistrationDate: { $gte: last30Start } }),
+      ZenoPayUser.countDocuments({
+        Role: "user",
+        RegistrationDate: { $gte: prev30Start, $lte: prev30End },
+      }),
+      Merchant.countDocuments({ createdAt: { $gte: last30Start } }),
+      Merchant.countDocuments({ createdAt: { $gte: prev30Start, $lte: prev30End } }),
+      TransactionHistory.find({})
+        .sort({ TransactionTime: -1, createdAt: -1 })
+        .limit(5)
+        .lean(),
+      ZenoPayUser.find({ Role: "user" })
+        .sort({ RegistrationDate: -1, createdAt: -1 })
+        .limit(3)
+        .lean(),
+      Merchant.find({})
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .lean(),
+      TransactionHistory.find({
+        Status: { $in: ["failed", "Failed", "declined", "Declined"] },
+      })
+        .sort({ TransactionTime: -1, createdAt: -1 })
+        .limit(2)
+        .lean(),
+      buildSeries(TransactionHistory, "TransactionTime", 7),
+      buildSeries(TransactionHistory, "TransactionTime", 30),
+      buildSeries(TransactionHistory, "TransactionTime", 90),
+      buildSeries(ZenoPayUser, "RegistrationDate", 7, { Role: "user" }),
+      buildSeries(ZenoPayUser, "RegistrationDate", 30, { Role: "user" }),
+      buildSeries(ZenoPayUser, "RegistrationDate", 90, { Role: "user" }),
+    ]);
+
+    const totalVolume = toNumber(volumeAgg?.[0]?.total || 0);
+    const pendingApprovals =
+      Number(pendingKycUsers || 0) + Number(pendingMerchants || 0) + Number(pendingBanks || 0);
+
+    const mappedRecentTransactions = (recentTransactions || []).map((tx) => {
+      const txStatus = String(tx.Status || "pending").toLowerCase();
+      const normalizedStatus = txStatus.includes("success")
+        ? "success"
+        : txStatus.includes("fail") || txStatus.includes("declin")
+          ? "failed"
+          : "pending";
+
+      const userName = tx.SenderHolderName || tx.ReceiverHolderName || "Unknown User";
+
+      return {
+        id: tx.TransactionID || String(tx._id || "").slice(-8).toUpperCase(),
+        userName,
+        initials: initialsFrom(userName),
+        amountText: `₹${toNumber(tx.Amount).toLocaleString("en-IN")}`,
+        type: tx.Type || tx.TransactionType || tx.Description || "Transaction",
+        status: normalizedStatus,
+        timeAgo: timeAgoShort(tx.TransactionTime || tx.createdAt),
+      };
+    });
+
+    const recentActivity = [
+      ...(recentUsers || []).map((u) => ({
+        timestamp: u.RegistrationDate || u.createdAt,
+        tone: "green",
+        text: `New user ${u.FullName || u.Email || "User"} registered`,
+      })),
+      ...(recentMerchantDocs || []).map((m) => ({
+        timestamp: m.createdAt,
+        tone: "blue",
+        text: `Merchant ${m.BusinessName || m.Email || "Merchant"} joined platform`,
+      })),
+      ...(recentFailedTx || []).map((t) => ({
+        timestamp: t.TransactionTime || t.createdAt,
+        tone: "red",
+        text: `Failed transaction detected (#${t.TransactionID || String(t._id || "").slice(-6)})`,
+      })),
+    ]
+      .filter((a) => a.timestamp)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 7)
+      .map((a) => ({
+        ...a,
+        timeAgo: timeAgoShort(a.timestamp),
+      }));
+
+    const dashboard = {
+      metrics: {
+        totalUsers,
+        totalTransactions,
+        activeMerchants,
+        pendingApprovals,
+        flaggedTransactions,
+        totalVolumeText: formatCompactINR(totalVolume),
+        usersGrowthPct: formatPercentage(usersLast30, usersPrev30),
+        txGrowthPct: formatPercentage(txLast30, txPrev30),
+        merchantsGrowthPct: formatPercentage(merchantsLast30, merchantsPrev30),
+      },
+      recentTransactions: mappedRecentTransactions,
+      activity: recentActivity,
+      charts: {
+        tx: {
+          "7d": { labels: tx7.labels, data: tx7.values },
+          "30d": { labels: tx30.labels, data: tx30.values },
+          "90d": { labels: tx90.labels, data: tx90.values },
+        },
+        users: {
+          "7d": { labels: users7.labels, data: users7.values },
+          "30d": { labels: users30.labels, data: users30.values },
+          "90d": { labels: users90.labels, data: users90.values },
+        },
+      },
+    };
+
     res.locals.adminPage = "dashboard";
-    res.render("admin/dashboard/admin-dashboard-overview", {
+    return res.render("admin/dashboard/admin-dashboard-overview", {
       user: req.session.user,
       title: "Dashboard",
       page: "dashboard",
       adminPage: "dashboard",
       kycPending: 0,
       supportOpen: 0,
-      pageTitle: "Admin Dashboard Overview - ZenoPay"
+      pageTitle: "Admin Dashboard Overview - ZenoPay",
+      dashboard,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
-    res.status(500).send("Error loading dashboard");
+    return res.status(500).send("Error loading dashboard");
   }
 };
 
@@ -227,13 +488,13 @@ const getStatistics = async (req, res) => {
     const chargebacks = Math.max(0, Math.round(failedTransactions * 0.15));
     const successRate = totalTransactions > 0
       ? ((successfulTransactions / totalTransactions) * 100).toFixed(1)
-      : "97.8";
+      : "0.0";
 
     const stats = {
-      totalVolume: totalVolumeNumber > 0 ? `${(totalVolumeNumber / 1000000).toFixed(1)}M` : "128.5M",
-      totalTransactions: totalTransactions > 0 ? totalTransactions.toLocaleString("en-IN") : "84,392",
+      totalVolume: `${(totalVolumeNumber / 1000000).toFixed(1)}M`,
+      totalTransactions: totalTransactions.toLocaleString("en-IN"),
       successRate,
-      chargebacks: chargebacks > 0 ? chargebacks.toLocaleString("en-IN") : "127",
+      chargebacks: chargebacks.toLocaleString("en-IN"),
     };
 
     // Generate selected range labels + query-backed values
@@ -402,7 +663,23 @@ const getStatistics = async (req, res) => {
       { $match: txDateFilter },
       { $group: { _id: null, avgValue: { $avg: { $toDouble: "$Amount" } } } }
     ]);
-    const avgTxnValue = avgTxnAgg[0]?.avgValue || 1523;
+    const avgTxnValue = avgTxnAgg[0]?.avgValue || 0;
+
+    const trendText = (current, previous) => {
+      const pct = formatPercentage(current, previous);
+      return `${pct >= 0 ? "+" : ""}${pct}%`;
+    };
+
+    const totalMerchantsCount = await Merchant.countDocuments({});
+    const volumeLast7 = volumeData.slice(-7).reduce((sum, v) => sum + Number(v || 0), 0);
+    const volumePrev = Math.max(0, totalVolumeNumber - volumeLast7);
+
+    const usersTrend = trendText(users7Days, Math.max(0, users30Days - users7Days));
+    const merchantsTrend = trendText(activeMerchants, Math.max(0, totalMerchantsCount - activeMerchants));
+    const volumeTrend = trendText(volumeLast7, volumePrev);
+    const failedTrend = trendText(failedTransactions, Math.max(0, totalTransactions - failedTransactions));
+    const chargebackTrend = trendText(chargebacks, Math.max(0, failedTransactions - chargebacks));
+    const avgTxnTrend = trendText(avgTxnValue, Math.max(0, avgTxnValue * 0.95));
 
     const detailedStats = [
       {
@@ -410,48 +687,48 @@ const getStatistics = async (req, res) => {
         today: Math.max(1, Math.floor(users7Days / 7)).toLocaleString("en-IN"),
         last7Days: users7Days.toLocaleString("en-IN"),
         last30Days: users30Days.toLocaleString("en-IN"),
-        trend: "+12.5%",
-        improving: true,
+        trend: usersTrend,
+        improving: Number(usersTrend.replace("%", "")) >= 0,
       },
       {
         metric: "Active Merchants",
         today: Math.max(1, Math.floor(activeMerchants / 30)).toLocaleString("en-IN"),
         last7Days: Math.max(1, Math.floor(activeMerchants / 4)).toLocaleString("en-IN"),
         last30Days: activeMerchants.toLocaleString("en-IN"),
-        trend: "+8.3%",
-        improving: true,
+        trend: merchantsTrend,
+        improving: Number(merchantsTrend.replace("%", "")) >= 0,
       },
       {
         metric: "Processed Volume",
         today: `₹${Math.floor(totalVolumeNumber / 30).toLocaleString("en-IN")}`,
         last7Days: `₹${Math.floor(totalVolumeNumber / 4).toLocaleString("en-IN")}`,
         last30Days: `₹${Math.floor(totalVolumeNumber).toLocaleString("en-IN")}`,
-        trend: "+24.3%",
-        improving: true,
+        trend: volumeTrend,
+        improving: Number(volumeTrend.replace("%", "")) >= 0,
       },
       {
         metric: "Failed Transactions",
         today: Math.max(1, Math.floor(failedTransactions / 30)).toLocaleString("en-IN"),
         last7Days: Math.max(1, Math.floor(failedTransactions / 4)).toLocaleString("en-IN"),
         last30Days: failedTransactions.toLocaleString("en-IN"),
-        trend: "-3.2%",
-        improving: false,
+        trend: failedTrend,
+        improving: Number(failedTrend.replace("%", "")) <= 0,
       },
       {
         metric: "Chargebacks",
         today: Math.max(1, Math.floor(chargebacks / 30)).toLocaleString("en-IN"),
         last7Days: Math.max(1, Math.floor(chargebacks / 4)).toLocaleString("en-IN"),
         last30Days: chargebacks.toLocaleString("en-IN"),
-        trend: "-5.8%",
-        improving: false,
+        trend: chargebackTrend,
+        improving: Number(chargebackTrend.replace("%", "")) <= 0,
       },
       {
         metric: "Avg Transaction Value",
         today: `₹${Math.round(avgTxnValue).toLocaleString("en-IN")}`,
         last7Days: `₹${Math.round(avgTxnValue * 0.98).toLocaleString("en-IN")}`,
         last30Days: `₹${Math.round(avgTxnValue).toLocaleString("en-IN")}`,
-        trend: "+2.3%",
-        improving: true,
+        trend: avgTxnTrend,
+        improving: Number(avgTxnTrend.replace("%", "")) >= 0,
       },
     ];
 
@@ -495,7 +772,7 @@ const getStatistics = async (req, res) => {
         avgValue: Math.round(avgTxnValue),
       },
       merchantStats: {
-        total: await Merchant.countDocuments({}),
+        total: totalMerchantsCount,
         active: activeMerchants,
         verified: await Merchant.countDocuments({ IsActive: true, Status: "active" }),
         volume: Math.round(totalVolumeNumber),
@@ -635,8 +912,9 @@ const getStatisticsData = async (req, res) => {
     
     // Transaction Statistics
     const totalTransactions = await TransactionHistory.countDocuments();
-    const successfulTransactions = await TransactionHistory.countDocuments({ Status: "Success" });
-    const failedTransactions = await TransactionHistory.countDocuments({ Status: "Failed" });
+    const successfulTransactions = await TransactionHistory.countDocuments({ Status: { $in: ["Success", "success"] } });
+    const failedTransactions = await TransactionHistory.countDocuments({ Status: { $in: ["Failed", "failed", "declined", "Declined"] } });
+    const pendingTransactions = await TransactionHistory.countDocuments({ Status: { $in: ["Pending", "pending"] } });
     const successRate = totalTransactions > 0 ? ((successfulTransactions / totalTransactions) * 100).toFixed(1) : 0;
     
     const avgTransactionValue = await TransactionHistory.aggregate([
@@ -654,6 +932,95 @@ const getStatisticsData = async (req, res) => {
     
     // Bank Statistics
     const connectedBanks = await Banks.countDocuments();
+
+    const verification = {
+      verified: await ZenoPayUser.countDocuments({ Role: "user", KYCStatus: { $in: ["approved", "verified"] } }),
+      unverified: await ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "not_started" }),
+      pending: await ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "pending" }),
+    };
+
+    const byHour = await TransactionHistory.aggregate([
+      {
+        $addFields: {
+          hour: { $hour: { $ifNull: ["$TransactionTime", "$createdAt"] } },
+        },
+      },
+      { $group: { _id: "$hour", count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const hourlyMap = new Map((byHour || []).map((r) => [Number(r._id), Number(r.count || 0)]));
+    const transactionTimes = Array.from({ length: 24 }).map((_, h) => hourlyMap.get(h) || 0);
+
+    const methodAgg = await TransactionHistory.aggregate([
+      {
+        $addFields: {
+          method: {
+            $toLower: {
+              $convert: {
+                input: { $ifNull: ["$Type", "$TransactionType"] },
+                to: "string",
+                onError: "other",
+                onNull: "other",
+              },
+            },
+          },
+        },
+      },
+      { $group: { _id: "$method", count: { $sum: 1 } } },
+    ]);
+
+    const paymentMethods = { bank: 0, card: 0, wallet: 0 };
+    (methodAgg || []).forEach((row) => {
+      const key = String(row._id || "other");
+      const count = Number(row.count || 0);
+      if (/(bank|neft|imps|rtgs)/i.test(key)) paymentMethods.bank += count;
+      else if (/(card|visa|master|rupay)/i.test(key)) paymentMethods.card += count;
+      else paymentMethods.wallet += count;
+    });
+
+    const merchantCategoriesAgg = await Merchant.aggregate([
+      {
+        $addFields: {
+          cat: {
+            $toLower: {
+              $convert: {
+                input: { $ifNull: ["$BusinessCategory", "$Category"] },
+                to: "string",
+                onError: "other",
+                onNull: "other",
+              },
+            },
+          },
+        },
+      },
+      { $group: { _id: "$cat", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+    ]);
+
+    const merchantCategories = { retail: 0, food: 0, tech: 0, services: 0, other: 0 };
+    (merchantCategoriesAgg || []).forEach((row) => {
+      const key = String(row._id || "other");
+      const count = Number(row.count || 0);
+      if (/(retail|ecommerce|shopping)/i.test(key)) merchantCategories.retail += count;
+      else if (/(food|restaurant|grocery)/i.test(key)) merchantCategories.food += count;
+      else if (/(tech|software|it)/i.test(key)) merchantCategories.tech += count;
+      else if (/(service|consult|agency)/i.test(key)) merchantCategories.services += count;
+      else merchantCategories.other += count;
+    });
+
+    const topMerchants = await Merchant.find({})
+      .sort({ TotalVolume: -1 })
+      .limit(5)
+      .select("BusinessName TotalVolume")
+      .lean();
+
+    const bankStats = await Banks.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select("BankName Status")
+      .lean();
     
     res.json({
       success: true,
@@ -661,7 +1028,7 @@ const getStatisticsData = async (req, res) => {
         total: totalUsers,
         active: activeUsers,
         new: newUsers,
-        retention: 78.5 // Calculate based on your logic
+        retention: totalUsers > 0 ? Number(((activeUsers / totalUsers) * 100).toFixed(1)) : 0,
       },
       transactions: {
         total: totalTransactions,
@@ -672,8 +1039,8 @@ const getStatisticsData = async (req, res) => {
       financial: {
         revenue: revenueStats[0]?.total || 0,
         commission: (revenueStats[0]?.total || 0) * 0.02, // 2% commission
-        pending: 45678, // Calculate from pending transactions
-        payouts: 189012 // Calculate from completed payouts
+        pending: pendingTransactions,
+        payouts: successfulTransactions,
       },
       merchants: {
         active: activeMerchants,
@@ -683,14 +1050,14 @@ const getStatisticsData = async (req, res) => {
         connected: connectedBanks
       },
       charts: {
-        verification: { verified: 8234, unverified: 3245, pending: 1068 },
-        transactionTimes: Array(24).fill(0).map(() => Math.floor(Math.random() * 3000)),
-        paymentMethods: { bank: 25600, card: 15200, wallet: 5093 },
-        merchantCategories: { retail: 45, food: 32, tech: 28, services: 25, other: 20 }
+        verification,
+        transactionTimes,
+        paymentMethods,
+        merchantCategories,
       },
       tables: {
-        topMerchants: [],
-        bankStats: []
+        topMerchants,
+        bankStats,
       }
     });
   } catch (error) {
@@ -996,8 +1363,8 @@ const getAnalytics = async (req, res) => {
       userLabels: revenueLabels,
       newUsersData,
       activeUsersData,
-      txnTypeLabels: typeLabels.length ? typeLabels : ["Wallet", "UPI", "Card", "Bank"],
-      txnBreakdown: typeData.length ? typeData : [45, 30, 15, 10],
+      txnTypeLabels: typeLabels.length ? typeLabels : ["No Data"],
+      txnBreakdown: typeData.length ? typeData : [0],
       failureLabels: revenueLabels,
       failureData,
       periodLabel,
@@ -1070,11 +1437,77 @@ const getReports = async (req, res) => {
 // Export Reports
 const exportReports = async (req, res) => {
   try {
-    // Add export logic here
-    res.json({ success: true, message: "Export functionality coming soon" });
+    const range = ["7", "30", "90", "365"].includes(String(req.query.range || ""))
+      ? String(req.query.range)
+      : "30";
+    const days = parseInt(range, 10);
+
+    const fromDate = new Date();
+    fromDate.setHours(0, 0, 0, 0);
+    fromDate.setDate(fromDate.getDate() - (days - 1));
+
+    const [transactions, users, merchants] = await Promise.all([
+      TransactionHistory.find({ TransactionTime: { $gte: fromDate } })
+        .sort({ TransactionTime: -1 })
+        .limit(5000)
+        .lean(),
+      ZenoPayUser.find({
+        Role: "user",
+        $or: [{ RegistrationDate: { $gte: fromDate } }, { createdAt: { $gte: fromDate } }],
+      })
+        .sort({ RegistrationDate: -1, createdAt: -1 })
+        .limit(5000)
+        .lean(),
+      Merchant.find({ createdAt: { $gte: fromDate } })
+        .sort({ createdAt: -1 })
+        .limit(5000)
+        .lean(),
+    ]);
+
+    const rows = [
+      ["section", "date", "id", "name", "email", "amount", "status", "type"],
+      ...transactions.map((t) => [
+        "transaction",
+        t.TransactionTime ? new Date(t.TransactionTime).toISOString() : "",
+        t.TransactionID || t._id?.toString() || "",
+        t.SenderHolderName || t.ReceiverHolderName || "",
+        t.SenderAccountNumber || "",
+        Number(t.Amount || 0),
+        t.Status || "",
+        t.Type || t.TransactionType || t.Description || "",
+      ]),
+      ...users.map((u) => [
+        "user",
+        (u.RegistrationDate || u.createdAt) ? new Date(u.RegistrationDate || u.createdAt).toISOString() : "",
+        u.ZenoPayID || u._id?.toString() || "",
+        u.FullName || "",
+        u.Email || "",
+        "",
+        u.Status || "",
+        "",
+      ]),
+      ...merchants.map((m) => [
+        "merchant",
+        m.createdAt ? new Date(m.createdAt).toISOString() : "",
+        m._id?.toString() || "",
+        m.BusinessName || "",
+        m.Email || "",
+        Number(m.TotalVolume || 0),
+        m.Status || (m.IsActive ? "active" : "inactive"),
+        m.BusinessCategory || m.Category || "",
+      ]),
+    ];
+
+    const csv = rows
+      .map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="admin-reports-${range}d.csv"`);
+    return res.send(csv);
   } catch (error) {
     console.error("Export error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -1098,11 +1531,15 @@ const getSettings = async (req, res) => {
 // Update Settings
 const updateSettings = async (req, res) => {
   try {
-    // Add settings update logic here
-    res.json({ success: true, message: "Settings updated successfully" });
+    await AdminSettings.findOneAndUpdate(
+      {},
+      { ...req.body, updatedAt: new Date() },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    return res.json({ success: true, message: "Settings updated successfully" });
   } catch (error) {
     console.error("Update settings error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -1146,22 +1583,48 @@ const updatePaymentGatewaySettings = async (req, res) => {
       });
     }
 
-    // In production, save to database
-    // For now, return success
-    res.json({
+    const settings = await PaymentGatewaySettings.getSettings();
+    settings.environment = environment === "live" ? "live" : "test";
+    settings.apiKey = String(apiKey || "").trim();
+    settings.secretKey = String(secretKey || "").trim();
+    settings.merchantId = String(merchantId || "").trim();
+    settings.webhookUrl = String(webhookUrl || "").trim();
+    settings.successUrl = String(successUrl || "").trim();
+    settings.failureUrl = String(failureUrl || "").trim();
+    settings.paymentMethods = paymentMethods && typeof paymentMethods === "object" ? paymentMethods : settings.paymentMethods;
+    settings.advancedSettings = advancedSettings && typeof advancedSettings === "object" ? {
+      ...settings.advancedSettings,
+      ...advancedSettings,
+    } : settings.advancedSettings;
+
+    if (fees && typeof fees === "object") {
+      Object.keys(fees).forEach((method) => {
+        if (!settings.paymentMethods?.[method]) return;
+        settings.paymentMethods[method].fee = Number(
+          fees[method]?.gatewayFee ?? settings.paymentMethods[method].fee
+        );
+        settings.paymentMethods[method].platformFee = Number(
+          fees[method]?.platformFee ?? settings.paymentMethods[method].platformFee
+        );
+      });
+    }
+
+    await settings.save();
+
+    return res.json({
       success: true,
       message: "Payment gateway settings updated successfully",
       data: {
-        environment,
-        merchantId,
-        paymentMethodsEnabled: Object.keys(paymentMethods).filter(key => paymentMethods[key]),
-        feesConfigured: Object.keys(fees).length,
-        advancedSettingsCount: Object.keys(advancedSettings).filter(key => advancedSettings[key]).length
+        environment: settings.environment,
+        merchantId: settings.merchantId,
+        paymentMethodsEnabled: Object.keys(settings.paymentMethods || {}).filter((key) => settings.paymentMethods[key]?.enabled),
+        feesConfigured: Object.keys(fees || {}).length,
+        advancedSettingsCount: Object.keys(settings.advancedSettings || {}).length,
       }
     });
   } catch (error) {
     console.error("Update Payment Gateway Settings error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message
     });
