@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-const ShopController = require("../Controllers/Shop");
 const TransferController = require("../Controllers/TransferMoney");
 const NotificationController = require("../Controllers/Notifications");
 const GatewayController = require("../Controllers/PaymentGatewayController");
@@ -13,23 +12,6 @@ const ContactController = require("../Controllers/ContactController");
 const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
 const { isAuthenticatedApi } = require("../Middleware/authGuards");
-
-// Shop API
-router.get("/api/shop/products", ShopController.getProducts);
-router.get("/api/shop/products/:id", ShopController.getProductById);
-router.get("/api/shop/categories", ShopController.getCategories);
-
-// Cart API
-router.get("/api/cart", isAuthenticatedApi, ShopController.getCart);
-router.post("/api/cart/add", isAuthenticatedApi, ShopController.addToCart);
-router.put("/api/cart/update/:id", isAuthenticatedApi, ShopController.updateCartItem);
-router.delete("/api/cart/remove/:id", isAuthenticatedApi, ShopController.removeFromCart);
-
-// Checkout & orders API
-router.post("/api/checkout", isAuthenticatedApi, ShopController.processCheckout);
-router.get("/api/orders", isAuthenticatedApi, ShopController.getUserOrders);
-router.get("/api/orders/:id", isAuthenticatedApi, ShopController.getOrderById);
-router.post("/api/orders/:id/cancel", isAuthenticatedApi, ShopController.cancelOrder);
 
 // Invoice API
 router.post("/api/invoices", isAuthenticatedApi, async (req, res) => {

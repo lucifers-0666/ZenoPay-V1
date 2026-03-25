@@ -9,7 +9,6 @@ const BankController = require("../Controllers/BankAccountController");
 const BranchController = require("../Controllers/BankController");
 const TransferController = require("../Controllers/TransferMoney");
 const ProfileController = require("../Controllers/Profile");
-const ShopController = require("../Controllers/Shop");
 const NotificationController = require("../Controllers/Notifications");
 const SettingsController = require("../Controllers/SettingsController");
 const KYCController = require("../Controllers/KYCController");
@@ -99,7 +98,6 @@ const upload = multer({
 });
 
 const publicGetPaths = new Set([
-  "/shop",
   "/support",
   "/support/search",
   "/terms",
@@ -130,8 +128,6 @@ router.get("/profile", ProfileController.getProfile);
 router.post("/profile", ProfileController.updateProfile);
 
 // Shop page
-router.get("/shop", ShopController.getShop);
-
 // Beneficiary Management
 router.get("/beneficiaries", BeneficiaryController.getBeneficiariesPage);
 
