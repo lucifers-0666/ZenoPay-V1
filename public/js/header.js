@@ -334,21 +334,7 @@
 
   const AccessibilityEnhancements = {
     init() {
-      this.setupSkipLink();
       this.setupFocusTrap();
-    },
-
-    setupSkipLink() {
-      const skipLink = document.createElement('a');
-      skipLink.href = '#main-content';
-      skipLink.className = 'skip-link';
-      skipLink.textContent = 'Skip to main content';
-      skipLink.style.cssText =
-        'position:absolute;top:-40px;left:0;background:var(--brand-blue);' +
-        'color:white;padding:8px 16px;text-decoration:none;z-index:10000;';
-      skipLink.addEventListener('focus', () => { skipLink.style.top = '0'; });
-      skipLink.addEventListener('blur',  () => { skipLink.style.top = '-40px'; });
-      document.body.insertBefore(skipLink, document.body.firstChild);
     },
 
     setupFocusTrap() {
