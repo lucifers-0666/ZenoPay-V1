@@ -15,65 +15,281 @@
 <body>
   <%- include('partials/header') %>
 
-  <!-- Hero Section -->
-  <section class="about-hero">
-    <div class="hero-background">
-      <div class="hero-blob hero-blob-1"></div>
-      <div class="hero-blob hero-blob-2"></div>
-      <div class="hero-blob hero-blob-3"></div>
+  <!-- ═══════════════════════════════════════
+       HERO SECTION — Full redesign
+  ═══════════════════════════════════════ -->
+  <section class="about-hero-v2">
+    <!-- Background layers -->
+    <div class="hero-v2-bg">
+      <div class="hero-dot-grid"></div>
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
     </div>
-    <div class="hero-content">
-      <div class="hero-logo">
-        <img src="/Images/fullLogo.png" alt="ZenoPay" class="hero-logo-img">
-      </div>
-      <h1 class="hero-title">Revolutionizing Digital Payments</h1>
-      <p class="hero-subtitle">Secure, Fast, and Reliable Payment Solutions for Everyone</p>
-      <div class="hero-cta">
-        <a href="/register" class="btn-hero-primary">
-          <span>Join Us Today</span>
-          <i class="fas fa-arrow-right"></i>
-        </a>
-        <a href="#story" class="btn-hero-secondary">
-          <span>Learn More</span>
-        </a>
-      </div>
-    </div>
-    <div class="scroll-indicator">
-      <i class="fas fa-chevron-down"></i>
-    </div>
-  </section>
 
-  <!-- Our Story Section -->
-  <section id="story" class="story-section">
-    <div class="container">
-      <div class="story-content">
-        <div class="story-header" data-animate="fade-up">
-          <h2 class="section-title">The Story Behind <span class="brand-highlight">ZenoPay</span></h2>
-          <div class="founded-badge">
-            <span class="badge-icon" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 6.5C9 3.5 4 3.5 1 6.5C4 9.5 9 9.5 12 6.5Z" fill="currentColor" />
-                <path d="M12 6.5C15 9.5 20 9.5 23 6.5C20 3.5 15 3.5 12 6.5Z" fill="currentColor" />
-                <path d="M12 17.5C9 14.5 4 14.5 1 17.5C4 20.5 9 20.5 12 17.5Z" fill="currentColor" />
-                <path d="M12 17.5C15 20.5 20 20.5 23 17.5C20 14.5 15 14.5 12 17.5Z" fill="currentColor" />
-                <path d="M12 11.5C9 8.5 4 8.5 1 11.5C4 14.5 9 14.5 12 11.5Z" fill="currentColor" />
-                <path d="M12 11.5C15 14.5 20 14.5 23 11.5C20 8.5 15 8.5 12 11.5Z" fill="currentColor" />
-              </svg>
-            </span>
-            <span class="badge-text">Founded in 2024</span>
+    <div class="hero-v2-inner">
+      <!-- LEFT: Text content -->
+      <div class="hero-v2-left">
+        <!-- Badge -->
+        <div class="hero-v2-badge">
+          <span class="badge-dot"></span>
+          <span>Fintech · Founded 2024 · India</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="hero-v2-title">
+          Reimagining How
+          <br>
+          <span class="hero-v2-gradient">India Pays</span>
+        </h1>
+
+        <!-- Subtext -->
+        <p class="hero-v2-sub">
+          ZenoPay was built with one belief — that every person and every business deserves fast, secure, and transparent financial infrastructure. No hidden fees. No complexity. Just payments that work.
+        </p>
+
+        <!-- Floating stat pills -->
+        <div class="hero-v2-pills">
+          <div class="hero-pill">
+            <i class="fas fa-users hero-pill-icon"></i>
+            <span class="hero-pill-num">50K+</span>
+            <span class="hero-pill-label">Active Users</span>
+          </div>
+          <div class="hero-pill">
+            <i class="fas fa-bolt hero-pill-icon hero-pill-icon--green"></i>
+            <span class="hero-pill-num">99.9%</span>
+            <span class="hero-pill-label">Uptime</span>
+          </div>
+          <div class="hero-pill">
+            <i class="fas fa-rupee-sign hero-pill-icon hero-pill-icon--purple"></i>
+            <span class="hero-pill-num">&#8377;10M+</span>
+            <span class="hero-pill-label">Monthly Volume</span>
           </div>
         </div>
 
-        <div class="story-text" data-animate="fade-up" data-delay="200">
-          <p><strong>Founded in 2024</strong>, ZenoPay was born from a simple yet powerful vision: to make digital payments accessible, secure, and effortless for everyone. Our founders, experienced fintech professionals with backgrounds at companies like PayPal, Stripe, and Google, recognized the growing need for a payment platform that combines cutting-edge technology with user-friendly design.</p>
+        <!-- CTA buttons -->
+        <div class="hero-v2-actions">
+          <a href="/register" class="btn-v2-primary">
+            <i class="fas fa-user-plus"></i>
+            <span>Open Free Account</span>
+          </a>
+          <a href="#story" class="btn-v2-ghost">
+            <span>Our Story</span>
+            <i class="fas fa-arrow-down"></i>
+          </a>
+        </div>
 
-          <p>The inspiration came when our <strong>CTO, Ashok Sah</strong>, experienced firsthand the frustration of complicated payment processes while helping her family's small business go digital. She realized that millions of people and businesses were struggling with the same challenges—high fees, slow processing times, and complex interfaces that made digital payments more of a burden than a convenience.</p>
+        <!-- Trust row -->
+        <div class="hero-v2-trust">
+          <div class="trust-item">
+            <i class="fas fa-shield-alt trust-icon"></i>
+            <span>PCI DSS L1</span>
+          </div>
+          <div class="trust-divider"></div>
+          <div class="trust-item">
+            <i class="fas fa-lock trust-icon"></i>
+            <span>256-bit SSL</span>
+          </div>
+          <div class="trust-divider"></div>
+          <div class="trust-item">
+            <i class="fas fa-certificate trust-icon"></i>
+            <span>ISO 27001</span>
+          </div>
+          <div class="trust-divider"></div>
+          <div class="trust-item">
+            <i class="fas fa-check-circle trust-icon trust-icon--green"></i>
+            <span>RBI Approved</span>
+          </div>
+        </div>
+      </div>
 
-          <p>What started as a small team of five passionate individuals working out of a shared workspace in Mumbai has grown into a thriving fintech company serving over <strong>50,000 users</strong> across <strong>5 countries</strong>. We've built our platform from the ground up, focusing on three core principles: <em>security</em>, <em>speed</em>, and <em>simplicity</em>.</p>
+      <!-- RIGHT: Visual card -->
+      <div class="hero-v2-right">
+        <div class="hero-visual-card">
+          <!-- Card header -->
+          <div class="hvc-header">
+            <img src="/Images/bgFavicon.png" alt="ZenoPay" class="hvc-logo" onerror="this.style.display='none'">
+            <div class="hvc-header-text">
+              <span class="hvc-brand">ZenoPay</span>
+              <span class="hvc-tagline">Payment Platform</span>
+            </div>
+            <div class="hvc-live-badge">
+              <span class="hvc-live-dot"></span>
+              Live
+            </div>
+          </div>
 
-          <p>Today, ZenoPay processes over <strong>₹10 million</strong> in transactions monthly, helping individuals send money to loved ones instantly, merchants accept payments seamlessly with zero setup costs, and businesses scale their operations with confidence. We've handled everything from small peer-to-peer transfers to large business transactions, maintaining a <strong>99.9% uptime</strong> record.</p>
+          <!-- Divider -->
+          <div class="hvc-divider"></div>
 
-          <p>Our journey is just beginning. With recent Series A funding and partnerships with major banking institutions, we're expanding our services, adding new features based on user feedback, and bringing our vision of accessible digital finance to even more people. We're not just building a payment platform—we're creating a financial ecosystem that empowers everyone to participate in the digital economy.</p>
+          <!-- Stats inside card -->
+          <div class="hvc-stats-grid">
+            <div class="hvc-stat">
+              <span class="hvc-stat-val">&#8377;2.4M</span>
+              <span class="hvc-stat-key">Today's Volume</span>
+              <span class="hvc-stat-change hvc-up"><i class="fas fa-arrow-up"></i> 12.4%</span>
+            </div>
+            <div class="hvc-stat">
+              <span class="hvc-stat-val">8,240</span>
+              <span class="hvc-stat-key">Transactions</span>
+              <span class="hvc-stat-change hvc-up"><i class="fas fa-arrow-up"></i> 5.1%</span>
+            </div>
+          </div>
+
+          <!-- Mini chart bar -->
+          <div class="hvc-chart">
+            <div class="hvc-chart-bar" style="height:40%"></div>
+            <div class="hvc-chart-bar" style="height:65%"></div>
+            <div class="hvc-chart-bar" style="height:50%"></div>
+            <div class="hvc-chart-bar" style="height:80%"></div>
+            <div class="hvc-chart-bar" style="height:60%"></div>
+            <div class="hvc-chart-bar" style="height:90%"></div>
+            <div class="hvc-chart-bar hvc-chart-bar--active" style="height:75%"></div>
+          </div>
+
+          <!-- Recent txns -->
+          <div class="hvc-txn-list">
+            <div class="hvc-txn">
+              <div class="hvc-txn-avatar" style="background:linear-gradient(135deg,#3B82F6,#8B5CF6)">A</div>
+              <div class="hvc-txn-info">
+                <span class="hvc-txn-name">Arjun Mehta</span>
+                <span class="hvc-txn-time">2 min ago</span>
+              </div>
+              <span class="hvc-txn-amt hvc-txn-cr">+&#8377;5,200</span>
+            </div>
+            <div class="hvc-txn">
+              <div class="hvc-txn-avatar" style="background:linear-gradient(135deg,#10B981,#059669)">S</div>
+              <div class="hvc-txn-info">
+                <span class="hvc-txn-name">Sneha Rao</span>
+                <span class="hvc-txn-time">5 min ago</span>
+              </div>
+              <span class="hvc-txn-amt hvc-txn-dr">-&#8377;1,800</span>
+            </div>
+            <div class="hvc-txn">
+              <div class="hvc-txn-avatar" style="background:linear-gradient(135deg,#F59E0B,#D97706)">R</div>
+              <div class="hvc-txn-info">
+                <span class="hvc-txn-name">Raj Traders</span>
+                <span class="hvc-txn-time">8 min ago</span>
+              </div>
+              <span class="hvc-txn-amt hvc-txn-cr">+&#8377;12,000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating accent cards -->
+        <div class="hero-float-card hero-float-card--tl">
+          <i class="fas fa-shield-alt" style="color:#10B981"></i>
+          <span>Bank-grade Security</span>
+        </div>
+        <div class="hero-float-card hero-float-card--br">
+          <i class="fas fa-globe" style="color:#3B82F6"></i>
+          <span>150+ Countries</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <a href="#story" class="hero-v2-scroll">
+      <i class="fas fa-chevron-down"></i>
+    </a>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       STORY SECTION — Redesigned dark version
+  ═══════════════════════════════════════ -->
+  <section id="story" class="story-v2">
+    <div class="story-v2-inner">
+
+      <!-- Section header -->
+      <div class="story-v2-header">
+        <span class="sv2-label">Our Story</span>
+        <h2 class="sv2-title">The Story Behind <span class="sv2-grad">ZenoPay</span></h2>
+        <p class="sv2-sub">From a shared workspace in Mumbai to a platform trusted by thousands — this is how we got here.</p>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="story-v2-grid">
+
+        <!-- Left: Timeline milestones -->
+        <div class="story-v2-timeline">
+          <div class="sv2-tl-item" data-animate="fade-up">
+            <div class="sv2-tl-dot sv2-tl-dot--blue"></div>
+            <div class="sv2-tl-content">
+              <span class="sv2-tl-year">2024 · Jan</span>
+              <h4 class="sv2-tl-title">The Idea Sparked</h4>
+              <p class="sv2-tl-text">Born from firsthand frustration with complicated payment flows while helping small family businesses go digital.</p>
+            </div>
+          </div>
+          <div class="sv2-tl-item" data-animate="fade-up" data-delay="100">
+            <div class="sv2-tl-dot sv2-tl-dot--purple"></div>
+            <div class="sv2-tl-content">
+              <span class="sv2-tl-year">2024 · June</span>
+              <h4 class="sv2-tl-title">First 1,000 Users</h4>
+              <p class="sv2-tl-text">Reached our first major user milestone just 5 months after launch — proof of product-market fit.</p>
+            </div>
+          </div>
+          <div class="sv2-tl-item" data-animate="fade-up" data-delay="200">
+            <div class="sv2-tl-dot sv2-tl-dot--green"></div>
+            <div class="sv2-tl-content">
+              <span class="sv2-tl-year">2024 · Oct</span>
+              <h4 class="sv2-tl-title">Series A · $5M</h4>
+              <p class="sv2-tl-text">Secured Series A funding from Sequoia Capital India, scaling engineering from 8 to 30 members.</p>
+            </div>
+          </div>
+          <div class="sv2-tl-item" data-animate="fade-up" data-delay="300">
+            <div class="sv2-tl-dot sv2-tl-dot--blue"></div>
+            <div class="sv2-tl-content">
+              <span class="sv2-tl-year">2025 · March</span>
+              <h4 class="sv2-tl-title">ISO 27001 Certified</h4>
+              <p class="sv2-tl-text">Achieved PCI DSS Level 1 and ISO 27001 certifications — zero security breaches to date.</p>
+            </div>
+          </div>
+          <div class="sv2-tl-item" data-animate="fade-up" data-delay="400">
+            <div class="sv2-tl-dot sv2-tl-dot--purple"></div>
+            <div class="sv2-tl-content">
+              <span class="sv2-tl-year">2026 · Jan</span>
+              <h4 class="sv2-tl-title">South Asia Expansion</h4>
+              <p class="sv2-tl-text">Launched in Nepal, Bangladesh, and Sri Lanka. Now serving 75,000+ users across 5 countries.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Story text -->
+        <div class="story-v2-text" data-animate="fade-up">
+          <p>
+            <strong>ZenoPay was founded in 2024</strong> from a simple yet powerful vision — to make digital payments accessible, secure, and effortless for everyone. Our founders recognized the growing need for a platform that combines cutting-edge technology with truly user-friendly design.
+          </p>
+          <p>
+            The inspiration came when our <strong>CTO, Ashok Sah</strong>, experienced firsthand the frustration of complex payment processes while helping a family business go digital. Millions of businesses were facing the same challenges — high fees, slow processing times, and interfaces that made payments a burden rather than a tool.
+          </p>
+          <p>
+            What started as a team of five in a shared workspace in Mumbai has grown into a fintech company processing over <strong>&#8377;10 million monthly</strong> — helping individuals send money instantly, merchants accept payments with zero setup costs, and businesses scale with confidence.
+          </p>
+          <p>
+            Today, we're not just building a payment platform — we're creating a financial ecosystem that empowers everyone to participate in the digital economy. With recent Series A funding and major banking partnerships, the journey is just beginning.
+          </p>
+
+          <!-- Founder highlights -->
+          <div class="story-v2-founders">
+            <div class="sv2-founder">
+              <div class="sv2-founder-avatar">
+                <img src="/Images/team/ashok-sah.jpg" alt="Ashok Sah" onerror="this.src='/Images/bgFavicon.png'">
+              </div>
+              <div class="sv2-founder-info">
+                <span class="sv2-founder-name">Ashok Sah</span>
+                <span class="sv2-founder-role">Co-founder &amp; CTO</span>
+              </div>
+            </div>
+            <div class="sv2-founder">
+              <div class="sv2-founder-avatar">
+                <img src="/Images/team/zaid-amreliya.jpg" alt="Zaid Amreliya" onerror="this.src='/Images/bgFavicon.png'">
+              </div>
+              <div class="sv2-founder-info">
+                <span class="sv2-founder-name">Zaid Amreliya</span>
+                <span class="sv2-founder-role">Co-founder &amp; CEO</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -83,27 +299,20 @@
   <section class="mission-vision-section">
     <div class="container">
       <div class="mission-vision-grid">
-        <!-- Mission Card -->
         <div class="mv-card mission-card">
-          <div class="mv-icon-wrapper">
-            <i class="fas fa-rocket"></i>
-          </div>
+          <div class="mv-icon-wrapper"><i class="fas fa-rocket"></i></div>
           <h3 class="mv-title">Our Mission</h3>
           <div class="quote-marks">"</div>
           <p class="mv-text">To democratize digital payments by providing a secure, efficient, and user-friendly platform that empowers individuals and businesses to transact with confidence, regardless of their technical expertise or financial background.</p>
-          <p class="mv-text">We believe everyone deserves access to fast, reliable payment solutions without the complexity of traditional banking systems. Our mission is to break down financial barriers, eliminate unnecessary fees, and create opportunities for growth in the digital economy. We're committed to financial inclusion, ensuring that whether you're a small vendor, a freelancer, or a growing business, you have the tools to succeed in the modern marketplace.</p>
+          <p class="mv-text">We believe everyone deserves access to fast, reliable payment solutions without the complexity of traditional banking systems.</p>
           <div class="mv-badge">Est. 2024</div>
         </div>
-
-        <!-- Vision Card -->
         <div class="mv-card vision-card">
-          <div class="mv-icon-wrapper">
-            <i class="fas fa-eye"></i>
-          </div>
+          <div class="mv-icon-wrapper"><i class="fas fa-eye"></i></div>
           <h3 class="mv-title">Our Vision</h3>
           <div class="quote-marks">"</div>
-          <p class="mv-text">To become India's most trusted and innovative payment gateway, enabling seamless financial transactions across borders and empowering millions to participate in the global digital economy with confidence and ease.</p>
-          <p class="mv-text">We envision a future where payments are instant, secure, and accessible to everyone, regardless of location, technical knowledge, or financial background. A world where sending money is as easy as sending a message, where businesses of all sizes have equal access to world-class payment infrastructure, and where financial services are transparent, affordable, and inclusive. Through continuous innovation, customer-centric design, and unwavering dedication to security, we're building that future today.</p>
+          <p class="mv-text">To become India's most trusted and innovative payment gateway, enabling seamless financial transactions across borders and empowering millions to participate in the global digital economy.</p>
+          <p class="mv-text">A world where payments are instant, secure, and accessible to everyone — regardless of location, knowledge, or background.</p>
           <div class="mv-badge">Global Impact</div>
         </div>
       </div>
@@ -118,61 +327,13 @@
         <h2 class="section-title">Our Core <span class="gradient-text">Values</span></h2>
         <p class="section-description">The principles that guide everything we do</p>
       </div>
-      
       <div class="values-grid">
-        <!-- Value 1: Trust -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-shield-alt"></i>
-          </div>
-          <h3 class="value-title">Trust & Security</h3>
-          <p class="value-description">Your trust is our foundation. We employ bank-grade 256-bit encryption, multi-factor authentication, and comply with PCI DSS Level 1 and ISO 27001 standards. Every transaction is monitored 24/7 for fraud prevention, and we never store sensitive payment information.</p>
-        </div>
-
-        <!-- Value 2: Innovation -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-lightbulb"></i>
-          </div>
-          <h3 class="value-title">Innovation</h3>
-          <p class="value-description">We continuously evolve our technology to provide cutting-edge payment solutions that meet tomorrow's needs today. From AI-powered fraud detection to instant settlements and QR code payments, we're always pushing the boundaries of what's possible in digital finance.</p>
-        </div>
-
-        <!-- Value 3: Speed -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-bolt"></i>
-          </div>
-          <h3 class="value-title">Speed & Efficiency</h3>
-          <p class="value-description">Real-time transaction processing ensures your payments reach their destination instantly, every time.</p>
-        </div>
-
-        <!-- Value 4: Transparency -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-eye"></i>
-          </div>
-          <h3 class="value-title">Transparency</h3>
-          <p class="value-description">Clear pricing with no hidden fees, no fine print, and complete visibility into every transaction. You see exactly what you're paying for, when you're paying it. We believe in honest business practices and building trust through transparency in everything we do.</p>
-        </div>
-
-        <!-- Value 5: Customer First -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <h3 class="value-title">Customer First</h3>
-          <p class="value-description">Your success is our success. We're dedicated to providing exceptional 24/7 support through chat, email, and phone. Every feature we build is designed based on real user feedback, and our average response time is under 2 minutes. You're not just a user—you're part of the ZenoPay family.</p>
-        </div>
-
-        <!-- Value 6: Accessibility -->
-        <div class="value-card">
-          <div class="value-icon">
-            <i class="fas fa-globe"></i>
-          </div>
-          <h3 class="value-title">Accessibility</h3>
-          <p class="value-description">Payment solutions designed for everyone, making digital finance inclusive and easy to use.</p>
-        </div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-shield-alt"></i></div><h3 class="value-title">Trust & Security</h3><p class="value-description">Bank-grade 256-bit encryption, MFA, PCI DSS Level 1 and ISO 27001. Every transaction monitored 24/7.</p></div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-lightbulb"></i></div><h3 class="value-title">Innovation</h3><p class="value-description">AI-powered fraud detection, instant settlements, and QR payments. Always pushing the boundaries of digital finance.</p></div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-bolt"></i></div><h3 class="value-title">Speed & Efficiency</h3><p class="value-description">Real-time transaction processing ensures payments reach their destination instantly, every time.</p></div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-eye"></i></div><h3 class="value-title">Transparency</h3><p class="value-description">Clear pricing. No hidden fees. Complete visibility into every transaction. Honest business, always.</p></div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-users"></i></div><h3 class="value-title">Customer First</h3><p class="value-description">24/7 support with under 2-minute response time. Every feature built from real user feedback.</p></div>
+        <div class="value-card"><div class="value-icon"><i class="fas fa-globe"></i></div><h3 class="value-title">Accessibility</h3><p class="value-description">Payment solutions designed for everyone — making digital finance inclusive and easy to use across India.</p></div>
       </div>
     </div>
   </section>
@@ -183,53 +344,30 @@
     <div class="container">
       <div class="stats-grid">
         <div class="stat-card" data-animate="fade-up">
-          <div class="stat-icon">
-            <i class="fas fa-dollar-sign"></i>
-          </div>
+          <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
           <div class="stat-content">
-            <div class="stat-value">
-              <span class="stat-number" data-target="10" id="transaction-volume">0</span>
-              <span class="stat-suffix">M+</span>
-            </div>
+            <div class="stat-value"><span class="stat-number" data-target="10">0</span><span class="stat-suffix">M+</span></div>
             <div class="stat-label">Transaction Volume</div>
           </div>
         </div>
-
         <div class="stat-card" data-animate="fade-up" data-delay="100">
-          <div class="stat-icon">
-            <i class="fas fa-users"></i>
-          </div>
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
           <div class="stat-content">
-            <div class="stat-value">
-              <span class="stat-number" data-target="50000" id="active-users">0</span>
-              <span class="stat-suffix">+</span>
-            </div>
+            <div class="stat-value"><span class="stat-number" data-target="50000">0</span><span class="stat-suffix">+</span></div>
             <div class="stat-label">Active Users</div>
           </div>
         </div>
-
         <div class="stat-card" data-animate="fade-up" data-delay="200">
-          <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
-          </div>
+          <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
           <div class="stat-content">
-            <div class="stat-value">
-              <span class="stat-number" data-target="99.9" id="uptime">0</span>
-              <span class="stat-suffix">%</span>
-            </div>
+            <div class="stat-value"><span class="stat-number" data-target="99.9">0</span><span class="stat-suffix">%</span></div>
             <div class="stat-label">Uptime</div>
           </div>
         </div>
-
         <div class="stat-card" data-animate="fade-up" data-delay="300">
-          <div class="stat-icon">
-            <i class="fas fa-globe-americas"></i>
-          </div>
+          <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
           <div class="stat-content">
-            <div class="stat-value">
-              <span class="stat-number" data-target="5" id="countries">0</span>
-              <span class="stat-suffix">+</span>
-            </div>
+            <div class="stat-value"><span class="stat-number" data-target="5">0</span><span class="stat-suffix">+</span></div>
             <div class="stat-label">Countries Served</div>
           </div>
         </div>
@@ -245,148 +383,30 @@
         <h2 class="section-title">Meet Our <span class="gradient-text">Team</span></h2>
         <p class="section-description">Passionate experts dedicated to revolutionizing payments</p>
       </div>
-
-      <!-- Founders Section -->
       <div class="founders-section">
         <h3 class="subsection-title">Founders</h3>
         <div class="founders-grid">
           <div class="founder-card" data-animate="fade-up">
-            <div class="founder-avatar">
-              <img src="/Images/team/ashok-sah.jpg" alt="Ashok Sah" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
-              </div>
-            </div>
-            <div class="founder-info">
-              <h4 class="founder-name">Ashok Sah</h4>
-              <p class="founder-role">Chief Technology Officer (CTO)</p>
-              <p class="founder-bio">Leading ZenoPay's technical architecture and innovation strategy. With extensive experience in building scalable fintech platforms, Ashok ensures our payment infrastructure is secure, fast, and reliable. Expert in cloud architecture, distributed systems, and modern payment technologies.</p>
-              <div class="founder-badge">
-                <i class="fas fa-code"></i> Tech Visionary
-              </div>
-            </div>
+            <div class="founder-avatar"><img src="/Images/team/ashok-sah.jpg" alt="Ashok Sah" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a><a href="#" class="social-link"><i class="fab fa-twitter"></i></a></div></div>
+            <div class="founder-info"><h4 class="founder-name">Ashok Sah</h4><p class="founder-role">Chief Technology Officer (CTO)</p><p class="founder-bio">Leading ZenoPay's technical architecture and innovation strategy. Expert in cloud architecture, distributed systems, and modern payment technologies.</p><div class="founder-badge"><i class="fas fa-code"></i> Tech Visionary</div></div>
           </div>
-
           <div class="founder-card" data-animate="fade-up" data-delay="200">
-            <div class="founder-avatar">
-              <img src="/Images/team/zaid-amreliya.jpg" alt="Zaid Amreliya" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                <a href="#" class="social-link" title="Twitter"><i class="fab fa-twitter"></i></a>
-              </div>
-            </div>
-            <div class="founder-info">
-              <h4 class="founder-name">Zaid Amreliya</h4>
-              <p class="founder-role">Chief Executive Officer (CEO)</p>
-              <p class="founder-bio">Driving ZenoPay's vision to revolutionize digital payments and make financial services accessible to everyone. Zaid brings deep expertise in fintech business strategy, partnerships, and creating seamless user experiences that empower individuals and businesses.</p>
-              <div class="founder-badge">
-                <i class="fas fa-rocket"></i> Business Leader
-              </div>
-            </div>
+            <div class="founder-avatar"><img src="/Images/team/zaid-amreliya.jpg" alt="Zaid Amreliya" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a><a href="#" class="social-link"><i class="fab fa-twitter"></i></a></div></div>
+            <div class="founder-info"><h4 class="founder-name">Zaid Amreliya</h4><p class="founder-role">Chief Executive Officer (CEO)</p><p class="founder-bio">Driving ZenoPay's vision to revolutionize digital payments. Deep expertise in fintech business strategy, partnerships, and user experience design.</p><div class="founder-badge"><i class="fas fa-rocket"></i> Business Leader</div></div>
           </div>
         </div>
       </div>
-
-      <!-- Core Team -->
       <div class="core-team-section">
         <h3 class="subsection-title">Core Team</h3>
         <div class="team-grid">
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member1.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Emily Rodriguez</h4>
-            <p class="team-role">Head of Product</p>
-            <p class="team-bio">10+ years building consumer fintech products. Previously at Revolut and TransferWise. Expert in user experience design and product strategy. Passionate about creating intuitive interfaces that make complex financial operations simple.</p>
-          </div>
-
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member2.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">James Wilson</h4>
-            <p class="team-role">Head of Engineering</p>
-            <p class="team-bio">MIT graduate, former Amazon Web Services architect. Led engineering teams at Stripe and Square. Specializes in high-availability systems and real-time payment processing. Building ZenoPay's technical foundation for scale.</p>
-          </div>
-
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member3.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Priya Sharma</h4>
-            <p class="team-role">Head of Security & Compliance</p>
-            <p class="team-bio">CISSP certified, former cybersecurity lead at HDFC Bank. Expert in payment security, PCI compliance, and fraud prevention. Ensuring ZenoPay meets the highest security standards and protecting user data 24/7.</p>
-          </div>
-
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member4.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Alex Thompson</h4>
-            <p class="team-role">Head of Marketing & Growth</p>
-            <p class="team-bio">Former growth lead at Coinbase. Built marketing strategies that acquired 500K+ users. Expert in digital marketing, brand building, and community engagement. Helping more people discover the benefits of ZenoPay.</p>
-          </div>
-          
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member5.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Raj Patel</h4>
-            <p class="team-role">Head of Customer Success</p>
-            <p class="team-bio">15 years in customer service leadership. Previously at Paytm and PhonePe. Built customer support teams from scratch. Ensuring every ZenoPay user receives exceptional service and support at every touchpoint.</p>
-          </div>
-          
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member6.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Lisa Chang</h4>
-            <p class="team-role">Head of Business Development</p>
-            <p class="team-bio">MBA from Wharton, 12 years in fintech partnerships. Former BD director at Visa. Building strategic partnerships with banks, merchants, and payment networks to expand ZenoPay's ecosystem and reach.</p>
-          </div>
-          
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member7.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Kumar Reddy</h4>
-            <p class="team-role">Head of Data Science</p>
-            <p class="team-bio">PhD in Machine Learning from IIT Delhi. Former data scientist at Google Research. Building AI models for fraud detection, risk assessment, and personalized user experiences. Making ZenoPay smarter with every transaction.</p>
-          </div>
-          
-          <div class="team-card">
-            <div class="team-avatar">
-              <img src="/Images/team/member8.jpg" alt="Team Member" onerror="this.src='/Images/bgFavicon.png'">
-              <div class="avatar-overlay">
-                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-              </div>
-            </div>
-            <h4 class="team-name">Maria Garcia</h4>
-            <p class="team-role">Head of Legal & Compliance</p>
-            <p class="team-bio">15 years in fintech legal practice. Former counsel at Reserve Bank regulatory department. Expert in payment regulations, data privacy, and international compliance. Ensuring ZenoPay operates within all legal frameworks.</p>
-          </div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member1.jpg" alt="Emily Rodriguez" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Emily Rodriguez</h4><p class="team-role">Head of Product</p><p class="team-bio">10+ years in fintech. Previously at Revolut and TransferWise.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member2.jpg" alt="James Wilson" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">James Wilson</h4><p class="team-role">Head of Engineering</p><p class="team-bio">MIT graduate. Former AWS architect. Ex-Stripe & Square.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member3.jpg" alt="Priya Sharma" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Priya Sharma</h4><p class="team-role">Head of Security</p><p class="team-bio">CISSP certified. Former cybersecurity lead at HDFC Bank.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member4.jpg" alt="Alex Thompson" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Alex Thompson</h4><p class="team-role">Head of Marketing</p><p class="team-bio">Former growth lead at Coinbase. 500K+ user acquisitions.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member5.jpg" alt="Raj Patel" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Raj Patel</h4><p class="team-role">Head of Customer Success</p><p class="team-bio">15 years in service leadership. Ex-Paytm and PhonePe.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member6.jpg" alt="Lisa Chang" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Lisa Chang</h4><p class="team-role">Head of Business Dev</p><p class="team-bio">MBA Wharton. Former BD Director at Visa.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member7.jpg" alt="Kumar Reddy" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Kumar Reddy</h4><p class="team-role">Head of Data Science</p><p class="team-bio">PhD ML from IIT Delhi. Former Google Research scientist.</p></div>
+          <div class="team-card"><div class="team-avatar"><img src="/Images/team/member8.jpg" alt="Maria Garcia" onerror="this.src='/Images/bgFavicon.png'"><div class="avatar-overlay"><a href="#" class="social-link"><i class="fab fa-linkedin"></i></a></div></div><h4 class="team-name">Maria Garcia</h4><p class="team-role">Head of Legal</p><p class="team-bio">15 years fintech legal. Former RBI regulatory counsel.</p></div>
         </div>
       </div>
     </div>
@@ -400,203 +420,50 @@
         <h2 class="section-title">Achievements & <span class="gradient-text">Milestones</span></h2>
         <p class="section-description">Key moments that shaped our story</p>
       </div>
-
       <div class="timeline">
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">January 2024</span>
-            <div class="timeline-icon">
-              <i class="fas fa-flag-checkered"></i>
-            </div>
-            <h4 class="timeline-title">Company Founded</h4>
-            <p class="timeline-description">ZenoPay officially launched with a mission to revolutionize digital payments. Our founding team of five passionate fintech veterans began building the platform from the ground up, incorporating lessons learned from years of experience at companies like PayPal, Stripe, and Google Pay. Initial funding of $500K from angel investors.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">June 2024</span>
-            <div class="timeline-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <h4 class="timeline-title">First 1,000 Users</h4>
-            <p class="timeline-description">Reached our first major milestone with 1,000 active users after just 5 months. This validated our product-market fit and gave us confidence to scale. Users loved the simple interface, instant transfers, and transparent pricing. Average user rating: 4.8/5 stars.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">October 2024</span>
-            <div class="timeline-icon">
-              <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <h4 class="timeline-title">Series A Funding</h4>
-            <p class="timeline-description">Secured $5M in Series A funding led by Sequoia Capital India and other prominent VCs. This investment allowed us to expand our engineering team from 8 to 30 members, enhance our infrastructure, and accelerate product development. Also opened our first dedicated office in Mumbai.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">March 2025</span>
-            <div class="timeline-icon">
-              <i class="fas fa-certificate"></i>
-            </div>
-            <h4 class="timeline-title">ISO 27001 Certified</h4>
-            <p class="timeline-description">Achieved ISO 27001 certification for information security management after rigorous audit. This demonstrates our unwavering commitment to data protection and security. Also obtained PCI DSS Level 1 certification, the highest level of payment security compliance. Zero security breaches to date.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">September 2025</span>
-            <div class="timeline-icon">
-              <i class="fas fa-trophy"></i>
-            </div>
-            <h4 class="timeline-title">50,000 Users Milestone</h4>
-            <p class="timeline-description">Celebrated reaching 50,000 active users across India. Processing over ₹10 million in monthly transactions. Maintained 99.9% uptime throughout rapid growth. Expanded team to 75 employees. Launched mobile apps for iOS and Android with 4.7+ star ratings.</p>
-          </div>
-        </div>
-
-        <div class="timeline-item">
-          <div class="timeline-marker">
-            <div class="marker-dot"></div>
-          </div>
-          <div class="timeline-card">
-            <span class="timeline-year">January 2026</span>
-            <div class="timeline-icon">
-              <i class="fas fa-globe"></i>
-            </div>
-            <h4 class="timeline-title">International Expansion</h4>
-            <p class="timeline-description">Launched services in Nepal, Bangladesh, and Sri Lanka, expanding our reach across South Asia. Partnered with local banks and payment networks to ensure seamless cross-border transactions. Introduced multi-currency support for USD, EUR, GBP, and 10+ other currencies. Now serving 75,000+ users globally.</p>
-          </div>
-        </div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">January 2024</span><div class="timeline-icon"><i class="fas fa-flag-checkered"></i></div><h4 class="timeline-title">Company Founded</h4><p class="timeline-description">ZenoPay officially launched with $500K angel funding. Five passionate fintech veterans began building the platform from scratch.</p></div></div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">June 2024</span><div class="timeline-icon"><i class="fas fa-users"></i></div><h4 class="timeline-title">First 1,000 Users</h4><p class="timeline-description">Reached our first milestone with 1,000 active users in just 5 months. Average rating: 4.8/5 stars.</p></div></div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">October 2024</span><div class="timeline-icon"><i class="fas fa-money-bill-wave"></i></div><h4 class="timeline-title">Series A · $5M Funding</h4><p class="timeline-description">Secured $5M led by Sequoia Capital India. Expanded engineering from 8 to 30 members. Opened Mumbai HQ.</p></div></div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">March 2025</span><div class="timeline-icon"><i class="fas fa-certificate"></i></div><h4 class="timeline-title">ISO 27001 Certified</h4><p class="timeline-description">Achieved ISO 27001 and PCI DSS Level 1 certification. Zero security breaches to date.</p></div></div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">September 2025</span><div class="timeline-icon"><i class="fas fa-trophy"></i></div><h4 class="timeline-title">50,000 Users Milestone</h4><p class="timeline-description">Celebrated 50,000 active users. Processing &#8377;10M+ monthly. Team expanded to 75 employees.</p></div></div>
+        <div class="timeline-item"><div class="timeline-marker"><div class="marker-dot"></div></div><div class="timeline-card"><span class="timeline-year">January 2026</span><div class="timeline-icon"><i class="fas fa-globe"></i></div><h4 class="timeline-title">South Asia Expansion</h4><p class="timeline-description">Launched in Nepal, Bangladesh, Sri Lanka. Multi-currency support added. 75,000+ global users.</p></div></div>
       </div>
     </div>
   </section>
 
-  <!-- Partners & Certifications Section -->
+  <!-- Partners & Certifications -->
   <section class="partners-section">
     <div class="container">
       <div class="section-header-center">
         <span class="section-label">Trust & Compliance</span>
         <h2 class="section-title">Trusted By Industry <span class="gradient-text">Leaders</span></h2>
       </div>
-
-      <!-- Certifications -->
       <div class="certifications-grid">
-        <div class="cert-badge">
-          <div class="cert-icon">
-            <i class="fas fa-shield-alt"></i>
-          </div>
-          <h4 class="cert-title">PCI DSS</h4>
-          <p class="cert-subtitle">Level 1 Certified</p>
-        </div>
-
-        <div class="cert-badge">
-          <div class="cert-icon">
-            <i class="fas fa-certificate"></i>
-          </div>
-          <h4 class="cert-title">ISO 27001</h4>
-          <p class="cert-subtitle">Information Security</p>
-        </div>
-
-        <div class="cert-badge">
-          <div class="cert-icon">
-            <i class="fas fa-check-circle"></i>
-          </div>
-          <h4 class="cert-title">SOC 2</h4>
-          <p class="cert-subtitle">Type II Compliant</p>
-        </div>
-
-        <div class="cert-badge">
-          <div class="cert-icon">
-            <i class="fas fa-lock"></i>
-          </div>
-          <h4 class="cert-title">GDPR</h4>
-          <p class="cert-subtitle">Compliant</p>
-        </div>
-      </div>
-
-      <!-- Partners -->
-      <div class="partners-grid">
-        <div class="partner-logo">
-          <img src="/Images/partners/partner1.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 1</span>
-        </div>
-        <div class="partner-logo">
-          <img src="/Images/partners/partner2.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 2</span>
-        </div>
-        <div class="partner-logo">
-          <img src="/Images/partners/partner3.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 3</span>
-        </div>
-        <div class="partner-logo">
-          <img src="/Images/partners/partner4.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 4</span>
-        </div>
-        <div class="partner-logo">
-          <img src="/Images/partners/partner5.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 5</span>
-        </div>
-        <div class="partner-logo">
-          <img src="/Images/partners/partner6.png" alt="Partner" onerror="this.style.display='none'">
-          <span class="partner-fallback">Partner 6</span>
-        </div>
+        <div class="cert-badge"><div class="cert-icon"><i class="fas fa-shield-alt"></i></div><h4 class="cert-title">PCI DSS</h4><p class="cert-subtitle">Level 1 Certified</p></div>
+        <div class="cert-badge"><div class="cert-icon"><i class="fas fa-certificate"></i></div><h4 class="cert-title">ISO 27001</h4><p class="cert-subtitle">Information Security</p></div>
+        <div class="cert-badge"><div class="cert-icon"><i class="fas fa-check-circle"></i></div><h4 class="cert-title">SOC 2</h4><p class="cert-subtitle">Type II Compliant</p></div>
+        <div class="cert-badge"><div class="cert-icon"><i class="fas fa-lock"></i></div><h4 class="cert-title">GDPR</h4><p class="cert-subtitle">Compliant</p></div>
       </div>
     </div>
   </section>
 
-  <!-- Call to Action Section -->
+  <!-- CTA Section -->
   <section class="cta-section">
     <div class="cta-background"></div>
     <div class="container">
       <div class="cta-content">
         <h2 class="cta-title">Ready to Join the ZenoPay Revolution?</h2>
-        <p class="cta-subtitle">Be part of India's fastest-growing payment platform. Experience instant transfers, zero hidden fees, and world-class security. Join 50,000+ satisfied users who've already made the switch.</p>
+        <p class="cta-subtitle">Be part of India's fastest-growing payment platform. Join 50,000+ satisfied users who've already made the switch.</p>
         <div class="cta-buttons">
-          <a href="/register" class="btn-cta-primary">
-            <i class="fas fa-user-plus"></i>
-            <span>Open Free Account</span>
-          </a>
-          <a href="/contact" class="btn-cta-outline">
-            <i class="fas fa-headset"></i>
-            <span>Talk to Sales</span>
-          </a>
+          <a href="/register" class="btn-cta-primary"><i class="fas fa-user-plus"></i><span>Open Free Account</span></a>
+          <a href="/contact" class="btn-cta-outline"><i class="fas fa-headset"></i><span>Talk to Sales</span></a>
         </div>
-        <p class="cta-footnote">
-          <i class="fas fa-shield-check"></i> Bank-grade security · 
-          <i class="fas fa-bolt"></i> Instant transfers · 
-          <i class="fas fa-money-bill-wave"></i> No setup fees · 
-          <i class="fas fa-headset"></i> 24/7 support
-        </p>
-        <div class="cta-trust-badges" style="margin-top: 24px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0.8;">
-          <span style="font-size: 12px; color: rgba(255,255,255,0.9);"><i class="fas fa-certificate"></i> ISO 27001</span>
-          <span style="font-size: 12px; color: rgba(255,255,255,0.9);"><i class="fas fa-shield-alt"></i> PCI DSS Level 1</span>
-          <span style="font-size: 12px; color: rgba(255,255,255,0.9);"><i class="fas fa-check-circle"></i> RBI Approved</span>
-          <span style="font-size: 12px; color: rgba(255,255,255,0.9);"><i class="fas fa-lock"></i> SOC 2 Type II</span>
-        </div>
+        <p class="cta-footnote"><i class="fas fa-shield-alt"></i> Bank-grade security &nbsp;·&nbsp; <i class="fas fa-bolt"></i> Instant transfers &nbsp;·&nbsp; <i class="fas fa-money-bill-wave"></i> No setup fees &nbsp;·&nbsp; <i class="fas fa-headset"></i> 24/7 support</p>
       </div>
     </div>
   </section>
 
   <%- include('partials/footer') %>
-
   <script src="/js/about.js"></script>
 </body>
 </html>
