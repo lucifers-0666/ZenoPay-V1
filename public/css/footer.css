@@ -54,16 +54,12 @@
   margin: 0;
   font-family: var(--zenopay-font-sans);
   color: #E2E8F0;
-  /* FIX: 3px brand gradient accent line at very top of footer */
   border-top: 3px solid transparent;
   border-image: linear-gradient(90deg, #3B82F6, #8B5CF6) 1;
 }
 
-/* FIX: Removed the ::before pseudo-element that had margin-bottom: 50px
-   which was creating the duplicate ghost stats row below the real stats */
-
 /* ═══════════════════════════════════
-   4. NEWSLETTER SECTION (ENHANCED)
+   NEWSLETTER SECTION
    ═══════════════════════════════════ */
 .newsletter-section {
   width: 100%;
@@ -105,7 +101,7 @@
   right: -10%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -117,7 +113,7 @@
   left: -5%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -137,7 +133,7 @@
 
 .newsletter-subtext {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.9);
   margin: 0;
   line-height: 1.6;
 }
@@ -145,7 +141,7 @@
 .newsletter-badge {
   display: inline-block;
   font-size: 12px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
   padding: 6px 12px;
   border-radius: 20px;
   color: white;
@@ -184,9 +180,7 @@
   background: white;
 }
 
-.newsletter-input::placeholder {
-  color: #94A3B8;
-}
+.newsletter-input::placeholder { color: #94A3B8; }
 
 .newsletter-input:focus {
   box-shadow: inset 0 0 0 2px #3B82F6;
@@ -211,17 +205,15 @@
   transform: scale(1.02);
 }
 
-.newsletter-btn i {
-  font-size: 18px;
-}
+.newsletter-btn i { font-size: 18px; }
 
 /* ═══════════════════════════════════
-   5. PRE-FOOTER STATS BAR
+   PRE-FOOTER STATS BAR
    ═══════════════════════════════════ */
 .stats-bar-section {
   width: 100%;
   border-top: none;
-  border-bottom: 1px solid rgba(30, 41, 59, 0.2);
+  border-bottom: 1px solid rgba(30,41,59,0.2);
   background: #0F172A;
   padding: 60px 0;
   margin-bottom: 40px;
@@ -296,7 +288,7 @@
 }
 
 /* ═══════════════════════════════════
-   SECTION 2: MAIN FOOTER CONTENT
+   MAIN FOOTER CONTENT
    ═══════════════════════════════════ */
 .main-footer {
   background: #0D1117;
@@ -305,18 +297,20 @@
 }
 
 .footer-inner-wrapper {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
   box-sizing: border-box;
 }
 
+/* ─── GRID: 1 brand col + 5 content cols in ONE single row ─── */
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 60px;
-  margin-bottom: 60px;
-  margin-top: 60px;
+  grid-template-columns: 1.6fr repeat(5, 1fr);
+  gap: 28px;
+  margin-bottom: 48px;
+  margin-top: 56px;
+  align-items: start;
 }
 
 .footer-col {
@@ -327,6 +321,7 @@
 .footer-brand {
   display: flex;
   flex-direction: column;
+  padding-right: 16px;
 }
 
 .brand-logo-link {
@@ -339,117 +334,94 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   max-width: 180px;
   width: 100%;
   transition: all 0.3s ease;
 }
 
 .brand-logo:hover {
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
+  filter: drop-shadow(0 0 20px rgba(59,130,246,0.3));
 }
 
 .footer-logo-img {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   filter: brightness(0) invert(1);
   flex-shrink: 0;
   object-fit: contain;
 }
 
 .footer-logo-text {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: white;
   white-space: nowrap;
 }
 
 .brand-description {
-  font-size: 15.5px;
+  font-size: 13.5px;
   color: #94A3B8;
-  line-height: 1.9;
-  max-width: 340px;
-  margin: 0 0 32px 0;
-  animation: fadeIn 1s ease-out;
+  line-height: 1.7;
+  max-width: 260px;
+  margin: 0 0 24px 0;
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ═══════════════════════════════════
-   2. SOCIAL ICONS — improved hover glow
+   SOCIAL ICONS
    ═══════════════════════════════════ */
 .social-icons-row {
   display: inline-flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .social-icon {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   background: #1E293B;
-  border-radius: 10px;
+  border-radius: 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #94A3B8;
-  font-size: 20px;
+  font-size: 17px;
   text-decoration: none;
-  /* FIX: added 1px border so hover glow ring is visible against dark bg */
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   cursor: pointer;
   flex-shrink: 0;
 }
 
-/* Default subtle brand glow on all social icons */
 .social-icon:hover {
   color: #fff;
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 8px 20px rgba(0,0,0,0.3);
+  border-color: rgba(59,130,246,0.5);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15), 0 8px 20px rgba(0,0,0,0.3);
   transform: translateY(-4px);
 }
 
-/* Platform-specific overrides */
-.social-linkedin:hover {
-  background: #0A66C2;
-  border-color: #0A66C2;
-  box-shadow: 0 0 0 3px rgba(10, 102, 194, 0.2), 0 8px 20px rgba(10, 102, 194, 0.35);
-}
-
-.social-twitter:hover {
-  background: #1DA1F2;
-  border-color: #1DA1F2;
-  box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.2), 0 8px 20px rgba(29, 161, 242, 0.35);
-}
-
-.social-github:hover {
-  background: #333333;
-  border-color: #555;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.08), 0 8px 20px rgba(51, 51, 51, 0.4);
-}
-
-.social-discord:hover {
-  background: #5865F2;
-  border-color: #5865F2;
-  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2), 0 8px 20px rgba(88, 101, 242, 0.35);
-}
+.social-linkedin:hover  { background: #0A66C2; border-color: #0A66C2; box-shadow: 0 0 0 3px rgba(10,102,194,0.2), 0 8px 20px rgba(10,102,194,0.35); }
+.social-twitter:hover   { background: #1DA1F2; border-color: #1DA1F2; box-shadow: 0 0 0 3px rgba(29,161,242,0.2), 0 8px 20px rgba(29,161,242,0.35); }
+.social-github:hover    { background: #333333; border-color: #555;    box-shadow: 0 0 0 3px rgba(255,255,255,0.08), 0 8px 20px rgba(51,51,51,0.4); }
+.social-discord:hover   { background: #5865F2; border-color: #5865F2; box-shadow: 0 0 0 3px rgba(88,101,242,0.2), 0 8px 20px rgba(88,101,242,0.35); }
 
 /* ═══════════════════════════════════
-   8. COLUMN HEADERS
+   COLUMN HEADERS
    ═══════════════════════════════════ */
 .footer-heading {
-  font-size: 13px;
+  font-size: 11px;
   color: #64748B;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin: 0 0 28px 0;
+  margin: 0 0 18px 0;
   position: relative;
   display: flex;
   align-items: center;
@@ -458,97 +430,81 @@
 .footer-heading::before {
   content: '';
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   background: #3B82F6;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 8px;
   flex-shrink: 0;
 }
 
 .footer-heading::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -8px;
   left: 0;
-  width: 40px;
+  width: 32px;
   height: 2px;
   background: linear-gradient(90deg, #3B82F6, #8B5CF6);
   border-radius: 2px;
 }
 
 /* ═══════════════════════════════════
-   6. NAVIGATION LINKS
+   NAVIGATION LINKS
    ═══════════════════════════════════ */
 .footer-links-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 .footer-link {
-  font-size: 15px;
-  color: #CBD5E1;
+  font-size: 13px;
+  color: #94A3B8;
   text-decoration: none;
   transition: all 0.2s ease;
-  display: block;
-  line-height: 2;
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+  padding: 4px 0;
   position: relative;
   width: fit-content;
+  white-space: nowrap;
 }
 
-.footer-link::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #3B82F6;
-  transition: width 0.3s ease;
+.footer-link-icon {
+  font-size: 11px;
+  margin-right: 7px;
+  color: #475569;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
 }
 
 .footer-link:hover {
-  color: white;
-  transform: scale(1.01);
-  padding-left: 4px;
+  color: #E2E8F0;
+  padding-left: 3px;
 }
 
-.footer-link:hover::after {
-  width: 100%;
-}
-
-.footer-link:hover::before {
-  content: '\2192';
-  display: inline-block;
-  position: absolute;
-  left: -20px;
-  opacity: 0;
-  animation: slideInArrow 0.3s forwards;
+.footer-link:hover .footer-link-icon {
   color: #3B82F6;
 }
 
-@keyframes slideInArrow {
-  from { opacity: 0; transform: translateX(-5px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
 /* ═══════════════════════════════════
-   3. TRUST BADGES ROW
+   TRUST BADGES ROW
    ═══════════════════════════════════ */
 .trust-badges-row {
   width: 100%;
   border-top: 1px solid #1E293B;
   border-bottom: 1px solid #1E293B;
-  padding: 48px 0;
+  padding: 36px 0;
   margin-bottom: 0;
 }
 
 .trust-badges-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  max-width: 1000px;
+  gap: 14px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -557,32 +513,27 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
-  background: rgba(30, 41, 59, 0.4);
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 10px;
+  background: rgba(30,41,59,0.4);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(59,130,246,0.15);
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
   cursor: default;
-  min-height: 68px;
+  min-height: 60px;
 }
 
 .trust-card:hover {
   transform: scale(1.02);
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(30, 41, 59, 0.6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.trust-card:focus-visible {
-  outline: 2px solid #3B82F6;
-  outline-offset: 2px;
+  border-color: rgba(59,130,246,0.4);
+  background: rgba(30,41,59,0.6);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .trust-icon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   transition: transform 0.2s ease;
 }
 
@@ -590,9 +541,7 @@
 .trust-icon-compliance { color: #3B82F6; }
 .trust-icon-uptime     { color: #8B5CF6; }
 
-.trust-card:hover .trust-icon {
-  transform: scale(1.1);
-}
+.trust-card:hover .trust-icon { transform: scale(1.1); }
 
 .trust-text {
   display: flex;
@@ -602,7 +551,7 @@
 }
 
 .trust-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #F1F5F9;
   line-height: 1.3;
@@ -612,7 +561,7 @@
 }
 
 .trust-sublabel {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   color: #94A3B8;
   line-height: 1.3;
@@ -622,7 +571,7 @@
 }
 
 /* ═══════════════════════════════════
-   SECTION 4: BOTTOM BAR
+   BOTTOM BAR
    ═══════════════════════════════════ */
 .bottom-bar-row {
   display: flex;
@@ -630,19 +579,17 @@
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid #1E293B;
-  padding: 32px 0;
+  padding: 28px 0;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* FIX: removed the conflicting rule that forced padding-top: 50px !important
-   on the footer itself, which was creating extra ghost space */
 footer,
 .site-footer,
 .modern-footer,
 .main-footer {
   margin-top: 0 !important;
-  padding-bottom: 32px !important;
+  padding-bottom: 28px !important;
   position: relative;
   z-index: 0;
 }
@@ -650,7 +597,7 @@ footer,
 .copyright-left { flex: 0 1 auto; }
 
 .copyright-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748B;
   white-space: nowrap;
 }
@@ -670,23 +617,23 @@ footer,
 
 @keyframes heartBeat {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  50%       { transform: scale(1.2); }
 }
 
 /* ═══════════════════════════════════
-   1. PAYMENT BADGES
+   PAYMENT BADGES
    ═══════════════════════════════════ */
 .payment-methods-center {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex: 0 1 auto;
   flex-wrap: wrap;
 }
 
 .payment-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #64748B;
   white-space: nowrap;
 }
@@ -694,7 +641,7 @@ footer,
 .payment-badges-row {
   display: inline-flex;
   flex-direction: row;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   flex-wrap: nowrap;
 }
@@ -703,29 +650,29 @@ footer,
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 8px;
+  width: 50px;
+  height: 36px;
+  background: rgba(255,255,255,0.95);
+  padding: 6px;
   border-radius: 6px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148,163,184,0.2);
   transition: all 0.3s ease;
   cursor: default;
 }
 
 .payment-badge-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+  border-color: rgba(59,130,246,0.4);
 }
 
-.payment-badge-card i { font-size: 32px; color: #1E293B; }
+.payment-badge-card i { font-size: 28px; color: #1E293B; }
 .payment-badge-card .fa-cc-visa       { color: #1434CB; }
 .payment-badge-card .fa-cc-mastercard { color: #EB001B; }
 
 .payment-icon-svg {
-  width: 42px;
-  height: 28px;
+  width: 38px;
+  height: 26px;
 }
 
 .language-selector-right { flex: 0 1 auto; }
@@ -734,9 +681,9 @@ footer,
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: #1E293B;
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: 8px;
   border: 1px solid #334155;
   cursor: pointer;
@@ -747,16 +694,36 @@ footer,
 .language-selector:hover { border-color: #3B82F6; }
 
 .language-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #CBD5E1;
   font-weight: 500;
   white-space: nowrap;
 }
 
 /* ═══════════════════════════════════
-   RESPONSIVE: TABLET (768px - 1024px)
+   RESPONSIVE: TABLET (768px - 1200px)
    ═══════════════════════════════════ */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+  .footer-inner-wrapper { padding: 0 28px; }
+
+  .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    padding-right: 0;
+  }
+
+  .brand-description { max-width: 380px; }
+}
+
+@media (max-width: 900px) {
   .newsletter-container {
     max-width: 90%;
     margin-top: 0;
@@ -767,19 +734,15 @@ footer,
     gap: 30px;
   }
 
-  .footer-inner-wrapper { padding: 0 32px; }
-
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 40px;
+    gap: 28px;
   }
 
   .footer-brand {
     grid-column: 1 / -1;
-    max-width: 100%;
+    flex-direction: column;
   }
-
-  .brand-description { max-width: 500px; }
 }
 
 /* ═══════════════════════════════════
@@ -814,7 +777,6 @@ footer,
   }
 
   .newsletter-form { flex-direction: column; align-items: center; }
-
   .input-group { flex-direction: column; width: 100%; }
 
   .newsletter-input {
@@ -838,22 +800,25 @@ footer,
 
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 48px;
+    gap: 36px;
   }
 
   .footer-brand {
     text-align: center;
     align-items: center;
+    flex-direction: column;
   }
 
   .brand-logo { justify-content: center; }
-  .brand-description { margin: 0 auto 32px; }
+  .brand-description { margin: 0 auto 24px; }
   .social-icons-row { justify-content: center; }
 
   .footer-col {
     align-items: center;
     text-align: center;
   }
+
+  .footer-link { white-space: normal; }
 
   .footer-heading { justify-content: center; }
 
@@ -864,27 +829,27 @@ footer,
 
   .trust-badges-container {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
     padding: 0 16px;
   }
 
   .trust-card {
-    padding: 12px 14px;
-    min-height: 64px;
+    padding: 10px 12px;
+    min-height: 58px;
   }
 
-  .trust-label    { font-size: 13px; }
-  .trust-sublabel { font-size: 11px; }
+  .trust-label    { font-size: 12px; }
+  .trust-sublabel { font-size: 10px; }
 
   .bottom-bar-row {
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 
   .payment-methods-center {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 
   .payment-badges-row { justify-content: center; }
