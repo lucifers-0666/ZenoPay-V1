@@ -59,6 +59,12 @@
 </script>
 
 <header class="zenopay-header" id="zenoHeader">
+
+  <!-- ── SCROLL PROGRESS BAR ── -->
+  <div class="scroll-progress-track">
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+  </div>
+
   <div class="header-inner">
 
     <!-- ── LOGO ── -->
@@ -106,14 +112,14 @@
 
             <!-- Col 2: Manage -->
             <div class="mega-col">
-              <div class="mega-col-title">Manage & Track</div>
+              <div class="mega-col-title">Manage &amp; Track</div>
               <a href="/transaction-history" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-history"></i></div>
                 <div class="mega-item-text"><div class="mega-item-title">Transaction History</div><div class="mega-item-desc">View all transactions</div></div>
               </a>
               <a href="/invoices" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                <div class="mega-item-text"><div class="mega-item-title">Invoices</div><div class="mega-item-desc">Create & manage invoices</div></div>
+                <div class="mega-item-text"><div class="mega-item-title">Invoices</div><div class="mega-item-desc">Create &amp; manage invoices</div></div>
               </a>
               <a href="/statements" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-file-lines"></i></div>
@@ -134,11 +140,11 @@
               <div class="mega-col-title">Account</div>
               <a href="/banks-list" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-building-columns"></i></div>
-                <div class="mega-item-text"><div class="mega-item-title">Banks & Cards</div><div class="mega-item-desc">Manage payment methods</div></div>
+                <div class="mega-item-text"><div class="mega-item-title">Banks &amp; Cards</div><div class="mega-item-desc">Manage payment methods</div></div>
               </a>
               <a href="/payment-methods" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-wallet"></i></div>
-                <div class="mega-item-text"><div class="mega-item-title">Payment Methods</div><div class="mega-item-desc">Saved cards & wallets</div></div>
+                <div class="mega-item-text"><div class="mega-item-title">Payment Methods</div><div class="mega-item-desc">Saved cards &amp; wallets</div></div>
               </a>
               <a href="/kyc-verification" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-id-card"></i></div>
@@ -259,7 +265,7 @@
                 <div class="notif-icon success"><i class="fas fa-check-circle"></i></div>
                 <div class="notif-body">
                   <div class="notif-title">Payment Received</div>
-                  <div class="notif-text">You received ₹150.00 from John Doe</div>
+                  <div class="notif-text">You received &#8377;150.00 from John Doe</div>
                   <div class="notif-time">5 minutes ago</div>
                 </div>
               </a>
@@ -334,7 +340,7 @@
 
               <!-- Section: Finance -->
               <div class="pmenu-section-label">Finance</div>
-              <a href="/banks-list" class="pmenu-item"><i class="fas fa-building-columns"></i> Banks & Cards</a>
+              <a href="/banks-list" class="pmenu-item"><i class="fas fa-building-columns"></i> Banks &amp; Cards</a>
               <a href="/payment-methods" class="pmenu-item"><i class="fas fa-wallet"></i> Payment Methods</a>
               <a href="/beneficiaries" class="pmenu-item"><i class="fas fa-users"></i> Beneficiaries</a>
               <a href="/transaction-history" class="pmenu-item"><i class="fas fa-history"></i> Transaction History</a>
@@ -450,7 +456,7 @@
         <a href="/add-money" class="mob-item"><i class="fas fa-plus-circle"></i> Add Money</a>
         <a href="/request-money" class="mob-item"><i class="fas fa-hand-holding-dollar"></i> Request Money</a>
         <a href="/transaction-history" class="mob-item"><i class="fas fa-history"></i> Transaction History</a>
-        <a href="/banks-list" class="mob-item"><i class="fas fa-building-columns"></i> Banks & Cards</a>
+        <a href="/banks-list" class="mob-item"><i class="fas fa-building-columns"></i> Banks &amp; Cards</a>
         <a href="/scheduled-payments" class="mob-item"><i class="fas fa-calendar-check"></i> Scheduled Payments</a>
         <div class="mob-divider"></div>
         <a href="/profile" class="mob-item"><i class="fas fa-user"></i> My Profile</a>
@@ -548,13 +554,40 @@
 (function() {
   const header = document.getElementById('zenoHeader');
 
+  // ── SCROLL PROGRESS BAR ──────────────────────────────────────────
+  const progressBar = document.getElementById('scrollProgressBar');
+
+  function updateScrollProgress() {
+    if (!progressBar) return;
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+    progressBar.style.width = pct + '%';
+  }
+
+  // ── SCROLL HEADER CLASS ──────────────────────────────────────────
   function onHeaderScroll() {
     if (!header) return;
     header.classList.toggle('scrolled', window.scrollY > 10);
+    updateScrollProgress();
   }
 
-  window.addEventListener('scroll', onHeaderScroll, { passive: true });
+  // rAF-throttled scroll listener for smooth, jank-free updates
+  let rafPending = false;
+  window.addEventListener('scroll', function() {
+    if (!rafPending) {
+      rafPending = true;
+      window.requestAnimationFrame(function() {
+        onHeaderScroll();
+        rafPending = false;
+      });
+    }
+  }, { passive: true });
 
+  // Run once on load to set initial state
+  updateScrollProgress();
+
+  // ── NAV DROPDOWNS ────────────────────────────────────────────────
   document.querySelectorAll('.header-nav .nav-item').forEach(item => {
     const btn = item.querySelector('.nav-btn');
     if (!btn) return;
