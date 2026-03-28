@@ -29,6 +29,7 @@ app.set("trust proxy", 1);
 // ============ SESSION STORE SETUP WITH FALLBACK ============
 let store = null;
 let usingMemoryStore = false;
+let hasLoggedSessionFallback = false;
 
 // Only use MongoDB store if connection string is valid
 if (DB_PATH && DB_PATH !== 'your_mongodb_connection_string') {
@@ -40,18 +41,28 @@ if (DB_PATH && DB_PATH !== 'your_mongodb_connection_string') {
         serverSelectionTimeoutMS: 30000, // Increased from 5000ms to 30000ms
         socketTimeoutMS: 45000,
       },
+    }, function(error) {
+      if (error) {
+        console.warn("⚠️  MongoDB session store connection callback error:", error.message);
+      }
     });
 
     // Handle store errors gracefully without crashing
     store.on("error", (error) => {
-      console.warn("⚠️  Session store error:", error.message);
-      console.warn("⚠️  Sessions using fallback memory store");
+      if (!hasLoggedSessionFallback) {
+        console.warn("⚠️  Session store error:", error.message);
+        console.warn("⚠️  Sessions using fallback memory store");
+        hasLoggedSessionFallback = true;
+      }
+      // Sticky fallback: once Mongo session store fails, stay on memory store
+      // until the process is restarted.
       usingMemoryStore = true;
     });
 
     store.on("connected", () => {
-      console.log("✓ Session store: MongoDB persistent storage");
-      usingMemoryStore = false;
+      if (!usingMemoryStore) {
+        console.log("✓ Session store: MongoDB persistent storage");
+      }
     });
   } catch (error) {
     console.warn("⚠️  MongoDB session store initialization failed:", error.message);
@@ -87,12 +98,28 @@ const sessionConfig = {
   },
 };
 
-// Add MongoDB store if available, otherwise use default memory store
-if (store) {
-  sessionConfig.store = store;
-}
+const memoryStore = new session.MemoryStore();
+const mongoSessionMiddleware = store ? session({ ...sessionConfig, store: store }) : null;
+const memorySessionMiddleware = session({ ...sessionConfig, store: memoryStore });
 
-app.use(session(sessionConfig));
+// Add MongoDB store if available, otherwise use default memory store
+app.use((req, res, next) => {
+  if (usingMemoryStore || !mongoSessionMiddleware) {
+    return memorySessionMiddleware(req, res, next);
+  }
+  return mongoSessionMiddleware(req, res, (error) => {
+    if (error) {
+      if (!hasLoggedSessionFallback) {
+        console.warn("⚠️  Session middleware fallback triggered:", error.message);
+        console.warn("⚠️  Sessions using fallback memory store");
+        hasLoggedSessionFallback = true;
+      }
+      usingMemoryStore = true;
+      return memorySessionMiddleware(req, res, next);
+    }
+    return next();
+  });
+});
 
 // Make auth/session state available to every EJS view by default
 app.use((req, res, next) => {

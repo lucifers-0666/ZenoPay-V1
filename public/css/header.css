@@ -34,6 +34,8 @@
   --z-mobile-menu:      1200;
   --z-mobile-nav:       9999;
 
+  --header-safe-top:    env(safe-area-inset-top, 0px);
+
   --ease:               0.18s ease;
   --ease-slow:          0.28s ease;
 }
@@ -48,36 +50,44 @@
   left: 0;
   right: 0;
   width: 100%;
-  height: var(--header-height);
-  background: var(--header-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  height: calc(var(--header-height) + var(--header-safe-top));
+  padding-top: var(--header-safe-top);
+  background: #fff !important; /* Force solid background to hide any blue layers beneath */
+  background-image: none !important; /* Eradicate any background gradients */
+  border-top: none !important;
   border-bottom: 1px solid var(--header-border);
-  box-shadow: var(--header-shadow);
+  box-shadow: none;
   z-index: var(--z-header);
   transition: box-shadow var(--ease-slow), background var(--ease-slow);
 }
 
+.zenopay-header::before,
+.zenopay-header::after {
+  display: none !important;
+  content: none !important;
+}
+
 .zenopay-header.scrolled {
-  background: rgba(255,255,255,1);
-  box-shadow: 0 1px 0 #E5E7EB, 0 4px 24px rgba(0,0,0,0.1);
+  background: #fff !important;
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
 .header-spacer {
-  height: var(--header-height);
+  height: calc(var(--header-height) + var(--header-safe-top));
   display: block;
   flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
-  .header-spacer { height: var(--header-height); }
+  .header-spacer { height: calc(var(--header-height) + var(--header-safe-top)); }
 }
 
 .header-inner {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 var(--header-padding-x);
-  height: 100%;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -778,10 +788,10 @@
 
 .mobile-overlay {
   position: fixed;
-  top: var(--header-height);
+  top: calc(var(--header-height) + var(--header-safe-top));
   left: 0;
   width: 100%;
-  height: calc(100vh - var(--header-height));
+  height: calc(100vh - (var(--header-height) + var(--header-safe-top)));
   background: #fff;
   z-index: var(--z-mobile-menu);
   overflow-y: auto;
@@ -947,6 +957,24 @@
     --header-height: 58px;
     --header-padding-x: 16px;
   }
+
+  .zenopay-header {
+    /* Improves divider stability during browser chrome expand/collapse on mobile scroll */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #fff !important;
+    background-image: none !important;
+    border-top: none !important;
+    border-bottom: 1px solid var(--header-border);
+    box-shadow: none;
+  }
+
+  .zenopay-header.scrolled {
+    background: #fff !important;
+    border-bottom: 1px solid var(--header-border);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08); /* Only soft shadow, no hard lines */
+  }
+
   .header-logo-text { font-size: 17px; }
   .header-logo img { width: 30px; height: 30px; }
   .header-logo-badge { font-size: 9px; padding: 2px 8px; }

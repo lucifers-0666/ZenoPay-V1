@@ -548,9 +548,12 @@
 (function() {
   const header = document.getElementById('zenoHeader');
 
-  window.addEventListener('scroll', () => {
+  function onHeaderScroll() {
+    if (!header) return;
     header.classList.toggle('scrolled', window.scrollY > 10);
-  }, { passive: true });
+  }
+
+  window.addEventListener('scroll', onHeaderScroll, { passive: true });
 
   document.querySelectorAll('.header-nav .nav-item').forEach(item => {
     const btn = item.querySelector('.nav-btn');
@@ -665,5 +668,7 @@
     if (hidden) { mobileBadge.style.display = 'none'; }
     else { mobileBadge.textContent = topBadge.textContent.trim(); mobileBadge.style.display = 'flex'; }
   }
+
+  onHeaderScroll();
 })();
 </script>
