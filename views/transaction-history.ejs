@@ -142,12 +142,89 @@
                       <th style="text-align: center; width: 50px;">Action</th>
                     </tr>
                   </thead>
-                  <tbody id="transactionsTableBody"></tbody>
+                  <tbody id="transactionsTableBody">
+                    <% (allTransactions || []).forEach(function(tx) {
+                      const txStatus = String(tx?.status || 'pending').toLowerCase();
+                      const txType = String(tx?.type || 'transfer').toLowerCase();
+                      const txIcon = txType === 'credit' ? 'fa-arrow-down' : txType === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt';
+                      const statusIcon = txStatus === 'success' ? 'fa-check-circle' : txStatus === 'failed' ? 'fa-times-circle' : 'fa-clock';
+                      const encodedTx = encodeURIComponent(JSON.stringify(tx));
+                      const displayName = tx?.isCredit
+                        ? (tx?.senderName || tx?.description || 'Unknown')
+                        : (tx?.receiverName || tx?.description || 'Unknown');
+                      const txNote = tx?.note || tx?.reference || 'No note';
+                      const amount = Number(tx?.amount || 0);
+                    %>
+                      <tr class="transaction-row" data-txn="<%- encodedTx %>">
+                        <td class="txn-icon-cell">
+                          <div class="txn-icon <%= txType %>">
+                            <i class="fas <%= txIcon %>"></i>
+                          </div>
+                        </td>
+                        <td data-label="Date">
+                          <div style="font-size: 0.85rem; font-weight: 600;">
+                            <%= tx?.date || 'N/A' %><br>
+                            <span style="color: #9CA3AF; font-size: 0.8rem;"><%= tx?.time || 'N/A' %></span>
+                          </div>
+                        </td>
+                        <td data-label="Description">
+                          <div class="txn-description">
+                            <div class="txn-name"><%= displayName %></div>
+                            <div class="txn-note"><%= txNote %></div>
+                          </div>
+                        </td>
+                        <td data-label="Method" class="txn-method"><%= tx?.paymentMethod || 'Unknown' %></td>
+                        <td data-label="Amount" class="txn-amount <%= tx?.isCredit ? 'positive' : 'negative' %>">
+                          <%= tx?.isCredit ? '+' : '-' %>₹<%= amount.toLocaleString('en-IN', { maximumFractionDigits: 2 }) %>
+                        </td>
+                        <td data-label="Status" style="text-align:center;">
+                          <span class="status-badge status-<%= txStatus %>">
+                            <i class="fas <%= statusIcon %>"></i>
+                            <%= txStatus %>
+                          </span>
+                        </td>
+                        <td class="txn-actions" onclick="event.stopPropagation();">
+                          <button class="action-menu" data-txn="<%- encodedTx %>">
+                            <i class="fas fa-ellipsis-v"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
                 </table>
               </div>
 
               <!-- Mobile Stacked Cards View -->
-              <div class="transaction-cards-mobile" id="transactionsMobileCards"></div>
+              <div class="transaction-cards-mobile" id="transactionsMobileCards">
+                <% (allTransactions || []).forEach(function(tx) {
+                  const txStatus = String(tx?.status || 'pending').toLowerCase();
+                  const txType = String(tx?.type || 'transfer').toLowerCase();
+                  const txIcon = txType === 'credit' ? 'fa-arrow-down' : txType === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt';
+                  const encodedTx = encodeURIComponent(JSON.stringify(tx));
+                  const displayName = tx?.isCredit
+                    ? (tx?.senderName || tx?.description || 'Unknown')
+                    : (tx?.receiverName || tx?.description || 'Unknown');
+                  const amount = Number(tx?.amount || 0);
+                %>
+                  <div class="transaction-card-mobile" data-txn="<%- encodedTx %>">
+                    <div class="transaction-card-mobile-header">
+                      <div class="txn-icon <%= txType %>">
+                        <i class="fas <%= txIcon %>"></i>
+                      </div>
+                      <div class="transaction-card-mobile-info">
+                        <div class="transaction-card-mobile-name"><%= displayName %></div>
+                        <div class="transaction-card-mobile-date"><%= tx?.date || 'N/A' %></div>
+                      </div>
+                      <div class="transaction-card-mobile-amount">
+                        <div class="transaction-card-mobile-value <%= tx?.isCredit ? 'positive' : 'negative' %>">
+                          <%= tx?.isCredit ? '+' : '-' %>₹<%= amount.toLocaleString('en-IN', { maximumFractionDigits: 2 }) %>
+                        </div>
+                        <span class="transaction-card-mobile-status status-<%= txStatus %>"><%= txStatus %></span>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
             <% } else { %>
               <div class="empty-state">
                 <i class="fas fa-inbox"></i>
@@ -251,7 +328,10 @@
       }
     </style>
 
-    <script id="transactionHistoryData" type="application/json"><%- JSON.stringify(allTransactions || []) %></script>
+    <script id="transactionHistoryData" type="application/json"><%- JSON.stringify(allTransactions || [])
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026') %></script>
 
     <script src="/js/header.js"></script>
     <script src="/js/transaction-history.js"></script>

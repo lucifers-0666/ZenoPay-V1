@@ -12,13 +12,7 @@
   };
 
   const payloadEl = document.getElementById("transactionHistoryData");
-  const initialRows = safeParseJson(payloadEl?.textContent || "[]", []);
-
-  const state = {
-    allRows: Array.isArray(initialRows) ? initialRows : [],
-    filteredRows: [],
-    timeFilter: "all",
-  };
+  const payloadRows = safeParseJson(payloadEl?.textContent || "[]", []);
 
   const refs = {
     type: document.getElementById("transactionType"),
@@ -37,6 +31,74 @@
     drawerOverlay: document.getElementById("drawerOverlay"),
     drawerBody: document.getElementById("drawerBody"),
     timeFilterBtn: document.querySelector(".time-filter-pill"),
+  };
+
+  const parseRowsFromDom = () => {
+    const seen = new Set();
+    const rows = [];
+
+    document
+      .querySelectorAll(".transaction-row[data-txn], .transaction-card-mobile[data-txn]")
+      .forEach((node) => {
+        const encoded = node.getAttribute("data-txn");
+        if (!encoded) return;
+
+        try {
+          const tx = JSON.parse(decodeURIComponent(encoded));
+          const dedupeKey = `${tx?.transactionId || ""}|${tx?.date || ""}|${tx?.amount || ""}`;
+          if (seen.has(dedupeKey)) return;
+          seen.add(dedupeKey);
+          rows.push(tx);
+        } catch (_) {
+          // Ignore malformed node payloads, JSON payload will still be primary source.
+        }
+      });
+
+    return rows;
+  };
+
+  const initialRows = Array.isArray(payloadRows) && payloadRows.length
+    ? payloadRows
+    : parseRowsFromDom();
+
+  const state = {
+    allRows: Array.isArray(initialRows) ? initialRows : [],
+    filteredRows: [],
+    timeFilter: "all",
+  };
+
+  const buildDataApiUrl = () => {
+    const params = new URLSearchParams();
+    const filters = getActiveFilters();
+
+    if (filters.type) params.set("type", filters.type);
+    if (filters.status) params.set("status", filters.status);
+    if (filters.paymentMethod) params.set("paymentMethod", filters.paymentMethod);
+    if (filters.search) params.set("search", filters.search);
+    if (filters.dateFrom) params.set("fromDate", filters.dateFrom);
+
+    return `/transaction-history/data${params.toString() ? `?${params.toString()}` : ""}`;
+  };
+
+  const hydrateFromServer = async () => {
+    try {
+      const response = await fetch(buildDataApiUrl(), {
+        method: "GET",
+        headers: { Accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const payload = await response.json();
+      const rows = payload?.data?.rows;
+      if (Array.isArray(rows)) {
+        state.allRows = rows;
+      }
+    } catch (error) {
+      console.error("[TransactionHistory] Failed to hydrate from backend:", error);
+    }
   };
 
   const normalizeMethod = (input) => {
@@ -586,7 +648,14 @@
     });
 
     setTimeFilterLabel();
-    render();
+
+    if (!state.allRows.length) {
+      hydrateFromServer().finally(() => {
+        render();
+      });
+    } else {
+      render();
+    }
   });
 
   window.searchTransactions = render;

@@ -28,17 +28,27 @@ const buildWalletId = (userId) => `WL-${String(userId)}`;
 
 const getDashboard = async (req, res) => {
   try {
-    if (req.session?.isLoggedIn && req.session?.user?.Role === "admin") {
+    const isDashboardPath = req.path === "/dashboard";
+    const sessionUser = req.session?.user || null;
+    const sessionRole = sessionUser?.Role || sessionUser?.role;
+    const rawCookieHeader = String(req.headers?.cookie || "");
+    const hasAdminCookie = /(?:^|;\s*)zenopay\.admin\.sid=/.test(rawCookieHeader);
+
+    // Guard against stale role values leaking into the user-scoped session.
+    // Only redirect to /admin/dashboard when an actual admin cookie is present.
+    if (req.session?.isLoggedIn && sessionRole === "admin" && hasAdminCookie) {
       return res.redirect("/admin/dashboard");
+    }
+
+    const isLoggedIn = !!(sessionUser && req.session?.isLoggedIn);
+    if (isDashboardPath && !isLoggedIn) {
+      return res.redirect("/login");
     }
 
     const zenoPayId = getSessionZenoPayId(req);
 
     // FIX: Read user & isLoggedIn from session directly (res.locals already set
     // by app.js middleware, but we pass explicitly to avoid any layout override).
-    const sessionUser = req.session?.user || null;
-    const isLoggedIn = !!(sessionUser && req.session?.isLoggedIn);
-
     let accounts = [];
     let transactions = [];
     let recentTransactions = [];

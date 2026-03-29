@@ -59,7 +59,7 @@ const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
 // Show registration page
 const getRegister = (req, res) => {
   if (req.session.isLoggedIn) {
-    return res.redirect("/");
+    return res.redirect("/dashboard");
   }
   res.render("register", {
     pageTitle: "Create Account - ZenoPay",
@@ -255,7 +255,7 @@ const postRegister = async (req, res) => {
 // Show login page
 const getLogin = (req, res) => {
   if (req.session.isLoggedIn) {
-    return res.redirect("/");
+    return res.redirect("/dashboard");
   }
   res.render("login", {
     CurrentPage: "Login",
@@ -317,6 +317,7 @@ const postLogin = async (req, res) => {
       };
 
       req.session.isLoggedIn = true;
+      req.session.lastActivityAt = Date.now();
 
       req.session.save((saveErr) => {
         if (saveErr) {
@@ -344,7 +345,7 @@ const postLogin = async (req, res) => {
         return res.status(200).json({
           success: true,
           message: "Login successful!",
-          redirect: "/",
+          redirect: "/dashboard",
         });
       });
     });
@@ -376,7 +377,7 @@ const logout = (req, res) => {
 // Show forgot password page
 const getForgotPassword = (req, res) => {
   if (req.session.isLoggedIn) {
-    return res.redirect("/");
+    return res.redirect("/dashboard");
   }
   res.render("forgot-password", {
     pageTitle: "Forgot Password - ZenoPay",

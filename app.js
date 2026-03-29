@@ -26,6 +26,17 @@ const {
 
 const DB_PATH = process.env.MONGO_URI;
 const isProduction = process.env.NODE_ENV === "production";
+const INACTIVITY_TIMEOUT_MS = Math.max(
+  60 * 1000,
+  Number(process.env.INACTIVITY_TIMEOUT_MS || 30 * 60 * 1000)
+);
+const INACTIVITY_WARNING_MS = Math.max(
+  30 * 1000,
+  Math.min(
+    INACTIVITY_TIMEOUT_MS - 1000,
+    Number(process.env.INACTIVITY_WARNING_MS || 60 * 1000)
+  )
+);
 
 app.set("trust proxy", 1);
 
@@ -92,6 +103,7 @@ const sessionConfig = {
   secret: process.env.SESSION_SECRET || "zenopay_default_secret_change_in_production",
   resave: false,
   saveUninitialized: false,
+  rolling: true,
   proxy: true,
   cookie: {
     httpOnly: true,
@@ -105,12 +117,33 @@ const memoryStore = new session.MemoryStore();
 const mongoSessionMiddleware = store ? session({ ...sessionConfig, store: store }) : null;
 const memorySessionMiddleware = session({ ...sessionConfig, store: memoryStore });
 
-// Add MongoDB store if available, otherwise use default memory store
+const adminSessionConfig = {
+  ...sessionConfig,
+  name: "zenopay.admin.sid",
+  cookie: {
+    ...sessionConfig.cookie,
+    path: "/admin",
+  },
+};
+
+const adminMongoSessionMiddleware = store
+  ? session({ ...adminSessionConfig, store: store })
+  : null;
+const adminMemorySessionMiddleware = session({ ...adminSessionConfig, store: memoryStore });
+
+// Path-aware session dispatcher:
+// - /admin* routes use a dedicated admin cookie/session
+// - all other routes use the regular user cookie/session
 app.use((req, res, next) => {
-  if (usingMemoryStore || !mongoSessionMiddleware) {
-    return memorySessionMiddleware(req, res, next);
-  }
-  return mongoSessionMiddleware(req, res, (error) => {
+  const isAdminPath = req.path === "/admin" || req.path.startsWith("/admin/");
+
+  const primaryMiddleware = isAdminPath
+    ? (usingMemoryStore || !adminMongoSessionMiddleware ? adminMemorySessionMiddleware : adminMongoSessionMiddleware)
+    : (usingMemoryStore || !mongoSessionMiddleware ? memorySessionMiddleware : mongoSessionMiddleware);
+
+  const fallbackMiddleware = isAdminPath ? adminMemorySessionMiddleware : memorySessionMiddleware;
+
+  return primaryMiddleware(req, res, (error) => {
     if (error) {
       if (!hasLoggedSessionFallback) {
         console.warn("⚠️  Session middleware fallback triggered:", error.message);
@@ -118,17 +151,60 @@ app.use((req, res, next) => {
         hasLoggedSessionFallback = true;
       }
       usingMemoryStore = true;
-      return memorySessionMiddleware(req, res, next);
+      return fallbackMiddleware(req, res, next);
     }
     return next();
   });
 });
 
+// Auto logout on inactivity for both user and admin sessions
+app.use((req, res, next) => {
+  if (!req.session) return next();
+
+  const isAdminPath = req.path === "/admin" || req.path.startsWith("/admin/");
+  const cookieName = isAdminPath ? "zenopay.admin.sid" : "zenopay.sid";
+  const cookiePath = isAdminPath ? "/admin" : "/";
+  const loginPath = isAdminPath ? "/admin/login?timeout=1" : "/login?timeout=1";
+
+  const now = Date.now();
+  const lastActivityAt = Number(req.session.lastActivityAt || now);
+  const isLoggedIn = !!(req.session.isLoggedIn && req.session.user);
+
+  if (isLoggedIn && now - lastActivityAt > INACTIVITY_TIMEOUT_MS) {
+    return req.session.destroy(() => {
+      res.clearCookie(cookieName, { path: cookiePath });
+
+      const acceptsJson =
+        req.xhr ||
+        String(req.headers.accept || "").includes("application/json") ||
+        req.path.startsWith("/api/");
+
+      if (acceptsJson) {
+        return res.status(401).json({
+          success: false,
+          message: "Session expired due to inactivity. Please login again.",
+          reason: "INACTIVITY_TIMEOUT",
+        });
+      }
+
+      return res.redirect(loginPath);
+    });
+  }
+
+  req.session.lastActivityAt = now;
+  return next();
+});
+
 // Make auth/session state available to every EJS view by default
 app.use((req, res, next) => {
   const sessionUser = req.session?.user || null;
+  const isAdminPath = req.path === "/admin" || req.path.startsWith("/admin/");
   res.locals.user = sessionUser;
   res.locals.isLoggedIn = !!sessionUser || !!req.session?.isLoggedIn;
+  res.locals.inactivityTimeoutMs = INACTIVITY_TIMEOUT_MS;
+  res.locals.inactivityWarningMs = INACTIVITY_WARNING_MS;
+  res.locals.sessionPingUrl = isAdminPath ? "/admin/session/ping" : "/session/ping";
+  res.locals.sessionLogoutUrl = isAdminPath ? "/admin/login?timeout=1" : "/login?timeout=1";
   next();
 });
 
@@ -138,6 +214,24 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Prevent favicon.ico 404 noise
 app.get("/favicon.ico", (req, res) => res.status(204).end());
+
+// Session keep-alive endpoints used by inactivity warning prompt
+app.get("/session/ping", (req, res) => {
+  if (req.session?.isLoggedIn && req.session?.user) {
+    req.session.lastActivityAt = Date.now();
+    return res.json({ success: true, lastActivityAt: req.session.lastActivityAt });
+  }
+  return res.status(401).json({ success: false, message: "Not authenticated" });
+});
+
+app.get("/admin/session/ping", (req, res) => {
+  const adminRole = req.session?.user?.Role || req.session?.user?.role;
+  if (req.session?.isLoggedIn && adminRole === "admin") {
+    req.session.lastActivityAt = Date.now();
+    return res.json({ success: true, lastActivityAt: req.session.lastActivityAt });
+  }
+  return res.status(401).json({ success: false, message: "Not authenticated" });
+});
 
 // Admin static files
 app.use("/admin/assets", express.static(path.join(__dirname, "Admin/Public")));

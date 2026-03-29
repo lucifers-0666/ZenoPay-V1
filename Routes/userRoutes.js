@@ -853,6 +853,8 @@ router.get("/notifications/delete-read", NotificationController.deleteReadNotifi
 // Transaction History
 router.get("/Transaction-History", TransactionInfoController.getTransactionHistory);
 router.get("/transaction-history", TransactionInfoController.getTransactionHistory);
+router.get("/Transaction-History/data", TransactionInfoController.getTransactionHistoryData);
+router.get("/transaction-history/data", TransactionInfoController.getTransactionHistoryData);
 router.get("/transaction/:transactionId", TransactionInfoController.getTransactionDetails);
 
 // KYC Verification

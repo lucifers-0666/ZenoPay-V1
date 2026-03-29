@@ -90,6 +90,7 @@ const logout = (req, res) => {
       console.error("Logout error:", err);
       return res.redirect("/admin/dashboard");
     }
+    res.clearCookie("zenopay.admin.sid", { path: "/admin" });
     res.redirect("/admin/login");
   });
 };
@@ -711,9 +712,6 @@ const verify2FA = async (req, res) => {
         data.verified = true;
         twoFactorSecrets.set(userId, data);
       }
-
-      // TODO: In production, save to database
-      // Update user record with 2FA enabled and backup codes
 
       res.json({
         success: true,
