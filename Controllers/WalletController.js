@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Wallet = require("../Models/Wallet");
 const Transaction = require("../Models/Transaction");
+const Notification = require("../Models/Notification");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const { verifyTransactionPinForUser } = require("../utils/transactionPin");
 
@@ -37,6 +38,9 @@ const getSessionIdentity = (req) => ({
     null,
   email: req.session?.user?.Email || req.session?.user?.email || null,
 });
+
+const getNotificationUserId = (userDoc) =>
+  userDoc?.ZenoPayID || userDoc?.ZenoPayId || userDoc?.userId || null;
 
 const resolveCurrentUser = async (req) => {
   const identity = getSessionIdentity(req);
@@ -201,7 +205,7 @@ const processTopUp = async (req, res) => {
           { session }
         );
 
-        await Transaction.create(
+        const topupTx = await Transaction.create(
           [
             {
               userId: currentUser._id,
@@ -215,6 +219,24 @@ const processTopUp = async (req, res) => {
           ],
           { session, ordered: true }
         );
+
+        const zenoPayId = getNotificationUserId(currentUser);
+        if (zenoPayId) {
+          await Notification.create(
+            [
+              {
+                ZenoPayId: zenoPayId,
+                Type: "credit",
+                Title: "Wallet Top-up Successful",
+                Message: `₹${amount.toFixed(2)} added to your wallet successfully.`,
+                Amount: amount,
+                TransactionID: String(topupTx?.[0]?.reference || ""),
+                IsRead: false,
+              },
+            ],
+            { session, ordered: true }
+          );
+        }
       });
     } finally {
       session.endSession();
@@ -427,6 +449,39 @@ const processSend = async (req, res) => {
           ],
           { session, ordered: true }
         );
+
+        const senderZenoPayId = getNotificationUserId(currentUser);
+        const receiverZenoPayId = getNotificationUserId(recipient);
+
+        const notifications = [];
+
+        if (senderZenoPayId) {
+          notifications.push({
+            ZenoPayId: senderZenoPayId,
+            Type: "debit",
+            Title: "Money Sent",
+            Message: `₹${amount.toFixed(2)} sent to ${getUserDisplayName(recipient)}.`,
+            Amount: amount,
+            TransactionID: senderTxReference,
+            IsRead: false,
+          });
+        }
+
+        if (receiverZenoPayId) {
+          notifications.push({
+            ZenoPayId: receiverZenoPayId,
+            Type: "credit",
+            Title: "Money Received",
+            Message: `₹${amount.toFixed(2)} received from ${getUserDisplayName(currentUser)}.`,
+            Amount: amount,
+            TransactionID: receiverTxReference,
+            IsRead: false,
+          });
+        }
+
+        if (notifications.length > 0) {
+          await Notification.create(notifications, { session, ordered: true });
+        }
       });
     } catch (txError) {
       if (txError?.message === "INSUFFICIENT_BALANCE") {

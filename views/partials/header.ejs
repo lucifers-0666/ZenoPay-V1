@@ -257,39 +257,14 @@
         <div class="action-wrapper" id="notifWrapper">
           <button class="action-btn" id="notifBtn" aria-label="Notifications">
             <i class="fas fa-bell"></i>
-            <span class="notif-badge">3</span>
+            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
           </button>
           <div class="notif-dropdown" id="notifDrop">
             <div class="notif-head">
               <h3>Notifications</h3>
-              <button class="mark-read-btn">Mark all read</button>
+              <button class="mark-read-btn" id="markReadBtn" type="button">Mark all read</button>
             </div>
-            <div class="notif-list">
-              <a href="/notifications" class="notif-item unread">
-                <div class="notif-icon success"><i class="fas fa-check-circle"></i></div>
-                <div class="notif-body">
-                  <div class="notif-title">Payment Received</div>
-                  <div class="notif-text">You received &#8377;150.00 from John Doe</div>
-                  <div class="notif-time">5 minutes ago</div>
-                </div>
-              </a>
-              <a href="/notifications" class="notif-item unread">
-                <div class="notif-icon info"><i class="fas fa-info-circle"></i></div>
-                <div class="notif-body">
-                  <div class="notif-title">Account Verified</div>
-                  <div class="notif-text">Your account has been verified</div>
-                  <div class="notif-time">2 hours ago</div>
-                </div>
-              </a>
-              <a href="/notifications" class="notif-item">
-                <div class="notif-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="notif-body">
-                  <div class="notif-title">Security Alert</div>
-                  <div class="notif-text">New login detected from Chrome</div>
-                  <div class="notif-time">1 day ago</div>
-                </div>
-              </a>
-            </div>
+            <div class="notif-list" id="notifList"></div>
             <div class="notif-footer">
               <a href="/notifications" class="notif-view-all">View All Notifications</a>
             </div>
@@ -616,11 +591,161 @@
 
   const notifWrapper  = document.getElementById('notifWrapper');
   const notifBtn     = document.getElementById('notifBtn');
+  const notifList    = document.getElementById('notifList');
+  const notifBadge   = document.getElementById('notifBadge');
+  const markReadBtn  = document.getElementById('markReadBtn');
+  const mobileBadge  = document.getElementById('mobileNavBadge');
+  const NOTIF_POLL_INTERVAL_MS = 25000;
+  let isNotifLoading = false;
+  let notifPollTimer = null;
+
+  const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const formatRelativeTime = (isoDate) => {
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) return 'Just now';
+
+    const diffSec = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (diffSec < 60) return 'Just now';
+
+    const mins = Math.floor(diffSec / 60);
+    if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`;
+
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const getNotifUi = (type) => {
+    const normalized = String(type || '').toLowerCase();
+    if (normalized === 'credit' || normalized === 'success' || normalized === 'reward') {
+      return { css: 'success', icon: 'fa-circle-check' };
+    }
+    if (normalized === 'debit' || normalized === 'warning' || normalized === 'security') {
+      return { css: 'warning', icon: 'fa-triangle-exclamation' };
+    }
+    return { css: 'info', icon: 'fa-circle-info' };
+  };
+
+  const syncNotificationBadges = (count) => {
+    const safeCount = Math.max(0, Number(count || 0));
+    if (notifBadge) {
+      if (safeCount > 0) {
+        notifBadge.textContent = safeCount > 99 ? '99+' : String(safeCount);
+        notifBadge.style.display = 'flex';
+      } else {
+        notifBadge.textContent = '0';
+        notifBadge.style.display = 'none';
+      }
+    }
+
+    if (mobileBadge) {
+      if (safeCount > 0) {
+        mobileBadge.textContent = safeCount > 99 ? '99+' : String(safeCount);
+        mobileBadge.style.display = 'flex';
+      } else {
+        mobileBadge.textContent = '0';
+        mobileBadge.style.display = 'none';
+      }
+    }
+  };
+
+  const renderNotifications = (notifications) => {
+    if (!notifList) return;
+
+    if (!Array.isArray(notifications) || notifications.length === 0) {
+      notifList.innerHTML = `
+        <a href="/notifications" class="notif-item">
+          <div class="notif-icon info"><i class="fas fa-bell"></i></div>
+          <div class="notif-body">
+            <div class="notif-title">No notifications yet</div>
+            <div class="notif-text">You'll see transaction alerts here in real time.</div>
+            <div class="notif-time">Now</div>
+          </div>
+        </a>
+      `;
+      return;
+    }
+
+    notifList.innerHTML = notifications.map((notification) => {
+      const ui = getNotifUi(notification.Type);
+      const unreadClass = notification.IsRead ? '' : ' unread';
+
+      return `
+        <a href="/notifications" class="notif-item${unreadClass}">
+          <div class="notif-icon ${ui.css}"><i class="fas ${ui.icon}"></i></div>
+          <div class="notif-body">
+            <div class="notif-title">${escapeHtml(notification.Title || 'Notification')}</div>
+            <div class="notif-text">${escapeHtml(notification.Message || '')}</div>
+            <div class="notif-time">${escapeHtml(formatRelativeTime(notification.createdAt || notification.updatedAt))}</div>
+          </div>
+        </a>
+      `;
+    }).join('');
+  };
+
+  const loadNotifications = async (force = false) => {
+    if (isNotifLoading && !force) return;
+
+    try {
+      isNotifLoading = true;
+
+      const [countRes, recentRes] = await Promise.all([
+        fetch('/api/notifications/count', { credentials: 'same-origin' }),
+        fetch('/api/notifications/recent', { credentials: 'same-origin' }),
+      ]);
+
+      const countJson = await countRes.json().catch(() => ({}));
+      const recentJson = await recentRes.json().catch(() => ({}));
+
+      syncNotificationBadges(countJson?.success ? countJson.count : 0);
+      renderNotifications(recentJson?.success ? recentJson.notifications : []);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+      syncNotificationBadges(0);
+      renderNotifications([]);
+    } finally {
+      isNotifLoading = false;
+    }
+  };
+
+  const startNotificationPolling = () => {
+    if (notifPollTimer) return;
+
+    notifPollTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      loadNotifications();
+    }, NOTIF_POLL_INTERVAL_MS);
+  };
+
+  const stopNotificationPolling = () => {
+    if (!notifPollTimer) return;
+    window.clearInterval(notifPollTimer);
+    notifPollTimer = null;
+  };
+
   if (notifBtn && notifWrapper) {
     notifBtn.addEventListener('click', e => {
       e.stopPropagation();
       closeAllActions([notifWrapper]);
       notifWrapper.classList.toggle('open');
+
+      if (notifWrapper.classList.contains('open')) {
+        loadNotifications(true);
+      }
     });
   }
 
@@ -680,16 +805,41 @@
     });
   });
 
-  const markReadBtn = document.querySelector('.mark-read-btn');
   if (markReadBtn) {
-    markReadBtn.addEventListener('click', () => {
-      document.querySelectorAll('.notif-item.unread').forEach(n => n.classList.remove('unread'));
-      const badge = document.querySelector('.notif-badge');
-      if (badge) badge.style.display = 'none';
-      const mobileBadge = document.getElementById('mobileNavBadge');
-      if (mobileBadge) mobileBadge.style.display = 'none';
+    markReadBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      try {
+        const response = await fetch('/api/notifications/mark-all-read', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to mark notifications as read');
+        }
+
+        document.querySelectorAll('.notif-item.unread').forEach((node) => node.classList.remove('unread'));
+        syncNotificationBadges(0);
+        loadNotifications(true);
+      } catch (error) {
+        console.error('Failed to mark notifications as read:', error);
+      }
     });
   }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      loadNotifications();
+      startNotificationPolling();
+    } else {
+      stopNotificationPolling();
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    stopNotificationPolling();
+  });
 
   const path = window.location.pathname;
   document.querySelectorAll('.mobile-nav-item').forEach(item => {
@@ -702,13 +852,21 @@
     else if (page === 'alerts' && path.includes('notifications')) item.classList.add('active');
   });
 
-  const topBadge    = document.querySelector('.notif-badge');
-  const mobileBadge = document.getElementById('mobileNavBadge');
-  if (mobileBadge && topBadge) {
-    const hidden = topBadge.style.display === 'none' || topBadge.textContent.trim() === '';
-    if (hidden) { mobileBadge.style.display = 'none'; }
-    else { mobileBadge.textContent = topBadge.textContent.trim(); mobileBadge.style.display = 'flex'; }
+  if (notifList) {
+    notifList.innerHTML = `
+      <a href="/notifications" class="notif-item">
+        <div class="notif-icon info"><i class="fas fa-spinner fa-spin"></i></div>
+        <div class="notif-body">
+          <div class="notif-title">Loading notifications</div>
+          <div class="notif-text">Please wait a moment...</div>
+          <div class="notif-time">Now</div>
+        </div>
+      </a>
+    `;
   }
+
+  loadNotifications();
+  startNotificationPolling();
 
   onHeaderScroll();
 })();

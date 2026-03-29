@@ -46,28 +46,28 @@
               <div class="summary-card-icon blue">
                 <i class="fas fa-list"></i>
               </div>
-              <div class="summary-card-value"><%= totalTransactions || 0 %></div>
+              <div class="summary-card-value" id="summaryTotalTransactions"><%= totalTransactions || 0 %></div>
               <div class="summary-card-label">Total Transactions</div>
             </div>
             <div class="summary-card">
               <div class="summary-card-icon purple">
                 <i class="fas fa-wallet"></i>
               </div>
-              <div class="summary-card-value">₹<%= (Number(totalAmount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-value" id="summaryTotalAmount">₹<%= (Number(totalAmount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
               <div class="summary-card-label">Total Amount</div>
             </div>
             <div class="summary-card">
               <div class="summary-card-icon green">
                 <i class="fas fa-arrow-down"></i>
               </div>
-              <div class="summary-card-value">₹<%= (Number(moneyIn) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-value" id="summaryMoneyIn">₹<%= (Number(moneyIn) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
               <div class="summary-card-label">Money In</div>
             </div>
             <div class="summary-card">
               <div class="summary-card-icon orange">
                 <i class="fas fa-arrow-up"></i>
               </div>
-              <div class="summary-card-value">₹<%= (Number(moneyOut) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
+              <div class="summary-card-value" id="summaryMoneyOut">₹<%= (Number(moneyOut) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %></div>
               <div class="summary-card-label">Money Out</div>
             </div>
           </div>
@@ -118,7 +118,6 @@
                   class="search-input"
                   placeholder="Search by name, ID, or note…"
                   id="searchInput"
-                  oninput="searchTransactions()"
                 />
               </div>
               <button class="reset-btn" onclick="resetFilters()">
@@ -143,71 +142,12 @@
                       <th style="text-align: center; width: 50px;">Action</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <% Object.values(allTransactions || []).forEach(txn => { %>
-                      <tr class="transaction-row" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
-                        <td class="txn-icon-cell">
-                          <div class="txn-icon <%= txn.type || 'transfer' %>">
-                            <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
-                          </div>
-                        </td>
-                        <td data-label="Date">
-                          <div style="font-size: 0.85rem; font-weight: 600;">
-                            <%= txn.date %><br>
-                            <span style="color: #9CA3AF; font-size: 0.8rem;"><%= txn.time || 'N/A' %></span>
-                          </div>
-                        </td>
-                        <td data-label="Description">
-                          <div class="txn-description">
-                            <div class="txn-name"><%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %></div>
-                            <div class="txn-note"><%= txn.note || txn.reference || 'No note' %></div>
-                          </div>
-                        </td>
-                        <td data-label="Method" class="txn-method"><%= txn.paymentMethod || 'Unknown' %></td>
-                        <td data-label="Amount" class="txn-amount <%= txn.isCredit ? 'positive' : 'negative' %>">
-                          <%= txn.isCredit ? '+' : '-' %>₹<%= (Number(txn.amount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
-                        </td>
-                        <td data-label="Status" style="text-align: center;">
-                          <span class="status-badge status-<%= txn.status || 'pending' %>">
-                            <i class="fas <%= txn.status === 'success' ? 'fa-check-circle' : txn.status === 'pending' ? 'fa-clock' : 'fa-times-circle' %>"></i>
-                            <%= txn.status || 'pending' %>
-                          </span>
-                        </td>
-                        <td class="txn-actions" onclick="event.stopPropagation();">
-                          <button class="action-menu" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
-                            <i class="fas fa-ellipsis-v"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    <% }); %>
-                  </tbody>
+                  <tbody id="transactionsTableBody"></tbody>
                 </table>
               </div>
 
               <!-- Mobile Stacked Cards View -->
-              <div class="transaction-cards-mobile">
-                <% Object.values(allTransactions || []).forEach(txn => { %>
-                  <div class="transaction-card-mobile" data-txn="<%= encodeURIComponent(JSON.stringify(txn)) %>">
-                    <div class="transaction-card-mobile-header">
-                      <div class="txn-icon <%= txn.type || 'transfer' %>">
-                        <i class="fas <%= txn.type === 'credit' ? 'fa-arrow-down' : txn.type === 'debit' ? 'fa-arrow-up' : 'fa-exchange-alt' %>"></i>
-                      </div>
-                      <div class="transaction-card-mobile-info">
-                        <div class="transaction-card-mobile-name"><%= txn.isCredit ? (txn.senderName || txn.description) : (txn.receiverName || txn.description) %></div>
-                        <div class="transaction-card-mobile-date"><%= txn.date %></div>
-                      </div>
-                      <div class="transaction-card-mobile-amount">
-                        <div class="transaction-card-mobile-value <%= txn.isCredit ? 'positive' : 'negative' %>">
-                          <%= txn.isCredit ? '+' : '-' %>₹<%= (Number(txn.amount) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2}) %>
-                        </div>
-                        <span class="transaction-card-mobile-status status-<%= txn.status || 'pending' %>">
-                          <%= txn.status || 'pending' %>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                <% }); %>
-              </div>
+              <div class="transaction-cards-mobile" id="transactionsMobileCards"></div>
             <% } else { %>
               <div class="empty-state">
                 <i class="fas fa-inbox"></i>
@@ -311,6 +251,7 @@
       }
     </style>
 
+    <script id="transactionHistoryData" type="application/json"><%- JSON.stringify(allTransactions || []) %></script>
 
     <script src="/js/header.js"></script>
     <script src="/js/transaction-history.js"></script>
