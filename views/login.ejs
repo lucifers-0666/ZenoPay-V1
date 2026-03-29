@@ -247,27 +247,6 @@
         inlineAlert.style.display = "none";
       }
 
-      async function waitForSessionReady(maxAttempts = 20, delayMs = 250) {
-        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-          try {
-            const probe = await fetch("/session/ping", {
-              method: "GET",
-              credentials: "same-origin",
-              cache: "no-store",
-              headers: { "X-Requested-With": "XMLHttpRequest" },
-            });
-
-            if (probe.ok) return true;
-          } catch (probeError) {
-            // Ignore transient probe failures and retry.
-          }
-
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
-        }
-
-        return false;
-      }
-
       passwordToggle.addEventListener("click", () => {
         const isPassword = passwordInput.type === "password";
         passwordInput.type = isPassword ? "text" : "password";
@@ -318,16 +297,8 @@
               ZenoPayLoader.show("Login successful! Redirecting...");
             }
 
-            const target = data.redirect || "/dashboard";
-
-            // Best-effort: give the session store time to settle, but never block redirect.
-            const sessionReady = await waitForSessionReady();
-            if (!sessionReady) {
-              await new Promise((resolve) => setTimeout(resolve, 500));
-            }
-
             // Use replace() so back button does not reopen login.
-            window.location.replace(target);
+            window.location.replace(data.redirect || "/dashboard");
             return;
           }
 

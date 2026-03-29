@@ -58,7 +58,7 @@ const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
 
 // Show registration page
 const getRegister = (req, res) => {
-  if (req.session.isLoggedIn) {
+  if (req.session && req.session.user) {
     return res.redirect("/dashboard");
   }
   res.render("register", {
@@ -254,7 +254,7 @@ const postRegister = async (req, res) => {
 
 // Show login page
 const getLogin = (req, res) => {
-  if (req.session.isLoggedIn) {
+  if (req.session && req.session.user) {
     return res.redirect("/dashboard");
   }
   res.render("login", {
@@ -292,61 +292,52 @@ const postLogin = async (req, res) => {
       });
     }
 
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error("Session regeneration failed:", err);
+    // Store ALL name/email variants so header.ejs can always find them
+    req.session.user = {
+      _id: user._id.toString(),
+      name: user.FullName || user.name || "",
+      Name: user.FullName || user.name || "",
+      FullName: user.FullName || user.name || "",
+      ZenoPayID: user.ZenoPayID || user.userId || "",
+      ZenoPayId: user.ZenoPayID || user.userId || "",
+      Email: user.Email || user.email || "",
+      email: user.Email || user.email || "",
+      ProfilePicture: user.ProfilePicture || null,
+      role: user.Role || user.role || "user",
+      Role: user.Role || user.role || "user",
+    };
+
+    req.session.userId = user._id.toString();
+    req.session.isLoggedIn = true;
+    req.session.lastActivityAt = Date.now();
+
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error("Session save error:", saveErr);
         return res.status(500).json({
           success: false,
-          message: "Session error. Please try again.",
+          message: "Session save error. Please try again.",
         });
       }
 
-      // Store ALL name/email variants so header.ejs can always find them
-      req.session.user = {
-        _id: user._id.toString(),
-        name: user.FullName || user.name || "",
-        Name: user.FullName || user.name || "",
-        FullName: user.FullName || user.name || "",
-        ZenoPayID: user.ZenoPayID || user.userId || "",
-        ZenoPayId: user.ZenoPayID || user.userId || "",
-        Email: user.Email || user.email || "",
-        email: user.Email || user.email || "",
-        ProfilePicture: user.ProfilePicture || null,
-        role: user.Role || user.role || "user",
-        Role: user.Role || user.role || "user",
-      };
+      LoginHistory.create({
+        ZenoPayId: user.ZenoPayID,
+        status: "success",
+        device: getDeviceLabel(req.headers["user-agent"]),
+        browser: getBrowserLabel(req.headers["user-agent"]),
+        ip: getClientIp(req),
+        location: "Unknown Location",
+        userAgent: req.headers["user-agent"] || "",
+        loginAt: new Date(),
+      }).catch((historyErr) => {
+        console.error("[Auth] Login history save failed:", historyErr.message);
+      });
 
-      req.session.isLoggedIn = true;
-      req.session.lastActivityAt = Date.now();
-
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error("Session save error:", saveErr);
-          return res.status(500).json({
-            success: false,
-            message: "Session save error. Please try again.",
-          });
-        }
-
-        LoginHistory.create({
-          ZenoPayId: user.ZenoPayID,
-          status: "success",
-          device: getDeviceLabel(req.headers["user-agent"]),
-          browser: getBrowserLabel(req.headers["user-agent"]),
-          ip: getClientIp(req),
-          location: "Unknown Location",
-          userAgent: req.headers["user-agent"] || "",
-          loginAt: new Date(),
-        }).catch((historyErr) => {
-          console.error("[Auth] Login history save failed:", historyErr.message);
-        });
-
-        // FIX: include redirect URL so frontend can navigate after cookie is set
-        return res.status(200).json({
-          success: true,
-          message: "Login successful!",
-          redirect: "/dashboard",
-        });
+      // include redirect URL so frontend can navigate after cookie is set
+      return res.status(200).json({
+        success: true,
+        message: "Login successful!",
+        redirect: "/dashboard",
       });
     });
   } catch (err) {
@@ -359,24 +350,22 @@ const postLogin = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.log("Logout error:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Logout failed. Please try again.",
-      });
-    }
+  // Only clear USER session keys, not admin
+  delete req.session.user;
+  delete req.session.userId;
+  req.session.isLoggedIn = !!(req.session && req.session.admin);
 
-    res.clearCookie("zenopay.sid");
-    res.clearCookie("connect.sid");
+  req.session.save((err) => {
+    if (err) {
+      console.error("Logout save error:", err);
+    }
     return res.redirect("/login");
   });
 };
 
 // Show forgot password page
 const getForgotPassword = (req, res) => {
-  if (req.session.isLoggedIn) {
+  if (req.session && req.session.user) {
     return res.redirect("/dashboard");
   }
   res.render("forgot-password", {

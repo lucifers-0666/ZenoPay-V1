@@ -1,5 +1,5 @@
 const isAuthenticated = (req, res, next) => {
-  if (req.session?.isLoggedIn && req.session?.user) {
+  if (req.session?.user) {
     return next();
   }
 
@@ -7,7 +7,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const isAuthenticatedApi = (req, res, next) => {
-  if (req.session?.isLoggedIn && req.session?.user) {
+  if (req.session?.user) {
     return next();
   }
 

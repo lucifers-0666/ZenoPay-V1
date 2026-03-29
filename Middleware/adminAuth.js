@@ -1,31 +1,9 @@
-/**
- * Admin Authentication Middleware
- * Verifies admin authentication and authorization
- */
-
-const adminAuth = (req, res, next) => {
-  try {
-    // TODO: Implement admin authentication logic
-    // - Check session/JWT token
-    // - Verify admin role
-    // - Validate token expiration
-    // - Check IP whitelist if enabled
-    
-    // Temporary: Pass through for development
-    // In production, this should verify actual authentication
-    
-    if (!req.session || !req.session.admin) {
-      return res.redirect('/admin/auth/login');
-    }
-    
-    // Attach admin to request
+module.exports = (req, res, next) => {
+  // Check admin session key (NOT user)
+  if (req.session && req.session.admin) {
     req.admin = req.session.admin;
-    
-    next();
-  } catch (error) {
-    console.error('Admin auth middleware error:', error);
-    res.redirect('/admin/auth/login');
+    return next();
   }
+  // Not logged in as admin → redirect to admin login
+  return res.redirect('/admin/login');
 };
-
-module.exports = adminAuth;

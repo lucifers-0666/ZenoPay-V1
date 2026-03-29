@@ -10,6 +10,10 @@ const resetTokens = new Map();
 
 // GET Admin Login Page
 const getLogin = (req, res) => {
+  if (req.session && req.session.admin) {
+    return res.redirect("/admin/dashboard");
+  }
+
   let successMessage = null;
   
   // Check for password reset success
@@ -62,18 +66,29 @@ const postLogin = async (req, res) => {
       });
     }
 
-    // Create session
-    req.session.isLoggedIn = true;
-    req.session.user = {
+    // Create dedicated admin session (separate from user)
+    req.session.admin = {
       ZenoPayID: adminUser.ZenoPayID,
       FullName: adminUser.FullName,
       Email: adminUser.Email,
       Role: adminUser.Role,
       ImagePath: adminUser.ImagePath,
     };
+    req.session.adminId = adminUser._id.toString();
+    req.session.isLoggedIn = true;
+    req.session.lastActivityAt = Date.now();
 
-    // Redirect to admin dashboard
-    return res.redirect("/admin/dashboard");
+    // Save session before redirecting
+    return req.session.save((err) => {
+      if (err) {
+        console.error("Admin session save error:", err);
+        return res.render("admin/auth/admin-login", {
+          pageTitle: "ZenoPay Admin Login",
+          error: "Login failed. Please try again.",
+        });
+      }
+      return res.redirect("/admin/dashboard");
+    });
   } catch (error) {
     console.error("Admin login error:", error);
     res.render("admin/auth/admin-login", {
@@ -85,12 +100,15 @@ const postLogin = async (req, res) => {
 
 // Admin Logout
 const logout = (req, res) => {
-  req.session.destroy((err) => {
+  // Only clear ADMIN session keys, not user
+  delete req.session.admin;
+  delete req.session.adminId;
+  req.session.isLoggedIn = !!(req.session && req.session.user);
+
+  req.session.save((err) => {
     if (err) {
-      console.error("Logout error:", err);
-      return res.redirect("/admin/dashboard");
+      console.error("Admin logout save error:", err);
     }
-    res.clearCookie("zenopay.admin.sid", { path: "/admin" });
     res.redirect("/admin/login");
   });
 };
@@ -643,7 +661,7 @@ const get2FASetup = (req, res) => {
 // POST Generate 2FA Secret and QR Code
 const generate2FA = async (req, res) => {
   try {
-    const userId = req.session.user?.ZenoPayID || "admin";
+    const userId = req.session.admin?.ZenoPayID || "admin";
 
     // Generate secret
     const secret = speakeasy.generateSecret({
@@ -688,7 +706,7 @@ const generate2FA = async (req, res) => {
 const verify2FA = async (req, res) => {
   try {
     const { code, secret } = req.body;
-    const userId = req.session.user?.ZenoPayID || "admin";
+    const userId = req.session.admin?.ZenoPayID || "admin";
 
     if (!code || !secret) {
       return res.status(400).json({

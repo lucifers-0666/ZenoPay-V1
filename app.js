@@ -168,7 +168,9 @@ app.use((req, res, next) => {
 
   const now = Date.now();
   const lastActivityAt = Number(req.session.lastActivityAt || now);
-  const isLoggedIn = !!(req.session.isLoggedIn && req.session.user);
+  const isLoggedIn = isAdminPath
+    ? !!req.session.admin
+    : !!req.session.user;
 
   if (isLoggedIn && now - lastActivityAt > INACTIVITY_TIMEOUT_MS) {
     return req.session.destroy(() => {
@@ -197,10 +199,12 @@ app.use((req, res, next) => {
 
 // Make auth/session state available to every EJS view by default
 app.use((req, res, next) => {
-  const sessionUser = req.session?.user || null;
   const isAdminPath = req.path === "/admin" || req.path.startsWith("/admin/");
-  res.locals.user = sessionUser;
-  res.locals.isLoggedIn = !!sessionUser || !!req.session?.isLoggedIn;
+  const sessionPrincipal = isAdminPath
+    ? (req.session?.admin || null)
+    : (req.session?.user || null);
+  res.locals.user = sessionPrincipal;
+  res.locals.isLoggedIn = !!sessionPrincipal;
   res.locals.inactivityTimeoutMs = INACTIVITY_TIMEOUT_MS;
   res.locals.inactivityWarningMs = INACTIVITY_WARNING_MS;
   res.locals.sessionPingUrl = isAdminPath ? "/admin/session/ping" : "/session/ping";
@@ -217,7 +221,7 @@ app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // Session keep-alive endpoints used by inactivity warning prompt
 app.get("/session/ping", (req, res) => {
-  if (req.session?.isLoggedIn && req.session?.user) {
+  if (req.session?.user) {
     req.session.lastActivityAt = Date.now();
     return res.json({ success: true, lastActivityAt: req.session.lastActivityAt });
   }
@@ -225,8 +229,8 @@ app.get("/session/ping", (req, res) => {
 });
 
 app.get("/admin/session/ping", (req, res) => {
-  const adminRole = req.session?.user?.Role || req.session?.user?.role;
-  if (req.session?.isLoggedIn && adminRole === "admin") {
+  const adminRole = req.session?.admin?.Role || req.session?.admin?.role;
+  if (req.session?.admin && adminRole === "admin") {
     req.session.lastActivityAt = Date.now();
     return res.json({ success: true, lastActivityAt: req.session.lastActivityAt });
   }
