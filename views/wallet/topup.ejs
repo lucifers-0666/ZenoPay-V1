@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/header.css" />
+  <style>
+    :root {
+      --primary: #01696f; --primary-hover: #0c4e54; --success: #437a22; --error: #a12c7b;
+      --text: #28251d; --muted: #7a7974; --bg: #f7f6f2; --surface: #fff;
+      --border: 1px solid rgba(40,37,29,0.12); --shadow: 0 4px 12px rgba(40,37,29,0.08);
+      --transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    .page { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
+    h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; font-size: 2rem; }
+    .card { background: var(--surface); border: var(--border); box-shadow: var(--shadow); border-radius: 12px; padding: 24px; }
+    .bal { color: var(--muted); margin: 0 0 18px; }
+    .bal strong { color: var(--text); font-variant-numeric: tabular-nums; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; }
+    .input-wrap { position: relative; }
+    .prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    input[type='number'] {
+      width: 100%; border-radius: 8px; border: 1px solid rgba(40,37,29,0.2); padding: 12px 16px 12px 34px;
+      font-size: 1rem; outline: none; transition: var(--transition);
+    }
+    input[type='number']:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.16); }
+    .chips { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip {
+      border: 1px solid rgba(40,37,29,0.2); border-radius: 9999px; background: #fff; color: var(--text);
+      padding: 8px 14px; cursor: pointer; font-weight: 600; transition: var(--transition);
+    }
+    .chip:hover { transform: scale(1.05); border-color: var(--primary); }
+    .chip:active { transform: scale(0.95); }
+    .chip.active { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.12); }
+    .error { color: var(--error); margin-top: 6px; font-size: 0.9rem; }
+    .btn {
+      margin-top: 20px; background: var(--primary); color: #fff; border: none; border-radius: 8px;
+      padding: 12px 24px; font-weight: 600; cursor: pointer; transition: var(--transition);
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 10px 18px rgba(12,78,84,0.22); }
+    .btn[disabled] { opacity: 0.78; cursor: wait; }
+    .spin { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; border-radius: 50%; display: none; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; right: 18px; top: 18px; background: var(--success); color: #fff; padding: 12px 16px; border-radius: 10px; box-shadow: var(--shadow); opacity: 0; transform: translateY(-12px); transition: var(--transition); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <main class="page">
+    <h1>Add Money</h1>
+    <section class="card">
+      <p class="bal">Current Balance: <strong>₹<%= Number(wallet?.balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></strong></p>
+
+      <form id="topupForm" action="/wallet/topup" method="post" novalidate>
+        <label for="amount">Amount</label>
+        <div class="input-wrap">
+          <span class="prefix">₹</span>
+          <input id="amount" name="amount" type="number" min="10" max="100000" step="0.01" value="<%= form?.amount || '' %>" placeholder="Enter amount" required />
+        </div>
+        <div class="chips">
+          <button type="button" class="chip" data-value="100">₹100</button>
+          <button type="button" class="chip" data-value="500">₹500</button>
+          <button type="button" class="chip" data-value="1000">₹1000</button>
+          <button type="button" class="chip" data-value="5000">₹5000</button>
+        </div>
+        <p id="amountError" class="error"><%= errors?.amount || '' %></p>
+
+        <button class="btn" id="submitBtn" type="submit">
+          <span class="spin" id="spin"></span>
+          <span id="btnText">Add Money →</span>
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <% if (flash && flash.message) { %>
+    <div class="toast" id="toast"><%= flash.message %></div>
+  <% } %>
+
+  <script>
+    const amountInput = document.getElementById('amount');
+    const errorNode = document.getElementById('amountError');
+    const chips = Array.from(document.querySelectorAll('.chip'));
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        amountInput.value = chip.dataset.value;
+        amountInput.dispatchEvent(new Event('input'));
+      });
+    });
+
+    function validateAmount() {
+      const value = Number(amountInput.value || 0);
+      if (!Number.isFinite(value) || value < 10) {
+        errorNode.textContent = 'Amount must be at least ₹10';
+        return false;
+      }
+      if (value > 100000) {
+        errorNode.textContent = 'Amount cannot exceed ₹100,000';
+        return false;
+      }
+      errorNode.textContent = '';
+      return true;
+    }
+
+    amountInput.addEventListener('input', validateAmount);
+
+    document.getElementById('topupForm').addEventListener('submit', (e) => {
+      if (!validateAmount()) {
+        e.preventDefault();
+        return;
+      }
+      const btn = document.getElementById('submitBtn');
+      document.getElementById('spin').style.display = 'inline-block';
+      document.getElementById('btnText').textContent = 'Processing...';
+      btn.disabled = true;
+    });
+
+    (function initToast() {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    })();
+  </script>
+</body>
+</html>

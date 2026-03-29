@@ -1,77 +1,159 @@
 const mongoose = require("mongoose");
-const BankAccount = require("../Models/BankAccount");
-const TransactionHistory = require("../Models/TransactionHistory");
-const { comparePin } = require("../utils/cardSecurity");
+const Wallet = require("../Models/Wallet");
+const Transaction = require("../Models/Transaction");
+const ZenoPayUser = require("../Models/ZenoPayUser");
+const { verifyTransactionPinForUser } = require("../utils/transactionPin");
 
-const toNumber = (value) => {
-  if (value === null || value === undefined) return 0;
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-  if (typeof value === "string") {
-    const parsed = Number(value.replace(/[,₹\s]/g, ""));
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-  if (typeof value === "object" && typeof value.toString === "function") {
-    const parsed = Number(value.toString());
-    return Number.isFinite(parsed) ? parsed : 0;
-  }
-  return 0;
+const PAGE_SIZE = 10;
+
+const setFlash = (req, payload) => {
+  req.session.walletFlash = payload;
 };
 
-const toDecimal128 = (value) => mongoose.Types.Decimal128.fromString(String(Number(value || 0).toFixed(2)));
+const getFlash = (req) => {
+  const flash = req.session.walletFlash || null;
+  delete req.session.walletFlash;
+  return flash;
+};
 
-const getSessionZenoPayId = (req) => {
-  return (
+const toAmount = (value) => {
+  const parsed = Number(String(value ?? "").replace(/[,₹\s]/g, ""));
+  return Number.isFinite(parsed) ? parsed : NaN;
+};
+
+const generateReference = (suffix = "") => {
+  const random4 = Math.floor(1000 + Math.random() * 9000);
+  return `ZP${Date.now()}${random4}${suffix}`;
+};
+
+const getSessionIdentity = (req) => ({
+  id: req.user?._id || req.session?.user?._id || null,
+  zenoPayId:
     req.session?.user?.ZenoPayID ||
     req.session?.user?.ZenoPayId ||
-    req.session?.user?.zenoPayId ||
-    null
+    req.session?.user?.userId ||
+    null,
+  email: req.session?.user?.Email || req.session?.user?.email || null,
+});
+
+const resolveCurrentUser = async (req) => {
+  const identity = getSessionIdentity(req);
+
+  if (identity.id && mongoose.Types.ObjectId.isValid(identity.id)) {
+    return ZenoPayUser.findById(identity.id);
+  }
+
+  const or = [];
+  if (identity.zenoPayId) {
+    or.push({ ZenoPayID: identity.zenoPayId }, { userId: identity.zenoPayId });
+  }
+  if (identity.email) {
+    or.push({ Email: identity.email }, { email: String(identity.email).toLowerCase() });
+  }
+
+  if (!or.length) return null;
+  return ZenoPayUser.findOne({ $or: or });
+};
+
+const ensureWallet = async (userId, session = null) => {
+  return Wallet.findOneAndUpdate(
+    { userId },
+    {
+      $setOnInsert: {
+        userId,
+        balance: 0,
+        currency: "INR",
+        isActive: true,
+      },
+      $set: {
+        updatedAt: new Date(),
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+      session,
+    }
   );
 };
 
-const maskAccount = (accountNumber) => {
-  const raw = String(accountNumber || "").replace(/\s+/g, "");
-  const last4 = raw.slice(-4);
-  return last4 ? `XXXX XXXX ${last4}` : "XXXX XXXX 0000";
+const findRecipientByQuery = async (query) => {
+  const raw = String(query || "").trim();
+  if (!raw) return null;
+
+  if (raw.includes("@")) {
+    return ZenoPayUser.findOne({
+      $or: [{ Email: raw.toLowerCase() }, { email: raw.toLowerCase() }],
+    });
+  }
+
+  const phone = raw.replace(/\D/g, "").slice(-10);
+  if (!phone) return null;
+
+  return ZenoPayUser.findOne({
+    $or: [{ phone }, { Mobile: phone }, { PhoneNumber: phone }],
+  });
 };
 
-const getNextTransactionID = async () => {
-  const last = await TransactionHistory.findOne().sort({ TransactionID: -1 }).select("TransactionID").lean();
-  const current = Number(last?.TransactionID || 100000);
-  return current + 1;
+const getUserDisplayName = (user) => user?.name || user?.FullName || user?.Name || "ZenoPay User";
+
+const getInitials = (name = "") => {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "ZU";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 };
 
-const getUserAccounts = async (zenoPayId) => {
-  const accounts = await BankAccount.find({ ZenoPayId: zenoPayId }).lean();
-  return accounts || [];
-};
-
-const mapAccountForView = (account) => ({
-  id: String(account._id),
-  bankName: account.BankName,
-  holder: account.FullName,
-  accountMasked: maskAccount(account.AccountNumber),
-  ifsc: account.BankId,
+const baseViewState = (req, user) => ({
+  pageTitle: "Wallet - ZenoPay",
+  isLoggedIn: !!req.session?.isLoggedIn,
+  user: req.session?.user || user,
+  flash: getFlash(req),
 });
 
-const getAddMoneyPage = async (req, res) => {
+const getBalance = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req);
-    if (!zenoPayId) {
-      return res.redirect("/login");
-    }
-    const accounts = await getUserAccounts(zenoPayId);
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
 
-    const totalBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
+    const wallet = await ensureWallet(currentUser._id);
+    const recentTransactions = await Transaction.find({ userId: currentUser._id })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .lean();
 
-    return res.render("add-money", {
+    return res.render("wallet/balance", {
+      ...baseViewState(req, currentUser),
+      pageTitle: "Wallet Balance - ZenoPay",
+      wallet,
+      recentTransactions,
+    });
+  } catch (error) {
+    console.error("[Wallet] getBalance error:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
+
+const getTopUp = async (req, res) => {
+  try {
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
+
+    const wallet = await ensureWallet(currentUser._id);
+
+    return res.render("wallet/topup", {
+      ...baseViewState(req, currentUser),
       pageTitle: "Add Money - ZenoPay",
-      isLoggedIn: !!req.session?.isLoggedIn,
-      user: req.session?.user || null,
-      balance: totalBalance,
-      accounts: accounts.map(mapAccountForView),
+      wallet,
+      errors: {},
+      form: {},
     });
   } catch (error) {
-    console.error("[Wallet] getAddMoneyPage error:", error);
+    console.error("[Wallet] getTopUp error:", error);
     return res.status(500).render("error-500", {
       pageTitle: "Server Error - ZenoPay",
       errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
@@ -79,24 +161,73 @@ const getAddMoneyPage = async (req, res) => {
   }
 };
 
-const getWithdrawPage = async (req, res) => {
+const processTopUp = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req);
-    if (!zenoPayId) {
-      return res.redirect("/login");
-    }
-    const accounts = await getUserAccounts(zenoPayId);
-    const totalBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
 
-    return res.render("withdraw", {
-      pageTitle: "Withdraw Funds - ZenoPay",
-      isLoggedIn: !!req.session?.isLoggedIn,
-      user: req.session?.user || null,
-      balance: totalBalance,
-      accounts: accounts.map(mapAccountForView),
+    const amount = toAmount(req.body?.amount);
+    const errors = {};
+
+    if (!Number.isFinite(amount)) {
+      errors.amount = "Please enter a valid amount.";
+    } else if (amount < 10 || amount > 100000) {
+      errors.amount = "Amount must be between ₹10 and ₹100,000.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      const wallet = await ensureWallet(currentUser._id);
+      return res.status(400).render("wallet/topup", {
+        ...baseViewState(req, currentUser),
+        pageTitle: "Add Money - ZenoPay",
+        wallet,
+        errors,
+        form: { amount: req.body?.amount },
+      });
+    }
+
+    const session = await mongoose.startSession();
+
+    try {
+      await session.withTransaction(async () => {
+        await ensureWallet(currentUser._id, session);
+
+        await Wallet.updateOne(
+          { userId: currentUser._id, isActive: true },
+          { $inc: { balance: amount }, $set: { updatedAt: new Date() } },
+          { session }
+        );
+
+        await Transaction.create(
+          [
+            {
+              userId: currentUser._id,
+              type: "topup",
+              amount,
+              status: "completed",
+              reference: generateReference(),
+              description: "Wallet top-up",
+              metadata: { source: "simulated_gateway" },
+            },
+          ],
+          { session }
+        );
+      });
+    } finally {
+      session.endSession();
+    }
+
+    setFlash(req, {
+      type: "success",
+      message: `₹${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} added to your wallet successfully.`,
     });
+
+    return res.redirect("/wallet/transactions");
   } catch (error) {
-    console.error("[Wallet] getWithdrawPage error:", error);
+    console.error("[Wallet] processTopUp error:", error);
     return res.status(500).render("error-500", {
       pageTitle: "Server Error - ZenoPay",
       errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
@@ -104,168 +235,349 @@ const getWithdrawPage = async (req, res) => {
   }
 };
 
-const addMoney = async (req, res) => {
+const searchUser = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req);
-    if (!zenoPayId) {
-      return res.status(401).json({ success: false, message: "Please login first" });
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) {
+      return res.status(401).json({ found: false });
     }
 
-    const { amount, paymentMethod = "upi", upiId = "", cardLast4 = "", note = "" } = req.body || {};
-    const numericAmount = Number(amount);
-
-    if (!Number.isFinite(numericAmount) || numericAmount < 100 || numericAmount > 100000) {
-      return res.status(400).json({
-        success: false,
-        message: "Amount must be between ₹100 and ₹1,00,000",
-      });
+    const q = String(req.query?.q || "").trim();
+    if (!q) {
+      return res.json({ found: false });
     }
 
-    const account = await BankAccount.findOne({ ZenoPayId: zenoPayId });
-    if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: "No linked bank account found. Please open an account first.",
-      });
+    const recipient = await findRecipientByQuery(q);
+
+    if (!recipient || String(recipient._id) === String(currentUser._id)) {
+      return res.json({ found: false });
     }
 
-    const beforeBalance = toNumber(account.Balance);
-    const afterBalance = beforeBalance + numericAmount;
-    account.Balance = toDecimal128(afterBalance);
-    await account.save();
-
-    const transactionId = await getNextTransactionID();
-    await TransactionHistory.create({
-      TransactionID: transactionId,
-      TransactionTime: new Date(),
-      SenderBank: paymentMethod.toUpperCase(),
-      SenderAccountNumber: paymentMethod === "upi" ? (upiId || "UPI") : (cardLast4 ? `****${cardLast4}` : "External"),
-      SenderHolderName: req.session?.user?.FullName || req.session?.user?.Name || "Customer",
-      SenderBalanceBefore: toDecimal128(0),
-      SenderBalanceAfter: toDecimal128(0),
-      ReceiverBank: account.BankName,
-      ReceiverAccountNumber: account.AccountNumber,
-      ReceiverHolderName: account.FullName,
-      ReceiverBalanceBefore: toDecimal128(beforeBalance),
-      ReceiverBalanceAfter: toDecimal128(afterBalance),
-      Amount: toDecimal128(numericAmount),
-      Description: note || `Wallet top-up via ${paymentMethod.toUpperCase()}`,
-      Status: "success",
-    });
-
+    const name = getUserDisplayName(recipient);
     return res.json({
-      success: true,
-      message: "Money added successfully",
-      data: {
-        transactionId,
-        amount: numericAmount,
-        newBalance: Number(afterBalance.toFixed(2)),
-        status: "success",
-      },
+      found: true,
+      name,
+      initials: getInitials(name),
     });
   } catch (error) {
-    console.error("[Wallet] addMoney error:", error);
-    return res.status(500).json({ success: false, message: "Failed to add money" });
+    console.error("[Wallet] searchUser error:", error);
+    return res.status(500).json({ found: false });
   }
 };
 
-const withdrawMoney = async (req, res) => {
+const getSend = async (req, res) => {
   try {
-    const zenoPayId = getSessionZenoPayId(req);
-    if (!zenoPayId) {
-      return res.status(401).json({ success: false, message: "Please login first" });
-    }
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
 
-    const {
-      amount,
-      mode = "upi",
-      pin = "",
-      note = "",
-      destination = {},
-    } = req.body || {};
+    const wallet = await ensureWallet(currentUser._id);
 
-    const numericAmount = Number(amount);
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      return res.status(400).json({ success: false, message: "Invalid withdrawal amount" });
-    }
-
-    const account = await BankAccount.findOne({ ZenoPayId: zenoPayId });
-    if (!account) {
-      return res.status(404).json({ success: false, message: "No linked account found" });
-    }
-
-    // Optional but useful PIN check against existing account PIN
-    if (String(pin || "").trim()) {
-      let pinValid = true;
-
-      if (account.CardPINHash) {
-        pinValid = await comparePin(pin, account.CardPINHash);
-      } else if (String(account.CardPIN || "").trim()) {
-        pinValid = String(account.CardPIN).trim() === String(pin).trim();
-      }
-
-      if (!pinValid) {
-        return res.status(400).json({ success: false, message: "Invalid transaction PIN" });
-      }
-    }
-
-    const beforeBalance = toNumber(account.Balance);
-    if (numericAmount > beforeBalance) {
-      return res.status(400).json({ success: false, message: "Insufficient balance" });
-    }
-
-    const fee = mode === "imps" ? 5 : 0;
-    const gst = fee > 0 ? fee * 0.18 : 0;
-    const netReceived = Math.max(0, numericAmount - fee - gst);
-
-    const afterBalance = beforeBalance - numericAmount;
-    account.Balance = toDecimal128(afterBalance);
-    await account.save();
-
-    const transactionId = await getNextTransactionID();
-    const status = mode === "neft" ? "pending" : "success";
-
-    await TransactionHistory.create({
-      TransactionID: transactionId,
-      TransactionTime: new Date(),
-      SenderBank: account.BankName,
-      SenderAccountNumber: account.AccountNumber,
-      SenderHolderName: account.FullName,
-      SenderBalanceBefore: toDecimal128(beforeBalance),
-      SenderBalanceAfter: toDecimal128(afterBalance),
-      ReceiverBank: destination.bank || "External Bank",
-      ReceiverAccountNumber: destination.mask || "External Account",
-      ReceiverHolderName: destination.holder || account.FullName,
-      ReceiverBalanceBefore: toDecimal128(0),
-      ReceiverBalanceAfter: toDecimal128(netReceived),
-      Amount: toDecimal128(numericAmount),
-      Description: note || `Withdrawal via ${mode.toUpperCase()}`,
-      Status: status,
+    return res.render("wallet/send", {
+      ...baseViewState(req, currentUser),
+      pageTitle: "Send Money - ZenoPay",
+      wallet,
+      errors: {},
+      form: {},
+      recipientPreview: null,
+      successData: null,
     });
+  } catch (error) {
+    console.error("[Wallet] getSend error:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
 
-    return res.json({
-      success: true,
-      message: status === "pending" ? "Withdrawal initiated" : "Withdrawal successful",
-      data: {
-        transactionId,
-        amount: numericAmount,
-        fee: Number(fee.toFixed(2)),
-        gst: Number(gst.toFixed(2)),
-        netReceived: Number(netReceived.toFixed(2)),
-        newBalance: Number(afterBalance.toFixed(2)),
-        status,
-        estimatedArrival: mode === "neft" ? "2–4 hours" : "Instant",
+const processSend = async (req, res) => {
+  try {
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
+
+    const recipientQuery = String(req.body?.recipient || "").trim();
+    const amount = toAmount(req.body?.amount);
+    const pin = String(req.body?.pin || "").trim();
+    const wallet = await ensureWallet(currentUser._id);
+
+    const errors = {};
+
+    if (!recipientQuery) {
+      errors.recipient = "Recipient phone or email is required.";
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      errors.amount = "Please enter a valid amount.";
+    }
+
+    if (!/^\d{6}$/.test(pin)) {
+      errors.pin = "Please enter your 6-digit transaction PIN.";
+    }
+
+    let recipient = null;
+
+    if (!errors.recipient) {
+      recipient = await findRecipientByQuery(recipientQuery);
+      if (!recipient) {
+        errors.recipient = "No ZenoPay user found with this phone/email";
+      } else if (String(recipient._id) === String(currentUser._id)) {
+        errors.recipient = "You cannot send money to yourself";
+      }
+    }
+
+    if (!errors.pin) {
+      const pinResult = await verifyTransactionPinForUser(currentUser, pin);
+      if (!pinResult.valid) {
+        errors.pin =
+          pinResult.message ||
+          `Invalid transaction PIN.${typeof pinResult.attemptsLeft === "number" ? ` Attempts left: ${pinResult.attemptsLeft}` : ""}`;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).render("wallet/send", {
+        ...baseViewState(req, currentUser),
+        pageTitle: "Send Money - ZenoPay",
+        wallet,
+        errors,
+        form: {
+          recipient: recipientQuery,
+          amount: req.body?.amount,
+        },
+        recipientPreview: recipient
+          ? {
+              name: getUserDisplayName(recipient),
+              initials: getInitials(getUserDisplayName(recipient)),
+            }
+          : null,
+        successData: null,
+      });
+    }
+
+    const session = await mongoose.startSession();
+    let senderTxReference = "";
+
+    try {
+      await session.withTransaction(async () => {
+        await ensureWallet(currentUser._id, session);
+        await ensureWallet(recipient._id, session);
+
+        const senderWallet = await Wallet.findOneAndUpdate(
+          {
+            userId: currentUser._id,
+            isActive: true,
+            balance: { $gte: amount },
+          },
+          {
+            $inc: { balance: -amount },
+            $set: { updatedAt: new Date() },
+          },
+          {
+            new: true,
+            session,
+          }
+        );
+
+        if (!senderWallet) {
+          throw new Error("INSUFFICIENT_BALANCE");
+        }
+
+        await Wallet.updateOne(
+          { userId: recipient._id, isActive: true },
+          {
+            $inc: { balance: amount },
+            $set: { updatedAt: new Date() },
+          },
+          { session }
+        );
+
+        const baseRef = generateReference();
+        senderTxReference = `${baseRef}S`;
+        const receiverTxReference = `${baseRef}R`;
+
+        await Transaction.create(
+          [
+            {
+              userId: currentUser._id,
+              type: "send",
+              amount,
+              status: "completed",
+              reference: senderTxReference,
+              description: `Sent to ${getUserDisplayName(recipient)}`,
+              metadata: {
+                recipientId: recipient._id,
+                recipientName: getUserDisplayName(recipient),
+              },
+            },
+            {
+              userId: recipient._id,
+              type: "receive",
+              amount,
+              status: "completed",
+              reference: receiverTxReference,
+              description: `Received from ${getUserDisplayName(currentUser)}`,
+              metadata: {
+                senderId: currentUser._id,
+                senderName: getUserDisplayName(currentUser),
+              },
+            },
+          ],
+          { session }
+        );
+      });
+    } catch (txError) {
+      if (txError?.message === "INSUFFICIENT_BALANCE") {
+        return res.status(400).render("wallet/send", {
+          ...baseViewState(req, currentUser),
+          pageTitle: "Send Money - ZenoPay",
+          wallet,
+          errors: { amount: "Insufficient balance" },
+          form: {
+            recipient: recipientQuery,
+            amount: req.body?.amount,
+          },
+          recipientPreview: {
+            name: getUserDisplayName(recipient),
+            initials: getInitials(getUserDisplayName(recipient)),
+          },
+          successData: null,
+        });
+      }
+      throw txError;
+    } finally {
+      session.endSession();
+    }
+
+    const refreshedWallet = await ensureWallet(currentUser._id);
+
+    return res.render("wallet/send", {
+      ...baseViewState(req, currentUser),
+      pageTitle: "Send Money - ZenoPay",
+      wallet: refreshedWallet,
+      errors: {},
+      form: {},
+      recipientPreview: null,
+      successData: {
+        recipientName: getUserDisplayName(recipient),
+        amount,
+        reference: senderTxReference,
+      },
+      flash: {
+        type: "success",
+        message: `Sent ₹${amount.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })} to ${getUserDisplayName(recipient)} successfully.`,
       },
     });
   } catch (error) {
-    console.error("[Wallet] withdrawMoney error:", error);
-    return res.status(500).json({ success: false, message: "Failed to process withdrawal" });
+    console.error("[Wallet] processSend error:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
   }
 };
+
+const getTransactions = async (req, res) => {
+  try {
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) return res.redirect("/login");
+
+    const filter = String(req.query?.type || "all").toLowerCase();
+    const page = Math.max(1, Number.parseInt(req.query?.page || "1", 10));
+
+    const query = { userId: currentUser._id };
+    if (["topup", "send", "receive"].includes(filter)) {
+      query.type = filter;
+    }
+
+    const [totalCount, txRows, totalsAgg, wallet] = await Promise.all([
+      Transaction.countDocuments(query),
+      Transaction.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .lean(),
+      Transaction.aggregate([
+        {
+          $match: {
+            userId: currentUser._id,
+            status: "completed",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalIn: {
+              $sum: {
+                $cond: [{ $in: ["$type", ["topup", "receive", "refund"]] }, "$amount", 0],
+              },
+            },
+            totalOut: {
+              $sum: {
+                $cond: [{ $eq: ["$type", "send"] }, "$amount", 0],
+              },
+            },
+          },
+        },
+      ]),
+      ensureWallet(currentUser._id),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+    let running = Number(wallet?.balance || 0);
+    const transactions = txRows.map((tx) => {
+      const mapped = {
+        ...tx,
+        runningBalance: running,
+      };
+
+      if (["topup", "receive", "refund"].includes(tx.type)) {
+        running -= Number(tx.amount || 0);
+      } else if (tx.type === "send") {
+        running += Number(tx.amount || 0);
+      }
+
+      return mapped;
+    });
+
+    return res.render("wallet/transactions", {
+      ...baseViewState(req, currentUser),
+      pageTitle: "Wallet Transactions - ZenoPay",
+      transactions,
+      currentPage: page,
+      totalPages,
+      filter,
+      totalIn: Number(totalsAgg?.[0]?.totalIn || 0),
+      totalOut: Number(totalsAgg?.[0]?.totalOut || 0),
+    });
+  } catch (error) {
+    console.error("[Wallet] getTransactions error:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
+
+// Legacy aliases to avoid breaking existing route handlers while migrating
+const getAddMoneyPage = getTopUp;
+const addMoney = processTopUp;
+const getWithdrawPage = getSend;
+const withdrawMoney = processSend;
 
 module.exports = {
+  getBalance,
+  getTopUp,
+  processTopUp,
+  getSend,
+  processSend,
+  searchUser,
+  getTransactions,
   getAddMoneyPage,
-  getWithdrawPage,
   addMoney,
+  getWithdrawPage,
   withdrawMoney,
 };

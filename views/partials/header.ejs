@@ -88,15 +88,19 @@
             <!-- Col 1: Payments -->
             <div class="mega-col">
               <div class="mega-col-title">Payments</div>
-              <a href="/send-money" class="mega-item">
+              <a href="/wallet/send" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-paper-plane"></i></div>
                 <div class="mega-item-text"><div class="mega-item-title">Send Money</div><div class="mega-item-desc">Transfer funds instantly</div></div>
+              </a>
+              <a href="/wallet/balance" class="mega-item">
+                <div class="mega-icon"><i class="fas fa-wallet"></i></div>
+                <div class="mega-item-text"><div class="mega-item-title">Wallet</div><div class="mega-item-desc">View available balance</div></div>
               </a>
               <a href="/request-money" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-hand-holding-dollar"></i></div>
                 <div class="mega-item-text"><div class="mega-item-title">Request Money</div><div class="mega-item-desc">Request payments easily</div></div>
               </a>
-              <a href="/add-money" class="mega-item">
+              <a href="/wallet/topup" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-plus-circle"></i></div>
                 <div class="mega-item-text"><div class="mega-item-title">Add Money</div><div class="mega-item-desc">Top up your wallet</div></div>
               </a>
@@ -113,7 +117,7 @@
             <!-- Col 2: Manage -->
             <div class="mega-col">
               <div class="mega-col-title">Manage &amp; Track</div>
-              <a href="/transaction-history" class="mega-item">
+              <a href="/wallet/transactions" class="mega-item">
                 <div class="mega-icon"><i class="fas fa-history"></i></div>
                 <div class="mega-item-text"><div class="mega-item-title">Transaction History</div><div class="mega-item-desc">View all transactions</div></div>
               </a>
@@ -170,7 +174,7 @@
 
           </div>
           <div class="mega-footer">
-            <a href="/transaction-history" class="mega-cta">
+            <a href="/wallet/transactions" class="mega-cta">
               View Transaction History <i class="fas fa-arrow-right"></i>
             </a>
           </div>
@@ -343,7 +347,10 @@
               <a href="/banks-list" class="pmenu-item"><i class="fas fa-building-columns"></i> Banks &amp; Cards</a>
               <a href="/payment-methods" class="pmenu-item"><i class="fas fa-wallet"></i> Payment Methods</a>
               <a href="/beneficiaries" class="pmenu-item"><i class="fas fa-users"></i> Beneficiaries</a>
-              <a href="/transaction-history" class="pmenu-item"><i class="fas fa-history"></i> Transaction History</a>
+              <a href="/wallet/balance" class="pmenu-item"><i class="fas fa-wallet"></i> Wallet</a>
+              <a href="/wallet/topup" class="pmenu-item"><i class="fas fa-plus-circle"></i> Add Money</a>
+              <a href="/wallet/send" class="pmenu-item"><i class="fas fa-paper-plane"></i> Send Money</a>
+              <a href="/wallet/transactions" class="pmenu-item"><i class="fas fa-history"></i> Transactions</a>
               <a href="/receipts" class="pmenu-item"><i class="fas fa-receipt"></i> Receipts</a>
               <a href="/statements" class="pmenu-item"><i class="fas fa-file-lines"></i> Statements</a>
               <a href="/referral-program" class="pmenu-item"><i class="fas fa-gift"></i> Referral Program</a>
@@ -405,15 +412,15 @@
     <div class="mobile-nav-icon"><i class="fas fa-home"></i></div>
     <span class="mobile-nav-label">Dashboard</span>
   </a>
-  <a href="/send-money" class="mobile-nav-item" data-page="send">
+  <a href="/wallet/send" class="mobile-nav-item" data-page="send">
     <div class="mobile-nav-icon"><i class="fas fa-paper-plane"></i></div>
     <span class="mobile-nav-label">Send</span>
   </a>
-  <a href="/transaction-history" class="mobile-nav-item" data-page="history">
+  <a href="/wallet/transactions" class="mobile-nav-item" data-page="history">
     <div class="mobile-nav-icon"><i class="fas fa-history"></i></div>
     <span class="mobile-nav-label">History</span>
   </a>
-  <a href="/add-money" class="mobile-nav-item" data-page="payments">
+  <a href="/wallet/topup" class="mobile-nav-item" data-page="payments">
     <div class="mobile-nav-icon"><i class="fas fa-wallet"></i></div>
     <span class="mobile-nav-label">Payments</span>
   </a>
@@ -452,10 +459,11 @@
 
       <nav class="mob-nav">
         <a href="/" class="mob-item"><i class="fas fa-th-large"></i> Dashboard</a>
-        <a href="/send-money" class="mob-item"><i class="fas fa-paper-plane"></i> Send Money</a>
-        <a href="/add-money" class="mob-item"><i class="fas fa-plus-circle"></i> Add Money</a>
+        <a href="/wallet/balance" class="mob-item"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="/wallet/send" class="mob-item"><i class="fas fa-paper-plane"></i> Send Money</a>
+        <a href="/wallet/topup" class="mob-item"><i class="fas fa-plus-circle"></i> Add Money</a>
         <a href="/request-money" class="mob-item"><i class="fas fa-hand-holding-dollar"></i> Request Money</a>
-        <a href="/transaction-history" class="mob-item"><i class="fas fa-history"></i> Transaction History</a>
+        <a href="/wallet/transactions" class="mob-item"><i class="fas fa-history"></i> Transactions</a>
         <a href="/banks-list" class="mob-item"><i class="fas fa-building-columns"></i> Banks &amp; Cards</a>
         <a href="/scheduled-payments" class="mob-item"><i class="fas fa-calendar-check"></i> Scheduled Payments</a>
         <div class="mob-divider"></div>
@@ -688,9 +696,9 @@
     item.classList.remove('active');
     const page = item.getAttribute('data-page');
     if (page === 'dashboard' && (path === '/' || path === '/dashboard')) item.classList.add('active');
-    else if (page === 'send' && path.includes('send-money')) item.classList.add('active');
-    else if (page === 'history' && path.includes('transaction-history')) item.classList.add('active');
-    else if (page === 'payments' && (path.includes('add-money') || path.includes('withdraw') || path.includes('payment'))) item.classList.add('active');
+    else if (page === 'send' && (path.includes('/wallet/send') || path.includes('send-money'))) item.classList.add('active');
+    else if (page === 'history' && (path.includes('/wallet/transactions') || path.includes('transaction-history'))) item.classList.add('active');
+    else if (page === 'payments' && (path.includes('/wallet/topup') || path.includes('add-money') || path.includes('withdraw') || path.includes('payment'))) item.classList.add('active');
     else if (page === 'alerts' && path.includes('notifications')) item.classList.add('active');
   });
 

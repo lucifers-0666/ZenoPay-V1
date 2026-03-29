@@ -356,7 +356,7 @@
 
     /* Wallet card */
     .zd-wallet-card {
-      background: linear-gradient(135deg, var(--gradient-start) 0%, #2563EB 60%, var(--gradient-end) 100%);
+      background: #01696f;
       border-radius: 20px;
       padding: 28px 24px;
       position: relative;
@@ -372,9 +372,12 @@
       border-radius: 50%;
     }
     .zd-wallet-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
-    .zd-wallet-amount { font-size: 36px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .zd-wallet-amount { font-size: 36px; font-weight: 800; color: #fff; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
     .zd-wallet-sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 24px; }
     .zd-wallet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .zd-wallet-mini-list { margin-top: 16px; display: grid; gap: 8px; }
+    .zd-wallet-mini-item { display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.92); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.14); padding-top: 8px; }
+    .zd-wallet-mini-item .amt { font-weight: 700; font-variant-numeric: tabular-nums; }
     .zd-wal-btn {
       flex: 1; min-width: 90px;
       display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -606,12 +609,24 @@
             <!-- Wallet Card -->
             <div class="zd-wallet-card">
               <div class="zd-wallet-label">Available Balance</div>
-              <div class="zd-wallet-amount">₹<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+              <div class="zd-wallet-amount" id="walletBalanceAnimated" data-balance="<%= Number(typeof walletBalance !== 'undefined' ? walletBalance : 0) %>">₹0.00</div>
               <div class="zd-wallet-sub">Last updated just now</div>
               <div class="zd-wallet-actions">
-                <a href="/add-money" class="zd-wal-btn add"><i class="fas fa-plus"></i> Add</a>
-                <a href="/send-money" class="zd-wal-btn send"><i class="fas fa-paper-plane"></i> Send</a>
-                <a href="/withdraw" class="zd-wal-btn with"><i class="fas fa-arrow-down-to-line"></i> Withdraw</a>
+                <a href="/wallet/topup" class="zd-wal-btn add"><i class="fas fa-plus"></i> Add Money</a>
+                <a href="/wallet/send" class="zd-wal-btn send"><i class="fas fa-paper-plane"></i> Send Money</a>
+                <a href="/wallet/transactions" class="zd-wal-btn with"><i class="fas fa-clock-rotate-left"></i> History</a>
+              </div>
+              <div class="zd-wallet-mini-list">
+                <% if (typeof recentTransactions !== 'undefined' && recentTransactions && recentTransactions.length > 0) { %>
+                  <% recentTransactions.slice(0, 3).forEach(function(txn) { %>
+                    <div class="zd-wallet-mini-item">
+                      <span><%= txn.description || 'Transaction' %></span>
+                      <span class="amt"><%= txn.type === 'credit' ? '+' : '-' %>₹<%= Number(txn.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></span>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="zd-wallet-mini-item"><span>No recent wallet transactions</span><span class="amt">—</span></div>
+                <% } %>
               </div>
             </div>
 
@@ -1565,6 +1580,32 @@
         }
       });
     });
+
+    // ── Wallet balance counter ──
+    (function animateWalletBalance() {
+      const node = document.getElementById('walletBalanceAnimated');
+      if (!node) return;
+
+      const target = Number(node.dataset.balance || 0);
+      const duration = 1200;
+      const start = performance.now();
+
+      const formatINR = (value) => `₹${Number(value || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+
+      const step = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        node.textContent = formatINR(target * eased);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      };
+
+      requestAnimationFrame(step);
+    })();
   </script>
 </body>
 

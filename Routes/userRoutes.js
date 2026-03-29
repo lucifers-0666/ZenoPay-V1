@@ -8,7 +8,6 @@ const ZenoPayController = require("../Controllers/ZenoPayController");
 const BankController = require("../Controllers/BankAccountController");
 const BranchController = require("../Controllers/BankController");
 const TransferController = require("../Controllers/TransferMoney");
-const ProfileController = require("../Controllers/Profile");
 const NotificationController = require("../Controllers/Notifications");
 const SettingsController = require("../Controllers/SettingsController");
 const KYCController = require("../Controllers/KYCController");
@@ -123,9 +122,6 @@ router.use((req, res, next) => {
 
   return isAuthenticated(req, res, next);
 });
-
-router.get("/profile", ProfileController.getProfile);
-router.post("/profile", ProfileController.updateProfile);
 
 // Shop page
 // Beneficiary Management

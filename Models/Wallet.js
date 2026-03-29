@@ -2,16 +2,11 @@ const mongoose = require("mongoose");
 
 const WalletSchema = new mongoose.Schema(
   {
-    walletId: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ZenoPayDetails",
       required: true,
+      unique: true,
       index: true,
     },
     balance: {
@@ -19,25 +14,14 @@ const WalletSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
-    totalCredit: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    totalDebit: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    status: {
+    currency: {
       type: String,
-      enum: ["active", "frozen", "suspended"],
-      default: "active",
-      index: true,
+      default: "INR",
+      trim: true,
     },
-    lastTransaction: {
-      type: Date,
-      default: null,
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   {

@@ -1,6 +1,8 @@
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 const ZenoPayUser = require("../Models/ZenoPayUser");
+const Wallet = require("../Models/Wallet");
+const Transaction = require("../Models/Transaction");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -37,13 +39,58 @@ const getDashboard = async (req, res) => {
 
     let accounts = [];
     let transactions = [];
+    let recentTransactions = [];
     let walletBalance = 0;
     let monthTransactionCount = 0;
     let monthSuccessRate = 98.4;
 
     if (zenoPayId) {
       accounts = await BankAccount.find({ ZenoPayId: zenoPayId }).lean();
-      walletBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
+
+      const walletOwner = await ZenoPayUser.findOne({
+        $or: [{ ZenoPayID: zenoPayId }, { userId: zenoPayId }],
+      })
+        .select("_id")
+        .lean();
+
+      if (walletOwner?._id) {
+        const wallet = await Wallet.findOneAndUpdate(
+          { userId: walletOwner._id },
+          {
+            $setOnInsert: {
+              userId: walletOwner._id,
+              balance: 0,
+              currency: "INR",
+              isActive: true,
+            },
+          },
+          { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).lean();
+
+        walletBalance = Number(wallet?.balance || 0);
+
+        const walletTx = await Transaction.find({ userId: walletOwner._id })
+          .sort({ createdAt: -1 })
+          .limit(3)
+          .lean();
+
+        recentTransactions = walletTx.map((tx) => ({
+          description: tx.description,
+          amount: Number(tx.amount || 0),
+          createdAt: new Date(tx.createdAt).toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          type: ["receive", "topup", "refund"].includes(tx.type) ? "credit" : "debit",
+          status: tx.status === "completed" ? "success" : tx.status,
+        }));
+      }
+
+      if (!walletBalance) {
+        walletBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
+      }
 
       const accountNumbers = accounts.map((a) => a.AccountNumber);
       if (accountNumbers.length) {
@@ -109,6 +156,7 @@ const getDashboard = async (req, res) => {
       isLoggedIn: isLoggedIn,
       accounts,
       transactions,
+      recentTransactions,
       walletBalance,
       monthTransactionCount,
       monthSuccessRate,

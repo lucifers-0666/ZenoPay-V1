@@ -10,9 +10,13 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
 const authRoutes = require("./Routes/authRoutes");
 const userRoutes = require("./Routes/userRoutes");
+const walletRoutes = require("./Routes/walletRoutes");
+const profileRoutes = require("./Routes/profileRoutes");
+const pinRoutes = require("./Routes/pinRoutes");
 const merchantFeatureRoutes = require("./Routes/merchantRoutes");
 const adminApiRoutes = require("./Routes/adminRoutes");
 const apiRoutes = require("./Routes/apiRoutes");
+const { isAuthenticated: authMiddleware } = require("./Middleware/authGuards");
 const expressLayouts = require("express-ejs-layouts");
 const {
   startScheduledPaymentsRunner,
@@ -184,6 +188,9 @@ try {
 
 // User routes
 app.use(authRoutes);
+app.use("/wallet", authMiddleware, walletRoutes);
+app.use("/profile", authMiddleware, profileRoutes);
+app.use("/pin", authMiddleware, pinRoutes);
 app.use(userRoutes);
 app.use(merchantFeatureRoutes);
 app.use(adminApiRoutes);

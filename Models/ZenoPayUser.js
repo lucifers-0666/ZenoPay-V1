@@ -20,6 +20,34 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     default: "",
   },
 
+  dateOfBirth: {
+    type: Date,
+    required: false,
+  },
+
+  address: {
+    type: String,
+    default: "",
+  },
+
+  panNumber: {
+    type: String,
+    default: "",
+    uppercase: true,
+    trim: true,
+  },
+
+  aadhaarNumber: {
+    type: String,
+    default: "",
+    trim: true,
+  },
+
+  profilePhoto: {
+    type: String,
+    default: "",
+  },
+
   userId: {
     type: String,
     unique: true,
@@ -45,8 +73,17 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
 
   kycStatus: {
     type: String,
-    enum: ["Verified", "Pending", "Rejected", "Not Submitted"],
-    default: "Not Submitted",
+    enum: [
+      "pending",
+      "submitted",
+      "verified",
+      "rejected",
+      "Verified",
+      "Pending",
+      "Rejected",
+      "Not Submitted",
+    ],
+    default: "pending",
   },
 
   status: {
@@ -69,6 +106,21 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
   Password: {
     type: String,
     required: false,
+  },
+
+  transactionPin: {
+    type: String,
+    default: null,
+  },
+
+  pinAttempts: {
+    type: Number,
+    default: 0,
+  },
+
+  pinLockedUntil: {
+    type: Date,
+    default: null,
   },
 
   FullName: {
@@ -322,14 +374,19 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const kycLegacyToUi = {
-  verified: "Verified",
-  approved: "Verified",
-  pending: "Pending",
-  rejected: "Rejected",
-  not_started: "Not Submitted",
+  verified: "verified",
+  approved: "verified",
+  pending: "pending",
+  submitted: "submitted",
+  rejected: "rejected",
+  not_started: "pending",
 };
 
 const kycUiToLegacy = {
+  verified: "verified",
+  submitted: "pending",
+  pending: "pending",
+  rejected: "rejected",
   Verified: "verified",
   Pending: "pending",
   Rejected: "rejected",
@@ -362,6 +419,11 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
   if (!this.name && this.FullName) this.name = this.FullName;
   if (!this.email && this.Email) this.email = this.Email;
   if (!this.phone && this.Mobile) this.phone = this.Mobile;
+  if (!this.dateOfBirth && this.DOB) this.dateOfBirth = this.DOB;
+  if (!this.address && this.Address) this.address = this.Address;
+  if (!this.panNumber && this.PANCard) this.panNumber = this.PANCard;
+  if (!this.aadhaarNumber && this.AadharNumber) this.aadhaarNumber = this.AadharNumber;
+  if (!this.profilePhoto && this.ImagePath) this.profilePhoto = this.ImagePath;
   if (!this.userId && this.ZenoPayID) this.userId = this.ZenoPayID;
 
   const roleWasExplicitlySet = this.isModified("Role") || (this.isNew && this.Role && this.Role !== "user");
@@ -370,7 +432,7 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
   }
 
   if (!this.kycStatus && this.KYCStatus) {
-    this.kycStatus = kycLegacyToUi[String(this.KYCStatus).toLowerCase()] || "Not Submitted";
+    this.kycStatus = kycLegacyToUi[String(this.KYCStatus).toLowerCase()] || "pending";
   }
 
   if (!this.status) {
@@ -395,6 +457,11 @@ ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified() {
   if (this.name) this.FullName = this.name;
   if (this.email) this.Email = this.email;
   if (this.phone) this.Mobile = this.phone;
+  if (this.dateOfBirth) this.DOB = this.dateOfBirth;
+  if (this.address) this.Address = this.address;
+  if (this.panNumber) this.PANCard = this.panNumber;
+  if (this.aadhaarNumber) this.AadharNumber = this.aadhaarNumber;
+  if (this.profilePhoto) this.ImagePath = this.profilePhoto;
   if (this.userId) this.ZenoPayID = this.userId;
   if (this.role) this.Role = roleUiToLegacy[this.role] || "user";
   if (this.kycStatus) this.KYCStatus = kycUiToLegacy[this.kycStatus] || "not_started";

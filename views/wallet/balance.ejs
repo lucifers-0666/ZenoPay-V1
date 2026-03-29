@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/header.css" />
+  <style>
+    :root {
+      --primary: #01696f;
+      --primary-hover: #0c4e54;
+      --success: #437a22;
+      --error: #a12c7b;
+      --warning: #964219;
+      --text: #28251d;
+      --muted: #7a7974;
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-soft: #f9f8f5;
+      --border: 1px solid rgba(40, 37, 29, 0.12);
+      --shadow: 0 4px 12px rgba(40, 37, 29, 0.08);
+      --transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); }
+    .page { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-family: 'DM Serif Display', serif; margin: 0 0 16px; font-size: 2rem; }
+    .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(40, 37, 29, 0.12); }
+    .balance-card { background: var(--primary); color: #fff; }
+    .balance-label { font-size: 0.9rem; opacity: 0.85; }
+    .balance-value { font-size: clamp(2rem, 6vw, 3rem); margin: 10px 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .balance-updated { font-size: 0.85rem; opacity: 0.9; }
+    .actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+      border-radius: 8px; padding: 12px 20px; border: none; cursor: pointer;
+      transition: var(--transition); font-weight: 600;
+    }
+    .btn-primary { background: #fff; color: var(--primary); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(0,0,0,0.14); }
+    .btn-ghost { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .btn-ghost:hover { transform: translateY(-1px); background: rgba(255,255,255,0.2); }
+    .recent-wrap { margin-top: 20px; }
+    .recent-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin: 0 0 12px; }
+    .tx-list { display: grid; gap: 10px; }
+    .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 10px; background: var(--surface-soft); border: var(--border); }
+    .tx-meta { display: flex; flex-direction: column; gap: 2px; }
+    .tx-ref { color: var(--muted); font-size: 0.8rem; }
+    .amt { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .amt.in { color: var(--success); }
+    .amt.out { color: var(--error); }
+    .empty {
+      text-align: center; padding: 28px; border: var(--border); border-radius: 12px;
+      background: var(--surface); box-shadow: var(--shadow);
+    }
+    .empty p { margin: 6px 0 18px; color: var(--muted); }
+    .toast {
+      position: fixed; top: 18px; right: 18px; z-index: 1200;
+      padding: 12px 16px; border-radius: 10px; box-shadow: var(--shadow);
+      color: #fff; transform: translateY(-12px); opacity: 0; transition: var(--transition);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <% const hasWallet = !!wallet; %>
+  <main class="page">
+    <h1>Wallet Balance</h1>
+
+    <% if (!hasWallet) { %>
+      <section class="empty">
+        <h2 style="font-family:'DM Serif Display',serif;margin:0;">Set up your wallet to get started</h2>
+        <p>Activate your wallet and begin adding money in seconds.</p>
+        <a href="/wallet/topup" class="btn" style="background:var(--primary);color:#fff;">Set Up Wallet</a>
+      </section>
+    <% } else { %>
+      <section class="card balance-card">
+        <div class="balance-label">Available Balance</div>
+        <div class="balance-value" id="balanceCounter" data-target="<%= Number(wallet.balance || 0) %>">₹0.00</div>
+        <div class="balance-updated">Last updated: <%= new Date(wallet.updatedAt || Date.now()).toLocaleString('en-IN') %></div>
+        <div class="actions">
+          <a href="/wallet/topup" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Money</a>
+          <a href="/wallet/send" class="btn btn-ghost"><i class="fa-solid fa-paper-plane"></i> Send Money</a>
+          <a href="/wallet/transactions" class="btn btn-ghost"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+        </div>
+      </section>
+
+      <section class="recent-wrap">
+        <h2 class="recent-title">Recent Wallet Activity</h2>
+        <div class="tx-list">
+          <% if (recentTransactions && recentTransactions.length) { %>
+            <% recentTransactions.forEach(function(tx){ %>
+              <article class="tx-item">
+                <div class="tx-meta">
+                  <strong><%= tx.description || tx.type %></strong>
+                  <span class="tx-ref"><%= tx.reference %> • <%= new Date(tx.createdAt).toLocaleString('en-IN') %></span>
+                </div>
+                <div class="amt <%= ['topup','receive','refund'].includes(tx.type) ? 'in' : 'out' %>">
+                  <%= ['topup','receive','refund'].includes(tx.type) ? '+' : '-' %>₹<%= Number(tx.amount || 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <article class="tx-item"><span>No transactions yet.</span><span class="tx-ref">Start by adding money.</span></article>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+  </main>
+
+  <% if (flash && flash.message) { %>
+    <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
+  <% } %>
+
+  <script>
+    (function animateBalance() {
+      const node = document.getElementById('balanceCounter');
+      if (!node) return;
+      const target = Number(node.dataset.target || 0);
+      const duration = 1200;
+      const start = performance.now();
+      const formatINR = (v) => `₹${Number(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      function tick(now) {
+        const p = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - p, 3);
+        node.textContent = formatINR(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    (function initToast() {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    })();
+  </script>
+</body>
+</html>

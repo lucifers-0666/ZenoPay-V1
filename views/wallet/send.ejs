@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="/css/header.css" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --primary:#01696f; --primary-hover:#0c4e54; --success:#437a22; --error:#a12c7b; --warning:#964219;
+      --text:#28251d; --muted:#7a7974; --bg:#f7f6f2; --surface:#fff; --surface-off:#f9f8f5;
+      --border:1px solid rgba(40,37,29,0.12); --shadow:0 4px 12px rgba(40,37,29,0.08);
+      --transition:all 180ms cubic-bezier(0.16,1,0.3,1);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    .page { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; font-size: 2rem; }
+    .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+    .label { font-weight: 600; margin-bottom: 8px; display: block; }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    input[type='text'], input[type='number'] {
+      width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(40,37,29,0.2); outline: none; transition: var(--transition);
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.14); }
+    .find-btn, .primary-btn {
+      border: none; border-radius: 8px; padding: 12px 16px; cursor: pointer; font-weight: 600; transition: var(--transition);
+      background: var(--primary); color: #fff;
+    }
+    .find-btn:hover, .primary-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 10px 16px rgba(12,78,84,0.2); }
+    .amount-wrap { position: relative; margin-top: 14px; }
+    .amount-wrap .prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .amount-wrap input { padding-left: 28px; }
+    .recipient-card, .summary { margin-top: 12px; padding: 12px; border-radius: 10px; border: var(--border); background: var(--surface-off); }
+    .recipient-card { display: flex; align-items: center; gap: 10px; }
+    .initials {
+      width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 600;
+      background: rgba(1,105,111,0.15); color: var(--primary);
+    }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .error { color: var(--error); margin-top: 6px; font-size: 0.9rem; }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.28); backdrop-filter: blur(6px);
+      display: none; align-items: end; justify-content: center; z-index: 1400;
+    }
+    .modal-backdrop.open { display: flex; }
+    .pin-modal {
+      width: min(520px, 100%); background: var(--surface); border-radius: 16px 16px 0 0; padding: 22px;
+      transform: translateY(100%); transition: transform 260ms cubic-bezier(0.16,1,0.3,1);
+      box-shadow: 0 -12px 30px rgba(40,37,29,0.16);
+    }
+    .modal-backdrop.open .pin-modal { transform: translateY(0); }
+    .pin-grid { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+    .pin-box {
+      width: 46px; height: 52px; border-radius: 8px; border: 1px solid rgba(40,37,29,0.2);
+      text-align: center; font-size: 1.2rem; font-weight: 600; outline: none; transition: var(--transition);
+    }
+    .pin-box:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.14); }
+    .pin-box.ok { animation: pulse .22s ease; }
+    @keyframes pulse { 50% { transform: scale(1.06); } }
+    .shake { animation: shake .24s linear; }
+    @keyframes shake { 25%{transform:translateX(-5px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-3px)} }
+
+    .success-card { margin-top: 16px; border-radius: 12px; border: var(--border); background: #eef7e8; color: #2c5018; padding: 14px; }
+    .toast {
+      position: fixed; top: 18px; right: 18px; color: #fff; border-radius: 10px; padding: 12px 16px; z-index: 1500;
+      box-shadow: var(--shadow); opacity: 0; transform: translateY(-12px); transition: var(--transition);
+    }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <main class="page">
+    <h1>Send Money</h1>
+    <section class="card">
+      <p class="muted" style="margin-top:0;">Available Balance: ₹<%= Number(wallet?.balance || 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></p>
+
+      <form id="sendForm" action="/wallet/send" method="post" novalidate>
+        <label class="label" for="recipient">Step 1: Enter recipient phone or email</label>
+        <div class="row">
+          <input id="recipient" name="recipient" type="text" value="<%= form?.recipient || '' %>" placeholder="e.g. 9876543210 or ravi@email.com" required />
+          <button class="find-btn" id="findUserBtn" type="button">Find User</button>
+        </div>
+        <p class="error" id="recipientError"><%= errors?.recipient || '' %></p>
+
+        <div id="recipientResult">
+          <% if (recipientPreview) { %>
+            <article class="recipient-card">
+              <div class="initials"><%= recipientPreview.initials %></div>
+              <div>
+                <strong><%= recipientPreview.name %></strong>
+                <div class="muted">Recipient found</div>
+              </div>
+            </article>
+          <% } %>
+        </div>
+
+        <label class="label" for="amount" style="margin-top:14px;">Amount</label>
+        <div class="amount-wrap">
+          <span class="prefix">₹</span>
+          <input id="amount" name="amount" type="number" step="0.01" min="1" value="<%= form?.amount || '' %>" placeholder="Enter amount" required />
+        </div>
+        <p class="error" id="amountError"><%= errors?.amount || '' %></p>
+
+        <article class="summary" id="summaryCard">
+          Sending ₹<span id="summaryAmount">0.00</span> to <span id="summaryRecipient">Recipient</span>
+        </article>
+
+        <input type="hidden" name="pin" id="pinHidden" value="" />
+        <button class="primary-btn" type="submit">Proceed to PIN Confirmation</button>
+      </form>
+
+      <% if (successData) { %>
+        <article class="success-card" id="successCard" data-reference="<%= successData.reference %>">
+          <strong>Transfer Successful</strong>
+          <p style="margin:.45rem 0 0;">Sent ₹<%= Number(successData.amount || 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %> to <%= successData.recipientName %></p>
+          <p style="margin:.35rem 0 0;" class="muted">Reference: <%= successData.reference %></p>
+        </article>
+      <% } %>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="pinModal">
+    <div class="pin-modal">
+      <h2 style="margin:0;font-family:'DM Serif Display',serif;">Confirm Transaction PIN</h2>
+      <p class="muted" style="margin:6px 0 0;">Enter your 6-digit PIN to complete transfer.</p>
+      <div class="pin-grid" id="pinGrid">
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+        <input class="pin-box" inputmode="numeric" maxlength="1" />
+      </div>
+      <p class="error" id="pinError"><%= errors?.pin || '' %></p>
+      <button class="primary-btn" id="confirmSendBtn" type="button">Confirm & Send</button>
+    </div>
+  </div>
+
+  <% if (flash && flash.message) { %>
+    <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
+  <% } %>
+
+  <script>
+    const recipientInput = document.getElementById('recipient');
+    const amountInput = document.getElementById('amount');
+    const summaryAmount = document.getElementById('summaryAmount');
+    const summaryRecipient = document.getElementById('summaryRecipient');
+    const recipientResult = document.getElementById('recipientResult');
+    const recipientError = document.getElementById('recipientError');
+    const amountError = document.getElementById('amountError');
+    const findUserBtn = document.getElementById('findUserBtn');
+    const sendForm = document.getElementById('sendForm');
+
+    function updateSummary() {
+      const amount = Number(amountInput.value || 0);
+      summaryAmount.textContent = amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      summaryRecipient.textContent = recipientInput.value.trim() || 'Recipient';
+    }
+    recipientInput.addEventListener('input', updateSummary);
+    amountInput.addEventListener('input', updateSummary);
+    updateSummary();
+
+    findUserBtn.addEventListener('click', async () => {
+      const q = recipientInput.value.trim();
+      recipientError.textContent = '';
+      if (!q) {
+        recipientError.textContent = 'Please enter phone or email first.';
+        return;
+      }
+      findUserBtn.disabled = true;
+      findUserBtn.textContent = 'Searching...';
+      try {
+        const res = await fetch(`/wallet/search-user?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (data.found) {
+          recipientResult.innerHTML = `
+            <article class="recipient-card">
+              <div class="initials">${data.initials}</div>
+              <div><strong>${data.name}</strong><div class="muted">Recipient found</div></div>
+            </article>
+          `;
+          summaryRecipient.textContent = data.name;
+        } else {
+          recipientResult.innerHTML = '';
+          recipientError.textContent = 'User not found';
+        }
+      } catch (e) {
+        recipientError.textContent = 'Could not search right now.';
+      } finally {
+        findUserBtn.disabled = false;
+        findUserBtn.textContent = 'Find User';
+      }
+    });
+
+    const pinModal = document.getElementById('pinModal');
+    const pinBoxes = Array.from(document.querySelectorAll('.pin-box'));
+    const pinHidden = document.getElementById('pinHidden');
+    const pinGrid = document.getElementById('pinGrid');
+    const pinError = document.getElementById('pinError');
+
+    function openPinModal() {
+      pinModal.classList.add('open');
+      pinBoxes.forEach((b) => (b.value = ''));
+      pinBoxes[0].focus();
+      pinError.textContent = '';
+    }
+
+    pinBoxes.forEach((box, idx) => {
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/\D/g, '').slice(0, 1);
+        if (box.value) {
+          box.classList.add('ok');
+          setTimeout(() => box.classList.remove('ok'), 180);
+          if (idx < pinBoxes.length - 1) pinBoxes[idx + 1].focus();
+        }
+      });
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value && idx > 0) pinBoxes[idx - 1].focus();
+      });
+    });
+
+    sendForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      recipientError.textContent = '';
+      amountError.textContent = '';
+      const amount = Number(amountInput.value || 0);
+      if (!recipientInput.value.trim()) {
+        recipientError.textContent = 'Recipient is required.';
+        return;
+      }
+      if (!Number.isFinite(amount) || amount <= 0) {
+        amountError.textContent = 'Please enter a valid amount.';
+        return;
+      }
+      openPinModal();
+    });
+
+    document.getElementById('confirmSendBtn').addEventListener('click', () => {
+      const pin = pinBoxes.map((b) => b.value).join('');
+      if (!/^\d{6}$/.test(pin)) {
+        pinError.textContent = 'Enter a valid 6-digit PIN.';
+        pinGrid.classList.add('shake');
+        setTimeout(() => pinGrid.classList.remove('shake'), 240);
+        return;
+      }
+      pinHidden.value = pin;
+      pinModal.classList.remove('open');
+      sendForm.submit();
+    });
+
+    pinModal.addEventListener('click', (e) => {
+      if (e.target === pinModal) pinModal.classList.remove('open');
+    });
+
+    (function initToast() {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    })();
+
+    (function fireConfettiOnSuccess() {
+      const success = document.getElementById('successCard');
+      if (!success || typeof confetti !== 'function') return;
+      confetti({ particleCount: 160, spread: 90, origin: { y: 0.62 } });
+    })();
+  </script>
+</body>
+</html>

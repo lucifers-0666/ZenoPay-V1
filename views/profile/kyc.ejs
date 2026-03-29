@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/header.css" />
+  <style>
+    :root {
+      --primary:#01696f; --primary-hover:#0c4e54; --success:#437a22; --error:#a12c7b;
+      --text:#28251d; --muted:#7a7974; --bg:#f7f6f2; --surface:#fff;
+      --border:1px solid rgba(40,37,29,0.12); --shadow:0 4px 12px rgba(40,37,29,0.08);
+      --transition:all 180ms cubic-bezier(0.16,1,0.3,1);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    .page { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
+    h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; }
+    .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; overflow: hidden; }
+    .step-indicator { color: var(--muted); font-weight: 600; margin-bottom: 12px; }
+    .steps { display: flex; width: 200%; transform: translateX(0); transition: transform 240ms cubic-bezier(0.16,1,0.3,1); }
+    .steps.step-2 { transform: translateX(-50%); }
+    .step { width: 50%; padding-right: 12px; }
+    label { display: block; font-weight: 600; margin: 10px 0 6px; }
+    input, textarea {
+      width: 100%; border: 1px solid rgba(40,37,29,0.2); border-radius: 8px; padding: 12px 14px; outline: none; transition: var(--transition);
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.14); }
+    .error { color: var(--error); font-size: .9rem; margin-top: 6px; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; }
+    .btn { border: none; border-radius: 8px; padding: 12px 18px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn.soft { background: #efefec; color: var(--text); }
+    .summary { margin-top: 12px; padding: 12px; border: var(--border); border-radius: 10px; background: #f9f8f5; }
+    .toast { position: fixed; top: 18px; right: 18px; padding: 12px 16px; border-radius: 10px; color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(-12px); transition: var(--transition); }
+    .toast.success { background: var(--success); } .toast.error { background: var(--error); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <main class="page">
+    <h1>KYC Verification</h1>
+    <section class="card">
+      <div class="step-indicator" id="stepLabel">Step 1 / 2</div>
+
+      <form id="kycForm" action="/profile/kyc" method="post" novalidate>
+        <div class="steps" id="stepsWrap">
+          <div class="step">
+            <label for="panNumber">PAN Number</label>
+            <input id="panNumber" name="panNumber" value="<%= form?.panNumber || profileUser?.panNumber || '' %>" placeholder="ABCDE1234F" required />
+            <p class="error" id="panError"><%= errors?.panNumber || '' %></p>
+
+            <label for="dateOfBirth">Date of Birth</label>
+            <input id="dateOfBirth" name="dateOfBirth" type="date" value="<%= form?.dateOfBirth || ((profileUser?.dateOfBirth || profileUser?.DOB) ? new Date(profileUser.dateOfBirth || profileUser.DOB).toISOString().split('T')[0] : '') %>" required />
+            <p class="error"><%= errors?.dateOfBirth || '' %></p>
+
+            <div class="actions">
+              <button class="btn primary" id="nextStep" type="button">Next</button>
+            </div>
+          </div>
+
+          <div class="step">
+            <label for="aadhaarNumber">Aadhaar last 4 digits</label>
+            <input id="aadhaarNumber" name="aadhaarNumber" maxlength="4" inputmode="numeric" value="<%= form?.aadhaarNumber || profileUser?.aadhaarNumber || '' %>" placeholder="1234" required />
+            <p class="error"><%= errors?.aadhaarNumber || '' %></p>
+
+            <label for="address">Address</label>
+            <textarea id="address" name="address" required><%= form?.address || profileUser?.address || profileUser?.Address || '' %></textarea>
+            <p class="error"><%= errors?.address || '' %></p>
+
+            <article class="summary" id="reviewSummary">Summary review will appear here.</article>
+
+            <div class="actions">
+              <button class="btn soft" id="prevStep" type="button">Back</button>
+              <button class="btn primary" type="submit">Submit KYC</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <% if (flash && flash.message) { %>
+    <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
+  <% } %>
+
+  <script>
+    const stepsWrap = document.getElementById('stepsWrap');
+    const stepLabel = document.getElementById('stepLabel');
+    const panInput = document.getElementById('panNumber');
+    const panError = document.getElementById('panError');
+    const dobInput = document.getElementById('dateOfBirth');
+    const aadhaarInput = document.getElementById('aadhaarNumber');
+    const addressInput = document.getElementById('address');
+    const reviewSummary = document.getElementById('reviewSummary');
+
+    function goStep(step) {
+      stepsWrap.classList.toggle('step-2', step === 2);
+      stepLabel.textContent = step === 2 ? 'Step 2 / 2' : 'Step 1 / 2';
+    }
+
+    document.getElementById('nextStep').addEventListener('click', () => {
+      const pan = String(panInput.value || '').trim().toUpperCase();
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      panInput.value = pan;
+      if (!panRegex.test(pan)) {
+        panError.textContent = 'Please enter a valid PAN number.';
+        return;
+      }
+      if (!dobInput.value) {
+        panError.textContent = 'Please enter date of birth to continue.';
+        return;
+      }
+      panError.textContent = '';
+      reviewSummary.innerHTML = `
+        <strong>Review</strong>
+        <div style="margin-top:6px;" class="muted">PAN: ${pan}<br/>DOB: ${new Date(dobInput.value).toLocaleDateString('en-IN')}<br/>Aadhaar: ••••${aadhaarInput.value || '____'}</div>
+      `;
+      goStep(2);
+    });
+
+    document.getElementById('prevStep').addEventListener('click', () => goStep(1));
+
+    aadhaarInput.addEventListener('input', () => {
+      aadhaarInput.value = aadhaarInput.value.replace(/\D/g, '').slice(0, 4);
+      reviewSummary.innerHTML = `
+        <strong>Review</strong>
+        <div style="margin-top:6px;" class="muted">PAN: ${panInput.value || '-'}<br/>DOB: ${dobInput.value ? new Date(dobInput.value).toLocaleDateString('en-IN') : '-'}<br/>Aadhaar: ••••${aadhaarInput.value || '____'}<br/>Address: ${(addressInput.value || '').slice(0, 80) || '-'}</div>
+      `;
+    });
+
+    addressInput.addEventListener('input', () => aadhaarInput.dispatchEvent(new Event('input')));
+
+    (function initToast() {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    })();
+  </script>
+</body>
+</html>
