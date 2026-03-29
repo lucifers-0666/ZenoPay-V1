@@ -1,21 +1,45 @@
-<section class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
-  <h1><%= pageTitle || 'Compare Privacy Policy Versions - ZenoPay' %></h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Compare Privacy Policy Versions' %> | ZenoPay</title>
+  <link rel="stylesheet" href="/css/header.css" />
+</head>
+<body>
+  <%- include('partials/header') %>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <article style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
-      <h2>Version <%= policy1?.version || 'N/A' %></h2>
-      <% (policy1?.sections || []).forEach(function(section) { %>
-        <h3><%= section.title %></h3>
-        <div><%- section.content %></div>
-      <% }) %>
-    </article>
+  <main class="container" style="max-width: 1100px; margin: 2rem auto; padding: 1rem;">
+    <h1>Compare Privacy Policy Versions</h1>
 
-    <article style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
-      <h2>Version <%= policy2?.version || 'N/A' %></h2>
-      <% (policy2?.sections || []).forEach(function(section) { %>
-        <h3><%= section.title %></h3>
-        <div><%- section.content %></div>
-      <% }) %>
-    </article>
-  </div>
-</section>
+    <% const newer = currentPolicy || policy2 || null; %>
+    <% const older = comparePolicy || policy1 || null; %>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem; margin-top:1rem;">
+      <article style="border:2px solid #16a34a; border-radius:10px; padding:1rem; background:#f0fdf4;">
+        <div style="font-size:.85rem; font-weight:700; color:#15803d;">NEWER VERSION</div>
+        <h2 style="margin:.4rem 0;"><%= newer?.title || 'Current Policy' %></h2>
+        <p><strong>Version:</strong> <%= newer?.version || 'N/A' %></p>
+        <p><strong>Effective Date:</strong> <%= newer?.effectiveDate || 'N/A' %></p>
+        <hr />
+        <div><%- newer?.content || '' %></div>
+      </article>
+
+      <article style="border:2px solid #94a3b8; border-radius:10px; padding:1rem; background:#f8fafc;">
+        <div style="font-size:.85rem; font-weight:700; color:#475569;">OLDER VERSION</div>
+        <h2 style="margin:.4rem 0;"><%= older?.title || 'Compared Policy' %></h2>
+        <p><strong>Version:</strong> <%= older?.version || 'N/A' %></p>
+        <p><strong>Effective Date:</strong> <%= older?.effectiveDate || 'N/A' %></p>
+        <hr />
+        <div><%- older?.content || '' %></div>
+      </article>
+    </div>
+
+    <div style="margin-top:1.25rem;">
+      <a href="/privacy-policy/archive" style="text-decoration:none; font-weight:600;">← Back to Archive</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

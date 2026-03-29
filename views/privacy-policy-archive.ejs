@@ -1,16 +1,41 @@
-<section class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
-  <h1><%= pageTitle || 'Privacy Policy Archive - ZenoPay' %></h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Privacy Policy Archive' %> | ZenoPay</title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+  <%- include('partials/header') %>
 
-  <% if (!policies || policies.length === 0) { %>
-    <p>No archived privacy policy versions found.</p>
-  <% } else { %>
-    <ul>
-      <% policies.forEach(function(p) { %>
-        <li>
-          <strong>v<%= p.version %></strong>
-          <% if (p.publishedDate) { %> — <%= new Date(p.publishedDate).toDateString() %><% } %>
-        </li>
-      <% }) %>
-    </ul>
-  <% } %>
-</section>
+  <main class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
+    <h1>Privacy Policy Archive</h1>
+
+    <% if (!policies || policies.length === 0) { %>
+      <p>No archived privacy policy versions found.</p>
+    <% } else { %>
+      <div style="display:grid; gap:.75rem; margin-top:1rem;">
+        <% policies.forEach(function(p) { %>
+          <article style="border:1px solid #e2e8f0; border-radius:10px; padding:1rem; background:#fff;">
+            <h3 style="margin:0 0 .5rem 0;"><%= p.title || 'Privacy Policy Version' %></h3>
+            <p style="margin:.25rem 0;"><strong>Version:</strong> <%= p.version || 'N/A' %></p>
+            <p style="margin:.25rem 0;"><strong>Effective Date:</strong> <%= p.effectiveDate || 'N/A' %></p>
+            <p style="margin:.25rem 0;"><strong>Created:</strong> <%= p.createdAt || 'N/A' %></p>
+            <a href="/privacy-policy/compare/<%= p._id || p.id %>" style="display:inline-block; margin-top:.5rem; font-weight:600; text-decoration:none;">
+              View
+            </a>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div style="margin-top:1.25rem;">
+      <a href="/privacy-policy" style="text-decoration:none; font-weight:600;">← Current Privacy Policy</a>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

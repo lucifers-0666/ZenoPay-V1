@@ -58,14 +58,10 @@ const getDashboardStats = async (userId) => {
         MerchantID: merchantId,
       }).then((ids) => ids.length),
       totalOrders: await Order.countDocuments({ MerchantID: merchantId }),
-      pendingPayouts: await Payout.countDocuments({
-        MerchantID: merchantId,
-        Status: "pending",
-      }),
-      openDisputes: await Dispute.countDocuments({
-        MerchantID: merchantId,
-        Status: "open",
-      }),
+      // TODO: Payout model missing — implement when Payout feature is built
+      pendingPayouts: 0,
+      // TODO: Dispute model missing — implement when Dispute feature is built
+      openDisputes: 0,
     };
   } catch (error) {
     console.error("Get stats error:", error);
@@ -487,134 +483,61 @@ const refundOrder = async (req, res) => {
 // ============ DISPUTES ============
 
 const getDisputes = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
-
-    const disputes = await Dispute.find({ MerchantID: merchant._id })
-      .sort({ CreatedDate: -1 })
-      .lean();
-
-    res.json({ success: true, data: disputes });
-  } catch (error) {
-    console.error("Get disputes error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Dispute model missing — implement when Dispute feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Dispute feature is not available yet (model missing)",
+  });
 };
 
 const getDisputeDetails = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const dispute = await Dispute.findById(id).lean();
-
-    if (!dispute) {
-      return res.status(404).json({ success: false, error: "Dispute not found" });
-    }
-
-    res.json({ success: true, data: dispute });
-  } catch (error) {
-    console.error("Get dispute details error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Dispute model missing — implement when Dispute feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Dispute feature is not available yet (model missing)",
+  });
 };
 
 const respondToDispute = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { response } = req.body;
-
-    const dispute = await Dispute.findByIdAndUpdate(
-      id,
-      {
-        MerchantResponse: response,
-        ResponseDate: new Date(),
-        Status: "responded",
-      },
-      { new: true }
-    );
-
-    res.json({ success: true, data: dispute });
-  } catch (error) {
-    console.error("Respond to dispute error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Dispute model missing — implement when Dispute feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Dispute feature is not available yet (model missing)",
+  });
 };
 
 const appealDispute = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { appeal } = req.body;
-
-    const dispute = await Dispute.findByIdAndUpdate(
-      id,
-      {
-        Appeal: appeal,
-        AppealDate: new Date(),
-        Status: "appealed",
-      },
-      { new: true }
-    );
-
-    res.json({ success: true, data: dispute });
-  } catch (error) {
-    console.error("Appeal dispute error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Dispute model missing — implement when Dispute feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Dispute feature is not available yet (model missing)",
+  });
 };
 
 // ============ PAYOUTS ============
 
 const getPayouts = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
-
-    const payouts = await Payout.find({ MerchantID: merchant._id })
-      .sort({ CreatedDate: -1 })
-      .lean();
-
-    res.json({ success: true, data: payouts });
-  } catch (error) {
-    console.error("Get payouts error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Payout model missing — implement when Payout feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Payout feature is not available yet (model missing)",
+  });
 };
 
 const requestPayout = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
-    const { amount } = req.body;
-
-    const payout = new Payout({
-      MerchantID: merchant._id,
-      Amount: amount,
-      Status: "pending",
-      CreatedDate: new Date(),
-    });
-
-    await payout.save();
-    res.json({ success: true, data: payout });
-  } catch (error) {
-    console.error("Request payout error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Payout model missing — implement when Payout feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Payout feature is not available yet (model missing)",
+  });
 };
 
 const getPayoutDetails = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const payout = await Payout.findById(id).lean();
-
-    if (!payout) {
-      return res.status(404).json({ success: false, error: "Payout not found" });
-    }
-
-    res.json({ success: true, data: payout });
-  } catch (error) {
-    console.error("Get payout details error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Payout model missing — implement when Payout feature is built
+  return res.status(501).json({
+    success: false,
+    error: "Payout feature is not available yet (model missing)",
+  });
 };
 
 // ============ API KEYS ============
