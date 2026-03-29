@@ -8,7 +8,6 @@ const cors = require("cors");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
-const blogRoutes = require("./Routes/blogRoutes");
 const authRoutes = require("./Routes/authRoutes");
 const userRoutes = require("./Routes/userRoutes");
 const merchantFeatureRoutes = require("./Routes/merchantRoutes");
@@ -189,9 +188,6 @@ app.use(userRoutes);
 app.use(merchantFeatureRoutes);
 app.use(adminApiRoutes);
 app.use(apiRoutes);
-
-// Blog routes
-app.use("/blog", blogRoutes);
 
 // Error handling middleware
 // 404 handler - must be after all other routes

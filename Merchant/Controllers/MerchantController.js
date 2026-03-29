@@ -7,7 +7,6 @@ const Merchant = require("../../Models/Merchant");
 const ZenoPayUser = require("../../Models/ZenoPayUser");
 const TransactionHistory = require("../../Models/TransactionHistory");
 const Order = require("../../Models/Order");
-const Product = require("../../Models/Product");
 const crypto = require("crypto");
 
 // ============ DASHBOARD CONTROLLER ============
@@ -324,84 +323,28 @@ const unblockCustomer = async (req, res) => {
 // ============ PRODUCTS ============
 
 const getProducts = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
-
-    const products = await Product.find({ MerchantID: merchant._id })
-      .lean();
-
-    res.json({ success: true, data: products });
-  } catch (error) {
-    console.error("Get products error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Product feature removed - not applicable to ZenoPay wallet
+  return res.status(501).json({ message: "Feature not available" });
 };
 
 const createProduct = async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
-    const { name, description, price, stock, category } = req.body;
-
-    const product = new Product({
-      MerchantID: merchant._id,
-      Name: name,
-      Description: description,
-      Price: price,
-      Stock: stock,
-      Category: category,
-      CreatedDate: new Date(),
-    });
-
-    await product.save();
-    res.json({ success: true, data: product });
-  } catch (error) {
-    console.error("Create product error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Product feature removed - not applicable to ZenoPay wallet
+  return res.status(501).json({ message: "Feature not available" });
 };
 
 const getProductDetails = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await Product.findById(id).lean();
-
-    if (!product) {
-      return res.status(404).json({ success: false, error: "Product not found" });
-    }
-
-    res.json({ success: true, data: product });
-  } catch (error) {
-    console.error("Get product details error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Product feature removed - not applicable to ZenoPay wallet
+  return res.status(501).json({ message: "Feature not available" });
 };
 
 const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
-
-    const product = await Product.findByIdAndUpdate(id, updates, { new: true });
-
-    res.json({ success: true, data: product });
-  } catch (error) {
-    console.error("Update product error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Product feature removed - not applicable to ZenoPay wallet
+  return res.status(501).json({ message: "Feature not available" });
 };
 
 const deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Product.findByIdAndDelete(id);
-
-    res.json({ success: true, message: "Product deleted" });
-  } catch (error) {
-    console.error("Delete product error:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  // TODO: Product feature removed - not applicable to ZenoPay wallet
+  return res.status(501).json({ message: "Feature not available" });
 };
 
 // ============ ORDERS ============
