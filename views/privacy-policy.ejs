@@ -1,0 +1,19 @@
+<section class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
+  <h1><%= pageTitle || 'Privacy Policy - ZenoPay' %></h1>
+
+  <% if (policy) { %>
+    <p><strong>Version:</strong> <%= policy.version %></p>
+    <% if (policy.effectiveDate) { %>
+      <p><strong>Effective:</strong> <%= new Date(policy.effectiveDate).toDateString() %></p>
+    <% } %>
+
+    <% (policy.sections || []).forEach(function(section) { %>
+      <article style="margin: 1.5rem 0;">
+        <h2><%= section.title %></h2>
+        <div><%- section.content %></div>
+      </article>
+    <% }) %>
+  <% } else { %>
+    <p>Privacy policy content is currently unavailable.</p>
+  <% } %>
+</section>

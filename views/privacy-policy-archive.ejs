@@ -1,0 +1,16 @@
+<section class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
+  <h1><%= pageTitle || 'Privacy Policy Archive - ZenoPay' %></h1>
+
+  <% if (!policies || policies.length === 0) { %>
+    <p>No archived privacy policy versions found.</p>
+  <% } else { %>
+    <ul>
+      <% policies.forEach(function(p) { %>
+        <li>
+          <strong>v<%= p.version %></strong>
+          <% if (p.publishedDate) { %> — <%= new Date(p.publishedDate).toDateString() %><% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>

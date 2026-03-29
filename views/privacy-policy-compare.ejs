@@ -1,0 +1,21 @@
+<section class="container" style="max-width: 960px; margin: 2rem auto; padding: 1rem;">
+  <h1><%= pageTitle || 'Compare Privacy Policy Versions - ZenoPay' %></h1>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <article style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+      <h2>Version <%= policy1?.version || 'N/A' %></h2>
+      <% (policy1?.sections || []).forEach(function(section) { %>
+        <h3><%= section.title %></h3>
+        <div><%- section.content %></div>
+      <% }) %>
+    </article>
+
+    <article style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px;">
+      <h2>Version <%= policy2?.version || 'N/A' %></h2>
+      <% (policy2?.sections || []).forEach(function(section) { %>
+        <h3><%= section.title %></h3>
+        <div><%- section.content %></div>
+      <% }) %>
+    </article>
+  </div>
+</section>
