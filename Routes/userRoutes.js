@@ -8,6 +8,7 @@ const ZenoPayController = require("../Controllers/ZenoPayController");
 const BankController = require("../Controllers/BankAccountController");
 const BranchController = require("../Controllers/BankController");
 const TransferController = require("../Controllers/TransferMoney");
+const LegacyProfileController = require("../Controllers/Profile");
 const NotificationController = require("../Controllers/Notifications");
 const SettingsController = require("../Controllers/SettingsController");
 const KYCController = require("../Controllers/KYCController");
@@ -369,7 +370,7 @@ router.get("/onboarding", (req, res) => {
     prefilledPhone,
   });
 });
-router.post("/onboarding", ProfileController.postOnboarding);
+router.post("/onboarding", LegacyProfileController.postOnboarding);
 
 router.get("/add-money", WalletController.getAddMoneyPage);
 router.post("/add-money", WalletController.addMoney);

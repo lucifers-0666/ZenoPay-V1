@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const WalletSchema = new mongoose.Schema(
   {
+    walletId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ZenoPayDetails",

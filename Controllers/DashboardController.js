@@ -24,6 +24,8 @@ const getSessionZenoPayId = (req) =>
   req.session?.user?.zenoPayId ||
   null;
 
+const buildWalletId = (userId) => `WL-${String(userId)}`;
+
 const getDashboard = async (req, res) => {
   try {
     if (req.session?.isLoggedIn && req.session?.user?.Role === "admin") {
@@ -58,6 +60,7 @@ const getDashboard = async (req, res) => {
           { userId: walletOwner._id },
           {
             $setOnInsert: {
+              walletId: buildWalletId(walletOwner._id),
               userId: walletOwner._id,
               balance: 0,
               currency: "INR",

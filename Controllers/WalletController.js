@@ -26,6 +26,8 @@ const generateReference = (suffix = "") => {
   return `ZP${Date.now()}${random4}${suffix}`;
 };
 
+const buildWalletId = (userId) => `WL-${String(userId)}`;
+
 const getSessionIdentity = (req) => ({
   id: req.user?._id || req.session?.user?._id || null,
   zenoPayId:
@@ -60,6 +62,7 @@ const ensureWallet = async (userId, session = null) => {
     { userId },
     {
       $setOnInsert: {
+        walletId: buildWalletId(userId),
         userId,
         balance: 0,
         currency: "INR",
@@ -210,7 +213,7 @@ const processTopUp = async (req, res) => {
               metadata: { source: "simulated_gateway" },
             },
           ],
-          { session }
+          { session, ordered: true }
         );
       });
     } finally {
@@ -422,7 +425,7 @@ const processSend = async (req, res) => {
               },
             },
           ],
-          { session }
+          { session, ordered: true }
         );
       });
     } catch (txError) {

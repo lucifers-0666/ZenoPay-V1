@@ -10,9 +10,11 @@
   <link rel="stylesheet" href="/css/header.css" />
   <style>
     :root {
-      --primary:#01696f; --primary-hover:#0c4e54; --success:#437a22; --error:#a12c7b;
-      --text:#28251d; --muted:#7a7974; --bg:#f7f6f2; --surface:#fff;
-      --border:1px solid rgba(40,37,29,0.12); --shadow:0 4px 12px rgba(40,37,29,0.08);
+      --primary:#3B82F6; --primary-hover:#2563EB; --primary-light:#60A5FA;
+      --secondary:#8B5CF6; --secondary-dark:#7C3AED;
+      --success:#10B981; --error:#EF4444;
+      --text:#1E293B; --muted:#64748B; --bg:#F8FAFC; --surface:#FFFFFF;
+      --border:1px solid rgba(148,163,184,0.35); --shadow:0 8px 24px rgba(15,23,42,0.08);
       --transition:all 180ms cubic-bezier(0.16,1,0.3,1);
     }
     * { box-sizing: border-box; }
@@ -20,6 +22,7 @@
     .page { max-width: 760px; margin: 0 auto; padding: 24px 16px 56px; }
     h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; }
     .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; overflow: hidden; }
+    .muted { color: var(--muted); }
     .step-indicator { color: var(--muted); font-weight: 600; margin-bottom: 12px; }
     .steps { display: flex; width: 200%; transform: translateX(0); transition: transform 240ms cubic-bezier(0.16,1,0.3,1); }
     .steps.step-2 { transform: translateX(-50%); }
@@ -29,14 +32,14 @@
       width: 100%; border: 1px solid rgba(40,37,29,0.2); border-radius: 8px; padding: 12px 14px; outline: none; transition: var(--transition);
     }
     textarea { min-height: 90px; resize: vertical; }
-    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,105,111,0.14); }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.22); }
     .error { color: var(--error); font-size: .9rem; margin-top: 6px; }
     .actions { margin-top: 16px; display: flex; gap: 10px; }
     .btn { border: none; border-radius: 8px; padding: 12px 18px; font-weight: 600; cursor: pointer; transition: var(--transition); }
     .btn.primary { background: var(--primary); color: #fff; }
     .btn.primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-    .btn.soft { background: #efefec; color: var(--text); }
-    .summary { margin-top: 12px; padding: 12px; border: var(--border); border-radius: 10px; background: #f9f8f5; }
+    .btn.soft { background: #E2E8F0; color: var(--text); }
+    .summary { margin-top: 12px; padding: 12px; border: var(--border); border-radius: 10px; background: #F1F5F9; }
     .toast { position: fixed; top: 18px; right: 18px; padding: 12px 16px; border-radius: 10px; color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(-12px); transition: var(--transition); }
     .toast.success { background: var(--success); } .toast.error { background: var(--error); }
     .toast.show { opacity: 1; transform: translateY(0); }

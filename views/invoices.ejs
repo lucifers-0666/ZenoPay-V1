@@ -475,6 +475,7 @@
       place-items: center;
       cursor: pointer;
       transition: .2s ease;
+      border: 1px solid #1F2937;
     }
 
     .modal-close:hover {
@@ -645,11 +646,11 @@
       <button class="btn-primary" id="emptyCreateBtn" type="button"><i class="fas fa-plus"></i> Create First Invoice</button>
     </section>
 
-    <div id="createModal" class="modal">
-      <div class="modal-content">
+    <div id="createModal" class="modal" aria-hidden="true">
+      <div class="modal-content" id="createModalContent">
         <div class="modal-header">
           <h2>Create New Invoice</h2>
-          <button class="modal-close" type="button"><i class="fas fa-times"></i></button>
+          <button class="modal-close" id="closeCreateModalBtn" type="button" aria-label="Close create invoice form" onclick="window.__closeInvoiceModal && window.__closeInvoiceModal()"><i class="fas fa-times"></i></button>
         </div>
         <form id="createForm" class="modal-body">
           <div class="form-group">
@@ -677,7 +678,7 @@
             <textarea id="notesInput" rows="3" placeholder="Add any additional details..."></textarea>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+            <button type="button" class="btn-secondary" id="cancelBtn" onclick="window.__closeInvoiceModal && window.__closeInvoiceModal()">Cancel</button>
             <button type="submit" class="btn-primary"><i class="fas fa-check"></i> Create Invoice</button>
           </div>
         </form>
@@ -858,6 +859,8 @@
       const openCreate = () => {
         const modal = document.getElementById('createModal');
         modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
         document.getElementById('clientInput').focus();
 
         const tomorrow = new Date();
@@ -866,19 +869,54 @@
       };
 
       const closeCreate = () => {
-        document.getElementById('createModal').classList.remove('show');
+        const modal = document.getElementById('createModal');
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
         document.getElementById('createForm').reset();
       };
+
+      // Expose hard fallback for inline and external listeners
+      window.__openInvoiceModal = openCreate;
+      window.__closeInvoiceModal = closeCreate;
 
       createInvoiceBtn.addEventListener('click', openCreate);
       emptyCreateBtn.addEventListener('click', openCreate);
 
       document.getElementById('cancelBtn').addEventListener('click', closeCreate);
-      document.querySelector('.modal-close').addEventListener('click', closeCreate);
 
-      document.getElementById('createModal').addEventListener('click', (e) => {
-        if (e.target.id === 'createModal') closeCreate();
+      const createModal = document.getElementById('createModal');
+      const closeBtn = document.getElementById('closeCreateModalBtn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeCreate);
+      }
+
+      createModal.addEventListener('click', (e) => {
+        if (e.target === createModal) closeCreate();
       });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && createModal.classList.contains('show')) {
+          closeCreate();
+        }
+      });
+
+      // Delegated fallback close handling (works even if button listeners are disrupted)
+      document.addEventListener('click', (e) => {
+        const modalOpen = createModal.classList.contains('show');
+        if (!modalOpen) return;
+
+        const closeTrigger = e.target.closest('#closeCreateModalBtn, #cancelBtn');
+        if (closeTrigger) {
+          e.preventDefault();
+          closeCreate();
+          return;
+        }
+
+        if (e.target === createModal) {
+          closeCreate();
+        }
+      }, true);
 
       document.getElementById('createForm').addEventListener('submit', async (e) => {
         e.preventDefault();

@@ -3,6 +3,8 @@ const Wallet = require("../Models/Wallet");
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
+const buildWalletId = (userId) => `WL-${String(userId)}`;
+
 const setFlash = (req, payload) => {
   req.session.profileFlash = payload;
 };
@@ -54,6 +56,7 @@ const getProfile = async (req, res) => {
       { userId: currentUser._id },
       {
         $setOnInsert: {
+          walletId: buildWalletId(currentUser._id),
           userId: currentUser._id,
           balance: 0,
           currency: "INR",
