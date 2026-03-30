@@ -262,10 +262,19 @@ const getLogin = (req, res) => {
   if (req.session && req.session.user) {
     return res.redirect("/dashboard");
   }
+
+  // FIX: pass messages (flash or empty) and csrfToken so login.ejs
+  // never throws a ReferenceError and the CSRF hidden input is always populated.
+  const flashMessages = (req.flash && typeof req.flash === "function")
+    ? { error: req.flash("error"), success: req.flash("success") }
+    : {};
+
   res.render("login", {
     CurrentPage: "Login",
-    isLoggedIn: req.session.isLoggedIn || false,
-    user: req.session.user || null,
+    isLoggedIn: false,
+    user: null,
+    messages: flashMessages,
+    csrfToken: (typeof req.csrfToken === "function") ? req.csrfToken() : null,
   });
 };
 
@@ -277,11 +286,17 @@ const postLogin = async (req, res) => {
     if (expectsJson) {
       return res.status(statusCode).json({ success: false, message });
     }
+
+    const flashMessages = (req.flash && typeof req.flash === "function")
+      ? { error: req.flash("error"), success: req.flash("success") }
+      : { error: message };
+
     return res.status(statusCode).render("login", {
       CurrentPage: "Login",
       isLoggedIn: false,
       user: null,
-      messages: { error: message },
+      messages: flashMessages.error && flashMessages.error.length ? flashMessages : { error: message },
+      csrfToken: (typeof req.csrfToken === "function") ? req.csrfToken() : null,
     });
   };
 
@@ -332,8 +347,6 @@ const postLogin = async (req, res) => {
         console.error("SESSION SAVE ERROR:", saveErr);
         return fail(500, "Session error");
       }
-      
-      console.log("SESSION SAVED:", req.session.user); // debug line
 
       LoginHistory.create({
         ZenoPayId: user.ZenoPayID,
@@ -349,7 +362,7 @@ const postLogin = async (req, res) => {
       });
 
       if (expectsJson) {
-        return res.json({ success: true, redirect: '/dashboard' });
+        return res.json({ success: true, redirect: "/dashboard" });
       }
 
       return res.redirect("/dashboard");
