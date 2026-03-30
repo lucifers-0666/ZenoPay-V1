@@ -9,18 +9,21 @@ const { isAuthenticated, redirectIfAuthenticated } = require("../Middleware/auth
 // Auth & Dashboard
 router.get("/", isAuthenticated, DashboardController.getDashboard);
 router.get("/dashboard", isAuthenticated, DashboardController.getDashboard);
+
+// GET routes use redirectIfAuthenticated to prevent logged-in users seeing auth pages.
+// POST routes must NOT use redirectIfAuthenticated — the handler manages session internally.
 router.get("/register", redirectIfAuthenticated, LoginController.getRegister);
-router.post("/register", redirectIfAuthenticated, LoginController.postRegister);
+router.post("/register", LoginController.postRegister);
 router.get("/signup", redirectIfAuthenticated, LoginController.getRegister);
-router.post("/signup", redirectIfAuthenticated, LoginController.postRegister);
+router.post("/signup", LoginController.postRegister);
 router.get("/login", redirectIfAuthenticated, LoginController.getLogin);
-router.post("/login", redirectIfAuthenticated, LoginController.postLogin);
+router.post("/login", LoginController.postLogin);
 router.get("/logout", LoginController.logout);
 
 // Password Reset
 router.get("/forgot-password", redirectIfAuthenticated, LoginController.getForgotPassword);
-router.post("/forgot-password", redirectIfAuthenticated, LoginController.postForgotPassword);
-router.post("/forgot-password/resend", redirectIfAuthenticated, LoginController.postResendResetLink);
+router.post("/forgot-password", LoginController.postForgotPassword);
+router.post("/forgot-password/resend", LoginController.postResendResetLink);
 
 // Fallback when no token is provided so users see the error state instead of a 404
 router.get("/reset-password", (req, res) => {
