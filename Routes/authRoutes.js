@@ -4,16 +4,17 @@ const router = express.Router();
 const DashboardController = require("../Controllers/DashboardController");
 const LoginController = require("../Controllers/AuthController");
 const EmailVerificationController = require("../Controllers/EmailVerificationController");
+const { redirectIfAuthenticated } = require("../Middleware/authGuards");
 
 // Auth & Dashboard
 router.get("/", DashboardController.getDashboard);
 router.get("/dashboard", DashboardController.getDashboard);
-router.get("/register", LoginController.getRegister);
-router.post("/register", LoginController.postRegister);
-router.get("/signup", LoginController.getRegister);
-router.post("/signup", LoginController.postRegister);
-router.get("/login", LoginController.getLogin);
-router.post("/login", LoginController.postLogin);
+router.get("/register", redirectIfAuthenticated, LoginController.getRegister);
+router.post("/register", redirectIfAuthenticated, LoginController.postRegister);
+router.get("/signup", redirectIfAuthenticated, LoginController.getRegister);
+router.post("/signup", redirectIfAuthenticated, LoginController.postRegister);
+router.get("/login", redirectIfAuthenticated, LoginController.getLogin);
+router.post("/login", redirectIfAuthenticated, LoginController.postLogin);
 router.get("/logout", LoginController.logout);
 
 // Password Reset

@@ -1,9 +1,10 @@
-module.exports = (req, res, next) => {
-  // Check user session key (NOT admin)
-  if (req.session && req.session.user) {
+// Middleware/auth.js — User auth guard
+const isAuthenticated = (req, res, next) => {
+  if (req.session && req.session.user && req.session.isLoggedIn) {
     req.user = req.session.user;
     return next();
   }
-  // Not logged in → redirect to login
-  return res.redirect('/login');
+  return res.redirect("/login");
 };
+
+module.exports = { isAuthenticated };
