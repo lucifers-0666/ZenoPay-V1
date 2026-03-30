@@ -1,4 +1,5 @@
 const TransactionHistory = require("../../Models/TransactionHistory");
+const WalletTransaction = require("../../Models/Transaction");
 const { sanitizeDateRange } = require("../../utils/dateUtils");
 
 const parseTxnNumericId = (value) => {
@@ -112,6 +113,79 @@ const normalizeTransaction = (doc) => {
   };
 };
 
+const normalizeWalletTransaction = (doc) => {
+  const amount = toNumber(doc.amount);
+  const txDate = doc.createdAt ? new Date(doc.createdAt) : new Date();
+  const txType = String(doc.type || "wallet").toLowerCase();
+  const rawStatus = String(doc.status || "pending").toLowerCase();
+  const metadata = doc.metadata && typeof doc.metadata === "object" ? doc.metadata : {};
+  const isFlagged = Boolean(metadata.adminFlagged || metadata.flagged || false);
+  const status = isFlagged
+    ? "flagged"
+    : (rawStatus === "completed" || rawStatus === "success")
+      ? "success"
+      : rawStatus === "failed"
+        ? "failed"
+        : "pending";
+
+  const senderName =
+    metadata.senderName ||
+    (txType === "send" ? "Wallet User" : "ZenoPay Wallet");
+  const receiverName =
+    metadata.recipientName ||
+    metadata.receiverName ||
+    (txType === "send" ? "Recipient" : "Wallet User");
+
+  let type = "Wallet";
+  if (txType === "topup") type = "UPI";
+  else if (txType === "send" || txType === "receive") type = "Wallet";
+  else if (txType === "refund") type = "Refund";
+
+  const method = txType === "topup" ? "UPI" : "Wallet";
+  const direction = txType === "refund" ? "refund" : (txType === "receive" || txType === "topup" ? "credit" : "debit");
+
+  const risk = inferRisk(
+    { Description: doc.description || "Wallet transaction", IsFlagged: isFlagged },
+    amount,
+    status,
+    isFlagged
+  );
+
+  return {
+    id: String(doc._id),
+    txnId: `#WLT-${String(doc.reference || String(doc._id).slice(-8)).toUpperCase()}`,
+    transactionId: `WLT-${String(doc._id)}`,
+    upiRef: String(doc.reference || "").slice(-12) || String(doc._id).slice(-10),
+    type,
+    method,
+    status,
+    isFlagged,
+    amount,
+    fee: 0,
+    direction,
+    sender: {
+      name: senderName,
+      account: "Wallet",
+      bank: "ZenoPay Wallet",
+      type: "User",
+      userId: String(doc.userId || ""),
+    },
+    receiver: {
+      name: receiverName,
+      account: "Wallet",
+      bank: "ZenoPay Wallet",
+      type: "User",
+      userId: String(metadata.recipientId || doc.userId || ""),
+      external: false,
+    },
+    description: doc.description || "Wallet transaction",
+    time: txDate,
+    risk,
+    isWalletTx: true,
+    walletId: String(doc._id),
+  };
+};
+
 // GET All Transactions
 const getAllTransactions = async (req, res) => {
   try {
@@ -132,33 +206,41 @@ const getAllTransactions = async (req, res) => {
         }
       : {};
 
-    const transactions = await TransactionHistory.find(searchQuery)
-      .sort({ TransactionTime: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    const walletSearch = search
+      ? {
+          $or: [
+            { reference: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { "metadata.senderName": { $regex: search, $options: "i" } },
+            { "metadata.recipientName": { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
 
-    const totalTransactions = await TransactionHistory.countDocuments(searchQuery);
-    const totalPages = Math.ceil(totalTransactions / limit);
-
-    // Get total transaction amount
-    const amountStats = await TransactionHistory.aggregate([
-      { $match: searchQuery },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: "$Amount" },
-        },
-      },
+    const [bankTransactions, walletTransactions] = await Promise.all([
+      TransactionHistory.find(searchQuery)
+        .sort({ TransactionTime: -1 })
+        .limit(2000)
+        .lean(),
+      WalletTransaction.find(walletSearch)
+        .sort({ createdAt: -1 })
+        .limit(2000)
+        .lean(),
     ]);
 
-    const totalAmount = amountStats.length > 0 ? amountStats[0].totalAmount : 0;
+    const mergedTransactions = [
+      ...(bankTransactions || []).map(normalizeTransaction),
+      ...(walletTransactions || []).map(normalizeWalletTransaction),
+    ].sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
 
-    const normalizedTransactions = transactions.map(normalizeTransaction);
+    const totalTransactions = mergedTransactions.length;
+    const totalPages = Math.max(1, Math.ceil(totalTransactions / limit));
+    const normalizedTransactions = mergedTransactions.slice(skip, skip + limit);
+    const totalAmount = mergedTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
 
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayTransactions = normalizedTransactions.filter((tx) => tx.time >= startOfDay);
+    const todayTransactions = mergedTransactions.filter((tx) => new Date(tx.time) >= startOfDay);
 
     const totalToday = todayTransactions.length;
     const volumeToday = todayTransactions.reduce((sum, tx) => sum + tx.amount, 0);
@@ -453,10 +535,38 @@ const getFailedTransactions = failedTransactions;
 const getTransactionDetails = async (req, res) => {
   try {
     const transactionId = req.params.id;
-    
-    const transaction = await TransactionHistory.findOne({ 
-      TransactionID: transactionId 
+
+    let transaction = await TransactionHistory.findOne({
+      TransactionID: transactionId
     });
+
+    if (!transaction) {
+      const walletId = String(transactionId || "").startsWith("WLT-")
+        ? String(transactionId).replace(/^WLT-/, "")
+        : null;
+
+      if (walletId) {
+        const walletTx = await WalletTransaction.findById(walletId).lean();
+        if (walletTx) {
+          const metadata = walletTx.metadata && typeof walletTx.metadata === "object" ? walletTx.metadata : {};
+          transaction = {
+            TransactionID: walletTx.reference || String(walletTx._id),
+            TransactionTime: walletTx.createdAt,
+            SenderHolderName: metadata.senderName || "Wallet User",
+            SenderAccountNumber: "Wallet",
+            SenderBank: "ZenoPay Wallet",
+            ReceiverHolderName: metadata.recipientName || metadata.receiverName || "Wallet User",
+            ReceiverAccountNumber: "Wallet",
+            ReceiverBank: "ZenoPay Wallet",
+            Amount: walletTx.amount,
+            Description: walletTx.description || `Wallet ${walletTx.type || "transaction"}`,
+            Status: normalizeStatus(walletTx.status),
+            IsFlagged: Boolean(metadata.adminFlagged || metadata.flagged),
+            _id: walletTx._id,
+          };
+        }
+      }
+    }
 
     if (!transaction) {
       return res.status(404).send("Transaction not found");
@@ -507,6 +617,28 @@ const flagTransaction = async (req, res) => {
   try {
     const transactionId = req.params.id;
     const { reason, notes } = req.body;
+
+    if (String(transactionId || "").startsWith("WLT-")) {
+      const walletId = String(transactionId).replace(/^WLT-/, "");
+      const walletTx = await WalletTransaction.findById(walletId);
+      if (!walletTx) {
+        return res.status(404).json({ success: false, message: "Transaction not found" });
+      }
+
+      const metadata = walletTx.metadata && typeof walletTx.metadata === "object" ? walletTx.metadata : {};
+      walletTx.metadata = {
+        ...metadata,
+        adminFlagged: true,
+        flagReason: reason || "Suspicious Activity",
+        flagNotes: notes || "",
+        flaggedAt: new Date(),
+        flaggedBy: req.session?.user?.ZenoPayID || null,
+      };
+      await walletTx.save();
+
+      return res.json({ success: true, message: "Transaction flagged successfully" });
+    }
+
     const query = buildTxnLookupQuery(transactionId);
 
     const transaction = await TransactionHistory.findOne(query);

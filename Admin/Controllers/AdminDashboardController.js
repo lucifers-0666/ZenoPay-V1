@@ -1,6 +1,7 @@
 const ZenoPayUser = require("../../Models/ZenoPayUser");
 const Merchant = require("../../Models/Merchant");
 const TransactionHistory = require("../../Models/TransactionHistory");
+const WalletTransaction = require("../../Models/Transaction");
 const BankAccount = require("../../Models/BankAccount");
 const Banks = require("../../Models/Banks");
 const AdminSettings = require("../../Models/AdminSettings");
@@ -49,6 +50,13 @@ const initialsFrom = (name = "U") =>
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase() || "")
     .join("") || "U";
+
+const normalizeStatus = (value = "") => {
+  const s = String(value || "").toLowerCase();
+  if (s.includes("success") || s.includes("complete")) return "success";
+  if (s.includes("fail") || s.includes("declin")) return "failed";
+  return "pending";
+};
 
 const buildDateKeys = (days) => {
   const keys = [];
@@ -473,17 +481,45 @@ const getStatistics = async (req, res) => {
     fromDate.setDate(fromDate.getDate() - (days - 1));
 
     const txDateFilter = { TransactionTime: { $gte: fromDate } };
+    const walletDateFilter = { createdAt: { $gte: fromDate } };
 
-    const totalTransactions = await TransactionHistory.countDocuments(txDateFilter);
-    const successfulTransactions = await TransactionHistory.countDocuments({ ...txDateFilter, Status: "success" });
-    const failedTransactions = await TransactionHistory.countDocuments({ ...txDateFilter, Status: "failed" });
-    const pendingTransactions = await TransactionHistory.countDocuments({ ...txDateFilter, Status: "pending" });
-
-    const totalVolumeAgg = await TransactionHistory.aggregate([
-      { $match: txDateFilter },
-      { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } }
+    const [
+      bankTotalTransactions,
+      bankSuccessfulTransactions,
+      bankFailedTransactions,
+      bankPendingTransactions,
+      walletTotalTransactions,
+      walletSuccessfulTransactions,
+      walletFailedTransactions,
+      walletPendingTransactions,
+    ] = await Promise.all([
+      TransactionHistory.countDocuments(txDateFilter),
+      TransactionHistory.countDocuments({ ...txDateFilter, Status: { $in: ["success", "Success"] } }),
+      TransactionHistory.countDocuments({ ...txDateFilter, Status: { $in: ["failed", "Failed", "declined", "Declined"] } }),
+      TransactionHistory.countDocuments({ ...txDateFilter, Status: { $in: ["pending", "Pending"] } }),
+      WalletTransaction.countDocuments(walletDateFilter),
+      WalletTransaction.countDocuments({ ...walletDateFilter, status: { $in: ["completed", "success"] } }),
+      WalletTransaction.countDocuments({ ...walletDateFilter, status: { $in: ["failed"] } }),
+      WalletTransaction.countDocuments({ ...walletDateFilter, status: { $in: ["pending"] } }),
     ]);
-    const totalVolumeNumber = totalVolumeAgg[0]?.total || 0;
+
+    const totalTransactions = Number(bankTotalTransactions || 0) + Number(walletTotalTransactions || 0);
+    const successfulTransactions = Number(bankSuccessfulTransactions || 0) + Number(walletSuccessfulTransactions || 0);
+    const failedTransactions = Number(bankFailedTransactions || 0) + Number(walletFailedTransactions || 0);
+    const pendingTransactions = Number(bankPendingTransactions || 0) + Number(walletPendingTransactions || 0);
+
+    const [bankVolumeAgg, walletVolumeAgg] = await Promise.all([
+      TransactionHistory.aggregate([
+        { $match: txDateFilter },
+        { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } }
+      ]),
+      WalletTransaction.aggregate([
+        { $match: walletDateFilter },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]),
+    ]);
+
+    const totalVolumeNumber = Number(bankVolumeAgg[0]?.total || 0) + Number(walletVolumeAgg[0]?.total || 0);
 
     const chargebacks = Math.max(0, Math.round(failedTransactions * 0.15));
     const successRate = totalTransactions > 0
@@ -506,7 +542,8 @@ const getStatistics = async (req, res) => {
       dayKeys.push(new Date(d));
     }
 
-    const byDayAll = await TransactionHistory.aggregate([
+    const [byDayAllBank, byDayAllWallet] = await Promise.all([
+      TransactionHistory.aggregate([
       { $match: txDateFilter },
       {
         $group: {
@@ -516,10 +553,32 @@ const getStatistics = async (req, res) => {
         },
       },
       { $sort: { _id: 1 } },
+    ]),
+      WalletTransaction.aggregate([
+        { $match: walletDateFilter },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            volume: { $sum: "$amount" },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
     ]);
 
-    const byDaySuccess = await TransactionHistory.aggregate([
-      { $match: { ...txDateFilter, Status: "success" } },
+    const mergedAllByDayMap = new Map();
+    [...(byDayAllBank || []), ...(byDayAllWallet || [])].forEach((row) => {
+      const prev = mergedAllByDayMap.get(row._id) || { _id: row._id, volume: 0, count: 0 };
+      prev.volume += Number(row.volume || 0);
+      prev.count += Number(row.count || 0);
+      mergedAllByDayMap.set(row._id, prev);
+    });
+    const byDayAll = Array.from(mergedAllByDayMap.values()).sort((a, b) => String(a._id).localeCompare(String(b._id)));
+
+    const [byDaySuccessBank, byDaySuccessWallet] = await Promise.all([
+      TransactionHistory.aggregate([
+      { $match: { ...txDateFilter, Status: { $in: ["success", "Success"] } } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$TransactionTime" } },
@@ -527,9 +586,29 @@ const getStatistics = async (req, res) => {
         },
       },
       { $sort: { _id: 1 } },
+    ]),
+      WalletTransaction.aggregate([
+        { $match: { ...walletDateFilter, status: { $in: ["completed", "success"] } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            volume: { $sum: "$amount" },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
     ]);
 
-    const byDayStatus = await TransactionHistory.aggregate([
+    const mergedSuccessByDayMap = new Map();
+    [...(byDaySuccessBank || []), ...(byDaySuccessWallet || [])].forEach((row) => {
+      const prev = mergedSuccessByDayMap.get(row._id) || { _id: row._id, volume: 0 };
+      prev.volume += Number(row.volume || 0);
+      mergedSuccessByDayMap.set(row._id, prev);
+    });
+    const byDaySuccess = Array.from(mergedSuccessByDayMap.values()).sort((a, b) => String(a._id).localeCompare(String(b._id)));
+
+    const [byDayStatusBank, byDayStatusWallet] = await Promise.all([
+      TransactionHistory.aggregate([
       { $match: txDateFilter },
       {
         $group: {
@@ -541,11 +620,37 @@ const getStatistics = async (req, res) => {
         },
       },
       { $sort: { "_id.day": 1 } },
+    ]),
+      WalletTransaction.aggregate([
+        { $match: walletDateFilter },
+        {
+          $group: {
+            _id: {
+              day: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              status: "$status",
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.day": 1 } },
+      ]),
     ]);
+
+    const byDayStatus = [...(byDayStatusBank || []), ...(byDayStatusWallet || [])].map((row) => ({
+      _id: {
+        day: row?._id?.day,
+        status: normalizeStatus(row?._id?.status),
+      },
+      count: Number(row?.count || 0),
+    }));
 
     const allMap = new Map(byDayAll.map((d) => [d._id, d]));
     const successMap = new Map(byDaySuccess.map((d) => [d._id, d]));
-    const statusMap = new Map(byDayStatus.map((d) => [`${d._id.day}|${String(d._id.status || "").toLowerCase()}`, d.count]));
+    const statusMap = new Map();
+    byDayStatus.forEach((d) => {
+      const k = `${d._id.day}|${String(d._id.status || "").toLowerCase()}`;
+      statusMap.set(k, Number(statusMap.get(k) || 0) + Number(d.count || 0));
+    });
 
     const volumeLabels = [];
     const volumeData = [];
@@ -650,10 +755,35 @@ const getStatistics = async (req, res) => {
     const topMerchantLabels = top10MerchantsRaw.map((m) => m.BusinessName || "Unknown");
     const topMerchantVolumeData = top10MerchantsRaw.map((m) => Number(m.TotalVolume || 0));
 
-    const recentTransactions = await TransactionHistory.find(txDateFilter)
-      .sort({ TransactionTime: -1 })
-      .limit(10)
-      .lean();
+    const [recentBankTransactions, recentWalletTransactions] = await Promise.all([
+      TransactionHistory.find(txDateFilter)
+        .sort({ TransactionTime: -1 })
+        .limit(10)
+        .lean(),
+      WalletTransaction.find(walletDateFilter)
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(),
+    ]);
+
+    const recentTransactions = [
+      ...(recentBankTransactions || []).map((t) => ({
+        TransactionID: t.TransactionID,
+        Amount: toNumber(t.Amount),
+        Status: t.Status,
+        SenderHolderName: t.SenderHolderName || t.ReceiverHolderName || "Bank User",
+        TransactionTime: t.TransactionTime || t.createdAt,
+      })),
+      ...(recentWalletTransactions || []).map((t) => ({
+        TransactionID: t.reference || String(t._id || ""),
+        Amount: toNumber(t.amount),
+        Status: t.status,
+        SenderHolderName: t?.metadata?.senderName || t?.metadata?.recipientName || "Wallet User",
+        TransactionTime: t.createdAt,
+      })),
+    ]
+      .sort((a, b) => new Date(b.TransactionTime || 0) - new Date(a.TransactionTime || 0))
+      .slice(0, 10);
     const recentUsers = await ZenoPayUser.find({ Role: "user" })
       .sort({ RegistrationDate: -1 })
       .limit(10)
@@ -810,21 +940,38 @@ const getStatisticsChartData = async (req, res) => {
       labels.push(dayStart.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }));
 
       if (type === "volume") {
-        const result = await TransactionHistory.aggregate([
-          {
-            $match: {
-              TransactionTime: { $gte: dayStart, $lte: dayEnd },
-              Status: "success",
+        const [bankResult, walletResult] = await Promise.all([
+          TransactionHistory.aggregate([
+            {
+              $match: {
+                TransactionTime: { $gte: dayStart, $lte: dayEnd },
+                Status: { $in: ["success", "Success"] },
+              },
             },
-          },
-          { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } },
+            { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } },
+          ]),
+          WalletTransaction.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: dayStart, $lte: dayEnd },
+                status: { $in: ["completed", "success"] },
+              },
+            },
+            { $group: { _id: null, total: { $sum: "$amount" } } },
+          ]),
         ]);
-        values.push(Math.round(Number(result[0]?.total || 0)));
+        const total = Number(bankResult[0]?.total || 0) + Number(walletResult[0]?.total || 0);
+        values.push(Math.round(total));
       } else {
-        const count = await TransactionHistory.countDocuments({
-          TransactionTime: { $gte: dayStart, $lte: dayEnd },
-        });
-        values.push(count);
+        const [bankCount, walletCount] = await Promise.all([
+          TransactionHistory.countDocuments({
+            TransactionTime: { $gte: dayStart, $lte: dayEnd },
+          }),
+          WalletTransaction.countDocuments({
+            createdAt: { $gte: dayStart, $lte: dayEnd },
+          }),
+        ]);
+        values.push(Number(bankCount || 0) + Number(walletCount || 0));
       }
     }
 
@@ -847,21 +994,50 @@ const exportStatistics = async (req, res) => {
     fromDate.setHours(0, 0, 0, 0);
     fromDate.setDate(fromDate.getDate() - (days - 1));
 
-    const transactions = await TransactionHistory.find({
-      TransactionTime: { $gte: fromDate },
-    })
-      .sort({ TransactionTime: -1 })
-      .limit(5000)
-      .lean();
+    const [bankTransactions, walletTransactions] = await Promise.all([
+      TransactionHistory.find({
+        TransactionTime: { $gte: fromDate },
+      })
+        .sort({ TransactionTime: -1 })
+        .limit(5000)
+        .lean(),
+      WalletTransaction.find({
+        createdAt: { $gte: fromDate },
+      })
+        .sort({ createdAt: -1 })
+        .limit(5000)
+        .lean(),
+    ]);
+
+    const transactions = [
+      ...(bankTransactions || []).map((t) => ({
+        Date: t.TransactionTime,
+        TransactionID: t.TransactionID,
+        User: t.SenderHolderName || t.ReceiverHolderName || "Bank User",
+        Amount: toNumber(t.Amount),
+        Status: t.Status || "",
+        Type: t.Description || "Bank Transfer",
+      })),
+      ...(walletTransactions || []).map((t) => ({
+        Date: t.createdAt,
+        TransactionID: t.reference || String(t._id || ""),
+        User: t?.metadata?.senderName || t?.metadata?.recipientName || "Wallet User",
+        Amount: toNumber(t.amount),
+        Status: t.status || "",
+        Type: t.type || "Wallet",
+      })),
+    ]
+      .sort((a, b) => new Date(b.Date || 0) - new Date(a.Date || 0))
+      .slice(0, 5000);
 
     const headers = ["Date", "TXN ID", "User", "Amount", "Status", "Type"];
     const rows = transactions.map((t) => [
-      t.TransactionTime ? new Date(t.TransactionTime).toLocaleDateString("en-IN") : "",
+      t.Date ? new Date(t.Date).toLocaleDateString("en-IN") : "",
       t.TransactionID || "",
-      t.SenderHolderName || "Unknown",
+      t.User || "Unknown",
       Number(t.Amount || 0),
       t.Status || "",
-      t.Description || "",
+      t.Type || "",
     ]);
 
     const csv = [headers, ...rows]
