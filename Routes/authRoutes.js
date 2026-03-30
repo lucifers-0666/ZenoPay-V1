@@ -25,6 +25,11 @@ router.get("/forgot-password", redirectIfAuthenticated, LoginController.getForgo
 router.post("/forgot-password", LoginController.postForgotPassword);
 router.post("/forgot-password/resend", LoginController.postResendResetLink);
 
+// OTP Email Verification (registration flow)
+router.get("/verify-email", LoginController.getVerifyEmail);
+router.post("/verify-email", LoginController.postVerifyEmail);
+router.post("/resend-otp", LoginController.postResendOtp);
+
 // Fallback when no token is provided so users see the error state instead of a 404
 router.get("/reset-password", (req, res) => {
   return res.status(400).render("reset-password", {

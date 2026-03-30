@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const emailService = require("../Services/EmailService");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
+const OTP_TTL_MS = Number.parseInt(process.env.EMAIL_OTP_EXPIRY_MS || `${10 * 60 * 1000}`, 10);
 
 const isBcryptHash = (value = "") => /^\$2[aby]\$\d{2}\$/.test(value);
 
@@ -94,6 +95,52 @@ const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
   user.Password = await bcrypt.hash(plainPassword, BCRYPT_ROUNDS);
   await user.save();
   return true;
+};
+
+const generateEmailOtp = () => {
+  return String(Math.floor(100000 + Math.random() * 900000));
+};
+
+const buildEmailOtpTemplate = ({ fullName, otpCode }) => {
+  return {
+    subject: "Your ZenoPay Email Verification OTP",
+    html: `
+      <div style="font-family:Inter,Arial,sans-serif;color:#111827;line-height:1.6;max-width:640px;margin:0 auto;padding:20px;">
+        <h2 style="margin:0 0 12px;">Verify your email address</h2>
+        <p>Hi ${fullName || "there"},</p>
+        <p>Use this One-Time Password (OTP) to verify your ZenoPay account:</p>
+        <div style="margin:18px 0;padding:14px 16px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;display:inline-block;">
+          <span style="font-size:28px;letter-spacing:6px;font-weight:700;color:#1d4ed8;">${otpCode}</span>
+        </div>
+        <p>This OTP expires in 10 minutes.</p>
+        <p style="color:#6b7280;font-size:13px;">If you did not create this account, you can safely ignore this email.</p>
+      </div>
+    `,
+    text: `Your ZenoPay OTP is ${otpCode}. It expires in 10 minutes.`,
+  };
+};
+
+const resolveVerificationIdentity = (req, explicitEmail = "") => {
+  const fromBodyOrQuery = String(explicitEmail || req.body?.email || req.query?.email || "").trim().toLowerCase();
+  const fromSession = String(req.session?.pendingVerificationEmail || req.session?.user?.Email || req.session?.user?.email || "")
+    .trim()
+    .toLowerCase();
+
+  return fromBodyOrQuery || fromSession;
+};
+
+const sendEmailOtp = async (user, otpCode) => {
+  const emailPayload = buildEmailOtpTemplate({
+    fullName: user.FullName || user.name,
+    otpCode,
+  });
+
+  return emailService.sendEmail({
+    to: user.Email || user.email,
+    subject: emailPayload.subject,
+    html: emailPayload.html,
+    text: emailPayload.text,
+  });
 };
 
 // Show registration page
@@ -249,13 +296,29 @@ const postRegister = async (req, res) => {
       RegistrationDate: new Date(),
     });
 
+    const otpCode = generateEmailOtp();
+    const otpHash = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
+    newUser.emailOtp = otpHash;
+    newUser.emailOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
+    newUser.isEmailVerified = false;
+    newUser.EmailVerified = false;
+
     await newUser.save();
+
+    const emailResult = await sendEmailOtp(newUser, otpCode);
+    if (!emailResult?.sent) {
+      console.warn("[Auth] OTP email not sent during registration for:", normalizedEmail);
+    }
+
+    req.session.pendingVerificationEmail = normalizedEmail;
 
     return res.status(201).json({
       success: true,
-      message: "Registration successful! Please login to continue.",
+      message: emailResult?.sent
+        ? "Registration successful! Please verify your email using OTP sent to your inbox."
+        : "Registration successful, but OTP email could not be sent. Please resend OTP from verification page.",
       zenoPayId: zenoPayId,
-      redirect: "/login",
+      redirect: `/verify-email?email=${encodeURIComponent(normalizedEmail)}`,
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -369,6 +432,8 @@ const postLogin = async (req, res) => {
       Email: user.Email || user.email || "",
       email: user.Email || user.email || "",
       ProfilePicture: user.ProfilePicture || null,
+      isEmailVerified: !!(user.isEmailVerified ?? user.EmailVerified),
+      EmailVerified: !!(user.isEmailVerified ?? user.EmailVerified),
       role: user.Role || user.role || "user",
       Role: user.Role || user.role || "user",
     };
@@ -383,7 +448,9 @@ const postLogin = async (req, res) => {
         return fail(500, "Session error");
       }
 
-      const redirectTarget = resolveSafePostLoginRedirect(req);
+      const redirectTarget = req.session.user?.isEmailVerified
+        ? resolveSafePostLoginRedirect(req)
+        : "/verify-email";
 
       LoginHistory.create({
         ZenoPayId: user.ZenoPayID,
@@ -675,6 +742,202 @@ const postResetPassword = async (req, res) => {
   }
 };
 
+const getVerifyEmail = async (req, res) => {
+  const email = resolveVerificationIdentity(req);
+
+  if (!email) {
+    return res.redirect("/login");
+  }
+
+  return res.render("verify-email", {
+    pageTitle: "Verify Email - ZenoPay",
+    otpMode: true,
+    email,
+    success: null,
+    error: null,
+  });
+};
+
+const postVerifyEmail = async (req, res) => {
+  const otp = String(req.body?.otp || "").trim();
+  const email = resolveVerificationIdentity(req, req.body?.email);
+
+  if (!email) {
+    return res.status(400).render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email: "",
+      success: null,
+      error: "Session expired. Please login or register again.",
+    });
+  }
+
+  if (!/^\d{6}$/.test(otp)) {
+    return res.status(400).render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email,
+      success: null,
+      error: "Please enter a valid 6-digit OTP.",
+    });
+  }
+
+  try {
+    const user = await ZenoPayDetails.findOne({
+      $or: [{ Email: email }, { email }],
+    });
+
+    if (!user) {
+      return res.status(404).render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: null,
+        error: "No account found for this email.",
+      });
+    }
+
+    if (user.isEmailVerified || user.EmailVerified) {
+      return res.render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: "Your email is already verified. You can continue to login.",
+        error: null,
+      });
+    }
+
+    if (!user.emailOtp || !user.emailOtpExpiry || user.emailOtpExpiry.getTime() <= Date.now()) {
+      return res.status(400).render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: null,
+        error: "OTP has expired. Please request a new OTP.",
+      });
+    }
+
+    const otpMatches = await bcrypt.compare(otp, user.emailOtp);
+    if (!otpMatches) {
+      return res.status(400).render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: null,
+        error: "Invalid OTP. Please try again.",
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.EmailVerified = true;
+    user.EmailVerifiedAt = new Date();
+    user.emailOtp = undefined;
+    user.emailOtpExpiry = undefined;
+    await user.save();
+
+    if (req.session?.user) {
+      req.session.user.isEmailVerified = true;
+      req.session.user.EmailVerified = true;
+    }
+
+    if (req.session?.pendingVerificationEmail) {
+      delete req.session.pendingVerificationEmail;
+    }
+
+    return res.render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email,
+      success: "Email verified successfully! You can now access your dashboard.",
+      error: null,
+    });
+  } catch (error) {
+    console.error("Verify email OTP error:", error);
+    return res.status(500).render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email,
+      success: null,
+      error: "Unable to verify OTP right now. Please try again.",
+    });
+  }
+};
+
+const postResendOtp = async (req, res) => {
+  const email = resolveVerificationIdentity(req, req.body?.email);
+
+  if (!email) {
+    return res.status(400).render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email: "",
+      success: null,
+      error: "Email is required to resend OTP.",
+    });
+  }
+
+  try {
+    const user = await ZenoPayDetails.findOne({
+      $or: [{ Email: email }, { email }],
+    });
+
+    if (!user) {
+      return res.status(404).render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: null,
+        error: "No account found for this email.",
+      });
+    }
+
+    if (user.isEmailVerified || user.EmailVerified) {
+      return res.render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: "Your email is already verified. You can continue to login.",
+        error: null,
+      });
+    }
+
+    const otpCode = generateEmailOtp();
+    user.emailOtp = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
+    user.emailOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
+    await user.save();
+
+    req.session.pendingVerificationEmail = email;
+
+    const emailResult = await sendEmailOtp(user, otpCode);
+    if (!emailResult?.sent) {
+      return res.status(500).render("verify-email", {
+        pageTitle: "Verify Email - ZenoPay",
+        otpMode: true,
+        email,
+        success: null,
+        error: "Failed to send OTP email. Please try again.",
+      });
+    }
+
+    return res.render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email,
+      success: "A new OTP has been sent to your email.",
+      error: null,
+    });
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+    return res.status(500).render("verify-email", {
+      pageTitle: "Verify Email - ZenoPay",
+      otpMode: true,
+      email,
+      success: null,
+      error: "Unable to resend OTP right now. Please try again.",
+    });
+  }
+};
+
 module.exports = {
   getRegister,
   postRegister,
@@ -686,4 +949,7 @@ module.exports = {
   postResendResetLink,
   getResetPassword,
   postResetPassword,
+  getVerifyEmail,
+  postVerifyEmail,
+  postResendOtp,
 };

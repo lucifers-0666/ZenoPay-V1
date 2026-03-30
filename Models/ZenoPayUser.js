@@ -356,6 +356,21 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     default: false,
   },
 
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  emailOtp: {
+    type: String,
+    required: false,
+  },
+
+  emailOtpExpiry: {
+    type: Date,
+    required: false,
+  },
+
   EmailVerificationToken: {
     type: String,
     required: false,
@@ -439,6 +454,19 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
     this.status = this.AccountStatus || "Active";
   }
 
+  if (typeof this.EmailVerified === "boolean" && typeof this.isEmailVerified !== "boolean") {
+    this.isEmailVerified = this.EmailVerified;
+  }
+
+  if (typeof this.isEmailVerified === "boolean" && typeof this.EmailVerified !== "boolean") {
+    this.EmailVerified = this.isEmailVerified;
+  }
+
+  if (typeof this.isEmailVerified !== "boolean" && typeof this.EmailVerified !== "boolean") {
+    this.isEmailVerified = false;
+    this.EmailVerified = false;
+  }
+
   if (!this.createdAt && this.RegistrationDate) {
     this.createdAt = this.RegistrationDate;
   }
@@ -466,6 +494,8 @@ ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified() {
   if (this.role) this.Role = roleUiToLegacy[this.role] || "user";
   if (this.kycStatus) this.KYCStatus = kycUiToLegacy[this.kycStatus] || "not_started";
   if (this.status) this.AccountStatus = this.status;
+  if (typeof this.isEmailVerified === "boolean") this.EmailVerified = this.isEmailVerified;
+  if (typeof this.EmailVerified === "boolean") this.isEmailVerified = this.EmailVerified;
   if (this.createdAt) this.RegistrationDate = this.createdAt;
 });
 

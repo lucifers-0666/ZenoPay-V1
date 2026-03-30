@@ -13,6 +13,16 @@ const hasAuthenticatedUser = (req) => {
 
 const isAuthenticated = (req, res, next) => {
   if (hasAuthenticatedUser(req)) {
+    const isVerified = !!(
+      req.session?.user?.isEmailVerified ??
+      req.session?.user?.EmailVerified
+    );
+
+    if (!isVerified) {
+      req.session.returnTo = "/dashboard";
+      return res.redirect("/verify-email");
+    }
+
     return next();
   }
 
@@ -21,6 +31,19 @@ const isAuthenticated = (req, res, next) => {
 
 const isAuthenticatedApi = (req, res, next) => {
   if (hasAuthenticatedUser(req)) {
+    const isVerified = !!(
+      req.session?.user?.isEmailVerified ??
+      req.session?.user?.EmailVerified
+    );
+
+    if (!isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Email verification required",
+        redirect: "/verify-email",
+      });
+    }
+
     return next();
   }
 

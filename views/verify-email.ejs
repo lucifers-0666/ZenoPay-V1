@@ -18,6 +18,58 @@
     />
   </head>
   <body>
+    <% if (otpMode) { %>
+    <%- include('partials/header') %>
+    <div class="verify-page" style="min-height: calc(100vh - 80px); display:flex; align-items:center; justify-content:center; padding:32px 16px; background:#f8fafc;">
+      <div style="width:100%; max-width:460px; background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 10px 24px rgba(2,6,23,0.08); padding:24px;">
+        <div style="text-align:center; margin-bottom:16px;">
+          <img src="/Images/fullLogo.png" alt="ZenoPay" style="height:48px; object-fit:contain;" />
+          <h1 style="margin:14px 0 6px; font-size:24px; color:#0f172a;">Verify your email</h1>
+          <p style="margin:0; color:#64748b; font-size:14px;">Enter the 6-digit OTP sent to <strong><%= email %></strong></p>
+        </div>
+
+        <% if (error) { %>
+          <div style="margin-bottom:14px; padding:10px 12px; border-radius:10px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; font-size:13px;">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <% if (success) { %>
+          <div style="margin-bottom:14px; padding:10px 12px; border-radius:10px; border:1px solid #bbf7d0; background:#f0fdf4; color:#166534; font-size:13px;">
+            <%= success %>
+          </div>
+        <% } %>
+
+        <form action="/verify-email" method="POST" style="display:grid; gap:12px;">
+          <input type="hidden" name="email" value="<%= email %>" />
+          <label for="otp" style="font-size:13px; font-weight:600; color:#334155;">OTP code</label>
+          <input
+            id="otp"
+            name="otp"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            required
+            placeholder="Enter 6-digit OTP"
+            style="height:44px; border-radius:10px; border:1px solid #cbd5e1; padding:0 12px; font-size:16px; letter-spacing:2px;"
+          />
+          <button type="submit" style="height:44px; border:0; border-radius:10px; background:#2563eb; color:#fff; font-weight:600; cursor:pointer;">
+            Verify Email
+          </button>
+        </form>
+
+        <form action="/resend-otp" method="POST" style="margin-top:10px;">
+          <input type="hidden" name="email" value="<%= email %>" />
+          <button type="submit" style="height:42px; width:100%; border:1px solid #cbd5e1; border-radius:10px; background:#fff; color:#334155; font-weight:600; cursor:pointer;">
+            Resend OTP
+          </button>
+        </form>
+
+        <a href="/login" style="margin-top:12px; display:block; text-align:center; color:#2563eb; text-decoration:none; font-size:14px;">Back to Login</a>
+      </div>
+    </div>
+    <% } else { %>
     <%- include('partials/header') %>
     <div class="verify-page">
       <div class="verify-container">
@@ -325,5 +377,6 @@
         }
       }
     </script>
+    <% } %>
   </body>
 </html>
