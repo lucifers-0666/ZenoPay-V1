@@ -4,12 +4,7 @@
     (typeof admin !== 'undefined' && admin) ||
     (typeof locals !== 'undefined' && locals && (locals.user || locals.admin)) ||
     null;
-  const adminName =
-    (adminUser && (adminUser.FullName || adminUser.name || adminUser.Name || adminUser.Email)) ||
-    'Admin User';
-  const adminRole =
-    (adminUser && (adminUser.Role || adminUser.role || 'admin')) ||
-    'admin';
+  const adminName = (adminUser && adminUser.name) ? adminUser.name : 'Admin User';
   const initials = adminName.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 %>
 
@@ -33,7 +28,7 @@
       <div class="header-user-avatar"><%= initials %></div>
       <div>
         <div class="header-user-name"><%= adminName %></div>
-        <div class="header-user-role"><%= String(adminRole).toUpperCase() %></div>
+        <div class="header-user-role">Super Admin</div>
       </div>
       <i class="fas fa-chevron-down" style="font-size:11px;color:var(--text-soft);"></i>
     </div>

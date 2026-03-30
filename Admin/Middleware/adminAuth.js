@@ -4,13 +4,13 @@ const ZenoPayUser = require("../../Models/ZenoPayUser");
 // Check if user is logged in and is an admin
 const isAdmin = async (req, res, next) => {
   try {
-    // Check if admin is logged in via dedicated admin session key
-    if (!req.session || !req.session.admin) {
+    // Check if user is logged in
+    if (!req.session.isLoggedIn || !req.session.user) {
       return res.redirect("/admin/login");
     }
 
-    // Check if session role is admin
-    if (req.session.admin.Role !== "admin") {
+    // Check if user has admin role
+    if (req.session.user.Role !== "admin") {
       return res.status(403).render("error", {
         message: "Access Denied. Admin privileges required.",
         statusCode: 403,
@@ -19,21 +19,13 @@ const isAdmin = async (req, res, next) => {
 
     // Verify admin still exists in database
     const adminUser = await ZenoPayUser.findOne({
-      ZenoPayID: req.session.admin.ZenoPayID,
+      ZenoPayID: req.session.user.ZenoPayID,
       Role: "admin",
     });
 
     if (!adminUser) {
-      delete req.session.admin;
-      delete req.session.adminId;
+      req.session.destroy();
       return res.redirect("/admin/login");
-    }
-
-    // Attach admin in both names for compatibility
-    req.admin = req.session.admin;
-    req.user = req.session.admin;
-    if (!req.session.user) {
-      req.session.user = req.session.admin;
     }
 
     // Admin authenticated, proceed
@@ -46,7 +38,7 @@ const isAdmin = async (req, res, next) => {
 
 // Check if admin is already logged in (for login page)
 const isAdminLoggedIn = (req, res, next) => {
-  if (req.session && req.session.admin) {
+  if (req.session.isLoggedIn && req.session.user?.Role === "admin") {
     return res.redirect("/admin/dashboard");
   }
   next();

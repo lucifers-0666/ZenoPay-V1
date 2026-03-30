@@ -1,8 +1,6 @@
 const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 const ZenoPayUser = require("../Models/ZenoPayUser");
-const Wallet = require("../Models/Wallet");
-const Transaction = require("../Models/Transaction");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -24,89 +22,24 @@ const getSessionZenoPayId = (req) =>
   req.session?.user?.zenoPayId ||
   null;
 
-const buildWalletId = (userId) => `WL-${String(userId)}`;
-
 const getDashboard = async (req, res) => {
   try {
-    const isDashboardPath = req.path === "/dashboard";
-    const sessionUser = req.session?.user || null;
-    const sessionRole = sessionUser?.Role || sessionUser?.role;
-    const rawCookieHeader = String(req.headers?.cookie || "");
-    const hasAdminCookie = /(?:^|;\s*)zenopay\.admin\.sid=/.test(rawCookieHeader);
-
-    // Guard against stale role values leaking into the user-scoped session.
-    // Only redirect to /admin/dashboard when an actual admin cookie is present.
-    if (req.session?.isLoggedIn && sessionRole === "admin" && hasAdminCookie) {
-      return res.redirect("/admin/dashboard");
-    }
-
-    const isLoggedIn = !!sessionUser;
-    if (isLoggedIn && !req.session?.isLoggedIn) {
-      req.session.isLoggedIn = true;
-    }
-    if (isDashboardPath && !isLoggedIn) {
-      return res.redirect("/login");
-    }
-
     const zenoPayId = getSessionZenoPayId(req);
 
     // FIX: Read user & isLoggedIn from session directly (res.locals already set
     // by app.js middleware, but we pass explicitly to avoid any layout override).
+    const sessionUser = req.session?.user || null;
+    const isLoggedIn = !!(sessionUser && req.session?.isLoggedIn);
+
     let accounts = [];
     let transactions = [];
-    let recentTransactions = [];
     let walletBalance = 0;
     let monthTransactionCount = 0;
     let monthSuccessRate = 98.4;
 
     if (zenoPayId) {
       accounts = await BankAccount.find({ ZenoPayId: zenoPayId }).lean();
-
-      const walletOwner = await ZenoPayUser.findOne({
-        $or: [{ ZenoPayID: zenoPayId }, { userId: zenoPayId }],
-      })
-        .select("_id")
-        .lean();
-
-      if (walletOwner?._id) {
-        const wallet = await Wallet.findOneAndUpdate(
-          { userId: walletOwner._id },
-          {
-            $setOnInsert: {
-              walletId: buildWalletId(walletOwner._id),
-              userId: walletOwner._id,
-              balance: 0,
-              currency: "INR",
-              isActive: true,
-            },
-          },
-          { new: true, upsert: true, setDefaultsOnInsert: true }
-        ).lean();
-
-        walletBalance = Number(wallet?.balance || 0);
-
-        const walletTx = await Transaction.find({ userId: walletOwner._id })
-          .sort({ createdAt: -1 })
-          .limit(3)
-          .lean();
-
-        recentTransactions = walletTx.map((tx) => ({
-          description: tx.description,
-          amount: Number(tx.amount || 0),
-          createdAt: new Date(tx.createdAt).toLocaleString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          type: ["receive", "topup", "refund"].includes(tx.type) ? "credit" : "debit",
-          status: tx.status === "completed" ? "success" : tx.status,
-        }));
-      }
-
-      if (!walletBalance) {
-        walletBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
-      }
+      walletBalance = accounts.reduce((sum, acc) => sum + toNumber(acc.Balance), 0);
 
       const accountNumbers = accounts.map((a) => a.AccountNumber);
       if (accountNumbers.length) {
@@ -172,7 +105,6 @@ const getDashboard = async (req, res) => {
       isLoggedIn: isLoggedIn,
       accounts,
       transactions,
-      recentTransactions,
       walletBalance,
       monthTransactionCount,
       monthSuccessRate,
