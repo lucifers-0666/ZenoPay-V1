@@ -4,6 +4,16 @@ const isAuthenticated = (req, res, next) => {
     req.user = req.session.user;
     return next();
   }
+
+  // For AJAX/JSON requests, return 401 JSON
+  if (req.xhr || (req.headers.accept && req.headers.accept.includes("application/json"))) {
+    return res.status(401).json({
+      success: false,
+      message: "Not authenticated",
+      redirect: "/login",
+    });
+  }
+
   return res.redirect("/login");
 };
 

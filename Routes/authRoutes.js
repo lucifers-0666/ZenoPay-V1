@@ -18,9 +18,9 @@ router.post("/login", redirectIfAuthenticated, LoginController.postLogin);
 router.get("/logout", LoginController.logout);
 
 // Password Reset
-router.get("/forgot-password", LoginController.getForgotPassword);
-router.post("/forgot-password", LoginController.postForgotPassword);
-router.post("/forgot-password/resend", LoginController.postResendResetLink);
+router.get("/forgot-password", redirectIfAuthenticated, LoginController.getForgotPassword);
+router.post("/forgot-password", redirectIfAuthenticated, LoginController.postForgotPassword);
+router.post("/forgot-password/resend", redirectIfAuthenticated, LoginController.postResendResetLink);
 
 // Fallback when no token is provided so users see the error state instead of a 404
 router.get("/reset-password", (req, res) => {
