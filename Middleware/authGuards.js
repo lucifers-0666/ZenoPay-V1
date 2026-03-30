@@ -1,5 +1,18 @@
+const hasAuthenticatedUser = (req) => {
+  if (!req.session?.user) {
+    return false;
+  }
+
+  // Self-heal legacy sessions where user exists but isLoggedIn flag wasn't set.
+  if (!req.session.isLoggedIn) {
+    req.session.isLoggedIn = true;
+  }
+
+  return true;
+};
+
 const isAuthenticated = (req, res, next) => {
-  if (req.session?.user && req.session?.isLoggedIn) {
+  if (hasAuthenticatedUser(req)) {
     return next();
   }
 
@@ -7,7 +20,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const isAuthenticatedApi = (req, res, next) => {
-  if (req.session?.user && req.session?.isLoggedIn) {
+  if (hasAuthenticatedUser(req)) {
     return next();
   }
 
@@ -16,7 +29,7 @@ const isAuthenticatedApi = (req, res, next) => {
 
 // Prevent logged-in users from visiting guest-only auth pages
 const redirectIfAuthenticated = (req, res, next) => {
-  if (req.session?.user && req.session?.isLoggedIn) {
+  if (hasAuthenticatedUser(req)) {
     return res.redirect("/dashboard");
   }
   return next();

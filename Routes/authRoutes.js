@@ -4,11 +4,11 @@ const router = express.Router();
 const DashboardController = require("../Controllers/DashboardController");
 const LoginController = require("../Controllers/AuthController");
 const EmailVerificationController = require("../Controllers/EmailVerificationController");
-const { redirectIfAuthenticated } = require("../Middleware/authGuards");
+const { isAuthenticated, redirectIfAuthenticated } = require("../Middleware/authGuards");
 
 // Auth & Dashboard
-router.get("/", DashboardController.getDashboard);
-router.get("/dashboard", DashboardController.getDashboard);
+router.get("/", isAuthenticated, DashboardController.getDashboard);
+router.get("/dashboard", isAuthenticated, DashboardController.getDashboard);
 router.get("/register", redirectIfAuthenticated, LoginController.getRegister);
 router.post("/register", redirectIfAuthenticated, LoginController.postRegister);
 router.get("/signup", redirectIfAuthenticated, LoginController.getRegister);

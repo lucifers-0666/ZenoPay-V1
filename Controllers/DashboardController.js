@@ -27,7 +27,6 @@ const getSessionZenoPayId = (req) =>
 const buildWalletId = (userId) => `WL-${String(userId)}`;
 
 const getDashboard = async (req, res) => {
-  console.log("=== DASHBOARD HIT === Session:", JSON.stringify(req.session));
   try {
     const isDashboardPath = req.path === "/dashboard";
     const sessionUser = req.session?.user || null;
@@ -41,7 +40,10 @@ const getDashboard = async (req, res) => {
       return res.redirect("/admin/dashboard");
     }
 
-    const isLoggedIn = !!(sessionUser && req.session?.isLoggedIn);
+    const isLoggedIn = !!sessionUser;
+    if (isLoggedIn && !req.session?.isLoggedIn) {
+      req.session.isLoggedIn = true;
+    }
     if (isDashboardPath && !isLoggedIn) {
       return res.redirect("/login");
     }
