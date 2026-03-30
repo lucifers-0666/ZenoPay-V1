@@ -39,6 +39,11 @@ const getBrowserLabel = (userAgent = "") => {
   return "Unknown Browser";
 };
 
+const wantsJsonResponse = (req) => {
+  const accept = String(req.headers?.accept || "");
+  return !!(req.xhr || req.is("application/json") || accept.includes("application/json"));
+};
+
 const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
   if (!user || !user.Password || !plainPassword) return false;
 
@@ -266,30 +271,41 @@ const getLogin = (req, res) => {
 
 const postLogin = async (req, res) => {
   const { userId, password } = req.body;
+  const expectsJson = wantsJsonResponse(req);
+
+  const fail = (statusCode, message) => {
+    if (expectsJson) {
+      return res.status(statusCode).json({ success: false, message });
+    }
+    return res.status(statusCode).render("login", {
+      CurrentPage: "Login",
+      isLoggedIn: false,
+      user: null,
+      messages: { error: message },
+    });
+  };
+
   try {
     if (mongoose.connection.readyState !== 1) {
-      return res.status(503).json({
-        success: false,
-        message: "Database unavailable. Please check MongoDB connection and try again.",
-      });
+      return fail(503, "Database unavailable. Please check MongoDB connection and try again.");
     }
 
-    const cleanUserId = userId.trim();
+    const cleanUserId = String(userId || "").trim();
+    const cleanPassword = String(password || "");
+
+    if (!cleanUserId || !cleanPassword) {
+      return fail(400, "Email/ZenoPay ID and password are required.");
+    }
+
     const user = await ZenoPayDetails.findOne({
       $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
     });
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found. Please check your credentials.",
-      });
+      return fail(401, "Invalid email/ZenoPay ID or password.");
     }
-    const isPasswordValid = await verifyPasswordAndUpgradeIfNeeded(user, password);
+    const isPasswordValid = await verifyPasswordAndUpgradeIfNeeded(user, cleanPassword);
     if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid password. Please try again.",
-      });
+      return fail(401, "Invalid email/ZenoPay ID or password.");
     }
 
     // Store ALL name/email variants so header.ejs can always find them
@@ -314,10 +330,7 @@ const postLogin = async (req, res) => {
     req.session.save((saveErr) => {
       if (saveErr) {
         console.error("Session save error:", saveErr);
-        return res.status(500).json({
-          success: false,
-          message: "Session save error. Please try again.",
-        });
+        return fail(500, "Session save error. Please try again.");
       }
 
       LoginHistory.create({
@@ -333,19 +346,21 @@ const postLogin = async (req, res) => {
         console.error("[Auth] Login history save failed:", historyErr.message);
       });
 
-      // include redirect URL so frontend can navigate after cookie is set
-      return res.status(200).json({
-        success: true,
-        message: "Login successful!",
-        redirect: "/dashboard",
-      });
+      if (expectsJson) {
+        // JSON response for fetch/AJAX logins
+        return res.status(200).json({
+          success: true,
+          message: "Login successful!",
+          redirect: "/dashboard",
+        });
+      }
+
+      // Server-side redirect fallback for regular form submits
+      return res.redirect("/dashboard");
     });
   } catch (err) {
     console.error("Login error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error. Please try again.",
-    });
+    return fail(500, "Internal Server Error. Please try again.");
   }
 };
 
