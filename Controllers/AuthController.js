@@ -329,9 +329,11 @@ const postLogin = async (req, res) => {
 
     req.session.save((saveErr) => {
       if (saveErr) {
-        console.error("Session save error:", saveErr);
-        return fail(500, "Session save error. Please try again.");
+        console.error("SESSION SAVE ERROR:", saveErr);
+        return fail(500, "Session error");
       }
+      
+      console.log("SESSION SAVED:", req.session.user); // debug line
 
       LoginHistory.create({
         ZenoPayId: user.ZenoPayID,
@@ -347,15 +349,9 @@ const postLogin = async (req, res) => {
       });
 
       if (expectsJson) {
-        // JSON response for fetch/AJAX logins
-        return res.status(200).json({
-          success: true,
-          message: "Login successful!",
-          redirect: "/dashboard",
-        });
+        return res.json({ success: true, redirect: '/dashboard' });
       }
 
-      // Server-side redirect fallback for regular form submits
       return res.redirect("/dashboard");
     });
   } catch (err) {

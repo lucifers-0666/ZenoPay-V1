@@ -48,6 +48,9 @@ let hasLoggedSessionFallback = false;
 // Only use MongoDB store if connection string is valid
 if (DB_PATH && DB_PATH !== 'your_mongodb_connection_string') {
   try {
+    mongoose.connection.once('open', () => {
+      console.log("✅ MongoDB connected via Mongoose");
+    });
     store = new MongoDBStore({
       uri: DB_PATH,
       collection: "sessions",
