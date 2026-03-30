@@ -7,6 +7,7 @@ const QRCode = require("qrcode");
 
 // Store reset tokens in database (using MongoDB) - in production, use sessions
 const resetTokens = new Map();
+const twoFactorSecrets = new Map();
 
 // GET Admin Login Page
 const getLogin = (req, res) => {

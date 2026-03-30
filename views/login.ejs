@@ -293,9 +293,16 @@
             body: JSON.stringify(payload),
           });
 
-          const data = await response.json();
+          if (response.redirected && response.url) {
+            window.location.replace(response.url);
+            return;
+          }
 
-          if (response.ok && data.success) {
+          const responseType = String(response.headers.get("content-type") || "").toLowerCase();
+          const isJsonResponse = responseType.includes("application/json");
+          const data = isJsonResponse ? await response.json() : null;
+
+          if (response.ok && data?.success) {
             if (typeof ZenoPayLoader !== "undefined") {
               ZenoPayLoader.show("Login successful! Redirecting...");
             }
@@ -305,7 +312,13 @@
             return;
           }
 
-          showInlineError(data.message || "Invalid login credentials.");
+          // Handle successful non-JSON fallback responses from server-side login flows.
+          if (response.ok && !isJsonResponse) {
+            window.location.replace("/dashboard");
+            return;
+          }
+
+          showInlineError(data?.message || "Invalid login credentials.");
         } catch (error) {
           console.error("Login Error:", error);
           showInlineError("Server connection failed. Please try again.");

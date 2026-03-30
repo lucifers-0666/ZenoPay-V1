@@ -109,6 +109,46 @@ const sessionConfig = {
   rolling: true,
   proxy: true,
   cookie: {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
+  },
+};
+
+const buildSessionOptions = (baseConfig, customStore) => {
+  // CRITICAL: Create a completely fresh config object. Express-session mutates the passed object,
+  // so we must create independent instances without any shared references.
+  return {
+    name: baseConfig.name,
+    secret: baseConfig.secret,
+    resave: baseConfig.resave,
+    saveUninitialized: baseConfig.saveUninitialized,
+    rolling: baseConfig.rolling,
+    proxy: baseConfig.proxy,
+    cookie: {
+      path: baseConfig.cookie.path,
+      httpOnly: baseConfig.cookie.httpOnly,
+      secure: baseConfig.cookie.secure,
+      sameSite: baseConfig.cookie.sameSite,
+      maxAge: baseConfig.cookie.maxAge,
+    },
+    store: customStore,
+  };
+};
+
+// Create BOTH config objects BEFORE instantiating any middleware,
+// so express-session has no opportunity to mutate shared references.
+const adminSessionConfig = {
+  name: "zenopay.admin.sid",
+  secret: process.env.SESSION_SECRET || "zenopay_default_secret_change_in_production",
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,
+  proxy: true,
+  cookie: {
+    path: "/admin",
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
@@ -117,22 +157,15 @@ const sessionConfig = {
 };
 
 const memoryStore = new session.MemoryStore();
-const mongoSessionMiddleware = store ? session({ ...sessionConfig, store: store }) : null;
-const memorySessionMiddleware = session({ ...sessionConfig, store: memoryStore });
-
-const adminSessionConfig = {
-  ...sessionConfig,
-  name: "zenopay.admin.sid",
-  cookie: {
-    ...sessionConfig.cookie,
-    path: "/admin",
-  },
-};
+const mongoSessionMiddleware = store
+  ? session(buildSessionOptions(sessionConfig, store))
+  : null;
+const memorySessionMiddleware = session(buildSessionOptions(sessionConfig, memoryStore));
 
 const adminMongoSessionMiddleware = store
-  ? session({ ...adminSessionConfig, store: store })
+  ? session(buildSessionOptions(adminSessionConfig, store))
   : null;
-const adminMemorySessionMiddleware = session({ ...adminSessionConfig, store: memoryStore });
+const adminMemorySessionMiddleware = session(buildSessionOptions(adminSessionConfig, memoryStore));
 
 // Path-aware session dispatcher:
 // - /admin* routes use a dedicated admin cookie/session
@@ -154,8 +187,23 @@ app.use((req, res, next) => {
         hasLoggedSessionFallback = true;
       }
       usingMemoryStore = true;
-      return fallbackMiddleware(req, res, next);
+      const callsNext = fallbackMiddleware(req, res, (err2) => {
+        // CRITICAL FIX: Force correct cookie path AFTER express-session creates the session
+        // Express-session may set the cookie path incorrectly, so we manually override it here
+        if (req.session && req.session.cookie) {
+          req.session.cookie.path = isAdminPath ? "/admin" : "/";
+        }
+        return next(err2);
+      });
+      return callsNext;
     }
+    
+    // CRITICAL FIX: Force correct cookie path AFTER express-session creates the session
+    // Express-session may set the cookie path incorrectly, so we manually override it here
+    if (req.session && req.session.cookie) {
+      req.session.cookie.path = isAdminPath ? "/admin" : "/";
+    }
+    
     return next();
   });
 });

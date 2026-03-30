@@ -41,7 +41,42 @@ const getBrowserLabel = (userAgent = "") => {
 
 const wantsJsonResponse = (req) => {
   const accept = String(req.headers?.accept || "");
-  return !!(req.xhr || req.is("application/json") || accept.includes("application/json"));
+  const contentType = String(req.headers?.["content-type"] || "");
+  return !!(
+    req.xhr ||
+    req.is("application/json") ||
+    contentType.includes("application/json") ||
+    accept.includes("application/json")
+  );
+};
+
+const resolveSafePostLoginRedirect = (req) => {
+  const candidate = String(req.session?.returnTo || "").trim();
+
+  // Always clear returnTo once consumed to avoid stale redirect loops.
+  if (req.session && Object.prototype.hasOwnProperty.call(req.session, "returnTo")) {
+    delete req.session.returnTo;
+  }
+
+  if (!candidate || !candidate.startsWith("/")) {
+    return "/dashboard";
+  }
+
+  const disallowed = [
+    "/login",
+    "/register",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/admin",
+    "/admin/login",
+  ];
+
+  const isDisallowed = disallowed.some(
+    (prefix) => candidate === prefix || candidate.startsWith(`${prefix}/`)
+  );
+
+  return isDisallowed ? "/dashboard" : candidate;
 };
 
 const verifyPasswordAndUpgradeIfNeeded = async (user, plainPassword) => {
@@ -348,6 +383,8 @@ const postLogin = async (req, res) => {
         return fail(500, "Session error");
       }
 
+      const redirectTarget = resolveSafePostLoginRedirect(req);
+
       LoginHistory.create({
         ZenoPayId: user.ZenoPayID,
         status: "success",
@@ -362,10 +399,10 @@ const postLogin = async (req, res) => {
       });
 
       if (expectsJson) {
-        return res.json({ success: true, redirect: "/dashboard" });
+        return res.json({ success: true, redirect: redirectTarget });
       }
 
-      return res.redirect("/dashboard");
+      return res.redirect(redirectTarget);
     });
   } catch (err) {
     console.error("Login error:", err);
