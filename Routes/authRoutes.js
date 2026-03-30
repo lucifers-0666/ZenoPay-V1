@@ -7,7 +7,7 @@ const EmailVerificationController = require("../Controllers/EmailVerificationCon
 const { isAuthenticated, redirectIfAuthenticated } = require("../Middleware/authGuards");
 
 // Auth & Dashboard
-router.get("/", isAuthenticated, DashboardController.getDashboard);
+router.get("/", DashboardController.getDashboard);
 router.get("/dashboard", isAuthenticated, DashboardController.getDashboard);
 
 // GET routes use redirectIfAuthenticated to prevent logged-in users seeing auth pages.
