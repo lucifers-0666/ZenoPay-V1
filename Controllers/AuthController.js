@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 const emailService = require("../Services/EmailService");
+const { sendOTP, sendWelcomeEmail } = require("../utils/emailService");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
 const OTP_TTL_MS = Number.parseInt(process.env.EMAIL_OTP_EXPIRY_MS || `${10 * 60 * 1000}`, 10);
@@ -130,16 +131,10 @@ const resolveVerificationIdentity = (req, explicitEmail = "") => {
 };
 
 const sendEmailOtp = async (user, otpCode) => {
-  const emailPayload = buildEmailOtpTemplate({
-    fullName: user.FullName || user.name,
+  return sendOTP({
+    name: user.FullName || user.name,
+    email: user.Email || user.email,
     otpCode,
-  });
-
-  return emailService.sendEmail({
-    to: user.Email || user.email,
-    subject: emailPayload.subject,
-    html: emailPayload.html,
-    text: emailPayload.text,
   });
 };
 
@@ -337,6 +332,11 @@ const postRegister = async (req, res) => {
     if (!emailResult?.sent) {
       console.warn("[Auth] OTP email not sent during registration for:", normalizedEmail);
     }
+
+    // Fire welcome email in background (non-blocking). Registration must succeed regardless.
+    sendWelcomeEmail(newUser).catch((err) => {
+      console.log("Welcome email failed:", err?.message || err);
+    });
 
     req.session.pendingVerificationEmail = normalizedEmail;
 
