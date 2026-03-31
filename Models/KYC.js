@@ -129,10 +129,10 @@ KYCSchema.pre("save", function (next) {
   next();
 });
 
-// Pre-find hook to exclude encrypted fields by default
-KYCSchema.pre(/^find/, function (next) {
-  // Don't automatically exclude - let controller decide based on context
-  next();
+// Pre-find hook placeholder (kept for future query-level constraints).
+// IMPORTANT: Use promise-style middleware in Mongoose v8+ (no callback `next`).
+KYCSchema.pre(/^find/, function () {
+  // Intentionally no-op.
 });
 
 // Method to securely get PAN (use only when needed)
