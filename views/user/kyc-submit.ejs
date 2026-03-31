@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %> - ZenoPay</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .form-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 40px;
+    }
+    .form-header {
+      margin-bottom: 30px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 20px;
+    }
+    .form-header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      color: #666;
+      font-size: 14px;
+    }
+    .info-box {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #1e40af;
+    }
+    .form-group {
+      margin-bottom: 25px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #111;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .input-hint {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+    .file-upload {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+    .file-upload:hover {
+      border-color: #3b82f6;
+      background: #f0f9ff;
+    }
+    .file-upload input[type="file"] {
+      display: none;
+    }
+    .file-upload-label {
+      cursor: pointer;
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .file-name {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #666;
+    }
+    .file-selected {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .form-section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .form-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #111;
+    }
+    .form-section:last-child {
+      border-bottom: none;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+      flex: 1;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    .error-message {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+    .success-message {
+      background: #d1fae5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .success-message.show {
+      display: block;
+    }
+    .loading {
+      display: none;
+      color: #3b82f6;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .loading.show {
+      display: inline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-card">
+      <div class="form-header">
+        <h1>Submit KYC Documents</h1>
+        <p>Complete your verification to unlock full access to ZenoPay</p>
+      </div>
+
+      <div class="info-box">
+        ℹ️ We collect your PAN and Aadhaar information to comply with Indian financial regulations and prevent fraud.
+        Your data is encrypted and never shared with third parties.
+      </div>
+
+      <div id="successMessage" class="success-message">
+        ✓ Documents submitted successfully! Your submission is now under review.
+      </div>
+
+      <form id="kycForm" enctype="multipart/form-data">
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3>📋 Personal Information</h3>
+          
+          <div class="form-group">
+            <label for="panNumber">PAN Number *</label>
+            <input 
+              type="text" 
+              id="panNumber" 
+              name="panNumber" 
+              placeholder="<%= panPlaceholder %>" 
+              maxlength="10"
+              pattern="[A-Z]{5}[0-9]{4}[A-Z]" 
+              required
+            >
+            <p class="input-hint">Format: 5 letters, 4 digits, 1 letter (e.g., AAABB1234C)</p>
+            <div class="error-message" id="panError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="aadhaarNumber">Aadhaar Number *</label>
+            <input 
+              type="text" 
+              id="aadhaarNumber" 
+              name="aadhaarNumber" 
+              placeholder="<%= aadhaarPlaceholder %>" 
+              maxlength="12"
+              pattern="[0-9]{12}"
+              inputmode="numeric"
+              required
+            >
+            <p class="input-hint">12-digit Aadhaar number (without hyphens)</p>
+            <div class="error-message" id="aadhaarError"></div>
+          </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div class="form-section">
+          <h3>📄 Upload Documents</h3>
+          <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+            Files must be JPG or PNG format, maximum 2MB each.
+          </p>
+
+          <div class="form-group">
+            <label for="panCardImage">PAN Card Image *</label>
+            <div class="file-upload" onclick="document.getElementById('panCardImage').click()">
+              <label class="file-upload-label">
+                Click to upload PAN card image
+              </label>
+              <input type="file" id="panCardImage" name="panCardImage" accept="image/jpeg,image/png" required>
+              <div class="file-name" id="panFileName">No file selected</div>
+            </div>
+            <div class="error-message" id="panFileError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="aadhaarFrontImage">Aadhaar Front Image *</label>
+            <div class="file-upload" onclick="document.getElementById('aadhaarFrontImage').click()">
+              <label class="file-upload-label">
+                Click to upload Aadhaar front side
+              </label>
+              <input type="file" id="aadhaarFrontImage" name="aadhaarFrontImage" accept="image/jpeg,image/png" required>
+              <div class="file-name" id="aadhaarFrontFileName">No file selected</div>
+            </div>
+            <div class="error-message" id="aadhaarFrontFileError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="aadhaarBackImage">Aadhaar Back Image *</label>
+            <div class="file-upload" onclick="document.getElementById('aadhaarBackImage').click()">
+              <label class="file-upload-label">
+                Click to upload Aadhaar back side
+              </label>
+              <input type="file" id="aadhaarBackImage" name="aadhaarBackImage" accept="image/jpeg,image/png" required>
+              <div class="file-name" id="aadhaarBackFileName">No file selected</div>
+            </div>
+            <div class="error-message" id="aadhaarBackFileError"></div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            Submit for Verification
+          </button>
+          <a href="/kyc" class="btn btn-secondary">Cancel</a>
+        </div>
+        <div class="loading" id="loading">⏳ Uploading documents...</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // File input handlers
+    ['panCardImage', 'aadhaarFrontImage', 'aadhaarBackImage'].forEach(fieldId => {
+      const input = document.getElementById(fieldId);
+      const fileNameDisplay = document.getElementById(fieldId + 'FileName');
+      
+      input.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          fileNameDisplay.textContent = '✓ ' + this.files[0].name;
+          fileNameDisplay.classList.add('file-selected');
+        }
+      });
+    });
+
+    // PAN format
+    document.getElementById('panNumber').addEventListener('input', function() {
+      this.value = this.value.toUpperCase();
+    });
+
+    // Form submission
+    document.getElementById('kycForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate inputs
+      const panNumber = document.getElementById('panNumber').value.trim();
+      const aadhaarNumber = document.getElementById('aadhaarNumber').value.trim();
+      const panCard = document.getElementById('panCardImage').files[0];
+      const aadhaarFront = document.getElementById('aadhaarFrontImage').files[0];
+      const aadhaarBack = document.getElementById('aadhaarBackImage').files[0];
+
+      // Clear errors
+      document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+      let hasError = false;
+
+      // Validate PAN
+      if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(panNumber)) {
+        document.getElementById('panError').textContent = 'Invalid PAN format (e.g., AAABB1234C)';
+        hasError = true;
+      }
+
+      // Validate Aadhaar
+      if (!/^[0-9]{12}$/.test(aadhaarNumber)) {
+        document.getElementById('aadhaarError').textContent = 'Aadhaar must be 12 digits';
+        hasError = true;
+      }
+
+      // Validate files
+      if (!panCard) {
+        document.getElementById('panFileError').textContent = 'Please upload PAN card image';
+        hasError = true;
+      } else if (panCard.size > 2 * 1024 * 1024) {
+        document.getElementById('panFileError').textContent = 'File size exceeds 2MB limit';
+        hasError = true;
+      }
+
+      if (!aadhaarFront) {
+        document.getElementById('aadhaarFrontFileError').textContent = 'Please upload Aadhaar front image';
+        hasError = true;
+      } else if (aadhaarFront.size > 2 * 1024 * 1024) {
+        document.getElementById('aadhaarFrontFileError').textContent = 'File size exceeds 2MB limit';
+        hasError = true;
+      }
+
+      if (!aadhaarBack) {
+        document.getElementById('aadhaarBackFileError').textContent = 'Please upload Aadhaar back image';
+        hasError = true;
+      } else if (aadhaarBack.size > 2 * 1024 * 1024) {
+        document.getElementById('aadhaarBackFileError').textContent = 'File size exceeds 2MB limit';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Show loading
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('submitBtn').disabled = true;
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append('panNumber', panNumber);
+      formData.append('aadhaarNumber', aadhaarNumber);
+      formData.append('panCardImage', panCard);
+      formData.append('aadhaarFrontImage', aadhaarFront);
+      formData.append('aadhaarBackImage', aadhaarBack);
+
+      try {
+        const response = await fetch('/kyc/submit', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('successMessage').classList.add('show');
+          setTimeout(() => {
+            window.location.href = '/kyc';
+          }, 2000);
+        } else {
+          alert('Error: ' + (data.message || 'Failed to submit KYC'));
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('submitBtn').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your KYC documents');
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('submitBtn').disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

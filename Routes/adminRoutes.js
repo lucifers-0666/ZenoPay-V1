@@ -7,10 +7,12 @@ const { isAdmin } = require("../Admin/Middleware/adminAuth");
 
 router.use(isAdmin);
 
-// Admin KYC Management
-router.post("/admin/kyc/approve", KYCController.approveKYC);
-router.post("/admin/kyc/reject", KYCController.rejectKYC);
-router.get("/admin/kyc/:zenoPayId/documents", KYCController.getKYCDocuments);
+// Admin KYC Management (PAN + Aadhaar Verification)
+router.get("/admin/kyc", KYCController.adminListKYC);
+router.get("/admin/kyc/:kycId", KYCController.adminViewKYC);
+router.post("/admin/kyc/:kycId/approve", KYCController.adminApproveKYC);
+router.post("/admin/kyc/:kycId/reject", KYCController.adminRejectKYC);
+router.get("/admin/kyc/:kycId/mark-review", KYCController.adminMarkUnderReview);
 
 // Admin Contact Management
 router.get("/api/admin/contact/submissions", ContactController.getAllSubmissions);

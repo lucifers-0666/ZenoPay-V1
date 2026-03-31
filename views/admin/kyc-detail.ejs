@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %> - ZenoPay Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .page-title {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #111;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .card.full {
+      grid-column: 1 / -1;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #111;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .info-label {
+      color: #666;
+      font-weight: 500;
+    }
+    .info-value {
+      color: #111;
+      font-weight: 600;
+      text-align: right;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-pending {
+      background: #fef3c7;
+      color: #78350f;
+    }
+    .status-under_review {
+      background: #dbeafe;
+      color: #0c4a6e;
+    }
+    .status-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-rejected {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+    .document-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .document-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f9fafb;
+    }
+    .document-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #e5e7eb;
+    }
+    .document-label {
+      padding: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      background: #f3f4f6;
+    }
+    .action-section {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-approve {
+      background: #22c55e;
+      color: white;
+      flex: 1;
+    }
+    .btn-approve:hover {
+      background: #16a34a;
+    }
+    .btn-reject {
+      background: #ef4444;
+      color: white;
+      flex: 1;
+    }
+    .btn-reject:hover {
+      background: #dc2626;
+    }
+    .btn-review {
+      background: #3b82f6;
+      color: white;
+      flex: 1;
+    }
+    .btn-review:hover {
+      background: #2563eb;
+    }
+    .rejection-form {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #fee2e2;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+    }
+    .rejection-form.show {
+      display: block;
+    }
+    .rejection-form textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+    }
+    .rejection-form textarea:focus {
+      outline: none;
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    .rejection-form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .rejection-form-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .rejection-form-buttons .confirm {
+      background: #ef4444;
+      color: white;
+    }
+    .rejection-form-buttons .confirm:hover {
+      background: #dc2626;
+    }
+    .rejection-form-buttons .cancel {
+      background: white;
+      color: #666;
+      border: 1px solid #d1d5db;
+    }
+    .rejection-form-buttons .cancel:hover {
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/kyc" class="back-link">← Back to KYC List</a>
+
+    <h1 class="page-title">KYC Review</h1>
+
+    <!-- User Information -->
+    <div class="card">
+      <div class="card-title">👤 User Information</div>
+      <div class="info-row">
+        <span class="info-label">Name</span>
+        <span class="info-value"><%= user.name || user.FullName %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value"><%= user.email || user.Email %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Phone</span>
+        <span class="info-value"><%= user.phone || user.Mobile %></span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Submission Details -->
+      <div class="card">
+        <div class="card-title">📋 Submission Details</div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="status-badge status-<%= kyc.status %>">
+            <% if(kyc.status === 'pending') { %>
+              ⏳ Pending
+            <% } else if(kyc.status === 'under_review') { %>
+              👁️ Under Review
+            <% } else if(kyc.status === 'approved') { %>
+              ✓ Approved
+            <% } else if(kyc.status === 'rejected') { %>
+              ✗ Rejected
+            <% } %>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Submitted</span>
+          <span class="info-value">
+            <% if(kyc.submittedAt) { %>
+              <%= new Date(kyc.submittedAt).toLocaleString() %>
+            <% } else { %>
+              —
+            <% } %>
+          </span>
+        </div>
+        <% if(kyc.reviewedAt) { %>
+          <div class="info-row">
+            <span class="info-label">Reviewed</span>
+            <span class="info-value"><%= new Date(kyc.reviewedAt).toLocaleString() %></span>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Document Details -->
+      <div class="card">
+        <div class="card-title">📄 Document Details</div>
+        <div class="info-row">
+          <span class="info-label">PAN (Encrypted)</span>
+          <span class="info-value">••••••••••</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Aadhaar Last 4</span>
+          <span class="info-value"><%= kyc.aadhaarLast4 || 'N/A' %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document Images -->
+    <div class="card full">
+      <div class="card-title">🖼️ Uploaded Documents</div>
+      <div class="document-gallery">
+        <% if(kyc.panCardImage) { %>
+          <div class="document-item">
+            <img src="<%= kyc.panCardImage %>" alt="PAN Card" class="document-image">
+            <div class="document-label">PAN Card</div>
+          </div>
+        <% } %>
+        <% if(kyc.aadhaarFrontImage) { %>
+          <div class="document-item">
+            <img src="<%= kyc.aadhaarFrontImage %>" alt="Aadhaar Front" class="document-image">
+            <div class="document-label">Aadhaar Front</div>
+          </div>
+        <% } %>
+        <% if(kyc.aadhaarBackImage) { %>
+          <div class="document-item">
+            <img src="<%= kyc.aadhaarBackImage %>" alt="Aadhaar Back" class="document-image">
+            <div class="document-label">Aadhaar Back</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <% if(kyc.status === 'pending' || kyc.status === 'under_review') { %>
+      <div class="card full">
+        <div class="card-title">⚡ Review Actions</div>
+        <div class="action-section">
+          <button class="btn btn-approve" onclick="approveKYC('<%= kyc._id %>')">
+            ✓ Approve KYC
+          </button>
+          <button class="btn btn-review" onclick="markUnderReview('<%= kyc._id %>')">
+            👁️ Mark Under Review
+          </button>
+          <button class="btn btn-reject" onclick="toggleRejectionForm()">
+            ✗ Reject KYC
+          </button>
+        </div>
+
+        <div id="rejectionForm" class="rejection-form">
+          <label style="display: block; margin-bottom: 10px; font-weight: 600;">
+            Rejection Reason
+          </label>
+          <textarea id="rejectionReason" placeholder="Explain why you're rejecting this KYC submission (e.g., documents unclear, information mismatch, invalid format)..."></textarea>
+          <div class="rejection-form-buttons">
+            <button class="confirm" onclick="rejectKYC('<%= kyc._id %>')">Confirm Rejection</button>
+            <button class="cancel" onclick="toggleRejectionForm()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="card full">
+        <div class="card-title">✓ KYC Already Processed</div>
+        <p style="color: #666; font-size: 14px;">
+          This KYC submission has already been processed with status "<strong><%= kyc.status %></strong>".
+          <% if(kyc.status === 'rejected' && kyc.rejectionReason) { %>
+            <br><br><strong>Rejection Reason:</strong><br><%= kyc.rejectionReason %>
+          <% } %>
+        </p>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    function toggleRejectionForm() {
+      const form = document.getElementById('rejectionForm');
+      form.classList.toggle('show');
+      if (form.classList.contains('show')) {
+        document.getElementById('rejectionReason').focus();
+      }
+    }
+
+    async function approveKYC(kycId) {
+      if (!confirm('Are you sure you want to approve this KYC submission?')) return;
+
+      try {
+        const response = await fetch(`/admin/kyc/${kycId}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('KYC approved successfully!');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to approve KYC'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred');
+      }
+    }
+
+    async function rejectKYC(kycId) {
+      const reason = document.getElementById('rejectionReason').value.trim();
+      
+      if (!reason) {
+        alert('Please provide a rejection reason');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to reject this KYC submission?')) return;
+
+      try {
+        const response = await fetch(`/admin/kyc/${kycId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rejectionReason: reason })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('KYC rejected. User will be notified to resubmit.');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to reject KYC'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred');
+      }
+    }
+
+    async function markUnderReview(kycId) {
+      try {
+        const response = await fetch(`/admin/kyc/${kycId}/mark-review`, {
+          method: 'GET'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('KYC marked as under review');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to update status'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred');
+      }
+    }
+  </script>
+</body>
+</html>

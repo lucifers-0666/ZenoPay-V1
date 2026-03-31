@@ -3,6 +3,7 @@ const TransactionHistory = require("../Models/TransactionHistory");
 const Notification = require("../Models/Notification");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
 const emailService = require("../Services/EmailService");
+const { getLimitsByTier } = require("../config/transactionLimits");
 
 const generateTransactionId = async () => {
   for (let i = 0; i < 5; i += 1) {
@@ -55,6 +56,8 @@ const getTransferMoney = async (req, res) => {
     }
 
     console.log('[getTransferMoney] About to render send-money template');
+    const { kycTier, limits } = await resolveCurrentTierLimits(req);
+
     return res.render("send-money", {
       pageTitle: "Send Money",
       currentPage: "send-money",
@@ -62,6 +65,8 @@ const getTransferMoney = async (req, res) => {
       qrCode: req.session.qrCode || null,
       user: user,
       isLoggedIn: true,
+      kycTier,
+      transactionLimits: limits,
     });
     console.log('[getTransferMoney] Template rendered successfully');
   } catch (err) {
@@ -137,7 +142,6 @@ const postTransferMoney = async (req, res) => {
   const transferAmount = parseFloat(amount);
   const transactionCharges = parseFloat(charges) || 0;
   const totalAmount = parseFloat(total);
-  const DAILY_LIMIT = 50000;
 
   try {
     const sessionZenoPayId = req.session?.user?.ZenoPayID || null;
@@ -147,6 +151,8 @@ const postTransferMoney = async (req, res) => {
         message: "Authentication required.",
       });
     }
+
+    const { limits } = await resolveCurrentTierLimits(req);
 
     // Get sender account by ID
     const sender = await BankAccount.findById(sourceAccountId);
@@ -180,12 +186,12 @@ const postTransferMoney = async (req, res) => {
       0
     );
 
-    if (todayTotal + totalAmount > DAILY_LIMIT) {
+    if (todayTotal + totalAmount > limits.dailyLimit) {
       return res.status(400).json({
         success: false,
         message: `Daily transaction limit exceeded. You have already transferred ₹${todayTotal.toFixed(
           2
-        )} today. Daily limit is ₹${DAILY_LIMIT}.`,
+        )} today. Daily limit is ₹${limits.dailyLimit}.`,
       });
     }
 
@@ -373,7 +379,7 @@ const getDailyTransactionSummary = async (req, res) => {
     if (!zenoPayId) {
       return res.status(401).json({ success: false, message: "Authentication required" });
     }
-    const DAILY_LIMIT = 50000;
+    const { limits } = await resolveCurrentTierLimits(req);
 
     const accounts = await BankAccount.find({ ZenoPayId: zenoPayId });
     const accountNumbers = accounts.map((acc) => acc.AccountNumber);
@@ -393,14 +399,14 @@ const getDailyTransactionSummary = async (req, res) => {
       (sum, tx) => sum + parseFloat(tx.Amount.toString()),
       0
     );
-    const remainingLimit = DAILY_LIMIT - totalAmount;
+    const remainingLimit = limits.dailyLimit - totalAmount;
 
     res.status(200).json({
       success: true,
       transactions: count,
       amount: totalAmount,
       remainingLimit: remainingLimit > 0 ? remainingLimit : 0,
-      dailyLimit: DAILY_LIMIT,
+      dailyLimit: limits.dailyLimit,
     });
   } catch (err) {
     console.error('Error fetching daily summary:', err);
@@ -416,4 +422,19 @@ module.exports = {
   verifyReceiver,
   postTransferMoney,
   getDailyTransactionSummary,
+};
+
+const resolveCurrentTierLimits = async (req) => {
+  const sessionUserId = req.session?.user?._id || null;
+  let kycTier = 0;
+
+  if (sessionUserId) {
+    const userDoc = await ZenoPayDetails.findById(sessionUserId).select("kycTier").lean();
+    kycTier = Number(userDoc?.kycTier || 0);
+  }
+
+  return {
+    kycTier,
+    limits: getLimitsByTier(kycTier),
+  };
 };

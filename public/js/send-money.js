@@ -4,7 +4,7 @@
    ==================================== */
 
 // Constants
-const DAILY_LIMIT = 50000;
+const DAILY_LIMIT = Number(window.__ZENOPAY_DAILY_LIMIT__ || 50000);
 const TRANSACTION_FEE_THRESHOLD = 10000;
 const TRANSACTION_FEE_RATE = 0.02; // 2%
 
@@ -251,11 +251,12 @@ async function handleFormSubmit(e) {
       document.getElementById('verifyReceiverBtn').style.display = 'block';
       updateTransactionSummary();
     } else {
-      showErrorModal(data.message || 'Transaction failed. Please try again.');
+      const isLimitError = Boolean(data?.errorType) || /limit exceeded/i.test(String(data?.message || ''));
+      showErrorModal(data.message || 'Transaction failed. Please try again.', { showLimitHelp: isLimitError });
     }
   } catch (error) {
     console.error('Error sending money:', error);
-    showErrorModal('Failed to process transaction. Please try again.');
+    showErrorModal('Failed to process transaction. Please try again.', { showLimitHelp: false });
   } finally {
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
@@ -378,12 +379,17 @@ function closeSuccessModal() {
   modal.style.display = 'none';
 }
 
-function showErrorModal(message) {
+function showErrorModal(message, options = {}) {
   const modal = document.getElementById('errorModal');
   const messageEl = document.getElementById('errorMessage');
+  const limitHelpEl = document.getElementById('limitHelp');
   
   if (messageEl) {
     messageEl.textContent = message;
+  }
+
+  if (limitHelpEl) {
+    limitHelpEl.style.display = options.showLimitHelp ? 'block' : 'none';
   }
   
   modal.style.display = 'flex';

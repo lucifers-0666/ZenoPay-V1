@@ -3,6 +3,9 @@ const TransactionHistory = require("../Models/TransactionHistory");
 const Wallet = require("../Models/Wallet");
 const WalletTransaction = require("../Models/Transaction");
 const ZenoPayUser = require("../Models/ZenoPayUser");
+const KYC = require("../Models/KYC");
+const mongoose = require("mongoose");
+const { getLimitsByTier } = require("../config/transactionLimits");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -230,6 +233,79 @@ const getDashboard = async (req, res) => {
       ? pinSuccessMessageRaw.slice(0, 120)
       : null;
 
+    // Fetch KYC status if user is logged in
+    let kycStatus = "not_submitted";
+    let kycTier = 0;
+    let kycRecord = null;
+    let transactionLimitWidget = {
+      dailyUsed: 0,
+      dailyLimit: getLimitsByTier(0).dailyLimit,
+      dailyRemaining: getLimitsByTier(0).dailyLimit,
+      usagePercent: 0,
+    };
+    
+    if (sessionUser && sessionUser._id) {
+      const user = await ZenoPayUser.findById(sessionUser._id);
+      kycStatus = user?.kycStatus || "not_submitted";
+      kycTier = user?.kycTier || 0;
+      kycRecord = await KYC.findOne({ userId: sessionUser._id }).sort({ createdAt: -1 });
+
+      const limits = getLimitsByTier(kycTier);
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+
+      const walletUserId = mongoose.Types.ObjectId.isValid(String(sessionUser._id))
+        ? new mongoose.Types.ObjectId(String(sessionUser._id))
+        : sessionUser._id;
+
+      const walletDailyAgg = await WalletTransaction.aggregate([
+        {
+          $match: {
+            userId: walletUserId,
+            createdAt: { $gte: startOfToday, $lte: endOfToday },
+            type: "send",
+            status: "completed",
+          },
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]);
+
+      const userAccounts = await BankAccount.find({ ZenoPayId: sessionUser.ZenoPayID })
+        .select("AccountNumber")
+        .lean();
+      const accountNumbers = (userAccounts || []).map((row) => row.AccountNumber).filter(Boolean);
+
+      let bankDaily = 0;
+      if (accountNumbers.length > 0) {
+        const bankDailyAgg = await TransactionHistory.aggregate([
+          {
+            $match: {
+              SenderAccountNumber: { $in: accountNumbers },
+              TransactionTime: { $gte: startOfToday, $lte: endOfToday },
+              Status: "success",
+            },
+          },
+          { $group: { _id: null, total: { $sum: "$Amount" } } },
+        ]);
+
+        bankDaily = toNumber(bankDailyAgg?.[0]?.total || 0);
+      }
+
+      const walletDaily = toNumber(walletDailyAgg?.[0]?.total || 0);
+      const dailyUsed = walletDaily + bankDaily;
+      const dailyRemaining = Math.max(0, limits.dailyLimit - dailyUsed);
+      const usagePercent = Math.min(100, Math.round((dailyUsed / Math.max(1, limits.dailyLimit)) * 100));
+
+      transactionLimitWidget = {
+        dailyUsed,
+        dailyLimit: limits.dailyLimit,
+        dailyRemaining,
+        usagePercent,
+      };
+    }
+
     return res.render("dashboard", {
       pageTitle: "Dashboard",
       currentPage: "dashboard",
@@ -245,6 +321,10 @@ const getDashboard = async (req, res) => {
       qrCode: req.session.qrCode || null,
       stats,
       pinSuccessMessage,
+      kycStatus,
+      kycTier,
+      kycRecord,
+      transactionLimitWidget,
     });
   } catch (err) {
     console.error("Error loading dashboard:", err);

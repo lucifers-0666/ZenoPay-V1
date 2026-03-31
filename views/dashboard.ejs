@@ -685,7 +685,25 @@
               </div>
               <div class="zd-acct-row">
                 <span class="zd-acct-key">KYC Status</span>
-                <span class="zd-chip zd-chip-green" style="font-size:11px;color:#059669;border-color:rgba(5,150,105,.3);background:#ECFDF5;">Verified</span>
+                <% if (kycStatus === 'approved') { %>
+                  <span class="zd-chip zd-chip-green" style="font-size:11px;color:#059669;border-color:rgba(5,150,105,.3);background:#ECFDF5;">Verified</span>
+                <% } else if (kycStatus === 'pending') { %>
+                  <span class="zd-chip" style="font-size:11px;color:#92400E;border-color:#FDE68A;background:#FEF3C7;">Pending</span>
+                <% } else if (kycStatus === 'rejected') { %>
+                  <span class="zd-chip" style="font-size:11px;color:#991B1B;border-color:#FECACA;background:#FEE2E2;">Rejected</span>
+                <% } else { %>
+                  <span class="zd-chip" style="font-size:11px;color:#1F2937;border-color:#CBD5E1;background:#F1F5F9;">Not Submitted</span>
+                <% } %>
+              </div>
+              <div class="zd-acct-row" style="align-items:flex-start;">
+                <span class="zd-acct-key">Daily Limit</span>
+                <div style="text-align:right;">
+                  <div class="zd-acct-val">₹<%= Number(transactionLimitWidget?.dailyRemaining || 0).toLocaleString('en-IN') %> left</div>
+                  <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+                    Used ₹<%= Number(transactionLimitWidget?.dailyUsed || 0).toLocaleString('en-IN') %> / ₹<%= Number(transactionLimitWidget?.dailyLimit || 0).toLocaleString('en-IN') %>
+                  </div>
+                  <a href="/user/limits" style="font-size:11px;color:var(--primary);text-decoration:none;font-weight:600;">View full limits</a>
+                </div>
               </div>
             </div>
 
@@ -768,16 +786,55 @@
         </div>
 
         <!-- ── KYC / VERIFICATION NUDGE ── -->
-        <div class="zd-section" style="padding-top:0">
-          <div class="zd-kyc-banner">
-            <div class="zd-kyc-icon"><i class="fas fa-id-card"></i></div>
-            <div class="zd-kyc-text">
-              <div class="zd-kyc-title">Complete KYC Verification</div>
-              <div class="zd-kyc-sub">Verify your identity to unlock higher transaction limits and all features.</div>
+        <% if(kycStatus !== 'approved') { %>
+          <div class="zd-section" style="padding-top:0">
+            <div class="zd-kyc-banner">
+              <div class="zd-kyc-icon"><i class="fas fa-id-card"></i></div>
+              <div class="zd-kyc-text">
+                <div class="zd-kyc-title">
+                  <% if(kycStatus === 'pending') { %>
+                    KYC Under Review
+                  <% } else if(kycStatus === 'rejected') { %>
+                    KYC Rejected
+                  <% } else { %>
+                    Complete KYC Verification
+                  <% } %>
+                </div>
+                <div class="zd-kyc-sub">
+                  <% if(kycStatus === 'pending') { %>
+                    Your documents are being reviewed. This usually takes 24-48 hours.
+                  <% } else if(kycStatus === 'rejected') { %>
+                    Please resubmit your documents with correct information.
+                  <% } else { %>
+                    Verify your identity to unlock higher transaction limits and all features.
+                  <% } %>
+                </div>
+              </div>
+              <% if(kycStatus === 'pending') { %>
+                <a href="/kyc" class="zd-kyc-btn"><i class="fas fa-check-circle"></i> View Status</a>
+              <% } else { %>
+                <a href="/kyc<%= kycStatus === 'rejected' ? '/submit' : '' %>" class="zd-kyc-btn">
+                  <i class="fas fa-arrow-right"></i> 
+                  <% if(kycStatus === 'rejected') { %>
+                    Resubmit
+                  <% } else { %>
+                    Verify Now
+                  <% } %>
+                </a>
+              <% } %>
             </div>
-            <a href="/kyc-verification" class="zd-kyc-btn"><i class="fas fa-arrow-right"></i> Verify Now</a>
           </div>
-        </div>
+        <% } else { %>
+          <div class="zd-section" style="padding-top:0">
+            <div class="zd-kyc-banner" style="background: #ECFDF5; border-left: 4px solid #10B981;">
+              <div class="zd-kyc-icon" style="background: #D1FAE5; color: #059669;"><i class="fas fa-check-circle"></i></div>
+              <div class="zd-kyc-text">
+                <div class="zd-kyc-title" style="color: #059669;">KYC Verified ✓</div>
+                <div class="zd-kyc-sub" style="color: #047857;">Your identity has been verified. Enjoy unlimited features.</div>
+              </div>
+            </div>
+          </div>
+        <% } %>
 
         <!-- ── SECURITY INDICATORS ── -->
         <div class="zd-section" style="padding-top:0">

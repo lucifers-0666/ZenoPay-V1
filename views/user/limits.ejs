@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Limits - ZenoPay</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6c63ff;
+      --success-color: #00b894;
+      --warning-color: #ff9800;
+      --danger-color: #ff6b6b;
+      --light-bg: #f8f9fa;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar-custom {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #5f58d1 100%);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tier-badge.tier0 {
+      background-color: #e0e0e0;
+      color: #666;
+    }
+
+    .tier-badge.tier1 {
+      background-color: #c3e7ff;
+      color: #0066cc;
+    }
+
+    .tier-badge.tier2 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .status-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .status-card.warning {
+      border-left-color: var(--warning-color);
+    }
+
+    .status-card.success {
+      border-left-color: var(--success-color);
+    }
+
+    .limits-table {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .limits-table table {
+      margin-bottom: 0;
+    }
+
+    .limits-table th {
+      background-color: var(--light-bg);
+      border-bottom: 2px solid #e0e0e0;
+      font-weight: 600;
+      color: #333;
+      padding: 16px;
+    }
+
+    .limits-table td {
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: middle;
+    }
+
+    .limits-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .limit-item {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .limit-amount {
+      color: var(--primary-color);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .usage-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .usage-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .usage-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .usage-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .usage-label-text {
+      color: #333;
+    }
+
+    .usage-label-amount {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .progress-bar-custom {
+      height: 8px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color) 0%, #5f58d1 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-bar-fill.warning {
+      background: linear-gradient(90deg, var(--warning-color) 0%, #ff6f00 100%);
+    }
+
+    .progress-bar-fill.danger {
+      background: linear-gradient(90deg, var(--danger-color) 0%, #e81e1e 100%);
+    }
+
+    .percentage-text {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .tier-upgrade-card {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #5f58d1 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+    }
+
+    .tier-upgrade-card h3 {
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .tier-upgrade-card p {
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .btn-upgrade {
+      background-color: white;
+      color: var(--primary-color);
+      font-weight: 600;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      color: var(--primary-color);
+    }
+
+    .info-card {
+      background: #f0f7ff;
+      border-left: 4px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .info-card i {
+      color: var(--primary-color);
+      margin-right: 8px;
+    }
+
+    .info-card-text {
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .content-wrapper {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 15px;
+      }
+
+      .status-card {
+        padding: 16px;
+      }
+
+      .limits-table th,
+      .limits-table td {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+
+      .limit-amount {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/">
+        <i class="fas fa-wallet"></i> ZenoPay
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile">Profile</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <!-- Header -->
+    <div style="margin-bottom: 30px;">
+      <h1 class="mb-2">
+        <i class="fas fa-limit"></i> Transaction Limits
+      </h1>
+      <p class="text-muted">Manage your transaction limits based on your KYC verification tier</p>
+    </div>
+
+    <!-- Current Tier Status -->
+    <div class="status-card">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--primary-color); margin-right: 16px;"></i>
+          <div>
+            <h5 class="mb-1">Current Verification Tier</h5>
+            <p class="text-muted mb-0">Your verification status determines your transaction limits</p>
+          </div>
+        </div>
+        <span class="tier-badge <%= 'tier' + user.kycTier %>">
+          <%= tierNames[user.kycTier] %>
+        </span>
+      </div>
+    </div>
+
+    <!-- Tier Upgrade Suggestion (if not tier 2) -->
+    <% if (user.kycTier < 2) { %>
+      <div class="tier-upgrade-card">
+        <i class="fas fa-arrow-up" style="font-size: 2rem; margin-bottom: 12px;"></i>
+        <h3>Increase Your Limits</h3>
+        <p>Upgrade your KYC verification to unlock higher transaction limits and more features</p>
+        <a href="/kyc/submit" class="btn btn-upgrade">Upgrade KYC Level</a>
+      </div>
+    <% } %>
+
+    <!-- Transaction Limits Table -->
+    <div class="limits-table">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fas fa-exchange-alt"></i> Limit Type</th>
+            <th class="text-center">Your Limit</th>
+            <th class="text-center">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="limit-item">Single Transaction</td>
+            <td class="text-center">
+              <span class="limit-amount">₹<%= limits.singleTxLimit.toLocaleString('en-IN') %></span>
+            </td>
+            <td>Maximum amount per single transaction</td>
+          </tr>
+          <tr>
+            <td class="limit-item">Daily Limit</td>
+            <td class="text-center">
+              <span class="limit-amount">₹<%= limits.dailyLimit.toLocaleString('en-IN') %></span>
+            </td>
+            <td>Maximum amount per calendar day</td>
+          </tr>
+          <tr>
+            <td class="limit-item">Weekly Limit</td>
+            <td class="text-center">
+              <span class="limit-amount">₹<%= limits.weeklyLimit.toLocaleString('en-IN') %></span>
+            </td>
+            <td>Maximum amount per 7 days</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Usage Statistics -->
+    <div class="usage-section">
+      <h5 class="mb-3">
+        <i class="fas fa-chart-bar"></i> Your Usage
+      </h5>
+
+      <!-- Daily Usage -->
+      <div class="usage-item">
+        <div class="usage-label">
+          <span class="usage-label-text">
+            <i class="fas fa-sun"></i> Today's Usage
+          </span>
+          <span class="usage-label-amount">
+            ₹<%= dailyUsed.toLocaleString('en-IN') %> / ₹<%= limits.dailyLimit.toLocaleString('en-IN') %>
+          </span>
+        </div>
+        <div class="progress-bar-custom">
+          <% const dailyPercent = Math.round((dailyUsed / limits.dailyLimit) * 100); %>
+          <% const dailyWidth = Math.min(dailyPercent, 100); %>
+          <% const dailyBarClass = dailyPercent >= 90 ? 'danger' : dailyPercent >= 70 ? 'warning' : ''; %>
+          <div class="progress-bar-fill <%= dailyBarClass %>" data-width="<%= dailyWidth %>"></div>
+        </div>
+        <div class="percentage-text">
+          <% const dailyRemaining = limits.dailyLimit - dailyUsed; %>
+          <% if (dailyRemaining > 0) { %>
+            ₹<%= dailyRemaining.toLocaleString('en-IN') %> remaining today
+          <% } else { %>
+            <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Daily limit reached</span>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Weekly Usage -->
+      <div class="usage-item">
+        <div class="usage-label">
+          <span class="usage-label-text">
+            <i class="fas fa-calendar-week"></i> This Week's Usage
+          </span>
+          <span class="usage-label-amount">
+            ₹<%= weeklyUsed.toLocaleString('en-IN') %> / ₹<%= limits.weeklyLimit.toLocaleString('en-IN') %>
+          </span>
+        </div>
+        <div class="progress-bar-custom">
+          <% const weeklyPercent = Math.round((weeklyUsed / limits.weeklyLimit) * 100); %>
+          <% const weeklyWidth = Math.min(weeklyPercent, 100); %>
+          <% const weeklyBarClass = weeklyPercent >= 90 ? 'danger' : weeklyPercent >= 70 ? 'warning' : ''; %>
+          <div class="progress-bar-fill <%= weeklyBarClass %>" data-width="<%= weeklyWidth %>"></div>
+        </div>
+        <div class="percentage-text">
+          <% const weeklyRemaining = limits.weeklyLimit - weeklyUsed; %>
+          <% if (weeklyRemaining > 0) { %>
+            ₹<%= weeklyRemaining.toLocaleString('en-IN') %> remaining this week
+          <% } else { %>
+            <span class="text-danger"><i class="fas fa-exclamation-circle"></i> Weekly limit reached</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information Cards -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="info-card">
+          <i class="fas fa-info-circle"></i>
+          <span class="info-card-text">
+            <strong>Daily limits reset</strong> at 12:00 AM (midnight) IST
+          </span>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="info-card">
+          <i class="fas fa-info-circle"></i>
+          <span class="info-card-text">
+            <strong>Weekly limits reset</strong> every 7 days from your first transaction
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier Comparison -->
+    <div class="usage-section">
+      <h5 class="mb-3">
+        <i class="fas fa-layer-group"></i> All Tier Limits
+      </h5>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead style="background-color: var(--light-bg);">
+            <tr>
+              <th><i class="fas fa-level-up-alt"></i> Tier</th>
+              <th>Single Transaction</th>
+              <th>Daily Limit</th>
+              <th>Weekly Limit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span class="tier-badge tier0">Unverified</span>
+              </td>
+              <td>₹2,000</td>
+              <td>₹5,000</td>
+              <td>₹10,000</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="tier-badge tier1">KYC Verified</span>
+              </td>
+              <td>₹25,000</td>
+              <td>₹50,000</td>
+              <td>₹2,00,000</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="tier-badge tier2">Full KYC Enhanced</span>
+              </td>
+              <td>₹1,00,000</td>
+              <td>₹2,00,000</td>
+              <td>₹10,00,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- KYC Info -->
+    <div class="info-card mt-4" style="background: #f0fff4; border-left-color: var(--success-color);">
+      <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+      <span class="info-card-text">
+        <strong>KYC Verification:</strong> Complete your KYC verification to unlock higher transaction limits and enjoy more features on ZenoPay.
+        <a href="/kyc" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Check your KYC status</a>
+      </span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; border-top: 1px solid #e0e0e0; margin-top: 40px;">
+    <p class="mb-0">&copy; 2024 ZenoPay. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Apply progress bar widths
+    document.querySelectorAll('.progress-bar-fill[data-width]').forEach(bar => {
+      const width = bar.getAttribute('data-width');
+      bar.style.width = width + '%';
+    });
+  </script>
+</body>
+</html>

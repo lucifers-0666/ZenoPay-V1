@@ -313,6 +313,18 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     default: "not_started",
   },
 
+  kycStatus: {
+    type: String,
+    enum: ["not_submitted", "pending", "approved", "rejected"],
+    default: "not_submitted",
+  },
+
+  kycTier: {
+    type: Number,
+    default: 0,
+    // 0: Not submitted, 1: Approved (PAN+Aadhaar verified), 2: Enhanced (future)
+  },
+
   KYCSubmittedAt: {
     type: Date,
     required: false,

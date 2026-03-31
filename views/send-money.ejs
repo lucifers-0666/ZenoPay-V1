@@ -89,7 +89,7 @@
               <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
-              <h3 class="stat-value">₹ 50,000</h3>
+              <h3 class="stat-value">₹ <%= Number(transactionLimits?.dailyLimit || 50000).toLocaleString('en-IN') %></h3>
               <p class="stat-label">Daily Limit</p>
               <div class="progress-bar">
                 <div class="progress-fill" id="limitProgress" style="width: 0%"></div>
@@ -102,7 +102,7 @@
               <i class="fas fa-wallet"></i>
             </div>
             <div class="stat-content">
-              <h3 class="stat-value" id="remainingLimit">₹ 50,000</h3>
+              <h3 class="stat-value" id="remainingLimit">₹ <%= Number(transactionLimits?.dailyLimit || 50000).toLocaleString('en-IN') %></h3>
               <p class="stat-label">Remaining Limit</p>
               <span class="stat-trend">
                 100% available
@@ -393,6 +393,9 @@
         </div>
         <h2 class="modal-title">Transaction Failed</h2>
         <p class="modal-message" id="errorMessage">Something went wrong. Please try again.</p>
+        <p class="modal-message" id="limitHelp" style="display:none;margin-top:-8px;">
+          <a href="/user/limits" style="color:#2563EB;font-weight:600;text-decoration:none;">View your transaction limits and upgrade KYC</a>
+        </p>
         
         <div class="modal-actions">
           <button class="btn-primary" onclick="closeErrorModal()">
@@ -412,6 +415,9 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+      window.__ZENOPAY_DAILY_LIMIT__ = <%= Number(transactionLimits?.dailyLimit || 50000) %>;
+    </script>
     <script src="/js/send-money.js"></script>
     <%- include('partials/footer') %>
   </body>

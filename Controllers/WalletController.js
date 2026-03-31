@@ -622,6 +622,162 @@ const getTransactions = async (req, res) => {
 
 // Legacy aliases to avoid breaking existing route handlers while migrating
 const getAddMoneyPage = getTopUp;
+// Get Transaction Limits Page
+const getTransactionLimits = async (req, res) => {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.redirect("/login");
+    }
+
+    const TransactionHistory = require("../Models/TransactionHistory");
+    const BankAccount = require("../Models/BankAccount");
+    const { getLimitsByTier } = require("../config/transactionLimits");
+
+    const userId = req.session.user._id;
+    const zenoPayId =
+      req.session.user.ZenoPayID ||
+      req.session.user.ZenoPayId ||
+      req.session.user.zenoPayId ||
+      null;
+
+    // Get user's KYC tier
+    const user = await ZenoPayUser.findById(userId).select("kycTier Name Email").lean();
+    if (!user) {
+      return res.redirect("/login");
+    }
+
+    // Get limits based on tier
+    const limits = getLimitsByTier(user.kycTier);
+
+    // Tier names mapping
+    const tierNames = {
+      0: "Unverified User",
+      1: "KYC Verified",
+      2: "Full KYC Enhanced",
+    };
+
+    // Calculate daily usage (today only)
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const walletUserId = mongoose.Types.ObjectId.isValid(String(userId))
+      ? new mongoose.Types.ObjectId(String(userId))
+      : userId;
+
+    const walletDailyAgg = await Transaction.aggregate([
+      {
+        $match: {
+          userId: walletUserId,
+          createdAt: { $gte: startOfToday, $lte: endOfToday },
+          type: "send",
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    const accountRows = await BankAccount.find({ ZenoPayId: zenoPayId }).select("AccountNumber").lean();
+    const accountNumbers = (accountRows || []).map((row) => row.AccountNumber).filter(Boolean);
+
+    let bankDaily = 0;
+    if (accountNumbers.length > 0) {
+      const bankDailyAgg = await TransactionHistory.aggregate([
+        {
+          $match: {
+            SenderAccountNumber: { $in: accountNumbers },
+            TransactionTime: { $gte: startOfToday, $lte: endOfToday },
+            Status: "success",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$Amount" },
+          },
+        },
+      ]);
+      bankDaily = Number(bankDailyAgg[0]?.totalAmount?.toString?.() || 0);
+    }
+
+    const dailyUsed = Number(walletDailyAgg[0]?.totalAmount || 0) + bankDaily;
+
+    // Calculate weekly usage (last 7 days)
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date();
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const walletWeeklyAgg = await Transaction.aggregate([
+      {
+        $match: {
+          userId: walletUserId,
+          createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+          type: "send",
+          status: "completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    let bankWeekly = 0;
+    if (accountNumbers.length > 0) {
+      const bankWeeklyAgg = await TransactionHistory.aggregate([
+        {
+          $match: {
+            SenderAccountNumber: { $in: accountNumbers },
+            TransactionTime: { $gte: startOfWeek, $lte: endOfWeek },
+            Status: "success",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$Amount" },
+          },
+        },
+      ]);
+      bankWeekly = Number(bankWeeklyAgg[0]?.totalAmount?.toString?.() || 0);
+    }
+
+    const weeklyUsed = Number(walletWeeklyAgg[0]?.totalAmount || 0) + bankWeekly;
+
+    return res.render("user/limits", {
+      pageTitle: "Transaction Limits - ZenoPay",
+      isLoggedIn: true,
+      user: {
+        ...user,
+        name: user.Name || "User",
+      },
+      limits,
+      tierNames,
+      dailyUsed,
+      weeklyUsed,
+    });
+  } catch (error) {
+    console.error("[Wallet] getTransactionLimits error:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
+
+// Legacy aliases to avoid breaking existing route handlers while migrating
 const addMoney = processTopUp;
 const getWithdrawPage = getSend;
 const withdrawMoney = processSend;
@@ -638,4 +794,5 @@ module.exports = {
   addMoney,
   getWithdrawPage,
   withdrawMoney,
+  getTransactionLimits,
 };

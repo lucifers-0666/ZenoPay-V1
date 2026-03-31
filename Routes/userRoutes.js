@@ -38,6 +38,9 @@ const ScheduledPayment = require("../Models/ScheduledPayment");
 const AuditLog = require("../Models/AuditLog");
 const requirePin = require("../Middleware/requirePin");
 const UserPinController = require("../Controllers/UserPinController");
+const kycUpload = require("../Middleware/kycUpload");
+const checkTransactionLimit = require("../Middleware/checkTransactionLimit");
+const { KYC_ROUTES } = require("./constants");
 
 const serializeScheduledPayment = (row) => ({
   id: String(row._id),
@@ -377,7 +380,8 @@ router.post("/onboarding", LegacyProfileController.postOnboarding);
 router.get("/add-money", WalletController.getAddMoneyPage);
 router.post("/add-money", WalletController.addMoney);
 router.get("/withdraw", WalletController.getWithdrawPage);
-router.post("/withdraw", requirePin, WalletController.withdrawMoney);
+router.get("/limits", WalletController.getTransactionLimits);
+router.post("/withdraw", requirePin, checkTransactionLimit, WalletController.withdrawMoney);
 
 router.get("/user/set-pin", UserPinController.getSetPin);
 router.post("/user/set-pin", UserPinController.postSetPin);
@@ -525,7 +529,7 @@ router.delete("/scheduled-payments/:id", async (req, res) => {
   }
 });
 
-router.post("/scheduled-payments/:id/pay-now", requirePin, async (req, res) => {
+router.post("/scheduled-payments/:id/pay-now", requirePin, checkTransactionLimit, async (req, res) => {
   try {
     const zenoPayId = req.session.user?.ZenoPayID || null;
     if (!zenoPayId) {
@@ -849,8 +853,8 @@ router.get("/banks-list", BranchController.getAllBanks);
 // Transfer
 router.get("/send-to", TransferController.getTransferMoney);
 router.get("/send-money", TransferController.getTransferMoney);
-router.post("/send-to", requirePin, TransferController.postTransferMoney);
-router.post("/send-money", requirePin, TransferController.postTransferMoney);
+router.post("/send-to", requirePin, checkTransactionLimit, TransferController.postTransferMoney);
+router.post("/send-money", requirePin, checkTransactionLimit, TransferController.postTransferMoney);
 router.post("/send-to/verify-receiver", TransferController.verifyReceiver);
 router.get("/daily-transaction-summary", TransferController.getDailyTransactionSummary);
 
@@ -865,13 +869,6 @@ router.get("/transaction-history", TransactionInfoController.getTransactionHisto
 router.get("/Transaction-History/data", TransactionInfoController.getTransactionHistoryData);
 router.get("/transaction-history/data", TransactionInfoController.getTransactionHistoryData);
 router.get("/transaction/:transactionId", TransactionInfoController.getTransactionDetails);
-
-// KYC Verification
-router.get("/kyc", KYCController.getKYCVerification);
-router.get("/kyc-verification", KYCController.getKYCVerification);
-router.get("/verification-status", KYCController.getVerificationStatusPage);
-router.post("/kyc/submit", KYCController.submitKYCDocuments);
-router.get("/kyc/status", KYCController.getKYCStatus);
 
 // Support Center Routes
 router.get("/support", SupportController.getSupportCenter);
@@ -917,5 +914,18 @@ router.get("/pricing", PricingController.getPricingPage);
 
 // Contact page
 router.get("/contact", ContactController.getContactPage);
+
+// KYC Verification Routes (PAN + Aadhaar) - canonical routes
+router.get(KYC_ROUTES.STATUS_PAGE, KYCController.getKYCStatus);
+router.get(KYC_ROUTES.STATUS_JSON, KYCController.getKYCStatusJson);
+router.get(KYC_ROUTES.SUBMIT_PAGE, KYCController.getKYCForm);
+router.post(KYC_ROUTES.SUBMIT_POST, kycUpload, KYCController.submitKYC);
+
+// KYC compatibility aliases (legacy paths)
+router.get(KYC_ROUTES.LEGACY_STATUS_PAGE, (req, res) => res.redirect(KYC_ROUTES.STATUS_PAGE));
+router.get(KYC_ROUTES.LEGACY_SUBMIT_PAGE, (req, res) => res.redirect(KYC_ROUTES.SUBMIT_PAGE));
+router.post(KYC_ROUTES.LEGACY_SUBMIT_POST, kycUpload, KYCController.submitKYC);
+router.get(KYC_ROUTES.LEGACY_VERIFICATION_PAGE, (req, res) => res.redirect(KYC_ROUTES.SUBMIT_PAGE));
+router.get(KYC_ROUTES.LEGACY_STATUS_ALIAS, (req, res) => res.redirect(KYC_ROUTES.STATUS_PAGE));
 
 module.exports = router;

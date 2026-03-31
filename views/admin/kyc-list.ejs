@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= pageTitle %> - ZenoPay Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .admin-header h1 {
+      font-size: 28px;
+      color: #111;
+    }
+    .admin-header a {
+      padding: 10px 20px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .admin-header a:hover {
+      background: #2563eb;
+    }
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .filter-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .filter-btn:hover {
+      border-color: #3b82f6;
+    }
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead {
+      background: #f3f4f6;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .user-name {
+      font-weight: 600;
+      color: #111;
+    }
+    .user-email {
+      font-size: 13px;
+      color: #666;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-pending {
+      background: #fef3c7;
+      color: #78350f;
+    }
+    .status-under_review {
+      background: #dbeafe;
+      color: #0c4a6e;
+    }
+    .status-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-rejected {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+    .date-cell {
+      font-size: 13px;
+      color: #666;
+    }
+    .action-links {
+      display: flex;
+      gap: 8px;
+    }
+    .action-links a {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .action-view {
+      background: #3b82f6;
+      color: white;
+    }
+    .action-view:hover {
+      background: #2563eb;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .pagination a {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #3b82f6;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .pagination a.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .pagination a:hover {
+      border-color: #3b82f6;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #111;
+    }
+    .count-badge {
+      background: #eff6ff;
+      color: #0c4a6e;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="admin-header">
+      <div>
+        <h1>KYC Submissions</h1>
+        <p style="color: #666; font-size: 14px; margin-top: 5px;">
+          Review and manage user KYC (Know Your Customer) submissions
+        </p>
+      </div>
+      <a href="/admin/kyc?status=pending">← Admin Dashboard</a>
+    </div>
+
+    <div class="filters">
+      <a href="?status=pending" class="filter-btn <%= status === 'pending' ? 'active' : '' %>">
+        Pending (<%= totalCount || 0 %>)
+      </a>
+      <a href="?status=under_review" class="filter-btn <%= status === 'under_review' ? 'active' : '' %>">
+        Under Review
+      </a>
+      <a href="?status=approved" class="filter-btn <%= status === 'approved' ? 'active' : '' %>">
+        Approved
+      </a>
+      <a href="?status=rejected" class="filter-btn <%= status === 'rejected' ? 'active' : '' %>">
+        Rejected
+      </a>
+    </div>
+
+    <div class="table-container">
+      <% if(kycRecords && kycRecords.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% kycRecords.forEach(kyc => { %>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">
+                      <%= (kyc.userId.name || kyc.userId.FullName || 'U').charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name"><%= kyc.userId.name || kyc.userId.FullName %></span>
+                      <span class="user-email"><%= kyc.userId.phone || kyc.userId.Mobile || 'N/A' %></span>
+                    </div>
+                  </div>
+                </td>
+                <td><%= kyc.userId.email || kyc.userId.Email %></td>
+                <td>
+                  <span class="status-badge status-<%= kyc.status %>">
+                    <% if(kyc.status === 'pending') { %>
+                      ⏳ Pending
+                    <% } else if(kyc.status === 'under_review') { %>
+                      👁️ Under Review
+                    <% } else if(kyc.status === 'approved') { %>
+                      ✓ Approved
+                    <% } else if(kyc.status === 'rejected') { %>
+                      ✗ Rejected
+                    <% } %>
+                  </span>
+                </td>
+                <td class="date-cell">
+                  <% if(kyc.submittedAt) { %>
+                    <%= new Date(kyc.submittedAt).toLocaleDateString() %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+                <td>
+                  <div class="action-links">
+                    <a href="/admin/kyc/<%= kyc._id %>" class="action-view">Review</a>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+
+        <% if(totalPages > 1) { %>
+          <div class="pagination">
+            <% if(currentPage > 1) { %>
+              <a href="?status=<%= status %>&page=1">« First</a>
+              <a href="?status=<%= status %>&page=<%= currentPage - 1 %>">‹ Prev</a>
+            <% } %>
+
+            <% for(let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+              <a href="?status=<%= status %>&page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>">
+                <%= i %>
+              </a>
+            <% } %>
+
+            <% if(currentPage < totalPages) { %>
+              <a href="?status=<%= status %>&page=<%= currentPage + 1 %>">Next ›</a>
+              <a href="?status=<%= status %>&page=<%= totalPages %>">Last »</a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="empty-state">
+          <h3>No KYC submissions</h3>
+          <p>There are no KYC submissions with status "<%= status %>" at this time.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
