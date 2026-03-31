@@ -4,6 +4,7 @@ const { uploadToAzure } = require("../Services/azureStorage");
 const bcrypt = require("bcryptjs");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
+const OTP_TTL_MS = Number.parseInt(process.env.EMAIL_OTP_EXPIRY_MS || `${10 * 60 * 1000}`, 10);
 const nameRegex = /^[A-Za-z\s.'·-]{3,60}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const mobileRegex = /^[6-9]\d{9}$/;
@@ -155,6 +156,51 @@ const getRegisterZenoPay = (req, res) => {
   });
 };
 
+const generateEmailOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+
+const buildEmailOtpTemplate = ({ fullName, otpCode }) => ({
+  subject: "Your ZenoPay Email Verification OTP",
+  html: `
+    <div style="font-family:Inter,Arial,sans-serif;color:#111827;line-height:1.6;max-width:640px;margin:0 auto;padding:20px;">
+      <h2 style="margin:0 0 12px;">Verify your email address</h2>
+      <p>Hi ${fullName || "there"},</p>
+      <p>Use this One-Time Password (OTP) to verify your ZenoPay account:</p>
+      <div style="margin:18px 0;padding:14px 16px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;display:inline-block;">
+        <span style="font-size:28px;letter-spacing:6px;font-weight:700;color:#1d4ed8;">${otpCode}</span>
+      </div>
+      <p>This OTP expires in 10 minutes.</p>
+      <p style="color:#6b7280;font-size:13px;">If you did not create this account, you can safely ignore this email.</p>
+    </div>
+  `,
+  text: `Your ZenoPay OTP is ${otpCode}. It expires in 10 minutes.`,
+});
+
+const issueOtpForUser = async (user) => {
+  const otpCode = generateEmailOtp();
+  user.emailOtp = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
+  user.emailOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
+  user.isEmailVerified = false;
+  user.EmailVerified = false;
+  await user.save();
+
+  const emailPayload = buildEmailOtpTemplate({
+    fullName: user.FullName,
+    otpCode,
+  });
+
+  const emailResult = await emailService.sendEmail({
+    to: user.Email,
+    subject: emailPayload.subject,
+    html: emailPayload.html,
+    text: emailPayload.text,
+  });
+
+  return {
+    sent: !!emailResult?.sent,
+    emailResult,
+  };
+};
+
 const postRegisterZenoPay = async (req, res) => {
   try {
     const data = req.body || {};
@@ -171,6 +217,21 @@ const postRegisterZenoPay = async (req, res) => {
 
     const existingEmail = await ZenoPayDetails.findOne({ Email: normalized.Email });
     if (existingEmail) {
+      const alreadyVerified = !!(existingEmail.isEmailVerified ?? existingEmail.EmailVerified);
+
+      if (!alreadyVerified) {
+        const otpIssue = await issueOtpForUser(existingEmail);
+        req.session.pendingVerificationEmail = normalized.Email;
+
+        return res.status(200).json({
+          success: true,
+          message: otpIssue.sent
+            ? "Account already exists but email is not verified. OTP sent to your email."
+            : "Account exists but OTP email could not be sent. Please use Resend OTP on verify page.",
+          redirect: `/verify-email?email=${encodeURIComponent(normalized.Email)}`,
+        });
+      }
+
       return res.status(400).json({
         success: false,
         message: "This email is already registered.",
@@ -229,23 +290,20 @@ const postRegisterZenoPay = async (req, res) => {
       ImagePath: imageUrl, // Store Azure Blob URL instead of local path
     });
 
-    await newZenoPay.save();
+    const otpIssue = await issueOtpForUser(newZenoPay);
+    req.session.pendingVerificationEmail = normalized.Email;
 
-    // Send Email (optional)
-    try {
-      await emailService.sendZenoPayRegistrationEmail(
-        normalized.Email,
-        normalized.FullName,
-        ZenoPayID
-      );
-    } catch (emailError) {
-      console.log("Email sending failed:", emailError);
+    if (!otpIssue.sent) {
+      console.warn("[ZenoPay Register] OTP email not sent for:", normalized.Email);
     }
 
     res.json({
       success: true,
-      message: "Registration successful.",
+      message: otpIssue.sent
+        ? "Registration successful. OTP sent to your email for verification."
+        : "Registration successful, but OTP email could not be sent. Please resend OTP.",
       ZenoPayID,
+      redirect: `/verify-email?email=${encodeURIComponent(normalized.Email)}`,
     });
   } catch (err) {
     console.log("Registration error:", err);

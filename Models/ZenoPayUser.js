@@ -113,6 +113,11 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     default: null,
   },
 
+  isPinSet: {
+    type: Boolean,
+    default: false,
+  },
+
   pinAttempts: {
     type: Number,
     default: 0,
@@ -454,6 +459,18 @@ ZenoPayDetailsSchema.pre("validate", function syncUnifiedFromLegacy() {
     this.status = this.AccountStatus || "Active";
   }
 
+  if (typeof this.isPinSet !== "boolean") {
+    this.isPinSet = !!this.transactionPin;
+  }
+
+  if (this.transactionPin && this.isPinSet !== true) {
+    this.isPinSet = true;
+  }
+
+  if (!this.transactionPin && this.isPinSet === true) {
+    this.isPinSet = false;
+  }
+
   if (typeof this.EmailVerified === "boolean" && typeof this.isEmailVerified !== "boolean") {
     this.isEmailVerified = this.EmailVerified;
   }
@@ -496,6 +513,7 @@ ZenoPayDetailsSchema.pre("save", function syncLegacyFromUnified() {
   if (this.status) this.AccountStatus = this.status;
   if (typeof this.isEmailVerified === "boolean") this.EmailVerified = this.isEmailVerified;
   if (typeof this.EmailVerified === "boolean") this.isEmailVerified = this.EmailVerified;
+  this.isPinSet = !!this.transactionPin;
   if (this.createdAt) this.RegistrationDate = this.createdAt;
 });
 

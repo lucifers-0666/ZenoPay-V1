@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background:#f8fafc; margin:0; }
+    .wrap { max-width:420px; margin:48px auto; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:24px; }
+    .title { margin:0 0 8px; font-size:24px; }
+    .sub { margin:0 0 18px; color:#64748b; font-size:14px; }
+    .otp { display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; margin:10px 0 14px; }
+    .otp input { height:46px; text-align:center; font-size:22px; border:1px solid #cbd5e1; border-radius:10px; }
+    .err { color:#dc2626; font-size:12px; margin-bottom:10px; }
+    .btn { width:100%; height:42px; border:0; border-radius:10px; background:#2563eb; color:#fff; font-weight:600; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="title">Verify Transaction PIN</h1>
+    <p class="sub">Enter your 6-digit PIN to continue this transaction.</p>
+
+    <% if (error) { %><div class="err"><%= error %></div><% } %>
+
+    <form method="POST" action="/verify-pin" id="verifyPinForm">
+      <input type="hidden" name="pin" id="pin" />
+      <div class="otp" id="otpWrap">
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+        <input type="password" inputmode="numeric" maxlength="1" class="digit" required />
+      </div>
+      <button class="btn" type="submit">Verify PIN</button>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const inputs = Array.from(document.querySelectorAll('.digit'));
+      const hiddenPin = document.getElementById('pin');
+      const form = document.getElementById('verifyPinForm');
+
+      const syncPin = () => {
+        hiddenPin.value = inputs.map((i) => (i.value || '').replace(/\D/g, '')).join('');
+      };
+
+      inputs.forEach((input, idx) => {
+        input.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
+          syncPin();
+          if (e.target.value && idx < inputs.length - 1) {
+            inputs[idx + 1].focus();
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && idx > 0) {
+            inputs[idx - 1].focus();
+          }
+        });
+      });
+
+      form.addEventListener('submit', (e) => {
+        syncPin();
+        if (!/^\d{6}$/.test(hiddenPin.value)) {
+          e.preventDefault();
+          inputs[0].focus();
+        }
+      });
+
+      inputs[0].focus();
+    })();
+  </script>
+</body>
+</html>

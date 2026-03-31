@@ -36,6 +36,8 @@ const ZenoPayUser = require("../Models/ZenoPayUser");
 const LoginHistory = require("../Models/LoginHistory");
 const ScheduledPayment = require("../Models/ScheduledPayment");
 const AuditLog = require("../Models/AuditLog");
+const requirePin = require("../Middleware/requirePin");
+const UserPinController = require("../Controllers/UserPinController");
 
 const serializeScheduledPayment = (row) => ({
   id: String(row._id),
@@ -375,7 +377,14 @@ router.post("/onboarding", LegacyProfileController.postOnboarding);
 router.get("/add-money", WalletController.getAddMoneyPage);
 router.post("/add-money", WalletController.addMoney);
 router.get("/withdraw", WalletController.getWithdrawPage);
-router.post("/withdraw", WalletController.withdrawMoney);
+router.post("/withdraw", requirePin, WalletController.withdrawMoney);
+
+router.get("/user/set-pin", UserPinController.getSetPin);
+router.post("/user/set-pin", UserPinController.postSetPin);
+router.get("/user/change-pin", UserPinController.getChangePin);
+router.post("/user/change-pin", UserPinController.postChangePin);
+router.get("/verify-pin", UserPinController.getVerifyPin);
+router.post("/verify-pin", UserPinController.postVerifyPin);
 
 router.get("/scheduled-payments", async (req, res) => {
   const zenoPayId = req.session.user?.ZenoPayID || null;
@@ -516,7 +525,7 @@ router.delete("/scheduled-payments/:id", async (req, res) => {
   }
 });
 
-router.post("/scheduled-payments/:id/pay-now", async (req, res) => {
+router.post("/scheduled-payments/:id/pay-now", requirePin, async (req, res) => {
   try {
     const zenoPayId = req.session.user?.ZenoPayID || null;
     if (!zenoPayId) {
@@ -840,8 +849,8 @@ router.get("/banks-list", BranchController.getAllBanks);
 // Transfer
 router.get("/send-to", TransferController.getTransferMoney);
 router.get("/send-money", TransferController.getTransferMoney);
-router.post("/send-to", TransferController.postTransferMoney);
-router.post("/send-money", TransferController.postTransferMoney);
+router.post("/send-to", requirePin, TransferController.postTransferMoney);
+router.post("/send-money", requirePin, TransferController.postTransferMoney);
 router.post("/send-to/verify-receiver", TransferController.verifyReceiver);
 router.get("/daily-transaction-summary", TransferController.getDailyTransactionSummary);
 

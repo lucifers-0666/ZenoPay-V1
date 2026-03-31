@@ -1094,8 +1094,8 @@
         <section class="success" id="successScreen">
           <div class="success-icon"><i class="fa-solid fa-check"></i></div>
           <h3 class="success-title">Account Created!</h3>
-          <p class="success-sub">Welcome to ZenoPay. Your account is ready.</p>
-          <p class="success-count">Redirecting to login in <span id="countdown">3</span>s…</p>
+          <p class="success-sub">Welcome to ZenoPay. Please verify your email to activate your account.</p>
+          <p class="success-count">Redirecting in <span id="countdown">3</span>s…</p>
         </section>
       </section>
 
@@ -1676,6 +1676,7 @@
         stepper.style.display = 'none';
         byId('successScreen').classList.add('show');
 
+        const successRedirect = result?.redirect || '/verify-email';
         let countdown = 3;
         const countdownNode = byId('countdown');
         const timer = setInterval(() => {
@@ -1683,7 +1684,7 @@
           countdownNode.textContent = countdown;
           if (countdown <= 0) {
             clearInterval(timer);
-            window.location.href = '/login';
+            window.location.href = successRedirect;
           }
         }, 1000);
       } catch (error) {

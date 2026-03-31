@@ -12,6 +12,7 @@ const ContactController = require("../Controllers/ContactController");
 const WalletController = require("../Controllers/WalletController");
 const Invoice = require("../Models/Invoice");
 const { isAuthenticatedApi } = require("../Middleware/authGuards");
+const requirePin = require("../Middleware/requirePin");
 
 // Invoice API
 router.post("/api/invoices", isAuthenticatedApi, async (req, res) => {
@@ -139,13 +140,13 @@ router.get("/api/banks", async (req, res) => {
 });
 
 // Transfer API
-router.post("/api/send-money", isAuthenticatedApi, TransferController.postTransferMoney);
+router.post("/api/send-money", isAuthenticatedApi, requirePin, TransferController.postTransferMoney);
 router.post("/api/verify-receiver", isAuthenticatedApi, TransferController.verifyReceiver);
 router.get("/api/today-stats", isAuthenticatedApi, TransferController.getDailyTransactionSummary);
 
 // Wallet API
 router.post("/api/wallet/add-money", isAuthenticatedApi, WalletController.addMoney);
-router.post("/api/wallet/withdraw", isAuthenticatedApi, WalletController.withdrawMoney);
+router.post("/api/wallet/withdraw", isAuthenticatedApi, requirePin, WalletController.withdrawMoney);
 
 // Notifications API
 router.get("/api/notifications/count", isAuthenticatedApi, NotificationController.getNotificationCount);

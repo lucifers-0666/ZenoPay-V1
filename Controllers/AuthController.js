@@ -143,6 +143,21 @@ const sendEmailOtp = async (user, otpCode) => {
   });
 };
 
+const issueOtpForUser = async (user) => {
+  const otpCode = generateEmailOtp();
+  user.emailOtp = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
+  user.emailOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
+  user.isEmailVerified = false;
+  user.EmailVerified = false;
+  await user.save();
+
+  const emailResult = await sendEmailOtp(user, otpCode);
+  return {
+    sent: !!emailResult?.sent,
+    emailResult,
+  };
+};
+
 // Show registration page
 const getRegister = (req, res) => {
   if (req.session && req.session.user) {
@@ -236,6 +251,27 @@ const postRegister = async (req, res) => {
         String(existingUser.email || "").toLowerCase() === normalizedEmail;
 
       if (matchedEmail) {
+        const existingByEmail = await ZenoPayDetails.findOne({
+          $or: [{ Email: normalizedEmail }, { email: normalizedEmail }],
+        });
+
+        const alreadyVerified = !!(
+          existingByEmail?.isEmailVerified ?? existingByEmail?.EmailVerified
+        );
+
+        if (existingByEmail && !alreadyVerified) {
+          const otpIssue = await issueOtpForUser(existingByEmail);
+          req.session.pendingVerificationEmail = normalizedEmail;
+
+          return res.status(200).json({
+            success: true,
+            message: otpIssue.sent
+              ? "Account already exists but email is not verified. A fresh OTP has been sent."
+              : "Account already exists but email is not verified. Please use resend OTP on verify page.",
+            redirect: `/verify-email?email=${encodeURIComponent(normalizedEmail)}`,
+          });
+        }
+
         return res.status(400).json({
           success: false,
           message: "Email already registered. Please login instead.",
@@ -296,16 +332,8 @@ const postRegister = async (req, res) => {
       RegistrationDate: new Date(),
     });
 
-    const otpCode = generateEmailOtp();
-    const otpHash = await bcrypt.hash(otpCode, BCRYPT_ROUNDS);
-    newUser.emailOtp = otpHash;
-    newUser.emailOtpExpiry = new Date(Date.now() + OTP_TTL_MS);
-    newUser.isEmailVerified = false;
-    newUser.EmailVerified = false;
-
-    await newUser.save();
-
-    const emailResult = await sendEmailOtp(newUser, otpCode);
+    const otpIssue = await issueOtpForUser(newUser);
+    const emailResult = otpIssue.emailResult;
     if (!emailResult?.sent) {
       console.warn("[Auth] OTP email not sent during registration for:", normalizedEmail);
     }
@@ -422,6 +450,21 @@ const postLogin = async (req, res) => {
     }
 
     // Store ALL name/email variants so header.ejs can always find them
+    const isUserEmailVerified = !!(user.isEmailVerified ?? user.EmailVerified);
+    let otpIssuedForLogin = null;
+
+    if (!isUserEmailVerified) {
+      try {
+        const issued = await issueOtpForUser(user);
+        otpIssuedForLogin = issued.sent;
+      } catch (otpErr) {
+        console.error("[Auth] Failed to issue OTP during login:", otpErr.message);
+        otpIssuedForLogin = false;
+      }
+
+      req.session.pendingVerificationEmail = String(user.Email || user.email || "").toLowerCase();
+    }
+
     req.session.user = {
       _id: user._id.toString(),
       name: user.FullName || user.name || "",
@@ -432,8 +475,8 @@ const postLogin = async (req, res) => {
       Email: user.Email || user.email || "",
       email: user.Email || user.email || "",
       ProfilePicture: user.ProfilePicture || null,
-      isEmailVerified: !!(user.isEmailVerified ?? user.EmailVerified),
-      EmailVerified: !!(user.isEmailVerified ?? user.EmailVerified),
+      isEmailVerified: isUserEmailVerified,
+      EmailVerified: isUserEmailVerified,
       role: user.Role || user.role || "user",
       Role: user.Role || user.role || "user",
     };
@@ -450,7 +493,7 @@ const postLogin = async (req, res) => {
 
       const redirectTarget = req.session.user?.isEmailVerified
         ? resolveSafePostLoginRedirect(req)
-        : "/verify-email";
+        : `/verify-email?email=${encodeURIComponent(req.session.user?.Email || "")}&otpSent=${otpIssuedForLogin ? "1" : "0"}`;
 
       LoginHistory.create({
         ZenoPayId: user.ZenoPayID,
@@ -753,8 +796,8 @@ const getVerifyEmail = async (req, res) => {
     pageTitle: "Verify Email - ZenoPay",
     otpMode: true,
     email,
-    success: null,
-    error: null,
+    success: req.query?.otpSent === "1" ? "OTP sent to your email." : null,
+    error: req.query?.otpSent === "0" ? "We could not auto-send OTP. Please click Resend OTP." : null,
   });
 };
 

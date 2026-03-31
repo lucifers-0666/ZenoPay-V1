@@ -225,6 +225,11 @@ const getDashboard = async (req, res) => {
       countriesSupported: 22,
     };
 
+    const pinSuccessMessageRaw = String(req.query?.pinSuccess || "").trim();
+    const pinSuccessMessage = pinSuccessMessageRaw
+      ? pinSuccessMessageRaw.slice(0, 120)
+      : null;
+
     return res.render("dashboard", {
       pageTitle: "Dashboard",
       currentPage: "dashboard",
@@ -239,6 +244,7 @@ const getDashboard = async (req, res) => {
       monthSuccessRate,
       qrCode: req.session.qrCode || null,
       stats,
+      pinSuccessMessage,
     });
   } catch (err) {
     console.error("Error loading dashboard:", err);
