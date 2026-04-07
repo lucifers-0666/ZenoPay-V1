@@ -1,406 +1,610 @@
 <div align="center">
 
-# ZenoPay V2
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1E3A8A,50:3B82F6,100:8B5CF6&height=220&section=header&text=ZenoPay&fontSize=90&fontColor=ffffff&fontAlignY=38&desc=Modern%20Fintech%20Payment%20Platform%20V1&descAlignY=60&descSize=18&descColor=93C5FD" width="100%" alt="ZenoPay Banner"/>
 
-### **_Smart digital payments, wallet operations, and merchant workflows in one platform._**
+<br/>
 
-<p>
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/EJS-B4CA65?style=for-the-badge&logo=ejs&logoColor=black" alt="EJS" />
-  <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
-</p>
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-1E3A8A?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-10B981?style=for-the-badge&logo=mongodb&logoColor=white)
+![EJS](https://img.shields.io/badge/EJS-3B82F6?style=for-the-badge&logo=ejs&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F59E0B?style=for-the-badge&logo=javascript&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-8B5CF6?style=for-the-badge&logo=css3&logoColor=white)
 
-<p>
-  <a href="https://github.com/yourusername/zenpay-V2/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/yourusername/zenpay-V2/ci.yml?branch=main&style=for-the-badge" alt="Build Status" />
-  </a>
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT" />
-  </a>
-  <a href="https://github.com/yourusername/zenpay-V2/commits/main">
-    <img src="https://img.shields.io/github/last-commit/yourusername/zenpay-V2?style=for-the-badge" alt="Last Commit" />
-  </a>
-  <a href="https://github.com/yourusername/zenpay-V2/issues">
-    <img src="https://img.shields.io/github/issues/yourusername/zenpay-V2?style=for-the-badge" alt="Open Issues" />
-  </a>
-  <a href="https://github.com/yourusername/zenpay-V2/stargazers">
-    <img src="https://img.shields.io/github/stars/yourusername/zenpay-V2?style=for-the-badge" alt="Stars" />
-  </a>
-</p>
+<br/>
 
-<p>
-  <a href="https://your-live-demo-url.com"><img src="https://img.shields.io/badge/View%20Demo-0EA5E9?style=for-the-badge&logo=vercel&logoColor=white" alt="View Demo" /></a>
-  <a href="https://github.com/yourusername/zenpay-V2/issues/new?labels=bug"><img src="https://img.shields.io/badge/Report%20Bug-E11D48?style=for-the-badge&logo=github&logoColor=white" alt="Report Bug" /></a>
-  <a href="https://github.com/yourusername/zenpay-V2/issues/new?labels=enhancement"><img src="https://img.shields.io/badge/Request%20Feature-22C55E?style=for-the-badge&logo=github&logoColor=white" alt="Request Feature" /></a>
-</p>
+![GitHub last commit](https://img.shields.io/github/last-commit/lucifers-0666/ZenoPay-V1?style=flat-square&color=3B82F6&label=Last%20Commit)
+![GitHub stars](https://img.shields.io/github/stars/lucifers-0666/ZenoPay-V1?style=flat-square&color=F59E0B&label=Stars)
+![GitHub issues](https://img.shields.io/github/issues/lucifers-0666/ZenoPay-V1?style=flat-square&color=8B5CF6&label=Issues)
+![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square)
+![Commits](https://img.shields.io/badge/Commits-100%2B-3B82F6?style=flat-square)
+
+<br/>
+
+> ***⚡ A sleek, secure, and scalable fintech payment platform — built with precision for the modern web.***
+
+<br/>
+
+[![View Demo](https://img.shields.io/badge/🚀_View_Demo-3B82F6?style=for-the-badge)](https://github.com/lucifers-0666/ZenoPay-V1)
+[![Report Bug](https://img.shields.io/badge/🐛_Report_Bug-8B5CF6?style=for-the-badge)](https://github.com/lucifers-0666/ZenoPay-V1/issues)
+[![Request Feature](https://img.shields.io/badge/✨_Request_Feature-10B981?style=for-the-badge)](https://github.com/lucifers-0666/ZenoPay-V1/issues)
 
 </div>
 
 ---
 
-## 📌 Project Details
+## 📋 Table of Contents
 
-- **Project Name:** ZenoPay V2
-- **Short Description:** A full-stack fintech platform for wallet management, transfers, merchant payments, KYC, receipts, and admin operations.
-- **Tech Stack:** Node.js, Express, MongoDB (Mongoose), EJS, HTML/CSS/JS, Jest
-- **Live Demo URL:** `https://your-live-demo-url.com` *(replace with actual URL)*
-- **GitHub Repo URL:** `https://github.com/yourusername/zenpay-V2` *(replace with actual URL)*
-
----
-
-## 📚 Table of Contents
-
-- [📌 Project Details](#-project-details)
-- [🧠 About the Project](#-about-the-project)
-- [🛠️ Tech Stack](#️-tech-stack)
-  - [Frontend](#frontend)
-  - [Backend](#backend)
-  - [Database](#database)
-  - [Tools & DevOps](#tools--devops)
-- [🧭 System Architecture / Workflow Diagram](#-system-architecture--workflow-diagram)
-  - [Flowchart](#flowchart)
-  - [Sequence Diagram](#sequence-diagram)
-- [🗃️ Database Schema (ER Diagram)](#️-database-schema-er-diagram)
-- [✨ Features](#-features)
-- [👥 Contributors & Contribution Stats](#-contributors--contribution-stats)
-  - [Contributors](#contributors)
-  - [Contribution Graph](#contribution-graph)
-  - [Commit Distribution](#commit-distribution)
-  - [Who Built What](#who-built-what)
-- [🚀 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
-- [🗂️ Folder Structure](#️-folder-structure)
-- [🛣️ Roadmap](#️-roadmap)
-- [📜 License & Acknowledgements](#-license--acknowledgements)
+- [About the Project](#-about-the-project)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Database Schema](#-database-schema)
+- [Features](#-features)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [API Endpoints](#-api-endpoints)
+- [Contributors](#-contributors--commit-stats)
+- [Roadmap](#-roadmap)
+- [License](#-license)
 
 ---
 
-## 🧠 About the Project
+## 🧩 About the Project
 
-ZenoPay V2 solves the complexity of running modern payment operations by combining user wallets, merchant enablement, KYC, payout workflows, and an admin console into one cohesive system.
+**ZenoPay** is a full-stack fintech payment platform that simplifies digital transactions with a clean admin panel, secure session-based authentication, real-time notification polling, KYC verification flow, and a wallet system built for Indian payment workflows (UPI, QR, P2P).
 
-### Highlights
+### ✨ Key Highlights
 
-- 🔐 Multi-role authentication for **users, merchants, and admins**
-- 💸 Wallet, transfer, request-money, and payment flows
-- 🧾 Receipt, statement, and transaction history generation
-- 🧪 Unit/integration/middleware testing setup with Jest + Supertest
-- 🧩 Extensible architecture with feature-specific controllers and services
-- 📦 Integrated support for payment providers (Stripe, Razorpay, PayPal)
-
-![Screenshot](./assets/screenshot.png)
+- 💳 P2P wallet transfers with PIN-verified payment flow and confetti success screen
+- 🔐 Session-based auth with OTP email verification + forgot password flow
+- 📊 Admin dashboard with full user and transaction control
+- 🔔 Real-time notification polling every 25 seconds
+- 🪪 Multi-tier KYC verification with document upload
+- 🗓️ Scheduled payments runner service with cron support
+- 🔒 CSRF protection, separate admin/user session isolation
+- 📱 Fully responsive — mobile bottom nav + desktop sidebar
+- 🌐 Clean MVC architecture: Node.js + Express + MongoDB + EJS
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-
-<img src="https://img.shields.io/badge/EJS-B4CA65?style=for-the-badge&logo=ejs&logoColor=black" alt="EJS" />
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
-
-### Backend
-
-<img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-<img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-<img src="https://img.shields.io/badge/Express%20Session-444?style=for-the-badge" alt="Express Session" />
-<img src="https://img.shields.io/badge/Nodemailer-0A66C2?style=for-the-badge&logo=gmail&logoColor=white" alt="Nodemailer" />
-
-### Database
-
-<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-<img src="https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white" alt="Mongoose" />
-
-### Tools & DevOps
-
-<img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
-<img src="https://img.shields.io/badge/Supertest-333333?style=for-the-badge" alt="Supertest" />
-<img src="https://img.shields.io/badge/Nodemon-76D04B?style=for-the-badge&logo=nodemon&logoColor=black" alt="Nodemon" />
-<img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions" />
-
----
-
-## 🧭 System Architecture / Workflow Diagram
-
-### Flowchart
-
-```mermaid
-flowchart TD
-    A[User] --> B[Frontend - EJS Views]
-    B --> C[API Layer / Express Routes]
-    C --> D[Controllers + Services]
-    D --> E[MongoDB via Mongoose]
-    D --> F[External APIs: Stripe / Razorpay / Email]
-    E --> G[Response + Render]
-    F --> G
-    G --> B
-```
-
-### Sequence Diagram
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant V as EJS Frontend
-    participant A as Express API
-    participant S as Auth Service
-    participant DB as MongoDB
-
-    U->>V: Open login page
-    V->>A: Submit credentials
-    A->>S: Validate user
-    S->>DB: Fetch user + verify password
-    DB-->>S: User record
-    S-->>A: Auth success + session
-    A-->>V: Redirect to dashboard
-    U->>V: Trigger transfer/payment action
-    V->>A: POST action request
-    A->>DB: Update wallet/transaction
-    DB-->>A: Persisted transaction
-    A-->>V: Return success + updated data
-```
-
----
-
-## 🗃️ Database Schema (ER Diagram)
-
-```mermaid
-erDiagram
-    ZENOPAYUSER ||--|| WALLET : owns
-    ZENOPAYUSER ||--o{ BANKACCOUNT : links
-    ZENOPAYUSER ||--o{ TRANSACTION : performs
-    ZENOPAYUSER ||--o{ RECEIPT : receives
-    ZENOPAYUSER ||--o| KYC : submits
-    ZENOPAYUSER ||--o{ NOTIFICATION : gets
-    ZENOPAYUSER ||--o| MERCHANT : can_be
-
-    MERCHANT ||--o{ ORDER : processes
-    MERCHANT ||--o{ PAYMENTGATEWAYSETTINGS : configures
-
-    WALLET ||--o{ TRANSACTIONHISTORY : logs
-    TRANSACTION ||--o| REFUND : may_have
-    TRANSACTION ||--o| DISPUTE : may_have
-
-    REFERRAL ||--o{ REFERRALREWARD : grants
-
-    ZENOPAYUSER {
-        string _id
-        string email
-        string fullName
-        string role
-    }
-    WALLET {
-        string _id
-        string userId
-        number balance
-        string currency
-    }
-    TRANSACTION {
-        string _id
-        string senderId
-        string receiverId
-        number amount
-        string status
-    }
-    BANKACCOUNT {
-        string _id
-        string userId
-        string bankName
-        string accountNumber
-    }
-```
-
----
-
-## ✨ Features
-
-| Feature | Added By | Status |
-|---|---|---|
-| User authentication & session management | @core-team | ✅ Done |
-| Wallet management & transfers | @payments-team | ✅ Done |
-| Merchant onboarding & routes | @merchant-team | ✅ Done |
-| KYC workflow integration | @compliance-team | ✅ Done |
-| Dispute & refund processing | @risk-team | 🚧 In Progress |
-| Advanced analytics dashboard | @data-team | 🔜 Planned |
-
----
-
-## 👥 Contributors & Contribution Stats
-
-### Contributors
-
 <table>
   <tr>
-    <td align="center">
-      <img src="https://github.com/username1.png" width="80px" /><br/>
-      <b>Name One</b><br/>
-      <sub>🔧 87 commits | ⭐ Core Features</sub>
+    <td valign="top"><b>🌐 Frontend</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white"/>
+      <img src="https://img.shields.io/badge/CSS3-8B5CF6?style=flat-square&logo=css3&logoColor=white"/>
+      <img src="https://img.shields.io/badge/JavaScript-F59E0B?style=flat-square&logo=javascript&logoColor=black"/>
+      <img src="https://img.shields.io/badge/EJS-3B82F6?style=flat-square&logo=ejs&logoColor=white"/>
     </td>
-    <td align="center">
-      <img src="https://github.com/username2.png" width="80px" /><br/>
-      <b>Name Two</b><br/>
-      <sub>🔧 52 commits | ⭐ Auth & Dashboard</sub>
+  </tr>
+  <tr>
+    <td valign="top"><b>⚙️ Backend</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white"/>
+      <img src="https://img.shields.io/badge/Express.js-1E3A8A?style=flat-square&logo=express&logoColor=white"/>
     </td>
-    <td align="center">
-      <img src="https://github.com/username3.png" width="80px" /><br/>
-      <b>Name Three</b><br/>
-      <sub>🔧 18 commits | ⭐ Payments & Integrations</sub>
+  </tr>
+  <tr>
+    <td valign="top"><b>🗄️ Database</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/MongoDB-10B981?style=flat-square&logo=mongodb&logoColor=white"/>
+      <img src="https://img.shields.io/badge/Mongoose-800000?style=flat-square&logo=mongoose&logoColor=white"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><b>🔐 Auth & Security</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Session_Auth-3B82F6?style=flat-square&logo=shield&logoColor=white"/>
+      <img src="https://img.shields.io/badge/bcrypt-1E3A8A?style=flat-square&logo=letsencrypt&logoColor=white"/>
+      <img src="https://img.shields.io/badge/CSRF_Protection-8B5CF6?style=flat-square&logo=security&logoColor=white"/>
+      <img src="https://img.shields.io/badge/OTP_via_Email-10B981?style=flat-square&logo=gmail&logoColor=white"/>
+    </td>
+  </tr>
+  <tr>
+    <td valign="top"><b>🔧 Tools</b></td>
+    <td>
+      <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/>
+      <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/>
+      <img src="https://img.shields.io/badge/Postman-FF6C37?style=flat-square&logo=postman&logoColor=white"/>
+      <img src="https://img.shields.io/badge/Figma-F24E1E?style=flat-square&logo=figma&logoColor=white"/>
+      <img src="https://img.shields.io/badge/VS_Code-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white"/>
     </td>
   </tr>
 </table>
 
-### Contribution Graph
+---
 
-[![Contributors](https://contrib.rocks/image?repo=yourusername/zenpay-V2)](https://github.com/yourusername/zenpay-V2/graphs/contributors)
+## 🏗️ System Architecture
 
-### Commit Distribution
+### Application Flowchart
 
-```text
-Contributions by commit count:
-[username1] ████████████████████ 87 commits
-[username2] ████████████         52 commits
-[username3] ████                 18 commits
+```mermaid
+flowchart TD
+    A([👤 User / Admin]) --> B[Browser — EJS Frontend]
+    B --> C{Auth Middleware\nSession Check}
+
+    C -- ❌ No Session --> D[Login / Register Page]
+    D --> E[OTP Email Verification]
+    E --> C
+
+    C -- ✅ Session Valid --> F{Role Check}
+
+    F -- 👤 User --> G[User Router]
+    F -- 🛡️ Admin --> H[Admin Router]
+
+    G --> G1[Auth Controller]
+    G --> G2[Wallet Controller]
+    G --> G3[Transaction Controller]
+    G --> G4[KYC Controller]
+    G --> G5[Notification Controller]
+
+    H --> H1[Admin Auth Controller]
+    H --> H2[User Management]
+    H --> H3[Transaction Monitor]
+    H --> H4[Analytics]
+
+    G1 & G2 & G3 & G4 & G5 --> DB[(🗄️ MongoDB)]
+    H1 & H2 & H3 & H4 --> DB
+
+    DB --> RES{Response Type}
+    RES -- EJS Render --> B
+    RES -- JSON API --> B
+
+    style A fill:#1E3A8A,color:#fff
+    style DB fill:#10B981,color:#fff
+    style C fill:#3B82F6,color:#fff
+    style F fill:#8B5CF6,color:#fff
+    style B fill:#2563EB,color:#fff
 ```
-
-### Who Built What
-
-| Contributor | Unique Feature Added |
-|---|---|
-| @username1 | Payment Gateway Integration |
-| @username2 | Auth System & Dashboard UI |
-| @username3 | KYC Verification Flow |
 
 ---
 
-## 🚀 Getting Started
+### 💳 Payment Flow — Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as 🌐 EJS Frontend
+    participant MW as 🔐 Session Middleware
+    participant API as ⚙️ Express API
+    participant DB as 🗄️ MongoDB
+
+    User->>UI: Enter credentials
+    UI->>API: POST /auth/login
+    API->>DB: Validate user + check email verified
+    DB-->>API: User document
+    API-->>UI: Set session cookie + redirect
+
+    Note over User,DB: 🔐 All further requests carry session cookie
+
+    User->>UI: Send Money → Enter amount + UPI/Wallet
+    UI->>MW: Request with session
+    MW->>API: Verified → POST /transactions/send
+    API->>UI: Prompt Transaction PIN
+    User->>UI: Enter 4-digit PIN
+    UI->>API: POST /pin/verify
+    API->>DB: Verify bcrypt PIN hash
+    DB-->>API: PIN valid ✅
+    API->>DB: Debit sender wallet, credit receiver
+    DB-->>API: Transaction ID + updated balance
+    API-->>UI: 200 OK + transaction data
+    UI-->>User: 🎉 Confetti success screen + receipt
+```
+
+---
+
+### 🔔 Notification Polling Flow
+
+```mermaid
+flowchart LR
+    A[Page Load] --> B[Fetch Notifications]
+    B --> C{Unread Count?}
+    C -- gt 0 --> D[Show Badge + List]
+    C -- 0 --> E[Hide Badge]
+    D & E --> F[Wait 25 seconds]
+    F --> B
+    D --> G[User clicks Mark All Read]
+    G --> H[POST /notifications/read-all]
+    H --> B
+
+    style A fill:#1E3A8A,color:#fff
+    style H fill:#10B981,color:#fff
+```
+
+---
+
+## 🗃️ Database Schema
+
+```mermaid
+erDiagram
+    USER {
+        ObjectId _id PK
+        string name
+        string email
+        string password
+        string phone
+        string role
+        boolean isEmailVerified
+        boolean isActive
+        string kycStatus
+        date createdAt
+    }
+
+    WALLET {
+        ObjectId _id PK
+        ObjectId userId FK
+        string walletId
+        number balance
+        string currency
+        date lastUpdated
+    }
+
+    TRANSACTION {
+        ObjectId _id PK
+        ObjectId senderId FK
+        ObjectId receiverId FK
+        number amount
+        string type
+        string status
+        string description
+        string receiptId
+        date timestamp
+    }
+
+    KYC {
+        ObjectId _id PK
+        ObjectId userId FK
+        string documentType
+        string documentNumber
+        string status
+        string tier
+        date submittedAt
+        date verifiedAt
+    }
+
+    NOTIFICATION {
+        ObjectId _id PK
+        ObjectId userId FK
+        string type
+        string message
+        boolean isRead
+        date createdAt
+    }
+
+    SCHEDULEDPAYMENT {
+        ObjectId _id PK
+        ObjectId userId FK
+        number amount
+        string recipient
+        string frequency
+        date nextRunAt
+        boolean isActive
+    }
+
+    LOGINHISTORY {
+        ObjectId _id PK
+        ObjectId userId FK
+        string ipAddress
+        string device
+        date loginAt
+    }
+
+    USER ||--|| WALLET : "owns"
+    USER ||--o{ TRANSACTION : "sends"
+    USER ||--o{ TRANSACTION : "receives"
+    USER ||--o| KYC : "submits"
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--o{ SCHEDULEDPAYMENT : "creates"
+    USER ||--o{ LOGINHISTORY : "tracked by"
+```
+
+---
+
+## 🚀 Features
+
+| Feature | Description | Added By | Status |
+|---------|-------------|----------|--------|
+| 🔐 Session Auth | Login/register with session cookie + bcrypt | @lucifers-0666 | ✅ Done |
+| 📧 OTP Verification | Email OTP for registration & login | @lucifers-0666 | ✅ Done |
+| 💳 P2P Payments | Wallet-to-wallet with PIN confirm + confetti | @lucifers-0666 | ✅ Done |
+| 💰 Wallet System | Top-up, withdraw, real-time balance | @lucifers-0666 | ✅ Done |
+| 🔔 Live Notifications | Polling every 25s, mark-all-read API | @lucifers-0666 | ✅ Done |
+| 🪪 KYC Flow | Multi-step doc upload, tier-based limits | @lucifers-0666 | ✅ Done |
+| 🔒 Transaction PIN | bcrypt-hashed 4-digit PIN + lockout | @lucifers-0666 | ✅ Done |
+| 🛡️ Admin Dashboard | User control, analytics, audit log | @lucifers-0666 | ✅ Done |
+| 🗓️ Scheduled Payments | Cron-based recurring payment runner | @lucifers-0666 | ✅ Done |
+| 📱 Mobile UI | Bottom nav, responsive across all screens | @lucifers-0666 | ✅ Done |
+| 🔑 CSRF Protection | All POST routes csrf-protected | @lucifers-0666 | ✅ Done |
+| 📤 Session Isolation | Separate admin/user sessions, no conflict | @lucifers-0666 | ✅ Done |
+| 📊 Report Export | CSV download of transactions | — | 🚧 In Progress |
+| 🌍 Multi-currency | INR, USD, and other currencies | — | 🔜 Planned |
+| 🔑 2FA | TOTP-based two-factor authentication | — | 🔜 Planned |
+
+---
+
+## 📁 Project Structure
+
+```
+📦 ZenoPay-V1/
+│
+├── 📁 public/                      # Static assets
+│   ├── 📁 css/                     # Per-page stylesheets
+│   │   ├── dashboard.css
+│   │   ├── auth.css
+│   │   ├── kyc-verification.css
+│   │   └── ...
+│   ├── 📁 js/                      # Client-side scripts
+│   └── 📁 images/                  # Icons, logos, SVGs
+│
+├── 📁 routes/                      # Express route files
+│   ├── auth.routes.js
+│   ├── user.routes.js
+│   ├── transaction.routes.js
+│   ├── admin.routes.js
+│   └── notification.routes.js
+│
+├── 📁 controllers/                 # Business logic
+│   ├── AuthController.js
+│   ├── DashboardController.js
+│   ├── TransactionController.js
+│   ├── WalletController.js
+│   ├── KYCController.js
+│   ├── NotificationController.js
+│   ├── AdminAuthController.js
+│   └── ScheduledPaymentController.js
+│
+├── 📁 models/                      # Mongoose schemas
+│   ├── User.js
+│   ├── Wallet.js
+│   ├── Transaction.js
+│   ├── KYC.js
+│   ├── Notification.js
+│   ├── ScheduledPayment.js
+│   ├── LoginHistory.js
+│   └── PaymentGatewaySettings.js
+│
+├── 📁 views/                       # EJS templates
+│   ├── 📁 partials/                # header.ejs, footer.ejs
+│   ├── 📁 auth/                    # login, register, OTP, forgot-password
+│   ├── 📁 dashboard/               # main dashboard, wallet, transactions
+│   ├── 📁 admin/                   # admin panel views
+│   ├── 📁 kyc/                     # kyc-submit, kyc-status, limits
+│   └── 📁 user/                    # profile, settings, scheduled-payments
+│
+├── 📁 middleware/
+│   ├── auth.middleware.js          # User session guard
+│   ├── admin.middleware.js         # Admin session guard
+│   └── pin.middleware.js           # PIN verification enforcer
+│
+├── 📁 services/
+│   ├── EmailService.js             # OTP, welcome, password reset emails
+│   └── ScheduledPaymentsRunner.js  # Cron job service
+│
+├── 📁 config/
+│   └── db.js                       # MongoDB connection
+│
+├── 📄 .env.example
+├── 📄 .gitignore
+├── 📄 package.json
+└── 📄 server.js                    # Entry point
+```
+
+---
+
+## ⚙️ Getting Started
 
 ### Prerequisites
 
-- Node.js **v18+**
-- npm **v9+**
-- MongoDB local instance or MongoDB Atlas
-- Git
+- ![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+- ![MongoDB](https://img.shields.io/badge/MongoDB-v6+-10B981?style=flat-square&logo=mongodb&logoColor=white)
+- ![npm](https://img.shields.io/badge/npm-v9+-CB3837?style=flat-square&logo=npm&logoColor=white)
 
 ### Installation
 
-1. Clone the repository.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lucifers-0666/ZenoPay-V1.git
+   cd ZenoPay-V1
+   ```
 
-```bash
-git clone https://github.com/yourusername/zenpay-V2.git
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-2. Move into the project directory.
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your values
+   ```
 
-```bash
-cd zenpay-V2/ZenoPay
-```
+4. **Create admin user**
+   ```bash
+   npm run create-admin
+   ```
 
-3. Install dependencies.
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm install
-```
+6. **Visit in browser**
+   ```
+   http://localhost:3000        → Public/User app
+   http://localhost:3000/admin  → Admin panel
+   ```
 
-4. Create your environment file.
+---
 
-```bash
-cp .env.example .env
-```
-
-5. Start the development server.
-
-```bash
-npm run start
-```
-
-6. Run tests.
-
-```bash
-npm test
-```
-
-### Environment Variables
+## 🔑 Environment Variables
 
 | Variable | Description | Example |
-|---|---|---|
-| `NODE_ENV` | App environment mode | `development` |
+|----------|-------------|---------|
 | `PORT` | Server port | `3000` |
-| `MONGO_URI` | MongoDB connection URI | `mongodb://localhost:27017/zenopay` |
-| `SESSION_SECRET` | Session signing secret | `replace-with-long-random-secret` |
-| `RAZORPAY_KEY` | Razorpay API key | `rzp_test_xxxxx` |
-| `RAZORPAY_SECRET` | Razorpay secret | `xxxxxx` |
-| `STRIPE_SECRET_KEY` | Stripe secret key | `sk_test_xxxxx` |
-| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | `pk_test_xxxxx` |
-| `EMAIL_PROVIDER` | Email transport provider | `smtp` |
-| `SMTP_HOST` | SMTP host | `smtp.gmail.com` |
-| `SMTP_USER` | SMTP username/email | `your-email@gmail.com` |
-| `SMTP_PASSWORD` | SMTP password/app key | `your-app-password` |
-| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob storage connection | `DefaultEndpointsProtocol=...` |
-| `JWT_SECRET` | JWT signing key | `replace-with-long-random-secret` |
-| `TWILIO_ACCOUNT_SID` | Twilio account SID | `ACxxxxxxxx` |
-| `TWILIO_AUTH_TOKEN` | Twilio auth token | `xxxxxxxx` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/zenopay` |
+| `SESSION_SECRET` | Express session secret key | `your_super_secret` |
+| `SESSION_EXPIRE` | Session max age (ms) | `86400000` |
+| `EMAIL_HOST` | SMTP host for emails | `smtp.gmail.com` |
+| `EMAIL_USER` | SMTP email address | `noreply@zenopay.com` |
+| `EMAIL_PASS` | SMTP email password | `app_password_here` |
+| `ADMIN_EMAIL` | Default admin email | `admin@zenopay.com` |
+| `ADMIN_PASSWORD` | Default admin password | `Admin@123` |
+| `NODE_ENV` | Environment mode | `development` |
+
+> ⚠️ **Never commit `.env`** — use `.env.example` as reference only.
 
 ---
 
-## 🗂️ Folder Structure
+## 📡 API Endpoints
 
-```text
-📁 ZenoPay/
-├── 📁 Admin/
-├── 📁 Controllers/
-├── 📁 Merchant/
-├── 📁 Middleware/
-├── 📁 Models/
-├── 📁 Routes/
-├── 📁 Services/
-├── 📁 config/
-├── 📁 docs/
-├── 📁 public/
-├── 📁 scripts/
-├── 📁 tests/
-├── 📁 utils/
-├── 📁 views/
-├── 📄 app.js
-├── 📄 package.json
-└── 📄 jest.config.js
+### Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/login` | Login page |
+| `POST` | `/login` | Authenticate user |
+| `POST` | `/register` | Register new user |
+| `POST` | `/verify-otp` | Verify email OTP |
+| `POST` | `/forgot-password` | Send reset OTP |
+| `POST` | `/logout` | Destroy session |
+
+### Transactions & Wallet
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/dashboard` | User dashboard |
+| `POST` | `/transactions/send` | P2P money transfer |
+| `GET` | `/transactions/history` | Paginated history |
+| `GET` | `/transactions/history/data` | JSON transaction data |
+| `POST` | `/wallet/topup` | Add money to wallet |
+| `POST` | `/wallet/withdraw` | Withdraw to bank |
+
+### Notifications
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/notifications` | Get all notifications |
+| `POST` | `/notifications/read-all` | Mark all as read |
+
+### Admin
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/admin/dashboard` | Admin overview |
+| `GET` | `/admin/users` | All users list |
+| `PATCH` | `/admin/users/:id/block` | Block/unblock user |
+| `GET` | `/admin/transactions` | All transactions |
+
+---
+
+## 👥 Contributors & Commit Stats
+
+<div align="center">
+
+### 🏆 Top Contributors
+
+<table>
+  <tr>
+    <td align="center" width="220px">
+      <a href="https://github.com/lucifers-0666">
+        <img src="https://github.com/lucifers-0666.png" width="96px" style="border-radius:50%; border: 3px solid #3B82F6"/><br/>
+        <b>lucifers-0666</b>
+      </a><br/><br/>
+      <img src="https://img.shields.io/badge/👑_Lead_Developer-3B82F6?style=flat-square"/>
+      <br/><br/>
+      <sub><b>100+ commits · Core Platform</b></sub><br/>
+      <sub>Auth · Wallet · KYC · Admin · UI/UX</sub><br/>
+      <sub>Notification System · Cron Runner</sub>
+    </td>
+    <td align="center" width="220px">
+      <!-- ⚠️ Replace CONTRIBUTOR_USERNAME and CONTRIBUTOR_NAME below -->
+      <a href="https://github.com/CONTRIBUTOR_USERNAME">
+        <img src="https://github.com/CONTRIBUTOR_USERNAME.png" width="96px" style="border-radius:50%; border: 3px solid #8B5CF6"/><br/>
+        <b>CONTRIBUTOR_NAME</b>
+      </a><br/><br/>
+      <img src="https://img.shields.io/badge/🤝_Contributor-8B5CF6?style=flat-square"/>
+      <br/><br/>
+      <sub><b>X commits · [Feature Area]</b></sub><br/>
+      <sub>[What they built]</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 📊 Commit Activity
+
+```
+📌 Contribution Breakdown (100+ commits scanned):
+
+  lucifers-0666    ████████████████████████████████  100+ commits  🏆 Most Commits
+                   Core Auth · Wallet Engine · KYC Flow
+                   Admin Panel · Notification Polling
+                   Session Security · Cron Runner · UI Design
+
+  [Contributor 2]  ████████                           X commits
+                   [Feature they worked on]
 ```
 
 ---
 
-## 🛣️ Roadmap
+### 🔬 Who Built What
 
-- [x] User authentication and role-based access
-- [x] Wallet and transaction management
-- [x] Merchant onboarding modules
-- [ ] Real-time transaction notifications (planned)
-- [ ] Advanced analytics and BI dashboards (planned)
-- [ ] Multi-currency intelligent settlements (planned)
+| Contributor | Feature | Area |
+|-------------|---------|------|
+| [@lucifers-0666](https://github.com/lucifers-0666) 👑 | P2P Wallet + Transaction PIN System | Backend + Frontend |
+| [@lucifers-0666](https://github.com/lucifers-0666) | OTP Email Verification + Session Isolation | Security |
+| [@lucifers-0666](https://github.com/lucifers-0666) | Multi-Tier KYC Flow + Limits Page | Compliance |
+| [@lucifers-0666](https://github.com/lucifers-0666) | Real-time Notification Polling (25s) | Real-time |
+| [@lucifers-0666](https://github.com/lucifers-0666) | Admin Panel + Dashboard Redesign | Admin |
+| [@lucifers-0666](https://github.com/lucifers-0666) | Scheduled Payments Cron Runner | Automation |
+| [@lucifers-0666](https://github.com/lucifers-0666) | ZenoPay Brand Design System | UI/UX |
+| @CONTRIBUTOR_USERNAME | [Their unique feature] | [Area] |
 
 ---
 
-## 📜 License & Acknowledgements
+### 🌐 Live Contributor Graph
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Contributors](https://contrib.rocks/image?repo=lucifers-0666/ZenoPay-V1)](https://github.com/lucifers-0666/ZenoPay-V1/graphs/contributors)
 
-This project is built with the amazing open-source ecosystem around:
+</div>
 
-- Express.js
-- MongoDB + Mongoose
-- EJS
-- Jest + Supertest
-- Stripe / Razorpay / PayPal APIs
-- Nodemailer / Twilio / Azure Blob Storage
+---
+
+## 🗺️ Roadmap
+
+- [x] Session-based auth with OTP email verification
+- [x] P2P wallet transfer with transaction PIN
+- [x] KYC multi-step verification flow
+- [x] Real-time notification polling
+- [x] Scheduled payments cron service
+- [x] Admin panel with user & transaction management
+- [x] CSRF protection + session isolation
+- [x] Mobile responsive with bottom nav
+- [ ] CSV/PDF export for transaction reports
+- [ ] Razorpay / Stripe payment gateway integration
+- [ ] Multi-currency support (INR, USD)
+- [ ] TOTP two-factor authentication (2FA)
+- [ ] Real-time transactions with Socket.io
+- [ ] Mobile app (React Native / Kotlin)
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**.
+
+```
+MIT License — Copyright (c) 2026 lucifer's lab (lucifers-0666)
+```
 
 ---
 
 <div align="center">
 
-### Made with ❤️ by ZenoPay Team
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:8B5CF6,50:3B82F6,100:1E3A8A&height=130&section=footer&text=Made%20with%20❤️%20by%20lucifer's%20lab&fontSize=18&fontColor=ffffff&fontAlignY=65" width="100%" alt="Footer"/>
+
+**⭐ If ZenoPay helped you, give it a star!**
+
+[![GitHub followers](https://img.shields.io/github/followers/lucifers-0666?style=social)](https://github.com/lucifers-0666)
 
 </div>
