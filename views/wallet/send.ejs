@@ -30,18 +30,18 @@
       --transition:all 180ms cubic-bezier(0.16,1,0.3,1);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    body { margin: 0; font-family: 'Inter', sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); color: var(--text); }
     .page { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
     h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; font-size: 2rem; }
     .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
     .label { font-weight: 600; margin-bottom: 8px; display: block; }
     .row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
     input[type='text'], input[type='number'] {
-      width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(40,37,29,0.2); outline: none; transition: var(--transition);
+      width: 100%; height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(40,37,29,0.2); outline: none; transition: var(--transition);
     }
     input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.22); }
     .find-btn, .primary-btn {
-      border: none; border-radius: 8px; padding: 12px 16px; cursor: pointer; font-weight: 600; transition: var(--transition);
+      border: none; border-radius: 8px; height: 40px; padding: 0 16px; cursor: pointer; font-weight: 600; transition: var(--transition);
       background: var(--primary); color: #fff;
     }
     .open-pin-btn { margin-top: 14px; }
@@ -101,6 +101,12 @@
   <%- include('../partials/header') %>
 
   <main class="page">
+    <% if (previewMode) { %>
+      <div style="margin-bottom:12px;padding:12px 14px;border:1px solid #bfdbfe;border-left:4px solid #2563eb;background:#eff6ff;border-radius:10px;color:#1d4ed8;font-size:14px;">
+        <strong>Preview mode:</strong> UI is visible without login. For real transfers, please <a href="/login" style="color:#1d4ed8;font-weight:700;">sign in</a>.
+      </div>
+    <% } %>
+
     <h1>Send Money</h1>
     <section class="card">
       <p class="muted" style="margin-top:0;">Available Balance: ₹<%= Number(wallet?.balance || 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></p>
@@ -147,6 +153,8 @@
           <p style="margin:.35rem 0 0;" class="muted">Reference: <%= successData.reference %></p>
         </article>
       <% } %>
+
+      <input type="hidden" id="availableBalanceValue" value="<%= Number(wallet?.balance || 0) %>" />
     </section>
   </main>
 
@@ -172,6 +180,7 @@
   <% } %>
 
   <script>
+    const availableBalance = Number(document.getElementById('availableBalanceValue')?.value || 0);
     const recipientInput = document.getElementById('recipient');
     const amountInput = document.getElementById('amount');
     const summaryAmount = document.getElementById('summaryAmount');
@@ -181,6 +190,7 @@
     const amountError = document.getElementById('amountError');
     const findUserBtn = document.getElementById('findUserBtn');
     const sendForm = document.getElementById('sendForm');
+    let recipientVerified = !!document.querySelector('#recipientResult .recipient-card');
 
     function updateSummary() {
       const amount = Number(amountInput.value || 0);
@@ -190,6 +200,11 @@
     recipientInput.addEventListener('input', updateSummary);
     amountInput.addEventListener('input', updateSummary);
     updateSummary();
+
+    recipientInput.addEventListener('input', () => {
+      recipientVerified = false;
+      recipientResult.innerHTML = '';
+    });
 
     findUserBtn.addEventListener('click', async () => {
       const q = recipientInput.value.trim();
@@ -204,6 +219,7 @@
         const res = await fetch(`/wallet/search-user?q=${encodeURIComponent(q)}`);
         const data = await res.json();
         if (data.found) {
+          recipientVerified = true;
           recipientResult.innerHTML = `
             <article class="recipient-card">
               <div class="initials">${data.initials}</div>
@@ -212,10 +228,12 @@
           `;
           summaryRecipient.textContent = data.name;
         } else {
+          recipientVerified = false;
           recipientResult.innerHTML = '';
           recipientError.textContent = 'User not found';
         }
       } catch (e) {
+        recipientVerified = false;
         recipientError.textContent = 'Could not search right now.';
       } finally {
         findUserBtn.disabled = false;
@@ -259,8 +277,16 @@
         recipientError.textContent = 'Recipient is required.';
         return;
       }
+      if (!recipientVerified) {
+        recipientError.textContent = 'Please click Find User and verify recipient first.';
+        return;
+      }
       if (!Number.isFinite(amount) || amount <= 0) {
         amountError.textContent = 'Please enter a valid amount.';
+        return;
+      }
+      if (amount > availableBalance) {
+        amountError.textContent = 'Insufficient balance.';
         return;
       }
       openPinModal();

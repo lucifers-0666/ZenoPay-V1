@@ -6,27 +6,151 @@
 const Merchant = require("../../Models/Merchant");
 const ZenoPayUser = require("../../Models/ZenoPayUser");
 const TransactionHistory = require("../../Models/TransactionHistory");
+const Transaction = require("../../Models/Transaction");
+const Wallet = require("../../Models/Wallet");
+const Payout = require("../../Models/Payout");
 const Order = require("../../Models/Order");
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 // ============ DASHBOARD CONTROLLER ============
 
+const getSessionZenoPayId = (req) => {
+  return req.session?.merchant?.ZenoPayId
+    || req.session?.merchant?.ZenoPayID
+    || req.session?.user?.ZenoPayID
+    || req.session?.user?.ZenoPayId
+    || req.session?.user?.userId
+    || null;
+};
+
+const resolveMerchantFromRequest = async (req) => {
+  if (req.session?.merchant?._id) {
+    const bySessionMerchantId = await Merchant.findById(req.session.merchant._id);
+    if (bySessionMerchantId) return bySessionMerchantId;
+  }
+
+  const zenoPayId = getSessionZenoPayId(req);
+  if (zenoPayId) {
+    const byZenoPayId = await Merchant.findOne({ ZenoPayId: zenoPayId });
+    if (byZenoPayId) return byZenoPayId;
+  }
+
+  return null;
+};
+
+const getLast7DaysLabels = () => {
+  const labels = [];
+  const dates = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    dates.push(new Date(d));
+    labels.push(d.toLocaleDateString("en-US", { weekday: "short" }));
+  }
+  return { labels, dates };
+};
+
+const toAmount = (value) => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value?.toString === "function") {
+    const parsed = Number(value.toString());
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
+const sendPayoutConfirmationEmail = async ({ to, merchantName, amount, payoutId }) => {
+  if (!to) return;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: String(process.env.SMTP_SECURE || "false") === "true",
+      auth: process.env.EMAIL_USER && process.env.EMAIL_PASS
+        ? {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        }
+        : undefined,
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || "no-reply@zenopay.local",
+      to,
+      subject: "ZenoPay Payout Request Received",
+      text: `Hi ${merchantName || "Merchant"}, your payout request of ₹${Number(amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been created with status pending. Request ID: ${payoutId}`,
+    });
+  } catch (error) {
+    console.error("[Merchant Payout] Failed to send confirmation email:", error.message);
+  }
+};
+
+const buildDashboardData = async (merchant) => {
+  const merchantId = merchant._id;
+
+  const [
+    completedTransactions,
+    totalTransactions,
+    pendingSettlements,
+    activePaymentLinks,
+    recentTransactions,
+  ] = await Promise.all([
+    Transaction.find({ merchant: merchantId, status: "completed", type: "receive" }).sort({ createdAt: -1 }).lean(),
+    Transaction.countDocuments({ merchant: merchantId }),
+    Transaction.countDocuments({ merchant: merchantId, status: "pending" }),
+    Transaction.countDocuments({ merchant: merchantId, "metadata.channel": "payment_link", status: { $in: ["pending", "completed"] } }),
+    Transaction.find({ merchant: merchantId }).sort({ createdAt: -1 }).limit(10).lean(),
+  ]);
+
+  const totalRevenue = completedTransactions.reduce((sum, tx) => sum + toAmount(tx.amount), 0);
+
+  const { labels, dates } = getLast7DaysLabels();
+  const dailyTotals = dates.map(() => 0);
+
+  for (const tx of completedTransactions) {
+    const txDate = new Date(tx.createdAt || Date.now());
+    txDate.setHours(0, 0, 0, 0);
+    const idx = dates.findIndex((d) => d.getTime() === txDate.getTime());
+    if (idx >= 0) {
+      dailyTotals[idx] += toAmount(tx.amount);
+    }
+  }
+
+  return {
+    kpis: {
+      totalRevenue,
+      totalTransactions,
+      pendingSettlements,
+      activePaymentLinks,
+    },
+    chart: {
+      labels,
+      data: dailyTotals.map((n) => Number(n.toFixed(2))),
+    },
+    recentTransactions,
+  };
+};
+
 const getDashboard = async (req, res) => {
   try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId }).lean();
+    const merchant = await resolveMerchantFromRequest(req);
 
     if (!merchant) {
       return res.status(404).json({ success: false, error: "Merchant not found" });
     }
 
-    // Get dashboard overview
-    const stats = await getDashboardStats(userId);
+    const dashboardData = await buildDashboardData(merchant);
     
     res.render("merchant/dashboard", {
       pageTitle: "Merchant Dashboard",
       merchant,
-      stats,
+      stats: dashboardData.kpis,
+      chart: dashboardData.chart,
+      recentTransactions: dashboardData.recentTransactions,
       user: req.session.user,
     });
   } catch (error) {
@@ -35,36 +159,25 @@ const getDashboard = async (req, res) => {
   }
 };
 
-const getDashboardStats = async (userId) => {
+const getDashboardStats = async (req, res) => {
   try {
-    const merchant = await Merchant.findOne({ UserID: userId });
-    const merchantId = merchant?._id;
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const dashboardData = await buildDashboardData(merchant);
 
-    const thisMonth = new Date();
-    thisMonth.setDate(1);
-    thisMonth.setHours(0, 0, 0, 0);
-
-    return {
-      todayRevenue: await calculateRevenue(merchantId, today),
-      monthlyRevenue: await calculateRevenue(merchantId, thisMonth),
-      totalTransactions: await TransactionHistory.countDocuments({
-        MerchantID: merchantId,
-      }),
-      totalCustomers: await TransactionHistory.distinct("SenderID", {
-        MerchantID: merchantId,
-      }).then((ids) => ids.length),
-      totalOrders: await Order.countDocuments({ MerchantID: merchantId }),
-      // TODO: Payout model missing — implement when Payout feature is built
-      pendingPayouts: 0,
-      // TODO: Dispute model missing — implement when Dispute feature is built
-      openDisputes: 0,
-    };
+    return res.json({
+      success: true,
+      data: {
+        ...dashboardData.kpis,
+        chart: dashboardData.chart,
+      },
+    });
   } catch (error) {
     console.error("Get stats error:", error);
-    return {};
+    return res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -72,24 +185,54 @@ const getDashboardStats = async (userId) => {
 
 const getTransactions = async (req, res) => {
   try {
-    const userId = req.session.user._id;
-    const merchant = await Merchant.findOne({ UserID: userId });
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
+
+    const merchantId = merchant._id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
+    const status = String(req.query.status || "").trim();
+    const search = String(req.query.search || "").trim();
 
-    const transactions = await TransactionHistory.find({
-      MerchantID: merchant._id,
-    })
-      .sort({ TransactionDate: -1 })
+    const query = { merchant: merchantId };
+    if (status) query.status = status;
+    if (search) {
+      query.$or = [
+        { reference: { $regex: search, $options: "i" } },
+        { "metadata.counterpartyName": { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const transactions = await Transaction.find(query)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("SenderID", "ZenoPayID FullName Email")
       .lean();
 
-    const total = await TransactionHistory.countDocuments({
-      MerchantID: merchant._id,
-    });
+    const total = await Transaction.countDocuments(query);
+
+    const acceptsHtml = String(req.headers.accept || "").includes("text/html") && !req.xhr;
+
+    if (acceptsHtml) {
+      return res.render("merchant/transactions", {
+        pageTitle: "Merchant Transactions",
+        merchant,
+        user: req.session.user,
+        transactions,
+        filters: {
+          status,
+          search,
+        },
+        pagination: {
+          currentPage: page,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      });
+    }
 
     res.json({
       success: true,
@@ -460,27 +603,149 @@ const appealDispute = async (req, res) => {
 // ============ PAYOUTS ============
 
 const getPayouts = async (req, res) => {
-  // TODO: Payout model missing — implement when Payout feature is built
-  return res.status(501).json({
-    success: false,
-    error: "Payout feature is not available yet (model missing)",
-  });
+  try {
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
+
+    const merchantUser = await ZenoPayUser.findOne({
+      $or: [{ ZenoPayID: merchant.ZenoPayId }, { userId: merchant.ZenoPayId }],
+    }).lean();
+
+    const merchantWallet = merchantUser
+      ? await Wallet.findOne({ userId: merchantUser._id }).lean()
+      : null;
+
+    const payoutHistory = await Payout.find({ merchantId: merchant._id })
+      .sort({ requestedAt: -1 })
+      .lean();
+
+    const acceptsHtml = String(req.headers.accept || "").includes("text/html") && !req.xhr;
+    if (acceptsHtml) {
+      return res.render("merchant/payouts", {
+        pageTitle: "Merchant Payouts",
+        merchant,
+        user: req.session.user,
+        availableBalance: Number(merchantWallet?.balance || 0),
+        payoutHistory,
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        availableBalance: Number(merchantWallet?.balance || 0),
+        payoutHistory,
+      },
+    });
+  } catch (error) {
+    console.error("Get payouts error:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 const requestPayout = async (req, res) => {
-  // TODO: Payout model missing — implement when Payout feature is built
-  return res.status(501).json({
-    success: false,
-    error: "Payout feature is not available yet (model missing)",
-  });
+  try {
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
+
+    const amount = Number(req.body?.amount);
+    const bankAccountName = String(req.body?.bankAccountName || "").trim();
+    const bankAccountNumber = String(req.body?.bankAccountNumber || "").trim();
+    const bankIFSC = String(req.body?.bankIFSC || "").trim().toUpperCase();
+    const isHtmlRequest = String(req.headers.accept || "").includes("text/html") && !req.xhr;
+
+    const fail = (status, message) => {
+      if (isHtmlRequest) {
+        return res.redirect(`/merchant/payouts?error=${encodeURIComponent(message)}`);
+      }
+      return res.status(status).json({ success: false, error: message });
+    };
+
+    if (!Number.isFinite(amount) || amount < 100) {
+      return fail(400, "Minimum payout amount is ₹100");
+    }
+
+    if (!bankAccountName) {
+      return fail(400, "Bank account name is required");
+    }
+
+    if (!/^\d{9,18}$/.test(bankAccountNumber)) {
+      return fail(400, "Bank account number must be 9 to 18 digits");
+    }
+
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bankIFSC)) {
+      return fail(400, "Invalid IFSC code format");
+    }
+
+    const merchantUser = await ZenoPayUser.findOne({
+      $or: [{ ZenoPayID: merchant.ZenoPayId }, { userId: merchant.ZenoPayId }],
+    });
+
+    if (!merchantUser) {
+      return fail(404, "Merchant owner account not found");
+    }
+
+    const merchantWallet = await Wallet.findOne({ userId: merchantUser._id });
+    if (!merchantWallet) {
+      return fail(404, "Merchant wallet not found");
+    }
+
+    const currentBalance = Number(merchantWallet.balance || 0);
+    if (amount > currentBalance) {
+      return fail(400, "Payout amount exceeds available balance");
+    }
+
+    merchantWallet.balance = Number((currentBalance - amount).toFixed(2));
+    await merchantWallet.save();
+
+    const payout = await Payout.create({
+      merchantId: merchant._id,
+      amount,
+      bankAccountName,
+      bankAccountNumber,
+      bankIFSC,
+      status: "pending",
+      requestedAt: new Date(),
+    });
+
+    await sendPayoutConfirmationEmail({
+      to: merchantUser.Email,
+      merchantName: merchant.BusinessName,
+      amount,
+      payoutId: payout._id,
+    });
+
+    if (isHtmlRequest) {
+      return res.redirect("/merchant/payouts?success=Payout%20request%20submitted");
+    }
+
+    return res.json({ success: true, data: payout, message: "Payout request submitted" });
+  } catch (error) {
+    console.error("Request payout error:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 const getPayoutDetails = async (req, res) => {
-  // TODO: Payout model missing — implement when Payout feature is built
-  return res.status(501).json({
-    success: false,
-    error: "Payout feature is not available yet (model missing)",
-  });
+  try {
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
+
+    const payout = await Payout.findOne({ _id: req.params.id, merchantId: merchant._id }).lean();
+    if (!payout) {
+      return res.status(404).json({ success: false, error: "Payout not found" });
+    }
+
+    return res.json({ success: true, data: payout });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 // ============ API KEYS ============
@@ -806,6 +1071,48 @@ function groupByPeriod(transactions, period) {
   return grouped;
 }
 
+const getChartData = async (req, res) => {
+  try {
+    const merchant = await resolveMerchantFromRequest(req);
+    if (!merchant) {
+      return res.status(404).json({ success: false, error: "Merchant not found" });
+    }
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+
+    const transactions = await Transaction.find({
+      merchant: merchant._id,
+      status: "completed",
+      type: "receive",
+      createdAt: { $gte: sevenDaysAgo },
+    }).lean();
+
+    const { labels, dates } = getLast7DaysLabels();
+    const values = dates.map(() => 0);
+
+    for (const tx of transactions) {
+      const txDate = new Date(tx.createdAt || Date.now());
+      txDate.setHours(0, 0, 0, 0);
+      const idx = dates.findIndex((d) => d.getTime() === txDate.getTime());
+      if (idx >= 0) {
+        values[idx] += toAmount(tx.amount);
+      }
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        labels,
+        data: values.map((n) => Number(n.toFixed(2))),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
   getDashboard,
   getDashboardStats,
@@ -851,11 +1158,5 @@ module.exports = {
   createWebhook,
   testWebhook,
   deleteWebhook,
-  getChartData: async (req, res) => {
-    try {
-      res.json({ success: true, data: {} });
-    } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  },
+  getChartData,
 };

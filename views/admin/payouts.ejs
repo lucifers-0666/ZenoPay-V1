@@ -1,0 +1,101 @@
+<section class="panel-shell" style="padding: 24px;">
+  <header style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap; margin-bottom:16px;">
+    <div>
+      <h1 style="margin:0;font-size:1.4rem;">Pending Payouts</h1>
+      <p style="margin:6px 0 0;color:#64748b;">Review and process merchant bank payout requests</p>
+    </div>
+  </header>
+
+  <% if (success) { %>
+    <div style="padding:10px 12px;border:1px solid #bbf7d0;background:#ecfdf5;color:#166534;border-radius:8px;margin-bottom:10px;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div style="padding:10px 12px;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:8px;margin-bottom:10px;"><%= error %></div>
+  <% } %>
+
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Date</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Merchant</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Amount</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Bank Details</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Status</th>
+          <th style="text-align:left;padding:10px 12px;border-bottom:1px solid #e2e8f0;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!payouts || payouts.length === 0) { %>
+          <tr>
+            <td colspan="6" style="padding:14px 12px;color:#64748b;">No pending payouts.</td>
+          </tr>
+        <% } %>
+        <% (payouts || []).forEach((p) => { %>
+          <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;"><%= new Date(p.requestedAt || p.createdAt || Date.now()).toLocaleString('en-IN') %></td>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+              <div><strong><%= p.merchantName %></strong></div>
+              <div style="color:#64748b;font-size:12px;"><%= p.merchantIdLabel %> • <%= p.merchantEmail %></div>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;">₹<%= Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+              <div><%= p.bankAccountName %></div>
+              <div style="color:#64748b;font-size:12px;"><%= p.bankAccountNumber %> • <%= p.bankIFSC %></div>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;"><%= p.status %></td>
+            <td style="padding:10px 12px;border-bottom:1px solid #f1f5f9;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" data-id="<%= p._id %>" class="approve-btn" style="border:none;background:#16a34a;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer;">Approve</button>
+                <button type="button" data-id="<%= p._id %>" class="reject-btn" style="border:none;background:#dc2626;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer;">Reject</button>
+              </div>
+              <input type="text" id="reason-<%= p._id %>" placeholder="Rejection reason" style="margin-top:8px;width:100%;height:34px;border:1px solid #cbd5e1;border-radius:8px;padding:0 8px;" />
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  (function () {
+    async function postAction(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {}),
+      });
+      return res.json();
+    }
+
+    document.querySelectorAll('.approve-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const result = await postAction(`/admin/payouts/${id}/approve`);
+        if (!result.success) {
+          alert(result.message || 'Failed to approve payout');
+          return;
+        }
+        window.location.reload();
+      });
+    });
+
+    document.querySelectorAll('.reject-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const reason = document.getElementById(`reason-${id}`)?.value || '';
+        if (!reason.trim()) {
+          alert('Rejection reason is required');
+          return;
+        }
+        const result = await postAction(`/admin/payouts/${id}/reject`, { rejectionReason: reason });
+        if (!result.success) {
+          alert(result.message || 'Failed to reject payout');
+          return;
+        }
+        window.location.reload();
+      });
+    });
+  })();
+</script>

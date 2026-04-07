@@ -42,6 +42,7 @@ router.get("/reset-password", (req, res) => {
 });
 router.get("/reset-password/:token", LoginController.getResetPassword);
 router.post("/reset-password", LoginController.postResetPassword);
+router.post("/reset-password/:token", LoginController.postResetPassword);
 
 // Email Verification
 router.get("/verify-email/:token", EmailVerificationController.getVerifyEmail);

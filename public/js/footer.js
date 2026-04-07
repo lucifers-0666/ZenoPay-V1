@@ -11,7 +11,103 @@
       initFooterAnimations();
       initStatsCounter();
       initSmoothScroll();
+      initGlobalModalFallback();
     });
+
+    /**
+     * Global modal close fallback
+     * Handles inconsistent modal patterns across pages:
+     * - close button clicks
+     * - backdrop clicks
+     * - Escape key
+     */
+    function initGlobalModalFallback() {
+      if (window.__zenoGlobalModalFallbackBound) return;
+      window.__zenoGlobalModalFallbackBound = true;
+
+      const MODAL_SELECTOR = '.modal, .modal-overlay, [role="dialog"]';
+      const CLOSE_TRIGGER_SELECTOR = [
+        '[data-close-modal]',
+        '[data-dismiss="modal"]',
+        '.close-modal',
+        '.modal-close',
+        '.close-btn',
+        '.inv-close',
+        '.beneficiary-modal-close'
+      ].join(',');
+
+      function isVisibleModal(el) {
+        if (!el || !el.matches) return false;
+        if (!el.matches(MODAL_SELECTOR)) return false;
+        if (el.hasAttribute('hidden')) return false;
+
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      }
+
+      function findModalFromTrigger(trigger) {
+        if (!trigger) return null;
+
+        const explicitId = trigger.getAttribute('data-close-modal');
+        if (explicitId) {
+          return document.getElementById(explicitId);
+        }
+
+        const nearestModal = trigger.closest(MODAL_SELECTOR);
+        if (nearestModal) return nearestModal;
+
+        return null;
+      }
+
+      function closeModalElement(modalEl) {
+        if (!modalEl) return;
+
+        modalEl.classList.remove('open', 'active', 'show', 'visible', 'modal-open');
+        modalEl.removeAttribute('open');
+        modalEl.setAttribute('hidden', 'hidden');
+        modalEl.style.display = 'none';
+        modalEl.setAttribute('aria-hidden', 'true');
+
+        document.body.classList.remove('modal-open', 'no-scroll');
+        if (document.body.style.overflow === 'hidden') {
+          document.body.style.overflow = '';
+        }
+      }
+
+      document.addEventListener('click', function(event) {
+        const closeTrigger = event.target.closest(CLOSE_TRIGGER_SELECTOR);
+        if (closeTrigger) {
+          const modal = findModalFromTrigger(closeTrigger);
+          if (modal) {
+            closeModalElement(modal);
+          }
+          return;
+        }
+
+        const clickedModalBackdrop = event.target.closest(MODAL_SELECTOR);
+        if (clickedModalBackdrop && event.target === clickedModalBackdrop && isVisibleModal(clickedModalBackdrop)) {
+          closeModalElement(clickedModalBackdrop);
+        }
+      });
+
+      document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Escape') return;
+
+        const visibleModals = Array.from(document.querySelectorAll(MODAL_SELECTOR)).filter(isVisibleModal);
+        const topModal = visibleModals.pop();
+        if (topModal) {
+          closeModalElement(topModal);
+        }
+      });
+
+      window.ZenoModal = window.ZenoModal || {};
+      window.ZenoModal.closeById = function(modalId) {
+        closeModalElement(document.getElementById(modalId));
+      };
+    }
   
     /**
      * Newsletter Form Handler

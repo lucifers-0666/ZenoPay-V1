@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Merchant Transactions' %></title>
+  <style>
+    body { margin:0; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f8fafc; color:#0f172a; }
+    .wrap { max-width:1200px; margin:0 auto; padding:24px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; }
+    h1 { margin:0 0 8px; }
+    .muted { color:#64748b; margin:0 0 16px; }
+    form.filters { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+    input, select, button { height:40px; border:1px solid #cbd5e1; border-radius:8px; padding:0 10px; font:inherit; }
+    button { background:#2563eb; color:#fff; border-color:#2563eb; font-weight:600; cursor:pointer; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #e2e8f0; font-size:13px; }
+    th { color:#64748b; }
+    .status { padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+    .status.completed { background:#dcfce7; color:#166534; }
+    .status.pending { background:#fef3c7; color:#92400e; }
+    .status.failed { background:#fee2e2; color:#991b1b; }
+    .pager { display:flex; justify-content:space-between; margin-top:10px; color:#64748b; font-size:13px; }
+    @media (max-width: 960px) { form.filters { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Transactions</h1>
+    <p class="muted"><%= merchant?.BusinessName || 'Merchant' %> • Full transaction history</p>
+
+    <section class="card">
+      <form class="filters" method="GET" action="/merchant/transactions">
+        <input type="date" name="from" value="<%= filters?.from || '' %>" />
+        <input type="date" name="to" value="<%= filters?.to || '' %>" />
+        <select name="status">
+          <option value="">All Status</option>
+          <option value="pending" <%= filters?.status === 'pending' ? 'selected' : '' %>>Pending</option>
+          <option value="completed" <%= filters?.status === 'completed' ? 'selected' : '' %>>Completed</option>
+          <option value="failed" <%= filters?.status === 'failed' ? 'selected' : '' %>>Failed</option>
+        </select>
+        <input type="text" name="search" placeholder="Transaction ID or payer name" value="<%= filters?.search || '' %>" />
+        <button type="submit">Apply Filters</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Transaction ID</th>
+            <th>Payer</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if ((transactions || []).length === 0) { %>
+            <tr><td colspan="5" style="color:#64748b;">No transactions found.</td></tr>
+          <% } %>
+          <% (transactions || []).forEach((tx) => { %>
+            <tr>
+              <td><%= new Date(tx.createdAt || Date.now()).toLocaleString('en-IN') %></td>
+              <td><%= tx.reference %></td>
+              <td><%= tx?.metadata?.counterpartyName || '-' %></td>
+              <td>₹<%= Number(tx.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td><span class="status <%= tx.status %>"><%= tx.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <div class="pager">
+        <span>Page <%= pagination?.currentPage || 1 %> of <%= pagination?.pages || 1 %></span>
+        <span>Total: <%= Number(pagination?.total || 0).toLocaleString('en-IN') %></span>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Pay Request - ZenoPay' %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); margin: 0; color: #1f2937; }
+    .wrap { max-width: 520px; margin: 40px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+    h1 { margin-top: 0; font-size: 22px; }
+    .muted { color: #6b7280; font-size: 14px; }
+    .amt { font-size: 30px; font-weight: 700; margin: 8px 0; }
+    .row { margin-top: 12px; }
+    input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+    button { margin-top: 14px; width: 100%; height: 40px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .65; cursor: not-allowed; }
+    .error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 10px; border-radius: 8px; margin-top: 12px; }
+    .ok { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <div class="wrap">
+    <div class="card">
+      <h1>Pay via Link</h1>
+      <div class="muted">Request ID: <strong><%= requestDoc.requestId %></strong></div>
+      <div class="muted">Pay to: <strong><%= recipient?.name || recipient?.ZenoPayID || 'User' %></strong> (<%= recipient?.ZenoPayID || '-' %>)</div>
+      <div class="amt"><%= requestDoc.currency %> <%= Number(requestDoc.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></div>
+      <div class="muted">Description: <%= requestDoc.description || 'No description' %></div>
+      <div class="muted">Expires: <%= requestDoc.expiresAt ? new Date(requestDoc.expiresAt).toLocaleString('en-IN') : '-' %></div>
+
+      <% if (previewMode) { %>
+        <div class="ok" style="margin-top:12px;">This is a preview for a placeholder request ID. Create a request from <a href="/request-money">Request Money</a> to test live payment links.</div>
+      <% } %>
+
+      <% if (failureMessage) { %>
+        <div class="error"><%= failureMessage %></div>
+      <% } %>
+
+      <% if (canPay) { %>
+        <form id="payForm">
+          <% if (!query || !query.mode || query.mode !== 'loggedin') { %>
+            <div class="row">
+              <input type="text" id="payerZenoPayId" placeholder="Your ZenoPay ID" />
+            </div>
+            <div class="row">
+              <input type="password" id="payerPin" placeholder="Transaction PIN" maxlength="6" />
+            </div>
+          <% } %>
+          <button id="payBtn" type="submit">Pay Now</button>
+        </form>
+        <div id="msg"></div>
+      <% } %>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    const form = document.getElementById('payForm');
+    if (form) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payBtn = document.getElementById('payBtn');
+        const msg = document.getElementById('msg');
+        payBtn.disabled = true;
+        payBtn.textContent = 'Processing...';
+        msg.innerHTML = '';
+
+        const payload = {};
+        const payerZenoPayId = document.getElementById('payerZenoPayId');
+        const payerPin = document.getElementById('payerPin');
+
+        if (payerZenoPayId && payerPin) {
+          payload.payerZenoPayId = payerZenoPayId.value.trim();
+          payload.payerPin = payerPin.value.trim();
+        }
+
+        try {
+          const response = await fetch(window.location.pathname, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            msg.innerHTML = `<div class="error">${data.message || 'Payment failed'}</div>`;
+          } else {
+            msg.innerHTML = `<div class="ok">Payment successful. Reference: ${data.reference}</div>`;
+            payBtn.textContent = 'Paid';
+          }
+        } catch (_) {
+          msg.innerHTML = '<div class="error">Unable to process payment</div>';
+          payBtn.disabled = false;
+          payBtn.textContent = 'Pay Now';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

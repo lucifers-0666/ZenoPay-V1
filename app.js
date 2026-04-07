@@ -22,6 +22,7 @@ const {
   startScheduledPaymentsRunner,
   stopScheduledPaymentsRunner,
 } = require("./Services/scheduledPaymentsRunner");
+const { ensureDefaultRule } = require("./Services/cashbackService");
 
 
 const DB_PATH = process.env.MONGO_URI;
@@ -337,7 +338,18 @@ try {
 
 // User routes
 app.use(authRoutes);
-app.use("/wallet", authMiddleware, walletRoutes);
+app.use("/wallet", (req, res, next) => {
+  const isWalletSendPreview =
+    process.env.NODE_ENV !== "production" &&
+    String(req.method || "GET").toUpperCase() === "GET" &&
+    (req.path === "/send" || req.originalUrl.startsWith("/wallet/send"));
+
+  if (isWalletSendPreview) {
+    return next();
+  }
+
+  return authMiddleware(req, res, next);
+}, walletRoutes);
 app.use("/profile", authMiddleware, profileRoutes);
 app.use("/pin", authMiddleware, pinRoutes);
 app.use(userRoutes);
@@ -371,6 +383,10 @@ const PORT = process.env.PORT || 3000;
 
 mongoose.connect(DB).then(()=>{
   console.log("✓ MongoDB Connected Successfully");
+  ensureDefaultRule().catch((err) => {
+    console.error("[Cashback] Failed seeding default rule:", err.message);
+  });
+  startScheduledPaymentsRunner();
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });

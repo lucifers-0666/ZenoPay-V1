@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Beneficiaries - ZenoPay' %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); color:#0f172a; }
+    .beneficiaries-wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .beneficiaries-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+    .beneficiaries-head h1 { margin:0; }
+    .beneficiaries-actions { display:flex; gap:8px; }
+    .beneficiaries-search, .beneficiaries-add { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:12px; }
+    .beneficiaries-search input, .beneficiaries-add input { width:100%; height:38px; padding:0 12px; border:1px solid #cbd5e1; border-radius:10px; }
+    .beneficiaries-add-grid { display:grid; grid-template-columns: 1fr 1fr auto; gap:8px; }
+    .btn { border:0; border-radius:10px; height:38px; padding:0 14px; cursor:pointer; font-weight:600; transition:all .2s ease; display:inline-flex; align-items:center; gap:8px; }
+    .btn-primary { background:#2563eb; color:#fff; }
+    .btn-danger { background:#ef4444; color:#fff; }
+    .btn-primary:hover { background:#1d4ed8; }
+    .btn-danger:hover { background:#dc2626; }
+    .cards { display:grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; box-shadow:0 8px 20px rgba(2,6,23,.04); }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .avatar { width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:#dbeafe; color:#1e40af; font-weight:700; }
+    .muted { color:#64748b; font-size:13px; }
+    .empty { text-align:center; padding:30px 12px; color:#64748b; border:1px dashed #cbd5e1; border-radius:12px; background:#fff; }
+    .hidden-empty { display: none; }
+    @media (max-width: 768px) { .beneficiaries-add-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="beneficiaries-wrap">
+    <div class="beneficiaries-head">
+      <div>
+        <h1>Saved Beneficiaries</h1>
+        <p class="muted">Manage frequent contacts for faster transfers.</p>
+      </div>
+    </div>
+
+    <% if (readOnlyPreview) { %>
+      <section class="beneficiaries-search" style="border-left:4px solid #2563eb;">
+        <p class="muted" style="margin:0;">
+          <strong>Preview mode:</strong> This page is visible without login for UI testing.
+          Add/remove/search actions are disabled until you <a href="/login">sign in</a>.
+        </p>
+      </section>
+    <% } %>
+
+    <section class="beneficiaries-add">
+      <h3>Add Beneficiary</h3>
+      <form id="addBeneficiaryForm" class="beneficiaries-add-grid" <%= readOnlyPreview ? 'style="opacity:.65;pointer-events:none;"' : '' %>>
+        <input type="email" id="beneficiaryEmail" placeholder="Enter beneficiary email" required />
+        <input type="text" id="beneficiaryNickname" placeholder="Nickname (optional)" />
+        <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add</button>
+      </form>
+      <p id="beneficiaryFeedback" class="muted" style="margin-top:8px;"></p>
+    </section>
+
+    <section class="beneficiaries-search">
+      <input type="text" id="beneficiarySearch" placeholder="Search by name or email" <%= readOnlyPreview ? 'disabled' : '' %> />
+    </section>
+
+    <section id="beneficiaryList" class="cards">
+      <% if (beneficiaries && beneficiaries.length) { %>
+        <% beneficiaries.forEach((b) => { %>
+          <article class="card" data-id="<%= b._id %>" data-name="<%= (b.name || '').toLowerCase() %>" data-email="<%= (b.email || '').toLowerCase() %>">
+            <div class="row">
+              <div class="row" style="justify-content:flex-start;">
+                <div class="avatar"><%= b.avatar || ((b.name || 'U').charAt(0).toUpperCase()) %></div>
+                <div>
+                  <strong><%= b.name %></strong>
+                  <div class="muted"><%= b.nickname || 'No nickname' %></div>
+                </div>
+              </div>
+              <button class="btn btn-danger remove-beneficiary-btn" data-id="<%= b._id %>" type="button">Remove</button>
+            </div>
+            <div class="muted" style="margin-top:10px;"><i class="fas fa-envelope"></i> <%= b.email %></div>
+            <% if (b.phone) { %><div class="muted"><i class="fas fa-phone"></i> <%= b.phone %></div><% } %>
+            <% if (b.accountNumber) { %><div class="muted"><i class="fas fa-id-card"></i> <%= b.accountNumber %></div><% } %>
+          </article>
+        <% }); %>
+      <% } %>
+    </section>
+
+    <section id="beneficiaryEmpty" class="empty <%= beneficiaries && beneficiaries.length ? 'hidden-empty' : '' %>">
+      <i class="fas fa-users" style="font-size:20px;"></i>
+      <h3>No beneficiaries saved yet</h3>
+      <p>Add a beneficiary by email to quickly transfer money.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const isReadOnlyPreview = !!document.getElementById('beneficiarySearch')?.hasAttribute('disabled');
+      const addForm = document.getElementById('addBeneficiaryForm');
+      const emailInput = document.getElementById('beneficiaryEmail');
+      const nicknameInput = document.getElementById('beneficiaryNickname');
+      const searchInput = document.getElementById('beneficiarySearch');
+      const feedback = document.getElementById('beneficiaryFeedback');
+      const list = document.getElementById('beneficiaryList');
+      const empty = document.getElementById('beneficiaryEmpty');
+
+      function toggleEmpty() {
+        const cards = list.querySelectorAll('.card');
+        empty.style.display = cards.length ? 'none' : 'block';
+      }
+
+      function bindRemoveButtons() {
+        document.querySelectorAll('.remove-beneficiary-btn').forEach((btn) => {
+          btn.onclick = async () => {
+            const id = btn.getAttribute('data-id');
+            const res = await fetch(`/beneficiaries/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+              btn.closest('.card')?.remove();
+              feedback.textContent = 'Beneficiary removed.';
+              toggleEmpty();
+            } else {
+              feedback.textContent = data.message || 'Failed to remove beneficiary.';
+            }
+          };
+        });
+      }
+
+      addForm?.addEventListener('submit', async (e) => {
+        if (isReadOnlyPreview) return;
+        e.preventDefault();
+        feedback.textContent = '';
+
+        const payload = {
+          email: String(emailInput.value || '').trim(),
+          nickname: String(nicknameInput.value || '').trim(),
+        };
+
+        const res = await fetch('/beneficiaries/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          feedback.textContent = data.message || 'Failed to add beneficiary.';
+          return;
+        }
+
+        const b = data.beneficiary;
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.setAttribute('data-id', b._id);
+        card.setAttribute('data-name', String(b.name || '').toLowerCase());
+        card.setAttribute('data-email', String(b.email || '').toLowerCase());
+        card.innerHTML = `
+          <div class="row">
+            <div class="row" style="justify-content:flex-start;">
+              <div class="avatar">${b.avatar || String(b.name || 'U').charAt(0).toUpperCase()}</div>
+              <div>
+                <strong>${b.name}</strong>
+                <div class="muted">${b.nickname || 'No nickname'}</div>
+              </div>
+            </div>
+            <button class="btn btn-danger remove-beneficiary-btn" data-id="${b._id}" type="button">Remove</button>
+          </div>
+          <div class="muted" style="margin-top:10px;"><i class="fas fa-envelope"></i> ${b.email}</div>
+          ${b.phone ? `<div class="muted"><i class="fas fa-phone"></i> ${b.phone}</div>` : ''}
+          ${b.accountNumber ? `<div class="muted"><i class="fas fa-id-card"></i> ${b.accountNumber}</div>` : ''}
+        `;
+
+        list.prepend(card);
+        bindRemoveButtons();
+        toggleEmpty();
+        emailInput.value = '';
+        nicknameInput.value = '';
+        feedback.textContent = 'Beneficiary added successfully.';
+      });
+
+      searchInput?.addEventListener('input', async () => {
+        if (isReadOnlyPreview) return;
+        const q = String(searchInput.value || '').trim();
+        if (!q) {
+          list.querySelectorAll('.card').forEach((card) => { card.style.display = ''; });
+          toggleEmpty();
+          return;
+        }
+
+        const res = await fetch(`/beneficiaries/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (!data.success) return;
+
+        const ids = new Set((data.beneficiaries || []).map((b) => String(b._id)));
+        list.querySelectorAll('.card').forEach((card) => {
+          card.style.display = ids.has(card.getAttribute('data-id')) ? '' : 'none';
+        });
+      });
+
+      bindRemoveButtons();
+      toggleEmpty();
+    })();
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

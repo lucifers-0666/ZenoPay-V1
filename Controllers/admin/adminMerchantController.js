@@ -149,6 +149,7 @@ const buildPendingQuery = ({ search = "" } = {}) => {
     $and: [
       {
         $or: [
+          { onboardingStatus: "pending_review" },
           { Status: "pending" },
           { status: "pending" },
           { isVerified: false },
@@ -179,10 +180,33 @@ const buildPendingQuery = ({ search = "" } = {}) => {
 };
 
 const pendingDocState = (merchant) => ({
-  gst: Boolean(merchant?.GSTDocument || merchant?.GstDocument || merchant?.GSTNumber || merchant?.GstNumber),
-  pan: Boolean(merchant?.PANDocument || merchant?.PanDocument || merchant?.PANNumber || merchant?.PanNumber),
-  bank: Boolean(merchant?.BankStatement || merchant?.BankDetails || merchant?.IFSCCode || merchant?.IfscCode),
-  license: Boolean(merchant?.BusinessLicense || merchant?.TradeLicense || merchant?.LicenseNumber),
+  gst: Boolean(
+    merchant?.documents?.gstCertificate?.path
+    || merchant?.GSTDocument
+    || merchant?.GstDocument
+    || merchant?.GSTNumber
+    || merchant?.GstNumber
+  ),
+  pan: Boolean(
+    merchant?.documents?.panCard?.path
+    || merchant?.PANDocument
+    || merchant?.PanDocument
+    || merchant?.PANNumber
+    || merchant?.PanNumber
+  ),
+  bank: Boolean(
+    merchant?.documents?.bankStatement?.path
+    || merchant?.BankStatement
+    || merchant?.BankDetails
+    || merchant?.IFSCCode
+    || merchant?.IfscCode
+  ),
+  license: Boolean(
+    merchant?.documents?.businessLicense?.path
+    || merchant?.BusinessLicense
+    || merchant?.TradeLicense
+    || merchant?.LicenseNumber
+  ),
 });
 
 exports.pendingMerchants = async (req, res) => {
@@ -410,10 +434,10 @@ exports.merchantDetails = async (req, res) => {
       ifscCode: merchant.IFSCCode || merchant.IfscCode || "",
       upiId: merchant.UpiId || "",
       docs: {
-        gst: Boolean(merchant.GSTDocument || merchant.GstDocument),
-        pan: Boolean(merchant.PANDocument || merchant.PanDocument),
-        bank: Boolean(merchant.BankStatement),
-        license: Boolean(merchant.BusinessLicense),
+        gst: Boolean(merchant.documents?.gstCertificate?.path || merchant.GSTDocument || merchant.GstDocument),
+        pan: Boolean(merchant.documents?.panCard?.path || merchant.PANDocument || merchant.PanDocument),
+        bank: Boolean(merchant.documents?.bankStatement?.path || merchant.BankStatement),
+        license: Boolean(merchant.documents?.businessLicense?.path || merchant.BusinessLicense),
       },
       createdAt: merchant.createdAt,
       updatedAt: merchant.updatedAt,

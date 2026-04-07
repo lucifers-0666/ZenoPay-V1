@@ -17,6 +17,7 @@ const AdminPrivacyPolicyController = require("../Controllers/AdminPrivacyPolicyC
 const AdminKYCController = require("../Controllers/AdminKYCController");
 const AdminOperationsController = require("../Controllers/AdminOperationsController");
 const AdminWalletController = require("../Controllers/AdminWalletController");
+const AdminPayoutController = require("../Controllers/AdminPayoutController");
 const adminRefundController = require("../Controllers/AdminRefundController");
 const adminMgmtController = require("../../Controllers/admin/adminMgmtController");
 const adminSettingsController = require("../../Controllers/admin/adminSettingsController");
@@ -27,6 +28,7 @@ const adminMerchantController = require("../../Controllers/admin/adminMerchantCo
 const adminBankController = require("../../Controllers/admin/adminBankController");
 const adminAnnouncementController = require("../../Controllers/admin/adminAnnouncementController");
 const adminActivityController = require("../../Controllers/admin/adminActivityController");
+const AdminCashbackController = require("../Controllers/AdminCashbackController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -249,6 +251,11 @@ router.patch("/refunds/:id/approve", requirePermission("transactions", "view"), 
 router.patch("/refunds/:id/reject", requirePermission("transactions", "view"), adminRefundController.rejectRefund);
 router.get("/refunds/:id", requirePermission("transactions", "view"), adminRefundController.refundDetails);
 
+// ============ PAYOUTS MANAGEMENT ROUTES ============
+router.get("/payouts", requirePermission("transactions", "view"), AdminPayoutController.getPendingPayoutsPage);
+router.post("/payouts/:payoutId/approve", requirePermission("transactions", "view"), AdminPayoutController.approvePayout);
+router.post("/payouts/:payoutId/reject", requirePermission("transactions", "view"), AdminPayoutController.rejectPayout);
+
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
 // TEMP DEBUG ROUTE: remove after /admin/analytics is confirmed stable
@@ -278,6 +285,11 @@ router.get("/reports", requirePermission("reports", "view"), AdminDashboardContr
 router.get("/reports/export", requirePermission("reports", "export"), AdminDashboardController.exportReports);
 router.get("/audit-logs/export", requirePermission("reports", "view"), adminAuditController.exportAuditLogs);
 router.get("/audit-logs", requirePermission("reports", "view"), adminAuditController.auditLogsList);
+
+// ============ CASHBACK MANAGEMENT ROUTES ============
+router.get("/cashback", requirePermission("settings", "view"), AdminCashbackController.listRules);
+router.post("/cashback/create", requirePermission("settings", "update"), AdminCashbackController.createRule);
+router.post("/cashback/:id/toggle", requirePermission("settings", "update"), AdminCashbackController.toggleRule);
 
 // ============ SETTINGS ROUTES ============
 router.get("/settings", requirePermission("settings", "view"), adminSettingsController.settingsPage);

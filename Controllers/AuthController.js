@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const emailService = require("../Services/EmailService");
 const { sendOTP, sendWelcomeEmail } = require("../utils/emailService");
+const ReferralController = require("./ReferralController");
 
 const BCRYPT_ROUNDS = Number.parseInt(process.env.BCRYPT_ROUNDS || "12", 10);
 const OTP_TTL_MS = Number.parseInt(process.env.EMAIL_OTP_EXPIRY_MS || `${10 * 60 * 1000}`, 10);
@@ -158,10 +159,17 @@ const getRegister = (req, res) => {
   if (req.session && req.session.user) {
     return res.redirect("/dashboard");
   }
+
+  const referralCode = String(req.query?.ref || req.session?.referral_code || "").trim().toUpperCase();
+  if (referralCode) {
+    req.session.referral_code = referralCode;
+  }
+
   res.render("register", {
     pageTitle: "Create Account - ZenoPay",
     isLoggedIn: false,
     user: null,
+    referralCode,
   });
 };
 
@@ -301,6 +309,7 @@ const postRegister = async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const referralCode = String(req.body?.referralCode || req.session?.referral_code || "").trim().toUpperCase();
 
     // Create new user
     const newUser = new ZenoPayDetails({
@@ -337,6 +346,17 @@ const postRegister = async (req, res) => {
     sendWelcomeEmail(newUser).catch((err) => {
       console.log("Welcome email failed:", err?.message || err);
     });
+
+    if (referralCode) {
+      const linkResult = await ReferralController.linkPendingReferralForUser({
+        referralCode,
+        refereeUser: newUser,
+      });
+
+      if (linkResult.success) {
+        req.session.pendingReferralCode = referralCode;
+      }
+    }
 
     req.session.pendingVerificationEmail = normalizedEmail;
 
@@ -731,9 +751,18 @@ const getResetPassword = async (req, res) => {
 
 // Handle reset password form submission
 const postResetPassword = async (req, res) => {
-  const { token, password, confirmPassword } = req.body;
+  const token = String(req.params?.token || req.body?.token || "").trim();
+  const password = String(req.body?.password || "");
+  const confirmPassword = String(req.body?.confirmPassword || "");
 
   try {
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Reset token is missing or invalid",
+      });
+    }
+
     if (!password || !confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -767,7 +796,10 @@ const postResetPassword = async (req, res) => {
       });
     }
 
-    user.Password = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    user.Password = hashedPassword;
+    user.password = hashedPassword;
+    user.PasswordChangeDate = new Date();
     user.PasswordResetToken = undefined;
     user.PasswordResetExpiry = undefined;
     await user.save();
@@ -887,11 +919,16 @@ const postVerifyEmail = async (req, res) => {
       delete req.session.pendingVerificationEmail;
     }
 
+    const rewardResult = await ReferralController.creditReferralRewards(user.ZenoPayID);
+    const rewardMessage = rewardResult?.success
+      ? ` ₹${Number(rewardResult.refereeBonus || 50).toFixed(0)} referral bonus credited to your wallet!`
+      : "";
+
     return res.render("verify-email", {
       pageTitle: "Verify Email - ZenoPay",
       otpMode: true,
       email,
-      success: "Email verified successfully! You can now access your dashboard.",
+      success: `Email verified successfully! You can now access your dashboard.${rewardMessage}`,
       error: null,
     });
   } catch (error) {

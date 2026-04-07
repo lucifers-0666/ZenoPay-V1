@@ -73,19 +73,59 @@ const setPinVerifiedSession = (req) => {
   }
 };
 
+const persistPinState = async (user, pinAttempts, pinLockedUntil) => {
+  if (!user?._id) return;
+
+  await user.constructor.updateOne(
+    { _id: user._id },
+    {
+      $set: {
+        pinAttempts: Number(pinAttempts || 0),
+        pinLockedUntil: pinLockedUntil || null,
+      },
+    }
+  );
+
+  user.pinAttempts = Number(pinAttempts || 0);
+  user.pinLockedUntil = pinLockedUntil || null;
+};
+
+const persistTransactionPin = async (user, hashedPin) => {
+  if (!user?._id) return;
+
+  await user.constructor.updateOne(
+    { _id: user._id },
+    {
+      $set: {
+        transactionPin: hashedPin,
+        isPinSet: true,
+        pinAttempts: 0,
+        pinLockedUntil: null,
+      },
+    }
+  );
+
+  user.transactionPin = hashedPin;
+  user.isPinSet = true;
+  user.pinAttempts = 0;
+  user.pinLockedUntil = null;
+};
+
 const getSetPin = async (req, res) => {
   try {
     const user = await resolveCurrentUser(req);
-    if (!user) return res.redirect("/login");
+    const isGuestPreview = process.env.NODE_ENV !== "production" && !user;
+    if (!user && !isGuestPreview) return res.redirect("/login");
 
-    if (user.isPinSet) {
+    if (user?.isPinSet) {
       return res.redirect("/user/change-pin");
     }
 
     return res.render("user/set-pin", {
       pageTitle: "Set Transaction PIN - ZenoPay",
-      user: req.session?.user || user,
+      user: req.session?.user || user || { FullName: "Guest Preview", ZenoPayID: "ZP-PREVIEW" },
       isLoggedIn: !!req.session?.user,
+      previewMode: isGuestPreview,
       errors: {},
       success: null,
     });
@@ -133,11 +173,8 @@ const postSetPin = async (req, res) => {
       });
     }
 
-    user.transactionPin = await bcrypt.hash(pin, SALT_ROUNDS);
-    user.isPinSet = true;
-    user.pinAttempts = 0;
-    user.pinLockedUntil = null;
-    await user.save();
+    const hashedPin = await bcrypt.hash(pin, SALT_ROUNDS);
+    await persistTransactionPin(user, hashedPin);
 
     req.session.pinVerified = false;
     req.session.pinVerifiedExpiresAt = null;
@@ -225,11 +262,8 @@ const postChangePin = async (req, res) => {
       });
     }
 
-    user.transactionPin = await bcrypt.hash(newPin, SALT_ROUNDS);
-    user.isPinSet = true;
-    user.pinAttempts = 0;
-    user.pinLockedUntil = null;
-    await user.save();
+    const hashedPin = await bcrypt.hash(newPin, SALT_ROUNDS);
+    await persistTransactionPin(user, hashedPin);
 
     req.session.pinVerified = false;
     req.session.pinVerifiedExpiresAt = null;
@@ -247,17 +281,19 @@ const postChangePin = async (req, res) => {
 const getVerifyPin = async (req, res) => {
   try {
     const user = await resolveCurrentUser(req);
-    if (!user) return res.redirect("/login");
+    const isGuestPreview = process.env.NODE_ENV !== "production" && !user;
+    if (!user && !isGuestPreview) return res.redirect("/login");
 
-    if (!user.isPinSet || !user.transactionPin) {
+    if (user && (!user.isPinSet || !user.transactionPin)) {
       return res.redirect("/user/set-pin");
     }
 
     return res.render("user/verify-pin", {
       pageTitle: "Verify Transaction PIN - ZenoPay",
-      user: req.session?.user || user,
+      user: req.session?.user || user || { FullName: "Guest Preview", ZenoPayID: "ZP-PREVIEW" },
       isLoggedIn: !!req.session?.user,
-      error: getPinLockMessage(user),
+      previewMode: isGuestPreview,
+      error: user ? getPinLockMessage(user) : null,
     });
   } catch (error) {
     console.error("[PIN] getVerifyPin error:", error);
@@ -309,7 +345,7 @@ const postVerifyPin = async (req, res) => {
         user.pinAttempts = MAX_ATTEMPTS;
       }
 
-      await user.save();
+      await persistPinState(user, user.pinAttempts, user.pinLockedUntil);
 
       const attemptsLeft = Math.max(0, MAX_ATTEMPTS - Number(user.pinAttempts || 0));
       const errorMessage = attemptsLeft > 0
@@ -324,9 +360,7 @@ const postVerifyPin = async (req, res) => {
       });
     }
 
-    user.pinAttempts = 0;
-    user.pinLockedUntil = null;
-    await user.save();
+    await persistPinState(user, 0, null);
 
     setPinVerifiedSession(req);
 

@@ -134,7 +134,13 @@ const approveMerchant = async (req, res) => {
     const merchantId = req.params.id;
     
     await Merchant.findByIdAndUpdate(merchantId, {
-      $set: { IsActive: true },
+      $set: {
+        IsActive: true,
+        Status: "active",
+        onboardingStatus: "approved",
+        onboardingReviewedAt: new Date(),
+        onboardingRejectionReason: "",
+      },
     });
 
     res.json({ success: true, message: "Merchant approved successfully" });
@@ -149,10 +155,16 @@ const rejectMerchant = async (req, res) => {
   try {
     const merchantId = req.params.id;
     const { reason } = req.body;
-    
-    await Merchant.findByIdAndDelete(merchantId);
 
-    // You may want to notify the merchant about rejection
+    await Merchant.findByIdAndUpdate(merchantId, {
+      $set: {
+        IsActive: false,
+        Status: "suspended",
+        onboardingStatus: "rejected",
+        onboardingReviewedAt: new Date(),
+        onboardingRejectionReason: reason || "Rejected by admin",
+      },
+    });
     
     res.json({ success: true, message: "Merchant rejected successfully" });
   } catch (error) {

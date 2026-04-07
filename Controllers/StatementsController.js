@@ -2,6 +2,7 @@
 const ZenoPayUser = require('../Models/ZenoPayUser');
 const TransactionHistory = require('../Models/TransactionHistory');
 const Statement = require('../Models/Statement');
+const BankAccount = require('../Models/BankAccount');
 const pdfGenerator = require('../Services/pdfGenerator');
 const EmailService = require('../Services/EmailService');
 
@@ -65,6 +66,100 @@ function getMonthName(month) {
                  'July', 'August', 'September', 'October', 'November', 'December'];
   return months[month - 1];
 }
+
+const CATEGORY_LABELS = {
+  food: 'Food',
+  shopping: 'Shopping',
+  bills: 'Bills',
+  travel: 'Travel',
+  entertainment: 'Entertainment',
+  health: 'Health',
+  education: 'Education',
+  other: 'Other',
+};
+
+exports.getSpendingAnalyticsPage = async (req, res) => {
+  try {
+    const user = req.session?.user || null;
+    const zenoPayId = user?.ZenoPayID || null;
+    const isGuestPreview = process.env.NODE_ENV !== 'production' && !zenoPayId;
+
+    if (!zenoPayId && !isGuestPreview) {
+      return res.redirect('/login');
+    }
+
+    const now = new Date();
+    const selectedMonth = Math.min(12, Math.max(1, Number(req.query.month) || (now.getMonth() + 1)));
+    const selectedYear = Math.max(2020, Number(req.query.year) || now.getFullYear());
+
+    const rangeStart = new Date(selectedYear, selectedMonth - 1, 1, 0, 0, 0, 0);
+    const rangeEnd = new Date(selectedYear, selectedMonth, 1, 0, 0, 0, 0);
+
+    const accounts = isGuestPreview
+      ? []
+      : await BankAccount.find({ ZenoPayId: zenoPayId }).select('AccountNumber').lean();
+    const accountNumbers = accounts.map((row) => row.AccountNumber).filter(Boolean);
+
+    let grouped = [];
+    let totalSpent = 0;
+
+    if (accountNumbers.length > 0) {
+      grouped = await TransactionHistory.aggregate([
+        {
+          $match: {
+            SenderAccountNumber: { $in: accountNumbers },
+            TransactionTime: { $gte: rangeStart, $lt: rangeEnd },
+            Status: 'success',
+          },
+        },
+        {
+          $group: {
+            _id: { $ifNull: ['$Category', 'other'] },
+            total: { $sum: '$Amount' },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      totalSpent = grouped.reduce((sum, row) => sum + Number(row.total || 0), 0);
+    }
+
+    const categoryBreakdown = grouped
+      .map((row) => {
+        const key = String(row._id || 'other').toLowerCase();
+        const amount = Number(row.total || 0);
+        const percentage = totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0;
+        return {
+          key,
+          label: CATEGORY_LABELS[key] || 'Other',
+          amount,
+          count: Number(row.count || 0),
+          percentage,
+        };
+      })
+      .sort((a, b) => b.amount - a.amount);
+
+    return res.render('analytics', {
+      pageTitle: 'Spending Analytics - ZenoPay',
+      isLoggedIn: !!user,
+      user: user || { FullName: 'Guest Preview', ZenoPayID: 'ZP-PREVIEW' },
+      previewMode: isGuestPreview,
+      selectedMonth,
+      selectedYear,
+      monthName: getMonthName(selectedMonth),
+      totalSpent,
+      categoryBreakdown,
+      topCategory: categoryBreakdown[0] || null,
+      availableYears: [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1],
+    });
+  } catch (error) {
+    console.error('Error loading spending analytics:', error);
+    return res.status(500).render('error-500', {
+      pageTitle: 'Server Error - ZenoPay',
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
 
 exports.getStatementsPage = async (req, res) => {
   try {

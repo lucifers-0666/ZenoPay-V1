@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Merchant Payouts' %></title>
+  <style>
+    body { margin:0; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f8fafc; color:#0f172a; }
+    .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+    .grid { display:grid; grid-template-columns: .9fr 1.1fr; gap:14px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; }
+    h1 { margin:0 0 8px; }
+    .muted { color:#64748b; margin:0 0 14px; }
+    .balance { font-size:34px; font-weight:800; margin:8px 0 0; }
+    .label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+    input, button { width:100%; height:42px; border:1px solid #cbd5e1; border-radius:8px; padding:0 10px; font:inherit; margin-bottom:10px; }
+    button { background:#2563eb; color:#fff; border-color:#2563eb; font-weight:700; cursor:pointer; }
+    .note { font-size:12px; color:#64748b; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #e2e8f0; font-size:13px; }
+    th { color:#64748b; }
+    .status { padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+    .status.completed { background:#dcfce7; color:#166534; }
+    .status.pending { background:#fef3c7; color:#92400e; }
+    .status.failed { background:#fee2e2; color:#991b1b; }
+    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Payouts</h1>
+    <p class="muted"><%= merchant?.BusinessName || 'Merchant' %> • Settlement and withdrawal management</p>
+
+    <section class="grid">
+      <article class="card">
+        <p class="muted" style="margin:0;">Available for Payout</p>
+        <p class="balance">₹<%= Number(availableBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></p>
+      </article>
+
+      <article class="card">
+        <h3 style="margin:0 0 12px;">Request Payout</h3>
+        <form id="payoutForm">
+          <label class="label" for="amount">Amount (INR)</label>
+          <input id="amount" name="amount" type="number" min="1" step="0.01" required />
+
+          <label class="label" for="bankAccountName">Bank Account Name</label>
+          <input id="bankAccountName" name="bankAccountName" type="text" placeholder="Account holder name" required />
+
+          <label class="label" for="bankAccountNumber">Bank Account Number</label>
+          <input id="bankAccountNumber" name="bankAccountNumber" type="text" inputmode="numeric" placeholder="9-18 digits" required />
+
+          <label class="label" for="bankIFSC">Bank IFSC</label>
+          <input id="bankIFSC" name="bankIFSC" type="text" placeholder="e.g. HDFC0ABC123" required />
+
+          <button type="submit">Submit Payout Request</button>
+          <p class="note">Minimum payout amount is ₹100</p>
+          <p class="note">Payout requests are reviewed and settled as per your configured schedule.</p>
+        </form>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:14px;">
+      <h3 style="margin:0 0 12px;">Payout History</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Reference</th>
+            <th>Bank</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if ((payoutHistory || []).length === 0) { %>
+            <tr><td colspan="5" style="color:#64748b;">No payout history yet.</td></tr>
+          <% } %>
+          <% (payoutHistory || []).forEach((p) => { %>
+            <tr>
+              <td><%= new Date(p.requestedAt || p.createdAt || Date.now()).toLocaleString('en-IN') %></td>
+              <td><%= p.transactionRef || String(p._id).slice(-8).toUpperCase() %></td>
+              <td><%= `${p.bankAccountName || '-'} • ${p.bankAccountNumber || '-'}` %></td>
+              <td>₹<%= Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+              <td><span class="status <%= p.status %>"><%= p.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById('payoutForm');
+      if (!form) return;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const res = await fetch('/merchant/payouts/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            alert(data.error || 'Failed to request payout');
+            return;
+          }
+          alert('Payout request submitted');
+          window.location.reload();
+        } catch (error) {
+          alert('Unable to request payout right now.');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

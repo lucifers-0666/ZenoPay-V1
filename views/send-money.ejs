@@ -11,6 +11,18 @@
     <link rel="stylesheet" href="/css/header.css" />
     <link rel="stylesheet" href="/css/send-money.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      .preview-notice {
+        margin: 0 0 18px;
+        padding: 12px 14px;
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #2563eb;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body class="modern-body">
     
@@ -20,6 +32,12 @@
     <!-- Main Content -->
     <main class="send-money-main">
       <div class="send-money-container">
+
+        <% if (!isLoggedIn) { %>
+          <div class="preview-notice">
+            <strong>Preview mode:</strong> You can explore this UI without login. For real transactions, please <a href="/login" style="font-weight:700;color:#1d4ed8;">sign in</a>.
+          </div>
+        <% } %>
         
         <!-- Page Header Section -->
         <div class="page-header">
@@ -214,6 +232,25 @@
                     />
                   </div>
                   <p class="helper-text">Enter the recipient's ZenoPay ID (e.g., ZP-123456), email address, or mobile number</p>
+
+                  <% if (savedBeneficiaries && savedBeneficiaries.length > 0) { %>
+                    <div class="saved-beneficiaries-quick" style="margin:10px 0 8px;">
+                      <p class="helper-text" style="margin-bottom:8px;"><i class="fas fa-users"></i> Quick Select</p>
+                      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <% savedBeneficiaries.forEach((b) => { %>
+                          <button
+                            type="button"
+                            class="quick-beneficiary-btn"
+                            data-recipient="<%= b.email %>"
+                            title="<%= b.name %>"
+                            style="border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer;"
+                          >
+                            <%= b.nickname || b.name %>
+                          </button>
+                        <% }); %>
+                      </div>
+                    </div>
+                  <% } %>
                   
                   <button type="button" id="verifyReceiverBtn" class="btn-secondary btn-full">
                     <i class="fas fa-check-circle"></i>
@@ -268,14 +305,33 @@
                   </div>
                 </div>
 
-                <!-- Description Textarea -->
+                <!-- Spending Category -->
+                <div class="form-group">
+                  <label class="form-label">Spending Category</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-tags input-icon"></i>
+                    <select id="category" name="category" class="form-input">
+                      <option value="other">Other</option>
+                      <option value="food">Food</option>
+                      <option value="shopping">Shopping</option>
+                      <option value="bills">Bills</option>
+                      <option value="travel">Travel</option>
+                      <option value="entertainment">Entertainment</option>
+                      <option value="health">Health</option>
+                      <option value="education">Education</option>
+                    </select>
+                  </div>
+                  <p class="helper-text">Used in your monthly analytics breakdown.</p>
+                </div>
+
+                <!-- Note Textarea -->
                 <div class="form-group">
                   <label class="form-label">
-                    Description (Optional)
+                    Note (Optional)
                   </label>
                   <textarea 
-                    id="description" 
-                    name="description" 
+                    id="note" 
+                    name="note" 
                     class="form-textarea" 
                     placeholder="Add a note or reference..."
                     maxlength="200"
@@ -402,7 +458,7 @@
             <i class="fas fa-redo"></i>
             Try Again
           </button>
-          <button class="btn-secondary" onclick="window.location.href='/support-center'">
+          <button class="btn-secondary" onclick="window.location.href='/support'">
             <i class="fas fa-headset"></i>
             Contact Support
           </button>

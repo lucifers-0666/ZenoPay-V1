@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); color:#0f172a; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom: 2px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px; box-shadow:0 6px 18px rgba(2,6,23,.05); }
+    .grid { display:grid; grid-template-columns: 1.1fr 1fr; gap:16px; margin-top:16px; }
+    .muted { color:#64748b; font-size:13px; }
+    .pill { display:inline-flex; padding:5px 10px; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; }
+    .row { display:flex; justify-content:space-between; margin:0; padding:12px 0; border-bottom:1px solid #f1f5f9; }
+    .row:last-child { border-bottom:0; }
+    .money { font-weight:700; }
+    .empty { text-align:center; padding:30px; color:#64748b; border:1px dashed #cbd5e1; border-radius:12px; }
+    .filters { display:flex; gap:8px; align-items:center; }
+    .filters label { font-size: 12px; color:#64748b; }
+    select, button { height: 38px; padding:0 12px; border-radius:8px; border:1px solid #cbd5e1; background:#fff; }
+    button { background:#2563eb; color:#fff; border-color:#2563eb; font-weight:600; cursor:pointer; }
+    .summary { display:grid; grid-template-columns:repeat(3,minmax(140px,1fr)); gap:12px; margin-top:14px; }
+    .summary .k { color:#64748b; font-size:12px; }
+    .summary .v { font-weight:800; font-size:20px; }
+    @media (max-width: 900px) { .grid { grid-template-columns:1fr; } .summary { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <main class="wrap">
+    <% if (previewMode) { %>
+      <div class="card" style="margin-bottom:12px;border-left:4px solid #2563eb;">
+        <strong>Preview mode:</strong> Login to view your real spending analytics data.
+      </div>
+    <% } %>
+
+    <div class="top">
+      <div>
+        <h1 style="margin:0;">Spending Analytics</h1>
+        <p class="muted" style="margin:6px 0 0;">Track where your money goes with category-wise monthly insights.</p>
+      </div>
+      <form method="GET" action="/user/analytics" class="filters">
+        <label for="monthSelect">Month</label>
+        <select name="month">
+          <% const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; %>
+          <% for (let m = 1; m <= 12; m += 1) { %>
+            <option value="<%= m %>" <%= selectedMonth === m ? 'selected' : '' %>><%= monthLabels[m - 1] %></option>
+          <% } %>
+        </select>
+        <label for="yearSelect">Year</label>
+        <select name="year">
+          <% availableYears.forEach((y) => { %>
+            <option value="<%= y %>" <%= selectedYear === y ? 'selected' : '' %>><%= y %></option>
+          <% }) %>
+        </select>
+        <button type="submit">Apply</button>
+      </form>
+    </div>
+
+    <div class="summary">
+      <div class="card">
+        <div class="k">Month</div>
+        <div class="v"><%= monthName %> <%= selectedYear %></div>
+      </div>
+      <div class="card">
+        <div class="k">Total Spent</div>
+        <div class="v">₹<%= Number(totalSpent || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></div>
+      </div>
+      <div class="card">
+        <div class="k">Top Category</div>
+        <div class="v" style="font-size:18px;"><%= topCategory ? topCategory.label : '—' %></div>
+        <% if (topCategory) { %>
+          <div class="muted">₹<%= Number(topCategory.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %> • <%= topCategory.percentage %>%</div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h3 style="margin:0 0 12px;">Category Breakdown</h3>
+        <% if (categoryBreakdown && categoryBreakdown.length) { %>
+          <% categoryBreakdown.forEach((row) => { %>
+            <div class="row">
+              <div>
+                <strong><%= row.label %></strong>
+                <div class="muted"><%= row.count %> transactions • <%= row.percentage %>%</div>
+              </div>
+              <div class="money">₹<%= Number(row.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">No spending data for this period.</div>
+        <% } %>
+      </section>
+
+      <section class="card">
+        <h3 style="margin:0 0 12px;">Visual Summary</h3>
+        <% if (categoryBreakdown && categoryBreakdown.length) { %>
+          <canvas id="categoryChart" height="280"></canvas>
+          <div style="margin-top:12px;"><span class="pill">Auto-updates based on selected month/year</span></div>
+        <% } else { %>
+          <div class="empty">Once you make categorized transfers, this chart will appear here.</div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <script id="category-data" type="application/json"><%- JSON.stringify(categoryBreakdown || []) %></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function initCategoryChart() {
+      const dataNode = document.getElementById('category-data');
+      const rows = dataNode ? JSON.parse(dataNode.textContent || '[]') : [];
+      if (!rows.length) return;
+
+      const ctx = document.getElementById('categoryChart');
+      if (!ctx) return;
+
+      const labels = rows.map((r) => r.label);
+      const amounts = rows.map((r) => Number(r.amount || 0));
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: amounts,
+            backgroundColor: ['#2563eb', '#7c3aed', '#16a34a', '#f59e0b', '#dc2626', '#06b6d4', '#ea580c', '#64748b'],
+            borderWidth: 0,
+          }],
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom' },
+          },
+          cutout: '64%',
+        },
+      });
+    })();
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

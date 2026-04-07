@@ -71,6 +71,8 @@ const getDashboard = async (req, res) => {
     let monthBankSuccessCount = 0;
     let monthWalletTransactionCount = 0;
     let monthWalletSuccessCount = 0;
+    let topSpendingCategory = "Other";
+    let topSpendingAmount = 0;
 
     if (zenoPayId) {
       accounts = await BankAccount.find({ ZenoPayId: zenoPayId }).lean();
@@ -108,6 +110,9 @@ const getDashboard = async (req, res) => {
         monthStart.setDate(1);
         monthStart.setHours(0, 0, 0, 0);
 
+        const monthEnd = new Date(monthStart);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+
         const monthBankTransactions = await TransactionHistory.find({
           $or: [
             { SenderAccountNumber: { $in: accountNumbers } },
@@ -122,6 +127,41 @@ const getDashboard = async (req, res) => {
         monthBankSuccessCount = monthBankTransactions.filter(
           (tx) => parseStatus(tx.Status) === "success"
         ).length;
+
+        const categoryAggregation = await TransactionHistory.aggregate([
+          {
+            $match: {
+              SenderAccountNumber: { $in: accountNumbers },
+              TransactionTime: { $gte: monthStart, $lt: monthEnd },
+              Status: "success",
+            },
+          },
+          {
+            $group: {
+              _id: { $ifNull: ["$Category", "other"] },
+              amount: { $sum: "$Amount" },
+            },
+          },
+          { $sort: { amount: -1 } },
+          { $limit: 1 },
+        ]);
+
+        if (categoryAggregation.length > 0) {
+          const topCategoryRaw = String(categoryAggregation[0]._id || "other").toLowerCase();
+          const prettyCategory = {
+            food: "Food",
+            shopping: "Shopping",
+            bills: "Bills",
+            travel: "Travel",
+            entertainment: "Entertainment",
+            health: "Health",
+            education: "Education",
+            other: "Other",
+          };
+
+          topSpendingCategory = prettyCategory[topCategoryRaw] || "Other";
+          topSpendingAmount = toNumber(categoryAggregation[0].amount || 0);
+        }
       }
     }
 
@@ -325,6 +365,8 @@ const getDashboard = async (req, res) => {
       kycTier,
       kycRecord,
       transactionLimitWidget,
+      topSpendingCategory,
+      topSpendingAmount,
     });
   } catch (err) {
     console.error("Error loading dashboard:", err);

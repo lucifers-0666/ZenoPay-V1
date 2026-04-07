@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { margin:0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); color:#0f172a; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 8px 20px rgba(2,6,23,.04); }
+    .muted { color:#64748b; font-size:13px; }
+    .row { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    .status { display:inline-flex; align-items:center; font-weight:700; text-transform:uppercase; font-size:11px; border-radius:999px; padding:4px 10px; }
+    .status.success { color:#059669; background:#dcfce7; }
+    .status.failed { color:#dc2626; background:#fee2e2; }
+    .status.pending { color:#92400e; background:#fef3c7; }
+    .empty { text-align:center; padding:28px; border:1px dashed #cbd5e1; border-radius:12px; color:#64748b; background:#fff; }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="wrap">
+    <h1>Scheduled Payments History</h1>
+    <p class="muted">Past auto/manual executions for your scheduled payments.</p>
+
+    <% if (history && history.length) { %>
+      <% history.forEach((item) => { %>
+        <article class="card">
+          <div class="row">
+            <strong><%= item.recipient %></strong>
+            <span class="status <%= item.status %>"><%= item.status %></span>
+          </div>
+          <div class="muted" style="margin-top:6px;">₹<%= Number(item.amount || 0).toFixed(2) %> • <%= item.method %> • <%= item.frequency %></div>
+          <div class="muted">Executed: <%= new Date(item.executedAt).toLocaleString('en-IN') %></div>
+          <% if (item.reference) { %><div class="muted">Reference: <%= item.reference %></div><% } %>
+          <% if (item.note) { %><div class="muted">Note: <%= item.note %></div><% } %>
+        </article>
+      <% }); %>
+    <% } else { %>
+      <section class="empty">
+        <i class="fas fa-clock-rotate-left" style="font-size:20px;"></i>
+        <h3>No scheduled payment history yet</h3>
+      </section>
+    <% } %>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

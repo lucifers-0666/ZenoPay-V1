@@ -3,6 +3,7 @@ const ZenoPayUser = require('../Models/ZenoPayUser');
 const Referral = require('../Models/Referral');
 const ReferralReward = require('../Models/ReferralReward');
 const ReferralSettings = require('../Models/ReferralSettings');
+const Wallet = require('../Models/Wallet');
 const EmailService = require('../Services/EmailService');
 
 // GET /referral - Main referral program page
@@ -389,59 +390,130 @@ exports.handleReferralLink = async (req, res) => {
   }
 };
 
+exports.linkPendingReferralForUser = async ({ referralCode, refereeUser }) => {
+  try {
+    const code = String(referralCode || '').trim().toUpperCase();
+    if (!code || !refereeUser?.ZenoPayID) {
+      return { success: false, message: 'Missing referral code or referee user' };
+    }
+
+    const referral = await Referral.findOne({ referral_code: code });
+    if (!referral) {
+      return { success: false, message: 'Invalid referral code' };
+    }
+
+    if (String(referral.referrer_id) === String(refereeUser.ZenoPayID)) {
+      return { success: false, message: 'Self referral is not allowed' };
+    }
+
+    referral.referee_id = refereeUser.ZenoPayID;
+    referral.referee_email = refereeUser.Email || refereeUser.email || '';
+    referral.referee_name = refereeUser.FullName || refereeUser.name || '';
+    referral.status = 'pending';
+    referral.reward_status = 'pending';
+    referral.signed_up_at = new Date();
+    await referral.save();
+
+    return { success: true, referral };
+  } catch (error) {
+    console.error('[Referral] linkPendingReferralForUser failed:', error);
+    return { success: false, message: 'Failed to link referral' };
+  }
+};
+
 // Helper function to credit referral rewards (called after successful signup)
 exports.creditReferralRewards = async (referrerUserId, refereeUserId, transactionAmount = 0) => {
   try {
     const settings = await ReferralSettings.getSettings();
-    
-    // Check if transaction meets minimum
-    if (transactionAmount < settings.min_transaction_for_reward) {
-      return { success: false, message: 'Transaction amount too low' };
+
+    let resolvedReferrerId = referrerUserId;
+    let resolvedRefereeId = refereeUserId;
+
+    // Backward-compatible mode: if only referee id is passed.
+    if (!resolvedRefereeId && resolvedReferrerId) {
+      resolvedRefereeId = resolvedReferrerId;
+      resolvedReferrerId = null;
     }
-    
-    // Find referral
-    const referral = await Referral.findOne({
-      referrer_id: referrerUserId,
-      referee_id: refereeUserId
-    });
-    
+
+    const referralQuery = resolvedReferrerId
+      ? { referrer_id: resolvedReferrerId, referee_id: resolvedRefereeId }
+      : { referee_id: resolvedRefereeId };
+
+    const referral = await Referral.findOne(referralQuery).sort({ updatedAt: -1 });
+
     if (!referral || referral.reward_status === 'credited') {
       return { success: false, message: 'Referral not found or already credited' };
     }
-    
+
+    const referrer = await ZenoPayUser.findOne({ ZenoPayID: referral.referrer_id });
+    const referee = await ZenoPayUser.findOne({ ZenoPayID: referral.referee_id });
+
+    if (!referrer || !referee) {
+      return { success: false, message: 'Referrer or referee user not found' };
+    }
+
+    if (Number(transactionAmount || 0) > 0 && Number(transactionAmount || 0) < Number(settings.min_transaction_for_reward || 0)) {
+      return { success: false, message: 'Transaction amount too low' };
+    }
+
+    const referrerBonus = Number(settings.signup_bonus_referrer || 100);
+    const refereeBonus = Number(settings.signup_bonus_referee || 50);
+
+    const [referrerWallet, refereeWallet] = await Promise.all([
+      Wallet.findOne({ userId: referrer._id }),
+      Wallet.findOne({ userId: referee._id }),
+    ]);
+
+    if (referrerWallet) {
+      referrerWallet.balance = Number(referrerWallet.balance || 0) + referrerBonus;
+      await referrerWallet.save();
+    }
+
+    if (refereeWallet) {
+      refereeWallet.balance = Number(refereeWallet.balance || 0) + refereeBonus;
+      await refereeWallet.save();
+    }
+
+    await Promise.all([
+      ZenoPayUser.findByIdAndUpdate(referrer._id, { $inc: { balance: referrerBonus } }),
+      ZenoPayUser.findByIdAndUpdate(referee._id, { $inc: { balance: refereeBonus } }),
+    ]);
+
     // Credit rewards to referrer
     await ReferralReward.create({
-      user_id: referrerUserId,
+      user_id: referral.referrer_id,
       referral_id: referral._id,
       reward_type: 'signup_bonus',
-      amount: settings.signup_bonus_referrer,
+      amount: referrerBonus,
       description: `Referral bonus for inviting user`,
       status: 'credited',
       credited_at: new Date()
     });
-    
+
     // Credit rewards to referee
     await ReferralReward.create({
-      user_id: refereeUserId,
+      user_id: referral.referee_id,
       referral_id: referral._id,
       reward_type: 'signup_bonus',
-      amount: settings.signup_bonus_referee,
+      amount: refereeBonus,
       description: `Welcome bonus for joining via referral`,
       status: 'credited',
       credited_at: new Date()
     });
-    
+
     // Update referral status
     referral.status = 'completed';
     referral.reward_status = 'credited';
-    referral.reward_earned = settings.signup_bonus_referrer;
+    referral.reward_earned = referrerBonus;
     referral.first_transaction_at = new Date();
     await referral.save();
-    
-    // Send notifications
-    // TODO: Send email to referrer
-    
-    return { success: true, message: 'Rewards credited successfully' };
+
+    return {
+      success: true,
+      message: 'Rewards credited successfully',
+      referrerBonus,
+      refereeBonus,
+    };
   } catch (error) {
     console.error('[Referral] Error crediting rewards:', error);
     return { success: false, message: 'Error crediting rewards' };

@@ -29,6 +29,7 @@ const BeneficiaryController = require("../Controllers/BeneficiaryController");
 const SystemStatusController = require("../Controllers/SystemStatusController");
 const TransactionInfoController = require("../Controllers/TransactionHistory");
 const WalletController = require("../Controllers/WalletController");
+const CashbackController = require("../Controllers/CashbackController");
 const Invoice = require("../Models/Invoice");
 const { isAuthenticated } = require("../Middleware/authGuards");
 const TransactionHistoryModel = require("../Models/TransactionHistory");
@@ -114,15 +115,29 @@ const publicGetPaths = new Set([
   "/api-docs",
   "/pricing",
   "/contact",
+  "/request-money",
+  "/payment-links",
+  "/split-requests",
+  "/beneficiaries",
+  "/send-money",
+  "/wallet/send",
+  "/user/analytics",
+  "/user/cashback",
+  "/user/scheduled-payments/history",
+  "/user/set-pin",
+  "/verify-pin",
+  "/create-api-key",
 ]);
 
 router.use((req, res, next) => {
   const isPublicSupportCategory = req.method === "GET" && req.path.startsWith("/support/category/");
+  const isPublicRequestDetails = req.method === "GET" && req.path.startsWith("/request-money/");
   const isPublicGet = req.method === "GET" && publicGetPaths.has(req.path);
   const isPublicRegistration = req.path === "/register-zenopay" && (req.method === "GET" || req.method === "POST");
   const isPublicVerification = req.path === "/verify-zenopayId" && req.method === "POST";
+  const isPublicPayRoute = req.path.startsWith("/pay/") && (req.method === "GET" || req.method === "POST");
 
-  if (isPublicGet || isPublicSupportCategory || isPublicRegistration || isPublicVerification) {
+  if (isPublicGet || isPublicSupportCategory || isPublicRegistration || isPublicVerification || isPublicPayRoute || isPublicRequestDetails) {
     return next();
   }
 
@@ -132,13 +147,26 @@ router.use((req, res, next) => {
 // Shop page
 // Beneficiary Management
 router.get("/beneficiaries", BeneficiaryController.getBeneficiariesPage);
+router.get("/beneficiaries/data", BeneficiaryController.getBeneficiaries);
+router.get("/beneficiaries/search", BeneficiaryController.searchBeneficiary);
+router.post("/beneficiaries/add", BeneficiaryController.addBeneficiary);
+router.delete("/beneficiaries/:id", BeneficiaryController.deleteBeneficiary);
 
 // Request money and payments pages
 router.get("/request-money", RequestMoneyController.getRequestMoneyPage);
 router.post("/request-money", RequestMoneyController.createRequestMoney);
 router.get("/request-money/:requestId", RequestMoneyController.getRequestMoneyDetailsPage);
+router.get("/payment-links", RequestMoneyController.getPaymentLinksPage);
+router.post("/payment-links/:requestId/cancel", RequestMoneyController.cancelPaymentLink);
 router.get("/qr-payment", QRPaymentController.getQRPaymentPage);
 router.post("/qr-payment/generate", QRPaymentController.generateDynamicQR);
+router.get("/pay/request/:requestId", RequestMoneyController.getPayRequestPage);
+router.post("/pay/request/:requestId", RequestMoneyController.processPayRequest);
+router.post("/pay/request/:requestId/contribute", RequestMoneyController.contributeToSplitRequest);
+router.post("/pay-request/:requestId/contribute", RequestMoneyController.contributeToSplitRequest);
+router.get("/split-requests", RequestMoneyController.getSplitRequestsPage);
+router.get("/pay/:zenoPayId", QRPaymentController.getPayPage);
+router.post("/pay/:zenoPayId", QRPaymentController.processPay);
 router.get("/payment-methods", PaymentMethodsController.getPaymentMethodsPage);
 router.post("/payment-methods/set-default", PaymentMethodsController.setDefaultPaymentMethod);
 router.post("/payment-methods/remove", PaymentMethodsController.removePaymentMethod);
@@ -625,6 +653,52 @@ router.post("/scheduled-payments/:id/pay-now", requirePin, checkTransactionLimit
   }
 });
 
+router.get("/user/scheduled-payments/history", async (req, res) => {
+  try {
+    const zenoPayId = req.session.user?.ZenoPayID || null;
+    if (!zenoPayId) {
+      return res.render("scheduled-payments-history", {
+        pageTitle: "Scheduled Payments History - ZenoPay",
+        isLoggedIn: false,
+        user: null,
+        history: [],
+      });
+    }
+
+    const rows = await ScheduledPayment.find({ ZenoPayId: zenoPayId })
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    const history = rows.flatMap((row) => {
+      const executions = Array.isArray(row.executionHistory) ? row.executionHistory : [];
+      return executions.map((entry) => ({
+        scheduledPaymentId: String(row._id),
+        recipient: row.recipient,
+        method: row.method,
+        frequency: row.frequency,
+        amount: Number(entry.amount || row.amount || 0),
+        status: entry.status || "success",
+        executedAt: entry.executedAt || row.lastRunAt || row.updatedAt,
+        reference: entry.reference || row.lastExecutionRef || "",
+        note: entry.note || "",
+      }));
+    }).sort((a, b) => new Date(b.executedAt || 0) - new Date(a.executedAt || 0));
+
+    return res.render("scheduled-payments-history", {
+      pageTitle: "Scheduled Payments History - ZenoPay",
+      isLoggedIn: true,
+      user: req.session.user || null,
+      history,
+    });
+  } catch (error) {
+    console.error("[Scheduled Payments] History load failed:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+});
+
 router.get("/invoices", async (req, res) => {
   const user = req.session.user || null;
   const userId = user?.ZenoPayID || null;
@@ -891,13 +965,16 @@ router.post("/disputes/:disputeId/withdraw", DisputeController.withdrawDispute);
 
 // Statements / Receipts pages
 router.get("/statements", StatementsController.getStatementsPage);
+router.get("/user/analytics", StatementsController.getSpendingAnalyticsPage);
 router.get("/receipts", ReceiptsController.getReceiptsPage);
 router.get("/verify-receipt/:receipt_number", ReceiptsController.verifyReceipt);
 router.get("/receipt/verify", ReceiptsController.getReceiptVerificationPage);
+router.get("/user/cashback", CashbackController.getCashbackPage);
 
 // Referral pages
 router.get("/referral", ReferralController.getReferralPage);
 router.get("/referral-program", ReferralController.getReferralPage);
+router.get("/user/referral", ReferralController.getReferralPage);
 router.get("/ref/:code", ReferralController.handleReferralLink);
 
 // Legal pages

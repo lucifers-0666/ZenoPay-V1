@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { margin:0; font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); color:#0f172a; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 8px 20px rgba(2,6,23,.04); }
+    .muted { color:#64748b; font-size:13px; }
+    .progress { height:8px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin:10px 0; }
+    .progress > span { display:block; height:100%; background:#2563eb; width:0; }
+    .btn { border:0; border-radius:8px; height: 36px; padding:0 12px; cursor:pointer; font-weight:600; background:#2563eb; color:#fff; display:inline-flex; align-items:center; }
+    .empty { text-align:center; padding:20px; border:1px dashed #cbd5e1; border-radius:10px; color:#64748b; }
+    h1 { margin-bottom:8px; }
+    h2 { margin: 10px 0 12px; font-size: 18px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="wrap">
+    <h1>Split Requests</h1>
+    <p class="muted">Track requests you created and pay your pending contributions.</p>
+
+    <div class="grid">
+      <section>
+        <h2>Requests You Sent</h2>
+        <% if (sentRequests && sentRequests.length) { %>
+          <% sentRequests.forEach((reqRow) => { 
+            const total = Number(reqRow.amount || 0);
+            const collected = Number(reqRow.totalCollected || 0);
+            const percent = total > 0 ? Math.min(100, Math.round((collected / total) * 100)) : 0;
+            const paidCount = (reqRow.contributions || []).filter((c) => c.status === 'paid').length;
+            const totalContributors = (reqRow.contributions || []).length;
+          %>
+            <article class="card">
+              <strong><%= reqRow.description || 'Split request' %></strong>
+              <div class="muted">₹<%= collected.toFixed(2) %> of ₹<%= total.toFixed(2) %> collected (<%= paidCount %> of <%= totalContributors %> paid)</div>
+              <div class="progress"><span class="progress-fill" data-percent="<%= percent %>"></span></div>
+              <div class="muted">Request ID: <%= reqRow.requestId %></div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">No split requests sent yet.</div>
+        <% } %>
+      </section>
+
+      <section>
+        <h2>Requests You Owe</h2>
+        <% if (owedRequests && owedRequests.length) { %>
+          <% owedRequests.forEach((reqRow) => { 
+            const myContribution = (reqRow.contributions || []).find((c) => String(c.userId) === String(user._id));
+            const oweAmount = Number(myContribution?.amount || reqRow.perPersonAmount || 0);
+          %>
+            <article class="card">
+              <strong>You owe ₹<%= oweAmount.toFixed(2) %></strong>
+              <div class="muted"><%= reqRow.description || 'Split payment' %></div>
+              <div class="muted">Request ID: <%= reqRow.requestId %></div>
+              <button class="btn pay-contribution-btn" data-request-id="<%= reqRow.requestId %>">Pay Now</button>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="empty">No pending split contributions.</div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll('.progress-fill').forEach((node) => {
+      const pct = Math.max(0, Math.min(100, Number(node.getAttribute('data-percent') || 0)));
+      node.style.width = `${pct}%`;
+    });
+
+    document.querySelectorAll('.pay-contribution-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const requestId = btn.getAttribute('data-request-id');
+        const res = await fetch(`/pay-request/${encodeURIComponent(requestId)}/contribute`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          alert('Contribution paid successfully');
+          window.location.reload();
+        } else {
+          alert(data.message || 'Payment failed');
+        }
+      });
+    });
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

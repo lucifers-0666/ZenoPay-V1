@@ -1394,6 +1394,51 @@
         </div>
       </aside>
     </div>
+
+    <section class="card" style="margin-top:18px;padding:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <h3 style="margin:0 0 10px;">Your Split Requests</h3>
+          <% if (sentSplitRequests && sentSplitRequests.length) { %>
+            <% sentSplitRequests.forEach((row) => { 
+              const total = Number(row.amount || 0);
+              const collected = Number(row.totalCollected || 0);
+              const paidCount = (row.contributions || []).filter((c) => c.status === 'paid').length;
+              const totalCount = (row.contributions || []).length;
+              const progress = total > 0 ? Math.min(100, Math.round((collected / total) * 100)) : 0;
+            %>
+              <div style="border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:8px;">
+                <div style="font-weight:700;"><%= row.description || 'Split payment request' %></div>
+                <div style="font-size:12px;color:#64748B;">₹<%= collected.toFixed(2) %> of ₹<%= total.toFixed(2) %> collected (<%= paidCount %> of <%= totalCount %> paid)</div>
+                <div style="height:8px;background:#E2E8F0;border-radius:999px;overflow:hidden;margin-top:8px;"><span style="display:block;height:100%;background:#3B82F6;width:<%= progress %>%;"></span></div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p style="font-size:13px;color:#64748B;">No split requests sent yet.</p>
+          <% } %>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 10px;">You Owe</h3>
+          <% if (owedSplitRequests && owedSplitRequests.length) { %>
+            <% owedSplitRequests.forEach((row) => { 
+              const contribution = (row.contributions || []).find((c) => String(c.userId) === String(user?._id));
+              const owe = Number(contribution?.amount || row.perPersonAmount || 0);
+            %>
+              <div style="border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                <div>
+                  <div style="font-weight:700;">You owe ₹<%= owe.toFixed(2) %></div>
+                  <div style="font-size:12px;color:#64748B;"><%= row.description || 'Split request' %></div>
+                </div>
+                <button type="button" class="btn-outline split-pay-btn" data-request-id="<%= row.requestId %>">Pay</button>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p style="font-size:13px;color:#64748B;">No pending split contributions.</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
   </div>
 
   <div class="screen-toast" id="screenToast"></div>
@@ -1404,7 +1449,7 @@
       <h3 style="margin:0 0 6px;">Request QR Code</h3>
       <p style="margin:0 0 12px;color:#64748B;font-size:13px;">Scan to open this payment request</p>
       <div id="qrBox" style="display:grid;place-items:center;"></div>
-      <button type="button" class="close-modal" id="closeQr">Close</button>
+      <button type="button" class="close-modal" id="closeQr" data-close-modal="qrModal">Close</button>
     </div>
   </div>
 
@@ -1687,7 +1732,14 @@
 
       const openQr = () => {
         qrModal.classList.add('open');
+        qrModal.removeAttribute('hidden');
         qrBox.innerHTML = '';
+
+        if (typeof QRCode !== 'function') {
+          qrBox.innerHTML = '<p style="margin:0;color:#64748B;font-size:13px;">QR preview is unavailable right now. Please try again.</p>';
+          return;
+        }
+
         new QRCode(qrBox, {
           text: requestLink(),
           width: 180,
@@ -1702,9 +1754,20 @@
         showTargetToast(showQrBtn, 'QR opened');
       });
 
-      closeQr.addEventListener('click', () => qrModal.classList.remove('open'));
-      qrModal.addEventListener('click', (e) => {
-        if (e.target === qrModal) qrModal.classList.remove('open');
+      const closeQrModal = () => {
+        qrModal.classList.remove('open');
+        qrModal.setAttribute('hidden', 'hidden');
+      };
+
+      closeQr?.addEventListener('click', closeQrModal);
+      qrModal?.addEventListener('click', (e) => {
+        if (e.target === qrModal) closeQrModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && qrModal.classList.contains('open')) {
+          closeQrModal();
+        }
       });
 
       const submitRequest = async (saveAsDraft) => {
@@ -1756,6 +1819,27 @@
 
       saveDraftBtn.addEventListener('click', () => submitRequest(true));
       sendRequestBtn.addEventListener('click', () => submitRequest(false));
+
+      document.querySelectorAll('.split-pay-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const requestId = btn.getAttribute('data-request-id');
+          if (!requestId) return;
+          btn.disabled = true;
+          try {
+            const res = await fetch(`/pay-request/${encodeURIComponent(requestId)}/contribute`, { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+              throw new Error(data.message || 'Unable to pay contribution');
+            }
+            showScreenToast('Split contribution paid successfully');
+            setTimeout(() => window.location.reload(), 900);
+          } catch (error) {
+            showScreenToast(error.message || 'Unable to pay contribution', 'fa-triangle-exclamation');
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      });
 
       updateInlineActions();
       renderChips();

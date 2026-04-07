@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pageTitle || 'Payment Links - ZenoPay' %></title>
+  <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { font-family: Inter, Arial, sans-serif; background: linear-gradient(180deg,#f8fbff 0%,#f8fafc 220px); margin: 0; color: #1f2937; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+    .header { padding: 18px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { margin: 0; font-size: 20px; }
+    .btn { border: 0; background: #2563eb; color: #fff; height: 38px; padding: 0 14px; border-radius: 8px; text-decoration: none; cursor: pointer; font-weight: 600; display:inline-flex; align-items:center; gap:8px; }
+    .table-wrap { overflow-x: auto; }
+    .table-wrap::-webkit-scrollbar { height: 8px; }
+    .table-wrap::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 12px; border-top: 1px solid #f1f5f9; text-align: left; font-size: 14px; vertical-align: middle; }
+    .table th { white-space: nowrap; color:#475569; font-size: 12px; text-transform: uppercase; letter-spacing:.04em; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: capitalize; }
+    .pending { background: #fef3c7; color: #92400e; }
+    .paid { background: #dcfce7; color: #166534; }
+    .expired { background: #fee2e2; color: #991b1b; }
+    .cancelled { background: #e5e7eb; color: #374151; }
+    .draft { background: #e0e7ff; color: #3730a3; }
+    .actions { display: flex; gap: 8px; }
+    .mini { border: 1px solid #e5e7eb; background: #fff; height: 34px; padding: 0 10px; border-radius: 8px; cursor: pointer; font-weight: 600; display:inline-flex; align-items:center; gap:6px; }
+    .empty { padding: 40px 18px; text-align: center; color: #6b7280; }
+    @media (max-width: 768px) {
+      .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Payment Links</h1>
+        <a class="btn" href="/request-money"><i class="fa-solid fa-plus"></i> Create Request</a>
+      </div>
+
+      <% if (!links || links.length === 0) { %>
+        <div class="empty">No payment links yet. Create one to start collecting payments.</div>
+      <% } else { %>
+        <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Amount</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Expires</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% links.forEach((link) => { %>
+              <tr>
+                <td><a href="/request-money/<%= link.id %>"><%= link.id %></a></td>
+                <td><%= link.currency %> <%= Number(link.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                <td><%= link.description || '-' %></td>
+                <td><span class="pill <%= link.status %>"><%= link.status %></span></td>
+                <td><%= link.expiresAt ? new Date(link.expiresAt).toLocaleDateString('en-IN') : '-' %></td>
+                <td>
+                  <div class="actions">
+                    <button class="mini" onclick="copyLink('<%= link.paymentLink %>')"><i class="fa-regular fa-copy"></i> Copy</button>
+                    <% if (link.status === 'pending' || link.status === 'draft') { %>
+                      <button class="mini" onclick="cancelLink('<%= link.id %>')"><i class="fa-solid fa-ban"></i> Cancel</button>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    async function copyLink(link) {
+      try {
+        await navigator.clipboard.writeText(link);
+        alert('Payment link copied');
+      } catch (_) {
+        window.prompt('Copy link', link);
+      }
+    }
+
+    async function cancelLink(requestId) {
+      if (!confirm('Cancel this payment link?')) return;
+      const response = await fetch(`/payment-links/${requestId}/cancel`, { method: 'POST' });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.message || 'Unable to cancel');
+        return;
+      }
+      window.location.reload();
+    }
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

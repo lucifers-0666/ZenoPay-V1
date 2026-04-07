@@ -2,7 +2,9 @@ const BankAccount = require("../Models/BankAccount");
 const TransactionHistory = require("../Models/TransactionHistory");
 const Notification = require("../Models/Notification");
 const ZenoPayDetails = require("../Models/ZenoPayUser");
+const Beneficiary = require("../Models/Beneficiary");
 const emailService = require("../Services/EmailService");
+const { processCashback } = require("../Services/cashbackService");
 const { getLimitsByTier } = require("../config/transactionLimits");
 
 const generateTransactionId = async () => {
@@ -19,14 +21,17 @@ const getTransferMoney = async (req, res) => {
   try {
     console.log('[getTransferMoney] Request received for /send-to');
     const zenoPayId = req.session?.user?.ZenoPayID || null;
-    if (!zenoPayId) {
+    const isGuestPreview = process.env.NODE_ENV !== "production" && !zenoPayId;
+    if (!zenoPayId && !isGuestPreview) {
       return res.redirect("/login");
     }
-    console.log(`[getTransferMoney] zenoPayId: ${zenoPayId}`);
+    console.log(`[getTransferMoney] zenoPayId: ${zenoPayId || 'preview-mode'}`);
 
     // Fetch all accounts for this user
     console.log('[getTransferMoney] Querying BankAccount...');
-    const accounts = (await BankAccount.find({ ZenoPayId: zenoPayId }).lean()) || [];
+    const accounts = isGuestPreview
+      ? []
+      : ((await BankAccount.find({ ZenoPayId: zenoPayId }).lean()) || []);
     console.log(`[getTransferMoney] Query returned: ${accounts ? accounts.length + ' accounts' : 'null'}`);
     
     if (!accounts || accounts.length === 0) {
@@ -49,6 +54,16 @@ const getTransferMoney = async (req, res) => {
       });
     }
 
+    const savedBeneficiaries = req.session?.user?._id
+      ? await Beneficiary.find({
+        userId: req.session?.user?._id,
+        isActive: true,
+      })
+        .sort({ createdAt: -1 })
+        .limit(12)
+        .lean()
+      : [];
+
     // Get user details
     const user = req.session.user;
     if (!user) {
@@ -63,10 +78,11 @@ const getTransferMoney = async (req, res) => {
       currentPage: "send-money",
       accounts: accounts || [],
       qrCode: req.session.qrCode || null,
-      user: user,
-      isLoggedIn: true,
+      user: user || { FullName: "Guest Preview", ZenoPayID: "ZP-PREVIEW" },
+      isLoggedIn: !!user,
       kycTier,
       transactionLimits: limits,
+      savedBeneficiaries: savedBeneficiaries || [],
     });
     console.log('[getTransferMoney] Template rendered successfully');
   } catch (err) {
@@ -137,11 +153,26 @@ const verifyReceiver = async (req, res) => {
   }
 };
 
+const ALLOWED_CATEGORIES = new Set([
+  "food",
+  "shopping",
+  "bills",
+  "travel",
+  "entertainment",
+  "health",
+  "education",
+  "other",
+]);
+
 const postTransferMoney = async (req, res) => {
-  const { sourceAccountId, receiverId, amount, charges, total, description } = req.body;
+  const { sourceAccountId, receiverId, amount, charges, total, description, category, note } = req.body;
   const transferAmount = parseFloat(amount);
   const transactionCharges = parseFloat(charges) || 0;
   const totalAmount = parseFloat(total);
+  const normalizedCategory = ALLOWED_CATEGORIES.has(String(category || "").toLowerCase())
+    ? String(category).toLowerCase()
+    : "other";
+  const noteText = String(note || description || "").trim().slice(0, 200);
 
   try {
     const sessionZenoPayId = req.session?.user?.ZenoPayID || null;
@@ -153,6 +184,7 @@ const postTransferMoney = async (req, res) => {
     }
 
     const { limits } = await resolveCurrentTierLimits(req);
+    const senderUserDoc = await ZenoPayDetails.findOne({ ZenoPayID: sessionZenoPayId }).select("_id").lean();
 
     // Get sender account by ID
     const sender = await BankAccount.findById(sourceAccountId);
@@ -271,12 +303,21 @@ const postTransferMoney = async (req, res) => {
       ReceiverBalanceBefore: receiverCurrentBal,
       ReceiverBalanceAfter: receiverNewBal,
       Amount: transferAmount,
-      Description: description
-        ? `${description} (Charges: ₹${transactionCharges.toFixed(2)})`
+      Description: noteText
+        ? `${noteText} (Charges: ₹${transactionCharges.toFixed(2)})`
         : `Fund Transfer (Charges: ₹${transactionCharges.toFixed(2)})`,
+      Category: normalizedCategory,
+      Note: noteText,
     });
 
     await history.save();
+
+    const cashbackResult = await processCashback(
+      senderUserDoc?._id,
+      history._id,
+      transferAmount
+    );
+    const cashbackAmount = Number(cashbackResult?.cashbackAmount || 0);
 
     // Create notifications
     try {
@@ -354,7 +395,7 @@ const postTransferMoney = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Transfer Successful!",
+      message: cashbackAmount > 0 ? `Transfer Successful! 🎉 You earned ₹${cashbackAmount.toFixed(2)} cashback!` : "Transfer Successful!",
       transaction: {
         transactionId: transactionID,
         amount: transferAmount,
@@ -362,6 +403,7 @@ const postTransferMoney = async (req, res) => {
         total: totalAmount,
         receiverName: receiverHolderName,
         newBalance: senderNewBal,
+        cashbackAmount,
       },
     });
   } catch (err) {

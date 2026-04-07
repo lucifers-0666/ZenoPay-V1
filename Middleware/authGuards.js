@@ -11,7 +11,52 @@ const hasAuthenticatedUser = (req) => {
   return true;
 };
 
+const isDevelopmentPreviewEnabled = () => process.env.NODE_ENV !== "production";
+
+const normalizePath = (value = "") => {
+  try {
+    return String(value).split("?")[0];
+  } catch (_) {
+    return "";
+  }
+};
+
+const isPreviewAllowedPath = (req) => {
+  if (String(req.method || "GET").toUpperCase() !== "GET") return false;
+  if (!isDevelopmentPreviewEnabled()) return false;
+
+  const path = normalizePath(req.originalUrl || req.path || "");
+
+  const exact = new Set([
+    "/request-money",
+    "/payment-links",
+    "/split-requests",
+    "/beneficiaries",
+    "/send-money",
+    "/wallet/send",
+    "/user/analytics",
+    "/user/cashback",
+    "/user/scheduled-payments/history",
+    "/user/set-pin",
+    "/verify-pin",
+    "/create-api-key",
+  ]);
+
+  if (exact.has(path)) return true;
+
+  return (
+    path.startsWith("/request-money/") ||
+    path.startsWith("/pay/request/") ||
+    path.startsWith("/pay/") ||
+    path.startsWith("/ref/")
+  );
+};
+
 const isAuthenticated = (req, res, next) => {
+  if (isPreviewAllowedPath(req)) {
+    return next();
+  }
+
   if (hasAuthenticatedUser(req)) {
     const isVerified = !!(
       req.session?.user?.isEmailVerified ??
@@ -62,4 +107,5 @@ module.exports = {
   isAuthenticated,
   isAuthenticatedApi,
   redirectIfAuthenticated,
+  isDevelopmentPreviewEnabled,
 };

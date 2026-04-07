@@ -37,6 +37,11 @@ const ScheduledPaymentSchema = new mongoose.Schema(
       required: false,
       index: true,
     },
+    nextRunDate: {
+      type: Date,
+      required: false,
+      index: true,
+    },
     endDate: {
       type: Date,
       default: null,
@@ -69,6 +74,11 @@ const ScheduledPaymentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    failureMessage: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     executionHistory: [
       {
         executedAt: { type: Date, default: Date.now },
@@ -85,5 +95,17 @@ const ScheduledPaymentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+ScheduledPaymentSchema.pre("save", function syncRunDates(next) {
+  if (this.nextRunDate && !this.nextDue) {
+    this.nextDue = this.nextRunDate;
+  }
+
+  if (this.nextDue && !this.nextRunDate) {
+    this.nextRunDate = this.nextDue;
+  }
+
+  next();
+});
 
 module.exports = mongoose.model("ScheduledPayment", ScheduledPaymentSchema);

@@ -1,6 +1,17 @@
 const Merchant = require("../Models/Merchant");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 
+const normalizeUploadedFile = (file) => {
+  if (!file) return null;
+  return {
+    path: file.path ? String(file.path).replace(/\\/g, "/") : "",
+    originalName: file.originalname || "",
+    mimetype: file.mimetype || "",
+    size: Number(file.size || 0),
+    uploadedAt: new Date(),
+  };
+};
+
 // Get API Key Management Page
 const getApiKeyPage = async (req, res) => {
   try {
@@ -37,6 +48,24 @@ const getApiKeyPage = async (req, res) => {
 const registerMerchant = async (req, res) => {
   try {
     const zenoPayId = req.session.user?.ZenoPayID || "ZP-DEMO2024";
+    const {
+      businessName,
+      businessType,
+      businessEmail,
+      phone,
+      businessWebsite,
+      businessDescription,
+      legalBusinessName,
+      businessRegistrationNumber,
+      taxId,
+    } = req.body || {};
+
+    if (!businessName || !businessType || !businessEmail || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "businessName, businessType, businessEmail and phone are required",
+      });
+    }
 
     // Check if merchant already exists
     const existingMerchant = await Merchant.findOne({ ZenoPayId: zenoPayId });
@@ -53,8 +82,30 @@ const registerMerchant = async (req, res) => {
       BusinessName: businessName,
       BusinessType: businessType,
       BusinessWebsite: businessWebsite,
-      BusinessDescription: businessDescription,
+      BusinessDescription: String(businessDescription || "").trim(),
+      BusinessEmail: String(businessEmail || "").trim().toLowerCase(),
+      Phone: String(phone || "").trim(),
+      LegalBusinessName: String(legalBusinessName || "").trim(),
+      BusinessRegistrationNumber: String(businessRegistrationNumber || "").trim(),
+      TaxId: String(taxId || "").trim(),
+      Status: "pending",
+      IsActive: false,
+      onboardingStatus: "pending_review",
+      onboardingSubmittedAt: new Date(),
     });
+
+    const files = req.files || {};
+    const gstCertificate = normalizeUploadedFile(files.gstCertificate?.[0]);
+    const panCard = normalizeUploadedFile(files.panCard?.[0]);
+    const bankStatement = normalizeUploadedFile(files.bankStatement?.[0]);
+    const businessLicense = normalizeUploadedFile(files.businessLicense?.[0]);
+
+    merchant.documents = {
+      gstCertificate: gstCertificate || undefined,
+      panCard: panCard || undefined,
+      bankStatement: bankStatement || undefined,
+      businessLicense: businessLicense || undefined,
+    };
 
     // Generate API keys
     merchant.generateApiKey();
@@ -68,6 +119,7 @@ const registerMerchant = async (req, res) => {
         businessName: merchant.BusinessName,
         apiKey: merchant.ApiKey,
         secretKey: merchant.SecretKey,
+        onboardingStatus: merchant.onboardingStatus,
       },
     });
   } catch (error) {

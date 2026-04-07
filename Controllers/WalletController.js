@@ -293,7 +293,24 @@ const searchUser = async (req, res) => {
 const getSend = async (req, res) => {
   try {
     const currentUser = await resolveCurrentUser(req);
-    if (!currentUser) return res.redirect("/login");
+    const isGuestPreview = process.env.NODE_ENV !== "production" && !currentUser;
+    if (!currentUser && !isGuestPreview) return res.redirect("/login");
+
+    if (!currentUser && isGuestPreview) {
+      return res.render("wallet/send", {
+        pageTitle: "Send Money - ZenoPay",
+        currentPage: "send-money",
+        user: { FullName: "Guest Preview", ZenoPayID: "ZP-PREVIEW" },
+        isLoggedIn: false,
+        flash: null,
+        wallet: { balance: 0, currency: "INR" },
+        errors: {},
+        form: {},
+        recipientPreview: null,
+        successData: null,
+        previewMode: true,
+      });
+    }
 
     const wallet = await ensureWallet(currentUser._id);
 
@@ -329,14 +346,12 @@ const processSend = async (req, res) => {
 
     if (!recipientQuery) {
       errors.recipient = "Recipient phone or email is required.";
+      console.log("Recipient query is empty");
     }
 
     if (!Number.isFinite(amount) || amount <= 0) {
       errors.amount = "Please enter a valid amount.";
-    }
-
-    if (!/^\d{6}$/.test(pin)) {
-      errors.pin = "Please enter your 6-digit transaction PIN.";
+      console.log("Invalid amount entered:", req.body?.amount);
     }
 
     let recipient = null;
@@ -345,12 +360,22 @@ const processSend = async (req, res) => {
       recipient = await findRecipientByQuery(recipientQuery);
       if (!recipient) {
         errors.recipient = "No ZenoPay user found with this phone/email";
+        console.log("No recipient found with query:", recipientQuery);
       } else if (String(recipient._id) === String(currentUser._id)) {
         errors.recipient = "You cannot send money to yourself";
+        console.log("Attempting to send money to self");
       }
     }
 
-    if (!errors.pin) {
+    if (!errors.amount && Number(wallet?.balance || 0) < amount) {
+      errors.amount = "Insufficient balance";
+    }
+
+    if (!/^\d{6}$/.test(pin)) {
+      errors.pin = "Please enter your 6-digit transaction PIN.";
+    }
+
+    if (!errors.recipient && !errors.amount && !errors.pin) {
       const pinResult = await verifyTransactionPinForUser(currentUser, pin);
       if (!pinResult.valid) {
         errors.pin =
@@ -417,6 +442,7 @@ const processSend = async (req, res) => {
         );
 
         const baseRef = generateReference();
+        console.log("Generated base reference for transactions:", baseRef);
         senderTxReference = `${baseRef}S`;
         const receiverTxReference = `${baseRef}R`;
 

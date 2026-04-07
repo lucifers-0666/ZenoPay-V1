@@ -59,6 +59,25 @@ const TransactionHistorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  Category: {
+    type: String,
+    enum: [
+      "food",
+      "shopping",
+      "bills",
+      "travel",
+      "entertainment",
+      "health",
+      "education",
+      "other",
+    ],
+    default: "other",
+  },
+  Note: {
+    type: String,
+    default: "",
+    trim: true,
+  },
   Status: {
     type: String,
     enum: ["success", "failed", "declined", "pending"],

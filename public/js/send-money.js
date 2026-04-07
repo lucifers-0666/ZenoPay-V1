@@ -18,10 +18,42 @@ let verifiedReceiver = null;
 document.addEventListener('DOMContentLoaded', function() {
   initializeAccountSelection();
   initializeFormHandlers();
+  initializeBeneficiaryQuickSelect();
   initializeQuickAmounts();
   initializeCharacterCounter();
   loadTodayStats();
 });
+
+function initializeBeneficiaryQuickSelect() {
+  const receiverInput = document.getElementById('receiverId');
+  const verifyBtn = document.getElementById('verifyReceiverBtn');
+  const verifiedCard = document.getElementById('receiverVerifiedCard');
+  const quickButtons = document.querySelectorAll('.quick-beneficiary-btn');
+
+  if (!receiverInput || !quickButtons.length) return;
+
+  quickButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const recipient = String(btn.getAttribute('data-recipient') || '').trim();
+      if (!recipient) return;
+
+      receiverInput.value = recipient;
+      receiverInput.disabled = false;
+      receiverInput.classList.remove('success');
+      verifiedReceiver = null;
+
+      if (verifiedCard) {
+        verifiedCard.style.display = 'none';
+      }
+
+      if (verifyBtn) {
+        verifyBtn.style.display = 'block';
+      }
+
+      receiverInput.focus();
+    });
+  });
+}
 
 // ====================================
 // ACCOUNT SELECTION
@@ -155,10 +187,12 @@ function updateTransactionSummary() {
   // Calculate total
   const total = amount + charges;
 
-  // Update display
+      const noteInput = document.getElementById('note');
+      const categoryInput = document.getElementById('category');
   document.getElementById('summaryAmount').textContent = `₹ ${formatAmount(amount)}`;
   document.getElementById('summaryCharges').textContent = `₹ ${formatAmount(charges)}`;
-  document.getElementById('summaryTotal').textContent = `₹ ${formatAmount(total)}`;
+      const note = noteInput ? noteInput.value.trim() : '';
+      const category = categoryInput ? String(categoryInput.value || 'other') : 'other';
 
   // Check daily limit
   const remainingLimit = DAILY_LIMIT - todayAmount;
@@ -206,7 +240,9 @@ async function handleFormSubmit(e) {
   // Show loading
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
-
+            description: note,
+            note,
+            category,
   try {
     // Calculate charges and total
     let charges = 0;
@@ -236,6 +272,10 @@ async function handleFormSubmit(e) {
     if (response.ok && data.success) {
       // Show success modal
       showSuccessModal(data.transaction);
+
+      if (Number(data?.transaction?.cashbackAmount || 0) > 0) {
+        showToast(`🎉 You earned ₹${formatAmount(Number(data.transaction.cashbackAmount))} cashback!`, 'success');
+      }
       
       // Update stats
       todayTransactions++;
@@ -246,7 +286,7 @@ async function handleFormSubmit(e) {
       form.reset();
       verifiedReceiver = null;
       document.getElementById('receiverVerifiedCard').style.display = 'none';
-      document.getElementById('receiverId').disabled = false;
+      const descriptionInput = document.getElementById('note');
       document.getElementById('receiverId').classList.remove('success');
       document.getElementById('verifyReceiverBtn').style.display = 'block';
       updateTransactionSummary();

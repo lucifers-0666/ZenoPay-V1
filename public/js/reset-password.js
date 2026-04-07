@@ -206,9 +206,10 @@ function checkPasswordMatch() {
 // PASSWORD TOGGLE VISIBILITY
 // ========================================
 
-function togglePasswordVisibility(inputId) {
+function togglePasswordVisibility(inputId, evt) {
     const input = document.getElementById(inputId);
-    const toggle = event.target.closest('.password-toggle');
+    const toggle = evt?.target?.closest('.password-toggle');
+    if (!input || !toggle) return;
     const icon = toggle.querySelector('i');
 
     if (input.type === 'password') {
@@ -248,6 +249,7 @@ async function handleFormSubmit(e) {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
     const submitBtn = document.querySelector('.btn-submit');
+    const endpoint = form.getAttribute('action') || '/reset-password';
 
     // Show loading state
     submitBtn.classList.add('loading');
@@ -255,7 +257,7 @@ async function handleFormSubmit(e) {
 
     try {
         // Submit password reset
-        const response = await fetch('/reset-password', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -267,7 +269,12 @@ async function handleFormSubmit(e) {
             })
         });
 
-        const data = await response.json();
+        let data = {};
+        try {
+            data = await response.json();
+        } catch {
+            data = { message: 'Unexpected response from server' };
+        }
 
         if (response.ok) {
             // Success: Show success section

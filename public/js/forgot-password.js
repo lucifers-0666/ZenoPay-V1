@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeResendButton();
 });
 
+let resendIntervalRef = null;
+
 // ========================================
 // FORM VALIDATION
 // ========================================
@@ -86,6 +88,7 @@ async function handleFormSubmit(e) {
     const email = document.getElementById('email').value.trim();
     const submitBtn = document.querySelector('.btn-submit');
     const form = document.getElementById('forgot-password-form');
+    const endpoint = form?.getAttribute('action') || '/forgot-password';
 
     // Show loading state
     submitBtn.classList.add('loading');
@@ -93,7 +96,7 @@ async function handleFormSubmit(e) {
 
     try {
         // Send password reset request
-        const response = await fetch('/forgot-password', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -101,7 +104,12 @@ async function handleFormSubmit(e) {
             body: JSON.stringify({ email: email })
         });
 
-        const data = await response.json();
+        let data = {};
+        try {
+            data = await response.json();
+        } catch {
+            data = { message: 'Unexpected response from server' };
+        }
 
         if (response.ok) {
             // Success: Show success section
@@ -155,7 +163,12 @@ async function handleResendClick(e) {
     e.preventDefault();
 
     const resendBtn = document.getElementById('resend-btn');
-    const email = document.getElementById('display-email').textContent;
+    const email = (document.getElementById('display-email').textContent || '').trim();
+
+    if (!email) {
+        showToast('Missing email address. Please submit the form again.', 'error');
+        return;
+    }
 
     // Show loading state
     resendBtn.classList.add('loading');
@@ -170,7 +183,12 @@ async function handleResendClick(e) {
             body: JSON.stringify({ email: email })
         });
 
-        const data = await response.json();
+        let data = {};
+        try {
+            data = await response.json();
+        } catch {
+            data = { message: 'Unexpected response from server' };
+        }
 
         if (response.ok) {
             showToast('Reset link resent successfully!', 'success');
@@ -192,18 +210,26 @@ function startResendCountdown() {
     const countdown = document.getElementById('resend-countdown');
     const timer = document.getElementById('countdown-timer');
 
+    if (!resendBtn || !countdown || !timer) return;
+
+    if (resendIntervalRef) {
+        clearInterval(resendIntervalRef);
+        resendIntervalRef = null;
+    }
+
     let seconds = 60;
 
     // Hide resend button
     resendBtn.style.display = 'none';
     countdown.classList.remove('hidden');
 
-    const interval = setInterval(() => {
+    resendIntervalRef = setInterval(() => {
         seconds--;
         timer.textContent = seconds;
 
         if (seconds <= 0) {
-            clearInterval(interval);
+            clearInterval(resendIntervalRef);
+            resendIntervalRef = null;
             resendBtn.style.display = 'flex';
             countdown.classList.add('hidden');
             resendBtn.disabled = false;

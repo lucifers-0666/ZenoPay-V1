@@ -8,6 +8,12 @@ const TransactionSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    merchant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Merchant",
+      index: true,
+      default: null,
+    },
     type: {
       type: String,
       enum: ["topup", "send", "receive", "refund"],
@@ -33,6 +39,26 @@ const TransactionSchema = new mongoose.Schema(
       index: true,
     },
     description: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    category: {
+      type: String,
+      enum: [
+        "food",
+        "shopping",
+        "bills",
+        "travel",
+        "entertainment",
+        "health",
+        "education",
+        "other",
+      ],
+      default: "other",
+      index: true,
+    },
+    note: {
       type: String,
       default: "",
       trim: true,

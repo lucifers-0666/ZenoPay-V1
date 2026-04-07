@@ -36,6 +36,86 @@ const merchantSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    BusinessEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+    Phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    LegalBusinessName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    BusinessRegistrationNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    TaxId: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    documents: {
+      gstCertificate: {
+        path: { type: String, default: "" },
+        originalName: { type: String, default: "" },
+        mimetype: { type: String, default: "" },
+        size: { type: Number, default: 0 },
+        uploadedAt: { type: Date, default: null },
+      },
+      panCard: {
+        path: { type: String, default: "" },
+        originalName: { type: String, default: "" },
+        mimetype: { type: String, default: "" },
+        size: { type: Number, default: 0 },
+        uploadedAt: { type: Date, default: null },
+      },
+      bankStatement: {
+        path: { type: String, default: "" },
+        originalName: { type: String, default: "" },
+        mimetype: { type: String, default: "" },
+        size: { type: Number, default: 0 },
+        uploadedAt: { type: Date, default: null },
+      },
+      businessLicense: {
+        path: { type: String, default: "" },
+        originalName: { type: String, default: "" },
+        mimetype: { type: String, default: "" },
+        size: { type: Number, default: 0 },
+        uploadedAt: { type: Date, default: null },
+      },
+    },
+    onboardingStatus: {
+      type: String,
+      enum: ["pending_review", "approved", "rejected"],
+      default: "pending_review",
+      index: true,
+    },
+    onboardingSubmittedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    onboardingReviewedAt: {
+      type: Date,
+      default: null,
+    },
+    onboardingReviewedBy: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    onboardingRejectionReason: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     ApiKey: {
       type: String,
       unique: true,
@@ -77,7 +157,7 @@ const merchantSchema = new mongoose.Schema(
     Status: {
       type: String,
       enum: ["pending", "active", "suspended", "closed"],
-      default: "active",
+      default: "pending",
     },
   },
   {

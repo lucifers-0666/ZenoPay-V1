@@ -634,6 +634,15 @@
               <div class="zd-stat-label">Settlement Time</div>
             </div>
 
+            <div class="zd-stat-card cyan">
+              <div class="zd-stat-top">
+                <div class="zd-stat-icon cyan"><i class="fas fa-chart-pie"></i></div>
+                <span class="zd-stat-trend neu">This month</span>
+              </div>
+              <div class="zd-stat-val" style="font-size:20px;"><%= topSpendingCategory || 'Other' %></div>
+              <div class="zd-stat-label">Top spend • ₹<%= Number(topSpendingAmount || 0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div>
+            </div>
+
           </div>
         </div>
 
@@ -739,6 +748,10 @@
             <a href="/transaction-history" class="zd-action-card">
               <div class="zd-action-icon c6"><i class="fas fa-history"></i></div>
               <div><div class="zd-action-label">Transactions</div><div class="zd-action-sub">View history</div></div>
+            </a>
+            <a href="/user/analytics" class="zd-action-card">
+              <div class="zd-action-icon c1"><i class="fas fa-chart-pie"></i></div>
+              <div><div class="zd-action-label">Analytics</div><div class="zd-action-sub">Category insights</div></div>
             </a>
             <a href="/invoices" class="zd-action-card">
               <div class="zd-action-icon c7"><i class="fas fa-file-invoice-dollar"></i></div>

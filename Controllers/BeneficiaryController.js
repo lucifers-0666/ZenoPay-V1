@@ -1,137 +1,199 @@
+const Beneficiary = require("../Models/Beneficiary");
+const ZenoPayUser = require("../Models/ZenoPayUser");
+
+const getSessionUserId = (req) => req.session?.user?._id || null;
+
+const formatBeneficiary = (row) => ({
+  _id: String(row._id),
+  name: row.name,
+  email: row.email,
+  phone: row.phone || "",
+  accountNumber: row.accountNumber || "",
+  nickname: row.nickname || "",
+  avatar: row.avatar || (row.name?.[0] || "U").toUpperCase(),
+  isActive: Boolean(row.isActive),
+  createdAt: row.createdAt,
+});
+
+const getBeneficiaries = async (req, res) => {
+  try {
+    const userId = getSessionUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const beneficiaries = await Beneficiary.find({ userId, isActive: true })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json({
+      success: true,
+      beneficiaries: beneficiaries.map(formatBeneficiary),
+    });
+  } catch (error) {
+    console.error("[Beneficiary] Failed to load beneficiaries:", error);
+    return res.status(500).json({ success: false, message: "Failed to load beneficiaries" });
+  }
+};
+
 const getBeneficiariesPage = async (req, res) => {
-  const beneficiaries = [
-    {
-      id: "BEN001",
-      name: "Aarav Mehta",
-      initials: "AM",
-      bankName: "HDFC Bank",
-      accountMasked: "XXXXXX4521",
-      transferType: "Bank Transfer",
-      upiOrType: "aarav.mehta@hdfcbank",
-      typeKey: "bank",
-      isFavourite: true,
-      transferCount: 14,
-      lastTransfer: "Feb 20, 2026",
-      addedAt: "Feb 18, 2026",
-      avatarUrl: "",
-    },
-    {
-      id: "BEN002",
-      name: "Priya Sharma",
-      initials: "PS",
-      bankName: "ICICI Bank",
-      accountMasked: "XXXXXX3189",
-      transferType: "UPI",
-      upiOrType: "priya.sharma@icici",
-      typeKey: "upi",
-      isFavourite: true,
-      transferCount: 11,
-      lastTransfer: "Feb 19, 2026",
-      addedAt: "Feb 12, 2026",
-      avatarUrl: "",
-    },
-    {
-      id: "BEN003",
-      name: "Rahul Verma",
-      initials: "RV",
-      bankName: "SBI",
-      accountMasked: "XXXXXX9012",
-      transferType: "Bank Transfer",
-      upiOrType: "rahul.verma@sbi",
-      typeKey: "bank",
-      isFavourite: false,
-      transferCount: 6,
-      lastTransfer: "Feb 15, 2026",
-      addedAt: "Jan 25, 2026",
-      avatarUrl: "",
-    },
-    {
-      id: "BEN004",
-      name: "Neha Kapoor",
-      initials: "NK",
-      bankName: "Axis Bank",
-      accountMasked: "XXXXXX6677",
-      transferType: "UPI",
-      upiOrType: "neha.kapoor@axis",
-      typeKey: "upi",
-      isFavourite: true,
-      transferCount: 9,
-      lastTransfer: "Feb 13, 2026",
-      addedAt: "Jan 15, 2026",
-      avatarUrl: "",
-    },
-    {
-      id: "BEN005",
-      name: "Karan Malhotra",
-      initials: "KM",
-      bankName: "Kotak Bank",
-      accountMasked: "XXXXXX7741",
-      transferType: "Bank Transfer",
-      upiOrType: "karan.m@kotak",
-      typeKey: "bank",
-      isFavourite: false,
-      transferCount: 5,
-      lastTransfer: "Feb 10, 2026",
-      addedAt: "Feb 04, 2026",
-      avatarUrl: "",
-    },
-    {
-      id: "BEN006",
-      name: "Sneha Iyer",
-      initials: "SI",
-      bankName: "Federal Bank",
-      accountMasked: "XXXXXX5510",
-      transferType: "Mobile Number",
-      upiOrType: "+91 98765 43210",
-      typeKey: "mobile",
-      isFavourite: false,
-      transferCount: 3,
-      lastTransfer: "Feb 08, 2026",
-      addedAt: "Feb 02, 2026",
-      avatarUrl: "",
-    },
-  ];
+  try {
+    const userId = getSessionUserId(req);
+    const isGuestPreview = process.env.NODE_ENV !== "production" && !userId;
 
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
+    if (!userId && !isGuestPreview) {
+      return res.redirect("/login");
+    }
 
-  const parseDate = (value) => {
-    if (!value) return null;
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed;
-  };
+    const beneficiaries = userId
+      ? await Beneficiary.find({ userId, isActive: true })
+        .sort({ createdAt: -1 })
+        .lean()
+      : [];
 
-  const isCurrentMonth = (dateValue) => {
-    const parsed = parseDate(dateValue);
-    if (!parsed) return false;
-    return parsed.getMonth() === currentMonth && parsed.getFullYear() === currentYear;
-  };
+    return res.render("beneficiaries", {
+      pageTitle: "Beneficiaries - ZenoPay",
+      currentPage: "beneficiaries",
+      user: req.session.user || { FullName: "Guest Preview", ZenoPayID: "ZP-PREVIEW" },
+      qrCode: req.session.qrCode || null,
+      isLoggedIn: !!userId,
+      readOnlyPreview: isGuestPreview,
+      beneficiaries: beneficiaries.map(formatBeneficiary),
+      hasBeneficiaries: beneficiaries.length > 0,
+    });
+  } catch (error) {
+    console.error("[Beneficiary] Failed to load beneficiaries page:", error);
+    return res.status(500).render("error-500", {
+      pageTitle: "Server Error - ZenoPay",
+      errorId: `ERR-${Date.now().toString(36).toUpperCase()}`,
+    });
+  }
+};
 
-  const stats = {
-    total: beneficiaries.length,
-    favourites: beneficiaries.filter((item) => item.isFavourite).length,
-    transfersThisMonth: beneficiaries.reduce((sum, item) => {
-      if (typeof item.transfersThisMonth === "number") {
-        return sum + item.transfersThisMonth;
-      }
-      return isCurrentMonth(item.lastTransfer) ? sum + 1 : sum;
-    }, 0),
-    recentlyAdded: beneficiaries.filter((item) => isCurrentMonth(item.addedAt)).length,
-  };
+const addBeneficiary = async (req, res) => {
+  try {
+    const userId = getSessionUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-  return res.render("beneficiary-management", {
-    pageTitle: "Beneficiaries - ZenoPay",
-    currentPage: "beneficiaries",
-    user: req.session.user || null,
-    qrCode: req.session.qrCode || null,
-    isLoggedIn: req.session.isLoggedIn || false,
-    hasBeneficiaries: beneficiaries.length > 0,
-    beneficiaries,
-    stats,
-  });
+    const email = String(req.body?.email || "").trim().toLowerCase();
+    const nickname = String(req.body?.nickname || "").trim();
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    const targetUser = await ZenoPayUser.findOne({
+      $or: [{ Email: email }, { email }],
+    }).lean();
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: "No ZenoPay user found with this email" });
+    }
+
+    if (String(targetUser._id) === String(userId)) {
+      return res.status(400).json({ success: false, message: "You cannot add yourself as a beneficiary" });
+    }
+
+    const alreadySaved = await Beneficiary.findOne({ userId, email, isActive: true }).lean();
+    if (alreadySaved) {
+      return res.status(409).json({ success: false, message: "Already in your beneficiaries" });
+    }
+
+    const name = String(targetUser.FullName || targetUser.name || targetUser.Email || email).trim();
+    const phone = String(targetUser.Mobile || targetUser.phone || "").trim();
+    const accountNumber = String(targetUser.ZenoPayID || targetUser.userId || "").trim();
+    const avatar = (name?.charAt(0) || "U").toUpperCase();
+
+    const created = await Beneficiary.create({
+      userId,
+      name,
+      email,
+      phone,
+      accountNumber,
+      nickname,
+      avatar,
+      isActive: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Beneficiary added",
+      beneficiary: formatBeneficiary(created.toObject()),
+    });
+  } catch (error) {
+    console.error("[Beneficiary] Failed to add beneficiary:", error);
+    if (error?.code === 11000) {
+      return res.status(409).json({ success: false, message: "Already in your beneficiaries" });
+    }
+    return res.status(500).json({ success: false, message: "Failed to add beneficiary" });
+  }
+};
+
+const deleteBeneficiary = async (req, res) => {
+  try {
+    const userId = getSessionUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const beneficiaryId = String(req.params?.id || "").trim();
+    if (!beneficiaryId) {
+      return res.status(400).json({ success: false, message: "Beneficiary id is required" });
+    }
+
+    const deleted = await Beneficiary.findOneAndDelete({
+      _id: beneficiaryId,
+      userId,
+    }).lean();
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Beneficiary not found" });
+    }
+
+    return res.json({ success: true, message: "Beneficiary removed" });
+  } catch (error) {
+    console.error("[Beneficiary] Failed to delete beneficiary:", error);
+    return res.status(500).json({ success: false, message: "Failed to remove beneficiary" });
+  }
+};
+
+const searchBeneficiary = async (req, res) => {
+  try {
+    const userId = getSessionUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const q = String(req.query?.q || "").trim();
+    if (!q) {
+      return getBeneficiaries(req, res);
+    }
+
+    const regex = new RegExp(q, "i");
+    const beneficiaries = await Beneficiary.find({
+      userId,
+      isActive: true,
+      $or: [{ name: regex }, { email: regex }],
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json({
+      success: true,
+      beneficiaries: beneficiaries.map(formatBeneficiary),
+    });
+  } catch (error) {
+    console.error("[Beneficiary] Failed to search beneficiaries:", error);
+    return res.status(500).json({ success: false, message: "Search failed" });
+  }
 };
 
 module.exports = {
   getBeneficiariesPage,
+  getBeneficiaries,
+  addBeneficiary,
+  deleteBeneficiary,
+  searchBeneficiary,
 };

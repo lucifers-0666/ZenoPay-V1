@@ -15,6 +15,12 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
     />
     <style>
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: linear-gradient(180deg, #f8fbff 0%, #f8fafc 240px);
+      }
+
       .api-container {
         padding: 2rem;
         max-width: 1400px;
@@ -52,7 +58,8 @@
       }
 
       .tab-btn {
-        padding: 1rem 2rem;
+        min-height: 42px;
+        padding: 0.75rem 1.25rem;
         background: white;
         border: 2px solid #e0e0e0;
         border-radius: 12px;
@@ -119,7 +126,8 @@
       .form-group select,
       .form-group textarea {
         width: 100%;
-        padding: 0.8rem;
+        min-height: 40px;
+        padding: 0.6rem 0.8rem;
         border: 2px solid #e0e0e0;
         border-radius: 10px;
         font-size: 1rem;
@@ -142,7 +150,8 @@
       .btn-primary {
         background: linear-gradient(135deg, #1b3c53 0%, #456882 100%);
         color: white;
-        padding: 1rem 2rem;
+        min-height: 40px;
+        padding: 0.6rem 1.2rem;
         border: none;
         border-radius: 12px;
         font-size: 1.1rem;
@@ -163,7 +172,8 @@
         background: white;
         color: #1b3c53;
         border: 2px solid #1b3c53;
-        padding: 0.8rem 1.5rem;
+        min-height: 40px;
+        padding: 0.6rem 1.1rem;
         border-radius: 10px;
         font-size: 1rem;
         font-weight: 600;
@@ -183,7 +193,8 @@
         background: #dc3545;
         color: white;
         border: none;
-        padding: 0.8rem 1.5rem;
+        min-height: 40px;
+        padding: 0.6rem 1.1rem;
         border-radius: 10px;
         font-size: 1rem;
         font-weight: 600;
@@ -565,7 +576,7 @@
                 Fill in your business details to get started with ZenoPay payment gateway.
               </p>
 
-              <form id="registerMerchantForm">
+              <form id="registerMerchantForm" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="businessName">
                     Business Name <span style="color: red;">*</span>
@@ -597,6 +608,62 @@
                 </div>
 
                 <div class="form-group">
+                  <label for="businessEmail">
+                    Business Email <span style="color: red;">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="businessEmail"
+                    name="businessEmail"
+                    required
+                    placeholder="finance@yourbusiness.com"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">
+                    Business Phone <span style="color: red;">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    required
+                    placeholder="10-digit phone number"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="legalBusinessName">Legal Business Name</label>
+                  <input
+                    type="text"
+                    id="legalBusinessName"
+                    name="legalBusinessName"
+                    placeholder="As per registration certificate"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="businessRegistrationNumber">Business Registration Number</label>
+                  <input
+                    type="text"
+                    id="businessRegistrationNumber"
+                    name="businessRegistrationNumber"
+                    placeholder="CIN / Registration Number"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="taxId">Tax ID / GST Number</label>
+                  <input
+                    type="text"
+                    id="taxId"
+                    name="taxId"
+                    placeholder="GSTIN / Tax ID"
+                  />
+                </div>
+
+                <div class="form-group">
                   <label for="businessWebsite">Business Website</label>
                   <input
                     type="url"
@@ -613,6 +680,26 @@
                     name="businessDescription"
                     placeholder="Tell us about your business..."
                   ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="gstCertificate">GST Certificate (PDF/JPG/PNG)</label>
+                  <input type="file" id="gstCertificate" name="gstCertificate" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                <div class="form-group">
+                  <label for="panCard">PAN Card (PDF/JPG/PNG)</label>
+                  <input type="file" id="panCard" name="panCard" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                <div class="form-group">
+                  <label for="bankStatement">Bank Statement (PDF/JPG/PNG)</label>
+                  <input type="file" id="bankStatement" name="bankStatement" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                <div class="form-group">
+                  <label for="businessLicense">Business License (PDF/JPG/PNG)</label>
+                  <input type="file" id="businessLicense" name="businessLicense" accept=".pdf,.jpg,.jpeg,.png" />
                 </div>
 
                 <button type="submit" class="btn-primary">
@@ -1393,13 +1480,11 @@ processRefund('TXN_1734567890123', 1599.00, 'Customer request')
           e.preventDefault();
           
           const formData = new FormData(registerForm);
-          const data = Object.fromEntries(formData);
           
           try {
             const response = await fetch('/api/merchant/register', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
+              body: formData
             });
             
             const result = await response.json();
