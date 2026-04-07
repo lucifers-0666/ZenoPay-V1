@@ -29,6 +29,7 @@ const adminBankController = require("../../Controllers/admin/adminBankController
 const adminAnnouncementController = require("../../Controllers/admin/adminAnnouncementController");
 const adminActivityController = require("../../Controllers/admin/adminActivityController");
 const AdminCashbackController = require("../Controllers/AdminCashbackController");
+const EmailService = require("../../Services/EmailService");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -300,6 +301,23 @@ router.post("/settings/notification", requirePermission("settings", "update"), a
 router.post("/settings/maintenance", requirePermission("settings", "update"), adminSettingsController.toggleMaintenance);
 router.post("/settings/reset", requirePermission("settings", "update"), adminSettingsController.resetSettings);
 router.post("/settings/force-logout", requirePermission("settings", "update"), adminSettingsController.forceLogoutAdmins);
+router.get("/settings/email-diagnostics", requirePermission("settings", "view"), async (req, res) => {
+	try {
+		const limit = Number(req.query?.limit || 20);
+		const verify = String(req.query?.verify || "0") === "1";
+		const diagnostics = await EmailService.getDiagnostics({ limit, verify });
+
+		return res.json({
+			success: true,
+			...diagnostics,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error?.message || "Unable to fetch email diagnostics",
+		});
+	}
+});
 
 // ============ ADMIN MANAGEMENT ROUTES ============
 router.get("/admins", requirePermission("users", "view"), adminMgmtController.getAdminManagementPage);

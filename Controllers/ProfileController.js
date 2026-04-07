@@ -1,5 +1,9 @@
+const fs = require("fs");
+const path = require("path");
+const { randomUUID } = require("crypto");
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const Wallet = require("../Models/Wallet");
+const azureStorage = require("../Services/azureStorage");
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
@@ -45,6 +49,35 @@ const getKycCompletionPercent = (user) => {
 
   const complete = checks.filter(Boolean).length;
   return Math.round((complete / checks.length) * 100);
+};
+
+const PROFILE_UPLOAD_DIR = path.join(__dirname, "..", "public", "uploads", "profile");
+
+const saveProfileImageLocally = async (file, userId) => {
+  await fs.promises.mkdir(PROFILE_UPLOAD_DIR, { recursive: true });
+
+  const extension = path.extname(file.originalname || "").toLowerCase() || ".jpg";
+  const safeName = `${String(userId)}-${Date.now()}-${randomUUID()}${extension}`;
+  const filePath = path.join(PROFILE_UPLOAD_DIR, safeName);
+
+  await fs.promises.writeFile(filePath, file.buffer);
+  return `/uploads/profile/${safeName}`;
+};
+
+const removeOldLocalProfileImage = async (imagePath) => {
+  if (!imagePath || typeof imagePath !== "string") return;
+  if (!imagePath.startsWith("/uploads/profile/")) return;
+
+  const filename = path.basename(imagePath);
+  const absolutePath = path.join(PROFILE_UPLOAD_DIR, filename);
+
+  try {
+    await fs.promises.unlink(absolutePath);
+  } catch (err) {
+    if (err?.code !== "ENOENT") {
+      console.warn("[Profile] Failed to remove old local profile image:", err.message);
+    }
+  }
 };
 
 const getProfile = async (req, res) => {
@@ -164,6 +197,69 @@ const getKYC = async (req, res) => {
   }
 };
 
+const updateProfilePhoto = async (req, res) => {
+  try {
+    const currentUser = await resolveCurrentUser(req);
+    if (!currentUser) {
+      return res.status(401).json({ success: false, message: "Please login again." });
+    }
+
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ success: false, message: "Please upload an image file." });
+    }
+
+    const previousImage = currentUser.ProfilePicture || currentUser.ImagePath || currentUser.profilePhoto;
+    let imageUrl;
+
+    if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+      try {
+        imageUrl = await azureStorage.uploadToAzure(req.file.buffer, req.file.originalname || "profile.jpg");
+      } catch (azureError) {
+        console.warn("[Profile] Azure upload failed, using local storage fallback:", azureError?.message || azureError);
+        imageUrl = await saveProfileImageLocally(req.file, currentUser._id);
+      }
+    } else {
+      imageUrl = await saveProfileImageLocally(req.file, currentUser._id);
+    }
+
+    currentUser.ProfilePicture = imageUrl;
+    currentUser.ImagePath = imageUrl;
+    currentUser.profilePhoto = imageUrl;
+    await currentUser.save();
+
+    req.session.user = {
+      ...(req.session.user || {}),
+      _id: String(currentUser._id),
+      ProfilePicture: imageUrl,
+      ImagePath: imageUrl,
+      profilePhoto: imageUrl,
+      name: currentUser.name || currentUser.FullName,
+      Name: currentUser.name || currentUser.FullName,
+      FullName: currentUser.FullName || currentUser.name,
+      Email: currentUser.Email || currentUser.email,
+      email: currentUser.Email || currentUser.email,
+      ZenoPayID: currentUser.ZenoPayID || currentUser.userId,
+      ZenoPayId: currentUser.ZenoPayID || currentUser.userId,
+    };
+
+    if (previousImage && previousImage !== imageUrl) {
+      await removeOldLocalProfileImage(previousImage);
+    }
+
+    return res.json({
+      success: true,
+      message: "Profile photo updated successfully.",
+      imageUrl,
+    });
+  } catch (error) {
+    console.error("[Profile] updateProfilePhoto error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile photo. Please try again.",
+    });
+  }
+};
+
 const submitKYC = async (req, res) => {
   try {
     const currentUser = await resolveCurrentUser(req);
@@ -240,6 +336,7 @@ const submitKYC = async (req, res) => {
 module.exports = {
   getProfile,
   updateProfile,
+  updateProfilePhoto,
   getKYC,
   submitKYC,
 };

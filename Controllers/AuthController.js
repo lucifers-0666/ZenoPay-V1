@@ -343,9 +343,19 @@ const postRegister = async (req, res) => {
     }
 
     // Fire welcome email in background (non-blocking). Registration must succeed regardless.
-    sendWelcomeEmail(newUser).catch((err) => {
-      console.log("Welcome email failed:", err?.message || err);
-    });
+    // IMPORTANT: sendWelcomeEmail may return { sent:false } without throwing, so handle that explicitly.
+    sendWelcomeEmail(newUser)
+      .then((result) => {
+        if (!result?.sent) {
+          console.warn(
+            "[Auth] Welcome email not sent:",
+            result?.reason || result?.error?.message || "Unknown email service response"
+          );
+        }
+      })
+      .catch((err) => {
+        console.warn("[Auth] Welcome email failed:", err?.message || err);
+      });
 
     if (referralCode) {
       const linkResult = await ReferralController.linkPendingReferralForUser({
@@ -495,6 +505,8 @@ const postLogin = async (req, res) => {
       Email: user.Email || user.email || "",
       email: user.Email || user.email || "",
       ProfilePicture: user.ProfilePicture || null,
+      ImagePath: user.ImagePath || user.ProfilePicture || user.profilePhoto || null,
+      profilePhoto: user.profilePhoto || user.ProfilePicture || user.ImagePath || null,
       isEmailVerified: isUserEmailVerified,
       EmailVerified: isUserEmailVerified,
       role: user.Role || user.role || "user",

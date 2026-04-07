@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="/css/header.css" />
+  <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" />
+  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js" defer></script>
   <style>
     :root {
       --primary:#3B82F6; --primary-hover:#2563EB; --primary-light:#60A5FA;
@@ -18,14 +20,41 @@
       --shadow:0 8px 24px rgba(15,23,42,0.08); --transition:all 180ms cubic-bezier(0.16,1,0.3,1);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-    .page { max-width: 1020px; margin: 0 auto; padding: 24px 16px 64px; }
-    h1 { margin: 0 0 14px; font-family: 'DM Serif Display', serif; font-size: 2rem; }
-    .grid { display: grid; gap: 14px; grid-template-columns: 1.4fr .9fr; }
-    .card { background: var(--surface); border: var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 20px; transition: var(--transition); }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 360px at 8% -8%, rgba(59,130,246,.14), transparent 62%),
+        radial-gradient(900px 360px at 100% -12%, rgba(139,92,246,.12), transparent 58%),
+        var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+    .page { max-width: 1040px; margin: 0 auto; padding: 28px 16px 70px; }
+    h1 { margin: 0 0 16px; font-family: 'DM Serif Display', serif; font-size: 2.35rem; letter-spacing: -0.02em; }
+    .grid { display: grid; gap: 16px; grid-template-columns: 1.4fr .9fr; }
+    .card { background: var(--surface); border: var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 22px; transition: var(--transition); }
     .card:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(15,23,42,.12); }
     .hero { display: flex; align-items: center; gap: 14px; }
-    .avatar { width: 62px; height: 62px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 700; font-size: 1.4rem; display: grid; place-items: center; }
+    .avatar {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.5rem;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 2px solid #fff;
+      box-shadow: 0 6px 18px rgba(59,130,246,.35);
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
     .muted { color: var(--muted); }
     .badge { border-radius: 9999px; padding: 6px 10px; font-size: .8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
     .b-pending { background: #f2f2f0; color: #555; }
@@ -41,21 +70,203 @@
     .field { display: grid; gap: 6px; }
     .field.full { grid-column: 1 / -1; }
     input, textarea {
-      border: 1px solid rgba(40,37,29,0.2); border-radius: 8px; padding: 12px 14px; outline: none; transition: var(--transition);
+      border: 1px solid rgba(40,37,29,0.18);
+      border-radius: 10px;
+      padding: 12px 14px;
+      outline: none;
+      transition: var(--transition);
+      font-family: inherit;
+      font-size: .95rem;
+      background: #fff;
     }
     textarea { min-height: 78px; resize: vertical; }
     input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.22); }
     .btn {
-      background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: var(--transition);
-      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 20px rgba(37,99,235,.24);
     }
-    .btn:hover { transform: translateY(-1px); background: var(--primary-hover); }
+    .btn:hover { transform: translateY(-1px); background: var(--primary-hover); box-shadow: 0 12px 24px rgba(37,99,235,.34); }
+    .photo-btn {
+      margin-top: 8px;
+      border: 1px solid rgba(59,130,246,.35);
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      height: 34px;
+      padding: 0 12px;
+      font-size: .82rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .photo-btn:disabled { opacity: .7; cursor: wait; }
+    .photo-input { display:none; }
     .wallet-link { text-decoration: none; color: inherit; }
     .wallet-amt { font-size: 1.8rem; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
     .toast { position: fixed; right: 18px; top: 18px; color: #fff; padding: 12px 16px; border-radius: 10px; box-shadow: var(--shadow); opacity: 0; transform: translateY(-12px); transition: var(--transition); }
     .toast.success { background: var(--success); } .toast.error { background: var(--error); }
     .toast.show { opacity: 1; transform: translateY(0); }
-    @media (max-width: 840px) { .grid { grid-template-columns: 1fr; } form { grid-template-columns: 1fr; } }
+
+    .cropper-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.56);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      padding: 16px;
+    }
+    .cropper-modal.show { display: flex; }
+    .cropper-card {
+      width: min(96vw, 760px);
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,.35);
+      box-shadow: 0 30px 56px rgba(2, 6, 23, .30);
+      overflow: hidden;
+    }
+    .cropper-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(148,163,184,.25);
+      font-weight: 700;
+    }
+    .cropper-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 500;
+    }
+    .cropper-body { padding: 14px 16px; }
+    .cropper-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 170px;
+      gap: 14px;
+      align-items: start;
+    }
+    .cropper-stage {
+      width: 100%;
+      height: 420px;
+      max-height: 56vh;
+      background: linear-gradient(180deg, #f8fafc, #eef2f7);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cropper-stage img { max-width: 100%; display: block; }
+    .cropper-side {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,.25);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .cropper-preview-label {
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .cropper-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(59,130,246,.35);
+      box-shadow: 0 8px 18px rgba(30,64,175,.16);
+      background: #e2e8f0;
+      margin: 0 auto;
+    }
+    .cropper-hint {
+      color: #64748b;
+      font-size: .82rem;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .cropper-controls {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .88rem;
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,.28);
+      border-radius: 10px;
+      padding: 9px 10px;
+    }
+    .cropper-controls input[type="range"] { width: 100%; accent-color: #3B82F6; }
+    .cropper-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 16px 16px;
+      border-top: 1px solid rgba(148,163,184,.25);
+    }
+    .btn-light {
+      border: 1px solid rgba(148,163,184,.45);
+      background: #f8fafc;
+      color: #1e293b;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-light:hover { background: #eef2ff; }
+    .cropper-modal .cropper-view-box,
+    .cropper-modal .cropper-face {
+      border-radius: 50%;
+    }
+    .cropper-modal .cropper-view-box {
+      outline: 2px solid rgba(255,255,255,.95);
+      outline-color: rgba(255,255,255,.95);
+      box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.48);
+    }
+    .cropper-modal .cropper-point,
+    .cropper-modal .cropper-line {
+      background-color: #fff;
+    }
+    .cropper-modal .cropper-center::before,
+    .cropper-modal .cropper-center::after {
+      background-color: #fff;
+    }
+    @media (max-width: 840px) {
+      .grid { grid-template-columns: 1fr; }
+      form { grid-template-columns: 1fr; }
+      .cropper-layout { grid-template-columns: 1fr; }
+      .cropper-side {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 10px 12px;
+      }
+      .cropper-preview-label,
+      .cropper-hint {
+        grid-column: 1 / -1;
+      }
+      .cropper-preview { width: 88px; height: 88px; margin: 0; }
+    }
   </style>
 </head>
 <body>
@@ -64,6 +275,8 @@
   <% const pUser = profileUser || {}; %>
   <% const name = pUser.name || pUser.FullName || 'User'; %>
   <% const kyc = String(pUser.kycStatus || 'pending').toLowerCase(); %>
+  <% const profileImage = pUser.ProfilePicture || pUser.ImagePath || pUser.profilePhoto || user?.ProfilePicture || user?.ImagePath || '' ; %>
+  <% const hasProfileImage = Boolean(profileImage); %>
 
   <main class="page">
     <h1>My Profile</h1>
@@ -71,7 +284,17 @@
     <div class="grid">
       <section class="card">
         <div class="hero">
-          <div class="avatar"><%= String(name).trim().charAt(0).toUpperCase() %></div>
+          <div>
+            <div class="avatar" id="profileAvatar">
+              <% if (hasProfileImage) { %>
+                <img id="profileAvatarImg" src="<%= profileImage %>" alt="<%= name %>" />
+              <% } else { %>
+                <span id="profileAvatarFallback"><%= String(name).trim().charAt(0).toUpperCase() %></span>
+              <% } %>
+            </div>
+            <input class="photo-input" type="file" id="profilePhotoInput" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" />
+            <button class="photo-btn" id="uploadPhotoBtn" type="button"><i class="fa-solid fa-camera"></i> Upload Photo</button>
+          </div>
           <div>
             <strong><%= name %></strong>
             <div class="muted"><%= pUser.Email || pUser.email || 'No email' %></div>
@@ -134,6 +357,39 @@
     <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
   <% } %>
 
+  <div class="cropper-modal" id="cropperModal" aria-hidden="true">
+    <div class="cropper-card" role="dialog" aria-modal="true" aria-labelledby="cropperTitle">
+      <div class="cropper-head">
+        <div>
+          <span id="cropperTitle">Crop profile photo</span>
+          <div class="cropper-subtitle">Move and zoom to frame your avatar perfectly.</div>
+        </div>
+        <button type="button" class="btn-light" id="cropperCloseBtn">Close</button>
+      </div>
+      <div class="cropper-body">
+        <div class="cropper-layout">
+          <div class="cropper-stage"><img id="cropperImage" alt="Crop preview" /></div>
+          <div class="cropper-side">
+            <div class="cropper-preview-label">Avatar preview</div>
+            <div class="cropper-preview"></div>
+            <p class="cropper-hint">Tip: Keep your face in the center for best result.</p>
+          </div>
+        </div>
+        <div class="cropper-controls">
+          <i class="fa-solid fa-magnifying-glass-minus"></i>
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="range" min="100" max="300" step="1" value="100" id="cropperZoomRange" />
+          <i class="fa-solid fa-magnifying-glass-plus"></i>
+          <button type="button" class="btn-light" id="cropperResetBtn">Reset</button>
+        </div>
+      </div>
+      <div class="cropper-actions">
+        <button type="button" class="btn-light" id="cropperCancelBtn">Cancel</button>
+        <button type="button" class="btn" id="cropperApplyBtn"><i class="fa-solid fa-crop-simple"></i> Crop & Upload</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     (function setProgress() {
       const bar = document.getElementById('kycProgressFill');
@@ -149,6 +405,212 @@
       if (!toast) return;
       requestAnimationFrame(() => toast.classList.add('show'));
       setTimeout(() => toast.classList.remove('show'), 4000);
+    })();
+
+    (function initPhotoUpload() {
+      const uploadBtn = document.getElementById('uploadPhotoBtn');
+      const photoInput = document.getElementById('profilePhotoInput');
+      const avatar = document.getElementById('profileAvatar');
+      const cropperModal = document.getElementById('cropperModal');
+      const cropperImage = document.getElementById('cropperImage');
+      const cropperApplyBtn = document.getElementById('cropperApplyBtn');
+      const cropperCancelBtn = document.getElementById('cropperCancelBtn');
+      const cropperCloseBtn = document.getElementById('cropperCloseBtn');
+      const cropperZoomRange = document.getElementById('cropperZoomRange');
+      const cropperResetBtn = document.getElementById('cropperResetBtn');
+
+      if (!uploadBtn || !photoInput || !avatar) return;
+
+      let cropper = null;
+      let pendingFile = null;
+      let pendingObjectUrl = '';
+
+      const showToast = (message, type) => {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'toast';
+          toast.className = 'toast';
+          document.body.appendChild(toast);
+        }
+        toast.className = `toast ${type === 'error' ? 'error' : 'success'}`;
+        toast.textContent = message;
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => toast.classList.remove('show'), 4200);
+      };
+
+      const renderAvatarImage = (imageUrl) => {
+        let img = document.getElementById('profileAvatarImg');
+        if (!img) {
+          img = document.createElement('img');
+          img.id = 'profileAvatarImg';
+          img.alt = 'Profile image';
+          avatar.innerHTML = '';
+          avatar.appendChild(img);
+        }
+        img.src = imageUrl;
+      };
+
+      const destroyCropper = () => {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        if (pendingObjectUrl) {
+          URL.revokeObjectURL(pendingObjectUrl);
+          pendingObjectUrl = '';
+        }
+        pendingFile = null;
+        if (cropperModal) {
+          cropperModal.classList.remove('show');
+          cropperModal.setAttribute('aria-hidden', 'true');
+        }
+        if (cropperZoomRange) cropperZoomRange.value = '100';
+      };
+
+      const uploadBlob = async (blob, originalName = 'profile.jpg') => {
+        const formData = new FormData();
+        const croppedFile = new File([blob], originalName, { type: blob.type || 'image/jpeg' });
+        formData.append('profilePicture', croppedFile);
+
+        const oldLabel = uploadBtn.innerHTML;
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+
+        try {
+          const response = await fetch('/profile/photo', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Unable to upload profile photo.');
+          }
+
+          if (data.imageUrl) {
+            renderAvatarImage(data.imageUrl);
+          }
+
+          showToast(data.message || 'Profile photo updated successfully.', 'success');
+          setTimeout(() => window.location.reload(), 700);
+        } catch (error) {
+          showToast(error.message || 'Failed to update profile photo.', 'error');
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = oldLabel;
+          photoInput.value = '';
+        }
+      };
+
+      uploadBtn.addEventListener('click', () => photoInput.click());
+
+      photoInput.addEventListener('change', async () => {
+        const file = photoInput.files && photoInput.files[0];
+        if (!file) return;
+
+        const isCropperReady = typeof window.Cropper !== 'undefined' && cropperModal && cropperImage;
+        if (!isCropperReady) {
+          await uploadBlob(file, file.name || 'profile.jpg');
+          return;
+        }
+
+        pendingFile = file;
+        pendingObjectUrl = URL.createObjectURL(file);
+        cropperImage.src = pendingObjectUrl;
+        cropperModal.classList.add('show');
+        cropperModal.setAttribute('aria-hidden', 'false');
+
+        requestAnimationFrame(() => {
+          if (cropper) cropper.destroy();
+          cropper = new window.Cropper(cropperImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.92,
+            background: false,
+            responsive: true,
+            guides: true,
+            checkOrientation: true,
+            preview: '.cropper-preview',
+          });
+        });
+      });
+
+      if (cropperZoomRange) {
+        cropperZoomRange.addEventListener('input', () => {
+          if (!cropper) return;
+          const value = Number(cropperZoomRange.value || 100);
+          const ratio = value / 100;
+          cropper.zoomTo(Math.max(1, Math.min(3, ratio)));
+        });
+      }
+
+      const closeCropper = () => {
+        destroyCropper();
+        photoInput.value = '';
+      };
+
+      if (cropperCancelBtn) cropperCancelBtn.addEventListener('click', closeCropper);
+      if (cropperCloseBtn) cropperCloseBtn.addEventListener('click', closeCropper);
+      if (cropperResetBtn) {
+        cropperResetBtn.addEventListener('click', () => {
+          if (!cropper) return;
+          cropper.reset();
+          if (cropperZoomRange) cropperZoomRange.value = '100';
+        });
+      }
+      if (cropperModal) {
+        cropperModal.addEventListener('click', (e) => {
+          if (e.target === cropperModal) closeCropper();
+        });
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && cropperModal && cropperModal.classList.contains('show')) {
+          closeCropper();
+        }
+      });
+
+      if (cropperApplyBtn) {
+        cropperApplyBtn.addEventListener('click', async () => {
+          if (!cropper || !pendingFile) {
+            closeCropper();
+            return;
+          }
+
+          cropperApplyBtn.disabled = true;
+          const old = cropperApplyBtn.innerHTML;
+          cropperApplyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+          try {
+            const canvas = cropper.getCroppedCanvas({
+              width: 512,
+              height: 512,
+              imageSmoothingEnabled: true,
+              imageSmoothingQuality: 'high',
+              fillColor: '#ffffff',
+            });
+
+            if (!canvas) throw new Error('Unable to process selected image.');
+
+            const blob = await new Promise((resolve) =>
+              canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.9)
+            );
+
+            if (!blob) throw new Error('Unable to process selected image.');
+
+            const fileName = pendingFile.name || 'profile.jpg';
+            destroyCropper();
+            await uploadBlob(blob, fileName);
+          } catch (error) {
+            showToast(error.message || 'Failed to crop image.', 'error');
+            cropperApplyBtn.disabled = false;
+            cropperApplyBtn.innerHTML = old;
+          }
+        });
+      }
     })();
   </script>
 </body>

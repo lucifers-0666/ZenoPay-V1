@@ -41,6 +41,13 @@ const sendWelcomeEmail = async (user) => {
   const toEmail = user?.email || user?.Email;
   const dashboardUrl = `${getAppUrl()}/dashboard`;
 
+  if (!toEmail) {
+    return {
+      sent: false,
+      reason: "Recipient email is missing for welcome email",
+    };
+  }
+
   const subject = "Welcome to ZenoPay — Your wallet is ready!";
   const html = `
     <div style="margin:0;padding:0;background-color:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
@@ -89,12 +96,22 @@ const sendWelcomeEmail = async (user) => {
 
   const text = `Welcome aboard, ${safeName}! Your ZenoPay wallet is ready. You can send money, receive payments, and track transactions. Go to Dashboard: ${dashboardUrl}. If you didn't create this account, please ignore this email.`;
 
-  return EmailService.sendEmail({
+  const result = await EmailService.sendEmail({
     to: toEmail,
     subject,
     html,
     text,
   });
+
+  if (!result?.sent) {
+    return {
+      ...result,
+      sent: false,
+      reason: result?.reason || "Email provider did not accept welcome email",
+    };
+  }
+
+  return result;
 };
 
 module.exports = {

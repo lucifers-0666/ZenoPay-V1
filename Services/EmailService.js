@@ -3,6 +3,62 @@ const nodemailer = require("nodemailer");
 class EmailService {
   constructor() {
     this.transporter = null;
+    this.recentEvents = [];
+    this.maxRecentEvents = 100;
+  }
+
+  pushEvent(event) {
+    this.recentEvents.unshift({
+      at: new Date().toISOString(),
+      ...event,
+    });
+
+    if (this.recentEvents.length > this.maxRecentEvents) {
+      this.recentEvents = this.recentEvents.slice(0, this.maxRecentEvents);
+    }
+  }
+
+  getConfigStatus() {
+    return {
+      smtpHostConfigured: !!process.env.SMTP_HOST,
+      smtpPortConfigured: !!process.env.SMTP_PORT,
+      smtpUserConfigured: !!process.env.SMTP_USER,
+      smtpPasswordConfigured: !!(process.env.SMTP_PASSWORD || process.env.SMTP_PASS),
+      emailFromConfigured: !!(process.env.EMAIL_FROM || process.env.SMTP_USER),
+      appUrlConfigured: !!process.env.APP_URL,
+      smtpSecure: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
+    };
+  }
+
+  async getDiagnostics({ limit = 20, verify = false } = {}) {
+    const safeLimit = Math.max(1, Math.min(100, Number(limit) || 20));
+    const config = this.getConfigStatus();
+    const diagnostics = {
+      config,
+      recentEvents: this.recentEvents.slice(0, safeLimit),
+    };
+
+    if (verify) {
+      const transporter = this.getTransporter();
+      if (!transporter) {
+        diagnostics.smtpVerify = {
+          ok: false,
+          message: "SMTP transporter unavailable (check SMTP config)",
+        };
+      } else {
+        try {
+          await transporter.verify();
+          diagnostics.smtpVerify = { ok: true, message: "SMTP verify succeeded" };
+        } catch (err) {
+          diagnostics.smtpVerify = {
+            ok: false,
+            message: err?.message || "SMTP verify failed",
+          };
+        }
+      }
+    }
+
+    return diagnostics;
   }
 
   getTransporter() {
@@ -40,6 +96,12 @@ class EmailService {
     const transporter = this.getTransporter();
     if (!transporter) {
       console.warn("[EmailService] SMTP not configured. Email skipped.");
+      this.pushEvent({
+        status: "skipped",
+        reason: "SMTP_NOT_CONFIGURED",
+        to: payload.to || null,
+        subject: payload.subject || null,
+      });
       return { sent: false, skipped: true };
     }
 
@@ -54,9 +116,20 @@ class EmailService {
         html: payload.html,
         text: payload.text,
       });
+      this.pushEvent({
+        status: "sent",
+        to: payload.to || null,
+        subject: payload.subject || null,
+      });
       return { sent: true };
     } catch (err) {
       console.error("Email Error:", err.message);
+      this.pushEvent({
+        status: "failed",
+        reason: err?.message || "UNKNOWN_EMAIL_ERROR",
+        to: payload.to || null,
+        subject: payload.subject || null,
+      });
       return { sent: false, error: err };
     }
   }

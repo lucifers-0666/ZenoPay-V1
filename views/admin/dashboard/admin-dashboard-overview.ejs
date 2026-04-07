@@ -1,5 +1,21 @@
 <% page = 'dashboard'; %>
 
+<%
+  const d = dashboard || {};
+  const m = d.metrics || {};
+  const recentTx = Array.isArray(d.recentTransactions) ? d.recentTransactions : [];
+  const activity = Array.isArray(d.activity) ? d.activity : [];
+  const charts = d.charts || {};
+
+  const usersGrowth = Number(m.usersGrowthPct || 0);
+  const txGrowth = Number(m.txGrowthPct || 0);
+  const merchantGrowth = Number(m.merchantsGrowthPct || 0);
+%>
+
+<script>
+  window.__ADMIN_DASHBOARD_CHARTS = <%- JSON.stringify(charts) %>;
+</script>
+
 <div class="page-header">
   <div class="page-header-left">
     <h1 class="page-title">Dashboard Overview</h1>
@@ -25,10 +41,10 @@
       <div class="icon-sq icon-sq-lg icon-blue"><i class="fas fa-users"></i></div>
       <div class="stat-card-info">
         <div class="stat-card-label">Total Users</div>
-        <div class="stat-card-value" data-count="24583">24,583</div>
-        <span class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span class="pct">12.5%</span>
+        <div class="stat-card-value stat-value" data-count="<%= Number(m.totalUsers || 0) %>"><%= Number(m.totalUsers || 0).toLocaleString('en-IN') %></div>
+        <span class="stat-change <%= usersGrowth >= 0 ? 'positive' : 'negative' %>">
+          <i class="fas <%= usersGrowth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i>
+          <span class="pct"><%= Math.abs(usersGrowth).toFixed(1) %>%</span>
           <span class="label">vs last month</span>
         </span>
       </div>
@@ -38,12 +54,13 @@
       <div class="icon-sq icon-sq-lg icon-green"><i class="fas fa-exchange-alt"></i></div>
       <div class="stat-card-info">
         <div class="stat-card-label">Total Transactions</div>
-        <div class="stat-card-value">₹45.8M</div>
-        <span class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span class="pct">8.2%</span>
+        <div class="stat-card-value stat-value" data-count="<%= Number(m.totalTransactions || 0) %>"><%= Number(m.totalTransactions || 0).toLocaleString('en-IN') %></div>
+        <span class="stat-change <%= txGrowth >= 0 ? 'positive' : 'negative' %>">
+          <i class="fas <%= txGrowth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i>
+          <span class="pct"><%= Math.abs(txGrowth).toFixed(1) %>%</span>
           <span class="label">vs last month</span>
         </span>
+        <div class="stat-card-sub muted" style="margin-top:4px;font-size:.82rem;">Volume: <%= m.totalVolumeText || '₹0' %></div>
       </div>
     </div>
 
@@ -51,10 +68,10 @@
       <div class="icon-sq icon-sq-lg icon-purple"><i class="fas fa-store"></i></div>
       <div class="stat-card-info">
         <div class="stat-card-label">Active Merchants</div>
-        <div class="stat-card-value" data-count="1284">1,284</div>
-        <span class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span class="pct">5.1%</span>
+        <div class="stat-card-value stat-value" data-count="<%= Number(m.activeMerchants || 0) %>"><%= Number(m.activeMerchants || 0).toLocaleString('en-IN') %></div>
+        <span class="stat-change <%= merchantGrowth >= 0 ? 'positive' : 'negative' %>">
+          <i class="fas <%= merchantGrowth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %>"></i>
+          <span class="pct"><%= Math.abs(merchantGrowth).toFixed(1) %>%</span>
           <span class="label">vs last month</span>
         </span>
       </div>
@@ -66,10 +83,10 @@
       <div class="icon-sq icon-sq-lg icon-amber"><i class="fas fa-clock"></i></div>
       <div class="stat-card-info">
         <div class="stat-card-label">Pending Approvals</div>
-        <div class="stat-card-value amber">34</div>
+        <div class="stat-card-value amber"><%= Number(m.pendingApprovals || 0).toLocaleString('en-IN') %></div>
         <span class="stat-change warning">
           <i class="fas fa-circle-exclamation"></i>
-          <span class="pct">2 Urgent</span>
+          <span class="pct">Needs attention</span>
         </span>
       </div>
     </div>
@@ -78,7 +95,7 @@
       <div class="icon-sq icon-sq-lg icon-red"><i class="fas fa-flag"></i></div>
       <div class="stat-card-info">
         <div class="stat-card-label">Flagged Transactions</div>
-        <div class="stat-card-value red">12</div>
+        <div class="stat-card-value red"><%= Number(m.flaggedTransactions || 0).toLocaleString('en-IN') %></div>
         <span class="stat-change negative">
           <i class="fas fa-arrow-down"></i>
           <span class="label">Needs review</span>
@@ -118,9 +135,9 @@
         </div>
         User Growth
       </div>
-      <span class="chart-trend-badge up">
-        <i class="fas fa-arrow-up" style="font-size:11px;"></i>
-        +12.5%
+      <span class="chart-trend-badge <%= usersGrowth >= 0 ? 'up' : 'down' %>">
+        <i class="fas <%= usersGrowth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %>" style="font-size:11px;"></i>
+        <%= usersGrowth >= 0 ? '+' : '-' %><%= Math.abs(usersGrowth).toFixed(1) %>%
       </span>
     </div>
     <div class="chart-container">
@@ -153,46 +170,28 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#ZP-8X7K</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">R</div><span>Rahul S.</span></div></td>
-            <td style="font-weight:700">₹5,000</td>
-            <td><span class="badge badge-info">Transfer</span></td>
-            <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Success</span></td>
-            <td style="color:var(--text-soft)">2m ago</td>
-          </tr>
-          <tr>
-            <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#ZP-7H2Q</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">P</div><span>Priya M.</span></div></td>
-            <td style="font-weight:700">₹12,450</td>
-            <td><span class="badge badge-purple">Merchant</span></td>
-            <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Success</span></td>
-            <td style="color:var(--text-soft)">8m ago</td>
-          </tr>
-          <tr>
-            <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#ZP-4D9N</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#7C3AED);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">A</div><span>Arjun K.</span></div></td>
-            <td style="font-weight:700">₹1,980</td>
-            <td><span class="badge badge-info">P2P</span></td>
-            <td><span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span></td>
-            <td style="color:var(--text-soft)">14m ago</td>
-          </tr>
-          <tr>
-            <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#ZP-2L6T</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">S</div><span>Sonia R.</span></div></td>
-            <td style="font-weight:700">₹22,000</td>
-            <td><span class="badge badge-info">Bank</span></td>
-            <td><span class="badge badge-danger"><i class="fas fa-times-circle"></i> Failed</span></td>
-            <td style="color:var(--text-soft)">21m ago</td>
-          </tr>
-          <tr>
-            <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#ZP-9M3W</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#EF4444,#DC2626);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px">N</div><span>Neeraj V.</span></div></td>
-            <td style="font-weight:700">₹7,200</td>
-            <td><span class="badge badge-purple">Merchant</span></td>
-            <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Success</span></td>
-            <td style="color:var(--text-soft)">30m ago</td>
-          </tr>
+          <% if (recentTx.length) { %>
+            <% recentTx.forEach(function(tx) { %>
+              <% const tone = tx.status === 'success' ? 'success' : tx.status === 'failed' ? 'danger' : 'warning'; %>
+              <tr>
+                <td><span style="font-family:monospace;color:var(--primary);font-weight:600">#<%= tx.id || 'N/A' %></span></td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px"><%= tx.initials || 'U' %></div>
+                    <span><%= tx.userName || 'Unknown User' %></span>
+                  </div>
+                </td>
+                <td style="font-weight:700"><%= tx.amountText || '₹0' %></td>
+                <td><span class="badge badge-info"><%= tx.type || 'Transaction' %></span></td>
+                <td><span class="badge badge-<%= tone %>"><i class="fas <%= tx.status === 'success' ? 'fa-check-circle' : tx.status === 'failed' ? 'fa-times-circle' : 'fa-clock' %>"></i> <%= (tx.status || 'pending').charAt(0).toUpperCase() + (tx.status || 'pending').slice(1) %></span></td>
+                <td style="color:var(--text-soft)"><%= tx.timeAgo || '-' %></td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" style="text-align:center;color:var(--text-soft);padding:18px;">No recent transactions found in database.</td>
+            </tr>
+          <% } %>
         </tbody>
       </table>
     </div>
@@ -207,55 +206,25 @@
       <span class="live-indicator"><span class="live-dot"></span> Live</span>
     </div>
     <div class="activity-feed" id="activityFeed">
-      <div class="activity-item">
-        <div class="activity-dot green"></div>
-        <div class="activity-body">
-          <p class="activity-text">New user <strong>Priya M.</strong> registered</p>
-          <span class="activity-time">1 min ago</span>
+      <% if (activity.length) { %>
+        <% activity.forEach(function(item) { %>
+          <div class="activity-item">
+            <div class="activity-dot <%= item.tone || 'blue' %>"></div>
+            <div class="activity-body">
+              <p class="activity-text"><%= item.text || 'Activity update' %></p>
+              <span class="activity-time"><%= item.timeAgo || '-' %></span>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="activity-item">
+          <div class="activity-dot blue"></div>
+          <div class="activity-body">
+            <p class="activity-text">No live activity found in database yet.</p>
+            <span class="activity-time">-</span>
+          </div>
         </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot blue"></div>
-        <div class="activity-body">
-          <p class="activity-text">Merchant <strong>UrbanKart</strong> submitted KYC</p>
-          <span class="activity-time">3 min ago</span>
-        </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot amber"></div>
-        <div class="activity-body">
-          <p class="activity-text">Transaction <strong>#ZP-2L6T</strong> marked for manual check</p>
-          <span class="activity-time">6 min ago</span>
-        </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot green"></div>
-        <div class="activity-body">
-          <p class="activity-text">Bank payout batch <strong>PB-119</strong> processed</p>
-          <span class="activity-time">11 min ago</span>
-        </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot red"></div>
-        <div class="activity-body">
-          <p class="activity-text">Failed login attempts detected for <strong>admin@zenopay.com</strong></p>
-          <span class="activity-time">18 min ago</span>
-        </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot blue"></div>
-        <div class="activity-body">
-          <p class="activity-text">Support ticket <strong>#SUP-432</strong> escalated</p>
-          <span class="activity-time">23 min ago</span>
-        </div>
-      </div>
-      <div class="activity-item">
-        <div class="activity-dot amber"></div>
-        <div class="activity-body">
-          <p class="activity-text">KYC queue crossed <strong>30 pending</strong> threshold</p>
-          <span class="activity-time">34 min ago</span>
-        </div>
-      </div>
+      <% } %>
     </div>
   </div>
 

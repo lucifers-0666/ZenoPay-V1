@@ -7,6 +7,9 @@
   const loggedIn = _isLoggedIn || !!currentUser;
   const currentUserName = currentUser ? (currentUser.name || currentUser.Name || currentUser.FullName || currentUser.Email || 'User') : 'User';
   const currentUserInitial = currentUserName.charAt(0).toUpperCase();
+  const currentUserAvatar = currentUser
+    ? (currentUser.ProfilePicture || currentUser.ImagePath || currentUser.profilePhoto || '')
+    : '';
 %>
 <script>
   (function ensureHeaderResources() {
@@ -277,8 +280,8 @@
         <!-- Profile -->
         <div class="action-wrapper" id="profileWrapper">
           <button class="avatar-btn" id="profileBtn" aria-label="Profile menu">
-            <% if (currentUser.ProfilePicture) { %>
-              <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="avatar-img" />
+            <% if (currentUserAvatar) { %>
+              <img src="<%= currentUserAvatar %>" alt="<%= currentUserName %>" class="avatar-img" />
             <% } else { %>
               <div class="avatar-initials"><%= currentUserInitial %></div>
             <% } %>
@@ -288,8 +291,8 @@
 
             <!-- User info card -->
             <div class="profile-info">
-              <% if (currentUser.ProfilePicture) { %>
-                <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="profile-avatar-lg" />
+              <% if (currentUserAvatar) { %>
+                <img src="<%= currentUserAvatar %>" alt="<%= currentUserName %>" class="profile-avatar-lg" />
               <% } else { %>
                 <div class="profile-avatar-lg placeholder"><%= currentUserInitial %></div>
               <% } %>
@@ -425,8 +428,8 @@
     <% if (loggedIn && currentUser) { %>
 
       <div class="mobile-user-card">
-        <% if (currentUser.ProfilePicture) { %>
-          <img src="<%= currentUser.ProfilePicture %>" alt="<%= currentUserName %>" class="mob-avatar" />
+        <% if (currentUserAvatar) { %>
+          <img src="<%= currentUserAvatar %>" alt="<%= currentUserName %>" class="mob-avatar" />
         <% } else { %>
           <div class="mob-avatar placeholder"><%= currentUserInitial %></div>
         <% } %>

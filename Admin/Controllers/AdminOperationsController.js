@@ -1,6 +1,7 @@
 const ContactSubmission = require("../../Models/ContactSubmission");
 const Notification = require("../../Models/Notification");
 const TransactionHistory = require("../../Models/TransactionHistory");
+const Wallet = require("../../Models/Wallet");
 const Plan = require("../../Models/Plan");
 const PricingSettings = require("../../Models/PricingSettings");
 const mongoose = require("mongoose");
@@ -72,6 +73,28 @@ const toTicketNo = (doc) => {
 };
 
 const toINR = (value = 0) => `₹${Math.round(Number(value) || 0).toLocaleString("en-IN")}`;
+
+const formatAccountAge = (fromDate) => {
+  const dt = new Date(fromDate);
+  if (!fromDate || Number.isNaN(dt.getTime())) return "N/A";
+
+  const now = new Date();
+  let months = (now.getFullYear() - dt.getFullYear()) * 12 + (now.getMonth() - dt.getMonth());
+  if (now.getDate() < dt.getDate()) months -= 1;
+
+  if (months <= 0) {
+    const days = Math.max(1, Math.floor((now.getTime() - dt.getTime()) / (1000 * 60 * 60 * 24)));
+    return `${days} day${days === 1 ? "" : "s"}`;
+  }
+
+  if (months < 12) return `${months} month${months === 1 ? "" : "s"}`;
+
+  const years = Math.floor(months / 12);
+  const remMonths = months % 12;
+  return remMonths
+    ? `${years} year${years === 1 ? "" : "s"} ${remMonths} month${remMonths === 1 ? "" : "s"}`
+    : `${years} year${years === 1 ? "" : "s"}`;
+};
 
 const titleCase = (value = "") => {
   const normalized = String(value || "").trim().toLowerCase();
@@ -225,7 +248,7 @@ const getSupportTickets = async (req, res) => {
 
     const avgResponseHours = responded.length
       ? `${(responded.reduce((a, b) => a + b, 0) / responded.length).toFixed(1)} hours`
-      : "4.2 hours";
+      : "N/A";
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -341,12 +364,33 @@ const getSupportTicketDetails = async (req, res) => {
       });
     }
 
-    const relatedTransactions = await TransactionHistory.find({
-      SenderHolderName: { $regex: doc.name || "", $options: "i" },
-    })
-      .sort({ TransactionTime: -1 })
-      .limit(5)
-      .lean();
+    const userObjectId = doc.user_id?._id || null;
+    const userName = doc.user_id?.FullName || doc.name || "";
+
+    const relatedQuery = {
+      $or: [
+        ...(userName ? [{ SenderHolderName: { $regex: userName, $options: "i" } }] : []),
+        ...(userName ? [{ ReceiverHolderName: { $regex: userName, $options: "i" } }] : []),
+      ],
+    };
+
+    const hasRelatedQuery = relatedQuery.$or.length > 0;
+
+    const relatedTransactions = hasRelatedQuery
+      ? await TransactionHistory.find(relatedQuery)
+          .sort({ TransactionTime: -1 })
+          .limit(5)
+          .lean()
+      : [];
+
+    const totalTransactionCount = hasRelatedQuery
+      ? await TransactionHistory.countDocuments(relatedQuery)
+      : 0;
+
+    const wallet = userObjectId ? await Wallet.findOne({ userId: userObjectId }).lean() : null;
+    const walletBalance = Number(wallet?.balance || 0);
+
+    const joinedDate = doc.user_id?.RegistrationDate || null;
 
     const details = {
       id: t.id,
@@ -368,23 +412,23 @@ const getSupportTicketDetails = async (req, res) => {
           }
         : null,
       user: {
-        id: doc.user_id?._id ? String(doc.user_id._id) : (doc.user_id ? String(doc.user_id) : null),
+        id: userObjectId ? String(userObjectId) : (doc.user_id ? String(doc.user_id) : null),
         name: doc.name,
         email: doc.email,
         phone: doc.phone || doc.user_id?.PhoneNumber || doc.user_id?.Mobile || "Not provided",
         avatarInitial: (doc.name || "U").charAt(0).toUpperCase(),
-        accountAge: "8 months",
+        accountAge: formatAccountAge(joinedDate),
         kycStatus: doc.user_id?.KYCStatus ? String(doc.user_id.KYCStatus).replace(/_/g, " ") : "Unknown",
         accountStatus: doc.user_id?.AccountStatus || "Active",
-        joinedAt: doc.user_id?.RegistrationDate
-          ? new Date(doc.user_id.RegistrationDate).toLocaleDateString("en-IN", {
+        joinedAt: joinedDate
+          ? new Date(joinedDate).toLocaleDateString("en-IN", {
               day: "2-digit",
               month: "short",
               year: "numeric",
             })
           : "N/A",
-        totalTransactions: relatedTransactions.length * 8 + 12,
-        walletBalance: "₹24,860",
+        totalTransactions: totalTransactionCount,
+        walletBalance: `₹${walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       },
       thread,
       relatedTransactions: relatedTransactions.map((tx, idx) => ({
