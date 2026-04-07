@@ -2,10 +2,10 @@
   const kyc = (typeof details !== 'undefined' && details) ? details : {};
   const docTabs = Array.isArray(kyc.documentTabs) ? kyc.documentTabs : [];
   const firstTab = docTabs.length ? docTabs[0] : null;
-  const fullName = kyc.fullName || 'Rahul Sharma';
+  const fullName = kyc.fullName || 'Unknown User';
   const pendingDays = Number(kyc.daysAgo || 0);
-  const submittedLabel = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : (kyc.submittedFormatted || '28 Feb 2026');
-  const submittedDateTime = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : `${submittedLabel} • 04:32 PM`;
+  const submittedLabel = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : (kyc.submittedFormatted || 'N/A');
+  const submittedDateTime = kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : submittedLabel;
   const riskScore = Math.max(0, Math.min(100, Number(kyc.riskScore || 0)));
   const riskLevel = riskScore <= 30 ? 'Low Risk' : riskScore <= 70 ? 'Medium Risk' : 'High Risk';
   const riskTone = riskScore <= 30 ? 'low' : riskScore <= 70 ? 'medium' : 'high';
@@ -25,9 +25,9 @@
   ];
   const timeline = Array.isArray(kyc.timeline) && kyc.timeline.length ? kyc.timeline.slice(0, 6) : [
     { timestamp: submittedDateTime, action: 'Documents submitted by user', actor: fullName },
-    { timestamp: submittedDateTime, action: 'Auto-scan completed — 1 flag', actor: 'OCR Bot' },
-    { timestamp: submittedDateTime, action: 'Assigned to Admin Priya', actor: 'System' },
-    { timestamp: submittedDateTime, action: 'Under review', actor: 'Admin Priya' }
+    { timestamp: submittedDateTime, action: 'Auto-scan completed', actor: 'OCR Bot' },
+    { timestamp: submittedDateTime, action: 'Queued for admin review', actor: 'System' },
+    { timestamp: submittedDateTime, action: 'Under review', actor: 'Admin' }
   ];
   const docNames = {
     'aadhaar-front': 'Aadhaar Front',
@@ -62,7 +62,7 @@
       <span class="pipe">•</span>
       <%= pendingDays %> day<%= pendingDays === 1 ? '' : 's' %> pending
       <span class="pipe">•</span>
-      <code>#<%= kyc.zenoPayId || 'KYC-00892' %></code>
+      <code>#<%= kyc.zenoPayId || 'N/A' %></code>
     </p>
   </div>
 
@@ -177,11 +177,11 @@
     <aside class="kyc-right-col">
       <section class="kyc-card side-card right-delay-1">
         <div class="identity-top">
-          <div class="identity-avatar"><%= (kyc.avatarInitial || fullName.charAt(0) || 'R').toUpperCase() %></div>
+          <div class="identity-avatar"><%= (kyc.avatarInitial || fullName.charAt(0) || 'U').toUpperCase() %></div>
           <div>
             <h3 class="identity-name"><%= fullName %></h3>
-            <p class="identity-email"><%= kyc.email || 'rahul.sharma@zenopay.com' %></p>
-            <code class="identity-id">#<%= kyc.zenoPayId || 'ZP-00892' %></code>
+            <p class="identity-email"><%= kyc.email || 'N/A' %></p>
+            <code class="identity-id">#<%= kyc.zenoPayId || 'N/A' %></code>
           </div>
         </div>
 
@@ -192,9 +192,9 @@
         </div>
 
         <div class="identity-info-list">
-          <div><i class="fas fa-calendar-alt"></i><span>Joined</span><strong><%= kyc.accountCreated || '22 Jan 2026' %></strong></div>
-          <div><i class="fas fa-phone"></i><span>Phone</span><strong><%= kyc.phone || '+91 98765 43210' %></strong></div>
-          <div><i class="fas fa-wallet"></i><span>Wallet</span><strong>₹ 42,860.00</strong></div>
+          <div><i class="fas fa-calendar-alt"></i><span>Joined</span><strong><%= kyc.accountCreated || 'N/A' %></strong></div>
+          <div><i class="fas fa-phone"></i><span>Phone</span><strong><%= kyc.phone || 'N/A' %></strong></div>
+          <div><i class="fas fa-wallet"></i><span>Wallet</span><strong><%= (typeof kyc.walletBalance !== 'undefined' && kyc.walletBalance !== null) ? `₹ ${Number(kyc.walletBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'N/A' %></strong></div>
           <div><i class="fas fa-exchange-alt"></i><span>Transactions</span><strong><%= (kyc.totalTransactions || 0).toLocaleString('en-IN') %></strong></div>
         </div>
 

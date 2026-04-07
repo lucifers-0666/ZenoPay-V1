@@ -1,25 +1,25 @@
 <%
   const tx = transaction || {};
-  const rawId = String(tx.TransactionID || tx._id || '084521');
-  const txDate = tx.TransactionTime ? new Date(tx.TransactionTime) : new Date('2026-03-02T10:45:00');
+  const rawId = String(tx.TransactionID || tx._id || 'N/A');
+  const txDate = tx.TransactionTime ? new Date(tx.TransactionTime) : new Date();
 
-  const amount = Number(tx.Amount || 2500);
+  const amount = Number(tx.Amount || 0);
   const fee = Math.max(0.5, +(amount * 0.001).toFixed(2));
   const netAmount = +(amount - fee).toFixed(2);
 
-  const senderName = tx.SenderHolderName || 'Rahul Sharma';
-  const receiverName = tx.ReceiverHolderName || 'Priya Mehta';
-  const senderAccount = tx.SenderAccountNumber || 'rahul@okaxis';
-  const receiverAccount = tx.ReceiverAccountNumber || 'priya@okhdfcbank';
-  const senderBank = tx.SenderBank || 'Axis Bank';
-  const receiverBank = tx.ReceiverBank || 'HDFC Bank';
+  const senderName = tx.SenderHolderName || 'N/A';
+  const receiverName = tx.ReceiverHolderName || 'N/A';
+  const senderAccount = tx.SenderAccountNumber || 'N/A';
+  const receiverAccount = tx.ReceiverAccountNumber || 'N/A';
+  const senderBank = tx.SenderBank || 'N/A';
+  const receiverBank = tx.ReceiverBank || 'N/A';
 
-  const senderEmail = tx.SenderEmail || 'rahul.sharma@example.com';
-  const receiverEmail = tx.ReceiverEmail || 'priya.mehta@example.com';
+  const senderEmail = tx.SenderEmail || 'N/A';
+  const receiverEmail = tx.ReceiverEmail || 'N/A';
   const senderWalletAfter = Number(tx.SenderWalletAfter || 1200);
   const receiverWalletAfter = Number(tx.ReceiverWalletAfter || 4750);
 
-  const description = String(tx.Description || 'UPI Transfer');
+  const description = String(tx.Description || 'Transaction');
   const type = /refund|reversal/i.test(description) ? 'Refund' : (/neft|rtgs|imps/i.test(description) ? 'Bank Transfer' : 'UPI Transfer');
   const paymentType = /upi/i.test(description + ' ' + senderAccount) ? 'UPI' : 'Wallet';
   const authMethod = paymentType === 'UPI' ? 'UPI PIN' : 'Wallet PIN';
@@ -165,7 +165,7 @@
           <div class="txd-kv"><p>Method</p><h4><%= paymentType %></h4></div>
           <div class="txd-kv"><p>UPI ID</p><h4><%= senderAccount %></h4></div>
           <div class="txd-kv"><p>Bank Name</p><h4><%= senderBank %></h4></div>
-          <div class="txd-kv"><p>VPA Handle</p><h4><%= (senderAccount.includes('@') ? '@' + senderAccount.split('@')[1] : '@okaxis') %></h4></div>
+          <div class="txd-kv"><p>VPA Handle</p><h4><%= (String(senderAccount).includes('@') ? '@' + String(senderAccount).split('@')[1] : 'N/A') %></h4></div>
           <div class="txd-kv"><p>Device</p><h4>iPhone 14 — iOS 17</h4></div>
           <div class="txd-kv"><p>IP Address</p><h4>103.45.22.xxx</h4></div>
           <div class="txd-kv"><p>Location</p><h4>Mumbai, Maharashtra</h4></div>
@@ -204,8 +204,6 @@
             </thead>
             <tbody>
               <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId) %>"><td><%= txnDisplayId %></td><td><%= money(amount) %></td><td><%= receiverName %></td><td><span class="mini-status <%= statusMeta.cls %>"><%= statusMeta.label %></span></td><td><%= timeMain %></td></tr>
-              <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId + '1') %>"><td>#TXN-<%= txDate.getFullYear() %>-<%= String(Number(rawId.replace(/\D/g, '') || '84521') + 1).padStart(6, '0') %></td><td><%= money(amount * 0.64) %></td><td>Anjali Nair</td><td><span class="mini-status is-success">Success</span></td><td>09:22 AM</td></tr>
-              <tr data-href="/admin/transactions/<%= encodeURIComponent(rawId + '2') %>"><td>#TXN-<%= txDate.getFullYear() %>-<%= String(Number(rawId.replace(/\D/g, '') || '84521') + 2).padStart(6, '0') %></td><td><%= money(amount * 1.2) %></td><td>Karan Rao</td><td><span class="mini-status is-pending">Pending</span></td><td>11:18 AM</td></tr>
             </tbody>
           </table>
         </div>

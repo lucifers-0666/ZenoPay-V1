@@ -805,6 +805,13 @@ router.get("/invoice/:id", async (req, res) => {
     const userId = user?.ZenoPayID || null;
     const invoiceId = req.params.id;
 
+    if (!invoiceId || !/^[a-fA-F0-9]{24}$/.test(String(invoiceId))) {
+      return res.status(400).render("error-404", {
+        pageTitle: "Invalid Invoice ID - ZenoPay",
+        path: req.path,
+      });
+    }
+
     if (!userId) {
       return res.redirect("/login");
     }

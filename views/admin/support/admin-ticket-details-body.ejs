@@ -3,6 +3,13 @@
   const thread = Array.isArray(ticket.thread) ? ticket.thread : [];
   const user = ticket.user || {};
   const txns = Array.isArray(ticket.relatedTransactions) ? ticket.relatedTransactions : [];
+  const currentAdminName = ((typeof admin !== 'undefined' && admin && admin.FullName) || (typeof user !== 'undefined' && user && user.FullName) || 'You').trim();
+  const currentAdminInitial = (String(currentAdminName || 'A').trim().split(/\s+/).slice(0, 2).map((p) => p.charAt(0).toUpperCase()).join('')) || 'A';
+  const availableAgents = Array.from(new Set([
+    currentAdminName,
+    ticket.assignedAgent?.name,
+    ...thread.filter((m) => m?.type === 'admin').map((m) => m?.name)
+  ].filter(Boolean))).slice(0, 8);
   const replyCount = Number(ticket.metadata?.responseCount || thread.filter(m => m.type === 'admin').length || 0);
   const messageCount = thread.filter(m => m.type === 'user' || m.type === 'admin').length || thread.length;
   const userLink = user.id ? `/admin/users/${encodeURIComponent(user.id)}` : '#';
@@ -176,7 +183,7 @@
               <div class="message-row admin delay-<%= idx % 8 %>">
                 <div class="message-card admin-card">
                   <div class="message-head">
-                    <strong class="author admin-name"><%= msg.name || 'Support Admin' %></strong>
+                    <strong class="author admin-name"><%= msg.name || currentAdminName %></strong>
                     <span class="badge admin-badge"><i class="fas fa-shield-alt"></i>Admin</span>
                     <time><%= msg.timestamp || '' %></time>
                   </div>
@@ -302,9 +309,9 @@
           <label>Assigned To</label>
           <select id="manageAssignee" class="admin-select">
             <option value="">Unassigned</option>
-            <option value="Admin Priya" <%= ticket.assignedAgent?.name === 'Admin Priya' ? 'selected' : '' %>>Admin Priya</option>
-            <option value="Admin Arjun" <%= ticket.assignedAgent?.name === 'Admin Arjun' ? 'selected' : '' %>>Admin Arjun</option>
-            <option value="Admin Neha" <%= ticket.assignedAgent?.name === 'Admin Neha' ? 'selected' : '' %>>Admin Neha</option>
+            <% availableAgents.forEach((agentName) => { %>
+              <option value="<%= agentName %>" <%= ticket.assignedAgent?.name === agentName ? 'selected' : '' %>><%= agentName %></option>
+            <% }) %>
           </select>
           <% if (!ticket.assignedAgent) { %>
             <button type="button" class="quick-assign" id="quickAssignBtn">Assign to Me</button>
@@ -1141,13 +1148,13 @@
     row.innerHTML = `
       <div class="message-card admin-card">
         <div class="message-head">
-          <strong class="author admin-name">${state.mode === 'note' ? 'Internal Note' : 'Support Admin'}</strong>
+          <strong class="author admin-name">${state.mode === 'note' ? 'Internal Note' : '<%= currentAdminName.replace(/'/g, "\\'") %>'}</strong>
           <span class="badge admin-badge"><i class="fas fa-shield-alt"></i>${state.mode === 'note' ? 'Note' : 'Admin'}</span>
           <time>${timestamp}</time>
         </div>
         <div class="message-text">${text.replace(/\n/g, '<br>')}</div>
       </div>
-      <span class="avatar admin-avatar">AD</span>
+      <span class="avatar admin-avatar"><%= currentAdminInitial %></span>
     `;
 
     dom.threadBody.appendChild(row);
@@ -1200,7 +1207,7 @@
 
   document.getElementById('quickAssignBtn')?.addEventListener('click', () => {
     const sel = document.getElementById('manageAssignee');
-    sel.value = 'Admin Priya';
+    sel.value = '<%= currentAdminName.replace(/'/g, "\\'") %>';
     toast('Assigned to you', 'success');
   });
 

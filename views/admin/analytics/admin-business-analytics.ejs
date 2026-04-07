@@ -57,6 +57,8 @@
   };
   const money = (v) => Number(v || 0).toLocaleString('en-IN');
   const safePeriod = String(safeAnalytics.period || 'month');
+  const trendValue = (v) => Number(v || 0);
+  const trendText = (v) => `${trendValue(v) >= 0 ? '+' : ''}${trendValue(v).toFixed(1)}% from previous period`;
 %>
 
 <% if (typeof error !== 'undefined' && error) { %>
@@ -112,7 +114,7 @@
       <div class="an-kpi-body">
         <span class="an-kpi-label">Total Revenue</span>
         <span class="an-kpi-value" id="kpi-revenue">₹<%= money(safeAnalytics.totalRevenue) %></span>
-        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+15% from last month</span>
+        <span class="an-kpi-trend <%= trendValue(safeAnalytics.trends?.totalRevenue) >= 0 ? 'an-trend-up' : 'an-trend-down' %>"><i class="fas <%= trendValue(safeAnalytics.trends?.totalRevenue) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>"></i><%= trendText(safeAnalytics.trends?.totalRevenue) %></span>
       </div>
     </div>
 
@@ -121,7 +123,7 @@
       <div class="an-kpi-body">
         <span class="an-kpi-label">Active Users</span>
         <span class="an-kpi-value" id="kpi-users"><%= money(safeAnalytics.activeUsers) %></span>
-        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+8% from last month</span>
+        <span class="an-kpi-trend <%= trendValue(safeAnalytics.trends?.activeUsers) >= 0 ? 'an-trend-up' : 'an-trend-down' %>"><i class="fas <%= trendValue(safeAnalytics.trends?.activeUsers) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>"></i><%= trendText(safeAnalytics.trends?.activeUsers) %></span>
       </div>
     </div>
 
@@ -130,7 +132,7 @@
       <div class="an-kpi-body">
         <span class="an-kpi-label">Transaction Volume</span>
         <span class="an-kpi-value" id="kpi-volume"><%= money(safeAnalytics.txnVolume) %></span>
-        <span class="an-kpi-trend an-trend-up"><i class="fas fa-arrow-trend-up"></i>+12% from last month</span>
+        <span class="an-kpi-trend <%= trendValue(safeAnalytics.trends?.txnVolume) >= 0 ? 'an-trend-up' : 'an-trend-down' %>"><i class="fas <%= trendValue(safeAnalytics.trends?.txnVolume) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>"></i><%= trendText(safeAnalytics.trends?.txnVolume) %></span>
       </div>
     </div>
 
@@ -139,7 +141,7 @@
       <div class="an-kpi-body">
         <span class="an-kpi-label">Avg. Transaction</span>
         <span class="an-kpi-value" id="kpi-avg">₹<%= money(safeAnalytics.avgTransaction) %></span>
-        <span class="an-kpi-trend an-trend-down"><i class="fas fa-arrow-trend-down"></i>-2% from last month</span>
+        <span class="an-kpi-trend <%= trendValue(safeAnalytics.trends?.avgTransaction) >= 0 ? 'an-trend-up' : 'an-trend-down' %>"><i class="fas <%= trendValue(safeAnalytics.trends?.avgTransaction) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>"></i><%= trendText(safeAnalytics.trends?.avgTransaction) %></span>
       </div>
     </div>
   </div>

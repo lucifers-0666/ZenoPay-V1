@@ -1,6 +1,23 @@
 <%
   const currentAdminPage = typeof adminPage !== 'undefined' ? adminPage : 'reports';
   page = 'reports';
+  const selectedRange = String(reportsData?.selectedRange || '7');
+  const rangeData = reportsData?.ranges?.[selectedRange] || reportsData?.ranges?.['7'] || {
+    kpis: {
+      totalRevenue: 0,
+      totalTransactions: 0,
+      newUsers: 0,
+      activeWallets: 0,
+      revenueTrend: 0,
+      transactionsTrend: 0,
+      usersTrend: 0,
+      walletsTrend: 0,
+    },
+    topMerchants: [],
+  };
+  const inr = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
+  const num = (v) => Number(v || 0).toLocaleString('en-IN');
+  const trendTxt = (v) => `${Number(v || 0) >= 0 ? '+' : ''}${Number(v || 0).toFixed(1)}% vs previous period`;
 %>
 
 <div class="reports-page-wrapper">
@@ -22,9 +39,9 @@
           <div class="reports-header-actions">
             <div>
               <div class="date-range-group" id="dateRangeGroup">
-                <button class="date-btn active" data-range="7" type="button">Last 7 Days</button>
-                <button class="date-btn" data-range="30" type="button">Last 30 Days</button>
-                <button class="date-btn" data-range="90" type="button">Last 90 Days</button>
+                <button class="date-btn <%= selectedRange === '7' ? 'active' : '' %>" data-range="7" type="button">Last 7 Days</button>
+                <button class="date-btn <%= selectedRange === '30' ? 'active' : '' %>" data-range="30" type="button">Last 30 Days</button>
+                <button class="date-btn <%= selectedRange === '90' ? 'active' : '' %>" data-range="90" type="button">Last 90 Days</button>
                 <button class="date-btn" data-range="custom" type="button">Custom</button>
               </div>
 
@@ -55,36 +72,36 @@
           <article class="reports-kpi-card">
             <div class="kpi-icon-box green"><i class="fas fa-indian-rupee-sign" aria-hidden="true"></i></div>
             <div class="kpi-body">
-              <div class="kpi-value">₹4,28,75,200</div>
+              <div class="kpi-value"><%= inr(rangeData.kpis.totalRevenue) %></div>
               <div class="kpi-label">Total Revenue</div>
-              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>12.4% vs last period</div>
+              <div class="kpi-trend <%= Number(rangeData.kpis.revenueTrend || 0) >= 0 ? 'up' : 'down' %>"><i class="fas <%= Number(rangeData.kpis.revenueTrend || 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>" aria-hidden="true"></i><%= trendTxt(rangeData.kpis.revenueTrend) %></div>
             </div>
           </article>
 
           <article class="reports-kpi-card">
             <div class="kpi-icon-box blue"><i class="fas fa-arrow-right-arrow-left" aria-hidden="true"></i></div>
             <div class="kpi-body">
-              <div class="kpi-value">1,92,843</div>
+              <div class="kpi-value"><%= num(rangeData.kpis.totalTransactions) %></div>
               <div class="kpi-label">Total Transactions</div>
-              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>8.1% vs last period</div>
+              <div class="kpi-trend <%= Number(rangeData.kpis.transactionsTrend || 0) >= 0 ? 'up' : 'down' %>"><i class="fas <%= Number(rangeData.kpis.transactionsTrend || 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>" aria-hidden="true"></i><%= trendTxt(rangeData.kpis.transactionsTrend) %></div>
             </div>
           </article>
 
           <article class="reports-kpi-card">
             <div class="kpi-icon-box purple"><i class="fas fa-user-plus" aria-hidden="true"></i></div>
             <div class="kpi-body">
-              <div class="kpi-value">8,614</div>
+              <div class="kpi-value"><%= num(rangeData.kpis.newUsers) %></div>
               <div class="kpi-label">New Users</div>
-              <div class="kpi-trend up"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i>6.8% vs last period</div>
+              <div class="kpi-trend <%= Number(rangeData.kpis.usersTrend || 0) >= 0 ? 'up' : 'down' %>"><i class="fas <%= Number(rangeData.kpis.usersTrend || 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>" aria-hidden="true"></i><%= trendTxt(rangeData.kpis.usersTrend) %></div>
             </div>
           </article>
 
           <article class="reports-kpi-card">
             <div class="kpi-icon-box amber"><i class="fas fa-wallet" aria-hidden="true"></i></div>
             <div class="kpi-body">
-              <div class="kpi-value">54,902</div>
+              <div class="kpi-value"><%= num(rangeData.kpis.activeWallets) %></div>
               <div class="kpi-label">Active Wallets</div>
-              <div class="kpi-trend down"><i class="fas fa-arrow-trend-down" aria-hidden="true"></i>2.3% vs last period</div>
+              <div class="kpi-trend <%= Number(rangeData.kpis.walletsTrend || 0) >= 0 ? 'up' : 'down' %>"><i class="fas <%= Number(rangeData.kpis.walletsTrend || 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %>" aria-hidden="true"></i><%= trendTxt(rangeData.kpis.walletsTrend) %></div>
             </div>
           </article>
         </section>
@@ -175,16 +192,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td>#1</td><td>QuickMart Retail Pvt Ltd</td><td>18,442</td><td>₹1,24,85,900</td><td>₹677</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#2</td><td>RideFlex Mobility</td><td>16,108</td><td>₹98,70,400</td><td>₹613</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#3</td><td>MetroFuel Services</td><td>13,940</td><td>₹86,44,100</td><td>₹620</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#4</td><td>CloudKitchen Hub</td><td>12,874</td><td>₹79,54,850</td><td>₹618</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#5</td><td>FastPay Utilities</td><td>11,590</td><td>₹72,18,900</td><td>₹623</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#6</td><td>UrbanMed Pharmacy</td><td>10,230</td><td>₹61,55,000</td><td>₹602</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#7</td><td>EduSprint Online</td><td>9,602</td><td>₹53,81,120</td><td>₹560</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#8</td><td>TravelNest Bookings</td><td>8,744</td><td>₹49,42,760</td><td>₹565</td><td><span class="badge badge-success">Active</span></td></tr>
-                <tr><td>#9</td><td>Prime Health Labs</td><td>7,918</td><td>₹42,80,200</td><td>₹541</td><td><span class="badge badge-danger">Suspended</span></td></tr>
-                <tr><td>#10</td><td>CityGrocers Chain</td><td>7,204</td><td>₹37,42,100</td><td>₹519</td><td><span class="badge badge-success">Active</span></td></tr>
+                <% if ((rangeData.topMerchants || []).length > 0) { %>
+                  <% rangeData.topMerchants.forEach(function(m) { %>
+                    <tr>
+                      <td>#<%= m.rank %></td>
+                      <td><%= m.name %></td>
+                      <td><%= Number(m.transactions || 0).toLocaleString('en-IN') %></td>
+                      <td>₹<%= Number(m.volume || 0).toLocaleString('en-IN') %></td>
+                      <td>₹<%= Number(m.avgTicket || 0).toLocaleString('en-IN') %></td>
+                      <td><span class="badge <%= m.status === 'active' ? 'badge-success' : (m.status === 'suspended' ? 'badge-danger' : 'badge-warning') %>"><%= (m.status || 'unknown').charAt(0).toUpperCase() + (m.status || 'unknown').slice(1) %></span></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="6" style="text-align:center;color:var(--text-soft);padding:20px;">No merchant data available for this range.</td></tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -485,28 +506,11 @@
 
       <script>
         document.addEventListener('DOMContentLoaded', function () {
+          const reportsData = <%- JSON.stringify(reportsData || { selectedRange: '7', ranges: {} }) %>;
           const chartData = {
-            7: {
-              revenue:    { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2500000,2800000,3000000,3200000,3700000,4200000,4500000] },
-              userGrowth: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [42,68,35,82,65,108,78] },
-              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [342,87,23,156] },
-              txSuccess:  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], success:[820,740,900,680,950,430,610], failed:[40,30,50,20,45,15,30], pending:[60,80,40,90,55,35,70] },
-              support:    { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], open:[12,18,9,22,15,8,11], closed:[8,14,16,18,12,10,15] }
-            },
-            30: {
-              revenue:    { labels: ['Week 1','Week 2','Week 3','Week 4'], values: [8200000,9500000,11000000,13500000] },
-              userGrowth: { labels: ['Week 1','Week 2','Week 3','Week 4'], values: [210,340,290,410] },
-              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [980,210,67,430] },
-              txSuccess:  { labels: ['Week 1','Week 2','Week 3','Week 4'], success:[3200,4100,3800,4600], failed:[180,140,200,160], pending:[320,280,340,290] },
-              support:    { labels: ['Week 1','Week 2','Week 3','Week 4'], open:[48,62,39,55], closed:[34,57,48,62] }
-            },
-            90: {
-              revenue:    { labels: ['Jan','Feb','Mar'], values: [28000000,32000000,41000000] },
-              userGrowth: { labels: ['Jan','Feb','Mar'], values: [820,1040,1380] },
-              kyc:        { labels: ['Approved','Pending','Rejected','Not Submitted'], values: [2800,640,180,950] },
-              txSuccess:  { labels: ['Jan','Feb','Mar'], success:[12000,14500,18200], failed:[580,490,620], pending:[980,1100,1350] },
-              support:    { labels: ['Jan','Feb','Mar'], open:[142,168,121], closed:[128,152,145] }
-            }
+            7: reportsData?.ranges?.['7'] || {},
+            30: reportsData?.ranges?.['30'] || {},
+            90: reportsData?.ranges?.['90'] || {}
           };
 
           let revenueChart;
@@ -582,8 +586,8 @@
             }
 
             const txEl = document.getElementById('transactionBreakdownChart');
-            const txLabels = ['P2P Transfer', 'Merchant Payment', 'Wallet Top-Up', 'Refund'];
-            const txValues = [44, 31, 19, 6];
+            const txLabels = d?.txBreakdown?.labels || ['No Data'];
+            const txValues = d?.txBreakdown?.values || [0];
             const txColors = [primary, getCssVar('--secondary', '#8B5CF6'), green, amber];
             if (txEl) {
               if (transactionBreakdownChart) transactionBreakdownChart.destroy();
@@ -744,14 +748,14 @@
                 }
 
                 if (picker) picker.style.display = 'none';
-                initCharts(parseInt(range, 10));
+                window.location.href = `/admin/reports?range=${encodeURIComponent(range)}`;
               });
             });
 
             const applyBtn = document.getElementById('applyCustomDate');
             if (applyBtn) {
               applyBtn.addEventListener('click', function () {
-                initCharts(7);
+                initCharts(parseInt('<%= selectedRange %>', 10));
               });
             }
           }
@@ -759,7 +763,7 @@
           ensureChartLibrary()
             .then(() => {
               wireDateControls();
-              initCharts(7);
+              initCharts(parseInt('<%= selectedRange %>', 10));
             })
             .catch((error) => {
               console.error('Reports charts initialization failed:', error);

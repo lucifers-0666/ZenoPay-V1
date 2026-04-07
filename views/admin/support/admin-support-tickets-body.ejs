@@ -8,6 +8,12 @@
   const urgentTickets = Number(supportStats.urgentTickets || 0);
   const avgResponseRaw = String(supportStats.avgResponseHours || '4.2 hours');
   const avgResponse = avgResponseRaw.replace('hours', 'hrs');
+  const currentAdminName = ((typeof admin !== 'undefined' && admin && admin.FullName) || (typeof user !== 'undefined' && user && user.FullName) || 'You').trim();
+  const availableAgents = Array.from(new Set([
+    currentAdminName,
+    ...supportTickets.map((t) => t?.assigned?.name)
+  ].filter(Boolean))).slice(0, 8);
+  const secondaryAgentName = availableAgents.find((n) => n !== currentAdminName) || null;
 %>
 
 <section class="support-page" id="supportPage">
@@ -144,8 +150,10 @@
         <button type="button" class="assign-selected-btn" id="assignSelectedBtn"><i class="fas fa-user-check"></i><span>Assign Selected</span><i class="fas fa-chevron-down"></i></button>
         <div class="assign-selected-menu" id="assignSelectedMenu" hidden>
           <button type="button" data-bulk-assign="me">Assign to Me</button>
-          <button type="button" data-bulk-assign="priya">Assign to Priya</button>
-          <button type="button" data-bulk-assign="arjun">Assign to Arjun</button>
+          <% if (secondaryAgentName) { %>
+            <button type="button" data-bulk-assign="agent">Assign to <%= secondaryAgentName %></button>
+          <% } %>
+          <button type="button" data-bulk-assign="unassigned">Mark Unassigned</button>
         </div>
       </div>
 
@@ -267,9 +275,9 @@
           <label class="form-label" for="createAssignTo">Assign To</label>
           <select id="createAssignTo" class="admin-select">
             <option value="">Unassigned</option>
-            <option value="Priya Sharma">Priya Sharma</option>
-            <option value="Arjun Rao">Arjun Rao</option>
-            <option value="Neha Verma">Neha Verma</option>
+            <% availableAgents.forEach((agentName) => { %>
+              <option value="<%= agentName %>"><%= agentName %></option>
+            <% }) %>
           </select>
         </div>
         <div>
@@ -829,6 +837,8 @@
   const rowsSeed = seedNode ? JSON.parse(seedNode.textContent || '[]') : [];
 
   const state = {
+    currentAdminName: <%- JSON.stringify(currentAdminName) %>,
+    secondaryAgentName: <%- JSON.stringify(secondaryAgentName) %>,
     rows: Array.isArray(rowsSeed) ? rowsSeed.map((item, idx) => ({
       ...item,
       subject: item.subject || item.subjectFull || 'Support request',
@@ -971,7 +981,7 @@
     const categoryMatch = !state.filters.category || toneForCategory(row.category) === state.filters.category;
 
     let assignedMatch = true;
-    if (state.filters.assigned === 'me') assignedMatch = Boolean(row.assigned && /you|me/i.test(row.assigned.name || ''));
+    if (state.filters.assigned === 'me') assignedMatch = Boolean(row.assigned && String(row.assigned.name || '').toLowerCase() === String(state.currentAdminName || '').toLowerCase());
     if (state.filters.assigned === 'unassigned') assignedMatch = !row.assigned;
 
     const rowTime = new Date(row.updatedAt).getTime();
@@ -1253,7 +1263,7 @@
         }
 
         if (action === 'assign-me') {
-          row.assigned = { name: 'You', initial: 'Y' };
+          row.assigned = { name: state.currentAdminName, initial: initials(state.currentAdminName) };
           showToast('Ticket assigned to you', 'success');
           applyFilters();
           return;
@@ -1440,9 +1450,9 @@
       }
 
       selectedRows.forEach((row) => {
-        if (mode === 'me') row.assigned = { name: 'You', initial: 'Y' };
-        if (mode === 'priya') row.assigned = { name: 'Priya Sharma', initial: 'P' };
-        if (mode === 'arjun') row.assigned = { name: 'Arjun Rao', initial: 'A' };
+        if (mode === 'me') row.assigned = { name: state.currentAdminName, initial: initials(state.currentAdminName) };
+        if (mode === 'agent' && state.secondaryAgentName) row.assigned = { name: state.secondaryAgentName, initial: initials(state.secondaryAgentName) };
+        if (mode === 'unassigned') row.assigned = null;
       });
 
       showToast('Tickets assigned', 'success');
@@ -1476,7 +1486,7 @@
   }
 
   document.getElementById('bulkAssignMe').addEventListener('click', () => {
-    applyBulkTransform((row) => { row.assigned = { name: 'You', initial: 'Y' }; }, 'Selected tickets assigned to you');
+    applyBulkTransform((row) => { row.assigned = { name: state.currentAdminName, initial: initials(state.currentAdminName) }; }, 'Selected tickets assigned to you');
   });
 
   document.getElementById('bulkMarkResolved').addEventListener('click', () => {

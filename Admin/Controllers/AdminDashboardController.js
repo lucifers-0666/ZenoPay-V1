@@ -4,6 +4,8 @@ const TransactionHistory = require("../../Models/TransactionHistory");
 const WalletTransaction = require("../../Models/Transaction");
 const BankAccount = require("../../Models/BankAccount");
 const Banks = require("../../Models/Banks");
+const Wallet = require("../../Models/Wallet");
+const ContactSubmission = require("../../Models/ContactSubmission");
 const AdminSettings = require("../../Models/AdminSettings");
 const PaymentGatewaySettings = require("../../Models/PaymentGatewaySettings");
 
@@ -1338,6 +1340,13 @@ const getAnalytics = async (req, res) => {
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(now);
     endDate.setHours(23, 59, 59, 999);
+    const periodDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime() + 1) / (24 * 60 * 60 * 1000)));
+
+    const previousEnd = new Date(startDate);
+    previousEnd.setMilliseconds(-1);
+    const previousStart = new Date(previousEnd);
+    previousStart.setHours(0, 0, 0, 0);
+    previousStart.setDate(previousStart.getDate() - (periodDays - 1));
 
     const txNormalizeStage = {
       $addFields: {
@@ -1394,11 +1403,22 @@ const getAnalytics = async (req, res) => {
       ],
     };
 
+    const prevUserDateMatch = {
+      $or: [
+        { RegistrationDate: { $gte: previousStart, $lte: previousEnd } },
+        { createdAt: { $gte: previousStart, $lte: previousEnd } },
+      ],
+    };
+
     const [
       totalRevenue,
+      previousRevenue,
       activeUsers,
+      previousActiveUsers,
       txnVolumeResult,
+      previousTxnVolumeResult,
       avgTxnResult,
+      previousAvgTxnResult,
       revenueByDay,
       usersByDay,
       txnByType,
@@ -1411,7 +1431,20 @@ const getAnalytics = async (req, res) => {
         { $group: { _id: null, total: { $sum: "$_amount" } } },
       ]).catch(() => []),
 
+      TransactionHistory.aggregate([
+        txNormalizeStage,
+        {
+          $match: {
+            _date: { $gte: previousStart, $lte: previousEnd },
+          },
+        },
+        { $match: { _status: { $in: ["completed", "success"] } } },
+        { $group: { _id: null, total: { $sum: "$_amount" } } },
+      ]).catch(() => []),
+
       ZenoPayUser.countDocuments(userDateMatch).catch(() => 0),
+
+      ZenoPayUser.countDocuments(prevUserDateMatch).catch(() => 0),
 
       TransactionHistory.aggregate([
         txNormalizeStage,
@@ -1421,7 +1454,28 @@ const getAnalytics = async (req, res) => {
 
       TransactionHistory.aggregate([
         txNormalizeStage,
+        {
+          $match: {
+            _date: { $gte: previousStart, $lte: previousEnd },
+          },
+        },
+        { $count: "count" },
+      ]).catch(() => []),
+
+      TransactionHistory.aggregate([
+        txNormalizeStage,
         txPeriodMatch,
+        { $match: { _status: { $in: ["completed", "success"] } } },
+        { $group: { _id: null, avg: { $avg: "$_amount" } } },
+      ]).catch(() => []),
+
+      TransactionHistory.aggregate([
+        txNormalizeStage,
+        {
+          $match: {
+            _date: { $gte: previousStart, $lte: previousEnd },
+          },
+        },
         { $match: { _status: { $in: ["completed", "success"] } } },
         { $group: { _id: null, avg: { $avg: "$_amount" } } },
       ]).catch(() => []),
@@ -1545,6 +1599,12 @@ const getAnalytics = async (req, res) => {
       failureData,
       periodLabel,
       period,
+      trends: {
+        totalRevenue: formatPercentage(Number(totalRevenue?.[0]?.total || 0), Number(previousRevenue?.[0]?.total || 0)),
+        activeUsers: formatPercentage(Number(activeUsers || 0), Number(previousActiveUsers || 0)),
+        txnVolume: formatPercentage(Number(txnVolumeResult?.[0]?.count || 0), Number(previousTxnVolumeResult?.[0]?.count || 0)),
+        avgTransaction: formatPercentage(Number(avgTxnResult?.[0]?.avg || 0), Number(previousAvgTxnResult?.[0]?.avg || 0)),
+      },
     };
 
     res.locals.adminPage = "analytics";
@@ -1584,6 +1644,12 @@ const getAnalytics = async (req, res) => {
         failureData: [0],
         periodLabel: "This Month",
         period: "month",
+        trends: {
+          totalRevenue: 0,
+          activeUsers: 0,
+          txnVolume: 0,
+          avgTransaction: 0,
+        },
       },
       period: "month",
       error: error?.message || "Unknown analytics error",
@@ -1594,6 +1660,333 @@ const getAnalytics = async (req, res) => {
 // GET Reports Page
 const getReports = async (req, res) => {
   try {
+    const allowedRanges = ["7", "30", "90"];
+    const selectedRange = allowedRanges.includes(String(req.query.range || ""))
+      ? String(req.query.range)
+      : "7";
+
+    const formatLabel = (days, date) => {
+      if (days <= 7) {
+        return new Date(date).toLocaleDateString("en-IN", { weekday: "short" });
+      }
+      return new Date(date).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+    };
+
+    const sanitizeCountMap = (rows = []) => {
+      const out = new Map();
+      (rows || []).forEach((r) => {
+        if (!r?._id) return;
+        out.set(String(r._id), Number(r.count || 0));
+      });
+      return out;
+    };
+
+    const buildDateRange = (days) => {
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      const start = new Date(end);
+      start.setHours(0, 0, 0, 0);
+      start.setDate(start.getDate() - (days - 1));
+
+      const prevEnd = new Date(start);
+      prevEnd.setMilliseconds(-1);
+      const prevStart = new Date(start);
+      prevStart.setDate(prevStart.getDate() - days);
+
+      return { start, end, prevStart, prevEnd };
+    };
+
+    const toTrendPct = (current, previous) => {
+      const c = Number(current || 0);
+      const p = Number(previous || 0);
+      if (!c && !p) return 0;
+      if (!p) return 100;
+      return Number((((c - p) / p) * 100).toFixed(1));
+    };
+
+    const buildRangeData = async (days) => {
+      const { start, end, prevStart, prevEnd } = buildDateRange(days);
+
+      const txMatchCurrent = { TransactionTime: { $gte: start, $lte: end } };
+      const txMatchPrev = { TransactionTime: { $gte: prevStart, $lte: prevEnd } };
+      const userCurrentMatch = {
+        Role: "user",
+        $or: [{ RegistrationDate: { $gte: start, $lte: end } }, { createdAt: { $gte: start, $lte: end } }],
+      };
+      const userPrevMatch = {
+        Role: "user",
+        $or: [
+          { RegistrationDate: { $gte: prevStart, $lte: prevEnd } },
+          { createdAt: { $gte: prevStart, $lte: prevEnd } },
+        ],
+      };
+
+      const [
+        totalRevenueAgg,
+        prevRevenueAgg,
+        totalTransactions,
+        prevTransactions,
+        newUsers,
+        prevNewUsers,
+        activeWallets,
+        prevActiveWallets,
+        txByDay,
+        txByType,
+        successByDay,
+        failedByDay,
+        pendingByDay,
+        supportOpenByDay,
+        supportClosedByDay,
+        kycApproved,
+        kycPending,
+        kycRejected,
+        kycNotStarted,
+        topMerchantsRaw,
+      ] = await Promise.all([
+        TransactionHistory.aggregate([
+          { $match: txMatchCurrent },
+          { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } },
+        ]).catch(() => []),
+        TransactionHistory.aggregate([
+          { $match: txMatchPrev },
+          { $group: { _id: null, total: { $sum: { $toDouble: "$Amount" } } } },
+        ]).catch(() => []),
+        TransactionHistory.countDocuments(txMatchCurrent).catch(() => 0),
+        TransactionHistory.countDocuments(txMatchPrev).catch(() => 0),
+        ZenoPayUser.countDocuments(userCurrentMatch).catch(() => 0),
+        ZenoPayUser.countDocuments(userPrevMatch).catch(() => 0),
+        Wallet.countDocuments({ isActive: true, updatedAt: { $gte: start, $lte: end } }).catch(() => 0),
+        Wallet.countDocuments({ isActive: true, updatedAt: { $gte: prevStart, $lte: prevEnd } }).catch(() => 0),
+        TransactionHistory.aggregate([
+          { $match: txMatchCurrent },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$TransactionTime" } },
+              revenue: { $sum: { $toDouble: "$Amount" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        TransactionHistory.aggregate([
+          { $match: txMatchCurrent },
+          {
+            $addFields: {
+              _type: {
+                $toLower: {
+                  $convert: {
+                    input: { $ifNull: ["$Type", { $ifNull: ["$TransactionType", "$Description"] }] },
+                    to: "string",
+                    onError: "other",
+                    onNull: "other",
+                  },
+                },
+              },
+            },
+          },
+          { $group: { _id: "$_type", count: { $sum: 1 } } },
+          { $sort: { count: -1 } },
+          { $limit: 4 },
+        ]).catch(() => []),
+        TransactionHistory.aggregate([
+          { $match: { ...txMatchCurrent, Status: { $in: ["success", "Success", "completed"] } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$TransactionTime" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        TransactionHistory.aggregate([
+          { $match: { ...txMatchCurrent, Status: { $in: ["failed", "Failed", "declined", "Declined"] } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$TransactionTime" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        TransactionHistory.aggregate([
+          { $match: { ...txMatchCurrent, Status: { $in: ["pending", "Pending"] } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$TransactionTime" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        ContactSubmission.aggregate([
+          { $match: { submitted_at: { $gte: start, $lte: end }, status: { $in: ["new", "read", "in_progress"] } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$submitted_at" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        ContactSubmission.aggregate([
+          { $match: { submitted_at: { $gte: start, $lte: end }, status: { $in: ["replied", "closed"] } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$submitted_at" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { _id: 1 } },
+        ]).catch(() => []),
+        ZenoPayUser.countDocuments({ Role: "user", KYCStatus: { $in: ["approved", "verified"] } }).catch(() => 0),
+        ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "pending" }).catch(() => 0),
+        ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "rejected" }).catch(() => 0),
+        ZenoPayUser.countDocuments({ Role: "user", KYCStatus: "not_started" }).catch(() => 0),
+        Merchant.find({})
+          .sort({ TotalVolume: -1 })
+          .limit(10)
+          .lean()
+          .catch(() => []),
+      ]);
+
+      const dateKeys = [];
+      const cursor = new Date(start);
+      cursor.setHours(0, 0, 0, 0);
+      while (cursor <= end) {
+        dateKeys.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      const byDayMap = new Map((txByDay || []).map((r) => [String(r._id), r]));
+      const successMap = sanitizeCountMap(successByDay);
+      const failedMap = sanitizeCountMap(failedByDay);
+      const pendingMap = sanitizeCountMap(pendingByDay);
+      const supportOpenMap = sanitizeCountMap(supportOpenByDay);
+      const supportClosedMap = sanitizeCountMap(supportClosedByDay);
+
+      const revenueLabels = [];
+      const revenueValues = [];
+      const txCounts = [];
+      const successCounts = [];
+      const failedCounts = [];
+      const pendingCounts = [];
+      const supportOpenCounts = [];
+      const supportClosedCounts = [];
+      const userGrowthValues = [];
+
+      let cumulativeUsers = 0;
+      const usersByDay = await ZenoPayUser.aggregate([
+        {
+          $match: {
+            Role: "user",
+            $or: [
+              { RegistrationDate: { $gte: start, $lte: end } },
+              { createdAt: { $gte: start, $lte: end } },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            _userDate: { $ifNull: ["$RegistrationDate", "$createdAt"] },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$_userDate" } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]).catch(() => []);
+      const usersMap = sanitizeCountMap(usersByDay);
+
+      dateKeys.forEach((d) => {
+        const k = d.toISOString().slice(0, 10);
+        revenueLabels.push(formatLabel(days, d));
+        const daily = byDayMap.get(k);
+        revenueValues.push(Math.round(Number(daily?.revenue || 0)));
+        txCounts.push(Number(daily?.count || 0));
+        successCounts.push(Number(successMap.get(k) || 0));
+        failedCounts.push(Number(failedMap.get(k) || 0));
+        pendingCounts.push(Number(pendingMap.get(k) || 0));
+        supportOpenCounts.push(Number(supportOpenMap.get(k) || 0));
+        supportClosedCounts.push(Number(supportClosedMap.get(k) || 0));
+        const newUsersToday = Number(usersMap.get(k) || 0);
+        cumulativeUsers += newUsersToday;
+        userGrowthValues.push(cumulativeUsers);
+      });
+
+      const topMerchants = (topMerchantsRaw || []).map((merchant, idx) => {
+        const totalVol = Number(merchant.TotalVolume || 0);
+        const txCount = Number(merchant.TransactionCount || 0);
+        const avgTicket = txCount > 0 ? Math.round(totalVol / txCount) : 0;
+        return {
+          rank: idx + 1,
+          name: merchant.BusinessName || "Unknown Merchant",
+          transactions: txCount,
+          volume: totalVol,
+          avgTicket,
+          status: String(merchant.Status || (merchant.IsActive ? "active" : "inactive")).toLowerCase(),
+        };
+      });
+
+      const currentRevenue = Number(totalRevenueAgg?.[0]?.total || 0);
+      const previousRevenue = Number(prevRevenueAgg?.[0]?.total || 0);
+
+      const txTypeLabels = (txByType || []).map((t) => String(t._id || "other").replace(/(^.|\s.)/g, (m) => m.toUpperCase()));
+      const txTypeData = (txByType || []).map((t) => Number(t.count || 0));
+
+      return {
+        kpis: {
+          totalRevenue: currentRevenue,
+          totalTransactions: Number(totalTransactions || 0),
+          newUsers: Number(newUsers || 0),
+          activeWallets: Number(activeWallets || 0),
+          revenueTrend: toTrendPct(currentRevenue, previousRevenue),
+          transactionsTrend: toTrendPct(totalTransactions, prevTransactions),
+          usersTrend: toTrendPct(newUsers, prevNewUsers),
+          walletsTrend: toTrendPct(activeWallets, prevActiveWallets),
+        },
+        revenue: { labels: revenueLabels, values: revenueValues },
+        userGrowth: { labels: revenueLabels, values: userGrowthValues },
+        kyc: {
+          labels: ["Approved", "Pending", "Rejected", "Not Submitted"],
+          values: [Number(kycApproved || 0), Number(kycPending || 0), Number(kycRejected || 0), Number(kycNotStarted || 0)],
+        },
+        txSuccess: {
+          labels: revenueLabels,
+          success: successCounts,
+          failed: failedCounts,
+          pending: pendingCounts,
+        },
+        support: {
+          labels: revenueLabels,
+          open: supportOpenCounts,
+          closed: supportClosedCounts,
+        },
+        txBreakdown: {
+          labels: txTypeLabels.length ? txTypeLabels : ["No Data"],
+          values: txTypeData.length ? txTypeData : [0],
+        },
+        topMerchants,
+      };
+    };
+
+    const [range7, range30, range90] = await Promise.all([
+      buildRangeData(7),
+      buildRangeData(30),
+      buildRangeData(90),
+    ]);
+
+    const reportsData = {
+      selectedRange,
+      ranges: {
+        "7": range7,
+        "30": range30,
+        "90": range90,
+      },
+    };
+
     res.locals.adminPage = "reports";
     res.render("admin/reports/admin-reports", {
       title: "Reports & Analytics",
@@ -1603,6 +1996,7 @@ const getReports = async (req, res) => {
       adminPage: "reports",
       admin: req.session.user,
       user: req.session.user,
+      reportsData,
     });
   } catch (error) {
     console.error("Reports error:", error);

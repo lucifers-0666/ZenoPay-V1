@@ -216,7 +216,7 @@ const normalizeTicket = (doc) => {
     updatedAt: doc.updated_at || doc.submitted_at,
     assigned: doc.assigned_to
       ? {
-          name: doc.assigned_to.FullName || "Agent",
+          name: doc.assigned_to.FullName || "Assigned Admin",
           initial: (doc.assigned_to.FullName || "A").charAt(0).toUpperCase(),
         }
       : null,
@@ -288,6 +288,8 @@ const getSupportTickets = async (req, res) => {
 const getSupportTicketDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    const currentAdminName = req.session?.user?.FullName || req.session?.user?.name || "Support Admin";
+    const currentAdminEmail = req.session?.user?.Email || req.session?.user?.email || "";
 
     let doc = null;
 
@@ -349,16 +351,16 @@ const getSupportTicketDetails = async (req, res) => {
     if (doc.assigned_to) {
       thread.push({
         type: "system",
-        text: `Ticket assigned to ${doc.assigned_to.FullName || "Admin"} - ${new Date(doc.updated_at || Date.now()).toLocaleString("en-IN")}`,
+        text: `Ticket assigned to ${doc.assigned_to.FullName || currentAdminName} - ${new Date(doc.updated_at || Date.now()).toLocaleString("en-IN")}`,
       });
     }
 
     if (doc.reply_message) {
       thread.push({
         type: "admin",
-        name: doc.replied_by?.FullName || "ZenoPay Support",
-        email: doc.replied_by?.Email || "support@zenopay.com",
-        avatarInitial: (doc.replied_by?.FullName || "S").charAt(0).toUpperCase(),
+        name: doc.replied_by?.FullName || currentAdminName,
+        email: doc.replied_by?.Email || currentAdminEmail,
+        avatarInitial: (doc.replied_by?.FullName || currentAdminName || "A").charAt(0).toUpperCase(),
         timestamp: doc.replied_at ? new Date(doc.replied_at).toLocaleString("en-IN") : "",
         body: doc.reply_message,
       });
@@ -407,7 +409,7 @@ const getSupportTicketDetails = async (req, res) => {
       lastResponse: doc.replied_at ? timeAgo(doc.replied_at) : "Awaiting response",
       assignedAgent: doc.assigned_to
         ? {
-            name: doc.assigned_to.FullName || "Agent",
+            name: doc.assigned_to.FullName || currentAdminName,
             email: doc.assigned_to.Email || "",
           }
         : null,

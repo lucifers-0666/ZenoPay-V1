@@ -12,6 +12,8 @@ const parsePositiveAmount = (value) => {
   return Math.round(parsed * 100) / 100;
 };
 
+const isValidZenoPayId = (value) => /^[A-Za-z0-9_-]{3,50}$/.test(String(value || "").trim());
+
 const resolveAppUrl = (req) => {
   return (process.env.APP_URL || `${req.protocol}://${req.get("host")}`).replace(/\/$/, "");
 };
@@ -127,6 +129,15 @@ const getPayPage = async (req, res) => {
   try {
     const rawZenoPayId = String(req.params.zenoPayId || "");
     const isPlaceholder = rawZenoPayId.startsWith(":");
+    const looksValid = isValidZenoPayId(rawZenoPayId);
+
+    if (!isPlaceholder && !looksValid) {
+      return res.status(400).render("error-404", {
+        pageTitle: "Invalid Payment Link - ZenoPay",
+        path: req.path,
+      });
+    }
+
     const zenoPayId = isPlaceholder ? "ZP-PREVIEW" : rawZenoPayId;
     const recipient = await findUserByZenoPayId(zenoPayId);
 
@@ -184,6 +195,10 @@ const getPayPage = async (req, res) => {
 const processPay = async (req, res) => {
   try {
     const { zenoPayId } = req.params;
+    if (!isValidZenoPayId(zenoPayId)) {
+      return res.status(400).json({ success: false, message: "Invalid recipient ZenoPay ID" });
+    }
+
     const { amount, description, payerZenoPayId, pin, expiry } = req.body || {};
 
     if (expiry !== undefined && expiry !== null && String(expiry).trim() !== "") {

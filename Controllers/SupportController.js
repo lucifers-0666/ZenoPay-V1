@@ -156,12 +156,17 @@ exports.getSupportCenter = async (req, res) => {
 // Search help articles
 exports.searchHelpArticles = async (req, res) => {
   try {
-    const { query } = req.query;
+    const rawQuery = req.query?.query;
+    const query = String(rawQuery || "").trim().toLowerCase();
+
+    if (!query) {
+      return res.json({ success: true, results: [] });
+    }
     
     // Mock search results
     const results = popularArticles.filter(article =>
-      article.title.toLowerCase().includes(query.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(query.toLowerCase())
+      article.title.toLowerCase().includes(query) ||
+      article.excerpt.toLowerCase().includes(query)
     );
     
     res.json({ success: true, results });
