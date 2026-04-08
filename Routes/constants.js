@@ -8,8 +8,6 @@ const KYC_ROUTES = Object.freeze({
   LEGACY_STATUS_PAGE: "/user/kyc",
   LEGACY_SUBMIT_PAGE: "/user/kyc/submit",
   LEGACY_SUBMIT_POST: "/user/kyc/submit",
-  LEGACY_VERIFICATION_PAGE: "/kyc-verification",
-  LEGACY_STATUS_ALIAS: "/verification-status",
 });
 
 module.exports = {

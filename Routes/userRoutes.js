@@ -1009,7 +1009,5 @@ router.post(KYC_ROUTES.SUBMIT_POST, kycUpload, KYCController.submitKYC);
 router.get(KYC_ROUTES.LEGACY_STATUS_PAGE, (req, res) => res.redirect(KYC_ROUTES.STATUS_PAGE));
 router.get(KYC_ROUTES.LEGACY_SUBMIT_PAGE, (req, res) => res.redirect(KYC_ROUTES.SUBMIT_PAGE));
 router.post(KYC_ROUTES.LEGACY_SUBMIT_POST, kycUpload, KYCController.submitKYC);
-router.get(KYC_ROUTES.LEGACY_VERIFICATION_PAGE, (req, res) => res.redirect(KYC_ROUTES.SUBMIT_PAGE));
-router.get(KYC_ROUTES.LEGACY_STATUS_ALIAS, (req, res) => res.redirect(KYC_ROUTES.STATUS_PAGE));
 
 module.exports = router;
