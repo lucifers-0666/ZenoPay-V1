@@ -42,6 +42,7 @@
 - [Features](#-features)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
+- [Mobile Testing (LAN)](#-mobile-testing-lan)
 - [Environment Variables](#-environment-variables)
 - [API Endpoints](#-api-endpoints)
 - [Contributors](#-contributors--commit-stats)
@@ -415,6 +416,8 @@ erDiagram
    npm install
    ```
 
+  > If your workspace has multiple folders, make sure terminal CWD is the app folder (the one containing this `README.md` and `package.json`) before running npm scripts.
+
 3. **Configure environment variables**
    ```bash
    cp .env.example .env
@@ -423,12 +426,12 @@ erDiagram
 
 4. **Create admin user**
    ```bash
-   npm run create-admin
+  npm run create:admin
    ```
 
 5. **Start development server**
    ```bash
-   npm run dev
+  npm start
    ```
 
 6. **Visit in browser**
@@ -439,11 +442,36 @@ erDiagram
 
 ---
 
+## 📱 Mobile Testing (LAN)
+
+Use this to open your local site on your phone while developing.
+
+1. Connect laptop and phone to the same Wi-Fi.
+2. Start the app from the correct folder (`ZenoPay/`):
+  ```bash
+  npm start
+  ```
+3. In server logs, copy the printed mobile URL:
+  ```
+  📱 Mobile URL: http://<your-local-ip>:3000
+  ```
+4. Open that URL in your phone browser.
+
+### Common issues
+
+- **`ENOENT: ... package.json`** → You started from the wrong folder. `cd` into the app folder first.
+- **Phone can't connect** → Allow Node.js through Windows Firewall (Private network).
+- **Wrong IP shown (virtual adapter)** → Use your actual Wi-Fi IP (e.g., `10.x.x.x` / `192.168.x.x`) instead of VBox/VMware adapter IP.
+- **Still not accessible** → Check router/AP isolation and disable VPN temporarily.
+
+---
+
 ## 🔑 Environment Variables
 
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | Server port | `3000` |
+| `HOST` | Bind host (use `0.0.0.0` for LAN/mobile testing) | `0.0.0.0` |
 | `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/zenopay` |
 | `SESSION_SECRET` | Express session secret key | `your_super_secret` |
 | `SESSION_EXPIRE` | Session max age (ms) | `86400000` |
