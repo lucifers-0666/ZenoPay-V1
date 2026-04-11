@@ -1104,6 +1104,37 @@
   .mobile-nav-item.active .mobile-nav-label { color: #06B6D4; font-weight: 600; }
   .mobile-nav-item:hover .mobile-nav-icon { background: rgba(255,255,255,0.07); }
 
+  /* Legacy MobileNav partial compatibility (svg-based nav-item markup) */
+  .mobile-bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    color: #64748B;
+    text-decoration: none;
+    padding: 4px 6px;
+  }
+
+  .mobile-bottom-nav .nav-item .nav-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .mobile-bottom-nav .nav-item span {
+    font-size: 10px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .mobile-bottom-nav .nav-item.active {
+    color: #06B6D4;
+  }
+
   .mobile-nav-badge {
     position: absolute;
     top: -4px;
@@ -1137,6 +1168,15 @@
   .profile-drop   { width: calc(100vw - 28px); right: -8px; }
   .mobile-nav-icon i { font-size: 17px; }
   .mobile-nav-label  { font-size: 9px; }
+
+  .mobile-bottom-nav .nav-item .nav-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-bottom-nav .nav-item span {
+    font-size: 9px;
+  }
 }
 
 /* ═══════════════════════════════════════════════

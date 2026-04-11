@@ -322,6 +322,7 @@ const getSend = async (req, res) => {
       form: {},
       recipientPreview: null,
       successData: null,
+      previewMode: false,
     });
   } catch (error) {
     console.error("[Wallet] getSend error:", error);
@@ -401,6 +402,7 @@ const processSend = async (req, res) => {
             }
           : null,
         successData: null,
+        previewMode: false,
       });
     }
 
@@ -525,6 +527,7 @@ const processSend = async (req, res) => {
             initials: getInitials(getUserDisplayName(recipient)),
           },
           successData: null,
+          previewMode: false,
         });
       }
       throw txError;
@@ -553,6 +556,7 @@ const processSend = async (req, res) => {
           maximumFractionDigits: 2,
         })} to ${getUserDisplayName(recipient)} successfully.`,
       },
+      previewMode: false,
     });
   } catch (error) {
     console.error("[Wallet] processSend error:", error);

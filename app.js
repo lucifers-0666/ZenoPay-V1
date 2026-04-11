@@ -18,6 +18,7 @@ const adminApiRoutes = require("./Routes/adminRoutes");
 const apiRoutes = require("./Routes/apiRoutes");
 const { isAuthenticated: authMiddleware } = require("./Middleware/authGuards");
 const expressLayouts = require("express-ejs-layouts");
+const os = require("os");
 const {
   startScheduledPaymentsRunner,
   stopScheduledPaymentsRunner,
@@ -380,6 +381,30 @@ app.use((err, req, res, next) => {
 
 const DB = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
+
+const getLanCandidates = () => {
+  const virtualAdapterPattern = /(virtual|vbox|vmware|hyper-v|loopback|wsl)/i;
+
+  return Object.entries(os.networkInterfaces())
+    .flatMap(([name, ifaceList]) =>
+      (ifaceList || [])
+        .filter((iface) => iface && iface.family === "IPv4" && !iface.internal)
+        .filter((iface) => !String(iface.address || "").startsWith("169.254."))
+        .map((iface) => ({ name, address: iface.address }))
+    )
+    .sort((a, b) => {
+      const aVirtual = virtualAdapterPattern.test(a.name);
+      const bVirtual = virtualAdapterPattern.test(b.name);
+      if (aVirtual !== bVirtual) return aVirtual ? 1 : -1;
+
+      const aWifi = /wi-?fi|wlan/i.test(a.name);
+      const bWifi = /wi-?fi|wlan/i.test(b.name);
+      if (aWifi !== bWifi) return aWifi ? -1 : 1;
+
+      return a.name.localeCompare(b.name);
+    });
+};
 
 mongoose.connect(DB).then(()=>{
   console.log("✓ MongoDB Connected Successfully");
@@ -387,8 +412,22 @@ mongoose.connect(DB).then(()=>{
     console.error("[Cashback] Failed seeding default rule:", err.message);
   });
   startScheduledPaymentsRunner();
-  app.listen(PORT, () => {
+  app.listen(PORT, HOST, () => {
+    const lanCandidates = getLanCandidates();
+    const localIp = lanCandidates[0]?.address;
+
     console.log(`🚀 Server running on http://localhost:${PORT}`);
+    if (localIp) {
+      console.log(`📱 Mobile URL: http://${localIp}:${PORT}`);
+      if (lanCandidates.length > 1) {
+        console.log("📡 Other local URLs:");
+        lanCandidates.slice(1).forEach(({ name, address }) => {
+          console.log(`   - ${name}: http://${address}:${PORT}`);
+        });
+      }
+    } else {
+      console.log("📱 Mobile URL: Could not detect local IP automatically");
+    }
   });
 
 }).catch((err)=>{

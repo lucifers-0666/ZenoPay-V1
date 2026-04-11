@@ -98,10 +98,11 @@
   </style>
 </head>
 <body>
+  <% const isPreviewMode = Boolean(typeof previewMode !== 'undefined' ? previewMode : locals?.previewMode); %>
   <%- include('../partials/header') %>
 
   <main class="page">
-    <% if (previewMode) { %>
+    <% if (isPreviewMode) { %>
       <div style="margin-bottom:12px;padding:12px 14px;border:1px solid #bfdbfe;border-left:4px solid #2563eb;background:#eff6ff;border-radius:10px;color:#1d4ed8;font-size:14px;">
         <strong>Preview mode:</strong> UI is visible without login. For real transfers, please <a href="/login" style="color:#1d4ed8;font-weight:700;">sign in</a>.
       </div>
