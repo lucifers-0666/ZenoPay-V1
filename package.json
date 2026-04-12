@@ -12,6 +12,7 @@
     "check:ejs": "node scripts/check-ejs-templates.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
+    "test:memory": "node --expose-gc --max-old-space-size=512 app.js",
     "test:unit": "jest tests/",
     "test:integration": "jest tests/controllers/ tests/services/",
     "test:middleware": "jest tests/middleware/"
@@ -21,10 +22,12 @@
   "license": "ISC",
   "dependencies": {
     "@azure/storage-blob": "^12.29.1",
+    "archiver": "^7.0.1",
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
+    "csv-stringify": "^6.7.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
@@ -32,6 +35,7 @@
     "express-session": "^1.18.2",
     "express-validator": "^7.0.0",
     "merge-images": "^2.0.0",
+    "mongodb-memory-server": "^11.0.1",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
     "multer-blob-storage": "^1.1.1",

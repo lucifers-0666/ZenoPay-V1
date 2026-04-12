@@ -1,0 +1,76 @@
+name: ZenoPay CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter (ESLint)
+        run: npx eslint Controllers/ Models/ Services/ --ext .js
+
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          NODE_ENV: test
+          MONGO_URI: mongodb://localhost:27017/zenopay-test
+          SESSION_SECRET: ci-test-secret
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          MONGO_URI: mongodb://localhost:27017/zenopay-test
+          SESSION_SECRET: ci-test-secret
+
+      - name: Run full test suite with coverage
+        run: npm test -- --coverage --coverageReporters=lcov
+        env:
+          NODE_ENV: test
+          MONGO_URI: mongodb://localhost:27017/zenopay-test
+          SESSION_SECRET: ci-test-secret
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: true
+
+      - name: Check coverage thresholds
+        run: |
+          node - <<'NODE'
+          const summary = require('./coverage/coverage-summary.json');
+          const lines = summary.total.lines.pct;
+          if (lines < 70) {
+            console.error(`Coverage ${lines}% is below 70% threshold`);
+            process.exit(1);
+          }
+          console.log(`Coverage ${lines}% meets threshold`);
+          NODE

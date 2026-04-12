@@ -230,7 +230,7 @@ const postTransferMoney = async (req, res) => {
     // Check balance
     const currentBalance = parseFloat(sender.Balance.toString());
     if (currentBalance < totalAmount) {
-      return res.status(400).json({ 
+      return res.status(402).json({ 
         success: false, 
         message: "Insufficient Balance." 
       });
@@ -272,49 +272,66 @@ const postTransferMoney = async (req, res) => {
       });
     }
 
-    // Perform the transfer
-    const senderNewBal = currentBalance - totalAmount;
-    const receiverCurrentBal = parseFloat(receiver.Balance.toString());
-    const receiverNewBal = receiverCurrentBal + transferAmount; // Receiver gets amount without charges
+    const session = await require("mongoose").startSession();
+    let history = null;
+    let transactionID = null;
+    let senderHolderName = null;
+    let receiverHolderName = null;
+    let senderNewBal = null;
+    let receiverCurrentBal = null;
+    let receiverNewBal = null;
 
-    sender.Balance = senderNewBal;
-    receiver.Balance = receiverNewBal;
+    try {
+      await session.withTransaction(async () => {
+        const dbSession = session?.clientSession ? session : undefined;
 
-    await sender.save();
-    await receiver.save();
+        // Perform the transfer inside a transaction so any downstream failure rolls back both sides.
+        senderNewBal = currentBalance - totalAmount;
+        receiverCurrentBal = parseFloat(receiver.Balance.toString());
+        receiverNewBal = receiverCurrentBal + transferAmount; // Receiver gets amount without charges
 
-    // Create numeric transaction ID (matches TransactionHistory schema)
-    const transactionID = await generateTransactionId();
+        sender.Balance = senderNewBal;
+        receiver.Balance = receiverNewBal;
 
-    const senderHolderName = sender.FullName || sender.NameOnCard || sender.AccountHolderName || sender.ZenoPayId;
-    const receiverHolderName = receiver.FullName || receiver.NameOnCard || receiver.AccountHolderName || receiver.ZenoPayId;
+        await sender.save(dbSession ? { session: dbSession } : undefined);
+        await receiver.save(dbSession ? { session: dbSession } : undefined);
 
-    // Save transaction history
-    const history = new TransactionHistory({
-      TransactionID: transactionID,
-      SenderBank: sender.BankName,
-      SenderAccountNumber: sender.AccountNumber,
-      SenderHolderName: senderHolderName,
-      SenderBalanceBefore: currentBalance,
-      SenderBalanceAfter: senderNewBal,
-      ReceiverBank: receiver.BankName,
-      ReceiverAccountNumber: receiver.AccountNumber,
-      ReceiverHolderName: receiverHolderName,
-      ReceiverBalanceBefore: receiverCurrentBal,
-      ReceiverBalanceAfter: receiverNewBal,
-      Amount: transferAmount,
-      Description: noteText
-        ? `${noteText} (Charges: ₹${transactionCharges.toFixed(2)})`
-        : `Fund Transfer (Charges: ₹${transactionCharges.toFixed(2)})`,
-      Category: normalizedCategory,
-      Note: noteText,
-    });
+        // Create numeric transaction ID (matches TransactionHistory schema)
+        transactionID = await generateTransactionId();
 
-    await history.save();
+        senderHolderName = sender.FullName || sender.NameOnCard || sender.AccountHolderName || sender.ZenoPayId;
+        receiverHolderName = receiver.FullName || receiver.NameOnCard || receiver.AccountHolderName || receiver.ZenoPayId;
+
+        // Save transaction history
+        history = new TransactionHistory({
+          TransactionID: transactionID,
+          SenderBank: sender.BankName,
+          SenderAccountNumber: sender.AccountNumber,
+          SenderHolderName: senderHolderName,
+          SenderBalanceBefore: currentBalance,
+          SenderBalanceAfter: senderNewBal,
+          ReceiverBank: receiver.BankName,
+          ReceiverAccountNumber: receiver.AccountNumber,
+          ReceiverHolderName: receiverHolderName,
+          ReceiverBalanceBefore: receiverCurrentBal,
+          ReceiverBalanceAfter: receiverNewBal,
+          Amount: transferAmount,
+          Description: noteText
+            ? `${noteText} (Charges: ₹${transactionCharges.toFixed(2)})`
+            : `Fund Transfer (Charges: ₹${transactionCharges.toFixed(2)})`,
+          Category: normalizedCategory,
+          Note: noteText,
+        });
+
+        await history.save(dbSession ? { session: dbSession } : undefined);
+      });
+    } finally {
+      session.endSession();
+    }
 
     const cashbackResult = await processCashback(
       senderUserDoc?._id,
-      history._id,
+      history?._id,
       transferAmount
     );
     const cashbackAmount = Number(cashbackResult?.cashbackAmount || 0);

@@ -30,6 +30,7 @@ const adminAnnouncementController = require("../../Controllers/admin/adminAnnoun
 const adminActivityController = require("../../Controllers/admin/adminActivityController");
 const AdminCashbackController = require("../Controllers/AdminCashbackController");
 const EmailService = require("../../Services/EmailService");
+const ReportIssueController = require("../../Controllers/ReportIssueController");
 
 // ============ LAYOUT MIDDLEWARE ============
 // Default layout for all admin routes (auth routes override below)
@@ -142,6 +143,7 @@ router.post("/kyc/:zenoPayId/resubmission", requirePermission("users", "update")
 
 // ============ SUPPORT & OPERATIONS ROUTES ============
 router.get("/support", requirePermission("users", "view"), AdminOperationsController.getSupportTickets);
+router.get("/support/tickets", requirePermission("users", "view"), ReportIssueController.getAdminTickets);
 router.get("/support/:id", requirePermission("users", "view"), AdminOperationsController.getSupportTicketDetails);
 router.get("/notifications", requirePermission("settings", "view"), adminNotifController.notificationsList);
 router.patch("/notifications/mark-all-read", requirePermission("settings", "update"), adminNotifController.markAllRead);
@@ -259,6 +261,7 @@ router.post("/payouts/:payoutId/reject", requirePermission("transactions", "view
 
 // ============ ANALYTICS & REPORTS ROUTES ============
 router.get("/analytics", requirePermission("reports", "view"), AdminDashboardController.getAnalytics);
+router.get("/analytics/chart-data", requirePermission("reports", "view"), AdminDashboardController.getChartData);
 // TEMP DEBUG ROUTE: remove after /admin/analytics is confirmed stable
 router.get("/analytics/debug", requirePermission("reports", "view"), async (req, res) => {
 	try {

@@ -1,29 +1,63 @@
 // Analytics Dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    loadMetrics();
-    initializeCharts();
-    loadTopMerchants();
-    loadRecentActivity();
+    initializeDashboard().catch(() => {
+        showToast('Failed to load analytics data', 'error');
+    });
 });
 
-function loadMetrics() {
-    document.getElementById('totalRevenue').textContent = formatCurrency(45678900);
-    document.getElementById('txnVolume').textContent = '12,456';
-    document.getElementById('activeMerchants').textContent = '342';
-    document.getElementById('successRate').textContent = '98.3%';
+async function initializeDashboard() {
+    const response = await fetch('/admin/analytics/chart-data', {
+        headers: { 'Accept': 'application/json' }
+    });
+
+    if (!response.ok) {
+        throw new Error('Unable to fetch chart data');
+    }
+
+    const payload = await response.json();
+    if (!payload?.success) {
+        throw new Error(payload?.message || 'Chart data request failed');
+    }
+
+    loadMetrics(payload);
+    initializeCharts(payload);
 }
 
-function initializeCharts() {
+function loadMetrics(payload) {
+    const dailyVolumeData = payload?.dailyTransactionVolume?.datasets?.[0]?.data || [];
+    const typeData = payload?.transactionTypeBreakdown?.datasets?.[0]?.data || [];
+    const weeklyUsers = payload?.weeklyUserRegistrations?.datasets?.[0]?.data || [];
+
+    const totalRevenue = dailyVolumeData.reduce((sum, val) => sum + Number(val || 0), 0);
+    const txnVolume = typeData.reduce((sum, val) => sum + Number(val || 0), 0);
+    const activeMerchants = weeklyUsers.reduce((sum, val) => sum + Number(val || 0), 0);
+
+    const totalRevenueNode = document.getElementById('totalRevenue');
+    const txnVolumeNode = document.getElementById('txnVolume');
+    const activeMerchantsNode = document.getElementById('activeMerchants');
+    const successRateNode = document.getElementById('successRate');
+
+    if (totalRevenueNode) totalRevenueNode.textContent = formatCurrency(totalRevenue);
+    if (txnVolumeNode) txnVolumeNode.textContent = txnVolume.toLocaleString('en-IN');
+    if (activeMerchantsNode) activeMerchantsNode.textContent = activeMerchants.toLocaleString('en-IN');
+    if (successRateNode) successRateNode.textContent = '100%';
+}
+
+function initializeCharts(payload) {
     if (typeof Chart === 'undefined') return;
+
+    const dailyTransactionVolume = payload?.dailyTransactionVolume || { labels: [], datasets: [{ data: [] }] };
+    const transactionTypeBreakdown = payload?.transactionTypeBreakdown || { labels: [], datasets: [{ data: [] }] };
+    const weeklyUserRegistrations = payload?.weeklyUserRegistrations || { labels: [], datasets: [{ data: [] }] };
 
     // Revenue Trend Chart
     new Chart(document.getElementById('revenueChart'), {
         type: 'line',
         data: {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            labels: dailyTransactionVolume.labels,
             datasets: [{
                 label: 'Revenue',
-                data: [10200000, 12500000, 11800000, 13200000],
+                data: dailyTransactionVolume.datasets[0].data,
                 borderColor: 'rgb(79, 70, 229)',
                 backgroundColor: 'rgba(79, 70, 229, 0.1)',
                 tension: 0.4
@@ -36,10 +70,10 @@ function initializeCharts() {
     new Chart(document.getElementById('successRateChart'), {
         type: 'line',
         data: {
-            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            labels: weeklyUserRegistrations.labels,
             datasets: [{
-                label: 'Success Rate (%)',
-                data: [98.5, 98.7, 98.2, 98.3],
+                label: 'New Users',
+                data: weeklyUserRegistrations.datasets[0].data,
                 borderColor: 'rgb(16, 185, 129)',
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 tension: 0.4
@@ -52,91 +86,27 @@ function initializeCharts() {
     new Chart(document.getElementById('paymentMethodsChart'), {
         type: 'doughnut',
         data: {
-            labels: ['UPI', 'Cards', 'Net Banking', 'Wallets'],
+            labels: transactionTypeBreakdown.labels,
             datasets: [{
-                data: [45, 30, 15, 10],
+                data: transactionTypeBreakdown.datasets[0].data,
                 backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444']
             }]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
-
-    // Geographic Distribution Chart
-    new Chart(document.getElementById('geoChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Hyderabad'],
-            datasets: [{
-                label: 'Transactions',
-                data: [3500, 2800, 2200, 1800, 1600],
-                backgroundColor: 'rgba(79, 70, 229, 0.8)'
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-
-    // Peak Hours Chart
-    new Chart(document.getElementById('peakHoursChart'), {
-        type: 'bar',
-        data: {
-            labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM'],
-            datasets: [{
-                label: 'Transactions',
-                data: [200, 450, 800, 650, 900, 550],
-                backgroundColor: 'rgba(245, 158, 11, 0.8)'
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
 }
 
-function loadTopMerchants() {
-    const merchants = [
-        { name: 'UrbanCart Retail', revenue: 18524000, transactions: 8547 },
-        { name: 'Spice Route Kitchen', revenue: 12456000, transactions: 6234 },
-        { name: 'TechMart Electronics', revenue: 9876000, transactions: 4521 },
-        { name: 'Green Valley Grocers', revenue: 8765000, transactions: 5678 },
-        { name: 'StyleHub Fashion', revenue: 7654000, transactions: 3456 }
-    ];
-
-    const html = merchants.map((m, i) => `
-        <div class="ranking-item">
-            <div class="ranking-number">${i + 1}</div>
-            <div class="ranking-info">
-                <div class="ranking-name">${m.name}</div>
-                <div class="ranking-meta">${m.transactions} transactions</div>
-            </div>
-            <div class="ranking-value">${formatCurrency(m.revenue)}</div>
-        </div>
-    `).join('');
-    document.getElementById('topMerchantsList').innerHTML = html;
+async function updateAllCharts() {
+    showToast('Refreshing charts...', 'info');
+    await initializeDashboard();
+    showToast('Charts refreshed', 'success');
 }
-
-function loadRecentActivity() {
-    const activities = [
-        { type: 'transaction', message: 'Large transaction of ₹50,000 from UrbanCart Retail', time: '5 mins ago' },
-        { type: 'merchant', message: 'New merchant "BookWorm Paradise" approved', time: '15 mins ago' },
-        { type: 'dispute', message: 'Dispute raised for transaction TXN-8544', time: '30 mins ago' },
-        { type: 'settlement', message: 'Settlement of ₹2,45,600 processed', time: '1 hour ago' }
-    ];
-
-    const html = activities.map(a => `
-        <div class="activity-item">
-            <div class="activity-icon activity-icon-${a.type}"></div>
-            <div class="activity-content">
-                <div class="activity-message">${a.message}</div>
-                <div class="activity-time">${a.time}</div>
-            </div>
-        </div>
-    `).join('');
-    document.getElementById('recentActivityFeed').innerHTML = html;
-}
-
-function updateAllCharts() { showToast('Updating charts...', 'info'); }
 function toggleChartView(chart) { showToast(`Toggling ${chart} chart view...`, 'info'); }
 function viewAllMerchants() { window.location.href = '/admin/merchants'; }
 function viewAllActivity() { window.location.href = '/admin/activity-log'; }
-function exportReport() { showToast('Exporting analytics report...', 'info'); }
+function exportReport(format = 'csv') {
+    window.location.href = `/admin/reports/export?range=30&format=${encodeURIComponent(format)}`;
+}
 
 function formatCurrency(amount) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount); }
 function showToast(message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast toast-${type}`; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.classList.add('show'), 100); setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000); }

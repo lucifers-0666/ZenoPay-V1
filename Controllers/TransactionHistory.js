@@ -30,6 +30,14 @@ const parseDateInput = (value) => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
+const getPagination = (query = {}) => {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 20));
+  const skip = (page - 1) * limit;
+
+  return { page, limit, skip };
+};
+
 const getSessionIdentity = (req) => ({
   id: req.session?.user?._id || null,
   zenoPayId:
@@ -108,7 +116,7 @@ const fetchAccountTransactions = async ({ accountNumbers, normalizedAccountSet }
       { SenderAccountNumber: { $in: accountNumbers } },
       { ReceiverAccountNumber: { $in: accountNumbers } },
     ],
-  }).sort({ TransactionTime: -1 });
+  }).sort({ TransactionTime: -1 }).lean();
 
   if (!transactions.length && normalizedAccountSet.size > 0) {
     const candidates = await TransactionHistory.find({}).sort({ TransactionTime: -1 }).lean();
@@ -270,6 +278,7 @@ const getTransactionHistory = async (req, res) => {
   try {
     const { userAccounts, accountNumbers, normalizedAccountSet } = await getUserAccountBundle(req);
     const identity = getSessionIdentity(req);
+    const pagination = getPagination(req.query || {});
 
     const [bankTransactions, walletBundle] = await Promise.all([
       fetchAccountTransactions({ accountNumbers, normalizedAccountSet }),
@@ -288,12 +297,16 @@ const getTransactionHistory = async (req, res) => {
       (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     );
 
+    const filteredTransactions = applyHistoryFilters(allTransactions, req.query || {});
+    const totalCount = filteredTransactions.length;
+    const paginatedTransactions = filteredTransactions.slice(pagination.skip, pagination.skip + pagination.limit);
+
     const groupedTransactions = {};
     const groupedByDate = {};
     let totalCredit = 0;
     let totalDebit = 0;
 
-    allTransactions.forEach((tx) => {
+    filteredTransactions.forEach((tx) => {
       const date = new Date(tx.createdAt || Date.now());
       const monthYear = date.toLocaleDateString("en-US", {
         year: "numeric",
@@ -328,12 +341,54 @@ const getTransactionHistory = async (req, res) => {
       }
     });
 
+    const visibleGroupedTransactions = {};
+    const visibleGroupedByDate = {};
+
+    paginatedTransactions.forEach((tx) => {
+      const date = new Date(tx.createdAt || Date.now());
+      const monthYear = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+      const dateKey = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+      });
+
+      if (!visibleGroupedTransactions[monthYear]) {
+        visibleGroupedTransactions[monthYear] = {
+          transactions: [],
+          totalCredit: 0,
+          totalDebit: 0,
+          count: 0,
+        };
+      }
+      if (!visibleGroupedByDate[dateKey]) visibleGroupedByDate[dateKey] = [];
+
+      visibleGroupedTransactions[monthYear].transactions.push(tx);
+      visibleGroupedTransactions[monthYear].count += 1;
+      visibleGroupedByDate[dateKey].push(tx);
+
+      if (tx.isCredit) {
+        visibleGroupedTransactions[monthYear].totalCredit += Number(tx.amount || 0);
+      } else {
+        visibleGroupedTransactions[monthYear].totalDebit += Number(tx.amount || 0);
+      }
+    });
+
     let accountBalance = 0;
     (userAccounts || []).forEach((acc) => {
       accountBalance += parseFloat(acc.Balance || 0);
     });
 
-    const totalCount = allTransactions.length;
+    const pageCredit = paginatedTransactions
+      .filter((tx) => tx.isCredit)
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    const pageDebit = paginatedTransactions
+      .filter((tx) => !tx.isCredit)
+      .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
     const balance = accountBalance;
 
     res.render("transaction-history", {
@@ -342,18 +397,28 @@ const getTransactionHistory = async (req, res) => {
       user: req.session.user,
       qrCode: req.session.qrCode || null,
       isLoggedIn: true,
-      groupedTransactions: groupedTransactions,
-      groupedByDate: groupedByDate,
+      groupedTransactions: visibleGroupedTransactions,
+      groupedByDate: visibleGroupedByDate,
       hasTransactions: totalCount > 0,
       totalCount: totalCount,
       totalCredit: totalCredit,
       totalDebit: totalDebit,
+      pageCredit,
+      pageDebit,
       balance: balance,
       totalTransactions: totalCount,
       totalAmount: totalCredit + totalDebit,
       moneyIn: totalCredit,
       moneyOut: totalDebit,
-      allTransactions: allTransactions,
+      allTransactions: paginatedTransactions,
+      pagination: {
+        page: pagination.page,
+        limit: pagination.limit,
+        total: totalCount,
+        totalPages: Math.max(1, Math.ceil(totalCount / pagination.limit)),
+        hasNextPage: pagination.skip + pagination.limit < totalCount,
+        hasPrevPage: pagination.page > 1,
+      },
     });
   } catch (error) {
     console.error("Error fetching transaction history:", error);
@@ -689,6 +754,7 @@ const getTransactionHistoryData = async (req, res) => {
   try {
     const { accountNumbers, normalizedAccountSet } = await getUserAccountBundle(req);
     const identity = getSessionIdentity(req);
+    const pagination = getPagination(req.query || {});
 
     const [bankTransactions, walletBundle] = await Promise.all([
       fetchAccountTransactions({ accountNumbers, normalizedAccountSet }),
@@ -702,6 +768,7 @@ const getTransactionHistoryData = async (req, res) => {
       .filter(Boolean);
 
     const filteredRows = applyHistoryFilters(mappedRows, req.query || {});
+    const paginatedRows = filteredRows.slice(pagination.skip, pagination.skip + pagination.limit);
 
     const moneyIn = filteredRows
       .filter((tx) => tx.isCredit)
@@ -713,12 +780,20 @@ const getTransactionHistoryData = async (req, res) => {
     return res.json({
       success: true,
       data: {
-        rows: filteredRows,
+        rows: paginatedRows,
         summary: {
           totalTransactions: filteredRows.length,
           totalAmount: moneyIn + moneyOut,
           moneyIn,
           moneyOut,
+        },
+        pagination: {
+          page: pagination.page,
+          limit: pagination.limit,
+          total: filteredRows.length,
+          totalPages: Math.max(1, Math.ceil(filteredRows.length / pagination.limit)),
+          hasNextPage: pagination.skip + pagination.limit < filteredRows.length,
+          hasPrevPage: pagination.page > 1,
         },
       },
     });

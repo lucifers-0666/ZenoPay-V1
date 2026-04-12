@@ -145,7 +145,8 @@ chartFilters.forEach(filter => {
   filter.addEventListener('change', function() {
     const period = this.value;
     console.log('Loading data for period:', period);
-    // TODO: Fetch and update chart data based on selected period
+    const days = Number(period) || 30;
+    refreshChartData('transactionChart', days);
   });
 });
 
@@ -154,30 +155,86 @@ chartFilters.forEach(filter => {
  * Create bar chart
  */
 function createBarChart(canvasId, data, label) {
-  // TODO: Implement using Chart.js
-  console.log('Creating bar chart:', label);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return null;
+
+  return new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: data?.labels || [],
+      datasets: [{
+        label,
+        data: data?.values || [],
+        backgroundColor: 'rgba(59, 130, 246, 0.75)'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
 
 /**
  * Create line chart
  */
 function createLineChart(canvasId, data, label) {
-  // TODO: Implement using Chart.js
-  console.log('Creating line chart:', label);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return null;
+
+  return new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: data?.labels || [],
+      datasets: [{
+        label,
+        data: data?.values || [],
+        borderColor: '#3B82F6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
 
 /**
  * Create pie chart
  */
 function createPieChart(canvasId, data, label) {
-  // TODO: Implement using Chart.js
-  console.log('Creating pie chart:', label);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return null;
+
+  return new Chart(canvas, {
+    type: 'pie',
+    data: {
+      labels: data?.labels || [],
+      datasets: [{
+        label,
+        data: data?.values || [],
+        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 }
 
 /**
  * Refresh chart data
  */
-function refreshChartData(chartId) {
-  // TODO: Implement chart data refresh
-  console.log('Refreshing chart:', chartId);
+async function refreshChartData(chartId, days = 30) {
+  try {
+    const response = await fetch(`/admin/dashboard/statistics/chart-data?type=transactions&days=${encodeURIComponent(days)}`);
+    if (!response.ok) return;
+    const payload = await response.json();
+
+    if (!payload?.labels || !payload?.values) return;
+    updateChartData(chartId, payload.values);
+
+    const chart = Chart.getChart(chartId);
+    if (chart) {
+      chart.data.labels = payload.labels;
+      chart.update();
+    }
+  } catch (error) {
+    console.error('Failed to refresh chart:', error);
+  }
 }

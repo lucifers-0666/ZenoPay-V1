@@ -176,9 +176,11 @@ const processTopUp = async (req, res) => {
     const amount = toAmount(req.body?.amount);
     const errors = {};
 
-    if (!Number.isFinite(amount)) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       errors.amount = "Please enter a valid amount.";
-    } else if (amount < 10 || amount > 100000) {
+    } else if (amount > 100000) {
+      errors.amount = "Exceeds limit";
+    } else if (amount < 10) {
       errors.amount = "Amount must be between ₹10 and ₹100,000.";
     }
 

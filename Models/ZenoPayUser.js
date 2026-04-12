@@ -55,6 +55,13 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
     trim: true,
   },
 
+  referralCode: {
+    type: String,
+    default: "",
+    trim: true,
+    uppercase: true,
+  },
+
   avatar: {
     type: String,
     default: "",
@@ -404,6 +411,9 @@ const ZenoPayDetailsSchema = new mongoose.Schema({
   },
 
 }, { timestamps: true });
+
+ZenoPayDetailsSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $type: "string", $ne: "" } } });
+ZenoPayDetailsSchema.index({ referralCode: 1 });
 
 const kycLegacyToUi = {
   verified: "verified",

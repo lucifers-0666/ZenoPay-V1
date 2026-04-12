@@ -4,8 +4,10 @@ const TransactionHistory = require('../Models/TransactionHistory');
 const Receipt = require('../Models/Receipt');
 const receiptPdfGenerator = require('../Services/receiptPdfGenerator');
 const EmailService = require('../Services/EmailService');
+const Transaction = require('../Models/Transaction');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+const archiver = require('archiver');
 
 const RECEIPT_ID_REGEX = /^ZP-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 const OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
@@ -459,19 +461,69 @@ exports.verifyReceiptApi = async (req, res) => {
 exports.downloadBulkReceipts = async (req, res) => {
   try {
     const { receiptIds } = req.body;
-    
+    const userId = req.session?.user?._id;
+
     if (!receiptIds || !Array.isArray(receiptIds) || receiptIds.length === 0) {
       return res.status(400).json({ success: false, message: 'No receipts selected' });
     }
-    
-    // TODO: Generate ZIP file with all receipts
-    res.json({
-      success: true,
-      message: 'Bulk download started',
-      downloadUrl: `/downloads/receipts-bulk-${Date.now()}.zip`
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(String(userId))) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const validIds = receiptIds
+      .map((id) => String(id || '').trim())
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+
+    if (validIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid receipt IDs' });
+    }
+
+    const transactions = await Transaction.find({
+      _id: { $in: validIds },
+      $or: [
+        { senderId: userId },
+        { receiverId: userId },
+        { userId: userId },
+      ],
+    }).lean();
+
+    if (!transactions.length) {
+      return res.status(404).json({ success: false, message: 'No matching receipts found' });
+    }
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="receipts.zip"');
+
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    archive.on('error', (err) => {
+      console.error('[Receipts] ZIP generation error:', err);
+      if (!res.headersSent) {
+        return res.status(500).json({ success: false, message: 'Failed to generate ZIP' });
+      }
+      res.end();
+      return null;
     });
+
+    archive.pipe(res);
+
+    transactions.forEach((txn) => {
+      const receiptContent = JSON.stringify({
+        receiptId: `receipt-${txn._id}`,
+        generatedAt: new Date().toISOString(),
+        transaction: txn,
+      }, null, 2);
+
+      archive.append(receiptContent, { name: `receipt-${txn._id}.json` });
+    });
+
+    await archive.finalize();
   } catch (error) {
     console.error('[Receipts] Error downloading bulk receipts:', error);
     res.status(500).json({ success: false, message: 'Failed to download receipts' });
   }
 };
+
+exports.bulkDownloadReceipts = exports.downloadBulkReceipts;

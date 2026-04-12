@@ -8,6 +8,8 @@ const Wallet = require("../../Models/Wallet");
 const ContactSubmission = require("../../Models/ContactSubmission");
 const AdminSettings = require("../../Models/AdminSettings");
 const PaymentGatewaySettings = require("../../Models/PaymentGatewaySettings");
+const { stringify } = require("csv-stringify/sync");
+const PDFDocument = require("pdfkit");
 
 const toNumber = (value) => {
   if (value === null || value === undefined) return 0;
@@ -2004,9 +2006,127 @@ const getReports = async (req, res) => {
   }
 };
 
+// GET Analytics chart data API (Chart.js ready)
+const getChartData = async (req, res) => {
+  try {
+    const now = new Date();
+
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+
+    const ninetyDaysAgo = new Date(now);
+    ninetyDaysAgo.setHours(0, 0, 0, 0);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 89);
+
+    // Daily transaction volume (last 30 days)
+    const dailyVolumeRaw = await WalletTransaction.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          total: { $sum: { $ifNull: ["$amount", 0] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    const dayMap = new Map((dailyVolumeRaw || []).map((row) => [String(row._id), Number(row.total || 0)]));
+    const dayLabels = [];
+    const dayValues = [];
+
+    for (let i = 29; i >= 0; i -= 1) {
+      const d = new Date(now);
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      dayLabels.push(d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }));
+      dayValues.push(Number(dayMap.get(key) || 0));
+    }
+
+    // Transaction type breakdown
+    const typeRaw = await WalletTransaction.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $toLower: { $ifNull: ["$type", "other"] } },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const typeBuckets = { transfer: 0, topup: 0, withdrawal: 0 };
+    (typeRaw || []).forEach((row) => {
+      const key = String(row._id || "");
+      const count = Number(row.count || 0);
+      if (/(send|transfer|p2p|receive)/i.test(key)) typeBuckets.transfer += count;
+      else if (/(topup|top-up|add)/i.test(key)) typeBuckets.topup += count;
+      else if (/(withdraw|withdrawal)/i.test(key)) typeBuckets.withdrawal += count;
+    });
+
+    // New users per week (last 90 days)
+    const weeklyUsersRaw = await ZenoPayUser.aggregate([
+      {
+        $match: {
+          Role: "user",
+          RegistrationDate: { $gte: ninetyDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $isoWeekYear: "$RegistrationDate" },
+            week: { $isoWeek: "$RegistrationDate" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.week": 1 } },
+    ]);
+
+    const weeklyLabels = (weeklyUsersRaw || []).map((row) => `W${row._id.week}-${row._id.year}`);
+    const weeklyValues = (weeklyUsersRaw || []).map((row) => Number(row.count || 0));
+
+    return res.json({
+      success: true,
+      dailyTransactionVolume: {
+        labels: dayLabels,
+        datasets: [
+          {
+            label: "Daily Transaction Volume",
+            data: dayValues,
+          },
+        ],
+      },
+      transactionTypeBreakdown: {
+        labels: ["Transfer", "Topup", "Withdrawal"],
+        datasets: [
+          {
+            label: "Transaction Type Breakdown",
+            data: [typeBuckets.transfer, typeBuckets.topup, typeBuckets.withdrawal],
+          },
+        ],
+      },
+      weeklyUserRegistrations: {
+        labels: weeklyLabels,
+        datasets: [
+          {
+            label: "New User Registrations",
+            data: weeklyValues,
+          },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error("Chart data error:", error);
+    return res.status(500).json({ success: false, message: "Failed to load chart data" });
+  }
+};
+
 // Export Reports
 const exportReports = async (req, res) => {
   try {
+    const format = String(req.query.format || "csv").toLowerCase();
     const range = ["7", "30", "90", "365"].includes(String(req.query.range || ""))
       ? String(req.query.range)
       : "30";
@@ -2034,43 +2154,65 @@ const exportReports = async (req, res) => {
         .lean(),
     ]);
 
-    const rows = [
-      ["section", "date", "id", "name", "email", "amount", "status", "type"],
-      ...transactions.map((t) => [
-        "transaction",
-        t.TransactionTime ? new Date(t.TransactionTime).toISOString() : "",
-        t.TransactionID || t._id?.toString() || "",
-        t.SenderHolderName || t.ReceiverHolderName || "",
-        t.SenderAccountNumber || "",
-        Number(t.Amount || 0),
-        t.Status || "",
-        t.Type || t.TransactionType || t.Description || "",
-      ]),
-      ...users.map((u) => [
-        "user",
-        (u.RegistrationDate || u.createdAt) ? new Date(u.RegistrationDate || u.createdAt).toISOString() : "",
-        u.ZenoPayID || u._id?.toString() || "",
-        u.FullName || "",
-        u.Email || "",
-        "",
-        u.Status || "",
-        "",
-      ]),
-      ...merchants.map((m) => [
-        "merchant",
-        m.createdAt ? new Date(m.createdAt).toISOString() : "",
-        m._id?.toString() || "",
-        m.BusinessName || "",
-        m.Email || "",
-        Number(m.TotalVolume || 0),
-        m.Status || (m.IsActive ? "active" : "inactive"),
-        m.BusinessCategory || m.Category || "",
-      ]),
-    ];
+    const transactionRows = (transactions || []).map((t) => {
+      const txDate = t.TransactionTime ? new Date(t.TransactionTime) : (t.createdAt ? new Date(t.createdAt) : new Date());
+      const rawType = String(t.Type || t.TransactionType || t.Description || "transaction").toLowerCase();
+      const type = /top/.test(rawType)
+        ? "topup"
+        : /with/.test(rawType)
+          ? "withdrawal"
+          : "transfer";
+      const amount = Number(toNumber(t.Amount || t.amount || 0));
+      const status = String(t.Status || t.status || "pending");
+      const referenceId = t.TransactionID || t.reference || t._id?.toString() || "";
+      const counterparty = t.ReceiverHolderName || t.SenderHolderName || t.ReceiverAccountNumber || t.SenderAccountNumber || "N/A";
 
-    const csv = rows
-      .map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
-      .join("\n");
+      return {
+        Date: txDate.toLocaleDateString("en-IN"),
+        Type: type,
+        Amount: amount,
+        Status: status,
+        "Reference ID": referenceId,
+        Counterparty: counterparty,
+      };
+    });
+
+    if (format === "pdf") {
+      const doc = new PDFDocument({ margin: 30, size: "A4" });
+      const filename = `admin-reports-${range}d.pdf`;
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      doc.pipe(res);
+
+      doc.fontSize(16).text("ZenoPay Admin Transaction Report", { align: "center" });
+      doc.moveDown(0.5);
+      doc.fontSize(10).text(`Range: Last ${range} days | Generated: ${new Date().toLocaleString("en-IN")}`, { align: "center" });
+      doc.moveDown(1.2);
+
+      const headers = ["Date", "Type", "Amount", "Status", "Reference ID", "Counterparty"];
+      doc.fontSize(10).text(headers.join(" | "));
+      doc.moveDown(0.3);
+
+      transactionRows.slice(0, 400).forEach((row) => {
+        const line = [row.Date, row.Type, row.Amount, row.Status, row["Reference ID"], row.Counterparty]
+          .map((v) => String(v ?? ""))
+          .join(" | ");
+
+        if (doc.y > 760) {
+          doc.addPage();
+        }
+        doc.fontSize(9).text(line, { lineBreak: true });
+      });
+
+      doc.end();
+      return;
+    }
+
+    const csv = stringify(transactionRows, {
+      header: true,
+      columns: ["Date", "Type", "Amount", "Status", "Reference ID", "Counterparty"],
+    });
 
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", `attachment; filename="admin-reports-${range}d.csv"`);
@@ -2211,6 +2353,7 @@ module.exports = {
   getActivityMonitor,
   getLiveActivities,
   getAnalytics,
+  getChartData,
   getReports,
   exportReports,
   getSettings,

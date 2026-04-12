@@ -85,4 +85,8 @@ const TransactionHistorySchema = new mongoose.Schema({
   },
 });
 
+TransactionHistorySchema.index({ SenderAccountNumber: 1, TransactionTime: -1 });
+TransactionHistorySchema.index({ ReceiverAccountNumber: 1, Status: 1 });
+TransactionHistorySchema.index({ Status: 1, TransactionTime: -1 });
+
 module.exports = mongoose.model("TransactionHistory", TransactionHistorySchema);

@@ -140,7 +140,10 @@ function clearFilters() { document.getElementById('searchInput').value = ''; doc
 function filterByTime(range) { document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); }
 function viewTransaction(id) { window.location.href = '/admin/transactions/details?id=' + id; }
 function refreshTransactions() { showToast('Refreshing transactions...', 'info'); setTimeout(() => { showToast('Transactions updated', 'success'); }, 1000); }
-function exportTransactions() { showToast('Exporting transactions...', 'info'); }
+function exportTransactions(format = 'csv') {
+    showToast(`Exporting transactions as ${format.toUpperCase()}...`, 'info');
+    window.location.href = `/admin/reports/export?range=30&format=${encodeURIComponent(format)}`;
+}
 
 function formatCurrency(amount) { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount); }
 function formatDateTime(dateString) { const date = new Date(dateString); return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); }

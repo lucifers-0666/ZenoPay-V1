@@ -5,13 +5,21 @@ module.exports = {
   collectCoverageFrom: [
     'Controllers/**/*.js',
     'Services/**/*.js',
-    'Middleware/**/*.js',
-    '!**/*.test.js',
-    '!**/node_modules/**',
+    'Models/**/*.js',
   ],
-  testTimeout: 10000,
+  coverageThreshold: {
+    global: {
+      lines: 70,
+      functions: 70,
+      branches: 60,
+      statements: 70,
+    },
+  },
+  coveragePathIgnorePatterns: ['/node_modules/', '/scripts/', '/public/'],
+  testTimeout: 30000,
   verbose: true,
   forceExit: true,
   detectOpenHandles: true,
+  globalSetup: '<rootDir>/tests/setup.js',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 };

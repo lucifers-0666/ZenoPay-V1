@@ -383,6 +383,8 @@ const DB = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || "0.0.0.0";
 
+module.exports = app;
+
 const getLanCandidates = () => {
   const virtualAdapterPattern = /(virtual|vbox|vmware|hyper-v|loopback|wsl)/i;
 
@@ -406,31 +408,33 @@ const getLanCandidates = () => {
     });
 };
 
-mongoose.connect(DB).then(()=>{
-  console.log("✓ MongoDB Connected Successfully");
-  ensureDefaultRule().catch((err) => {
-    console.error("[Cashback] Failed seeding default rule:", err.message);
-  });
-  startScheduledPaymentsRunner();
-  app.listen(PORT, HOST, () => {
-    const lanCandidates = getLanCandidates();
-    const localIp = lanCandidates[0]?.address;
+if (require.main === module) {
+  mongoose.connect(DB).then(()=>{
+    console.log("✓ MongoDB Connected Successfully");
+    ensureDefaultRule().catch((err) => {
+      console.error("[Cashback] Failed seeding default rule:", err.message);
+    });
+    startScheduledPaymentsRunner();
+    app.listen(PORT, HOST, () => {
+      const lanCandidates = getLanCandidates();
+      const localIp = lanCandidates[0]?.address;
 
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    if (localIp) {
-      console.log(`📱 Mobile URL: http://${localIp}:${PORT}`);
-      if (lanCandidates.length > 1) {
-        console.log("📡 Other local URLs:");
-        lanCandidates.slice(1).forEach(({ name, address }) => {
-          console.log(`   - ${name}: http://${address}:${PORT}`);
-        });
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      if (localIp) {
+        console.log(`📱 Mobile URL: http://${localIp}:${PORT}`);
+        if (lanCandidates.length > 1) {
+          console.log("📡 Other local URLs:");
+          lanCandidates.slice(1).forEach(({ name, address }) => {
+            console.log(`   - ${name}: http://${address}:${PORT}`);
+          });
+        }
+      } else {
+        console.log("📱 Mobile URL: Could not detect local IP automatically");
       }
-    } else {
-      console.log("📱 Mobile URL: Could not detect local IP automatically");
-    }
-  });
+    });
 
-}).catch((err)=>{
-  console.error("❌ MongoDB connection failed:", err.message);
-  console.error("⚠️  Server starting without database (limited functionality)");
-});
+  }).catch((err)=>{
+    console.error("❌ MongoDB connection failed:", err.message);
+    console.error("⚠️  Server starting without database (limited functionality)");
+  });
+}

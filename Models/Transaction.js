@@ -8,6 +8,18 @@ const TransactionSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    senderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ZenoPayDetails",
+      default: null,
+      index: true,
+    },
+    receiverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ZenoPayDetails",
+      default: null,
+      index: true,
+    },
     merchant: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Merchant",
@@ -72,5 +84,11 @@ const TransactionSchema = new mongoose.Schema(
     timestamps: { createdAt: true, updatedAt: false },
   }
 );
+
+TransactionSchema.index({ createdAt: -1 });
+TransactionSchema.index({ senderId: 1, createdAt: -1 });
+TransactionSchema.index({ receiverId: 1, status: 1 });
+TransactionSchema.index({ userId: 1, createdAt: -1 });
+TransactionSchema.index({ userId: 1, status: 1 });
 
 module.exports = mongoose.model("Transaction", TransactionSchema);
