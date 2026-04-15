@@ -141,6 +141,23 @@ exports.getDisputesPage = async (req, res) => {
   }
 };
 
+exports.getDisputes = async (req, res) => {
+  try {
+    const userId = getSessionUserId(req);
+    if (!userId || !isValidObjectId(userId)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const disputes = await Dispute.find({ userId })
+      .sort({ createdAt: -1 });
+
+    return res.json({ success: true, disputes });
+  } catch (error) {
+    console.error('Error fetching disputes:', error);
+    return res.status(500).json({ success: false, message: 'Failed to load disputes' });
+  }
+};
+
 exports.getDisputeDetail = async (req, res) => {
   try {
     const userId = getSessionUserId(req);
@@ -301,32 +318,34 @@ exports.addDisputeInformation = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized', data: null });
     }
 
-    const { disputeId } = req.params;
-    const { message } = req.body;
+    const disputeId = req.params?.disputeId || req.body?.disputeId;
+    const info = req.body?.info || req.body?.message;
 
     if (!isValidObjectId(disputeId)) {
       return res.status(400).json({ success: false, message: 'Invalid dispute ID', data: null });
     }
 
-    if (!String(message || '').trim()) {
-      return res.status(400).json({ success: false, message: 'Message is required', data: null });
+    if (!String(info || '').trim()) {
+      return res.status(400).json({ success: false, message: 'Info is required', data: null });
     }
 
-    const dispute = await Dispute.findOne({ _id: disputeId, userId });
+    const dispute = await Dispute.findOneAndUpdate(
+      { _id: disputeId, userId },
+      {
+        $set: { additionalInfo: String(info).trim() },
+        $push: { timeline: { action: 'info_added', by: 'user', at: new Date() } },
+      },
+      { new: true }
+    );
+
     if (!dispute) {
       return res.status(404).json({ success: false, message: 'Dispute not found', data: null });
     }
 
-    dispute.additionalInfo = dispute.additionalInfo
-      ? `${dispute.additionalInfo}\n${String(message).trim()}`
-      : String(message).trim();
-    dispute.timeline.push({ action: 'additional_info_added', by: 'user', at: new Date() });
-
-    await dispute.save();
-
     res.json({
       success: true,
       message: 'Information added successfully',
+      dispute,
       data: dispute,
     });
   } catch (error) {
@@ -342,25 +361,29 @@ exports.withdrawDispute = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Unauthorized', data: null });
     }
 
-    const { disputeId } = req.params;
+    const disputeId = req.params?.disputeId || req.body?.disputeId;
 
     if (!isValidObjectId(disputeId)) {
       return res.status(400).json({ success: false, message: 'Invalid dispute ID', data: null });
     }
 
-    const dispute = await Dispute.findOne({ _id: disputeId, userId });
+    const dispute = await Dispute.findOneAndUpdate(
+      { _id: disputeId, userId, status: 'open' },
+      {
+        $set: { status: 'rejected' },
+        $push: { timeline: { action: 'withdrawn', by: 'user', at: new Date() } },
+      },
+      { new: true }
+    );
+
     if (!dispute) {
-      return res.status(404).json({ success: false, message: 'Dispute not found', data: null });
+      return res.status(404).json({ success: false, message: 'Not found or already closed', data: null });
     }
-
-    dispute.status = 'rejected';
-    dispute.timeline.push({ action: 'withdrawn', by: 'user', at: new Date() });
-
-    await dispute.save();
 
     res.json({
       success: true,
       message: 'Dispute withdrawn successfully',
+      dispute,
       data: dispute,
     });
   } catch (error) {

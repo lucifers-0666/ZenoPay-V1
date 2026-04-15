@@ -120,6 +120,7 @@ const submitTicket = async (req, res) => {
     res.json({
       success: true,
       message: 'Your issue has been submitted successfully',
+      ticket,
       data: ticket,
       ticketNumber: ticket.ticketNumber,
     });
@@ -207,6 +208,7 @@ const saveDraft = async (req, res) => {
     res.json({
       success: true,
       message: 'Draft saved successfully',
+      draft,
       data: draft,
     });
   } catch (error) {
@@ -229,6 +231,7 @@ const getTickets = async (req, res) => {
     return res.json({
       success: true,
       message: 'Tickets fetched successfully',
+      tickets,
       data: tickets,
     });
   } catch (error) {
@@ -254,6 +257,7 @@ const getTicketById = async (req, res) => {
     return res.json({
       success: true,
       message: 'Ticket fetched successfully',
+      ticket,
       data: ticket,
     });
   } catch (error) {

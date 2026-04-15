@@ -39,27 +39,27 @@ if (typeof jest !== 'undefined' && typeof jest.mock === 'function') {
 }
 
 const clearAllCollections = async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    // eslint-disable-next-line no-await-in-loop
-    await collections[key].deleteMany({});
-  }
+  const collections = Object.values(mongoose.connection.collections || {});
+  await Promise.all(collections.map((collection) => collection.deleteMany({})));
 };
 
-if (typeof beforeAll === 'function' && typeof afterAll === 'function' && typeof afterEach === 'function') {
+if (typeof beforeAll === 'function' && typeof afterAll === 'function' && typeof beforeEach === 'function') {
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    const uri = mongod.getUri();
+    try {
+      mongod = await MongoMemoryServer.create();
+      const uri = mongod.getUri();
 
-    await mongoose.connect(uri);
+      await mongoose.connect(uri);
 
-    global.__MONGO_URI__ = uri;
-    global.__DB_AVAILABLE__ = true;
-
-    await clearAllCollections();
+      global.__MONGO_URI__ = uri;
+      global.__DB_AVAILABLE__ = true;
+    } catch (error) {
+      console.error('Failed to initialize in-memory MongoDB for tests:', error);
+      throw error;
+    }
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     if (mongoose.connection.readyState === 1) {
       await clearAllCollections();
     }
@@ -68,7 +68,6 @@ if (typeof beforeAll === 'function' && typeof afterAll === 'function' && typeof 
   afterAll(async () => {
     try {
       if (mongoose.connection.readyState !== 0) {
-        await mongoose.connection.dropDatabase();
         await mongoose.disconnect();
       }
     } finally {
@@ -80,4 +79,12 @@ if (typeof beforeAll === 'function' && typeof afterAll === 'function' && typeof 
   });
 }
 
-module.exports = async () => {};
+async function globalSetup() {
+  return;
+}
+
+module.exports = globalSetup;
+
+Object.defineProperty(module.exports, 'mongod', {
+  get: () => mongod,
+});

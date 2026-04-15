@@ -97,48 +97,30 @@ const getPaymentMethodsPage = async (req, res) => {
 const setDefaultPaymentMethod = async (req, res) => {
   try {
     const { methodId, methodType } = req.body;
+
+    if (!methodId || !methodType) {
+      return res.status(400).json({ success: false, message: 'methodId and methodType are required' });
+    }
+
     const userId = resolveUserIdFromSession(req);
 
     if (!userId) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    if (!methodId || !methodType) {
-      return res.status(400).json({ success: false, message: "Invalid request" });
-    }
+    await ZenoPayUser.updateOne(
+      { _id: userId },
+      { $set: { 'paymentMethods.$[].isDefault': false } }
+    );
 
-    const user = await ZenoPayUser.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    if (!Array.isArray(user.paymentMethods) || user.paymentMethods.length === 0) {
-      return res.status(404).json({ success: false, message: "No payment methods found" });
-    }
-
-    let matched = false;
-    user.paymentMethods = user.paymentMethods.map((method) => {
-      const isTarget =
-        String(method.methodId) === String(methodId) &&
-        String(method.methodType) === String(methodType);
-
-      if (isTarget) matched = true;
-
-      return {
-        ...method.toObject?.() || method,
-        isDefault: isTarget,
-      };
-    });
-
-    if (!matched) {
-      return res.status(404).json({ success: false, message: "Payment method not found" });
-    }
-
-    await user.save();
+    await ZenoPayUser.updateOne(
+      { _id: userId, 'paymentMethods.methodId': methodId, 'paymentMethods.methodType': methodType },
+      { $set: { 'paymentMethods.$.isDefault': true } }
+    );
 
     res.json({
       success: true,
-      message: `${methodType} set as default`,
+      message: 'Default payment method updated',
     });
   } catch (error) {
     console.error("Error setting default payment method:", error);
@@ -149,40 +131,32 @@ const setDefaultPaymentMethod = async (req, res) => {
 // POST: Remove Payment Method
 const removePaymentMethod = async (req, res) => {
   try {
-    const { methodId, methodType } = req.body || {};
+    const { methodId } = req.body || {};
+
+    if (!methodId) {
+      return res.status(400).json({ success: false, message: 'methodId is required' });
+    }
+
     const userId = resolveUserIdFromSession(req);
 
     if (!userId) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    if (!methodId || !methodType) {
-      return res.status(400).json({ success: false, message: "Invalid request" });
-    }
-
-    const result = await ZenoPayUser.updateOne(
+    await ZenoPayUser.updateOne(
       { _id: userId },
       {
         $pull: {
           paymentMethods: {
-            methodId: String(methodId),
-            methodType: String(methodType),
+            methodId,
           },
         },
       }
     );
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({ success: false, message: "Payment method not found" });
-    }
-
     res.json({
       success: true,
-      message: `${methodType} removed successfully`,
+      message: 'Payment method removed',
     });
   } catch (error) {
     console.error("Error removing payment method:", error);
