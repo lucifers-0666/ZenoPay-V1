@@ -23,7 +23,18 @@ if (typeof jest !== 'undefined' && typeof jest.mock === 'function') {
   }));
 
   jest.mock('../Services/smsService', () => ({
+    twilioAccountSid: 'test-sid',
     sendSMS: jest.fn().mockResolvedValue(true),
+    sendOTP: jest.fn().mockResolvedValue({ success: true, service: 'twilio' }),
+    sendTransactionNotification: jest.fn().mockResolvedValue({ success: true, service: 'twilio' }),
+    sendSecurityAlert: jest.fn().mockResolvedValue({ success: true, service: 'twilio' }),
+    testConnection(service = 'twilio') {
+      if (service === 'twilio' && !this.twilioAccountSid) {
+        return Promise.resolve({ success: false, error: 'Twilio credentials not configured' });
+      }
+
+      return Promise.resolve({ success: true, gateway: service });
+    },
   }));
 }
 

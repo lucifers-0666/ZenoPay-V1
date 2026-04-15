@@ -146,7 +146,10 @@ const getPermissions = (role) => {
  */
 const hasPermission = (role, resource, action) => {
   const permissions = rolePermissions[role];
-  return permissions && permissions[resource] && permissions[resource].includes(action);
+  if (!permissions || !permissions[resource]) {
+    return false;
+  }
+  return permissions[resource].includes(action);
 };
 
 /**

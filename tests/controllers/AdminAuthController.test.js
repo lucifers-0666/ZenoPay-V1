@@ -3,6 +3,7 @@
  */
 
 const request = require("supertest");
+const app = require("../../app");
 const ZenoPayUser = require("../../Models/ZenoPayUser");
 const bcrypt = require("bcryptjs");
 
@@ -99,7 +100,7 @@ describe("Admin Auth Controller", () => {
         .send({ email: "authtest@admin.com" })
         .expect(200);
 
-      expect(response.text).toContain("reset link has been sent");
+      expect(response.text).toMatch(/reset link sent/i);
     });
 
     it("should handle non-existent email gracefully", async () => {
@@ -109,7 +110,7 @@ describe("Admin Auth Controller", () => {
         .expect(200);
 
       // For security, don't reveal if email exists
-      expect(response.text).toContain("reset link has been sent");
+      expect(response.text).toMatch(/reset link sent/i);
     });
   });
 

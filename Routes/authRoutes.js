@@ -5,6 +5,21 @@ const DashboardController = require("../Controllers/DashboardController");
 const LoginController = require("../Controllers/AuthController");
 const EmailVerificationController = require("../Controllers/EmailVerificationController");
 const { isAuthenticated, redirectIfAuthenticated } = require("../Middleware/authGuards");
+const rateLimit = require("express-rate-limit");
+
+const loginRateLimit = rateLimit({
+  windowMs: Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  limit: Number(process.env.LOGIN_RATE_LIMIT_MAX_ATTEMPTS || 5),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  handler: (req, res) => {
+    return res.status(429).json({
+      success: false,
+      message: "Too many login attempts. Please try again later.",
+    });
+  },
+});
 
 // Auth & Dashboard
 router.get("/", DashboardController.getDashboard);
@@ -17,7 +32,7 @@ router.post("/register", LoginController.postRegister);
 router.get("/signup", redirectIfAuthenticated, LoginController.getRegister);
 router.post("/signup", LoginController.postRegister);
 router.get("/login", redirectIfAuthenticated, LoginController.getLogin);
-router.post("/login", LoginController.postLogin);
+router.post("/login", loginRateLimit, LoginController.postLogin);
 router.get("/logout", LoginController.logout);
 
 // Password Reset

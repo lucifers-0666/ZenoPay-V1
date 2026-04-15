@@ -57,6 +57,11 @@ const isAuthenticated = (req, res, next) => {
     return next();
   }
 
+  const expectsJson =
+    req.xhr ||
+    String(req.headers.accept || "").includes("application/json") ||
+    String(req.path || "").startsWith("/api/");
+
   if (hasAuthenticatedUser(req)) {
     const isVerified = !!(
       req.session?.user?.isEmailVerified ??
@@ -65,10 +70,21 @@ const isAuthenticated = (req, res, next) => {
 
     if (!isVerified) {
       req.session.returnTo = "/dashboard";
+      if (expectsJson) {
+        return res.status(403).json({
+          success: false,
+          message: "Email verification required",
+          redirect: "/verify-email",
+        });
+      }
       return res.redirect("/verify-email");
     }
 
     return next();
+  }
+
+  if (expectsJson) {
+    return res.status(401).json({ success: false, message: "Authentication required" });
   }
 
   return res.redirect("/login");

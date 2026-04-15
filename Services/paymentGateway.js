@@ -121,6 +121,14 @@ class PaymentGatewayService {
   async testConnection(gateway = "razorpay") {
     try {
       if (gateway === "razorpay") {
+        if (!this.razorpayKey || !this.razorpaySecret) {
+          return {
+            success: false,
+            gateway: "razorpay",
+            error: "Razorpay credentials not configured",
+          };
+        }
+
         const auth = Buffer.from(`${this.razorpayKey}:${this.razorpaySecret}`).toString("base64");
 
         const response = await axios.get("https://api.razorpay.com/v1/customers", {
@@ -138,6 +146,14 @@ class PaymentGatewayService {
       }
 
       if (gateway === "stripe") {
+        if (!this.stripeKey) {
+          return {
+            success: false,
+            gateway: "stripe",
+            error: "Stripe credentials not configured",
+          };
+        }
+
         const stripe = require("stripe")(this.stripeKey);
         await stripe.customers.list({ limit: 1 });
 
@@ -156,6 +172,7 @@ class PaymentGatewayService {
       console.error(`${gateway} connection error:`, error);
       return {
         success: false,
+        gateway,
         error: error.message,
       };
     }
