@@ -58,7 +58,7 @@
 
   <%- include('partials/footer') %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     const form = document.getElementById('payForm');
     if (form) {
       form.addEventListener('submit', async (event) => {
@@ -102,3 +102,4 @@
   </script>
 </body>
 </html>
+

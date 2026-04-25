@@ -1114,7 +1114,7 @@
     </main>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     let currentStep = 1;
 
     const nameRegex = /^[A-Za-z\s.'·-]{3,60}$/;
@@ -1718,3 +1718,4 @@
   </script>
 </body>
 </html>
+

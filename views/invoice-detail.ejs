@@ -661,7 +661,7 @@
     <% } %>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     function sendInvoice() {
       const email = prompt('Enter recipient email address:');
       if (!email) return;
@@ -699,3 +699,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

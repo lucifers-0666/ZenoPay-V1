@@ -448,7 +448,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const tabs = Array.from(document.querySelectorAll('.profile-tab'));
     const panels = Array.from(document.querySelectorAll('.profile-tab-panel'));
@@ -641,3 +641,4 @@
     };
   })();
 </script>
+

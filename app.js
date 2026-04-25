@@ -5,6 +5,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
+const crypto = require("crypto");
+const rateLimit = require("express-rate-limit");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const generateQRWithLogo = require("./Services/generateQR");
@@ -42,6 +45,82 @@ const INACTIVITY_WARNING_MS = Math.max(
 
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
+
+const loginRateLimiter = rateLimit({
+  windowMs: Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  limit: Number(process.env.LOGIN_RATE_LIMIT_MAX_ATTEMPTS || 5),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  message: {
+    success: false,
+    message: "Too many login attempts. Please try again later.",
+  },
+});
+
+const apiRateLimiter = rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  limit: Number(process.env.RATE_LIMIT_MAX_REQUESTS || 100),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later.",
+  },
+});
+
+app.use((req, res, next) => {
+  res.locals.cspNonce = crypto.randomBytes(16).toString("base64");
+  next();
+});
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://ka-f.fontawesome.com",
+          "https://unpkg.com",
+          "https://kit.fontawesome.com",
+          "https://checkout.razorpay.com",
+          "https://js.stripe.com",
+          (req, res) => `'nonce-${res.locals.cspNonce}'`,
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdnjs.cloudflare.com",
+          "https://fonts.googleapis.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://ka-f.fontawesome.com",
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://ka-f.fontawesome.com",
+          "data:",
+        ],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https://api.razorpay.com", "https://lumberjack.razorpay.com"],
+        frameSrc: [
+          "'self'",
+          "https://api.razorpay.com",
+          "https://js.stripe.com",
+          "https://checkout.razorpay.com",
+        ],
+        objectSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
+app.use(["/auth/login", "/login"], loginRateLimiter);
+app.use("/api", apiRateLimiter);
 
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -356,6 +435,24 @@ try {
 
 // User routes
 app.use(authRoutes);
+
+const requireLoginOnly = (req, res, next) => {
+  if (req.session?.user) {
+    return next();
+  }
+
+  const expectsJson =
+    req.xhr ||
+    String(req.headers.accept || "").includes("application/json") ||
+    String(req.path || "").startsWith("/api/");
+
+  if (expectsJson) {
+    return res.status(401).json({ success: false, message: "Authentication required" });
+  }
+
+  return res.redirect("/login");
+};
+
 app.use("/wallet", (req, res, next) => {
   const isWalletSendPreview =
     process.env.NODE_ENV !== "production" &&
@@ -368,7 +465,7 @@ app.use("/wallet", (req, res, next) => {
 
   return authMiddleware(req, res, next);
 }, walletRoutes);
-app.use("/profile", authMiddleware, profileRoutes);
+app.use("/profile", requireLoginOnly, profileRoutes);
 app.use("/pin", authMiddleware, pinRoutes);
 app.use(userRoutes);
 app.use(merchantFeatureRoutes);

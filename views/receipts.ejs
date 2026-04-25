@@ -612,7 +612,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="/js/receipts.js"></script>
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     // Count-up animation for total receipts
     function animateCounter(element, start, end, duration) {
       const startTime = performance.now();
@@ -769,3 +769,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

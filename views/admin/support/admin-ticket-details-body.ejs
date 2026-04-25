@@ -1007,7 +1007,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
 (() => {
   const state = {
     mode: 'reply',
@@ -1237,3 +1237,4 @@
   }
 })();
 </script>
+

@@ -328,7 +328,7 @@
       }
     </style>
 
-    <script id="transactionHistoryData" type="application/json"><%- JSON.stringify(allTransactions || [])
+    <script nonce="<%= locals.cspNonce || '' %>" id="transactionHistoryData" type="application/json"><%- JSON.stringify(allTransactions || [])
       .replace(/</g, '\\u003c')
       .replace(/>/g, '\\u003e')
       .replace(/&/g, '\\u0026') %></script>
@@ -337,3 +337,4 @@
     <script src="/js/transaction-history.js"></script>
   </body>
 </html>
+

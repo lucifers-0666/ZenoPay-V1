@@ -736,7 +736,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function(){
       const field = document.getElementById('responseText');
       const counter = document.getElementById('responseCounter');
@@ -751,3 +751,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

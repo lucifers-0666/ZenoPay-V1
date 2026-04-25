@@ -71,7 +71,7 @@
     </div>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     document.querySelectorAll('.progress-fill').forEach((node) => {
       const pct = Math.max(0, Math.min(100, Number(node.getAttribute('data-percent') || 0)));
       node.style.width = `${pct}%`;
@@ -95,3 +95,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

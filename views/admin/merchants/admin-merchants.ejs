@@ -627,7 +627,7 @@
   </button>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const merchantSearch = document.getElementById('merchantSearch');
     const statusFilter = document.getElementById('statusFilter');
@@ -1006,3 +1006,4 @@
     updateBulkBar();
   })();
 </script>
+

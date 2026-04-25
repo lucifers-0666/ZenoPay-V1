@@ -563,7 +563,7 @@
       </footer>
 
       <script src="/js/header.js"></script>
-      <script>
+      <script nonce="<%= locals.cspNonce || '' %>">
         // Form validation
         function validateForm() {
           const form = document.getElementById("bankRegistrationForm");
@@ -694,3 +694,4 @@
     <%- include('partials/footer') %>
   </body>
 </html>
+

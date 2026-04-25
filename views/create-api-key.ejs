@@ -1458,7 +1458,7 @@ processRefund('TXN_1734567890123', 1599.00, 'Customer request')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       // Tab Switching
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1619,3 +1619,4 @@ processRefund('TXN_1734567890123', 1599.00, 'Customer request')
     <%- include('partials/footer') %>
   </body>
 </html>
+

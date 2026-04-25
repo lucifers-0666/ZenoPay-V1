@@ -820,7 +820,7 @@
 
 <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const tabButtons = Array.from(document.querySelectorAll('.settings-tab-btn'));
     const panels = Array.from(document.querySelectorAll('.tab-panel'));
@@ -1073,3 +1073,4 @@
     updateMaintenanceUI();
   })();
 </script>
+

@@ -521,7 +521,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function(){
       const txId = '<%= breadcrumbId %>';
       const shareUrl = `${window.location.origin}/transaction/<%= transactionId %>`;
@@ -568,3 +568,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

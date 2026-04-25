@@ -109,7 +109,7 @@
     </section>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     const labels = JSON.parse('<%- JSON.stringify((chart && chart.labels) || []) %>');
     const values = JSON.parse('<%- JSON.stringify((chart && chart.data) || []) %>');
     const ctx = document.getElementById('revenueChart');
@@ -141,3 +141,4 @@
   </script>
 </body>
 </html>
+

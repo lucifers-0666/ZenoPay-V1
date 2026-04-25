@@ -504,7 +504,7 @@
         }
       </style>
 
-      <script>
+      <script nonce="<%= locals.cspNonce || '' %>">
         document.addEventListener('DOMContentLoaded', function () {
           const reportsData = <%- JSON.stringify(reportsData || { selectedRange: '7', ranges: {} }) %>;
           const chartData = {
@@ -771,3 +771,4 @@
         });
       </script>
 </div>
+

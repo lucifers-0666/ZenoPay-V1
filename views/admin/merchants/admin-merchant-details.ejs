@@ -1184,7 +1184,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const merchantId = '<%= safeMerchant._id %>';
 
@@ -1284,3 +1284,4 @@
     });
   })();
 </script>
+

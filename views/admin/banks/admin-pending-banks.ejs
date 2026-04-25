@@ -918,7 +918,7 @@
 
 <div class="toast-wrap" id="toastContainer"></div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   var selectedBanks = new Set();
   var quickViewBankId = '';
   var quickViewBankName = '';
@@ -1274,3 +1274,4 @@
     applyCompositeFilters();
   });
 </script>
+

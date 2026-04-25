@@ -984,7 +984,7 @@
       </footer>
 
       <script src="/js/header.js"></script>
-      <script>
+      <script nonce="<%= locals.cspNonce || '' %>">
         let currentStep = 1;
         const totalSteps = 4;
         let zenoPayData = null;
@@ -1260,3 +1260,4 @@
     <%- include('partials/footer') %>
   </body>
 </html>
+

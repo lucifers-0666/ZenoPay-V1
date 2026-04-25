@@ -390,7 +390,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function setProgress() {
       const bar = document.getElementById('kycProgressFill');
       if (!bar) return;
@@ -615,3 +615,4 @@
   </script>
 </body>
 </html>
+

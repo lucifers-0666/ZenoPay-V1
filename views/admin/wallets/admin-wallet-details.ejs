@@ -660,7 +660,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (function () {
     const walletId = "<%= walletObj?._id || '' %>";
     const walletStatus = "<%= statusRaw %>";
@@ -815,3 +815,4 @@
     }
   })();
 </script>
+

@@ -178,7 +178,7 @@
     <div id="message" class="message"></div>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const form = document.getElementById('payForm');
       const message = document.getElementById('message');
@@ -223,3 +223,4 @@
   </script>
 </body>
 </html>
+

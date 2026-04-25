@@ -735,7 +735,7 @@
     </section>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const balance = Number('<%= currentBalance %>') || 2450;
       const methodMeta = {
@@ -925,3 +925,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

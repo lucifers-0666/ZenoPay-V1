@@ -325,7 +325,7 @@
   </div>
 </div>
 
-<script id="txSeedData" type="application/json"><%- JSON.stringify(rows).replace(/</g, '\\u003c') %></script>
+<script nonce="<%= locals.cspNonce || '' %>" id="txSeedData" type="application/json"><%- JSON.stringify(rows).replace(/</g, '\\u003c') %></script>
 
 <style>
   .tx-page { color: var(--text-main); }
@@ -785,7 +785,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
 (() => {
   const seedNode = document.getElementById('txSeedData');
   const seedRows = seedNode ? JSON.parse(seedNode.textContent || '[]') : [];
@@ -1495,3 +1495,4 @@
   render();
 })();
 </script>
+

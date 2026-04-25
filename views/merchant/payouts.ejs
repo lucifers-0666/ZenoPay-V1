@@ -89,7 +89,7 @@
     </section>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const form = document.getElementById('payoutForm');
       if (!form) return;
@@ -119,3 +119,4 @@
   </script>
 </body>
 </html>
+

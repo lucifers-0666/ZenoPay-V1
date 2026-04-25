@@ -153,7 +153,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   document.getElementById('loginForm').addEventListener('submit', function(e) {
     var valid = true;
     var email = document.getElementById('emailInput');
@@ -188,3 +188,4 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
   });
 </script>
+

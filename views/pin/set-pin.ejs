@@ -85,7 +85,7 @@
     <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
   <% } %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     function bindPinGrid(groupNode) {
       const boxes = Array.from(groupNode.querySelectorAll('.pin-box'));
       boxes.forEach((box, idx) => {
@@ -129,3 +129,4 @@
   </script>
 </body>
 </html>
+

@@ -354,7 +354,7 @@
     <% } %>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     function toggleRejectionForm() {
       const form = document.getElementById('rejectionForm');
       form.classList.toggle('show');
@@ -439,3 +439,4 @@
   </script>
 </body>
 </html>
+

@@ -1000,7 +1000,7 @@
   </section>
 </section>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   function formatUptime(seconds) {
     var d = Math.floor(seconds / 86400);
     var h = Math.floor((seconds % 86400) / 3600);
@@ -1069,3 +1069,4 @@
     }
   });
 </script>
+

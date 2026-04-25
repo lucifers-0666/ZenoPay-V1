@@ -124,7 +124,7 @@
     <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
   <% } %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function animateBalance() {
       const node = document.getElementById('balanceCounter');
       if (!node) return;
@@ -151,3 +151,4 @@
   </script>
 </body>
 </html>
+

@@ -775,10 +775,10 @@
     </div>
   </div>
 
-  <script id="paymentsData" type="application/json"><%- JSON.stringify(payments || []) %></script>
-  <script id="beneficiariesData" type="application/json"><%- JSON.stringify(beneficiaries || []) %></script>
+  <script nonce="<%= locals.cspNonce || '' %>" id="paymentsData" type="application/json"><%- JSON.stringify(payments || []) %></script>
+  <script nonce="<%= locals.cspNonce || '' %>" id="beneficiariesData" type="application/json"><%- JSON.stringify(beneficiaries || []) %></script>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const paymentsData = JSON.parse(document.getElementById('paymentsData').textContent || '[]');
       const beneficiaries = JSON.parse(document.getElementById('beneficiariesData').textContent || '[]');
@@ -1215,3 +1215,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

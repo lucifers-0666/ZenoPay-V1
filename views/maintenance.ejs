@@ -465,7 +465,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     // Countdown Timer
     const targetDate = new Date('<%= targetDate || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() %>').getTime();
 
@@ -535,3 +535,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

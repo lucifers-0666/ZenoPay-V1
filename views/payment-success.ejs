@@ -699,7 +699,7 @@
     <button type="button" class="stay-link" id="stayOnPageBtn">Stay on this page</button>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const loadingState = document.getElementById('loadingState');
       const successState = document.getElementById('successState');
@@ -787,3 +787,4 @@
   </script>
 </body>
 </html>
+

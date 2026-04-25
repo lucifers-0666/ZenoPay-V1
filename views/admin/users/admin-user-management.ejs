@@ -506,7 +506,7 @@
 </div>
 
 <link rel="stylesheet" href="/css/admin/admin-users.css">
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   const selectAll = document.getElementById('selectAllUsers');
   const bulkBar = document.getElementById('bulkActionBar');
   const selectedCount = document.getElementById('bulkActionCount');
@@ -787,3 +787,4 @@
     setViewMode(saved);
   });
 </script>
+

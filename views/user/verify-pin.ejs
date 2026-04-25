@@ -86,7 +86,7 @@
     </form>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const inputs = Array.from(document.querySelectorAll('.digit'));
       const hiddenPin = document.getElementById('pin');
@@ -126,3 +126,4 @@
   <%- include('../partials/footer') %>
 </body>
 </html>
+

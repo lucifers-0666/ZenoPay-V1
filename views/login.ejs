@@ -222,7 +222,7 @@
       </main>
     </div>
 
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       const loginForm = document.getElementById("loginForm");
       const userIdInput = document.getElementById("userId");
       const passwordInput = document.getElementById("password");
@@ -335,3 +335,4 @@
     </script>
   </body>
 </html>
+

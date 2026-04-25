@@ -280,7 +280,7 @@
 
   <div class="toast" id="toast" hidden></div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     window.ZenoPayCardTokenization = {
       provider: "<%= cardTokenization?.provider || 'stripe' %>",
       required: <%= cardTokenization?.required ? 'true' : 'false' %>
@@ -290,3 +290,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

@@ -573,7 +573,7 @@
   </main>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const refreshBtn = document.getElementById('refreshBtn');
       const refreshIcon = document.getElementById('refreshIcon');
@@ -593,3 +593,4 @@
   </script>
 </body>
 </html>
+

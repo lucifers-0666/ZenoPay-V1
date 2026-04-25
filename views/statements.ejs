@@ -575,7 +575,7 @@
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     // Initialize on load
     window.addEventListener('DOMContentLoaded', () => {
       initMiniCharts();
@@ -796,3 +796,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

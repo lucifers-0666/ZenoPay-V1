@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  --primary:            #3B82F6;
+  --hdr-primary:        #3B82F6;
   --primary-dark:       #2563EB;
   --brand-blue:         #3B82F6;
   --brand-purple:       #8B5CF6;
@@ -25,19 +25,19 @@
   --header-bg:          rgba(255,255,255,0.98);
   --header-shadow:      0 1px 0 #E5E7EB, 0 2px 12px rgba(0,0,0,0.06);
 
-  --header-height:      68px;
+  --hdr-height:         68px;
   --header-padding-x:   48px;
   --container-max:      1280px;
 
-  --z-header:           1000;
-  --z-dropdown:         1100;
-  --z-mobile-menu:      1200;
+  --hdr-z-index:        1000;
+  --hdr-z-dropdown:     1100;
+  --hdr-z-mobile:       1200;
   --z-mobile-nav:       9999;
 
   --header-safe-top:    env(safe-area-inset-top, 0px);
 
-  --ease:               0.18s ease;
-  --ease-slow:          0.28s ease;
+  --hdr-ease:           0.18s ease;
+  --hdr-ease-slow:      0.28s ease;
 }
 
 /* ═══════════════════════════════════════════════
@@ -77,15 +77,15 @@
   left: 0;
   right: 0;
   width: 100%;
-  height: calc(var(--header-height) + var(--header-safe-top));
+  height: calc(var(--hdr-height) + var(--header-safe-top));
   padding-top: var(--header-safe-top);
   background: #fff !important;
   background-image: none !important;
   border-top: none !important;
   border-bottom: 1px solid var(--header-border);
   box-shadow: none;
-  z-index: var(--z-header);
-  transition: box-shadow var(--ease-slow), background var(--ease-slow);
+  z-index: var(--hdr-z-index);
+  transition: box-shadow var(--hdr-ease-slow), background var(--hdr-ease-slow);
   /* Required so .scroll-progress-track absolute positioning is relative to this */
   overflow: visible;
 }
@@ -103,20 +103,20 @@
 }
 
 .header-spacer {
-  height: calc(var(--header-height) + var(--header-safe-top));
+  height: calc(var(--hdr-height) + var(--header-safe-top));
   display: block;
   flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
-  .header-spacer { height: calc(var(--header-height) + var(--header-safe-top)); }
+  .header-spacer { height: calc(var(--hdr-height) + var(--header-safe-top)); }
 }
 
-.header-inner {
+.zenopay-header .header-inner {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 var(--header-padding-x);
-  height: var(--header-height);
+  height: var(--hdr-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -127,7 +127,7 @@
    LOGO
    ═══════════════════════════════════════════════ */
 
-.header-logo {
+.zenopay-header .header-logo {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -135,22 +135,22 @@
   text-decoration: none;
 }
 
-.header-logo:hover { opacity: 0.85; }
+.zenopay-header .header-logo:hover { opacity: 0.85; }
 
-.header-logo img {
+.zenopay-header .header-logo img {
   width: 34px;
   height: 34px;
   object-fit: contain;
 }
 
-.header-logo-text {
+.zenopay-header .header-logo-text {
   font-size: 19px;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.4px;
 }
 
-.header-logo-badge {
+.zenopay-header .header-logo-badge {
   background: var(--brand-gradient);
   color: #fff;
   font-size: 10px;
@@ -165,7 +165,7 @@
    CENTER NAV
    ═══════════════════════════════════════════════ */
 
-.header-nav {
+.zenopay-header .header-nav {
   display: flex;
   align-items: center;
   gap: 2px;
@@ -173,10 +173,10 @@
   justify-content: center;
 }
 
-.nav-item { position: relative; }
+.zenopay-header .nav-item { position: relative; }
 
-.nav-btn,
-.nav-link {
+.zenopay-header .nav-btn,
+.zenopay-header .nav-link {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -190,33 +190,33 @@
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
-  transition: background var(--ease), color var(--ease);
+  transition: background var(--hdr-ease), color var(--hdr-ease);
 }
 
-.nav-btn:hover, .nav-link:hover {
+.zenopay-header .nav-btn:hover, .zenopay-header .nav-link:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.nav-btn.active, .nav-link.active {
+.zenopay-header .nav-btn.active, .zenopay-header .nav-link.active {
   color: var(--brand-blue);
   background: var(--bg-active);
   font-weight: 600;
 }
 
-.nav-chevron {
+.zenopay-header .nav-chevron {
   font-size: 11px;
   color: var(--text-muted);
-  transition: transform var(--ease);
+  transition: transform var(--hdr-ease);
 }
-.nav-item.open .nav-chevron { transform: rotate(180deg); }
-.nav-item.open .nav-btn { background: var(--bg-hover); }
+.zenopay-header .nav-item.open .nav-chevron { transform: rotate(180deg); }
+.zenopay-header .nav-item.open .nav-btn { background: var(--bg-hover); }
 
 /* ═══════════════════════════════════════════════
    DROPDOWN
    ═══════════════════════════════════════════════ */
 
-.dropdown {
+.zenopay-header .dropdown {
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
@@ -226,32 +226,32 @@
   border: 1px solid var(--header-border);
   box-shadow: 0 8px 36px rgba(0,0,0,0.13);
   padding: 6px;
-  z-index: var(--z-dropdown);
+  z-index: var(--hdr-z-dropdown);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
-  transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
+  transition: opacity var(--hdr-ease), transform var(--hdr-ease), visibility var(--hdr-ease);
   pointer-events: none;
 }
 
-.nav-item.open .dropdown,
-.action-wrapper.open .dropdown {
+.zenopay-header .nav-item.open .dropdown,
+.zenopay-header .action-wrapper.open .dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: all;
 }
 
-.dropdown-wide { min-width: 480px; }
+.zenopay-header .dropdown-wide { min-width: 480px; }
 
-.dropdown-cols {
+.zenopay-header .dropdown-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   padding: 8px 4px 4px;
 }
 
-.dropdown-col-title {
+.zenopay-header .dropdown-col-title {
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
@@ -261,7 +261,7 @@
   padding: 0 12px;
 }
 
-.drop-item {
+.zenopay-header .drop-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -270,15 +270,15 @@
   font-size: 14px;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: background var(--ease), color var(--ease);
+  transition: background var(--hdr-ease), color var(--hdr-ease);
 }
 
-.drop-item:hover {
+.zenopay-header .drop-item:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.drop-item i {
+.zenopay-header .drop-item i {
   font-size: 16px;
   color: var(--text-tertiary);
   width: 18px;
@@ -286,13 +286,13 @@
   flex-shrink: 0;
 }
 
-.drop-sep {
+.zenopay-header .drop-sep {
   margin: 6px 0;
   height: 1px;
   background: var(--header-border);
 }
 
-.drop-cta {
+.zenopay-header .drop-cta {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -304,17 +304,17 @@
   margin-top: 4px;
   border-radius: 8px;
   text-decoration: none;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.drop-cta:hover { background: var(--bg-light-blue); }
-.drop-cta i { font-size: 13px; }
+.zenopay-header .drop-cta:hover { background: var(--bg-light-blue); }
+.zenopay-header .drop-cta i { font-size: 13px; }
 
 /* ═══════════════════════════════════════════════
    MEGA MENU
    ═══════════════════════════════════════════════ */
 
-.mega-menu {
+.zenopay-header .mega-menu {
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
@@ -326,29 +326,29 @@
   border: 1px solid var(--header-border);
   box-shadow: 0 16px 56px rgba(0,0,0,0.14);
   padding: 28px;
-  z-index: var(--z-dropdown);
+  z-index: var(--hdr-z-dropdown);
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
+  transition: all 0.2s ease;
   pointer-events: none;
 }
 
-.nav-item.open .mega-menu {
-  opacity: 1;
+.zenopay-header .nav-item.open .mega-menu {
   visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
-  pointer-events: all;
 }
 
-.mega-grid {
+.zenopay-header .mega-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
 }
 
-.mega-col { display: flex; flex-direction: column; gap: 2px; }
+.zenopay-header .mega-col { display: flex; flex-direction: column; gap: 2px; }
 
-.mega-col-title {
+.zenopay-header .mega-col-title {
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
@@ -357,19 +357,19 @@
   margin-bottom: 10px;
 }
 
-.mega-item {
+.zenopay-header .mega-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 9px 10px;
   border-radius: 8px;
   text-decoration: none;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.mega-item:hover { background: var(--bg-light); }
+.zenopay-header .mega-item:hover { background: var(--bg-light); }
 
-.mega-icon {
+.zenopay-header .mega-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,33 +378,34 @@
   background: var(--bg-active);
   border-radius: 8px;
   flex-shrink: 0;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.mega-item:hover .mega-icon { background: var(--bg-light-blue); }
 
-.mega-icon i { font-size: 16px; color: var(--brand-blue); }
+.zenopay-header .mega-item:hover .mega-icon { background: var(--bg-light-blue); }
 
-.mega-item-text { display: flex; flex-direction: column; gap: 1px; }
+.zenopay-header .mega-icon i { font-size: 16px; color: var(--brand-blue); }
 
-.mega-item-title {
+.zenopay-header .mega-item-text { display: flex; flex-direction: column; gap: 1px; }
+
+.zenopay-header .mega-item-title {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.mega-item-desc {
+.zenopay-header .mega-item-desc {
   font-size: 12px;
   color: var(--text-tertiary);
 }
 
-.mega-footer {
+.zenopay-header .mega-footer {
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--header-border);
 }
 
-.mega-cta {
+.zenopay-header .mega-cta {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -416,25 +417,25 @@
   padding: 12px;
   border-radius: 10px;
   text-decoration: none;
-  transition: background var(--ease), transform var(--ease);
+  transition: background var(--hdr-ease), transform var(--hdr-ease);
 }
 
-.mega-cta:hover { background: var(--bg-light-blue); transform: translateY(-1px); }
+.zenopay-header .mega-cta:hover { background: var(--bg-light-blue); transform: translateY(-1px); }
 
 /* ═══════════════════════════════════════════════
    RIGHT ACTIONS
    ═══════════════════════════════════════════════ */
 
-.header-actions {
+.zenopay-header .header-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
 
-.action-wrapper { position: relative; }
+.zenopay-header .action-wrapper { position: relative; }
 
-.action-btn {
+.zenopay-header .action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -444,21 +445,21 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
   position: relative;
 }
 
-.action-btn:hover { background: var(--bg-hover); }
+.zenopay-header .action-btn:hover { background: var(--bg-hover); }
 
-.action-btn i {
+.zenopay-header .action-btn i {
   font-size: 19px;
   color: var(--text-tertiary);
-  transition: color var(--ease);
+  transition: color var(--hdr-ease);
 }
 
-.action-btn:hover i { color: var(--brand-blue); }
+.zenopay-header .action-btn:hover i { color: var(--brand-blue); }
 
-.notif-badge {
+.zenopay-header .notif-badge {
   position: absolute;
   top: 7px;
   right: 7px;
@@ -476,7 +477,7 @@
   pointer-events: none;
 }
 
-.dashboard-link {
+.zenopay-header .dashboard-link {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -486,13 +487,13 @@
   padding: 8px 14px;
   border-radius: 8px;
   text-decoration: none;
-  transition: background var(--ease), color var(--ease);
+  transition: background var(--hdr-ease), color var(--hdr-ease);
 }
 
-.dashboard-link:hover { background: var(--bg-hover); color: var(--text-primary); }
-.dashboard-link i { font-size: 17px; }
+.zenopay-header .dashboard-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+.zenopay-header .dashboard-link i { font-size: 17px; }
 
-.avatar-btn {
+.zenopay-header .avatar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -504,14 +505,14 @@
   background: transparent;
   padding: 0;
   overflow: hidden;
-  transition: border-color var(--ease);
+  transition: border-color var(--hdr-ease);
 }
 
-.avatar-btn:hover { border-color: var(--brand-blue); }
+.zenopay-header .avatar-btn:hover { border-color: var(--brand-blue); }
 
-.avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.zenopay-header .avatar-img { width: 100%; height: 100%; object-fit: cover; }
 
-.avatar-initials {
+.zenopay-header .avatar-initials {
   width: 100%;
   height: 100%;
   background: var(--brand-gradient);
@@ -523,7 +524,7 @@
   font-weight: 700;
 }
 
-.btn-login {
+.zenopay-header .btn-login {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -536,17 +537,17 @@
   background: #fff;
   text-decoration: none;
   cursor: pointer;
-  transition: border-color var(--ease), color var(--ease), background var(--ease);
+  transition: border-color var(--hdr-ease), color var(--hdr-ease), background var(--hdr-ease);
   white-space: nowrap;
 }
 
-.btn-login:hover {
+.zenopay-header .btn-login:hover {
   border-color: var(--brand-blue);
   color: var(--brand-blue);
   background: var(--bg-active);
 }
 
-.btn-signup {
+.zenopay-header .btn-signup {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -560,11 +561,11 @@
   text-decoration: none;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(59,130,246,0.28);
-  transition: transform var(--ease), box-shadow var(--ease);
+  transition: transform var(--hdr-ease), box-shadow var(--hdr-ease);
   white-space: nowrap;
 }
 
-.btn-signup:hover {
+.zenopay-header .btn-signup:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(59,130,246,0.38);
 }
@@ -573,7 +574,7 @@
    NOTIFICATIONS DROPDOWN
    ═══════════════════════════════════════════════ */
 
-.notif-dropdown {
+.zenopay-header .notif-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -583,23 +584,23 @@
   border-radius: 14px;
   border: 1px solid var(--header-border);
   box-shadow: 0 8px 36px rgba(0,0,0,0.13);
-  z-index: var(--z-dropdown);
+  z-index: var(--hdr-z-dropdown);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
-  transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
+  transition: opacity var(--hdr-ease), transform var(--hdr-ease), visibility var(--hdr-ease);
   pointer-events: none;
   overflow: hidden;
 }
 
-.action-wrapper.open .notif-dropdown {
+.zenopay-header .action-wrapper.open .notif-dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: all;
 }
 
-.notif-head {
+.zenopay-header .notif-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -607,9 +608,9 @@
   border-bottom: 1px solid var(--header-border);
 }
 
-.notif-head h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; }
+.zenopay-header .notif-head h3 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; }
 
-.mark-read-btn {
+.zenopay-header .mark-read-btn {
   font-size: 12.5px;
   font-weight: 500;
   color: var(--brand-blue);
@@ -618,26 +619,26 @@
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.mark-read-btn:hover { background: var(--bg-active); }
+.zenopay-header .mark-read-btn:hover { background: var(--bg-active); }
 
-.notif-list { max-height: 380px; overflow-y: auto; }
+.zenopay-header .notif-list { max-height: 380px; overflow-y: auto; }
 
-.notif-item {
+.zenopay-header .notif-item {
   display: flex;
   gap: 12px;
   padding: 14px 18px;
   border-bottom: 1px solid var(--bg-hover);
   text-decoration: none;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.notif-item:hover { background: var(--bg-light); }
-.notif-item.unread { background: var(--bg-active); }
+.zenopay-header .notif-item:hover { background: var(--bg-light); }
+.zenopay-header .notif-item.unread { background: var(--bg-active); }
 
-.notif-icon {
+.zenopay-header .notif-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -647,41 +648,42 @@
   flex-shrink: 0;
 }
 
-.notif-icon.success { background: #D1FAE5; color: #059669; }
-.notif-icon.info    { background: #DBEAFE; color: #3B82F6; }
-.notif-icon.warning { background: #FEF3C7; color: #F59E0B; }
-.notif-icon i { font-size: 17px; }
 
-.notif-body { flex: 1; }
-.notif-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
-.notif-text  { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.4; margin-bottom: 3px; }
-.notif-time  { font-size: 12px; color: var(--text-muted); }
+.zenopay-header .notif-icon.success { background: #D1FAE5; color: #059669; }
+.zenopay-header .notif-icon.info    { background: #DBEAFE; color: #3B82F6; }
+.zenopay-header .notif-icon.warning { background: #FEF3C7; color: #F59E0B; }
+.zenopay-header .notif-icon i { font-size: 17px; }
 
-.notif-footer {
+.zenopay-header .notif-body { flex: 1; }
+.zenopay-header .notif-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.zenopay-header .notif-text  { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.4; margin-bottom: 3px; }
+.zenopay-header .notif-time  { font-size: 12px; color: var(--text-muted); }
+
+.zenopay-header .notif-footer {
   padding: 10px 18px;
   border-top: 1px solid var(--header-border);
   text-align: center;
 }
 
-.notif-view-all {
+.zenopay-header .notif-view-all {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--brand-blue);
   text-decoration: none;
 }
 
-.notif-view-all:hover { color: var(--brand-purple); }
+.zenopay-header .notif-view-all:hover { color: var(--brand-purple); }
 
 /* ═══════════════════════════════════════════════
    PROFILE DROPDOWN
    ═══════════════════════════════════════════════ */
 
-.profile-drop {
+.zenopay-header .profile-drop {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
   width: 280px;
-  max-height: calc(100vh - var(--header-height) - 24px);
+  max-height: calc(100vh - var(--hdr-height) - 24px);
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -689,23 +691,23 @@
   border: 1px solid var(--header-border);
   box-shadow: 0 8px 36px rgba(0,0,0,0.13);
   padding: 10px;
-  z-index: var(--z-dropdown);
+  z-index: var(--hdr-z-dropdown);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
-  transition: opacity var(--ease), transform var(--ease), visibility var(--ease);
+  transition: opacity var(--hdr-ease), transform var(--hdr-ease), visibility var(--hdr-ease);
   pointer-events: none;
   overflow: hidden;
 }
 
-.action-wrapper.open .profile-drop {
+.zenopay-header .action-wrapper.open .profile-drop {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   pointer-events: all;
 }
 
-.profile-info {
+.zenopay-header .profile-info {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -716,7 +718,7 @@
   flex-shrink: 0;
 }
 
-.profile-avatar-lg {
+.zenopay-header .profile-avatar-lg {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -724,7 +726,7 @@
   object-fit: cover;
 }
 
-.profile-avatar-lg.placeholder {
+.zenopay-header .profile-avatar-lg.placeholder {
   background: var(--brand-gradient);
   color: #fff;
   display: flex;
@@ -734,11 +736,11 @@
   font-weight: 700;
 }
 
-.profile-detail { flex: 1; min-width: 0; }
-.profile-name  { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.profile-email { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zenopay-header .profile-detail { flex: 1; min-width: 0; }
+.zenopay-header .profile-name  { font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zenopay-header .profile-email { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.profile-menu {
+.zenopay-header .profile-menu {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -748,11 +750,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.profile-menu::-webkit-scrollbar { width: 4px; }
-.profile-menu::-webkit-scrollbar-track { background: transparent; }
-.profile-menu::-webkit-scrollbar-thumb { background: var(--header-border); border-radius: 4px; }
+.zenopay-header .profile-menu::-webkit-scrollbar { width: 4px; }
+.zenopay-header .profile-menu::-webkit-scrollbar-track { background: transparent; }
+.zenopay-header .profile-menu::-webkit-scrollbar-thumb { background: var(--header-border); border-radius: 4px; }
 
-.pmenu-section-label {
+.zenopay-header .pmenu-section-label {
   font-size: 10.5px;
   font-weight: 700;
   color: var(--text-muted);
@@ -762,7 +764,7 @@
   margin-top: 2px;
 }
 
-.pmenu-item {
+.zenopay-header .pmenu-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -771,42 +773,43 @@
   font-size: 13.5px;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
   white-space: nowrap;
 }
 
-.pmenu-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-.pmenu-item i { font-size: 15px; color: var(--text-tertiary); width: 18px; text-align: center; flex-shrink: 0; }
+.zenopay-header .pmenu-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 
-.pmenu-item-verification {
+.zenopay-header .pmenu-item i { font-size: 15px; color: var(--text-tertiary); width: 18px; text-align: center; flex-shrink: 0; }
+
+.zenopay-header .pmenu-item-verification {
   position: relative;
 }
 
-.pmenu-item-verification i {
+.zenopay-header .pmenu-item-verification i {
   color: #10B981;
 }
 
-.pmenu-item-verification:hover {
+.zenopay-header .pmenu-item-verification:hover {
   background: #ECFDF5;
   color: #047857;
 }
 
-.pmenu-item-verification:hover i {
+.zenopay-header .pmenu-item-verification:hover i {
   color: #047857;
 }
 
-.pmenu-sep { margin: 4px 0; height: 1px; background: var(--header-border); flex-shrink: 0; }
+.zenopay-header .pmenu-sep { margin: 4px 0; height: 1px; background: var(--header-border); flex-shrink: 0; }
 
-.pmenu-item.logout { color: #EF4444; }
-.pmenu-item.logout:hover { background: #FEE2E2; }
-.pmenu-item.logout i { color: #EF4444; }
+.zenopay-header .pmenu-item.logout { color: #EF4444; }
+.zenopay-header .pmenu-item.logout:hover { background: #FEE2E2; }
+.zenopay-header .pmenu-item.logout i { color: #EF4444; }
 
 /* ═══════════════════════════════════════════════
    MOBILE TOGGLE
    ═══════════════════════════════════════════════ */
 
-.mobile-toggle {
+.zenopay-header .mobile-toggle {
   display: none;
   align-items: center;
   justify-content: center;
@@ -816,11 +819,11 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
 }
 
-.mobile-toggle:hover { background: var(--bg-hover); }
-.mobile-toggle i { font-size: 21px; color: var(--text-secondary); }
+.zenopay-header .mobile-toggle:hover { background: var(--bg-hover); }
+.zenopay-header .mobile-toggle i { font-size: 21px; color: var(--text-secondary); }
 
 /* ═══════════════════════════════════════════════
    MOBILE MENU OVERLAY
@@ -828,15 +831,15 @@
 
 .mobile-overlay {
   position: fixed;
-  top: calc(var(--header-height) + var(--header-safe-top));
+  top: calc(var(--hdr-height) + var(--header-safe-top));
   left: 0;
   width: 100%;
-  height: calc(100vh - (var(--header-height) + var(--header-safe-top)));
+  height: calc(100vh - (var(--hdr-height) + var(--header-safe-top)));
   background: #fff;
-  z-index: var(--z-mobile-menu);
+  z-index: var(--hdr-z-mobile);
   overflow-y: auto;
   transform: translateX(100%);
-  transition: transform var(--ease-slow);
+  transition: transform var(--hdr-ease-slow);
 }
 
 .mobile-overlay.open { transform: translateX(0); }
@@ -896,7 +899,7 @@
   border: none;
   width: 100%;
   cursor: pointer;
-  transition: background var(--ease);
+  transition: background var(--hdr-ease);
   text-align: left;
 }
 
@@ -918,7 +921,7 @@
   color: #047857;
 }
 
-.mob-chevron { font-size: 14px; color: var(--text-muted); transition: transform var(--ease); }
+.mob-chevron { font-size: 14px; color: var(--text-muted); transition: transform var(--hdr-ease); }
 .mob-section.expanded .mob-chevron { transform: rotate(180deg); }
 
 .mob-item.logout { color: #EF4444; }
@@ -942,7 +945,7 @@
   color: var(--text-tertiary);
   text-decoration: none;
   border-radius: 8px;
-  transition: background var(--ease), color var(--ease);
+  transition: background var(--hdr-ease), color var(--hdr-ease);
 }
 
 .mob-sub-item:hover { background: var(--bg-hover); color: var(--text-primary); }
@@ -966,7 +969,7 @@
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
-  transition: all var(--ease);
+  transition: all var(--hdr-ease);
 }
 
 .mob-btn.btn-login {
@@ -999,15 +1002,15 @@
    ═══════════════════════════════════════════════ */
 
 @media (max-width: 1024px) {
-  :root { --header-padding-x: 24px; }
-  .nav-btn, .nav-link { font-size: 13.5px; padding: 8px 11px; }
-  .mega-menu { width: 680px; }
-  .mega-grid { gap: 20px; }
+  .zenopay-header { --header-padding-x: 24px; }
+  .zenopay-header .nav-btn, .zenopay-header .nav-link { font-size: 13.5px; padding: 8px 11px; }
+  .zenopay-header .mega-menu { width: 680px; }
+  .zenopay-header .mega-grid { gap: 20px; }
 }
 
 @media (max-width: 768px) {
-  :root {
-    --header-height: 58px;
+  .zenopay-header {
+    --hdr-height: 58px;
     --header-padding-x: 16px;
   }
 
@@ -1027,15 +1030,15 @@
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
   }
 
-  .header-logo-text { font-size: 17px; }
-  .header-logo img { width: 30px; height: 30px; }
-  .header-logo-badge { font-size: 9px; padding: 2px 8px; }
+  .zenopay-header .header-logo-text { font-size: 17px; }
+  .zenopay-header .header-logo img { width: 30px; height: 30px; }
+  .zenopay-header .header-logo-badge { font-size: 9px; padding: 2px 8px; }
   .header-nav, .desktop-only { display: none !important; }
-  .mobile-toggle { display: flex; }
-  .btn-signup span { display: none; }
-  .btn-signup { padding: 9px 12px; }
-  .action-btn { width: 34px; height: 34px; }
-  .action-btn i { font-size: 17px; }
+  .zenopay-header .mobile-toggle { display: flex; }
+  .zenopay-header .btn-signup span { display: none; }
+  .zenopay-header .btn-signup { padding: 9px 12px; }
+  .zenopay-header .action-btn { width: 34px; height: 34px; }
+  .zenopay-header .action-btn i { font-size: 17px; }
 
   /* ─── BOTTOM NAV: VISIBLE ON MOBILE ─── */
   .mobile-bottom-nav {
@@ -1163,9 +1166,9 @@
 }
 
 @media (max-width: 480px) {
-  .header-actions { gap: 6px; }
-  .notif-dropdown { width: calc(100vw - 28px); right: -8px; }
-  .profile-drop   { width: calc(100vw - 28px); right: -8px; }
+  .zenopay-header .header-actions { gap: 6px; }
+  .zenopay-header .notif-dropdown { width: calc(100vw - 28px); right: -8px; }
+  .zenopay-header .profile-drop   { width: calc(100vw - 28px); right: -8px; }
   .mobile-nav-icon i { font-size: 17px; }
   .mobile-nav-label  { font-size: 9px; }
 
@@ -1183,12 +1186,12 @@
    FOCUS & ACCESSIBILITY
    ═══════════════════════════════════════════════ */
 
-.nav-btn:focus-visible,
-.nav-link:focus-visible,
-.drop-item:focus-visible,
-.action-btn:focus-visible,
-.btn-login:focus-visible,
-.btn-signup:focus-visible {
+.zenopay-header .nav-btn:focus-visible,
+.zenopay-header .nav-link:focus-visible,
+.zenopay-header .drop-item:focus-visible,
+.zenopay-header .action-btn:focus-visible,
+.zenopay-header .btn-login:focus-visible,
+.zenopay-header .btn-signup:focus-visible {
   outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }

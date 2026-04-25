@@ -812,7 +812,7 @@
     </section>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const ringProgress = document.querySelector('.ring-progress');
       const scoreFill = document.querySelector('.score-fill');
@@ -867,3 +867,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

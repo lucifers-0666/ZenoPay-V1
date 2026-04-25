@@ -645,9 +645,9 @@
   </main>
 
   <div class="toast" id="saveToast" role="status" aria-live="polite">Preferences saved</div>
-  <script id="notificationStateData" type="application/json"><%- JSON.stringify(notificationStateData || null) %></script>
+  <script nonce="<%= locals.cspNonce || '' %>" id="notificationStateData" type="application/json"><%- JSON.stringify(notificationStateData || null) %></script>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const stateNode = document.getElementById('notificationStateData');
       let serverState = null;
@@ -1000,3 +1000,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

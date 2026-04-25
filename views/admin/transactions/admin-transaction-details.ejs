@@ -961,7 +961,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const $ = (sel) => document.querySelector(sel);
 
@@ -1136,3 +1136,4 @@
     setupModalActions();
   })();
 </script>
+

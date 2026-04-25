@@ -440,7 +440,7 @@
   </section>
 </section>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const query = new URLSearchParams(window.location.search);
     const auditTable = document.getElementById('auditTable');
@@ -710,3 +710,4 @@
     switchLogView('table');
   })();
 </script>
+

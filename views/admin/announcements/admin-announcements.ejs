@@ -1034,7 +1034,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const tabs = Array.from(document.querySelectorAll('#announcementTabs .filter-tab'));
     const typeFilter = document.getElementById('typeFilter');
@@ -1509,3 +1509,4 @@
     window.addEventListener('scroll', closeDropdown, true);
   })();
 </script>
+

@@ -665,9 +665,9 @@
   }
 </style>
 
-<script id="kycSeedJson" type="application/json"><%- JSON.stringify(_submissions).replace(/</g, '\\u003c') %></script>
+<script nonce="<%= locals.cspNonce || '' %>" id="kycSeedJson" type="application/json"><%- JSON.stringify(_submissions).replace(/</g, '\\u003c') %></script>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (function () {
     const seedEl = document.getElementById('kycSeedJson');
     const seedSubmissions = seedEl ? JSON.parse(seedEl.textContent || '[]') : [];
@@ -1316,3 +1316,4 @@
     render();
   })();
 </script>
+

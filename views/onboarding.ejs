@@ -858,7 +858,7 @@
     <div class="help-line">Need help? <a href="/support"><i class="fas fa-headset"></i> Contact Support</a></div>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const totalSteps = 4;
       let currentStep = 1;
@@ -1116,3 +1116,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

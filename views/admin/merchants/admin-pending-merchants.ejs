@@ -925,7 +925,7 @@
 
 <div class="toast-wrap" id="toastContainer"></div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   var selectedMerchants = new Set();
   var quickViewCurrentMerchantId = '';
   var quickViewCurrentBusinessName = '';
@@ -1291,3 +1291,4 @@
     applyClientFilters();
   });
 </script>
+

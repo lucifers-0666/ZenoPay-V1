@@ -250,7 +250,7 @@
     </div>
 
     <!-- Success Animation -->
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       // Animate success checkmark
       document.addEventListener('DOMContentLoaded', function() {
         const successIcon = document.querySelector('.success-icon');
@@ -380,3 +380,4 @@
     <% } %>
   </body>
 </html>
+

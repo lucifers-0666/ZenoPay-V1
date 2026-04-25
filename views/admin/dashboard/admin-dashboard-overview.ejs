@@ -12,7 +12,7 @@
   const merchantGrowth = Number(m.merchantsGrowthPct || 0);
 %>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   window.__ADMIN_DASHBOARD_CHARTS = <%- JSON.stringify(charts) %>;
 </script>
 
@@ -229,3 +229,4 @@
   </div>
 
 </div>
+

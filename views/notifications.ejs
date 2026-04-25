@@ -402,7 +402,7 @@
       </div>
     </main>
 
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       document.addEventListener("DOMContentLoaded", () => {
         // Time ago formatter
         function getTimeAgo(date) {
@@ -573,3 +573,4 @@
     <%- include('partials/footer') %>
   </body>
 </html>
+

@@ -782,7 +782,7 @@
     <%- include('partials/footer') %>
 
     <script src="/js/header.js"></script>
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       (function () {
         const tabs = document.querySelectorAll('.tab-btn');
         const panels = document.querySelectorAll('.tab-panel');
@@ -830,3 +830,4 @@
     </script>
   </body>
 </html>
+

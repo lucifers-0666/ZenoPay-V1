@@ -298,7 +298,7 @@
   </div>
 </div>
 
-<script id="supportSeed" type="application/json"><%- JSON.stringify(supportTickets).replace(/</g, '\\u003c') %></script>
+<script nonce="<%= locals.cspNonce || '' %>" id="supportSeed" type="application/json"><%- JSON.stringify(supportTickets).replace(/</g, '\\u003c') %></script>
 
 <style>
   .support-page { color: var(--text-main); }
@@ -831,7 +831,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
 (() => {
   const seedNode = document.getElementById('supportSeed');
   const rowsSeed = seedNode ? JSON.parse(seedNode.textContent || '[]') : [];
@@ -1598,3 +1598,4 @@
   applyFilters();
 })();
 </script>
+

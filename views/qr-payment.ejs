@@ -6,9 +6,11 @@
   <title>Receive Payment - ZenoPay</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header.css">
+  <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/qr-payment.css">
 </head>
-<body>
+<body class="qr-payment-page">
   <%- include('partials/header') %>
   <div class="page-container">
     <header class="page-header">
@@ -227,7 +229,7 @@
 
   <div class="toast" id="toast" hidden></div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     window.QR_DATA = {
       zenoPayId: "<%= zenoPayId %>",
       paymentUrl: "<%= paymentUrl %>",
@@ -238,3 +240,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

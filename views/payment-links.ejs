@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     async function copyLink(link) {
       try {
         await navigator.clipboard.writeText(link);
@@ -108,3 +108,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

@@ -299,7 +299,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const body = document.getElementById('adminsTableBody');
     const searchInput = document.getElementById('adminSearchInput');
@@ -429,3 +429,4 @@
     statusFilter?.addEventListener('change', applyFilters);
   })();
 </script>
+

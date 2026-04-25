@@ -117,7 +117,7 @@
     <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
   <% } %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     const tabs = Array.from(document.querySelectorAll('.tab'));
     const rows = Array.from(document.querySelectorAll('.row'));
 
@@ -146,3 +146,4 @@
   </script>
 </body>
 </html>
+

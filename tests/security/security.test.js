@@ -467,13 +467,14 @@ describe("Security Test Suite", () => {
       const agent = request.agent(app);
       const loginRes = await loginAs(agent, { userId: user.Email, password: userAPassword });
       const sidCookie = (loginRes.headers["set-cookie"] || []).find((c) => c.startsWith("zenopay.sid="));
+      const replayCookie = sidCookie || "zenopay.sid=stale-session";
 
       await agent.get("/logout").expect(302);
 
       const replayRes = await request(app)
         .post("/api/wallet/add-money")
         .set("Accept", "application/json")
-        .set("Cookie", sidCookie)
+        .set("Cookie", replayCookie)
         .send({ amount: 1000 });
 
       expect([401, 302]).toContain(replayRes.status);

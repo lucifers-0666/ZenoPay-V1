@@ -1122,7 +1122,7 @@ kbd {
 }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
 const pricingPlans = JSON.parse('<%- JSON.stringify(plans || []).replace(/</g, "\\u003c") %>');
 
 function showToast(msg, type='success') {
@@ -1407,3 +1407,4 @@ document.addEventListener('keydown', e => {
   });
 })();
 </script>
+

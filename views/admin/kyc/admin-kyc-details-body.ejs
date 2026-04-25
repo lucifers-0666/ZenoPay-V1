@@ -416,7 +416,7 @@
   </div>
 </div>
 
-<script id="kycDetailsSeed" type="application/json"><%- JSON.stringify(kyc).replace(/</g, '\\u003c') %></script>
+<script nonce="<%= locals.cspNonce || '' %>" id="kycDetailsSeed" type="application/json"><%- JSON.stringify(kyc).replace(/</g, '\\u003c') %></script>
 
 <style>
   .kyc-details-page { color: var(--text-main); }
@@ -826,7 +826,7 @@
   }
 </style>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (function () {
     const seedNode = document.getElementById('kycDetailsSeed');
     const details = seedNode ? JSON.parse(seedNode.textContent || '{}') : {};
@@ -1026,3 +1026,4 @@
     renderDocument();
   })();
 </script>
+

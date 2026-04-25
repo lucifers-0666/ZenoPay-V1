@@ -58,7 +58,7 @@
   </div>
 </section>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (function () {
     async function postAction(url, body) {
       const res = await fetch(url, {
@@ -99,3 +99,4 @@
     });
   })();
 </script>
+

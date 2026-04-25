@@ -94,7 +94,7 @@
     </section>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const isReadOnlyPreview = !!document.getElementById('beneficiarySearch')?.hasAttribute('disabled');
       const addForm = document.getElementById('addBeneficiaryForm');
@@ -206,3 +206,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

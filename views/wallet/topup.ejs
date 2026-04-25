@@ -89,7 +89,7 @@
     <div class="toast" id="toast"><%= flash.message %></div>
   <% } %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     const amountInput = document.getElementById('amount');
     const errorNode = document.getElementById('amountError');
     const chips = Array.from(document.querySelectorAll('.chip'));
@@ -139,3 +139,4 @@
   </script>
 </body>
 </html>
+

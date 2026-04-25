@@ -737,7 +737,7 @@
     </section>
   </main>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const available = Number('<%= available %>') || 0;
       const modeMeta = {
@@ -933,3 +933,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

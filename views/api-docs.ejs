@@ -1389,7 +1389,7 @@ if (expected !== signature) throw new Error('Invalid signature');</pre></div>
   <button class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Open docs menu"><i class="fas fa-bars"></i></button>
   <div class="overlay" id="sidebarOverlay"></div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     (function () {
       const baseUrlText = document.getElementById('baseUrlText');
       const copyBaseBtn = document.getElementById('copyBaseBtn');
@@ -1586,3 +1586,4 @@ if (expected !== signature) throw new Error('Invalid signature');</pre></div>
   <%- include('partials/footer') %>
 </body>
 </html>
+

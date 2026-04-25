@@ -501,7 +501,7 @@
       </footer>
 
       <script src="/js/header.js"></script>
-      <script>
+      <script nonce="<%= locals.cspNonce || '' %>">
         // Search functionality
         document
           .getElementById("searchInput")
@@ -559,3 +559,4 @@
     <%- include('partials/footer') %>
   </body>
 </html>
+

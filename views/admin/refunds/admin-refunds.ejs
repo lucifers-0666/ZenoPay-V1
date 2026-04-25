@@ -1164,7 +1164,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   let approveContext = { refundId: '', amount: 0 };
 
   function toggleRefundDropdown(btn) {
@@ -1461,3 +1461,4 @@
     }
   })();
 </script>
+

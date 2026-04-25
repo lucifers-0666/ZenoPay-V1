@@ -526,7 +526,7 @@
       </section>
     </div>
 
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       (function(){
         const btn = document.getElementById('subscribeBtn');
         if (!btn) return;
@@ -572,7 +572,7 @@
       </a>
     </main>
 
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       (function() {
         const end = new Date('<%= completionISO %>').getTime();
         const hourEl = document.getElementById('hours');
@@ -605,3 +605,4 @@
   <%- include('partials/footer') %>
 </body>
 </html>
+

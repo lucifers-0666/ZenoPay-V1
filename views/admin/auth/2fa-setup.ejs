@@ -123,7 +123,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (function() {
     var secretValue = '<%= locals.secret || "" %>';
     var qrCodeValue = '<%= locals.qrCodeUrl || "" %>';
@@ -297,3 +297,4 @@
     });
   })();
 </script>
+

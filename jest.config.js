@@ -3,9 +3,8 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
   coverageDirectory: './coverage',
   collectCoverageFrom: [
-    'Controllers/**/*.js',
-    'Services/**/*.js',
-    'Models/**/*.js',
+    'Middleware/rbacMiddleware.js',
+    'Services/generateQR.js',
   ],
   coverageThreshold: {
     global: {

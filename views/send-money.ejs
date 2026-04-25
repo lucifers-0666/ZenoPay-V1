@@ -471,10 +471,11 @@
     </div>
 
     <!-- Scripts -->
-    <script>
+    <script nonce="<%= locals.cspNonce || '' %>">
       window.__ZENOPAY_DAILY_LIMIT__ = <%= Number(transactionLimits?.dailyLimit || 50000) %>;
     </script>
     <script src="/js/send-money.js"></script>
     <%- include('partials/footer') %>
   </body>
 </html>
+

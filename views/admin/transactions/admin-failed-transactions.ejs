@@ -931,7 +931,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
 // Debounce search
 let ft_timer;
 const ftCurrentFilters = <%- JSON.stringify(filters || {}) %>;
@@ -1050,3 +1050,4 @@ function toggleRowMenu(_btn, _id) {
   showToast('More actions coming soon', 'success');
 }
 </script>
+

@@ -786,7 +786,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<%= locals.cspNonce || '' %>">
   (() => {
     const pageRoot = document.querySelector('.notif-page');
     const notifList = document.getElementById('notifList');
@@ -1102,3 +1102,4 @@
     ensureEmptyState();
   })();
 </script>
+

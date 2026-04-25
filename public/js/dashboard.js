@@ -552,6 +552,79 @@
   }
 
   // ====================================
+  // 14. DASHBOARD PAGE HELPERS (MOVED FROM INLINE)
+  // ====================================
+  function initTicker() {
+    const items = document.querySelectorAll('.ticker-item');
+    if (!items.length) return;
+    let current = 0;
+    items[0].classList.add('active');
+    setInterval(() => {
+      items[current].classList.remove('active');
+      current = (current + 1) % items.length;
+      items[current].classList.add('active');
+    }, 2800);
+  }
+
+  function toggleBilling(cb) {
+    const isAnnual = cb.checked;
+    const ml = document.getElementById('monthlyLabel');
+    const al = document.getElementById('annualLabel');
+    if (ml) ml.style.cssText = isAnnual ? 'color:#94A3B8;font-weight:500' : 'color:#0F172A;font-weight:700';
+    if (al) al.style.cssText = isAnnual ? 'color:#0F172A;font-weight:700' : 'color:#94A3B8;font-weight:500';
+    document.querySelectorAll('[data-monthly][data-annual]').forEach(el => {
+      el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+    });
+  }
+
+  function switchPMTab(tab, btn) {
+    document.querySelectorAll('.pm-content').forEach(c => c.classList.remove('pm-content-active'));
+    document.querySelectorAll('.pm-tab').forEach(b => b.classList.remove('pm-tab-active'));
+    const target = document.getElementById('tab-' + tab);
+    if (target) target.classList.add('pm-content-active');
+    if (btn) btn.classList.add('pm-tab-active');
+  }
+
+  function initCopyZenoPayId() {
+    document.querySelectorAll('.zd-acct-copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.previousElementSibling?.textContent?.trim();
+        if (val) {
+          navigator.clipboard.writeText(val).then(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+          });
+        }
+      });
+    });
+  }
+
+  function animateWalletBalance() {
+    const node = document.getElementById('walletBalanceAnimated');
+    if (!node) return;
+
+    const target = Number(node.dataset.balance || 0);
+    const duration = 1200;
+    const start = performance.now();
+
+    const formatINR = (value) => `₹${Number(value || 0).toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+    const step = (now) => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      node.textContent = formatINR(target * eased);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  }
+
+  // ====================================
   // INITIALIZATION
   // ====================================
   function init() {
@@ -585,6 +658,13 @@
     initLazyLoading();
     initErrorHandling();
     addToastAnimations();
+    initTicker();
+    initCopyZenoPayId();
+    animateWalletBalance();
+
+    // Expose functions used by inline onclick attributes in templates.
+    window.toggleBilling = toggleBilling;
+    window.switchPMTab = switchPMTab;
 
     // Performance monitoring (development only)
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -629,7 +709,9 @@ window.ZenoPayDashboard = {
   showToast: showToast,
   debounce: debounce,
   throttle: throttle,
-  isInViewport: isInViewport
+  isInViewport: isInViewport,
+  toggleBilling: toggleBilling,
+  switchPMTab: switchPMTab
 };
 
 }) ();

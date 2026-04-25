@@ -94,7 +94,7 @@
     <div class="toast <%= flash.type === 'error' ? 'error' : 'success' %>" id="toast"><%= flash.message %></div>
   <% } %>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     const stepsWrap = document.getElementById('stepsWrap');
     const stepLabel = document.getElementById('stepLabel');
     const panInput = document.getElementById('panNumber');
@@ -150,3 +150,4 @@
   </script>
 </body>
 </html>
+

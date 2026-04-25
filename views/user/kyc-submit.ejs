@@ -298,7 +298,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="<%= locals.cspNonce || '' %>">
     // File input handlers
     ['panCardImage', 'aadhaarFrontImage', 'aadhaarBackImage'].forEach(fieldId => {
       const input = document.getElementById(fieldId);
@@ -412,3 +412,4 @@
   </script>
 </body>
 </html>
+
