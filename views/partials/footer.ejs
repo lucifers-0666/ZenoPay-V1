@@ -307,4 +307,14 @@
   </div>
 
 </footer>
+<script nonce="<%= locals.cspNonce || '' %>">
+  if (!document.querySelector('link[href*="font-awesome"]')) {
+    var fa = document.createElement('link');
+    fa.rel = 'stylesheet';
+    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css';
+    fa.crossOrigin = 'anonymous';
+    fa.referrerPolicy = 'no-referrer';
+    document.head.appendChild(fa);
+  }
+</script>
 <script src="/js/footer.js"></script>

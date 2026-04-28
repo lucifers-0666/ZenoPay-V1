@@ -101,6 +101,7 @@ app.use(
         ],
         fontSrc: [
           "'self'",
+          "https://cdnjs.cloudflare.com",
           "https://fonts.gstatic.com",
           "https://ka-f.fontawesome.com",
           "data:",
