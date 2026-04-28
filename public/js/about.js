@@ -1,361 +1,253 @@
-/**
- * About Us Page - Interactive Features & Animations
- * Enhanced version with smooth animations and accessibility
+/*
+ * Landing page interactions for the redesigned ZenoPay about/home page.
+ * Keeps behavior focused on tabs, pricing toggle, FAQ accordion, counters,
+ * and accessible reveal animations.
  */
 
-(function() {
+(function () {
   'use strict';
 
-  // ═══════════════════════════════════════════════════════════════════
-  // INITIALIZE ON DOM READY
-  // ═══════════════════════════════════════════════════════════════════
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  document.addEventListener('DOMContentLoaded', function() {
-
-    // ═══════════════════════════════════════════════════════════════════
-    // SMOOTH SCROLL FOR ANCHOR LINKS
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const scrollIndicator = document.querySelector('.scroll-indicator');
-    if (scrollIndicator) {
-      scrollIndicator.addEventListener('click', function() {
-        const storySection = document.getElementById('story');
-        if (storySection) {
-          storySection.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    }
-
-    // Smooth scroll for all anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // FADE-UP ANIMATION ON SCROLL (INTERSECTION OBSERVER)
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px 0px -50px 0px',
-      threshold: 0.15
-    };
-
-    const fadeUpObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-          fadeUpObserver.unobserve(entry.target); // Animate once
-        }
-      });
-    }, observerOptions);
-
-    // Observe all elements with data-animate attribute
-    document.querySelectorAll('[data-animate]').forEach(element => {
-      fadeUpObserver.observe(element);
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // COUNTER ANIMATION FOR STATISTICS (FIXED & IMPROVED)
-    // ═══════════════════════════════════════════════════════════════════
-    
-    let statsAnimated = false;
-
-    function animateCounter(element, target, duration = 2000, suffix = '') {
-      if (!element) return;
-      
-      const isDecimal = target % 1 !== 0;
-      const start = 0;
-      const range = target - start;
-      const increment = range / (duration / 16); // 60fps
-      let current = start;
-
-      const updateCounter = () => {
-        current += increment;
-        
-        if (current < target) {
-          if (isDecimal) {
-            element.textContent = current.toFixed(1);
-          } else if (target >= 1000) {
-            element.textContent = Math.floor(current).toLocaleString('en-IN');
-          } else {
-            element.textContent = Math.floor(current);
-          }
-          requestAnimationFrame(updateCounter);
-        } else {
-          // Final value
-          if (isDecimal) {
-            element.textContent = target.toFixed(1);
-          } else if (target >= 1000) {
-            element.textContent = Math.floor(target).toLocaleString('en-IN');
-          } else {
-            element.textContent = Math.floor(target);
-          }
-        }
-      };
-
-      updateCounter();
-    }
-
-    const statsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !statsAnimated) {
-          statsAnimated = true;
-          
-          // Animate each stat counter
-          const transactionVolume = document.getElementById('transaction-volume');
-          const activeUsers = document.getElementById('active-users');
-          const uptime = document.getElementById('uptime');
-          const countries = document.getElementById('countries');
-
-          if (transactionVolume) animateCounter(transactionVolume, 10, 2000);
-          if (activeUsers) animateCounter(activeUsers, 50000, 2500);
-          if (uptime) animateCounter(uptime, 99.9, 2000);
-          if (countries) animateCounter(countries, 5, 1500);
-
-          console.log('✨ Statistics counters animated');
-        }
-      });
-    }, { threshold: 0.3 });
-
-    const statsSection = document.querySelector('.stats-section');
-    if (statsSection) {
-      statsObserver.observe(statsSection);
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    // CARD HOVER EFFECTS (LIFT & SHADOW)
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const interactiveCards = document.querySelectorAll('.founder-card, .value-card, .mv-card, .team-card');
-    
-    interactiveCards.forEach(card => {
-      card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-12px)';
-        this.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.2)';
-      });
-      
-      card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '';
-      });
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // FOUNDER CARD IMAGE ZOOM ON HOVER
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const founderCards = document.querySelectorAll('.founder-card');
-    founderCards.forEach(card => {
-      const avatar = card.querySelector('.founder-avatar img, .team-avatar img');
-      if (avatar) {
-        card.addEventListener('mouseenter', function() {
-          avatar.style.transform = 'scale(1.1)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-          avatar.style.transform = 'scale(1)';
-        });
-      }
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // PARALLAX EFFECT ON HERO SECTION
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const hero = document.querySelector('.about-hero');
-    const heroContent = document.querySelector('.hero-content');
-    
-    if (hero && heroContent) {
-      window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const heroHeight = hero.offsetHeight;
-        
-        if (scrolled < heroHeight) {
-          const parallaxSpeed = 0.3;
-          heroContent.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
-          heroContent.style.opacity = Math.max(1 - (scrolled / heroHeight), 0.3);
-        }
-      });
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    // TIMELINE ANIMATION ON SCROLL
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const timelineItems = document.querySelectorAll('.timeline-item');
-    
-    const timelineObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('timeline-animate-in');
-        }
-      });
-    }, { threshold: 0.2 });
-
-    timelineItems.forEach((item, index) => {
-      item.style.setProperty('--timeline-index', index);
-      timelineObserver.observe(item);
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // VALUE CARDS STAGGERED ANIMATION
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const valueCards = document.querySelectorAll('.value-card');
-    
-    const valueObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('value-animate-in');
-          }, index * 100);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    valueCards.forEach(card => {
-      valueObserver.observe(card);
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // CERTIFICATION BADGE ANIMATION
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const certBadges = document.querySelectorAll('.cert-badge');
-    
-    const certObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add('cert-animate-in');
-          }, index * 100);
-        }
-      });
-    }, { threshold: 0.2 });
-
-    certBadges.forEach(badge => {
-      certObserver.observe(badge);
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // PARTNER LOGO HOVER EFFECTS
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const partnerLogos = document.querySelectorAll('.partner-logo');
-    
-    partnerLogos.forEach(logo => {
-      logo.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.1)';
-      });
-      
-      logo.addEventListener('mouseleave', function() {
-        this.style.transform = 'scale(1)';
-      });
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // HIDE SCROLL INDICATOR ON SCROLL
-    // ═══════════════════════════════════════════════════════════════════
-    
-    window.addEventListener('scroll', () => {
-      if (scrollIndicator) {
-        if (window.pageYOffset > 100) {
-          scrollIndicator.style.opacity = '0';
-          scrollIndicator.style.pointerEvents = 'none';
-        } else {
-          scrollIndicator.style.opacity = '1';
-          scrollIndicator.style.pointerEvents = 'auto';
-        }
-      }
-    });
-
-    // ═══════════════════════════════════════════════════════════════════
-    // HERO ENTRANCE ANIMATIONS
-    // ═══════════════════════════════════════════════════════════════════
-    
-    const heroTitle = document.querySelector('.hero-title');
-    const heroSubtitle = document.querySelector('.hero-subtitle');
-    const heroCta = document.querySelector('.hero-cta');
-
-    if (heroTitle) heroTitle.style.animation = 'fadeInUp 1s ease 0.2s both';
-    if (heroSubtitle) heroSubtitle.style.animation = 'fadeInUp 1s ease 0.4s both';
-    if (heroCta) heroCta.style.animation = 'fadeInUp 1s ease 0.6s both';
-
-    // ═══════════════════════════════════════════════════════════════════
-    // CONSOLE LOGS
-    // ═══════════════════════════════════════════════════════════════════
-    
-    console.log('✅ About page initialized successfully');
-    console.log('✨ All animations ready');
-    console.log('📊 Statistics counter fixed and ready');
-    console.log('🎯 Intersection observers active');
-    console.log(`🗓️ Years of Innovation: ${calculateYearsOfInnovation()} years`);
-    
-  }); // End DOMContentLoaded
-
-  // ═══════════════════════════════════════════════════════════════════
-  // MOUSE PARALLAX EFFECT ON HERO LOGO
-  // ═══════════════════════════════════════════════════════════════════
-
-  document.addEventListener('mousemove', (e) => {
-    const hero = document.querySelector('.about-hero');
-    if (!hero) return;
-
-    const heroRect = hero.getBoundingClientRect();
-    if (e.clientY < heroRect.bottom && e.clientY > heroRect.top) {
-      const x = (e.clientX / window.innerWidth) - 0.5;
-      const y = (e.clientY / window.innerHeight) - 0.5;
-
-      const heroLogo = document.querySelector('.hero-logo');
-      if (heroLogo) {
-        heroLogo.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
-        heroLogo.style.transition = 'transform 0.3s ease-out';
-      }
-    }
-  });
-
-  // ═══════════════════════════════════════════════════════════════════
-  // KEYBOARD NAVIGATION SHORTCUTS
-  // ═══════════════════════════════════════════════════════════════════
-
-  document.addEventListener('keydown', (e) => {
-    // Press 'H' to go to hero (top of page)
-    if ((e.key === 'h' || e.key === 'H') && !e.target.matches('input, textarea')) {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  });
-
-  // ═══════════════════════════════════════════════════════════════════
-  // ACCESSIBILITY: REDUCED MOTION PREFERENCE
-  // ═══════════════════════════════════════════════════════════════════
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    console.log('⚠️ Reduced motion preference detected - disabling animations');
-    
-    // Disable all animations
-    const style = document.createElement('style');
-    style.textContent = `
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    `;
-    document.head.appendChild(style);
+  function formatCount(target, prefix = '', suffix = '') {
+    const rounded = Number.isInteger(target) ? target.toLocaleString('en-IN') : target.toFixed(1);
+    return `${prefix}${rounded}${suffix}`;
   }
 
-})(); // End IIFE
+  function animateCounter(el) {
+    if (!el || el.dataset.animated === 'true') return;
+    el.dataset.animated = 'true';
+
+    const target = Number(el.dataset.count || 0);
+    const prefix = el.dataset.countPrefix || '';
+    const suffix = el.dataset.countSuffix || '';
+
+    if (prefersReducedMotion) {
+      el.textContent = formatCount(target, prefix, suffix);
+      return;
+    }
+
+    const duration = 1400;
+    const start = performance.now();
+
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const value = target * (0.12 + progress * 0.88);
+      const formatted = formatCount(value, prefix, suffix);
+      el.textContent = progress < 1 ? formatted : formatCount(target, prefix, suffix);
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    };
+
+    requestAnimationFrame(tick);
+  }
+
+  function setActiveTab(tabButtons, panels, activeId, shouldFocus = false) {
+    tabButtons.forEach((button, index) => {
+      const isActive = button.dataset.paymentTab === activeId;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-selected', String(isActive));
+      button.setAttribute('tabindex', isActive ? '0' : '-1');
+      if (isActive && shouldFocus) button.focus({ preventScroll: true });
+    });
+
+    panels.forEach((panel) => {
+      const isActive = panel.id === `payment-panel-${activeId}`;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
+  }
+
+  function setCodeTab(tabButtons, panels, activeId, shouldFocus = false) {
+    tabButtons.forEach((button) => {
+      const isActive = button.dataset.codeTab === activeId;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-selected', String(isActive));
+      button.setAttribute('tabindex', isActive ? '0' : '-1');
+      if (isActive && shouldFocus) button.focus({ preventScroll: true });
+    });
+
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.codePanel === activeId;
+      panel.classList.toggle('is-active', isActive);
+      panel.hidden = !isActive;
+    });
+  }
+
+  function updatePricing(period) {
+    document.querySelectorAll('[data-price-monthly]').forEach((price) => {
+      const monthly = price.dataset.priceMonthly;
+      const annual = price.dataset.priceAnnual;
+      price.textContent = period === 'annual' ? annual : monthly;
+      const parent = price.closest('.pricing-card');
+      if (parent) {
+        const suffix = parent.querySelector('[data-price-suffix]');
+        if (suffix) suffix.textContent = period === 'annual' ? '/yr' : '/mo';
+      }
+    });
+  }
+
+  function copyActiveCode(consoleRoot, feedbackBtn) {
+    const activePanel = consoleRoot.querySelector('.developer-code.is-active pre code');
+    if (!activePanel) return;
+
+    const text = activePanel.textContent || '';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = feedbackBtn.innerHTML;
+        feedbackBtn.innerHTML = '<i class="fas fa-check"></i><span>Copied</span>';
+        window.setTimeout(() => {
+          feedbackBtn.innerHTML = original;
+        }, 1400);
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const revealTargets = document.querySelectorAll('[data-reveal], .proof-card, .feature-card, .security-card, .pricing-card, .faq-item');
+
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' });
+
+      revealTargets.forEach((target) => revealObserver.observe(target));
+    } else {
+      revealTargets.forEach((target) => target.classList.add('is-visible'));
+    }
+
+    // Smooth scroll for in-page anchors only.
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', (event) => {
+        const href = anchor.getAttribute('href');
+        if (!href || href === '#') return;
+
+        const target = document.querySelector(href);
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Social proof counters.
+    const proofStrip = document.querySelector('.proof-strip');
+    const counterTargets = document.querySelectorAll('[data-count]');
+    let countersAnimated = false;
+
+    if (proofStrip && 'IntersectionObserver' in window) {
+      const proofObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !countersAnimated) {
+            countersAnimated = true;
+            counterTargets.forEach((counter) => animateCounter(counter));
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.25 });
+
+      proofObserver.observe(proofStrip);
+    } else {
+      counterTargets.forEach((counter) => animateCounter(counter));
+    }
+
+    // Payment tabs.
+    const paymentTabs = Array.from(document.querySelectorAll('[data-payment-tab]'));
+    const paymentPanels = Array.from(document.querySelectorAll('[role="tabpanel"][id^="payment-panel-"]'));
+    if (paymentTabs.length && paymentPanels.length) {
+      const activatePaymentTab = (tabId, shouldFocus = false) => setActiveTab(paymentTabs, paymentPanels, tabId, shouldFocus);
+
+      paymentTabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activatePaymentTab(tab.dataset.paymentTab, true));
+        tab.addEventListener('keydown', (event) => {
+          const currentIndex = paymentTabs.indexOf(tab);
+          if (event.key === 'ArrowRight' || event.key === 'ArrowLeft' || event.key === 'Home' || event.key === 'End') {
+            event.preventDefault();
+            let nextIndex = currentIndex;
+            if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % paymentTabs.length;
+            if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + paymentTabs.length) % paymentTabs.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = paymentTabs.length - 1;
+            activatePaymentTab(paymentTabs[nextIndex].dataset.paymentTab, true);
+          }
+        });
+        tab.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      });
+    }
+
+    // Pricing toggle.
+    const pricingButtons = Array.from(document.querySelectorAll('[data-billing]'));
+    if (pricingButtons.length) {
+      const setBilling = (period) => {
+        pricingButtons.forEach((button) => {
+          const isActive = button.dataset.billing === period;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-selected', String(isActive));
+        });
+        updatePricing(period);
+      };
+
+      pricingButtons.forEach((button) => {
+        button.addEventListener('click', () => setBilling(button.dataset.billing));
+      });
+
+      setBilling('monthly');
+    }
+
+    // Developer console tabs and copy button.
+    const codeTabs = Array.from(document.querySelectorAll('[data-code-tab]'));
+    const codePanels = Array.from(document.querySelectorAll('[data-code-panel]'));
+    const copyButton = document.querySelector('[data-copy-code]');
+    const consoleRoot = document.querySelector('[data-code-console]');
+
+    if (codeTabs.length && codePanels.length) {
+      const activateCodeTab = (tabId, shouldFocus = false) => setCodeTab(codeTabs, codePanels, tabId, shouldFocus);
+
+      codeTabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activateCodeTab(tab.dataset.codeTab, true));
+        tab.addEventListener('keydown', (event) => {
+          const currentIndex = codeTabs.indexOf(tab);
+          if (event.key === 'ArrowRight' || event.key === 'ArrowLeft' || event.key === 'Home' || event.key === 'End') {
+            event.preventDefault();
+            let nextIndex = currentIndex;
+            if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % codeTabs.length;
+            if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + codeTabs.length) % codeTabs.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = codeTabs.length - 1;
+            activateCodeTab(codeTabs[nextIndex].dataset.codeTab, true);
+          }
+        });
+        tab.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      });
+
+      if (copyButton && consoleRoot) {
+        copyButton.addEventListener('click', () => copyActiveCode(consoleRoot, copyButton));
+      }
+    }
+
+    // FAQ details keyboard polish.
+    document.querySelectorAll('.faq-item > summary').forEach((summary) => {
+      summary.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          summary.parentElement.open = !summary.parentElement.open;
+        }
+      });
+    });
+
+    // Ensure the first payment tab and code tab are active on load.
+    if (paymentTabs.length) {
+      setActiveTab(paymentTabs, paymentPanels, paymentTabs[0].dataset.paymentTab, false);
+    }
+    if (codeTabs.length) {
+      setCodeTab(codeTabs, codePanels, codeTabs[0].dataset.codeTab, false);
+    }
+  });
+})();
