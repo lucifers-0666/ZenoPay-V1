@@ -35,9 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
   };
   
   if (billingToggle) {
-    // Set initial state to yearly (checked)
-    billingToggle.checked = true;
-    updatePricing(true);
+    // Set initial state to monthly so the public page mirrors the admin plan prices.
+    billingToggle.checked = false;
+    updatePricing(false);
+    updateLabels(false);
     
     billingToggle.addEventListener('change', function() {
       const isYearly = this.checked;

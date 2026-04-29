@@ -1,717 +1,393 @@
-/**
- * ZenoPay Modern Dashboard JavaScript
- * Handles all interactive features: mobile menu, FAQ accordion, 
- * counter animations, copy-to-clipboard, scroll animations
- */
-
 (function () {
   'use strict';
 
-  // ====================================
-  // 1. MOBILE MENU FUNCTIONALITY
-  // ====================================
-  function initMobileMenu() {
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-    const mobileMenuClose = document.getElementById('mobileMenuClose');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  function formatValue(value, options) {
+    const prefix = options.prefix || '';
+    const suffix = options.suffix || '';
+    const decimals = Number.isFinite(options.decimals) ? options.decimals : 0;
+    const format = options.format || 'number';
+    const numericValue = Number(value) || 0;
 
-    if (!mobileMenuBtn || !mobileMenuOverlay) return;
-
-    // Open mobile menu
-    mobileMenuBtn.addEventListener('click', function () {
-      mobileMenuOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
-
-    // Close mobile menu
-    if (mobileMenuClose) {
-      mobileMenuClose.addEventListener('click', function () {
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-      });
+    if (format === 'currency') {
+      return prefix + numericValue.toLocaleString('en-IN', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }) + suffix;
     }
 
-    // Close menu when clicking nav links
-    mobileNavLinks.forEach(function (link) {
-      link.addEventListener('click', function () {
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-      });
-    });
-
-    // Close menu when clicking overlay background
-    mobileMenuOverlay.addEventListener('click', function (e) {
-      if (e.target === mobileMenuOverlay) {
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    });
-
-    // Close menu on escape key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && mobileMenuOverlay.classList.contains('active')) {
-        mobileMenuOverlay.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    });
-  }
-
-  // ====================================
-  // 2. FAQ ACCORDION FUNCTIONALITY
-  // ====================================
-  function initFAQAccordion() {
-    const faqItems = document.querySelectorAll('.faq-item');
-
-    faqItems.forEach(function (item) {
-      const question = item.querySelector('.faq-question');
-      const answer = item.querySelector('.faq-answer');
-
-      if (!question || !answer) return;
-
-      question.addEventListener('click', function () {
-        const isActive = item.classList.contains('active');
-
-        // Close all other FAQs
-        faqItems.forEach(function (otherItem) {
-          if (otherItem !== item) {
-            otherItem.classList.remove('active');
-            const otherAnswer = otherItem.querySelector('.faq-answer');
-            if (otherAnswer) {
-              otherAnswer.style.maxHeight = null;
-            }
-          }
-        });
-
-        // Toggle current FAQ
-        if (isActive) {
-          item.classList.remove('active');
-          answer.style.maxHeight = null;
-        } else {
-          item.classList.add('active');
-          answer.style.maxHeight = answer.scrollHeight + 'px';
-        }
-      });
-    });
-  }
-
-  // ====================================
-  // 2.5 PRICING CARD CLICK HANDLER
-  // ====================================
-  function initPricingCardSelection() {
-    const pricingCards = document.querySelectorAll('.pricing-card');
-
-    pricingCards.forEach(function (card) {
-      card.addEventListener('click', function (e) {
-        // Don't trigger if clicking a button or link
-        if (e.target.tagName === 'BUTTON' || e.target.closest('button') ||
-          e.target.tagName === 'A' || e.target.closest('a')) {
-          return;
-        }
-
-        // Remove selected class from all cards
-        pricingCards.forEach(function (c) {
-          c.classList.remove('selected');
-        });
-
-        // Add selected class to clicked card
-        card.classList.add('selected');
-
-        // Optional: Show console log for debugging
-        const planName = card.querySelector('.pricing-plan-name');
-        if (planName) {
-          console.log(planName.textContent + ' plan selected!');
-        }
-      });
-
-      // Add keyboard accessibility
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', 'Select pricing plan');
-
-      card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          card.click();
-        }
-      });
-    });
-  }
-
-  // ====================================
-  // 3. COUNTER ANIMATIONS
-  // ====================================
-  function initCounterAnimations() {
-    function animateCounters() {
-      const counters = document.querySelectorAll('[data-target]');
-
-      counters.forEach((counter) => {
-        const target = parseFloat(counter.dataset.target);
-
-        if (isNaN(target)) {
-          console.warn('Counter has invalid target:', counter.dataset.target);
-          counter.textContent =
-            (counter.dataset.prefix || '') +
-            (counter.dataset.target || '0') +
-            (counter.dataset.suffix || '');
-          return;
-        }
-
-        const prefix = counter.dataset.prefix || '';
-        const suffix = counter.dataset.suffix || '';
-        const isDecimal = target % 1 !== 0;
-        const duration = 2000;
-        const steps = 60;
-        const increment = target / steps;
-        let current = 0;
-        let step = 0;
-
-        const timer = setInterval(() => {
-          step += 1;
-          current += increment;
-
-          if (step >= steps) {
-            current = target;
-            clearInterval(timer);
-          }
-
-          counter.textContent =
-            prefix +
-            (isDecimal
-              ? current.toFixed(1)
-              : Math.floor(current).toLocaleString('en-IN')) +
-            suffix;
-        }, duration / steps);
-      });
+    if (decimals > 0) {
+      return prefix + numericValue.toLocaleString('en-IN', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }) + suffix;
     }
 
-    const statsSection = document.querySelector('.stats-section, #stats, .stats-grid');
-
-    if (statsSection) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              animateCounters();
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.3 }
-      );
-      observer.observe(statsSection);
-    } else {
-      window.addEventListener('load', animateCounters);
-    }
+    return prefix + Math.round(numericValue).toLocaleString('en-IN') + suffix;
   }
 
-  // ====================================
-  // 4. COPY TO CLIPBOARD
-  // ====================================
-  function initCopyToClipboard() {
-    const copyButtons = document.querySelectorAll('.copy-code-btn');
-
-    copyButtons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        const targetId = button.getAttribute('data-copy-target');
-        const targetElement = document.getElementById(targetId);
-
-        if (!targetElement) return;
-
-        const textToCopy = targetElement.textContent || targetElement.innerText;
-
-        // Try modern clipboard API first
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(textToCopy).then(function () {
-            showCopyFeedback(button);
-          }).catch(function (err) {
-            console.error('Failed to copy:', err);
-            fallbackCopy(textToCopy, button);
-          });
-        } else {
-          fallbackCopy(textToCopy, button);
-        }
-      });
-    });
-  }
-
-  function fallbackCopy(text, button) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand('copy');
-      showCopyFeedback(button);
-    } catch (err) {
-      console.error('Fallback copy failed:', err);
+  function createRevealObserver() {
+    const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
+    if (!revealItems.length) {
+      return;
     }
 
-    document.body.removeChild(textArea);
-  }
-
-  function showCopyFeedback(button) {
-    const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-check"></i>';
-    button.style.background = '#10B981';
-    button.style.color = 'white';
-
-    setTimeout(function () {
-      button.innerHTML = originalHTML;
-      button.style.background = '';
-      button.style.color = '';
-    }, 2000);
-  }
-
-  // ====================================
-  // 5. SCROLL ANIMATIONS
-  // ====================================
-  function initScrollAnimations() {
-    const revealElements = document.querySelectorAll('.feature-card, .pricing-card, .testimonial-card, .step-item');
-
-    if (revealElements.length === 0) return;
-
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
+    const revealNow = function (element) {
+      const delay = Number(element.dataset.revealDelay || 0);
+      window.setTimeout(function () {
+        element.classList.add('is-revealed');
+      }, delay);
     };
+
+    if (!('IntersectionObserver' in window)) {
+      revealItems.forEach(revealNow);
+      return;
+    }
 
     const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal', 'active');
+        if (!entry.isIntersecting) {
+          return;
         }
+
+        revealNow(entry.target);
+        observer.unobserve(entry.target);
       });
-    }, observerOptions);
-
-    revealElements.forEach(function (element) {
-      element.classList.add('reveal');
-      observer.observe(element);
+    }, {
+      threshold: 0.08,
+      rootMargin: '0px 0px -40px 0px'
     });
-  }
 
-  // ====================================
-  // 6. SMOOTH SCROLL FOR ANCHOR LINKS
-  // ====================================
-  function initSmoothScroll() {
-    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    revealItems.forEach(function (item) {
+      observer.observe(item);
+    });
 
-    anchorLinks.forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        const href = link.getAttribute('href');
-
-        // Skip if it's just "#"
-        if (href === '#') return;
-
-        const targetElement = document.querySelector(href);
-
-        if (targetElement) {
-          e.preventDefault();
-
-          const headerHeight = 72; // Height of fixed header
-          const targetPosition = targetElement.offsetTop - headerHeight;
-
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-          });
-        }
+    window.setTimeout(function () {
+      revealItems.forEach(function (item) {
+        item.classList.add('is-revealed');
       });
-    });
+    }, 1400);
   }
 
-  // ====================================
-  // 7. HEADER SCROLL EFFECT
-  // ====================================
-  function initHeaderScroll() {
-    const header = document.querySelector('.modern-header');
-    if (!header) return;
-
-    let lastScroll = 0;
-
-    window.addEventListener('scroll', function () {
-      const currentScroll = window.pageYOffset;
-
-      // Add shadow when scrolled
-      if (currentScroll > 10) {
-        header.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.07)';
-      } else {
-        header.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-      }
-
-      lastScroll = currentScroll;
-    });
-  }
-
-  // ====================================
-  // 8. SHOW TOAST NOTIFICATION
-  // ====================================
-  function showToast(message, type = 'info') {
-    // Remove existing toasts
-    const existingToast = document.querySelector('.toast-notification');
-    if (existingToast) {
-      existingToast.remove();
+  function initCounters() {
+    const counters = Array.from(document.querySelectorAll('[data-count-to]'));
+    if (!counters.length) {
+      return;
     }
 
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification toast-' + type;
-    toast.innerHTML = `
-      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-      <span>${message}</span>
-    `;
+    const started = new WeakSet();
 
-    // Add toast styles dynamically if not in CSS
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6'};
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 500;
-      z-index: 9999;
-      animation: slideInUp 0.3s ease-out;
-    `;
-
-    document.body.appendChild(toast);
-
-    // Remove after 3 seconds
-    setTimeout(function () {
-      toast.style.animation = 'slideOutDown 0.3s ease-out';
-      setTimeout(function () {
-        toast.remove();
-      }, 300);
-    }, 3000);
-  }
-
-  // Add toast animations to document
-  function addToastAnimations() {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideInUp {
-        from {
-          transform: translateY(100px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
+    function animateCounter(node) {
+      if (started.has(node)) {
+        return;
       }
-      @keyframes slideOutDown {
-        from {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateY(100px);
-          opacity: 0;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
 
-  // ====================================
-  // 9. FORM VALIDATION (IF NEEDED)
-  // ====================================
-  function initFormValidation() {
-    const forms = document.querySelectorAll('form[data-validate]');
+      started.add(node);
 
-    forms.forEach(function (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
+      const target = Number(node.dataset.countTo || 0);
+      const prefix = node.dataset.prefix || '';
+      const suffix = node.dataset.suffix || '';
+      const decimals = Number(node.dataset.decimals || 0);
+      const format = node.dataset.format || 'number';
+      const duration = 1400;
+      const startTime = performance.now();
 
-        const inputs = form.querySelectorAll('input[required], textarea[required]');
-        let isValid = true;
-
-        inputs.forEach(function (input) {
-          if (!input.value.trim()) {
-            isValid = false;
-            input.style.borderColor = '#EF4444';
-          } else {
-            input.style.borderColor = '';
-          }
+      function tick(now) {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        node.textContent = formatValue(target * eased, {
+          prefix: prefix,
+          suffix: suffix,
+          decimals: decimals,
+          format: format
         });
 
-        if (isValid) {
-          showToast('Form submitted successfully!', 'success');
-          // Actual form submission logic here
+        if (progress < 1) {
+          window.requestAnimationFrame(tick);
         } else {
-          showToast('Please fill in all required fields', 'error');
-        }
-      });
-    });
-  }
-
-  // ====================================
-  // 10. LAZY LOADING IMAGES
-  // ====================================
-  function initLazyLoading() {
-    const images = document.querySelectorAll('img[data-src]');
-
-    if (images.length === 0 || !('IntersectionObserver' in window)) return;
-
-    const imageObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.getAttribute('data-src');
-          img.removeAttribute('data-src');
-          imageObserver.unobserve(img);
-        }
-      });
-    });
-
-    images.forEach(function (img) {
-      imageObserver.observe(img);
-    });
-  }
-
-  // ====================================
-  // 11. UTILITY FUNCTIONS
-  // ====================================
-
-  // Debounce function for performance
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction() {
-      const context = this;
-      const args = arguments;
-      clearTimeout(timeout);
-      timeout = setTimeout(function () {
-        func.apply(context, args);
-      }, wait);
-    };
-  }
-
-  // Throttle function for scroll events
-  function throttle(func, limit) {
-    let inThrottle;
-    return function () {
-      const args = arguments;
-      const context = this;
-      if (!inThrottle) {
-        func.apply(context, args);
-        inThrottle = true;
-        setTimeout(function () {
-          inThrottle = false;
-        }, limit);
-      }
-    };
-  }
-
-  // Check if element is in viewport
-  function isInViewport(element) {
-    const rect = element.getBoundingClientRect();
-    return (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
-  }
-
-  // ====================================
-  // 12. PERFORMANCE MONITORING
-  // ====================================
-  function logPerformance() {
-    if ('performance' in window) {
-      window.addEventListener('load', function () {
-        setTimeout(function () {
-          const perfData = window.performance.timing;
-          const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-          console.log('Page Load Time:', pageLoadTime + 'ms');
-        }, 0);
-      });
-    }
-  }
-
-  // ====================================
-  // 13. ERROR HANDLING
-  // ====================================
-  function initErrorHandling() {
-    window.addEventListener('error', function (e) {
-      console.error('Global error:', e.message);
-      // You can send errors to analytics service here
-    });
-
-    window.addEventListener('unhandledrejection', function (e) {
-      console.error('Unhandled promise rejection:', e.reason);
-    });
-  }
-
-  // ====================================
-  // 14. DASHBOARD PAGE HELPERS (MOVED FROM INLINE)
-  // ====================================
-  function initTicker() {
-    const items = document.querySelectorAll('.ticker-item');
-    if (!items.length) return;
-    let current = 0;
-    items[0].classList.add('active');
-    setInterval(() => {
-      items[current].classList.remove('active');
-      current = (current + 1) % items.length;
-      items[current].classList.add('active');
-    }, 2800);
-  }
-
-  function toggleBilling(cb) {
-    const isAnnual = cb.checked;
-    const ml = document.getElementById('monthlyLabel');
-    const al = document.getElementById('annualLabel');
-    if (ml) ml.style.cssText = isAnnual ? 'color:#94A3B8;font-weight:500' : 'color:#0F172A;font-weight:700';
-    if (al) al.style.cssText = isAnnual ? 'color:#0F172A;font-weight:700' : 'color:#94A3B8;font-weight:500';
-    document.querySelectorAll('[data-monthly][data-annual]').forEach(el => {
-      el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
-    });
-  }
-
-  function switchPMTab(tab, btn) {
-    document.querySelectorAll('.pm-content').forEach(c => c.classList.remove('pm-content-active'));
-    document.querySelectorAll('.pm-tab').forEach(b => b.classList.remove('pm-tab-active'));
-    const target = document.getElementById('tab-' + tab);
-    if (target) target.classList.add('pm-content-active');
-    if (btn) btn.classList.add('pm-tab-active');
-  }
-
-  function initCopyZenoPayId() {
-    document.querySelectorAll('.zd-acct-copy').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const val = btn.previousElementSibling?.textContent?.trim();
-        if (val) {
-          navigator.clipboard.writeText(val).then(() => {
-            btn.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+          node.textContent = formatValue(target, {
+            prefix: prefix,
+            suffix: suffix,
+            decimals: decimals,
+            format: format
           });
         }
+      }
+
+      window.requestAnimationFrame(tick);
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      counters.forEach(animateCounter);
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        animateCounter(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.2
+    });
+
+    counters.forEach(function (counter) {
+      observer.observe(counter);
+    });
+
+    window.setTimeout(function () {
+      counters.forEach(animateCounter);
+    }, 1800);
+  }
+
+  function initPricingToggle() {
+    const toggle = document.getElementById('billingToggle');
+    if (!toggle) {
+      return;
+    }
+
+    const monthlyLabel = document.getElementById('monthlyLabel');
+    const annualLabel = document.getElementById('annualLabel');
+    const prices = Array.from(document.querySelectorAll('.dash-pricing-price'));
+    const periods = Array.from(document.querySelectorAll('.dash-pricing-period'));
+
+    function updatePricing() {
+      const annual = toggle.checked;
+
+      if (monthlyLabel) {
+        monthlyLabel.classList.toggle('is-active', !annual);
+      }
+
+      if (annualLabel) {
+        annualLabel.classList.toggle('is-active', annual);
+      }
+
+      prices.forEach(function (price) {
+        const nextValue = annual ? price.dataset.annual : price.dataset.monthly;
+        price.textContent = nextValue || price.textContent;
+      });
+
+      periods.forEach(function (period) {
+        period.textContent = annual ? '/month billed annually' : '/month';
+      });
+    }
+
+    toggle.addEventListener('change', updatePricing);
+    updatePricing();
+  }
+
+  function initProgressBars() {
+    const bars = Array.from(document.querySelectorAll('.dash-progress > [data-progress]'));
+    bars.forEach(function (bar) {
+      const value = Number(bar.dataset.progress || 0);
+      const width = Math.max(0, Math.min(100, value));
+      bar.style.width = width + '%';
+    });
+  }
+
+  function initPaymentTabs() {
+    const tabs = Array.from(document.querySelectorAll('[data-pm-tab]'));
+    const panels = Array.from(document.querySelectorAll('.dash-tab-panel'));
+
+    if (!tabs.length || !panels.length) {
+      return;
+    }
+
+    function activateTab(tab) {
+      const target = tab.dataset.pmTab;
+      tabs.forEach(function (item) {
+        const active = item === tab;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      panels.forEach(function (panel) {
+        panel.classList.toggle('is-active', panel.id === 'tab-' + target);
+      });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activateTab(tab);
       });
     });
   }
 
-  function animateWalletBalance() {
-    const node = document.getElementById('walletBalanceAnimated');
-    if (!node) return;
+  function showTemporaryIcon(button, iconClass) {
+    const icon = button.querySelector('i');
+    if (!icon) {
+      return;
+    }
 
-    const target = Number(node.dataset.balance || 0);
-    const duration = 1200;
-    const start = performance.now();
+    const original = icon.className;
+    icon.className = iconClass;
 
-    const formatINR = (value) => `₹${Number(value || 0).toLocaleString('en-IN', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-
-    const step = (now) => {
-      const progress = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      node.textContent = formatINR(target * eased);
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      }
-    };
-
-    requestAnimationFrame(step);
+    window.setTimeout(function () {
+      icon.className = original;
+    }, 1400);
   }
 
-  // ====================================
-  // INITIALIZATION
-  // ====================================
+  function copyText(text) {
+    if (!text) {
+      return Promise.resolve(false);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () {
+        return true;
+      }).catch(function () {
+        return false;
+      });
+    }
+
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (error) {
+      copied = false;
+    }
+
+    document.body.removeChild(textArea);
+    return Promise.resolve(copied);
+  }
+
+  function initCopyActions() {
+    const copyValueButtons = Array.from(document.querySelectorAll('[data-copy-value]'));
+    const copyTargetButtons = Array.from(document.querySelectorAll('[data-copy-target]'));
+
+    copyValueButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        copyText(button.dataset.copyValue || '').then(function (copied) {
+          if (copied) {
+            showTemporaryIcon(button, 'fas fa-check');
+          }
+        });
+      });
+    });
+
+    copyTargetButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        const target = document.getElementById(button.dataset.copyTarget || '');
+        if (!target) {
+          return;
+        }
+
+        copyText(target.textContent || '').then(function (copied) {
+          if (copied) {
+            showTemporaryIcon(button, 'fas fa-check');
+          }
+        });
+      });
+    });
+  }
+
+  function initDismissActions() {
+    const dismissButtons = Array.from(document.querySelectorAll('[data-dismiss-target]'));
+
+    dismissButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        const target = document.getElementById(button.dataset.dismissTarget || '');
+        if (target) {
+          target.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  function initRippleEffects() {
+    const buttons = Array.from(document.querySelectorAll('[data-ripple]'));
+
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        const rect = button.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        const size = Math.max(rect.width, rect.height);
+
+        ripple.className = 'dash-ripple';
+        ripple.style.width = size + 'px';
+        ripple.style.height = size + 'px';
+        ripple.style.left = (event.clientX - rect.left) + 'px';
+        ripple.style.top = (event.clientY - rect.top) + 'px';
+
+        button.appendChild(ripple);
+
+        window.setTimeout(function () {
+          ripple.remove();
+        }, 600);
+      });
+    });
+  }
+
+  function initSmoothAnchors() {
+    const anchors = Array.from(document.querySelectorAll('a[href^="#"]'));
+
+    anchors.forEach(function (anchor) {
+      anchor.addEventListener('click', function (event) {
+        const href = anchor.getAttribute('href');
+        if (!href || href === '#') {
+          return;
+        }
+
+        const target = document.querySelector(href);
+        if (!target) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const header = document.querySelector('header');
+        const headerOffset = header ? header.getBoundingClientRect().height : 72;
+        const top = target.getBoundingClientRect().top + window.pageYOffset - headerOffset - 12;
+
+        window.scrollTo({
+          top: top,
+          behavior: 'smooth'
+        });
+      });
+    });
+  }
+
+  function initNewsletterValidation() {
+    const forms = Array.from(document.querySelectorAll('form[data-validate]'));
+    forms.forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        const email = form.querySelector('input[type="email"]');
+        if (!email || email.value.trim()) {
+          return;
+        }
+
+        event.preventDefault();
+        email.focus();
+      });
+    });
+  }
+
   function init() {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () {
-        initializeAll();
-      });
-    } else {
-      initializeAll();
-    }
+    createRevealObserver();
+    initCounters();
+    initProgressBars();
+    initPricingToggle();
+    initPaymentTabs();
+    initCopyActions();
+    initDismissActions();
+    initRippleEffects();
+    initSmoothAnchors();
+    initNewsletterValidation();
   }
 
-  function initializeAll() {
-    console.log('Initializing ZenoPay Modern Dashboard...');
-
-    // Initialize all features
-    initMobileMenu();
-    initFAQAccordion();
-    initPricingCardSelection();
-
-    // Ensure stat numbers are visible before animation
-    ensureStatNumbersAreVisible();
-    initCounterAnimations();
-
-    initCopyToClipboard();
-    initScrollAnimations();
-    initSmoothScroll();
-    initHeaderScroll();
-    initFormValidation();
-    initLazyLoading();
-    initErrorHandling();
-    addToastAnimations();
-    initTicker();
-    initCopyZenoPayId();
-    animateWalletBalance();
-
-    // Expose functions used by inline onclick attributes in templates.
-    window.toggleBilling = toggleBilling;
-    window.switchPMTab = switchPMTab;
-
-    // Performance monitoring (development only)
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      logPerformance();
-    }
-
-    console.log('✓ ZenoPay Modern Dashboard initialized successfully');
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  // ====================================
-  // ENSURE STAT NUMBERS ARE VISIBLE
-  // ====================================
-  function ensureStatNumbersAreVisible() {
-    // Fallback to ensure all stat numbers show their content immediately
-    const allStatNumbers = document.querySelectorAll('.stat-number');
-    allStatNumbers.forEach(function (element) {
-      const hasDataTarget = element.hasAttribute('data-target');
-      const currentText = element.textContent.trim();
-
-      if (hasDataTarget) {
-        // Will be animated, start with 0
-        if (!currentText || currentText === '') {
-          element.textContent = '0';
-        }
-      } else {
-        // Static content - ensure it's visible
-        if (currentText && currentText !== '0') {
-          element.style.visibility = 'visible';
-          element.style.opacity = '1';
-        }
-      }
-    });
-  }
-
-  // Start initialization
-  init();
-
-// ====================================
-// EXPORT PUBLIC API (IF NEEDED)
-// ====================================
-window.ZenoPayDashboard = {
-  showToast: showToast,
-  debounce: debounce,
-  throttle: throttle,
-  isInViewport: isInViewport,
-  toggleBilling: toggleBilling,
-  switchPMTab: switchPMTab
-};
-
-}) ();
+})();
