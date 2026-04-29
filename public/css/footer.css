@@ -1,43 +1,22 @@
 @import url('/css/global-fonts.css');
+@import url('/css/variables.css');
 
 /* ====================================
-   MODERN FINTECH FOOTER (PREMIUM UPGRADE)
+   MODERN FINTECH FOOTER (THEMED)
    ==================================== */
 
 :root {
-  --primary: #3B82F6;
-  --primary-dark: #2563EB;
-  --primary-light: #60A5FA;
-  --secondary: #8B5CF6;
-  --secondary-dark: #7C3AED;
-  --success: #10B981;
-  --success-dark: #059669;
-  --accent: #F59E0B;
-  --accent-dark: #D97706;
-
-  --primary-blue: #3B82F6;
+  /* footer-specific accents */
   --primary-blue-light: #60A5FA;
   --primary-blue-lighter: #93C5FD;
   --accent-beige: #d2c1b6;
   --light-cream: #f9f3ef;
 
-  --white: #ffffff;
-  --slate-50: #F8FAFC;
-  --slate-100: #F1F5F9;
-  --slate-200: #E2E8F0;
-  --slate-300: #CBD5E1;
-  --slate-400: #94A3B8;
-  --slate-500: #6B7280;
-  --slate-600: #475569;
-  --slate-700: #374151;
-  --slate-800: #2c3e50;
-  --slate-900: #1F2937;
-
-  --text-dark: #2c3e50;
-  --text-light: #6c757d;
+  --text-dark: var(--text-primary);
+  --text-light: var(--text-secondary);
 
   --error: #dc3545;
-  --warning: #F59E0B;
+  --warning: var(--accent);
   --info: #456882;
 }
 
@@ -54,8 +33,9 @@
   margin: 0;
   font-family: var(--zenopay-font-sans);
   color: #E2E8F0;
+  color: var(--white);
   border-top: 3px solid transparent;
-  border-image: linear-gradient(90deg, #3B82F6, #8B5CF6) 1;
+  border-image: var(--brand-gradient) 1;
 }
 
 /* ═══════════════════════════════════
@@ -84,9 +64,9 @@
   gap: 40px;
   flex-wrap: wrap;
   box-sizing: border-box;
-  background: linear-gradient(135deg, #1D4ED8 0%, #4F46E5 50%, #6B3FA0 100%);
+  background: var(--brand-gradient);
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 10px 40px rgba(37,99,235,0.12);
   margin: 0 auto 50px !important;
   position: relative !important;
   bottom: auto !important;
@@ -183,7 +163,7 @@
 .newsletter-input::placeholder { color: #94A3B8; }
 
 .newsletter-input:focus {
-  box-shadow: inset 0 0 0 2px #3B82F6;
+  box-shadow: inset 0 0 0 2px var(--primary);
 }
 
 .newsletter-btn {
@@ -238,7 +218,7 @@
 .stats-bar-section .stat-icon-wrapper {
   font-size: 32px;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  background: var(--brand-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -432,7 +412,7 @@
   display: inline-block;
   width: 5px;
   height: 5px;
-  background: #3B82F6;
+  background: var(--primary);
   border-radius: 50%;
   margin-right: 8px;
   flex-shrink: 0;
@@ -445,7 +425,7 @@
   left: 0;
   width: 32px;
   height: 2px;
-  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
   border-radius: 2px;
 }
 
@@ -486,7 +466,7 @@
 }
 
 .footer-link:hover .footer-link-icon {
-  color: #3B82F6;
+  color: var(--primary);
 }
 
 /* ═══════════════════════════════════
@@ -538,8 +518,8 @@
 }
 
 .trust-icon-security  { color: #10B981; }
-.trust-icon-compliance { color: #3B82F6; }
-.trust-icon-uptime     { color: #8B5CF6; }
+.trust-icon-compliance { color: var(--primary); }
+.trust-icon-uptime     { color: var(--secondary); }
 
 .trust-card:hover .trust-icon { transform: scale(1.1); }
 
@@ -608,7 +588,7 @@ footer,
   transition: color 0.2s;
 }
 
-.footer-legal-link:hover { color: #3B82F6; }
+.footer-legal-link:hover { color: var(--primary); }
 
 .heart-icon {
   display: inline-block;
@@ -691,7 +671,7 @@ footer,
   transition: all 0.2s;
 }
 
-.language-selector:hover { border-color: #3B82F6; }
+.language-selector:hover { border-color: var(--primary); }
 
 .language-text {
   font-size: 13px;

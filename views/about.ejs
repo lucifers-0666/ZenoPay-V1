@@ -3,598 +3,482 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ZenoPay helps modern businesses accept payments globally, get paid instantly, and manage collections with enterprise-grade security.">
-  <title><%= pageTitle || 'ZenoPay | Accept Payments Globally' %></title>
+  <meta name="description" content="About ZenoPay - building secure, transparent payment infrastructure for Indian businesses.">
+  <title><%= pageTitle || 'About ZenoPay' %></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/header.css">
   <link rel="stylesheet" href="/css/footer.css">
   <link rel="stylesheet" href="/css/about.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <%- include('partials/header') %>
 
-  <main class="landing-page">
-    <!-- HERO -->
-    <section class="zeno-hero" aria-labelledby="hero-title">
-      <div class="zeno-hero__bg">
-        <span class="zeno-hero__mesh"></span>
-        <span class="zeno-hero__orb zeno-hero__orb--blue"></span>
-        <span class="zeno-hero__orb zeno-hero__orb--purple"></span>
-        <span class="zeno-hero__orb zeno-hero__orb--cyan"></span>
-      </div>
+  <main class="about-page">
+    <section class="about-hero-v2" aria-labelledby="hero-title">
+      <div class="container hero-v2-inner">
+        <div class="hero-v2-left" data-animate>
+          <span class="hero-v2-badge">About ZenoPay</span>
+          <h1 id="hero-title" class="hero-v2-title">Payment infrastructure built for businesses that need clarity, control, and scale.</h1>
+          <p class="hero-v2-sub">
+            ZenoPay builds secure, transparent, and scalable payment infrastructure for Indian businesses that want cleaner collections, faster visibility, and steadier growth.
+          </p>
 
-      <div class="container zeno-hero__grid">
-        <div class="zeno-hero__content">
-          <div class="hero-kicker">
-            <i class="fas fa-shield-heart"></i>
-            <span>Trusted fintech infrastructure for modern businesses</span>
+          <div class="hero-v2-actions">
+            <a class="btn-v2-primary" href="/register"><i data-lucide="zap"></i><span>Start Free</span></a>
+            <a class="btn-v2-ghost" href="/contact"><i data-lucide="message-square"></i><span>Contact Us</span></a>
           </div>
 
-          <h1 id="hero-title" class="zeno-hero__title">Accept Payments Globally. Get Paid Instantly.</h1>
-          <p class="zeno-hero__subtitle">Fast, secure, enterprise-grade payment infrastructure for Indian and global businesses that need stronger conversion, cleaner operations, and reliable scale.</p>
-
-          <p class="zeno-hero__microtrust">No setup fee · Fast onboarding · 99.9% uptime · Built for scale</p>
-
-          <div class="hero-actions" aria-label="Primary actions">
-            <a class="btn btn--primary" href="/register">
-              <i class="fas fa-bolt"></i>
-              <span>Start Free</span>
-            </a>
-            <a class="btn btn--ghost" href="/contact">
-              <i class="fas fa-play-circle"></i>
-              <span>Book Demo</span>
-            </a>
-          </div>
-
-          <div class="hero-badges" aria-label="Trust badges">
-            <span class="trust-badge"><i class="fas fa-check-circle"></i> PCI DSS</span>
-            <span class="trust-badge"><i class="fas fa-check-circle"></i> RBI-ready messaging</span>
-            <span class="trust-badge"><i class="fas fa-check-circle"></i> 10,000+ businesses</span>
-            <span class="trust-badge"><i class="fas fa-check-circle"></i> 24/7 support</span>
+          <div class="hero-v2-trust" aria-label="Trust markers">
+            <span class="trust-chip"><i data-lucide="shield-check"></i> Secure by design</span>
+            <span class="trust-chip"><i data-lucide="landmark"></i> Built for India</span>
+            <span class="trust-chip"><i data-lucide="code"></i> API-first operations</span>
           </div>
         </div>
 
-        <div class="zeno-hero__visual" aria-hidden="true">
-          <div class="hero-card hero-card--primary">
-            <div class="hero-card__top">
-              <div>
-                <p class="hero-card__eyebrow">Live dashboard</p>
-                <h2 class="hero-card__title">Payments moving now</h2>
-              </div>
-              <div class="hero-live-pill"><span></span> Live</div>
-            </div>
-
-            <div class="hero-metrics">
-              <div class="hero-metric">
-                <span class="hero-metric__label">Today’s volume</span>
-                <strong>₹24.8L</strong>
-                <small class="is-positive"><i class="fas fa-arrow-up"></i> 12.4%</small>
-              </div>
-              <div class="hero-metric">
-                <span class="hero-metric__label">Success rate</span>
-                <strong>99.92%</strong>
-                <small class="is-positive"><i class="fas fa-arrow-up"></i> 0.3%</small>
-              </div>
-            </div>
-
-            <div class="hero-chart" aria-label="Payment activity chart">
-              <span style="height:38%"></span>
-              <span style="height:56%"></span>
-              <span style="height:44%"></span>
-              <span style="height:72%"></span>
-              <span style="height:61%"></span>
-              <span style="height:88%"></span>
-              <span style="height:74%" class="is-active"></span>
-            </div>
-
-            <div class="hero-transactions">
-              <div class="hero-transaction">
-                <div class="hero-avatar hero-avatar--blue">A</div>
+        <div class="hero-v2-right" data-animate>
+          <article class="hero-visual-card" aria-label="ZenoPay platform snapshot">
+            <div class="hvc-header">
+              <div class="hvc-brand-wrap">
+                <img src="/Images/bgFavicon.png" alt="ZenoPay" class="hvc-logo">
                 <div>
-                  <strong>Arjun Retail</strong>
-                  <span>Payment received · 2 min ago</span>
+                  <div class="hvc-brand">ZenoPay Dashboard</div>
+                  <div class="hvc-tagline">Calm operations for modern payment teams</div>
                 </div>
-                <b class="is-positive">+₹5,200</b>
               </div>
-              <div class="hero-transaction">
-                <div class="hero-avatar hero-avatar--green">S</div>
-                <div>
-                  <strong>Secure settlement</strong>
-                  <span>Settlement in progress</span>
-                </div>
-                <b>In flight</b>
+              <span class="hvc-live-badge"><span class="hvc-live-dot"></span> Live</span>
+            </div>
+
+            <div class="hvc-stats-grid">
+              <div class="hvc-stat">
+                <span class="hvc-stat-key">Settlement status</span>
+                <span class="hvc-stat-val">On track</span>
               </div>
-              <div class="hero-transaction">
-                <div class="hero-avatar hero-avatar--purple">U</div>
-                <div>
-                  <strong>UPI / Card / Netbanking</strong>
-                  <span>Multi-rail checkout support</span>
-                </div>
-                <b>Ready</b>
+              <div class="hvc-stat">
+                <span class="hvc-stat-key">Daily visibility</span>
+                <span class="hvc-stat-val">Real-time</span>
+              </div>
+              <div class="hvc-stat">
+                <span class="hvc-stat-key">Merchant support</span>
+                <span class="hvc-stat-val">24/7 ops</span>
+              </div>
+              <div class="hvc-stat">
+                <span class="hvc-stat-key">Core rails</span>
+                <span class="hvc-stat-val">UPI, cards, net banking</span>
               </div>
             </div>
-          </div>
 
-          <div class="hero-float hero-float--left">
-            <i class="fas fa-shield-halved"></i>
-            <span>Bank-grade security</span>
-          </div>
-          <div class="hero-float hero-float--right">
-            <i class="fas fa-globe"></i>
-            <span>Global-ready collections</span>
-          </div>
+            <div class="hvc-flow">
+              <div class="hvc-flow-head">
+                <span class="hvc-flow-label">Platform overview</span>
+                <span class="hvc-flow-meta">Today</span>
+              </div>
+              <div class="hvc-chart" aria-hidden="true">
+                <span class="hvc-chart-bar" style="height: 34%"></span>
+                <span class="hvc-chart-bar" style="height: 48%"></span>
+                <span class="hvc-chart-bar" style="height: 56%"></span>
+                <span class="hvc-chart-bar hvc-chart-bar--active" style="height: 78%"></span>
+                <span class="hvc-chart-bar" style="height: 62%"></span>
+                <span class="hvc-chart-bar" style="height: 84%"></span>
+              </div>
+            </div>
+
+            <div class="hvc-txn-list" aria-label="Sample activity">
+              <div class="hvc-txn">
+                <div class="hvc-txn-avatar">AR</div>
+                <div class="hvc-txn-info">
+                  <span class="hvc-txn-name">Arjun Retail</span>
+                  <span class="hvc-txn-time">Collections settled with reconciliation status attached</span>
+                </div>
+                <span class="hvc-txn-amt">INR 5,200</span>
+              </div>
+              <div class="hvc-txn">
+                <div class="hvc-txn-avatar hvc-txn-avatar--green">OP</div>
+                <div class="hvc-txn-info">
+                  <span class="hvc-txn-name">Ops routing</span>
+                  <span class="hvc-txn-time">Monitoring active across payment flows</span>
+                </div>
+                <span class="hvc-txn-amt">Stable</span>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- PROOF STRIP -->
-    <section class="proof-strip" aria-labelledby="proof-title">
+    <section class="story-v2" id="story" aria-labelledby="story-title">
       <div class="container">
-        <div class="section-kicker">Proof that scales with you</div>
-        <h2 id="proof-title" class="section-title section-title--center">Trusted by businesses that need clarity, reliability, and speed</h2>
-        <div class="proof-grid">
-          <article class="proof-card">
-            <strong class="proof-card__value" data-count="10000">10,000+</strong>
-            <span class="proof-card__label">Businesses onboarded</span>
-          </article>
-          <article class="proof-card">
-            <strong class="proof-card__value" data-count="500">₹500Cr+</strong>
-            <span class="proof-card__label">Annual payment volume</span>
-          </article>
-          <article class="proof-card">
-            <strong class="proof-card__value" data-count="99.9">99.9%</strong>
-            <span class="proof-card__label">Platform uptime</span>
-          </article>
-          <article class="proof-card">
-            <strong class="proof-card__value" data-count="150">150+</strong>
-            <span class="proof-card__label">Payment flows supported</span>
-          </article>
+        <div class="section-header-center" data-animate>
+          <span class="section-label">Our story</span>
+          <h2 class="section-title" id="story-title">How ZenoPay began</h2>
+          <p class="section-description">
+            A fintech story shaped by merchant pain points, practical product decisions, and the need to make money movement easier to trust.
+          </p>
+        </div>
+
+        <div class="story-v2-grid">
+          <div class="story-v2-timeline" data-animate>
+            <article class="sv2-tl-item">
+              <span class="sv2-tl-dot"></span>
+              <div class="sv2-tl-content">
+                <span class="sv2-tl-year">2024</span>
+                <h3 class="sv2-tl-title">The problem became clear</h3>
+                <p class="sv2-tl-text">Businesses needed faster onboarding, better settlement visibility, and less operational confusion.</p>
+              </div>
+            </article>
+            <article class="sv2-tl-item">
+              <span class="sv2-tl-dot"></span>
+              <div class="sv2-tl-content">
+                <span class="sv2-tl-year">2024</span>
+                <h3 class="sv2-tl-title">Merchant discovery shaped the product</h3>
+                <p class="sv2-tl-text">Early conversations informed the first onboarding, dashboard, and collections experience.</p>
+              </div>
+            </article>
+            <article class="sv2-tl-item">
+              <span class="sv2-tl-dot"></span>
+              <div class="sv2-tl-content">
+                <span class="sv2-tl-year">2025</span>
+                <h3 class="sv2-tl-title">Infrastructure moved into production</h3>
+                <p class="sv2-tl-text">The platform matured around secure rails, reporting discipline, and operational reliability.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="story-v2-text" data-animate>
+            <p>ZenoPay was founded in 2024 by Zaid Amreliya and Ashok Sah with one belief: businesses in India deserve payment infrastructure that is fast, secure, and easy to understand.</p>
+            <p>The idea came from seeing how difficult payment operations could become for growing teams. High fees, delayed settlements, and poor visibility turned payments into friction instead of an advantage.</p>
+            <p>Zaid focused on strategy, partnerships, and user experience while Ashok built the technical foundation. Together, they formed a lean team in Ahmedabad and started building a product around trust and usability.</p>
+            <p>Today, ZenoPay supports businesses that want simpler money movement, clearer reporting, and a platform that can grow with them.</p>
+
+            <div class="story-v2-actions">
+              <a class="btn-v2-primary" href="/contact"><i data-lucide="calendar-days"></i><span>Talk to the team</span></a>
+              <a class="btn-v2-ghost" href="#team"><i data-lucide="users"></i><span>Meet the people</span></a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FEATURES -->
-    <section class="features-section" aria-labelledby="features-title">
+    <section class="mission-vision-section" aria-labelledby="mission-vision-title">
       <div class="container">
-        <div class="section-header">
-          <div class="section-kicker">Why choose ZenoPay</div>
-          <h2 id="features-title" class="section-title">Designed for modern businesses that need speed, clarity, and trust</h2>
-          <p class="section-subtitle">Built to reduce checkout friction, improve visibility, and keep operations calm under pressure.</p>
+        <div class="section-header-center" data-animate>
+          <span class="section-label">Mission and vision</span>
+          <h2 class="section-title" id="mission-vision-title">Focused on simpler payments and stronger operating trust</h2>
+          <p class="section-description">Two ideas guide the product: reduce payment friction now, and build the long-term rails businesses can depend on.</p>
         </div>
 
-        <div class="feature-grid feature-grid--primary">
-          <article class="feature-card feature-card--large">
-            <i class="feature-card__icon fas fa-bolt"></i>
-            <h3>Instant Transfers</h3>
-            <p>Move money quickly with payment rails that support fast settlements and a cleaner cash cycle.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
+        <div class="mission-vision-grid">
+          <article class="mv-card" data-animate>
+            <div class="mv-icon-wrapper"><i data-lucide="target"></i></div>
+            <h3 class="mv-title">Our mission</h3>
+            <p class="mv-text">To make payment infrastructure simple, secure, and predictable for Indian businesses so teams spend less time managing friction and more time building momentum.</p>
+            <a href="/contact" class="mv-link">See how we work <i data-lucide="arrow-right"></i></a>
           </article>
-          <article class="feature-card feature-card--large">
-            <i class="feature-card__icon fas fa-shield-halved"></i>
-            <h3>Bank-grade Security</h3>
-            <p>Keep every transaction protected with layered controls, monitoring, and compliance-minded architecture.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
-          </article>
-          <article class="feature-card feature-card--large">
-            <i class="feature-card__icon fas fa-chart-line"></i>
-            <h3>Smart Analytics</h3>
-            <p>Understand success rates, settlements, and payment mix with dashboards that are actually useful.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
-          </article>
-        </div>
 
-        <div class="feature-grid feature-grid--secondary">
-          <article class="feature-card">
-            <i class="feature-card__icon fas fa-receipt"></i>
-            <h3>Multi-rail Payments</h3>
-            <p>UPI, cards, netbanking, wallets, and international flows in one platform.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
-          </article>
-          <article class="feature-card">
-            <i class="feature-card__icon fas fa-tags"></i>
-            <h3>Zero Hidden Fees</h3>
-            <p>Transparent pricing that makes finance teams and founders equally comfortable.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
-          </article>
-          <article class="feature-card">
-            <i class="feature-card__icon fas fa-headset"></i>
-            <h3>24/7 Support</h3>
-            <p>Get responsive help from a team that understands what downtime costs.</p>
-            <a href="/contact">Learn more <i class="fas fa-arrow-right"></i></a>
+          <article class="mv-card" data-animate>
+            <div class="mv-icon-wrapper"><i data-lucide="eye"></i></div>
+            <h3 class="mv-title">Our vision</h3>
+            <p class="mv-text">To become a trusted infrastructure layer for the next generation of Indian commerce, combining product discipline, operational transparency, and scale-ready systems.</p>
+            <a href="/register" class="mv-link">Build with ZenoPay <i data-lucide="arrow-right"></i></a>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- PAYMENT METHODS -->
-    <section class="payments-section" aria-labelledby="payments-title">
-      <div class="container payments-grid">
-        <div class="payments-copy">
-          <div class="section-kicker">Payment methods</div>
-          <h2 id="payments-title" class="section-title">Accept payments the way your customers prefer</h2>
-          <p class="section-subtitle">From UPI and cards to net banking and wallets — give every customer a checkout experience that feels familiar and friction-light.</p>
-
-          <div class="payments-points">
-            <div><i class="fas fa-circle-check"></i><span>2.3 Cr+ monthly transactions processed</span></div>
-            <div><i class="fas fa-circle-check"></i><span>Higher conversion across local and global payment rails</span></div>
-            <div><i class="fas fa-circle-check"></i><span>Easy checkout orchestration with one unified flow</span></div>
-          </div>
-
-          <div class="payment-tabs" role="tablist" aria-label="Supported payment methods">
-            <button class="payment-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="payment-panel-upi" data-payment-tab="upi">UPI</button>
-            <button class="payment-tab" type="button" role="tab" aria-selected="false" aria-controls="payment-panel-cards" data-payment-tab="cards">Cards</button>
-            <button class="payment-tab" type="button" role="tab" aria-selected="false" aria-controls="payment-panel-netbanking" data-payment-tab="netbanking">Net Banking</button>
-            <button class="payment-tab" type="button" role="tab" aria-selected="false" aria-controls="payment-panel-wallets" data-payment-tab="wallets">Wallets</button>
-            <button class="payment-tab" type="button" role="tab" aria-selected="false" aria-controls="payment-panel-international" data-payment-tab="international">International</button>
-          </div>
-
-          <div class="payment-brand-row" aria-label="Accepted brands">
-            <span>UPI</span><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>NetBanking</span><span>Wallets</span>
-          </div>
-        </div>
-
-        <div class="payments-panel-wrap">
-          <div class="payment-panel is-active" id="payment-panel-upi" role="tabpanel">
-            <div class="mock-checkout">
-              <div class="mock-checkout__top">
-                <span>Checkout preview</span>
-                <strong>UPI</strong>
-              </div>
-              <div class="mock-checkout__body">
-                <div class="mock-checkout__merchant">
-                  <div class="mock-dot mock-dot--blue"></div>
-                  <div>
-                    <strong>ZenoPay Store</strong>
-                    <span>Secure UPI collect request</span>
-                  </div>
-                </div>
-                <div class="mock-checkout__amount">
-                  <span>Amount</span>
-                  <strong>₹4,999.00</strong>
-                </div>
-                <div class="mock-checkout__rail">PhonePe · GPay · Paytm · BHIM</div>
-                <button class="mock-checkout__cta" type="button">Pay securely</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="payment-panel" id="payment-panel-cards" role="tabpanel" hidden>
-            <div class="mock-checkout mock-checkout--card">
-              <div class="mock-checkout__top">
-                <span>Checkout preview</span>
-                <strong>Cards</strong>
-              </div>
-              <div class="card-stack">
-                <div class="card-stack__card card-stack__card--front">
-                  <span class="card-chip"></span>
-                  <strong>•••• 4821</strong>
-                  <small>Visa · Debit</small>
-                </div>
-                <div class="card-stack__card card-stack__card--back">
-                  <span>Saved cards</span>
-                  <strong>Fast repeat checkout</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="payment-panel" id="payment-panel-netbanking" role="tabpanel" hidden>
-            <div class="mock-checkout mock-checkout--list">
-              <div class="mock-checkout__top">
-                <span>Checkout preview</span>
-                <strong>Net Banking</strong>
-              </div>
-              <ul class="bank-list">
-                <li>HDFC Bank</li>
-                <li>ICICI Bank</li>
-                <li>SBI</li>
-                <li>Kotak</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="payment-panel" id="payment-panel-wallets" role="tabpanel" hidden>
-            <div class="mock-checkout mock-checkout--wallets">
-              <div class="mock-checkout__top">
-                <span>Checkout preview</span>
-                <strong>Wallets</strong>
-              </div>
-              <div class="wallet-grid">
-                <span>Paytm</span>
-                <span>Amazon Pay</span>
-                <span>MobiKwik</span>
-                <span>PhonePe</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="payment-panel" id="payment-panel-international" role="tabpanel" hidden>
-            <div class="mock-checkout mock-checkout--intl">
-              <div class="mock-checkout__top">
-                <span>Checkout preview</span>
-                <strong>International</strong>
-              </div>
-              <div class="intl-rail">
-                <div><strong>USD</strong><span>Visa / Mastercard</span></div>
-                <div><strong>EUR</strong><span>Multi-currency settlement</span></div>
-                <div><strong>GBP</strong><span>Global customer support</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIRTUAL ACCOUNT -->
-    <section class="virtual-section" aria-labelledby="virtual-title">
-      <div class="container virtual-grid">
-        <div class="virtual-copy">
-          <div class="section-kicker">Virtual account collections</div>
-          <h2 id="virtual-title" class="section-title">Your business gets a dedicated virtual bank account</h2>
-          <p class="section-subtitle">Turn collections into a cleaner operational process with reconciliation that is easier to track, faster to close, and friendlier for finance teams.</p>
-
-          <ul class="benefit-list">
-            <li><i class="fas fa-circle-check"></i><span>Automated reconciliation across invoices and payers</span></li>
-            <li><i class="fas fa-circle-check"></i><span>Faster settlements and better cash visibility</span></li>
-            <li><i class="fas fa-circle-check"></i><span>Easier collections for subscriptions and enterprise billing</span></li>
-            <li><i class="fas fa-circle-check"></i><span>Better transaction tracking with named references</span></li>
-          </ul>
-
-          <div class="inline-cta-group">
-            <a href="/contact" class="btn btn--primary btn--small">Explore Business Accounts</a>
-            <a href="/contact" class="text-link">See sample flow <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <div class="virtual-visual">
-          <div class="virtual-card">
-            <div class="virtual-card__header">
-              <div>
-                <span class="virtual-card__label">Dedicated account</span>
-                <strong>ZP-VA-42891</strong>
-              </div>
-              <span class="virtual-card__status">Active</span>
-            </div>
-            <div class="virtual-card__body">
-              <div class="virtual-card__number">
-                <span>Collections received</span>
-                <strong>₹18,42,500</strong>
-              </div>
-              <div class="virtual-ledger">
-                <div><span>Invoice #1042</span><b>₹2,500</b></div>
-                <div><span>Invoice #1043</span><b>₹7,900</b></div>
-                <div><span>Refund reserve</span><b>₹1,250</b></div>
-              </div>
-              <div class="virtual-card__footer">
-                <span><i class="fas fa-lock"></i> Secure routing</span>
-                <span><i class="fas fa-clock"></i> Instant updates</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DEVELOPER INTEGRATION -->
-    <section class="developer-section" aria-labelledby="developer-title">
-      <div class="container developer-grid">
-        <div class="developer-copy">
-          <div class="section-kicker section-kicker--light">Developer integration</div>
-          <h2 id="developer-title" class="section-title section-title--light">Integrate in minutes, not days</h2>
-          <p class="section-subtitle section-subtitle--light">Clean REST APIs, webhooks, sandbox tools, and production-ready flows that fit into modern engineering teams without friction.</p>
-
-          <div class="developer-checklist">
-            <div><i class="fas fa-circle-check"></i><span>Clean REST APIs</span></div>
-            <div><i class="fas fa-circle-check"></i><span>Webhooks for every critical event</span></div>
-            <div><i class="fas fa-circle-check"></i><span>Sandbox + production support</span></div>
-          </div>
-        </div>
-
-        <div class="developer-console" data-code-console>
-          <div class="developer-console__bar">
-            <div class="developer-tabs" role="tablist" aria-label="Code samples">
-              <button class="developer-tab is-active" type="button" data-code-tab="node" aria-selected="true">Node.js</button>
-              <button class="developer-tab" type="button" data-code-tab="python" aria-selected="false">Python</button>
-              <button class="developer-tab" type="button" data-code-tab="php" aria-selected="false">PHP</button>
-              <button class="developer-tab" type="button" data-code-tab="curl" aria-selected="false">cURL</button>
-            </div>
-            <button class="copy-btn" type="button" data-copy-code>
-              <i class="fas fa-copy"></i>
-              <span>Copy</span>
-            </button>
-          </div>
-
-          <div class="developer-code is-active" data-code-panel="node">
-<pre><code>const response = await fetch('https://api.zenopay.com/v1/payments', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${process.env.ZENOPAY_KEY}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    amount: 4999,
-    currency: 'INR',
-    payment_method: 'upi'
-  })
-});</code></pre>
-          </div>
-
-          <div class="developer-code" data-code-panel="python" hidden>
-<pre><code>import requests
-
-response = requests.post(
-    'https://api.zenopay.com/v1/payments',
-    headers={'Authorization': f'Bearer {ZENOPAY_KEY}'},
-    json={'amount': 4999, 'currency': 'INR', 'payment_method': 'upi'}
-)</code></pre>
-          </div>
-
-          <div class="developer-code" data-code-panel="php" hidden>
-<pre><code>&lt;?php
-$payload = json_encode(['amount' =&gt; 4999, 'currency' =&gt; 'INR', 'payment_method' =&gt; 'upi']);
-// Post to /v1/payments with your API key and webhook signing secret.
-?&gt;</code></pre>
-          </div>
-
-          <div class="developer-code" data-code-panel="curl" hidden>
-<pre><code>curl -X POST https://api.zenopay.com/v1/payments \
-  -H 'Authorization: Bearer $ZENOPAY_KEY' \
-  -H 'Content-Type: application/json' \
-  -d '{"amount":4999,"currency":"INR","payment_method":"upi"}'</code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECURITY -->
-    <section class="security-section" aria-labelledby="security-title">
+    <section class="values-section" aria-labelledby="values-title">
       <div class="container">
-        <div class="section-header section-header--light">
-          <div class="section-kicker section-kicker--light">Security & compliance</div>
-          <h2 id="security-title" class="section-title section-title--light">Bank-grade security you can trust</h2>
-          <p class="section-subtitle section-subtitle--light">Encryption, compliance-ready messaging, fraud defense, and operational safeguards that help visitors feel confident before they convert.</p>
+        <div class="section-header-center" data-animate>
+          <span class="section-label">Core values</span>
+          <h2 class="section-title" id="values-title">The standards behind the product</h2>
+          <p class="section-description">Six principles shape product decisions, service quality, and the way we think about security and scale.</p>
         </div>
 
-        <div class="security-grid security-grid--certs">
-          <article class="security-card"><i class="fas fa-shield-halved"></i><h3>PCI DSS</h3><p>Payment data handling aligned with industry expectations.</p></article>
-          <article class="security-card"><i class="fas fa-building-columns"></i><h3>RBI-ready</h3><p>Messaging and operational posture designed for Indian payments.</p></article>
-          <article class="security-card"><i class="fas fa-certificate"></i><h3>ISO 27001</h3><p>Security management practices that scale with the business.</p></article>
-          <article class="security-card"><i class="fas fa-globe"></i><h3>GDPR ready</h3><p>Privacy-conscious treatment of customer and transaction data.</p></article>
-          <article class="security-card"><i class="fas fa-circle-nodes"></i><h3>NPCI / UPI compatibility</h3><p>Built for high-trust domestic payment flows where applicable.</p></article>
-        </div>
-
-        <div class="security-grid security-grid--capabilities">
-          <article class="security-card security-card--soft"><i class="fas fa-lock"></i><h3>256-bit SSL encryption</h3><p>Secure traffic and session protection across the platform.</p></article>
-          <article class="security-card security-card--soft"><i class="fas fa-eye"></i><h3>24/7 fraud monitoring</h3><p>Continuous monitoring for unusual behavior and suspicious patterns.</p></article>
-          <article class="security-card security-card--soft"><i class="fas fa-user-check"></i><h3>3D Secure authentication</h3><p>Extra verification layers for safer card payments.</p></article>
-          <article class="security-card security-card--soft"><i class="fas fa-database"></i><h3>No card data stored</h3><p>Minimize exposure by avoiding unnecessary sensitive storage.</p></article>
+        <div class="values-grid">
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="shield-check"></i></div>
+            <h3 class="value-title">Trust</h3>
+            <p class="value-description">Reliability, clear reporting, and secure operations are treated as baseline expectations.</p>
+          </article>
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="sparkles"></i></div>
+            <h3 class="value-title">Innovation</h3>
+            <p class="value-description">We improve the platform with practical ideas that remove operational friction for real businesses.</p>
+          </article>
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="zap"></i></div>
+            <h3 class="value-title">Speed</h3>
+            <p class="value-description">Fast onboarding and fast visibility help finance and operations teams move with confidence.</p>
+          </article>
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="eye"></i></div>
+            <h3 class="value-title">Transparency</h3>
+            <p class="value-description">Straightforward pricing, clear status updates, and understandable interfaces keep decisions grounded.</p>
+          </article>
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="users"></i></div>
+            <h3 class="value-title">Customer focus</h3>
+            <p class="value-description">Merchant and operator feedback stays close to the roadmap, not separated from it.</p>
+          </article>
+          <article class="value-card" data-animate>
+            <div class="value-icon"><i data-lucide="layout-grid"></i></div>
+            <h3 class="value-title">Simplicity</h3>
+            <p class="value-description">The best fintech UX removes complexity without hiding important controls or context.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- PRICING -->
-    <section class="pricing-section" aria-labelledby="pricing-title">
+    <section class="stats-section" aria-labelledby="stats-title">
       <div class="container">
-        <div class="section-header">
-          <div class="section-kicker">Pricing</div>
-          <h2 id="pricing-title" class="section-title">Transparent plans that help teams move faster</h2>
-          <p class="section-subtitle">Simple pricing, featured growth plan, and a comparison matrix to make the decision obvious.</p>
+        <div class="section-header-center" data-animate>
+          <span class="section-label">By the numbers</span>
+          <h2 class="section-title" id="stats-title">A concise view of scale and reliability</h2>
+          <p class="section-description">A stronger platform shows up in volume, consistency, visibility, and operational discipline.</p>
         </div>
 
-        <div class="billing-switch" role="tablist" aria-label="Billing period">
-          <button class="billing-switch__btn is-active" type="button" data-billing="monthly" aria-selected="true">Monthly</button>
-          <button class="billing-switch__btn" type="button" data-billing="annual" aria-selected="false">Annual</button>
-        </div>
-
-        <div class="pricing-grid">
-          <article class="pricing-card">
-            <span class="pricing-card__label">Starter</span>
-            <div class="pricing-card__price"><sup>₹</sup><strong data-price-monthly="2499" data-price-annual="24990">2,499</strong><span data-price-suffix>/mo</span></div>
-            <p>For teams validating payment operations and launch readiness.</p>
-            <ul>
-              <li>Core payment methods</li>
-              <li>Basic analytics</li>
-              <li>Email support</li>
-            </ul>
-            <a href="/register" class="pricing-card__cta">Start free</a>
+        <div class="stats-grid">
+          <article class="stat-card" data-animate>
+            <span class="stat-number" data-target="10" data-suffix="M+" data-counted="false">0</span>
+            <span class="stat-label">Payment volume supported</span>
           </article>
-
-          <article class="pricing-card pricing-card--featured">
-            <span class="pricing-card__popular">Most Popular</span>
-            <span class="pricing-card__label">Growth</span>
-            <div class="pricing-card__price"><sup>₹</sup><strong data-price-monthly="6999" data-price-annual="69990">6,999</strong><span data-price-suffix>/mo</span></div>
-            <p>For scaling businesses that need better visibility and support.</p>
-            <ul>
-              <li>All payment methods</li>
-              <li>Advanced analytics</li>
-              <li>Priority onboarding</li>
-            </ul>
-            <a href="/contact" class="pricing-card__cta pricing-card__cta--featured">Talk to sales</a>
+          <article class="stat-card" data-animate>
+            <span class="stat-number" data-target="50000" data-counted="false">0</span>
+            <span class="stat-label">Transactions processed</span>
           </article>
-
-          <article class="pricing-card">
-            <span class="pricing-card__label">Enterprise</span>
-            <div class="pricing-card__price pricing-card__price--custom"><strong>Custom</strong></div>
-            <p>For high-volume businesses with custom security and support needs.</p>
-            <ul>
-              <li>Custom settlement support</li>
-              <li>Dedicated implementation</li>
-              <li>Account manager</li>
-            </ul>
-            <a href="/contact" class="pricing-card__cta">Request quote</a>
+          <article class="stat-card" data-animate>
+            <span class="stat-number" data-target="99.9" data-suffix="%" data-counted="false">0</span>
+            <span class="stat-label">Platform uptime target</span>
+          </article>
+          <article class="stat-card" data-animate>
+            <span class="stat-number" data-target="24" data-suffix="/7" data-counted="false">0</span>
+            <span class="stat-label">Operations visibility</span>
           </article>
         </div>
-
-        <div class="pricing-matrix" aria-label="Plan comparison matrix">
-          <div class="pricing-matrix__row pricing-matrix__row--head">
-            <span>Feature</span>
-            <span>Starter</span>
-            <span>Growth</span>
-            <span>Enterprise</span>
-          </div>
-          <div class="pricing-matrix__row"><span>Payment methods</span><span><i class="fas fa-check"></i></span><span><i class="fas fa-check"></i></span><span><i class="fas fa-check"></i></span></div>
-          <div class="pricing-matrix__row"><span>Settlement support</span><span>Basic</span><span>Enhanced</span><span>Custom</span></div>
-          <div class="pricing-matrix__row"><span>Analytics</span><span>Basic</span><span>Advanced</span><span>Advanced</span></div>
-          <div class="pricing-matrix__row"><span>API access</span><span><i class="fas fa-check"></i></span><span><i class="fas fa-check"></i></span><span><i class="fas fa-check"></i></span></div>
-          <div class="pricing-matrix__row"><span>Support level</span><span>Email</span><span>Priority</span><span>Dedicated</span></div>
-          <div class="pricing-matrix__row"><span>Custom pricing</span><span><i class="fas fa-xmark"></i></span><span><i class="fas fa-xmark"></i></span><span><i class="fas fa-check"></i></span></div>
-          <div class="pricing-matrix__row"><span>Onboarding help</span><span>Self-serve</span><span>Guided</span><span>White-glove</span></div>
-        </div>
-
-        <p class="pricing-note">No hidden fees. Transparent pricing built for growing businesses.</p>
       </div>
     </section>
 
-    <!-- CTA -->
+    <section class="team-section" id="team" aria-labelledby="team-title">
+      <div class="container">
+        <div class="section-header-center" data-animate>
+          <span class="section-label">Team</span>
+          <h2 class="section-title" id="team-title">The people building ZenoPay</h2>
+          <p class="section-description">A founder-led company supported by a compact team across product, engineering, security, and growth.</p>
+        </div>
+
+        <div class="founders-section">
+          <h3 class="subsection-title" data-animate>Founders</h3>
+          <div class="founders-grid">
+            <article class="founder-card" data-animate>
+              <div class="founder-card-top">
+                <div class="founder-avatar">
+                  <img src="/Images/team/zaid-amreliya.jpg" alt="Zaid Amreliya" loading="lazy" onerror="this.style.display='none'">
+                </div>
+                <div class="founder-meta">
+                  <h4 class="founder-name">Zaid Amreliya</h4>
+                  <p class="founder-role">CEO</p>
+                </div>
+              </div>
+              <p class="founder-bio">Leads business strategy, partnerships, and the user experience direction behind ZenoPay's merchant and finance workflows.</p>
+              <div class="founder-badge"><i data-lucide="rocket"></i><span>Product and business leadership</span></div>
+              <div class="founder-links">
+                <a href="#" aria-label="Zaid Amreliya on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Zaid Amreliya on X"><i class="fab fa-x-twitter"></i></a>
+              </div>
+            </article>
+
+            <article class="founder-card" data-animate>
+              <div class="founder-card-top">
+                <div class="founder-avatar">
+                  <img src="/Images/team/ashokimg.jpg" alt="Ashok Sah" loading="lazy" onerror="this.style.display='none'">
+                </div>
+                <div class="founder-meta">
+                  <h4 class="founder-name">Ashok Sah</h4>
+                  <p class="founder-role">CTO</p>
+                </div>
+              </div>
+              <p class="founder-bio">Owns the infrastructure and engineering strategy that keeps payments reliable, secure, and easier to operate at scale.</p>
+              <div class="founder-badge"><i data-lucide="code"></i><span>Platform and architecture leadership</span></div>
+              <div class="founder-links">
+                <a href="#" aria-label="Ashok Sah on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Ashok Sah on X"><i class="fab fa-x-twitter"></i></a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="team-section-core">
+          <h3 class="subsection-title" data-animate>Core team</h3>
+          <div class="team-grid">
+            <article class="team-card" data-animate>
+              <div class="team-avatar">
+                <img src="/Images/team/rohan-mehta.jpg" alt="Rohan Mehta" loading="lazy" onerror="this.style.display='none'">
+              </div>
+              <h4 class="team-name">Rohan Mehta</h4>
+              <p class="team-role">Head of Product</p>
+              <p class="team-bio">Works on platform UX, payment operations flows, and product discipline across merchant journeys.</p>
+            </article>
+
+            <article class="team-card" data-animate>
+              <div class="team-avatar">
+                <img src="/Images/team/priya-iyer.jpg" alt="Priya Iyer" loading="lazy" onerror="this.style.display='none'">
+              </div>
+              <h4 class="team-name">Priya Iyer</h4>
+              <p class="team-role">Head of Engineering</p>
+              <p class="team-bio">Leads engineering execution with a focus on stability, scalability, and platform maintainability.</p>
+            </article>
+
+            <article class="team-card" data-animate>
+              <div class="team-avatar">
+                <img src="/Images/team/neha-joshi.jpg" alt="Neha Joshi" loading="lazy" onerror="this.style.display='none'">
+              </div>
+              <h4 class="team-name">Neha Joshi</h4>
+              <p class="team-role">Head of Security</p>
+              <p class="team-bio">Oversees controls, audit readiness, and the security practices that underpin merchant trust.</p>
+            </article>
+
+            <article class="team-card" data-animate>
+              <div class="team-avatar">
+                <img src="/Images/team/arjun-kapoor.jpg" alt="Arjun Kapoor" loading="lazy" onerror="this.style.display='none'">
+              </div>
+              <h4 class="team-name">Arjun Kapoor</h4>
+              <p class="team-role">Head of Growth</p>
+              <p class="team-bio">Focuses on merchant growth, go-to-market execution, and scaling the right operating channels.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="achievements-section">
+      <div class="container">
+        <div class="section-header-center">
+          <span class="section-label">Milestones</span>
+          <h2 class="section-title">Six milestones on the path to scale</h2>
+          <p class="section-description">
+            The journey from idea to infrastructure, shaped by speed, trust, and product discipline.
+          </p>
+        </div>
+
+        <div class="timeline">
+          <article class="timeline-item timeline-left">
+            <div class="timeline-card">
+              <span class="timeline-year">Q1 2024</span>
+              <div class="timeline-icon"><i class="fas fa-lightbulb"></i></div>
+              <h3 class="timeline-title">The idea took shape</h3>
+              <p class="timeline-description">ZenoPay started after identifying major gaps in merchant onboarding, payout visibility, and settlement trust.</p>
+            </div>
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+          </article>
+
+          <article class="timeline-item timeline-right">
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+            <div class="timeline-card">
+              <span class="timeline-year">Q2 2024</span>
+              <div class="timeline-icon"><i class="fas fa-store"></i></div>
+              <h3 class="timeline-title">Merchant discovery sprint</h3>
+              <p class="timeline-description">Early merchant conversations shaped the first onboarding, dashboard, and settlements experience.</p>
+            </div>
+          </article>
+
+          <article class="timeline-item timeline-left">
+            <div class="timeline-card">
+              <span class="timeline-year">Q3 2024</span>
+              <div class="timeline-icon"><i class="fas fa-bolt"></i></div>
+              <h3 class="timeline-title">Gateway infrastructure launched</h3>
+              <p class="timeline-description">UPI, cards, and core payment flows went live with the first real merchant traffic and internal ops tooling.</p>
+            </div>
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+          </article>
+
+          <article class="timeline-item timeline-right">
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+            <div class="timeline-card">
+              <span class="timeline-year">Q4 2024</span>
+              <div class="timeline-icon"><i class="fas fa-chart-line"></i></div>
+              <h3 class="timeline-title">Reporting and scale systems matured</h3>
+              <p class="timeline-description">Analytics, reconciliation, exports, and operational dashboards became reliable for daily business use.</p>
+            </div>
+          </article>
+
+          <article class="timeline-item timeline-left">
+            <div class="timeline-card">
+              <span class="timeline-year">Q1 2025</span>
+              <div class="timeline-icon"><i class="fas fa-shield-alt"></i></div>
+              <h3 class="timeline-title">Security and compliance expanded</h3>
+              <p class="timeline-description">Security hardening, audit readiness, and compliance-first engineering became core product requirements.</p>
+            </div>
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+          </article>
+
+          <article class="timeline-item timeline-right">
+            <div class="timeline-marker"><span class="marker-dot"></span></div>
+            <div class="timeline-card">
+              <span class="timeline-year">Q2 2025</span>
+              <div class="timeline-icon"><i class="fas fa-globe"></i></div>
+              <h3 class="timeline-title">Built for the next phase of growth</h3>
+              <p class="timeline-description">ZenoPay evolved from an idea into a scalable payment platform with stronger product foundations and broader ambitions.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="partners-section" aria-labelledby="certifications-title">
+      <div class="container">
+        <div class="section-header-center" data-animate>
+          <span class="section-label">Trust and compliance</span>
+          <h2 class="section-title" id="certifications-title">Signals that help businesses trust the platform</h2>
+          <p class="section-description">Security, governance, and operational readiness need to feel visible, not buried in a small footer row.</p>
+        </div>
+
+        <div class="certifications-grid">
+          <article class="cert-badge" data-animate>
+            <div class="cert-icon"><i data-lucide="shield-check"></i></div>
+            <h3 class="cert-title">PCI DSS</h3>
+            <p class="cert-subtitle">Payment security controls built into platform practices.</p>
+          </article>
+          <article class="cert-badge" data-animate>
+            <div class="cert-icon"><i data-lucide="badge-check"></i></div>
+            <h3 class="cert-title">ISO 27001</h3>
+            <p class="cert-subtitle">Security management discipline across systems and teams.</p>
+          </article>
+          <article class="cert-badge" data-animate>
+            <div class="cert-icon"><i data-lucide="landmark"></i></div>
+            <h3 class="cert-title">RBI-ready ops</h3>
+            <p class="cert-subtitle">Operational rigor aligned with regulated payment expectations.</p>
+          </article>
+          <article class="cert-badge" data-animate>
+            <div class="cert-icon"><i data-lucide="shield-user"></i></div>
+            <h3 class="cert-title">SOC 2 readiness</h3>
+            <p class="cert-subtitle">Monitoring and control maturity for scaling infrastructure.</p>
+          </article>
+          <article class="cert-badge" data-animate>
+            <div class="cert-icon"><i data-lucide="lock"></i></div>
+            <h3 class="cert-title">Privacy by design</h3>
+            <p class="cert-subtitle">Data handling designed around access control and protection.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="cta-section" aria-labelledby="cta-title">
-      <div class="container cta-grid">
-        <div>
-          <div class="section-kicker section-kicker--light">Start today</div>
-          <h2 id="cta-title" class="section-title section-title--light">Join 10,000+ businesses growing with ZenoPay</h2>
-          <p class="section-subtitle section-subtitle--light">Quick onboarding, dedicated support, and reliable payment infrastructure designed to help teams convert faster and operate with confidence.</p>
-        </div>
-
-        <div class="cta-actions">
-          <a href="/register" class="btn btn--light-primary">Start Free</a>
-          <a href="/contact" class="btn btn--light-ghost">Talk to Sales</a>
-          <ul class="cta-bullets">
-            <li><i class="fas fa-circle-check"></i> Quick onboarding</li>
-            <li><i class="fas fa-circle-check"></i> Dedicated support</li>
-            <li><i class="fas fa-circle-check"></i> Secure payment infrastructure</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="faq-section" aria-labelledby="faq-title">
-      <div class="container faq-grid">
-        <div class="section-header section-header--center">
-          <div class="section-kicker">Questions before you start?</div>
-          <h2 id="faq-title" class="section-title section-title--center">Still have questions?</h2>
-          <p class="section-subtitle section-subtitle--center">Here are the questions that usually matter most before a business makes the switch.</p>
-        </div>
-
-        <div class="faq-list">
-          <details class="faq-item" open>
-            <summary>How fast can I get started?</summary>
-            <p>Most teams can begin the onboarding process quickly. Our guided flow is designed to keep setup simple and reduce back-and-forth.</p>
-          </details>
-          <details class="faq-item">
-            <summary>What payment methods do you support?</summary>
-            <p>UPI, cards, net banking, wallets, and international payment options can be supported depending on your use case.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Is ZenoPay secure?</summary>
-            <p>Yes. The platform is built around secure transaction handling, compliance-conscious messaging, and layered fraud controls.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Do you offer API integration?</summary>
-            <p>Absolutely. Developers can work with clean REST APIs, webhooks, sandbox access, and production-ready flows.</p>
-          </details>
+      <div class="container">
+        <div class="cta-content" data-animate>
+          <span class="section-label section-label-light">Get started</span>
+          <h2 class="cta-title" id="cta-title">Ready to build with a calmer payments stack?</h2>
+          <p class="cta-subtitle">Join businesses using ZenoPay for cleaner collections, clearer reconciliation, and more dependable payment operations.</p>
+          <div class="cta-buttons">
+            <a href="/register" class="btn-cta-primary"><i data-lucide="zap"></i><span>Start Free</span></a>
+            <a href="/contact" class="btn-cta-outline"><i data-lucide="message-square"></i><span>Talk to Sales</span></a>
+          </div>
+          <p class="cta-footnote"><i data-lucide="shield-check"></i><span>Bank-grade security, no setup fees, and support when operations get real.</span></p>
         </div>
       </div>
     </section>
