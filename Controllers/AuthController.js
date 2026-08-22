@@ -463,13 +463,19 @@ const postLogin = async (req, res) => {
 
     const cleanUserId = String(userId || "").trim();
     const cleanPassword = String(password || "");
+    const searchEmail = cleanUserId.toLowerCase();
 
     if (!cleanUserId || !cleanPassword) {
       return fail(400, "Email/ZenoPay ID and password are required.");
     }
 
     const user = await ZenoPayDetails.findOne({
-      $or: [{ ZenoPayID: cleanUserId }, { Email: cleanUserId }],
+      $or: [
+        { ZenoPayID: cleanUserId },
+        { Email: searchEmail },
+        { email: searchEmail },
+        { userId: cleanUserId },
+      ],
     });
     if (!user) {
       return fail(401, "Invalid email/ZenoPay ID or password.");
@@ -603,7 +609,9 @@ const postForgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
-    if (!email) {
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+
+    if (!normalizedEmail) {
       return res.status(400).json({
         success: false,
         message: "Email address is required",
@@ -611,14 +619,16 @@ const postForgotPassword = async (req, res) => {
     }
 
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
         message: "Invalid email address",
       });
     }
 
-    const user = await ZenoPayDetails.findOne({ Email: email });
+    const user = await ZenoPayDetails.findOne({
+      $or: [{ Email: normalizedEmail }, { email: normalizedEmail }],
+    });
     if (!user) {
       return res.status(200).json({
         success: true,

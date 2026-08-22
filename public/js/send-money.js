@@ -14,6 +14,16 @@ let todayAmount = 0;
 let selectedAccount = null;
 let verifiedReceiver = null;
 
+function getDescriptionText() {
+  const noteInput = document.getElementById('note');
+  return noteInput ? noteInput.value.trim() : '';
+}
+
+function getSelectedCategory() {
+  const categoryInput = document.getElementById('category');
+  return categoryInput ? String(categoryInput.value || 'other') : 'other';
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   initializeAccountSelection();
@@ -71,7 +81,6 @@ function initializeAccountSelection() {
       if (this.checked) {
         this.closest('.account-card').classList.add('selected');
         selectedAccount = this.value;
-        console.log('Selected account:', selectedAccount);
       }
     });
 
@@ -176,6 +185,7 @@ async function verifyReceiver() {
 // Update Transaction Summary
 function updateTransactionSummary() {
   const amountInput = document.getElementById('amount');
+  const totalEl = document.getElementById('summaryTotal');
   const amount = parseFloat(amountInput.value) || 0;
 
   // Calculate charges
@@ -187,12 +197,11 @@ function updateTransactionSummary() {
   // Calculate total
   const total = amount + charges;
 
-      const noteInput = document.getElementById('note');
-      const categoryInput = document.getElementById('category');
   document.getElementById('summaryAmount').textContent = `₹ ${formatAmount(amount)}`;
   document.getElementById('summaryCharges').textContent = `₹ ${formatAmount(charges)}`;
-      const note = noteInput ? noteInput.value.trim() : '';
-      const category = categoryInput ? String(categoryInput.value || 'other') : 'other';
+  if (totalEl) {
+    totalEl.textContent = `₹ ${formatAmount(total)}`;
+  }
 
   // Check daily limit
   const remainingLimit = DAILY_LIMIT - todayAmount;
@@ -210,10 +219,10 @@ async function handleFormSubmit(e) {
   const form = e.target;
   const submitBtn = form.querySelector('.submit-btn');
   const amountInput = document.getElementById('amount');
-  const descriptionInput = document.getElementById('description');
+  const description = getDescriptionText();
+  const category = getSelectedCategory();
   
   const amount = parseFloat(amountInput.value);
-  const description = descriptionInput.value.trim();
 
   // Validation
   if (!selectedAccount) {
@@ -240,9 +249,7 @@ async function handleFormSubmit(e) {
   // Show loading
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
-            description: note,
-            note,
-            category,
+
   try {
     // Calculate charges and total
     let charges = 0;
@@ -263,11 +270,18 @@ async function handleFormSubmit(e) {
         amount: amount,
         charges: charges,
         total: total,
-        description: description
+        description: description,
+        note: description,
+        category: category
       })
     });
 
     const data = await response.json();
+
+    if (response.status === 403 && data && data.redirect) {
+      window.location.href = data.redirect;
+      return;
+    }
 
     if (response.ok && data.success) {
       // Show success modal
@@ -286,9 +300,11 @@ async function handleFormSubmit(e) {
       form.reset();
       verifiedReceiver = null;
       document.getElementById('receiverVerifiedCard').style.display = 'none';
-      const descriptionInput = document.getElementById('note');
       document.getElementById('receiverId').classList.remove('success');
+      document.getElementById('receiverId').disabled = false;
       document.getElementById('verifyReceiverBtn').style.display = 'block';
+      const charCount = document.getElementById('charCount');
+      if (charCount) charCount.textContent = '0';
       updateTransactionSummary();
     } else {
       const isLimitError = Boolean(data?.errorType) || /limit exceeded/i.test(String(data?.message || ''));
@@ -340,7 +356,7 @@ function initializeQuickAmounts() {
 // CHARACTER COUNTER
 // ====================================
 function initializeCharacterCounter() {
-  const descriptionInput = document.getElementById('description');
+  const descriptionInput = document.getElementById('note');
   const charCount = document.getElementById('charCount');
 
   if (descriptionInput && charCount) {
@@ -364,7 +380,7 @@ async function loadTodayStats() {
       updateStatsDisplay();
     }
   } catch (error) {
-    console.error('Error loading stats:', error);
+    // Keep the page usable even if stats fail to load.
   }
 }
 
@@ -647,4 +663,3 @@ if (mobileMenuOverlay) {
   });
 }
 
-console.log('Send Money page initialized successfully!');

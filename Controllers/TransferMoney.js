@@ -7,6 +7,51 @@ const emailService = require("../Services/EmailService");
 const { processCashback } = require("../Services/cashbackService");
 const { getLimitsByTier } = require("../config/transactionLimits");
 
+const normalizeLookupValue = (value) => String(value || "").trim();
+const normalizeEmail = (value) => normalizeLookupValue(value).toLowerCase();
+const normalizePhone = (value) => normalizeLookupValue(value).replace(/\D/g, "").slice(-10);
+const getUserDisplayName = (user) => user?.name || user?.FullName || user?.Name || "ZenoPay User";
+
+const findUserByReceiverId = async (receiverId) => {
+  const raw = normalizeLookupValue(receiverId);
+  if (!raw) return null;
+
+  const email = raw.includes("@") ? normalizeEmail(raw) : "";
+  const phone = normalizePhone(raw);
+
+  const or = [
+    { ZenoPayID: raw },
+    { userId: raw },
+  ];
+
+  if (email) {
+    or.push({ Email: email }, { email });
+  }
+
+  if (phone) {
+    or.push({ Mobile: phone }, { phone }, { PhoneNumber: phone });
+  }
+
+  return ZenoPayDetails.findOne({ $or: or });
+};
+
+const findReceiverAccounts = async (userDoc) => {
+  if (!userDoc) return [];
+
+  const zenoPayId = userDoc.ZenoPayID || userDoc.userId || null;
+  const email = userDoc.Email || userDoc.email || null;
+  const mobile = userDoc.Mobile || userDoc.phone || userDoc.PhoneNumber || null;
+
+  const or = [];
+  if (zenoPayId) or.push({ ZenoPayId: zenoPayId });
+  if (email) or.push({ Email: normalizeEmail(email) });
+  if (mobile) or.push({ Mobile: normalizePhone(mobile) });
+
+  if (!or.length) return [];
+
+  return BankAccount.find({ $or: or });
+};
+
 const generateTransactionId = async () => {
   for (let i = 0; i < 5; i += 1) {
     const candidate = Number(`${Date.now()}${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`);
@@ -101,28 +146,20 @@ const verifyReceiver = async (req, res) => {
   const { receiverId } = req.body;
 
   try {
-    const zenoPayUser = await ZenoPayDetails.findOne({
-      $or: [
-        { ZenoPayID: receiverId },
-        { Email: receiverId },
-        { Mobile: receiverId },
-      ],
-    });
+    const zenoPayUser = await findUserByReceiverId(receiverId);
 
     if (zenoPayUser) {
-      const accounts = await BankAccount.find({
-        ZenoPayId: zenoPayUser.ZenoPayID,
-      });
+      const accounts = await findReceiverAccounts(zenoPayUser);
 
       if (accounts.length > 0) {
         return res.status(200).json({
           success: true,
           message: "Receiver verified successfully",
           receiver: {
-            Name: zenoPayUser.Name || zenoPayUser.FullName,
-            ZenoPayID: zenoPayUser.ZenoPayID,
-            Email: zenoPayUser.Email,
-            Mobile: zenoPayUser.Mobile,
+            Name: getUserDisplayName(zenoPayUser),
+            ZenoPayID: zenoPayUser.ZenoPayID || zenoPayUser.userId,
+            Email: zenoPayUser.Email || zenoPayUser.email,
+            Mobile: zenoPayUser.Mobile || zenoPayUser.phone,
             accounts: accounts.map((acc) => ({
               accountNumber: acc.AccountNumber,
               bankName: acc.BankName,
@@ -134,7 +171,7 @@ const verifyReceiver = async (req, res) => {
       } else {
         return res.status(404).json({
           success: false,
-          message: `${zenoPayUser.Name || zenoPayUser.FullName} has no bank account. Please ask them to open an account first.`,
+          message: `${getUserDisplayName(zenoPayUser)} exists, but has no linked bank account yet. Please ask them to open an account first.`,
         });
       }
     }
@@ -237,13 +274,7 @@ const postTransferMoney = async (req, res) => {
     }
 
     // Get receiver account
-    const receiverUser = await ZenoPayDetails.findOne({
-      $or: [
-        { ZenoPayID: receiverId },
-        { Email: receiverId },
-        { Mobile: receiverId },
-      ],
-    });
+    const receiverUser = await findUserByReceiverId(receiverId);
 
     if (!receiverUser) {
       return res.status(404).json({ 
@@ -253,14 +284,13 @@ const postTransferMoney = async (req, res) => {
     }
 
     // Get receiver's first bank account
-    const receiver = await BankAccount.findOne({
-      ZenoPayId: receiverUser.ZenoPayID,
-    });
+    const receiverAccounts = await findReceiverAccounts(receiverUser);
+    const receiver = receiverAccounts[0] || null;
 
     if (!receiver) {
       return res.status(404).json({ 
         success: false, 
-        message: "Receiver account not found." 
+        message: "Receiver exists but has no linked bank account." 
       });
     }
 
@@ -300,7 +330,7 @@ const postTransferMoney = async (req, res) => {
         transactionID = await generateTransactionId();
 
         senderHolderName = sender.FullName || sender.NameOnCard || sender.AccountHolderName || sender.ZenoPayId;
-        receiverHolderName = receiver.FullName || receiver.NameOnCard || receiver.AccountHolderName || receiver.ZenoPayId;
+        receiverHolderName = receiver.FullName || receiver.NameOnCard || receiver.AccountHolderName || getUserDisplayName(receiverUser) || receiver.ZenoPayId;
 
         // Save transaction history
         history = new TransactionHistory({

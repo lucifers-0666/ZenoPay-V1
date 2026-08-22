@@ -493,10 +493,10 @@
             <div class="form-step active" data-step="1">
               <div class="form-section-title">
                 <i class="fas fa-id-card"></i>
-                Verify ZenoPay ID
+                Verify ZenoPay Identity
               </div>
               <p class="form-section-subtitle">
-                Enter your ZenoPay ID to continue
+                Enter your ZenoPay ID, email, or mobile number to continue
               </p>
 
               <div class="info-card">
@@ -511,17 +511,17 @@
                 <div class="form-group full-width">
                   <label class="form-label">
                     <i class="fas fa-id-badge"></i>
-                    ZenoPay ID <span class="required">*</span>
+                    ZenoPay ID / Email / Mobile <span class="required">*</span>
                   </label>
                   <input
                     type="text"
                     name="ZenoPayId"
                     id="zenoPayId"
                     class="form-input"
-                    placeholder="Enter your ZenoPay ID (e.g., ZENO-1234567890)"
+                    placeholder="Enter your ZenoPay ID, email, or mobile number"
                     required
                   />
-                  <span class="error-message">ZenoPay ID is required</span>
+                  <span class="error-message">ZenoPay identity is required</span>
                   <button
                     type="button"
                     class="verify-button"
@@ -950,6 +950,201 @@
             <h3>Account Opened Successfully!</h3>
             <p>Your bank account has been created with ZenoPay</p>
             <div class="success-details" id="successDetails">
+<option value="Below 2.5 Lakhs">Below ₹2.5 Lakhs</option>
+                    <option value="2.5 - 5 Lakhs">₹2.5 - 5 Lakhs</option>
+                    <option value="5 - 10 Lakhs">₹5 - 10 Lakhs</option>
+                    <option value="10 - 20 Lakhs">₹10 - 20 Lakhs</option>
+                    <option value="Above 20 Lakhs">Above ₹20 Lakhs</option>
+                  </select>
+                  <span class="error-message">Annual income is required</span>
+                </div>
+
+                <div class="form-group full-width">
+                  <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Email <span class="required">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="Email"
+                    id="email"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-phone"></i>
+                    Mobile <span class="required">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="Mobile"
+                    id="mobile"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-city"></i>
+                    City <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="City"
+                    id="city"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-map-marked-alt"></i>
+                    State <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="State"
+                    id="state"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-map-pin"></i>
+                    Pincode <span class="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="Pincode"
+                    id="pincode"
+                    class="form-input"
+                    readonly
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-rupee-sign"></i>
+                    Opening Balance <span class="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="OpeningBalance"
+                    class="form-input"
+                    placeholder="Minimum ₹1000"
+                    min="1000"
+                    required
+                  />
+                  <span class="error-message"
+                    >Minimum balance ₹1000 required</span
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-exchange-alt"></i>
+                    Daily Transaction Limit <span class="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="TransactionLimit"
+                    class="form-input"
+                    placeholder="Enter limit"
+                    required
+                  />
+                  <span class="error-message"
+                    >Transaction limit is required</span
+                  >
+                </div>
+              </div>
+
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="prevStep(3)"
+                >
+                  <i class="fas fa-arrow-left"></i>
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onclick="nextStep(3)"
+                >
+                  <i class="fas fa-arrow-right"></i>
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 4: Review & Submit -->
+            <div class="form-step" data-step="4">
+              <div class="form-section-title">
+                <i class="fas fa-check-circle"></i>
+                Review Details
+              </div>
+              <p class="form-section-subtitle">
+                Please review your information before submitting
+              </p>
+
+              <div class="info-card">
+                <h4>
+                  <i class="fas fa-info-circle"></i> Account & Card Generation
+                </h4>
+                <p>
+                  Your account number and debit card details will be
+                  automatically generated upon successful submission.
+                </p>
+              </div>
+
+              <div
+                id="reviewContent"
+                style="
+                  background: var(--light-cream);
+                  padding: 1.5rem;
+                  border-radius: 10px;
+                  margin-bottom: 1.5rem;
+                "
+              >
+                <!-- Review content will be populated by JavaScript -->
+              </div>
+
+              <div class="form-buttons">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="prevStep(4)"
+                >
+                  <i class="fas fa-arrow-left"></i>
+                  Previous
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-check"></i>
+                  Open Account
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <h3>Account Opened Successfully!</h3>
+            <p>Your bank account has been created with ZenoPay</p>
+            <div class="success-details" id="successDetails">
               <!-- Success details will be populated by JavaScript -->
             </div>
             <p style="margin-top: 1.5rem">Redirecting to dashboard...</p>
@@ -957,38 +1152,24 @@
         </div>
       </div>
 
-      <!-- Mobile Footer Navigation -->
-      <footer class="mobile-footer">
-        <nav class="footer-nav">
-          <a href="/" class="footer-nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-          <a href="/transfer" class="footer-nav-item">
-            <i class="fas fa-exchange-alt"></i>
-            <span>Transfer</span>
-          </a>
-          <a href="/profile" class="footer-nav-item">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
-          </a>
-          <a href="/notifications" class="footer-nav-item">
-            <i class="fas fa-bell"></i>
-            <span>Alerts</span>
-          </a>
-          <a href="/support" class="footer-nav-item">
-            <i class="fas fa-headset"></i>
-            <span>Support</span>
-          </a>
-        </nav>
-      </footer>
-
       <script src="/js/header.js"></script>
       <script nonce="<%= locals.cspNonce || '' %>">
         let currentStep = 1;
         const totalSteps = 4;
         let zenoPayData = null;
         let banksData = [];
+
+        function showLoader(text) {
+          if (typeof ZenoPayLoader !== "undefined") {
+            ZenoPayLoader.show(text);
+          }
+        }
+
+        function hideLoader() {
+          if (typeof ZenoPayLoader !== "undefined") {
+            ZenoPayLoader.hide();
+          }
+        }
 
         // Load banks on page load
         window.addEventListener("DOMContentLoaded", async function () {
@@ -1034,11 +1215,11 @@
           const zenoPayId = document.getElementById("zenoPayId").value.trim();
 
           if (!zenoPayId) {
-            alert("Please enter ZenoPay ID");
+            alert("Please enter your ZenoPay ID, email, or mobile number");
             return;
           }
 
-          ZenoPayLoader.show("Verifying ZenoPay ID...");
+          showLoader("Verifying identity...");
 
           try {
             const response = await fetch("/verify-zenopayId", {
@@ -1049,10 +1230,12 @@
             });
 
             const data = await response.json();
-            ZenoPayLoader.hide();
+            hideLoader();
 
             if (data.success) {
               zenoPayData = data.details;
+              document.getElementById("zenoPayId").value =
+                zenoPayData.ZenoPayID || zenoPayId;
 
               // Populate form fields
               document.getElementById("fullName").value = zenoPayData.FullName;
@@ -1070,12 +1253,12 @@
                 "inline-flex";
               document.getElementById("step1NextBtn").disabled = false;
 
-              alert("ZenoPay ID verified successfully!");
+              alert("Identity verified successfully!");
             } else {
-              alert(data.message || "ZenoPay ID not found");
+              alert(data.message || "Identity not found");
             }
           } catch (error) {
-            ZenoPayLoader.hide();
+            hideLoader();
             console.error("Error:", error);
             alert("Verification failed. Please try again.");
           }
@@ -1256,6 +1439,7 @@
     </main>
 
     <%- include('partials/MobileNav') %>
+    <script src="/js/loader.js"></script>
     <script src="/js/header.js"></script>
     <%- include('partials/footer') %>
   </body>

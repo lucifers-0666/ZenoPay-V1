@@ -9,6 +9,29 @@ const {
   hashPin,
 } = require("../utils/cardSecurity");
 
+const normalizeLookupValue = (value) => String(value || "").trim();
+const normalizeEmail = (value) => normalizeLookupValue(value).toLowerCase();
+const normalizePhone = (value) => normalizeLookupValue(value).replace(/\D/g, "").slice(-10);
+
+const findUserByIdentity = async (rawValue) => {
+  const raw = normalizeLookupValue(rawValue);
+  if (!raw) return null;
+
+  const email = raw.includes("@") ? normalizeEmail(raw) : "";
+  const phone = normalizePhone(raw);
+  const or = [{ ZenoPayID: raw }, { userId: raw }];
+
+  if (email) {
+    or.push({ Email: email }, { email });
+  }
+
+  if (phone) {
+    or.push({ Mobile: phone }, { phone }, { PhoneNumber: phone });
+  }
+
+  return ZenoPayDetails.findOne({ $or: or });
+};
+
 const getOpenAccount = async (req, res) => {
   res.render("open-account", {
     currentPage: "Open Bank Account",
@@ -21,14 +44,12 @@ const postOpenAccount = async (req, res) => {
   try {
     const data = req.body;
 
-    // Verify ZenoPay ID exists
-    const zenoPayUser = await ZenoPayDetails.findOne({
-      ZenoPayID: data.ZenoPayId,
-    });
+    // Verify ZenoPay user exists by ID, email, or mobile
+    const zenoPayUser = await findUserByIdentity(data.ZenoPayId);
     if (!zenoPayUser) {
       return res.status(400).json({
         success: false,
-        message: "Invalid ZenoPay ID",
+        message: "Invalid ZenoPay ID, email, or mobile number",
       });
     }
 
@@ -79,22 +100,22 @@ const postOpenAccount = async (req, res) => {
       OpeningBalance: data.OpeningBalance,
       Balance: data.OpeningBalance,
       TransactionLimit: data.TransactionLimit,
-      ZenoPayId: data.ZenoPayId,
-      FullName: data.FullName,
-      DOB: data.DOB,
-      Gender: data.Gender,
+      ZenoPayId: zenoPayUser.ZenoPayID || zenoPayUser.userId,
+      FullName: data.FullName || zenoPayUser.FullName,
+      DOB: data.DOB || zenoPayUser.DOB,
+      Gender: data.Gender || zenoPayUser.Gender,
       Profession: data.Profession,
       AnnualIncome: data.AnnualIncome,
-      Email: data.Email,
-      Mobile: data.Mobile,
-      City: data.City,
-      State: data.State,
-      Pincode: data.Pincode,
+      Email: data.Email || zenoPayUser.Email || zenoPayUser.email,
+      Mobile: data.Mobile || zenoPayUser.Mobile || zenoPayUser.phone,
+      City: data.City || zenoPayUser.City,
+      State: data.State || zenoPayUser.State,
+      Pincode: data.Pincode || zenoPayUser.Pincode,
       DebitCardNumber: cardMasked,
       CardLast4: cardLast4,
       CardFingerprint: cardFingerprint,
       CardNumberEncrypted: cardNumberEncrypted,
-      NameOnCard: data.FullName.toUpperCase(),
+      NameOnCard: String(data.FullName || zenoPayUser.FullName || "").toUpperCase(),
       CardExpiry: cardExpiry,
       CardPINHash: cardPINHash,
       CardType: data.CardType,

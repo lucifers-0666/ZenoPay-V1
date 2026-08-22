@@ -10,6 +10,29 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const mobileRegex = /^[6-9]\d{9}$/;
 const pincodeRegex = /^\d{6}$/;
 
+const normalizeLookupValue = (value) => String(value || "").trim();
+const normalizeEmail = (value) => normalizeLookupValue(value).toLowerCase();
+const normalizePhone = (value) => normalizeLookupValue(value).replace(/\D/g, "").slice(-10);
+
+const findUserByIdentity = async (rawValue) => {
+  const raw = normalizeLookupValue(rawValue);
+  if (!raw) return null;
+
+  const email = raw.includes("@") ? normalizeEmail(raw) : "";
+  const phone = normalizePhone(raw);
+  const or = [{ ZenoPayID: raw }, { userId: raw }];
+
+  if (email) {
+    or.push({ Email: email }, { email });
+  }
+
+  if (phone) {
+    or.push({ Mobile: phone }, { phone }, { PhoneNumber: phone });
+  }
+
+  return ZenoPayDetails.findOne({ $or: or });
+};
+
 const isAtLeast18 = (dob) => {
   if (!dob) return false;
   const birthDate = new Date(dob);
@@ -334,16 +357,17 @@ const postRegisterZenoPay = async (req, res) => {
 
 const VerifyZenoPayId = async (req, res) => {
   const { zenoPayId } = req.body;
-  console.log("Verifying ZenoPay ID:", zenoPayId);
+  console.log("Verifying ZenoPay identity:", zenoPayId);
 
   try {
-    const user = await ZenoPayDetails.findOne({ ZenoPayID: zenoPayId });
+    const user = await findUserByIdentity(zenoPayId);
 
     if (user) {
       return res.status(200).json({
         success: true,
-        message: "ZenoPay ID verified successfully!",
+        message: "ZenoPay identity verified successfully!",
         details: {
+          ZenoPayID: user.ZenoPayID || user.userId,
           FullName: user.FullName,
           DOB: user.DOB,
           Gender: user.Gender,
@@ -357,7 +381,7 @@ const VerifyZenoPayId = async (req, res) => {
     } else {
       return res.status(404).json({
         success: false,
-        message: "ZenoPay ID not found in database.",
+        message: "No ZenoPay user found for the provided ID, email, or mobile number.",
       });
     }
   } catch (err) {

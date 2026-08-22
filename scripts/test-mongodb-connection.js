@@ -5,6 +5,12 @@
  * Run with: node scripts/test-mongodb-connection.js
  */
 
+const dns = require('dns');
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  // ignore
+}
 require('dotenv').config();
 const mongoose = require('mongoose');
 

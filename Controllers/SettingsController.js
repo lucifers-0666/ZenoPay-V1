@@ -1,6 +1,16 @@
 const ZenoPayUser = require("../Models/ZenoPayUser");
 const BankAccount = require("../Models/BankAccount");
 const azureStorage = require("../Services/azureStorage");
+const bcrypt = require("bcryptjs");
+
+const isBcryptHash = (val) => /^\$2[aby]\$\d{2}\$/.test(val || "");
+const verifyPassword = async (storedPass, candidatePass) => {
+  if (!storedPass || !candidatePass) return false;
+  if (isBcryptHash(storedPass)) {
+    return await bcrypt.compare(candidatePass, storedPass);
+  }
+  return storedPass === candidatePass;
+};
 
 const getDefaultCategoriesByTab = () => {
   const email = [
@@ -280,8 +290,9 @@ const changePassword = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Verify current password (plain text comparison - matches project's auth pattern)
-    if (user.Password !== currentPassword) {
+    // Verify current password
+    const isCurrentValid = await verifyPassword(user.Password, currentPassword);
+    if (!isCurrentValid) {
       return res.status(400).json({ success: false, message: "Current password is incorrect" });
     }
 
@@ -290,8 +301,8 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ success: false, message: "New password must be different from current password" });
     }
 
-    // Update to new password (plain text - matches project's auth pattern)
-    user.Password = newPassword;
+    // Update to new password (hashed with bcrypt)
+    user.Password = await bcrypt.hash(newPassword, 12);
     user.PasswordChangeDate = new Date();
     await user.save();
 
@@ -429,8 +440,9 @@ const deactivateAccount = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Verify password (plain text comparison - matches project's auth pattern)
-    if (user.Password !== password) {
+    // Verify password
+    const isPassValid = await verifyPassword(user.Password, password);
+    if (!isPassValid) {
       return res.status(400).json({ success: false, message: "Incorrect password" });
     }
 

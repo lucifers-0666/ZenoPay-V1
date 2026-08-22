@@ -163,8 +163,9 @@ button {
 .dash-newsletter h2 {
   margin: 0;
   font-size: clamp(1.8rem, 2.2vw, 2.5rem);
-  line-height: 1.12;
-  letter-spacing: -0.03em;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  word-break: break-word;
 }
 
 .dash-section-head p,
@@ -192,9 +193,17 @@ button {
 }
 
 .dash-section-kicker {
-  margin-bottom: 12px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  margin-bottom: 14px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .dash-section-kicker-dark {
@@ -250,12 +259,21 @@ button {
 
 .dash-btn-primary {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+  background: var(--btn-primary-bg, #2563EB);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+  border-radius: 12px;
 }
 
 .dash-btn-primary:hover {
-  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.24);
+  background: var(--btn-primary-hover, #1D4ED8);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+  transform: translateY(-2px);
+}
+
+.dash-btn-primary:active {
+  background: var(--btn-primary-active, #1E40AF);
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .dash-btn-secondary {
@@ -1352,6 +1370,23 @@ button {
 .dash-feature-grid .dash-feature-card,
 .dash-dark-feature {
   padding: 24px;
+}
+
+.dash-product-copy,
+.dash-showcase-copy {
+  padding: 32px 28px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.dash-inline-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .dash-feature-card {

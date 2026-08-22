@@ -6,6 +6,12 @@
  * - when referenced by `globalSetup`, it exports a harmless async noop
  */
 
+const dns = require('dns');
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  // ignore
+}
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
